@@ -1,0 +1,29 @@
+name: CI
+
+# Run the Timeline regression suites on every push and PR to the working and
+# production branches, so a broken build is caught before it reaches Pages.
+on:
+  push:
+    branches: [main, development]
+  pull_request:
+    branches: [main, development]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run regression suites against index.html
+        run: npm test
+
+      - name: Run regression suites against the reference build
+        run: npm run test:ref
