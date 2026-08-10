@@ -90,3 +90,33 @@ Rules:
 | Works for admins, "needs admin approval" for users | Tenant-wide admin consent not granted for `Sites.ReadWrite.All` | Grant admin consent for the tenant |
 | Reads work, saves fail | User lacks SharePoint edit rights | Grant contribute/edit on the site & lists |
 | App loads but sign-in never appears / 404 | Wrong URL case, or Pages not serving | Use the exact case-sensitive URL; check Pages is on for `main` |
+
+## Repository settings (governance)
+
+### Branch protection on `main`
+
+So nothing reaches the live site without passing CI (this is what would have stopped a
+"merged before the check went green" push):
+
+GitHub → repo **Settings → Branches → Add branch ruleset** (or classic **Add rule**):
+
+- **Target:** `main`.
+- **Require a pull request before merging.** Set **Required approvals: 0** for a small
+  team, so a solo contributor can still merge their own PR.
+- **Require status checks to pass before merging** → select **CI**. (The check only
+  appears in the list after it has run at least once — it has.)
+- Optional: **Require branches to be up to date before merging.**
+- **Do not allow bypassing the above settings** (classic: "Include administrators") →
+  turn **ON** to truly prevent merging a red build. It applies to everyone, including
+  admins; toggle off only for a genuine emergency.
+
+> Branch protection / rulesets are free on **public** repos. If this repo is later made
+> **private** under a free org plan, enforcing protection may require a paid plan.
+
+### Tenant-wide admin consent
+
+Verify in **Entra admin center → App registrations →** the app (client ID
+`5ba3aabe-…`) **→ API permissions**: `Sites.ReadWrite.All` should show **"Granted for
+<tenant>"** with a green check. If not, click **"Grant admin consent for <tenant>"**.
+Then do one **non-admin** sign-in test — admins can self-consent and mask the
+"needs admin approval" wall that ordinary users would hit.
