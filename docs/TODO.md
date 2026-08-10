@@ -19,16 +19,16 @@ Last reviewed: 2026-08-10.
 - [x] **Repo under the Twoseven org.** Now at `github.com/221twoseven/Project-Scheduler`
       (no longer a personal account). If it's ever renamed/moved again, re-register the
       MSAL redirect URI to match the new Pages URL. ⚠ (redirect URI) — see `docs/SETUP.md`.
-- [ ] **Protect `main`.** Require PRs and passing CI before merge; no direct pushes to
-      production. (Not yet enabled — this is why the last merge could land before CI went
-      green.)
+- [x] **Protect `main`.** Ruleset active: PR required + `test` (CI) required + empty
+      bypass list (applies to everyone, admins included). No direct pushes and no merging
+      a red build. Recipe in `docs/SETUP.md` → "Repository settings".
 - [x] **GitHub Pages deploys from `main`** and the live app works at
       https://221twoseven.github.io/Project-Scheduler/ (verified after the reorg).
 - [x] **Redirect URI registered and sign-in working** — the exact SPA redirect URI is
       live and auth completes. Remaining checks below.
-- [ ] **Confirm tenant-wide admin consent for `Sites.ReadWrite.All`** shows "Granted for
-      <tenant>" (not just self-consented by an admin), and do one **non-admin** sign-in
-      test so ordinary shop users aren't blocked. ⚠ — see `docs/SETUP.md`.
+- [x] **Tenant-wide admin consent for `Sites.ReadWrite.All`** granted, and non-admin
+      sign-in confirmed working — ordinary shop users can sign in and sync. ⚠ (auth) — see
+      `docs/SETUP.md`.
 
 ## 2. Testing & CI
 
