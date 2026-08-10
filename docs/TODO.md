@@ -16,6 +16,20 @@ Last reviewed: 2026-08-10.
       asserts proprietary rights either way).
 - [ ] **Enable 2FA** on the GitHub account(s) with access. (Open item carried over from
       the handoff.)
+- [ ] **Deal with sensitive info in a public repo.** The repo is public, and the docs +
+      git history contain internal details: employee names, the tenant/client IDs (public
+      by design, but still internal-facing), and — most sensitive — explicit notes that
+      2FA was not enabled on a personal account hosting production. Decide the policy and
+      act on it:
+      - Settle repo visibility first (public vs private — see the item above); going
+        private is the cleanest fix and moots most of the rest.
+      - If staying public: scrub the live docs of security-gap advertisements and personal
+        names (the current handoff was trimmed; do a consistency pass over all of `docs/`).
+      - Remember that **deleting a file does not remove it from git history** — anything
+        already pushed is still retrievable. If any of it must truly be unpublished, that
+        needs history rewrite (e.g. `git filter-repo`) + a force-push, coordinated so no
+        one loses work, plus rotating anything that was actually a secret (there are no
+        real secrets here — IDs are non-secret by design).
 - [x] **Repo under the Twoseven org.** Now at `github.com/221twoseven/Project-Scheduler`
       (no longer a personal account). If it's ever renamed/moved again, re-register the
       MSAL redirect URI to match the new Pages URL. ⚠ (redirect URI) — see `docs/SETUP.md`.
@@ -101,5 +115,5 @@ Last reviewed: 2026-08-10.
 ### Legend
 
 - ⚠ Needs explicit approval — touches shared SharePoint schema or Entra/auth config.
-- Items in §3–4 are distilled from `docs/Timeline-Handoff.md` ("Open items"); see that
-  file for the original developer's full context, traps, and REV34–50 history.
+- Items in §3–4 are distilled from `docs/Handoff-Notes.md` ("Open items"); see that file
+  for the full context, conventions, traps, and REV34–50 history.
