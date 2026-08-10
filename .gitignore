@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Secrets — never commit these (see CLAUDE.md). Auth uses runtime MSAL tokens only.
+.env
+.env.*
+*.key
+*.pem
+secrets.json
+appsettings*.json
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.swp
+*~
+.vscode/
+.idea/
+
+# Logs / temp
+*.log
+npm-debug.log*
+tmp/

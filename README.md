@@ -1,56 +1,67 @@
-# Timeline tests
+# Project Scheduler — Timeline (Shop Dashboard)
 
-Carry this folder into every new chat. The sandbox disk is wiped between conversations.
+A single-file Gantt and scheduling dashboard for Twoseven's shop. It shows projects,
+phases, staff, and to-dos on a timeline and calendar, and persists everything to
+SharePoint through Microsoft Graph. It runs as a static page on GitHub Pages with
+Microsoft Entra (MSAL) sign-in — there is no server of our own.
 
-## Run
+- **Live app:** `index.html`, served via GitHub Pages from the `main` branch.
+- **Current build:** REV50 (~5,900 lines in one HTML file).
 
-    npm install jsdom
-    for t in test46 test47 test48 test49 test-label; do node $t.js ../Timeline_49.html; done
+## Who this is for
 
-## What's here
+Not everyone who works on this app is a programmer — and that's expected. It's edited by
+systems designers, shop staff, and managers as well as developers. You don't need to
+install anything or use a terminal to read, review, or make small edits: you can do all
+of it through **GitHub in your web browser**. `CONTRIBUTING.md` walks through the
+browser-based workflow step by step. When something in the docs assumes coding knowledge,
+treat it as optional background, not a prerequisite.
 
-- `harness.js` — boots a Timeline HTML file in jsdom with MSAL and `fetch` stubbed.
-  `boot(file, {data:{projects,tasks,staff,todos}, todosList:false})`.
-  Set `todosList:true` to simulate ShopTimeline_Tasks2 existing.
-  Records every Graph request on `window.__spCalls`, so persistence can be asserted on
-  the actual outgoing body rather than on internal state.
-- `test49.js` — 78 assertions. The dashboard: inspector replacing the tabs, the meta
-  strip, selection driving the pane, right-click on bars / summaries / gutters, undo
-  toasts, the keyboard, Escape layering, the agenda.
-- `test48.js` — 57 assertions. The canvas create menu: hit-testing, both triggers,
-  each create action, dept-less events, drag-vs-click, calendar-mode suppression.
-- `test47.js` — 38 assertions. Subtask hierarchy: row plan, expand/collapse, summary
-  span, linked parent drag, the Link toggle.
-- `test46.js` — 38 assertions. The REV46 bug fixes plus the invariants the original
-  suites guarded: geometry constants vs stylesheet, status migration, scheduler purity,
-  PM in `NPV_ALL` not `NPV_TASKS`.
-- `test-label.js` — 14 assertions. Named subtasks round-tripping through Graph.
+## Repository layout
 
-- `test50.js` — 51 assertions. One per issue reported against REV49, each verified on the
-  page it was reported on (the new-project draft): meta entities, the departments panel,
-  the hotkey focus rule, event default dates, yellow diamonds, marker drag and
-  click-to-rename, draft subtasks, draft menus, menu overflow, and the end-to-end create.
+| Path | What it is |
+|---|---|
+| `index.html` | **The company application — the primary implementation file.** |
+| `Timeline_50.html` | **Immutable reference** copy of the colleague's working REV50 build. Never modified. |
+| `msal-browser.min.js` | MSAL auth library, vendored locally (not a CDN). Loaded by both HTML files as a sibling — must stay at repo root. |
+| `tests/` | jsdom regression suites (276 assertions) and the `harness.js` that boots a build with MSAL and `fetch` stubbed. See `tests/README.md`. |
+| `docs/` | Handoff notes and the architecture reference. |
+| `CLAUDE.md` | Working rules and guardrails for anyone (human or AI) making changes. **Read this first.** |
+| `CONTRIBUTING.md` | How to run, test, branch, and ship. |
+| `LICENSE` | Proprietary — Twoseven, all rights reserved. |
 
-276 assertions total.
+## Quick start
 
-## The REV49 lesson
+```bash
+# 1. Install the one dev dependency (jsdom, for the tests)
+npm install
 
-REV49 shipped with 225 passing tests and was broken on arrival, because every suite
-exercised the SAVED-project page and dispatched keys from the document. The new-project
-draft — the first page anyone sees — was untested, and jsdom's document-dispatched keys
-have no target, which hid the focus bug that killed every hotkey in a real browser.
-Rules going forward: every feature gets asserted on BOTH the draft and the saved page,
-and keyboard tests dispatch from the focused element (`keyOn` in test50.js), not the
-document.
+# 2. Run the full regression suite against the company app
+npm test
 
-## Expected
+# 3. Run it against the immutable reference build instead
+npm run test:ref
+```
 
-    node test46.js ../Timeline_45.html   ->  10 failures (the originally reported bugs)
-    everything against ../Timeline_49.html -> 0 failures
+To view the app locally, open `index.html` in a browser, or serve the folder
+(`npx serve .`) and browse to it. Sign-in requires the Twoseven Entra tenant.
 
-## When a suite fails after an intentional change
+## How it fits together (one paragraph)
 
-These assert behaviour, not implementation. If a surface is retired on purpose — as the
-bar popover and the four bottom tabs were in REV49 — update the assertion to the new
-surface rather than keeping the old one alive. Do not delete the assertion; the
-behaviour it guards usually still exists somewhere else.
+`index.html` is a vanilla-JS single-page app. On load it signs the user in with MSAL,
+resolves the SharePoint site, and reads four Lists via Microsoft Graph into in-memory
+state. A 45-second poll picks up other people's edits; local edits are written back as
+optimistic, diffed Graph `POST`/`PATCH`/`DELETE` calls with a sync-status pill, one
+retry, and visible Undo. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full
+picture and [docs/Timeline-Handoff.md](docs/Timeline-Handoff.md) for the original
+developer's detailed handoff.
+
+## Ground rules (see `CLAUDE.md` for the full set)
+
+- `Timeline_50.html` is a read-only reference — never edit it.
+- Work on the `development` branch; `main` is production / GitHub Pages.
+- The SharePoint Lists and Entra app are **shared** with a separately maintained
+  colleague app. Do not change the List schema or the auth configuration without
+  explicit approval — it can break the other application.
+- Never commit secrets, tokens, or credentials. This is a public repo.
+- Run `npm test` after any change to `index.html`.
