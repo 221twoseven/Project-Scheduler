@@ -25,7 +25,7 @@ treat it as optional background, not a prerequisite.
 | `Timeline_50.html` | **Immutable reference** copy of the colleague's working REV50 build. Never modified. |
 | `msal-browser.min.js` | MSAL auth library, vendored locally (not a CDN). Loaded by both HTML files as a sibling — must stay at repo root. |
 | `tests/` | jsdom regression suites (276 assertions) and the `harness.js` that boots a build with MSAL and `fetch` stubbed. See `tests/README.md`. |
-| `docs/` | Handoff notes and the architecture reference. |
+| `docs/` | Architecture reference, hosting/auth setup (`SETUP.md`), handoff notes, and the backlog (`TODO.md`). |
 | `CLAUDE.md` | Working rules and guardrails for anyone (human or AI) making changes. **Read this first.** |
 | `CONTRIBUTING.md` | How to run, test, branch, and ship. |
 | `LICENSE` | Proprietary — Twoseven, all rights reserved. |
@@ -53,8 +53,9 @@ resolves the SharePoint site, and reads four Lists via Microsoft Graph into in-m
 state. A 45-second poll picks up other people's edits; local edits are written back as
 optimistic, diffed Graph `POST`/`PATCH`/`DELETE` calls with a sync-status pill, one
 retry, and visible Undo. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full
-picture and [docs/Timeline-Handoff.md](docs/Timeline-Handoff.md) for the original
-developer's detailed handoff.
+picture, [docs/SETUP.md](docs/SETUP.md) for the hosting and Entra/auth configuration, and
+[docs/Timeline-Handoff.md](docs/Timeline-Handoff.md) for the original developer's detailed
+handoff.
 
 ## Ground rules (see `CLAUDE.md` for the full set)
 
