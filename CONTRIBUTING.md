@@ -72,7 +72,7 @@ Request.
 ## Making a change
 
 1. **Keep it small and reviewable.** Don't refactor unrelated working code unless asked.
-2. **Edit `index.html`** — the company app. Never touch `Timeline_50.html` (immutable
+2. **Edit `index.html`** — the company app. Never touch `reference/Timeline_50.html` (immutable
    reference) or `msal-browser.min.js`.
 3. **`APP_REV`** is bumped in one place and shows everywhere the version appears — bump it
    when you ship a build.

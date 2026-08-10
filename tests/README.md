@@ -9,11 +9,11 @@ behaviour on the actual outgoing Microsoft Graph requests rather than on interna
 ```bash
 npm install                 # installs jsdom (from the repo root)
 npm test                    # runs every suite against ../index.html
-npm run test:ref            # runs every suite against ../Timeline_50.html
+npm run test:ref            # runs every suite against ../reference/Timeline_50.html
 
 # a single suite against any build (path relative to repo root):
 node tests/run.js index.html
-node tests/test50.js Timeline_50.html
+node tests/test50.js reference/Timeline_50.html
 ```
 
 `tests/run.js` runs all suites and exits non-zero if any fail. Each `testNN.js` is also

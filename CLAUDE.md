@@ -10,12 +10,14 @@ Project rules and context for working in this repository. Read this before makin
 
 ## Core files
 
-- **`Timeline_50.html` — immutable reference. NEVER modify it.** This is the untouched
-  copy of the colleague's working REV50 app, kept as the source of truth to compare
-  against. Do not edit, rename, move, or delete it.
+- **`reference/Timeline_50.html` — immutable reference. NEVER modify it.** The untouched
+  copy of the colleague's working REV50 app, kept in `reference/` as the frozen baseline
+  to diff against and as the control build for `npm run test:ref`. Do not edit its
+  contents. (It lives in `reference/`, not the repo root, to keep it clearly separate
+  from the live app.)
 - **`index.html` — the company-developed application. This is the primary
   implementation file.** All company feature work happens here. It began as a
-  byte-for-byte copy of `Timeline_50.html`; divergence is expected over time.
+  byte-for-byte copy of the REV50 reference; divergence is expected over time.
 
 ## Branches
 

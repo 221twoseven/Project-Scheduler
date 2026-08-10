@@ -22,8 +22,8 @@ treat it as optional background, not a prerequisite.
 | Path | What it is |
 |---|---|
 | `index.html` | **The company application — the primary implementation file.** |
-| `Timeline_50.html` | **Immutable reference** copy of the colleague's working REV50 build. Never modified. |
-| `msal-browser.min.js` | MSAL auth library, vendored locally (not a CDN). Loaded by both HTML files as a sibling — must stay at repo root. |
+| `msal-browser.min.js` | MSAL auth library, vendored locally (not a CDN). Loaded by `index.html` as a sibling — must stay at repo root. |
+| `reference/Timeline_50.html` | **Immutable reference** — frozen copy of the colleague's working REV50 build. Never modified; used as a diff baseline and the `npm run test:ref` control. |
 | `tests/` | jsdom regression suites (276 assertions) and the `harness.js` that boots a build with MSAL and `fetch` stubbed. See `tests/README.md`. |
 | `docs/` | Architecture reference, hosting/auth setup (`SETUP.md`), handoff notes, and the backlog (`TODO.md`). |
 | `CLAUDE.md` | Working rules and guardrails for anyone (human or AI) making changes. **Read this first.** |
@@ -59,7 +59,7 @@ handoff.
 
 ## Ground rules (see `CLAUDE.md` for the full set)
 
-- `Timeline_50.html` is a read-only reference — never edit it.
+- `reference/Timeline_50.html` is a read-only reference — never edit it.
 - Work on the `development` branch; `main` is production / GitHub Pages.
 - The SharePoint Lists and Entra app are **shared** with a separately maintained
   colleague app. Do not change the List schema or the auth configuration without
