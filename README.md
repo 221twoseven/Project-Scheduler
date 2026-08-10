@@ -54,8 +54,8 @@ state. A 45-second poll picks up other people's edits; local edits are written b
 optimistic, diffed Graph `POST`/`PATCH`/`DELETE` calls with a sync-status pill, one
 retry, and visible Undo. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full
 picture, [docs/SETUP.md](docs/SETUP.md) for the hosting and Entra/auth configuration, and
-[docs/Timeline-Handoff.md](docs/Timeline-Handoff.md) for the original developer's detailed
-handoff.
+[docs/Handoff-Notes.md](docs/Handoff-Notes.md) for the consolidated developer/maintainer
+handoff (setup rationale, conventions, traps, version history).
 
 ## Ground rules (see `CLAUDE.md` for the full set)
 
