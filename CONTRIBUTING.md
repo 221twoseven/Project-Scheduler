@@ -2,13 +2,54 @@
 
 Read `CLAUDE.md` first — it holds the hard rules. This document is the how-to.
 
-## Prerequisites
+**You don't have to be a programmer to contribute.** This app is worked on by systems
+designers, shop staff, and managers as well as developers. If you're not a coder, the
+browser workflow below is all you need — no installs, no terminal. The developer setup
+(running tests locally) is optional and only matters if you're changing the app's logic.
 
-- Node.js 18+ (for the test suites).
-- Access to the Twoseven Entra tenant and the `TWOSEVENINC` SharePoint site (to run the
-  app against real data).
+## Two ways to work
 
-## Getting set up
+- **In the browser (recommended if you're not a developer).** Everything — reading,
+  editing, reviewing, and shipping — can be done on github.com. See the next section.
+- **On your computer (for developers).** Clone the repo and run the tests locally before
+  shipping. See "Developer setup" further down.
+
+## Editing in the browser (no installation)
+
+This is the simplest path and works entirely on github.com.
+
+1. Go to the repo: **https://github.com/221twoseven/Project-Scheduler**
+2. **Switch to the `development` branch** using the branch dropdown (top-left, usually
+   says `main`). Never edit `main` directly — it's the live production site.
+3. Click the file you want to change (for the app itself, that's **`index.html`**).
+4. Click the **pencil icon** (✏️ "Edit this file") in the top-right of the file view.
+5. Make your change in the editor.
+6. Scroll down to **Commit changes**. Write a short summary of what you did, make sure
+   **"Commit directly to the `development` branch"** is selected, and click
+   **Commit changes**.
+7. When the change is ready to go live, open a **Pull Request** from `development` into
+   `main` (GitHub shows a "Compare & pull request" button, or use the Pull requests tab).
+   This is the review step; once merged, GitHub Pages publishes it automatically.
+
+> Tip: for anything bigger than a tiny edit, it's safer to commit to a *new* branch off
+> `development` (GitHub offers this on the commit screen) and open a Pull Request, so the
+> change can be looked at before it lands.
+
+If you prefer **GitHub Desktop**, the equivalent loop is: make sure you're on
+`development` → edit files locally → review the changeset → commit with a clear summary →
+**Push origin** → open a Pull Request into `main` when ready.
+
+## Branch model
+
+- **`main`** — production. GitHub Pages deploys it live automatically. Do not edit or
+  commit here directly.
+- **`development`** — the working branch. Do all work here.
+- Promote `development → main` through a **Pull Request** when a change is tested and
+  ready. The Pull Request is the review-and-ship step.
+
+## Developer setup (optional — for running tests locally)
+
+Only needed if you're changing the app's behaviour and want to run the automated tests.
 
 ```bash
 git clone https://github.com/221twoseven/Project-Scheduler.git
@@ -19,20 +60,12 @@ npm test           # 276 assertions against index.html — should be all green
 ```
 
 To view the app: open `index.html` in a browser, or `npx serve .` and browse to it.
-Sign-in uses your Twoseven Microsoft account.
+Sign-in uses your Twoseven Microsoft account. (Requires access to the Twoseven Entra
+tenant and the `TWOSEVENINC` SharePoint site to load real data.)
 
-## Branch model
-
-- **`main`** — production. GitHub Pages deploys it live on every push. Do not commit here
-  directly.
-- **`development`** — default working branch. Do all work here.
-- Promote `development → main` deliberately when a change is tested and ready — via a Pull
-  Request (preferred for anything non-trivial, so the diff gets a review) or a merge in
-  GitHub Desktop for small changes.
-
-Typical loop with GitHub Desktop: edit locally on `development` → review the changeset →
-commit with a clear summary → **Push origin**. When ready to ship, open a PR from
-`development` to `main` (or merge).
+Even if you edit in the browser, the automated tests still run for you: CI checks every
+change on GitHub (see the CI section below), so a broken edit gets flagged on the Pull
+Request.
 
 ## Making a change
 

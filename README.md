@@ -8,6 +8,15 @@ Microsoft Entra (MSAL) sign-in — there is no server of our own.
 - **Live app:** `index.html`, served via GitHub Pages from the `main` branch.
 - **Current build:** REV50 (~5,900 lines in one HTML file).
 
+## Who this is for
+
+Not everyone who works on this app is a programmer — and that's expected. It's edited by
+systems designers, shop staff, and managers as well as developers. You don't need to
+install anything or use a terminal to read, review, or make small edits: you can do all
+of it through **GitHub in your web browser**. `CONTRIBUTING.md` walks through the
+browser-based workflow step by step. When something in the docs assumes coding knowledge,
+treat it as optional background, not a prerequisite.
+
 ## Repository layout
 
 | Path | What it is |

@@ -2,6 +2,12 @@
 
 Project rules and context for working in this repository. Read this before making any change.
 
+> **Note on who edits this app:** contributors are not all programmers — systems
+> designers, managers, and shop staff work on it too. Many changes are made through
+> GitHub in a web browser, with no local setup (see `CONTRIBUTING.md`). Keep that in mind:
+> the rules below still apply to everyone, but the docs should stay approachable and the
+> browser workflow is the default path for non-developers.
+
 ## Core files
 
 - **`Timeline_50.html` — immutable reference. NEVER modify it.** This is the untouched

@@ -1,5 +1,11 @@
 # Architecture
 
+> **Who this is for:** this is a technical reference for developers. If you're a systems
+> designer, manager, or shop staffer who just wants to read, review, or make edits, you
+> don't need this document — start with the root `README.md` and `CONTRIBUTING.md`, which
+> cover the browser-based workflow with no coding required. Read on only if you want to
+> understand how the app works under the hood.
+
 Timeline is a **single-file, client-only single-page app**. `index.html` contains all
 HTML, CSS, and vanilla JavaScript (~5,900 lines) — no framework, no build step. The only
 runtime dependency is `msal-browser.min.js`, vendored beside it. There is no server we
