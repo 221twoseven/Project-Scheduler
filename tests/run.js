@@ -2,7 +2,7 @@
 /* Run every Timeline regression suite against one HTML build and aggregate the result.
  *
  *   node tests/run.js                # runs against ../index.html (the company app)
- *   node tests/run.js Timeline_50.html   # or any other build, path relative to repo root
+ *   node tests/run.js reference/Timeline_50.html   # or any other build, path relative to repo root
  *
  * Each suite is its own process that exits non-zero on failure (see the individual
  * testNN.js files). This wrapper forwards the chosen target to all of them and exits

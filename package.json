@@ -6,7 +6,7 @@
   "license": "SEE LICENSE IN LICENSE",
   "scripts": {
     "test": "node tests/run.js index.html",
-    "test:ref": "node tests/run.js Timeline_50.html"
+    "test:ref": "node tests/run.js reference/Timeline_50.html"
   },
   "devDependencies": {
     "jsdom": "^24.0.0"

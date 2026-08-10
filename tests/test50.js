@@ -1,8 +1,8 @@
 /* One test per reported issue, on the page where it was reported.
-   Run: node test50.js Timeline_50.html */
+   Run: node tests/run.js  (or: node tests/test50.js reference/Timeline_50.html) */
 const {boot}=require('./harness');
 const fs=require('fs');
-const FILE=process.argv[2]||'Timeline_50.html';
+const FILE=process.argv[2]||'reference/Timeline_50.html';
 const src=fs.readFileSync(FILE,'utf8');
 
 let pass=0,fail=0;
