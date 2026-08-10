@@ -16,16 +16,19 @@ Last reviewed: 2026-08-10.
       asserts proprietary rights either way).
 - [ ] **Enable 2FA** on the GitHub account(s) with access. (Open item carried over from
       the handoff.)
-- [ ] **Transfer the repo to a Twoseven org** rather than a personal account. Confirm the
-      GitHub Pages URL and MSAL `redirectUri` allowlist after any move. ⚠ (redirect URI)
+- [x] **Repo under the Twoseven org.** Now at `github.com/221twoseven/Project-Scheduler`
+      (no longer a personal account). If it's ever renamed/moved again, re-register the
+      MSAL redirect URI to match the new Pages URL. ⚠ (redirect URI) — see `docs/SETUP.md`.
 - [ ] **Protect `main`.** Require PRs and passing CI before merge; no direct pushes to
-      production.
-- [ ] **Verify GitHub Pages still deploys from `main`** after the reorg (app files stayed
-      at root, so it should — confirm the live REV in a private window at the raw Pages
-      URL).
-- [ ] **Lock down the Entra app registration:** confirm redirect URIs are restricted to
-      the exact Pages origin, single-tenant is enforced, and admin consent for
-      `Sites.ReadWrite.All` is intentional. ⚠
+      production. (Not yet enabled — this is why the last merge could land before CI went
+      green.)
+- [x] **GitHub Pages deploys from `main`** and the live app works at
+      https://221twoseven.github.io/Project-Scheduler/ (verified after the reorg).
+- [x] **Redirect URI registered and sign-in working** — the exact SPA redirect URI is
+      live and auth completes. Remaining checks below.
+- [ ] **Confirm tenant-wide admin consent for `Sites.ReadWrite.All`** shows "Granted for
+      <tenant>" (not just self-consented by an admin), and do one **non-admin** sign-in
+      test so ordinary shop users aren't blocked. ⚠ — see `docs/SETUP.md`.
 
 ## 2. Testing & CI
 

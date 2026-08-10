@@ -61,7 +61,9 @@ npm test           # 276 assertions against index.html — should be all green
 
 To view the app: open `index.html` in a browser, or `npx serve .` and browse to it.
 Sign-in uses your Twoseven Microsoft account. (Requires access to the Twoseven Entra
-tenant and the `TWOSEVENINC` SharePoint site to load real data.)
+tenant and the `TWOSEVENINC` SharePoint site to load real data.) The hosting and
+Entra/auth configuration — live URL, redirect URI, scopes, admin consent — is documented
+in [docs/SETUP.md](docs/SETUP.md).
 
 Even if you edit in the browser, the automated tests still run for you: CI checks every
 change on GitHub (see the CI section below), so a broken edit gets flagged on the Pull
