@@ -1065,7 +1065,7 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_REV=51; // bump this ONE number on every release; used everywhere the rev shows up
+const APP_REV=52; // bump this ONE number on every release; used everywhere the rev shows up
 
 /* ===================== CONSTANTS ===================== */
 const SET_KEY ='shopTimelineSettings_v1';
@@ -1341,7 +1341,28 @@ function scheduleNewDepts(p,newDeptIds,est,otherLabels,existingTasks){
 
 /* ===================== STATUS ===================== */
 const FAB_GRPS=['dfab','shop','metal','unit7','finish','install'];
+/* Render-cost caches. ST is replaced wholesale on every state write (saveState/undo/
+   spSync/poll/load) — never mutated in place — so its object identity is the only thing
+   that changes when data changes. Key every cache on it: a new ST is the sole invalidator. */
+let _cST=null,_projById=new Map(),_taskById=new Map(),_statusMemo=new Map(),_visCache=null,_visKey='';
+function _ensureCache(){
+  if(_cST===ST)return;
+  _cST=ST;
+  _projById=new Map(ST.projects.map(p=>[p.id,p]));
+  _taskById=new Map(ST.tasks.map(t=>[t.id,t]));
+  _statusMemo=new Map();_visCache=null;
+}
+function projById(id){_ensureCache();return _projById.get(id)||null;}
+function taskById(id){_ensureCache();return _taskById.get(id)||null;}
+
 function projectStatus(p){
+  _ensureCache();
+  const m=_statusMemo.get(p.id);if(m!==undefined)return m;
+  const v=_projStatus(p);_statusMemo.set(p.id,v);return v;
+}
+/* ponytail: status memo also depends on today(); across a midnight rollover with no data
+   change the 'complete' flip lags until the next ST write. Cosmetic, self-heals on any edit. */
+function _projStatus(p){
   if(p.status&&p.status!=='auto')return STATUS_MIGRATE[p.status]||p.status;
   const ts=ST.tasks.filter(t=>t.projectId===p.id);
   const t=today();
@@ -1650,7 +1671,7 @@ function projMatch(p){
 }
 function taskMatch(t){
   if(!FILTER)return true;
-  const p=ST.projects.find(x=>x.id===t.projectId);
+  const p=projById(t.projectId);
   if(p&&projMatch(p))return true;
   const dn=deptById(t.department)?.name||'';
   return (assigneeText(t)+' '+dn).toLowerCase().includes(FILTER);
@@ -1660,7 +1681,14 @@ let SPOT=new Set(); /* spotlighted project ids — everything else dims */
 const ALL_STATUSES=['forecast','estimating','in-design','in-fabrication','on-hold','complete'];
 function defaultShowStatus(){return new Set(ALL_STATUSES);}
 let SHOW_STATUS=defaultShowStatus();
-function visTasks(){return ST.tasks.filter(t=>{const p=ST.projects.find(x=>x.id===t.projectId);return !p||SHOW_STATUS.has(projectStatus(p));});}
+function visTasks(){
+  _ensureCache();
+  const key=[...SHOW_STATUS].join(',');
+  if(_visCache&&_visKey===key)return _visCache;
+  _visKey=key;
+  _visCache=ST.tasks.filter(t=>{const p=_projById.get(t.projectId);return !p||SHOW_STATUS.has(projectStatus(p));});
+  return _visCache;
+}
 function applyFilter(){
   const spot=SPOT.size>0;
   const on=!!FILTER||spot;
@@ -1668,14 +1696,14 @@ function applyFilter(){
   const taskOK=t=>(!FILTER||taskMatch(t))&&(!spot||SPOT.has(t.projectId));
   document.querySelectorAll('#gantt-canvas .job-bar').forEach(b=>{
     if(b.classList.contains('is-ghost')){
-      if(spot&&b.dataset.tid){const t=ST.tasks.find(x=>x.id===b.dataset.tid);b.classList.toggle('dim',t?!SPOT.has(t.projectId):false);}
+      if(spot&&b.dataset.tid){const t=taskById(b.dataset.tid);b.classList.toggle('dim',t?!SPOT.has(t.projectId):false);}
       else b.classList.remove('dim');
       return;
     }
     let hit=true;
     if(on){
-      if(b.dataset.tid){const t=ST.tasks.find(x=>x.id===b.dataset.tid);hit=t?taskOK(t):true;}
-      else if(b.dataset.pid){const p=ST.projects.find(x=>x.id===b.dataset.pid);hit=p?projOK(p):true;}
+      if(b.dataset.tid){const t=taskById(b.dataset.tid);hit=t?taskOK(t):true;}
+      else if(b.dataset.pid){const p=projById(b.dataset.pid);hit=p?projOK(p):true;}
     }
     b.classList.toggle('dim',on&&!hit);
   });
@@ -1683,8 +1711,8 @@ function applyFilter(){
     let hit=true;
     if(on){
       const k=r.dataset.key||'';
-      if(k[0]==='P'){const p=ST.projects.find(x=>x.id===k.slice(1));hit=p?projOK(p):true;}
-      else if(k[0]==='T'){const t=ST.tasks.find(x=>x.id===k.slice(1));hit=t?taskOK(t):true;}
+      if(k[0]==='P'){const p=projById(k.slice(1));hit=p?projOK(p):true;}
+      else if(k[0]==='T'){const t=taskById(k.slice(1));hit=t?taskOK(t):true;}
     }
     r.classList.toggle('dim',on&&!hit);
   });
@@ -1754,7 +1782,7 @@ function tasksOf(pid){
   /* Order by the project's own department order when it has one, so a schedule the PM
      rearranged on the create page keeps that arrangement. Falls back to the standard
      DEPTS order for anything not listed. */
-  const p=ST.projects.find(x=>x.id===pid);
+  const p=projById(pid);
   const ord=(p&&Array.isArray(p.activeDepartments)&&p.activeDepartments.length)?p.activeDepartments:null;
   const ix=d=>{
     if(ord){const i=ord.indexOf(d);if(i>=0)return i;}
@@ -1952,7 +1980,7 @@ function renderSidebar(){
     row.style.height=r.height+'px';row.style.minHeight=r.height+'px';
     row.dataset.key=r.key;
     if(r.kind==='projHead'){
-      const p=ST.projects.find(x=>x.id===r.projectId);
+      const p=projById(r.projectId);
       row.className='sb-row proj-head';
       const gr=document.createElement('span');gr.className='sb-grip';gr.textContent='⠿';gr.title='Drag to reorder';gr.draggable=true;
       gr.addEventListener('dragstart',ev=>{ev.dataTransfer.setData('text/plain',p.id);ev.dataTransfer.effectAllowed='move';});
@@ -1980,7 +2008,7 @@ function renderSidebar(){
       row.appendChild(ed);
       row.addEventListener('click',()=>{if(EXPANDED.has(p.id))EXPANDED.delete(p.id);else EXPANDED.add(p.id);render();});
     }else if(r.kind==='projTask'){
-      const t=ST.tasks.find(x=>x.id===r.taskId);
+      const t=taskById(r.taskId);
       row.className='sb-row task-row';
       const dd=deptById(t.department);
       const nm=document.createElement('span');nm.className='sb-name';
@@ -2045,7 +2073,7 @@ function renderGantt(){
         if(SUPPRESS_CLICK||ev.target!==rd)return;
         const cx=ev.clientX-canvas.getBoundingClientRect().left;
         if(r.kind==='projTask'){
-          const t=ST.tasks.find(x=>x.id===r.taskId);
+          const t=taskById(r.taskId);
           openTaskModal(null,{projectId:r.projectId,department:t.department,assignee:t.assignee,start:x2d(cx)});
         }else{
           openTaskModal(null,{department:r.dept,assignee:r.assignee,start:x2d(cx)});
@@ -2084,7 +2112,7 @@ function renderGantt(){
   if(LENS==='project'){
     for(const r of ROWS){
       if(r.kind!=='projHead')continue;
-      const p=ST.projects.find(x=>x.id===r.projectId);
+      const p=projById(r.projectId);
       if(!p||!p.deadline)continue;
       const dl=parseDate(p.deadline);
       if(dl<TL_S||dl>TL_E)continue;
@@ -2113,14 +2141,14 @@ function renderGantt(){
   const barFrag=document.createDocumentFragment();
   for(const r of ROWS){
     if(r.kind==='projHead'){
-      const p=ST.projects.find(x=>x.id===r.projectId);
+      const p=projById(r.projectId);
       const ts=ST.tasks.filter(t=>t.projectId===p.id);
       let s,e;
       if(ts.length){s=new Date(Math.min(...ts.map(t=>parseDate(t.startDate).getTime())));e=new Date(Math.max(...ts.map(t=>parseDate(t.endDate).getTime())));}
       else{e=parseDate(p.deadline);s=addDays(e,-14);}
       barFrag.appendChild(makeSummaryBar(p,s,e,r));
     }else if(r.kind==='projTask'){
-      const t=ST.tasks.find(x=>x.id===r.taskId);
+      const t=taskById(r.taskId);
       if(t)barFrag.appendChild(makeTaskBar(t,r,0,'dept'));
     }else if(r.kind==='deptLane'){
       for(const t of r.tasks)barFrag.appendChild(makeTaskBar(t,r,r.laneMap.get(t.id)||0,'proj'));
@@ -2307,7 +2335,7 @@ function makeTaskBar(t,row,lane,labelMode){
   const js=parseDate(t.startDate),je=parseDate(t.endDate);
   const x=d2x(js),w=Math.max(DW_,(diffDays(js,je)+1)*DW_-Math.round(DW_*.15));
   const y=row.top+BAR_PAD+lane*(BAR_H+LANE_G);
-  const p=ST.projects.find(x2=>x2.id===t.projectId);
+  const p=projById(t.projectId);
   const st=p?projectStatus(p):'estimating';
   const bar=document.createElement('div');
   bar.className='job-bar';bar.dataset.st=st;bar.dataset.tid=t.id;
@@ -2369,7 +2397,7 @@ function makeTaskBar(t,row,lane,labelMode){
 function startDrag(ev,taskId,bar,row){
   const rect=bar.getBoundingClientRect(),relX=ev.clientX-rect.left,w=rect.width;
   let type=relX<=9?'resize-l':relX>=w-9?'resize-r':'move';
-  const t=ST.tasks.find(x=>x.id===taskId);
+  const t=taskById(taskId);
   const pinned=!!(t&&t.pinned);
   if((DATE_LOCK||pinned)&&type!=='move')return;
   DRAG={type,taskId,pinned,bar,row,ghost:null,holdReady:false,
@@ -2429,7 +2457,7 @@ document.addEventListener('mouseup',ev=>{
   if(!dragging)return;
   SUPPRESS_CLICK=true;requestAnimationFrame(()=>{SUPPRESS_CLICK=false;});
   const DW_=dw(),dd=Math.round(dx/DW_);
-  const t=ST.tasks.find(x=>x.id===taskId);
+  const t=taskById(taskId);
   const updated={...t};
   if(type==='move'){
     if(!DATE_LOCK&&!pinned){
@@ -2453,7 +2481,7 @@ document.addEventListener('mouseup',ev=>{
 /* ===================== TOOLTIP ===================== */
 function showTooltipTask(t,ev,hiNode){
   const el=document.getElementById('tooltip');
-  const p=ST.projects.find(x=>x.id===t.projectId);
+  const p=projById(t.projectId);
   const days=diffDays(parseDate(t.startDate),parseDate(t.endDate))+1;
   const dd=deptById(t.department);
   const deptName=(dd&&dd.freeText)?('Other — '+(t.assignee||'')):(dd?.name||t.department);
@@ -2591,7 +2619,7 @@ function tmAssigneeUI(deptId,current){
     lbl.textContent='Install Crew — pick from full staff';
     let checked=Array.isArray(current)?current:((current&&current!=='Installation')?[current]:[]);
     if(!checked.length){
-      const p=ST.projects.find(x=>x.id===document.getElementById('tm-project').value);
+      const p=projById(document.getElementById('tm-project').value);
       if(p)checked=[p.projectManager,p.leadFab].filter(Boolean);
     }
     buildCrewList(checked);
@@ -2643,7 +2671,7 @@ document.getElementById('tm-tnadd').addEventListener('click',()=>{
 
 function openTaskModal(taskId,prefill){
   EDIT_TASK_ID=taskId||null;
-  const t=taskId?ST.tasks.find(x=>x.id===taskId):null;
+  const t=taskId?taskById(taskId):null;
   document.getElementById('tm-head').textContent=t?'Edit Task':'New Task';
   const psel=document.getElementById('tm-project');
   psel.innerHTML='';
@@ -2922,7 +2950,7 @@ function ppProject(){
     if(!PP_FORM)ppFormInit();
     return{id:null,...PP_FORM};
   }
-  return ST.projects.find(p=>p.id===ROUTE.id)||null;
+  return projById(ROUTE.id);
 }
 
 const PP_ROLES=[['pp-r-pm','Project manager','projectManagers','projectManager'],
@@ -3141,7 +3169,7 @@ function renderPhaseRows(p){
       inp.addEventListener('change',()=>commitPhase(id,inp.dataset.f,inp.value));
     });
     row.querySelector('.ph-del').addEventListener('click',()=>{
-      const t=ST.tasks.find(x=>x.id===id);
+      const t=taskById(id);
       if(!t)return;
       const d=deptById(t.department);
       if(!confirm('Delete the '+((d?d.name:t.department))+' phase?'))return;
@@ -3214,7 +3242,7 @@ function ppSelect(id,quiet){
     if(nm&&!nm.value)nm.focus();
   }
 }
-function ppSelected(){return PP_SEL?ST.tasks.find(t=>t.id===PP_SEL)||null:null;}
+function ppSelected(){return PP_SEL?taskById(PP_SEL):null;}
 
 /* REV50: the inspector builds its own department list. buildDeptChecklist stays as-is
    for the staff modal, whose wide grid it was designed for. Same data attributes
@@ -3501,7 +3529,7 @@ function ppMovePhase(id,dept){
   toastU('Moved to '+((deptById(dept)||{}).name||dept));
 }
 function ppDeletePhase(id){
-  const t=ST.tasks.find(x=>x.id===id);
+  const t=taskById(id);
   if(!t)return;
   const nm=phaseLabel(t);
   PP_QUIET=true;
@@ -5211,7 +5239,7 @@ function savePageProject(){
     return;
   }
 
-  const cur=ST.projects.find(x=>x.id===ROUTE.id);
+  const cur=projById(ROUTE.id);
   if(!cur){goTimeline();return;}
   const p={...cur,...base};
   const regenEl=document.getElementById('pp-regen');
