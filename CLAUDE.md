@@ -25,6 +25,10 @@ Project rules and context for working in this repository. Read this before makin
   protected — do not develop directly on it.
 - **Development work happens on the `development` branch** unless explicitly instructed
   otherwise. Open changes there and promote to `main` deliberately.
+- **Pushes auto-deploy to GitHub Pages** via `.github/workflows/deploy-pages.yml`:
+  `main` → `/`, `development` → `/preview/`, `sandbox` → `/sandbox/` (a collaborator's
+  copy). The workflow rebuilds the whole site from all three branches each run, so it must
+  stay identical on all three. See `docs/Onboarding-Fork.md`.
 
 ## Shared infrastructure — SharePoint & Entra
 

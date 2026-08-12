@@ -1,14 +1,16 @@
 name: Deploy Pages
 
-# One Pages site, two versions:
+# One Pages site, three versions:
 #   /          <- main         (production)
 #   /preview/  <- development  (shareable preview for testing)
-# Every deploy rebuilds the WHOLE site from both branches, because the Pages
-# artifact fully replaces the live site each run. Triggered by pushes to either
-# branch, so this workflow must exist on both.
+#   /sandbox/  <- sandbox      (the collaborator's own copy, can't reach main)
+# Every deploy rebuilds the WHOLE site from all three branches, because the Pages
+# artifact fully replaces the live site each run. Triggered by pushes to any of
+# them, so this workflow must exist on ALL THREE branches, identical — otherwise
+# a push to a branch whose workflow omits a subpath would wipe that subpath.
 on:
   push:
-    branches: [main, development]
+    branches: [main, development, sandbox]
   workflow_dispatch:
 
 permissions:
@@ -39,8 +41,14 @@ jobs:
           ref: development
           path: site/preview
 
+      - name: Checkout sandbox into /sandbox (collaborator copy)
+        uses: actions/checkout@v4
+        with:
+          ref: sandbox
+          path: site/sandbox
+
       - name: Drop nested .git so it isn't published
-        run: rm -rf site/.git site/preview/.git
+        run: rm -rf site/.git site/preview/.git site/sandbox/.git
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
