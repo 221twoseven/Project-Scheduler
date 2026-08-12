@@ -598,12 +598,6 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 .pg-name.err{border-bottom-color:#CE4242}
 .pg-code{font-size:12px;font-family:var(--mono);color:#94A3B8;flex-shrink:0}
 .pg-cols2{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:16px;align-items:start;margin-top:14px}
-.pg-tabs{display:flex;gap:2px;margin-bottom:-1px;flex-wrap:wrap}
-.pg-tab{background:none;border:1px solid transparent;border-bottom:none;border-radius:7px 7px 0 0;
-  font-family:inherit;font-size:12px;padding:7px 14px;color:#5B6B85;cursor:pointer}
-.pg-tab:hover{color:var(--acc)}
-.pg-tab.on{background:#fff;border-color:#E2E8F0;color:#16202E;font-weight:700}
-.pg-tab .n{color:#94A3B8;font-weight:400;margin-left:4px}
 .pg-panel{background:#fff;border:1px solid #E2E8F0;border-radius:0 9px 9px 9px;padding:14px;min-height:210px}
 .pg-panel .pg-sec:first-child{margin-top:0}
 .pg-side{background:#fff;border:1px solid #E2E8F0;border-radius:9px;overflow:hidden}
@@ -960,58 +954,8 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
   </div>
 </div>
 
-<!-- PROJECT MODAL -->
+<!-- PROJECT PAGE -->
 <div id="page" class="hidden"></div>
-
-<div id="proj-overlay" class="overlay hidden">
-  <div class="modal modal-lg">
-    <h3 id="pm-head">New Project</h3>
-    <div class="modal-body">
-    <div class="fg"><label>Project Name *</label><input id="pm-name" type="text" autocomplete="off"></div>
-    <div class="fg-2">
-      <div class="fg"><label>Client</label><input id="pm-client" type="text" autocomplete="off"></div>
-      <div class="fg"><label>Job Code</label><input id="pm-code" type="text" autocomplete="off"></div>
-    </div>
-    <div class="fg-2">
-      <div class="fg"><label>Deadline (Install End) *</label><input id="pm-deadline" type="date"></div>
-      <div class="fg"><label>Status</label>
-        <select id="pm-status">
-          <option value="auto">Auto (computed)</option>
-          <option value="estimating">Estimating</option>
-          <option value="approved">Approved</option>
-          <option value="in-production">In Production</option>
-          <option value="installing">Installing</option>
-          <option value="on-hold">On Hold</option>
-          <option value="complete">Complete</option>
-          <option value="invoiced">Invoiced</option>
-          <option value="called-off">Called Off</option>
-        </select>
-      </div>
-    </div>
-    <div class="fg-2">
-      <div class="fg"><label>Project Manager(s)</label><div id="pm-pm" class="role-list"></div></div>
-      <div class="fg"><label>Drafter(s)</label><div id="pm-drafter" class="role-list"></div></div>
-      <div class="fg"><label>Lead Fab(s)</label><div id="pm-fab" class="role-list"></div></div>
-      <div class="fg"><label>Fabricator(s)</label><div id="pm-fabs" class="role-list"></div></div>
-    </div>
-    <div class="fg"><label>Departments &amp; Estimated Working Days</label></div>
-    <div class="dept-list" id="pm-depts"></div>
-    <label class="pin-row" id="pm-regen-row">
-      <input type="checkbox" id="pm-regen">
-      <span class="pin-track"><span class="pin-thumb"></span></span>
-      <span class="pin-lbl">Regenerate schedule backward from deadline</span>
-    </label>
-    <div class="hint" id="pm-hint"></div>
-    </div>
-    <div class="m-actions">
-      <button id="pm-del" class="btn btn-del hidden">Delete Project</button>
-      <div class="m-right">
-        <button id="pm-cancel" class="btn btn-ghost">Cancel</button>
-        <button id="pm-save" class="btn btn-primary">Save</button>
-      </div>
-    </div>
-  </div>
-</div>
 
 <!-- TASK MODAL -->
 <div id="task-overlay" class="overlay hidden">
@@ -1121,10 +1065,9 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_REV=50; // bump this ONE number on every release; used everywhere the rev shows up
+const APP_REV=51; // bump this ONE number on every release; used everywhere the rev shows up
 
 /* ===================== CONSTANTS ===================== */
-const DATA_KEY='shopTimeline_v1';
 const SET_KEY ='shopTimelineSettings_v1';
 const PEOPLE_KEY='shopTimelinePeople_v1';
 const UI_KEY  ='shopTimelineUI_v1';
@@ -1235,7 +1178,7 @@ let ROWS=[], TOTAL_H=0;
 let EXPANDED=new Set();       // expanded projects (project lens)
 let COLLAPSED=new Set();      // collapsed sections (dept lens)
 let DRAG=null, SUPPRESS_CLICK=false, DATE_LOCK=false;
-let EDIT_TASK_ID=null, EDIT_PROJ_ID=null, TM_NODES=[];
+let EDIT_TASK_ID=null, TM_NODES=[];
 
 /* ===================== DATE HELPERS ===================== */
 function today(){const d=new Date();d.setHours(0,0,0,0);return d;}
@@ -1497,7 +1440,14 @@ async function gfetch(url,opts){
   opts=opts||{};
   const t=await spToken();
   opts.headers=Object.assign({'Content-Type':'application/json'},opts.headers,{Authorization:'Bearer '+t});
-  const r=await fetch(url,opts);
+  let r=await fetch(url,opts);
+  if(r.status===429||r.status===503){
+    /* Graph throttling: wait out Retry-After once instead of re-hammering next tick and
+       deepening the throttle. Capped so a bad header can't hang the call. */
+    const ra=Math.min(Number((r.headers&&r.headers.get&&r.headers.get('Retry-After'))||5)||5,60);
+    await new Promise(res=>setTimeout(res,ra*1000));
+    r=await fetch(url,opts);
+  }
   if(!r.ok){const txt=await r.text();throw new Error('SharePoint '+r.status+': '+txt.slice(0,180));}
   return r.status===204?null:r.json();
 }
@@ -1542,8 +1492,8 @@ async function spSyncStaff(olds,news){
   const om=new Map(olds.map(x=>[x.id,x])),nm=new Map(news.map(x=>[x.id,x]));
   for(const[id,n]of nm){
     const o=om.get(id);
-    if(!o){const r=await gfetch(listUrl(LIST_STAFF)+'/items',{method:'POST',body:JSON.stringify({fields:personToFields(n)})});SP_IDS.staff[id]=r.id;}
-    else if(JSON.stringify(o)!==JSON.stringify(n)){await gfetch(listUrl(LIST_STAFF)+'/items/'+SP_IDS.staff[id]+'/fields',{method:'PATCH',body:JSON.stringify(personToFields(n))});}
+    if(!o&&!SP_IDS.staff[id]){const r=await gfetch(listUrl(LIST_STAFF)+'/items',{method:'POST',body:JSON.stringify({fields:personToFields(n)})});SP_IDS.staff[id]=r.id;}
+    else if(!o||JSON.stringify(o)!==JSON.stringify(n)){await gfetch(listUrl(LIST_STAFF)+'/items/'+SP_IDS.staff[id]+'/fields',{method:'PATCH',body:JSON.stringify(personToFields(n))});}
   }
   for(const[id]of om)if(!nm.has(id)){await gfetch(listUrl(LIST_STAFF)+'/items/'+SP_IDS.staff[id],{method:'DELETE'});delete SP_IDS.staff[id];}
 }
@@ -1580,8 +1530,10 @@ async function spSync(oldST,newST){
     const om=new Map(olds.map(x=>[x.id,x])),nm=new Map(news.map(x=>[x.id,x]));
     for(const[id,n]of nm){
       const o=om.get(id);
-      if(!o){jobs.push(async()=>{const r=await gfetch(listUrl(list)+'/items',{method:'POST',body:JSON.stringify({fields:toFields(n)})});SP_IDS[kind][id]=r.id;});}
-      else if(JSON.stringify(o)!==JSON.stringify(n)){jobs.push(async()=>{await gfetch(listUrl(list)+'/items/'+SP_IDS[kind][id]+'/fields',{method:'PATCH',body:JSON.stringify(toFields(n))});});}
+      /* If a prior (partially-failed) attempt already created this row, SP_IDS knows its id
+         even though the stale `olds` snapshot doesn't — PATCH it instead of POSTing a duplicate. */
+      if(!o&&!SP_IDS[kind][id]){jobs.push(async()=>{const r=await gfetch(listUrl(list)+'/items',{method:'POST',body:JSON.stringify({fields:toFields(n)})});SP_IDS[kind][id]=r.id;});}
+      else if(!o||JSON.stringify(o)!==JSON.stringify(n)){jobs.push(async()=>{await gfetch(listUrl(list)+'/items/'+SP_IDS[kind][id]+'/fields',{method:'PATCH',body:JSON.stringify(toFields(n))});});}
     }
     for(const[id]of om)if(!nm.has(id))jobs.push(async()=>{await gfetch(listUrl(list)+'/items/'+SP_IDS[kind][id],{method:'DELETE'});delete SP_IDS[kind][id];});
   };
@@ -1643,13 +1595,17 @@ function undo(){
 }
 
 /* Push a diff to SharePoint with status pill + one retry */
+let SYNCING=false;   /* true while a save is in flight — the poll must not read half-committed rows */
 function syncNow(oldST,newST){
   setSync('busy');
+  SYNCING=true;
+  const done=()=>{SYNCING=false;setSync('ok','synced '+stamp());};
   spSync(oldST,newST)
-    .then(()=>setSync('ok','synced '+stamp()))
+    .then(done)
     .catch(()=>spSync(oldST,newST)
-      .then(()=>setSync('ok','synced '+stamp()))
+      .then(done)
       .catch(e=>{
+        SYNCING=false;
         console.error(e);
         setSync('err','not saved — click to retry');
         toast('Could not save to SharePoint. Your change is visible here but not saved yet.','err');
@@ -1680,8 +1636,6 @@ function savePeople(np){
     .then(()=>setSync('ok','synced '+stamp()))
     .catch(e=>{console.error(e);setSync('err','staff not saved');toast('Could not save staff to SharePoint.','err');});
 }
-/* Legacy shim (import of old exports) */
-function saveStaff(st){savePeople(rostersToPeople(st));}
 function saveUI(){
   try{localStorage.setItem('shopTimelineTint',TINT?'1':'0');
     localStorage.setItem('shopTimelineLinkSubs',LINK_SUBS?'1':'0');
@@ -2056,7 +2010,7 @@ function renderSidebar(){
       row.dataset.secid=r.secId;
       const dot=document.createElement('span');dot.className='c-dot';dot.style.background=laneColor(r.dept,r.assignee);row.appendChild(dot);
       const nm=document.createElement('span');nm.className='sb-name';nm.textContent=r.label;row.appendChild(nm);
-      const dnm=deptById(r.dept).name;
+      const dnm=(deptById(r.dept)||{}).name||r.dept;
       if(r.label!==dnm){const su=document.createElement('span');su.className='sb-sub';su.textContent=dnm;row.appendChild(su);}
     }
     frag.appendChild(row);
@@ -2541,8 +2495,8 @@ function posTooltip(ev){
 }
 function hideTooltip(){document.getElementById('tooltip').classList.add('hidden');}
 
-/* ===================== PROJECT MODAL ===================== */
-/* Multi-select role checkboxes for the project modal */
+/* ===================== PROJECT PAGE HELPERS ===================== */
+/* Multi-select role checkboxes for the project page */
 function fillRoleChecks(elId,names,currentStr){
   const el=document.getElementById(elId);el.innerHTML='';
   const sel=new Set(roleList(currentStr));
@@ -2615,109 +2569,6 @@ function buildDeptChecklist(p,boxId){
 function openProjModal(projId){
   goProject(projId||null);return;
 }
-function openProjModalLegacy(projId){
-  EDIT_PROJ_ID=projId||null;
-  const p=projId?ST.projects.find(x=>x.id===projId):null;
-  document.getElementById('pm-head').textContent=p?'Edit Project':'New Project';
-  document.getElementById('pm-name').value=p?p.name:'';
-  document.getElementById('pm-name').classList.remove('err');
-  document.getElementById('pm-client').value=p?(p.client||''):'';
-  document.getElementById('pm-code').value=p?(p.jobCode||''):'';
-  document.getElementById('pm-deadline').value=p?p.deadline:fmtDate(addDays(today(),42));
-  document.getElementById('pm-deadline').classList.remove('err');
-  document.getElementById('pm-status').value=p?(p.status||'auto'):'auto';
-  fillRoleChecks('pm-pm',STAFF.projectManagers||[],p?p.projectManager:'');
-  fillRoleChecks('pm-drafter',STAFF.drafters||[],p?p.drafter:'');
-  fillRoleChecks('pm-fab',STAFF.leadFabs||[],p?p.leadFab:'');
-  fillRoleChecks('pm-fabs',STAFF.leadFabs||[],p?p.fabricators:'');
-  buildDeptChecklist(p);
-  const regenRow=document.getElementById('pm-regen-row');
-  const regen=document.getElementById('pm-regen');
-  if(p){regenRow.classList.remove('hidden');regen.checked=false;
-    document.getElementById('pm-hint').textContent="Newly checked departments are scheduled automatically on Save — other tasks keep their current dates. Check Regenerate only if you want every date rebuilt backward from the deadline.";
-  }else{regenRow.classList.add('hidden');regen.checked=true;
-    document.getElementById('pm-hint').textContent='Tasks are scheduled backward from the deadline, skipping weekends and major holidays.';
-  }
-  document.getElementById('pm-del').classList.toggle('hidden',!p);
-  document.getElementById('proj-overlay').classList.remove('hidden');
-  setTimeout(()=>document.getElementById('pm-name').focus(),40);
-}
-function closeProjModal(){document.getElementById('proj-overlay').classList.add('hidden');EDIT_PROJ_ID=null;}
-
-document.getElementById('pm-cancel').addEventListener('click',closeProjModal);
-document.getElementById('proj-overlay').addEventListener('click',ev=>{if(ev.target.id==='proj-overlay')closeProjModal();});
-
-document.getElementById('pm-save').addEventListener('click',()=>{
-  const nameEl=document.getElementById('pm-name'),name=nameEl.value.trim();
-  const dlEl=document.getElementById('pm-deadline'),deadline=dlEl.value;
-  let ok=true;
-  if(!name){nameEl.classList.add('err');ok=false;}
-  if(!deadline){dlEl.classList.add('err');ok=false;}
-  if(!ok)return;
-  const activeDepartments=[];const est={};
-  document.querySelectorAll('#pm-depts input[type=checkbox]').forEach(ck=>{
-    if(ck.checked){activeDepartments.push(ck.dataset.dept);
-      const dd=ck.parentElement.querySelector('.ddays');
-      if(dd)est[ck.dataset.dept]=Math.max(1,parseInt(dd.value)||1);}
-  });
-  const otherLabels={};
-  document.querySelectorAll('#pm-depts .dother').forEach(inp=>{otherLabels[inp.dataset.dept]=inp.value.trim();});
-  const base={
-    name,client:document.getElementById('pm-client').value.trim(),
-    jobCode:document.getElementById('pm-code').value.trim(),
-    deadline,status:document.getElementById('pm-status').value,
-    projectManager:roleChecked('pm-pm'),
-    drafter:roleChecked('pm-drafter'),
-    leadFab:roleChecked('pm-fab'),
-    fabricators:roleChecked('pm-fabs'),
-    activeDepartments
-  };
-  const regen=document.getElementById('pm-regen').checked;
-  if(EDIT_PROJ_ID){
-    const p={...ST.projects.find(x=>x.id===EDIT_PROJ_ID),...base};
-    const oldTasksForProj=ST.tasks.filter(t=>t.projectId===p.id);
-    let tasks=ST.tasks;
-    if(regen){
-      tasks=tasks.filter(t=>t.projectId!==p.id).concat(generateSchedule(p,est,otherLabels));
-    }else{
-      tasks=tasks.map(t=>{
-        if(t.projectId!==p.id)return t;
-        const d=deptById(t.department);
-        if(d&&d.freeText){const lbl=otherLabels[t.department];return lbl?{...t,assignee:lbl}:t;}
-        if(d&&d.roster){
-          const lst=roleListFor(p,t.department);
-          if(!lst.length||lst.includes(t.assignee))return t;
-          return {...t,assignee:lst[0]};
-        }
-        return t;
-      });
-      const haveDept=new Set(oldTasksForProj.map(t=>t.department));
-      const newDeptIds=activeDepartments.filter(id=>!haveDept.has(id));
-      if(newDeptIds.length){
-        const addedTasks=scheduleNewDepts(p,newDeptIds,est,otherLabels,oldTasksForProj);
-        tasks=tasks.concat(addedTasks);
-        if(addedTasks.length)toast('Added '+addedTasks.length+' new task'+(addedTasks.length>1?'s':'')+' — other dates unchanged');
-      }
-    }
-    saveState({projects:ST.projects.map(x=>x.id===p.id?p:x),tasks});
-  }else{
-    const p={id:genId(),...base,createdAt:fmtDate(today())};
-    const si=sortIndexForNew(p.deadline);if(si!=null)p.sortIndex=si;
-    const tasks=generateSchedule(p,est,otherLabels);
-    EXPANDED.add(p.id);
-    saveState({projects:[...ST.projects,p],tasks:[...ST.tasks,...tasks]});
-  }
-  closeProjModal();
-});
-
-document.getElementById('pm-del').addEventListener('click',()=>{
-  if(!EDIT_PROJ_ID)return;
-  const p=ST.projects.find(x=>x.id===EDIT_PROJ_ID);
-  if(!confirm('Delete "'+(p?p.name:'')+'" and all its tasks?'))return;
-  saveState({projects:ST.projects.filter(x=>x.id!==EDIT_PROJ_ID),tasks:ST.tasks.filter(t=>t.projectId!==EDIT_PROJ_ID)});
-  closeProjModal();
-});
-
 /* ===================== TASK MODAL ===================== */
 function buildCrewList(checked){
   const box=document.getElementById('tm-crew');box.innerHTML='';
@@ -3081,7 +2932,6 @@ const PP_ROLES=[['pp-r-pm','Project manager','projectManagers','projectManager']
 
 function ppColor(p){return p&&p.id?projColor(p.id):'#94A3B8';}
 
-const PP_TABS=[['setup','Setup'],['team','Team'],['depts','Departments'],['events','Events']];
 
 /* npvRebuild can fire from a poll or an undo, not just from the page. Keep the pane in
    step without re-rendering the whole page, which would drop an unsaved draft. */
@@ -3098,7 +2948,7 @@ function renderProjectPage(){
   if(isNew&&!PP_KEEP){
     NPV_MANUAL={};NPV_TASKS=[];NPV_ALL=[];NPV_ORDER=[];NPV_ORDER_DIRTY=false;
     NPV_EVENTS=[];NPV_TODOS=[];NPV_LINES=[];NPV_MODE='gantt';
-    PP_TAB='setup';ppFormInit();
+    ppFormInit();
   }
   PP_KEEP=false;
   const p=ppProject();
@@ -3253,114 +3103,6 @@ function ppCommitDepts(){
   npvRebuild();
 }
 
-function renderPPTab(){
-  const box=document.getElementById('pp-panel');
-  if(!box)return;
-  const p=ppProject();
-  if(!p)return;
-  const isNew=ROUTE.creating;
-  let h='';
-
-  if(PP_TAB==='setup'){
-    h='<div class="pg-f4">'
-     + '<label>Client<input id="pp-client" value="'+esc(p.client||'')+'"></label>'
-     + '<label>Job code<input id="pp-code" value="'+esc(p.jobCode||'')+'"></label>'
-     + '<label>Install date<input id="pp-deadline" type="date" value="'+esc(p.deadline||'')+'"></label>'
-     + '<label>Status<select id="pp-status"><option value="auto">Auto</option>'
-     + ALL_STATUSES.map(v=>'<option value="'+v+'"'+((p.status||'auto')===v?' selected':'')+'>'+esc(STATUS_LBL[v])+'</option>').join('')
-     + '</select></label></div>';
-    if(!isNew){
-      const wd=workdaysUntil(p.deadline);
-      h+='<div class="pg-met">'
-       + '<div><div class="mk">Installs</div><div class="mv">'+(p.deadline?esc(fmtNice(p.deadline)):'&mdash;')+'</div></div>'
-       + '<div><div class="mk">Workdays left</div><div class="mv'+(wd!=null&&wd<0?' warn':'')+'">'+(wd==null?'&mdash;':wd)+'</div></div>'
-       + '<div><div class="mk">Phases</div><div class="mv">'+tasksOf(p.id).filter(t=>t.department!=='pm').length+'</div></div>'
-       + '<div><div class="mk">Running now</div><div class="mv" style="font-size:14px;padding-top:5px">'+esc(phaseNow(p))+'</div></div>'
-       + '</div>';
-    }
-  }
-  else if(PP_TAB==='team'){
-    h='<div class="pg-roles">'
-     + PP_ROLES.map(r=>'<div><span class="rl">'+esc(r[1])+'</span><div class="pg-rbox" id="'+r[0]+'"></div></div>').join('')
-     + '</div>';
-  }
-  else if(PP_TAB==='depts'){
-    h='<div class="pg-depts" id="pp-depts"></div>'
-     + '<div class="pg-sec">Phases</div><div id="pp-lines"></div>'
-     + '<button class="dr-add" id="pp-add-ln">+ Split a department into named phases</button>';
-  }
-  else{
-    h='<div class="pg-sec" style="margin-top:0">Events</div><div id="pp-events"></div>'
-     + '<button class="dr-add" id="pp-add-ev">+ Add an event</button>'
-     + '<div class="pg-sec">Tasks</div><div id="pp-todos"></div>'
-     + '<button class="dr-add" id="pp-add-tk">+ Add a task</button>';
-  }
-  box.innerHTML=h;
-
-  if(PP_TAB==='setup'){
-    ['pp-client','pp-code','pp-deadline','pp-status'].forEach(id=>{
-      const el=document.getElementById(id);
-      if(!el)return;
-      el.addEventListener('change',()=>{
-        if(isNew){npvQueue();return;}
-        const map={'pp-client':'client','pp-code':'jobCode','pp-deadline':'deadline','pp-status':'status'};
-        ppCommitField(map[id],el.value);
-      });
-      if(isNew)el.addEventListener('input',npvQueue);
-    });
-  }
-  if(PP_TAB==='team'){
-    for(const r of PP_ROLES)
-      fillRoleChecks(r[0],STAFF[r[2]]||[],(isNew&&PP_FORM?PP_FORM[r[3]]:p[r[3]])||'');
-    box.addEventListener('change',()=>{
-      if(isNew){npvQueue();return;}
-      const patch={};
-      for(const r of PP_ROLES)patch[r[3]]=roleChecked(r[0]);
-      PP_QUIET=true;
-      try{saveState({projects:ST.projects.map(x=>x.id===p.id?{...x,...patch}:x),tasks:ST.tasks});}
-      finally{PP_QUIET=false;}
-      npvRebuild();
-    });
-  }
-  if(PP_TAB==='depts'){
-    buildDeptChecklist(isNew?null:p,'pp-depts');
-    renderDraftLines();
-    const al=document.getElementById('pp-add-ln');
-    if(al)al.addEventListener('click',()=>{
-      NPV_LINES.push({id:genId(),name:'',dept:(NPV_ORDER.find(d=>d!=='pm')||NPV_ORDER[0]||''),who:''});
-      renderDraftLines();npvRebuild();
-    });
-    box.addEventListener('change',ev=>{
-      if(ev.target.closest('#pp-lines'))return;
-      if(isNew){npvQueue();return;}
-      ppCommitDepts();
-    });
-  }
-  if(PP_TAB==='events'){
-    renderDraftEvents();renderDraftTodos();
-    const ae=document.getElementById('pp-add-ev');
-    if(ae)ae.addEventListener('click',()=>{
-      if(NPV_LIVE){const pj=ppProject();
-        if(pj){liveAddEvent(pj,NPV_ORDER[0]||'','');renderDraftEvents();npvRebuild();}
-        return;}
-      NPV_EVENTS.push({id:genId(),name:'',date:'',dept:(NPV_ORDER[0]||'')});
-      renderDraftEvents();npvRender();
-    });
-    const at=document.getElementById('pp-add-tk');
-    if(at)at.addEventListener('click',()=>{
-      if(NPV_LIVE){const pj=ppProject();
-        if(pj){liveAddTodo(pj,NPV_ORDER[0]||'','');renderDraftTodos();npvRebuild();}
-        return;}
-      NPV_TODOS.push({id:genId(),title:'',who:[],due:'',priority:'medium',dept:(NPV_ORDER[0]||'')});
-      renderDraftTodos();npvRender();
-    });
-  }
-
-  const hint=document.getElementById('pp-hint');
-  if(hint)hint.textContent=isNew
-    ? 'Phases are scheduled backward from the install date, skipping weekends and major holidays.'
-    : 'Click any bar in the chart to rename it, move it, or add an event or task to it.';
-}
 
 function renderPhaseRows(p){
   const box=document.getElementById('pp-phases');
@@ -3832,7 +3574,6 @@ let NPV_MODE='gantt';    /* 'gantt' | 'calendar' */
 let NPV_LIVE=false;      /* true when the chart mirrors a saved project instead of a draft */
 let TINT=true;
 let GROUP_BY=null;       /* 'client' | 'pm' | 'status' — drives the sidebar group headers */           /* month hue + week saturation behind the charts */
-let PP_TAB='setup';      /* setup | team | depts | events */
 let PP_FORM=null;        /* new-project values, kept out of the DOM so tabs can't lose them */
 let PP_KEEP=false;       /* set when a redraw must not wipe the draft */
 let NPV_ORDER_DIRTY=false;
@@ -5061,8 +4802,8 @@ function ppClosePop(){
 }
 
 /* REV49: the popover is retired on the dashboard — the inspector says all of it, next to
-   the chart instead of on top of it. Kept only for the main timeline's phase modal path,
-   which still calls in. */
+   the chart instead of on top of it. Kept only for new-project draft bars, which have no
+   ST record yet for the inspector to select (both callers below are in the !NPV_LIVE branch). */
 function ppOpenPop(idx,barEl){
   /* Saved project: selection + inspector. New project: the popover — its bars aren't in
      ST yet, so the inspector has nothing to select. The popover already knows drafts:
@@ -5237,15 +4978,6 @@ function ppGoTab(tab){
     ppInspector();
     return;
   }
-  return ppGoTabLegacy(tab);
-}
-function ppGoTabLegacy(tab){
-  if(ROUTE.creating)ppFormSync();
-  PP_TAB=tab;
-  document.querySelectorAll('#page .pg-tab').forEach(x=>x.classList.toggle('on',x.dataset.tab===tab));
-  renderPPTab();
-  if(tab==='events'){renderDraftEvents();renderDraftTodos();}
-  npvRender();
 }
 
 function npvBindDrag(){
@@ -5543,7 +5275,7 @@ document.addEventListener('keydown',ev=>{
       if(PP_SEL){ppSelect(null);ev.preventDefault();return;}
       ev.preventDefault();goTimeline();return;
     }
-    closeProjModal();closeTaskModal();
+    closeTaskModal();
     document.getElementById('staff-overlay').classList.add('hidden');
     document.getElementById('print-overlay').classList.add('hidden');
     document.getElementById('meet-overlay').classList.add('hidden');
@@ -5855,27 +5587,33 @@ ST={projects:[],tasks:[],todos:[]};
   EXPANDED=new Set();   /* open collapsed — one tidy row per job */
   applyRoute();
   setTimeout(scrollTodayLeft,80);
-  /* Poll every 45s so other people's changes appear (skips while dragging or editing) */
+  /* Poll so other people's changes appear (skips while dragging, saving, or editing).
+     POLL_MS is the freshness-vs-Graph-cost knob: bigger = fewer calls, staler view. */
+  const POLL_MS=90000;
+  let POLL_N=0;
   setInterval(async()=>{
-    if(DRAG||PENDING_SYNC)return;
+    if(document.hidden)return;   /* a backgrounded tab shouldn't poll all day — biggest idle-traffic cut */
+    if(DRAG||PENDING_SYNC||SYNCING)return;   /* SYNCING: never read half-committed rows mid-save */
     if([...document.querySelectorAll('.overlay')].some(o=>!o.classList.contains('hidden')))return;
     if(document.activeElement&&document.activeElement.closest&&document.activeElement.closest('#page'))return;
+    POLL_N++;
     try{
       const fresh=await spLoad();
       let dirty=false;
       /* REV46: todos has to be in the comparison. Without it the two strings never
-         matched, so every 45s tick replaced ST wholesale and re-rendered — and, with
+         matched, so every tick replaced ST wholesale and re-rendered — and, with
          ShopTimeline_Tasks2 missing, wiped every session-only task. */
       if(!TODOS_OK&&(ST.todos||[]).length&&!(fresh.todos||[]).length)fresh.todos=ST.todos;
       if(JSON.stringify(fresh)!==JSON.stringify({projects:ST.projects,tasks:ST.tasks,todos:ST.todos||[]})){ST=fresh;dirty=true;}
-      if(STAFF_OK){
+      /* Staff changes rarely — poll it every other tick to halve that list's Graph calls. */
+      if(STAFF_OK&&POLL_N%2===0){
         const fp=await spLoadStaff();
         if(JSON.stringify(fp)!==JSON.stringify(PEOPLE)){PEOPLE=fp;rebuildStaff();localStorage.setItem(PEOPLE_KEY,JSON.stringify(PEOPLE));dirty=true;}
       }
       if(dirty){if(ROUTE.view==='project'){PP_KEEP=true;renderProjectPage();}else render();}
       setSync('ok','synced '+stamp());
     }catch(e){}
-  },45000);
+  },POLL_MS);
 })();
 </script>
 </body>
