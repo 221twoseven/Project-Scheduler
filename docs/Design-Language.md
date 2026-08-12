@@ -1,0 +1,176 @@
+# Shop Timeline — Design Language
+
+**Version 1.0 · August 12, 2026 · applies to `index.html` (REV52+)**
+
+A lightweight design system for the Project Scheduler. Written to be implementable in a single-file, no-build vanilla app: everything here is a CSS custom property, a constant, or a rule of thumb — no tooling required. It extends what the app already does right (the drawing-title-block toolbar, red-means-install, visible undo) rather than replacing it.
+
+How to use it: when a change touches appearance or interaction, check the relevant section. If the change contradicts this doc, either follow the doc or update the doc in the same PR — never silently diverge.
+
+---
+
+## 1. Voice & feel
+
+**The metaphor is a shop drawing, not a SaaS dashboard.** Dark title block up top, precise light drawing area below, mono type for codes and numbers, sans for prose. Everything on the canvas should feel drafted — aligned, hairlined, deliberate — not decorated.
+
+Copy rules: plain sentences, no developer vocabulary in anything a user can see ("Couldn't reach SharePoint," never `endpoints_resolution_error`). Buttons are verbs ("Print timeline"), toggles state their effect on hover. The app teaches the backward-scheduling model at every opportunity ("the schedule builds itself backward from the deadline").
+
+---
+
+## 2. Color
+
+### 2.1 Roles — the one-job rule
+
+Each visual channel encodes exactly one thing:
+
+| Channel | Encodes | Never encodes |
+|---|---|---|
+| **Bar hue** | Identity (project; department in Team/project-page modes) | Status, urgency |
+| **Bar pattern & opacity** | Status | Identity |
+| **Status pill** | Status (text + tint) | — |
+| **Red `#CE4242`** | Installation only (existing rule — keep absolute) | Anything else; late-ness uses the marker system, not bar color |
+| **Canvas background** | Calendar time (workday/weekend/month), *quietly* | Data of any kind |
+
+Consequences: forecast and on-hold bars keep their **project's hue** and signal status by treatment — forecast = 40% opacity + dashed outline; on-hold = 55% desaturation + diagonal hatch; estimating keeps its current stripe (it already follows the rule). The gray/gold hue-theft overrides are retired.
+
+### 2.2 Identity palette (projects)
+
+12 slots, assigned by **stable hash of project id** (never array index). Hues spaced ≥25° apart, all tuned so white or ink text passes 4.5:1 with the label-color function (§2.5).
+
+```
+--p01:#3B7FD6  --p02:#E27035  --p03:#2D9C56  --p04:#9050C3
+--p05:#1AA59C  --p06:#C09018  --p07:#C04485  --p08:#5B7C99
+--p09:#7A5AE0  --p10:#3D8FA8  --p11:#A8642C  --p12:#6B8F3C
+```
+
+(01–07 are the current `PCOLS`, kept for continuity; 08–12 extend the cycle. None approach `#CE4242` red.) Collision rule: if two *currently visible* projects hash to the same slot, the later-created one shifts to the nearest free slot for that render — identity stability beats palette purity only when both are on screen.
+
+### 2.3 Department palette
+
+Keep the existing `DEPT_COLORS` map as-is (it's serviceable and staff know it), with two exceptions: raise `beamsaw` `#C09018` and `electrical` `#D9A21B` label contrast via §2.5, and ensure no department except `install`/`laser` sits within 15° of the reserved red.
+
+### 2.4 Canvas (the quiet calendar)
+
+Default ("Quiet" — new): workdays `#FCFDFE`; weekends/holidays `#EEF1F5` with the existing hatch at 40% of current opacity; month boundary = 1px `#C9D4E3` hairline + month label; alternating months get at most `hsl(h, 6%, 97%)` — perceptible side by side, invisible behind bars. Today column: `rgba(47,111,228,.06)` full-height wash + 2px `--late` line + the TODAY pill.
+
+The current saturated month-band look remains available behind the existing **Tint** toggle (relabel: "Vivid months"), preserving continuity for users who navigate by it.
+
+Month **header** bands may keep a stronger version of their hue (they're outside the data area), but capped at the header: `hsl(h, 30%, 88%)` fill with `hsl(h, 35%, 30%)` text rather than today's mid-saturation fills.
+
+### 2.5 Text on color — the label function
+
+One function, used everywhere a label sits on a colored fill:
+
+```js
+function labelColor(bg){ /* relative luminance per WCAG */
+  const L = relLum(bg);                  // 0..1
+  return L > 0.44 ? 'var(--ink)' : '#FFFFFF';
+}
+```
+
+No hand-picked per-bar text colors. Pills use the same rule. A jsdom test iterates every palette constant and asserts ≥4.5:1 — the palette can't regress.
+
+### 2.6 Chrome (toolbar & sidebar)
+
+Existing tokens are good — codify them as the only chrome colors:
+`--ink #0D131D`, `--ink-2 #141C29`, `--chrome-line #232F42`, accent `--acc #2F6FE4` / `--acc-deep #1D5AC9`, warn `--warn #F0A814`, danger `--late #DC2626`, sidebar `--side #EDF1F7` / `--side-line #C9D4E3`, paper `--paper #F5F7FA`. New UI must draw from these; no ad-hoc hex in new code (a grep-able rule a reviewer can enforce).
+
+---
+
+## 3. Typography
+
+Families stay: `--sans` (Segoe UI stack) for prose/labels, `--mono` (Cascadia stack) for codes, dates, numbers, REV chips. Mono is a brand asset here — anything that would appear on a work order (job codes, dates, day counts) is mono.
+
+**Scale — four working sizes + one micro:**
+
+| Token | Size / weight | Use |
+|---|---|---|
+| `--fs-title` | 15px / 700 | Overlay titles, project page name |
+| `--fs-body` | 13px / 400–600 | Default text, inputs, menus |
+| `--fs-label` | 11.5px / 500 | Buttons, sidebar rows, pills |
+| `--fs-fine` | 11px / 500 | Dates in bars, axis day numbers, meta strips |
+| `--fs-micro` | 9px / 700 caps, tracked | **Decorative only** — section eyebrows (SORT, COLOR, SCHEDULE), REV chip. Never information a user must read. |
+
+Rule: nothing informational below 11px. The current 8.5–10px toolbar/mini labels move up to `--fs-fine` or become tooltips. Line-height 1.4 for prose, 1 for chips/pills. Letter-spacing (.14–.24em) is reserved for the micro eyebrow style and the brand block.
+
+---
+
+## 4. Space, shape, elevation
+
+- **Spacing unit 4px.** Gaps and paddings are multiples: 4/8/12/16/24. (Most of the app is already close; drift no further.)
+- **Radii:** keep tokens `--r-s 5px` (chips, pills), `--r-m 8px` (buttons, inputs, bars), `--r-l 14px` (overlays, cards). Bars use `--r-m` ends.
+- **Hairlines** for structure (1px, `--side-line` on light / `--chrome-line` on dark); **shadows only for things that float** (menus, overlays, drag ghosts): `0 4px 18px rgba(13,19,29,.18)`. Nothing at rest casts a shadow except the toolbar.
+- **Row heights:** Comfortable 44px / Compact 32px (token `--row-h`), gutter 12px. All hit targets ≥ 24px even in Compact.
+
+---
+
+## 5. Iconography
+
+Inline SVG, 16×16 viewBox, 1.5px stroke, `currentColor` — pasted literally into the HTML (no build step, no font, no external file). Replace the unicode set: print ⎙, settings ⚙, reset ⟲, expand ⇕, eye, drag-dots, plus chevrons and the row-edge indicators from the audit. One style: outlined, geometric, drafting-instrument feel. Never mix emoji/unicode glyphs with SVG in the same surface.
+
+---
+
+## 6. Interaction patterns
+
+**The three-path rule.** Every action is reachable three ways: pointer (visible button/menu), context menu (right-click), keyboard (shortcut shown in the menu). The project page already lives by this; it becomes app-wide law. Anything drag-only (bar move/resize, OOO ranges) gets a click-editable equivalent (inspector fields or popover with date inputs).
+
+**Click hierarchy on the timeline.** Single **left-click on a bar opens its edit-details modal** — the primary read/edit path. Drag moves; edge-drag resizes; right-click opens the context menu. Disambiguation: the modal opens on mouse-up only if total pointer travel is under ~3px; any real drag suppresses it. Click on empty canvas deselects; double-click on empty canvas is reserved (no action yet — don't spend it casually).
+
+**Bar resize works from both edges.** Each bar has a grab zone at its start *and* end: minimum 8px hit width (grows to 12px below 60px bar width, at which point the zones are the bar's outer thirds), `ew-resize` cursor, and a visible handle affordance on hover (2px inset rule at each edge in the label color at 40% opacity). Left edge edits the start date, right edge the end date; both snap to workdays, respect Protect dates, and show a live date tooltip while dragging. Undo toast on release, like every mutation.
+
+**Feedback.** Every mutation: optimistic apply + toast with **Undo** (existing pattern — never ship a mutation without it). Sync state stays in the pill; error toasts dock bottom-right, collapse duplicates, and cap at 3 visible with a counter.
+
+**Menus.** Right-click menus list shortcut keys right-aligned in mono. Escape unwinds exactly one layer (existing behavior — protect it in tests).
+
+**Overlays.** One overlay at a time; dark scrim `rgba(13,19,29,.55)`; title at `--fs-title`; primary action bottom-right (accent), safe action to its left (neutral). Destructive actions are never the rightmost button and always name their object ("Delete project" not "Delete").
+
+**Hover.** Bars: brightness lift + cursor hint; row-edge indicators appear on rows whose bars are off-viewport; controls show their one-sentence effect tooltip after 400ms.
+
+**Motion.** 120–180ms ease-out for hover/menus, 240ms for overlays; `prefers-reduced-motion` already zeroes it — keep that.
+
+---
+
+## 7. The timeline, specifically
+
+- **Bar anatomy:** [status pill][name · code][chips PM/D/F] left-aligned, ellipsis in that reverse order (chips drop first, then code, pill and name survive longest). Min renderable width shows pill only; below that, a 4px identity-colored tick.
+- **Today** is the strongest line on the canvas. Deadline markers are per-project flags (▸ pennant at header + dotted drop-line at 60% opacity), visually distinct from Today and from install red.
+- **Weekends/holidays** never disappear at any zoom; they compress.
+- **Zoom** steps (Phase 3): Day 34px / 2-Day 20px / Week 9px / Month 3px per day — all densities keep the bar-anatomy rules above.
+- **Legend:** a `?` popover (toolbar, right side) documents: status treatments, red = install, chip letters, marker shapes. One screen, no scrolling.
+
+---
+
+## 7.5 The project page — inspector docks to the bottom
+
+The Setup / Team / Departments / Agenda inspector is **not a sidebar**. It renders as a horizontal panel across the bottom of the window, underneath the project timeline — the title block of a shop drawing, in exactly the drawing-sheet spirit of the toolbar.
+
+- **Layout:** chart takes the full window width and the majority of the height; the inspector panel sits below it as a fixed-height dock (target ~260–300px Comfortable, user-draggable divider, height persisted in localStorage like the old sidebar width was).
+- **Inside the panel,** sections run **side by side as columns** — Setup | Team | Departments | Agenda — instead of stacked accordions. At full width all four are open at once; below ~1200px, Agenda wraps or the panel becomes horizontally scrollable with sticky section headers. No accordion collapse in the default state: the narrow rail forced that; the dock doesn't have to.
+- **Selection still drives content:** nothing selected → project sections; a bar selected → that phase's fields occupy the panel (with a breadcrumb back to the project). Same rule as before, better stage for it.
+- **The meta strip** (client · job · installs · days out · phases · agenda count) stays at the top of the page; the panel is for editing, the strip is for glancing.
+- **Footer actions** (Shortcuts, Delete project / Cancel, Done / Create) sit in the panel's bottom edge, keeping destructive actions physically far from the chart.
+- The edit-details modal (§6) and this panel share field components and layout rules — the modal is the timeline's portable version of the same inspector.
+
+## 8. Print & Meeting Sheet
+
+Print inherits the same tokens (the Quiet canvas is already print-friendly; vivid tints never print). Meeting Sheet stays the reference artifact: mono numerals, hairline rules, generous Notes column. Any new report copies its header block (TWOSEVEN — title · REV · printed date · count) verbatim.
+
+---
+
+## 9. Accessibility checklist (per PR that touches UI)
+
+- [ ] Text on fills passes 4.5:1 (run the palette test)
+- [ ] New action reachable by pointer, context menu, and keyboard
+- [ ] Focus visible on every interactive element (`:focus-visible` token outline)
+- [ ] Status readable with hue removed (pattern/pill carries it)
+- [ ] Informational text ≥ 11px
+- [ ] Hit targets ≥ 24px
+- [ ] Toasts don't cover controls; errors offer an action
+
+---
+
+## 10. Implementation notes for a single-file app
+
+- All tokens live in the existing `:root` block — extend it; components reference tokens only. A reviewer can `grep '#[0-9A-Fa-f]\{6\}'` new diffs for stray hex.
+- JS constants that mirror CSS (`NPV_ROWH` etc.) already have a drift test — add `--row-h` and any new mirrored values to it.
+- Ship the system as **CSS-first PRs** (tokens + one surface at a time), each with before/after screenshots on `/preview/`, each with a `docs/Milestones/` record. No big-bang restyle commit.
+- Nothing in this doc requires SharePoint schema, auth, or dependency changes.
