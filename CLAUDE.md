@@ -81,6 +81,17 @@ The current infrastructure values (for reference — do not change without instr
   the files it affects, the risks (especially to shared SharePoint/Entra infrastructure
   and the colleague app), and the rollback path. Wait for approval before proceeding.
 
+## Milestones
+
+**Every development milestone gets a short record in `docs/Milestones/`.** This covers
+anything worth remembering later: bandwidth/performance passes, UX/design changes, a Teams
+integration, schema or auth changes, a notable refactor. Skip it only for trivial fixes.
+
+- One Markdown file per milestone, named `YYYY-MM-DD-short-slug.md`.
+- Keep it plain-language and skimmable: what changed, why it mattered, the app REV(s), a
+  pointer to the PR, and any known ceiling or follow-up. A non-developer should understand it.
+- Link any shareable artifact (explainer page, diagram) from the record.
+
 ## Architecture summary
 
 A **single-file, client-only SPA**. `index.html` (~5,900 lines) contains all HTML, CSS,
