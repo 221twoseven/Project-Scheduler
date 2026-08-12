@@ -25,8 +25,11 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);font-size:13px;col
 :focus-visible{outline:2px solid var(--acc);outline-offset:1px}
 
 /* ============ TOOLBAR — drawing title block ============ */
-#toolbar{position:fixed;top:0;left:0;right:0;min-height:50px;z-index:100;display:flex;align-items:center;flex-wrap:wrap;gap:8px;row-gap:5px;padding:5px 12px 5px 0;background:linear-gradient(180deg,var(--ink-2),var(--ink));border-bottom:1px solid #000;box-shadow:0 2px 12px rgba(4,10,20,.45)}
-#toolbar>*{flex-shrink:0}
+#toolbar{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;flex-direction:column;background:linear-gradient(180deg,var(--ink-2),var(--ink));border-bottom:1px solid #000;box-shadow:0 2px 12px rgba(4,10,20,.45)}
+.tb-row{display:flex;align-items:center;flex-wrap:wrap;gap:8px;row-gap:5px;padding:5px 12px 5px 0;min-height:46px}
+.tb-row>*{flex-shrink:0}
+.tb-global{border-bottom:1px solid var(--chrome-line)}
+.tb-spacer{flex:1 1 auto;min-width:0}
 .t-brand{display:flex;align-items:center;gap:9px;align-self:stretch;padding:0 16px;border-right:1px solid var(--chrome-line);margin-right:4px;user-select:none;min-height:40px}
 .tb-co{font-size:13px;font-weight:800;letter-spacing:.24em;color:#fff}
 .tb-app{font-size:9.5px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:#5E7292}
@@ -69,7 +72,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);font-size:13px;col
 .lock-tog input:checked ~ .lock-txt{color:var(--warn)}
 
 /* ============ LAYOUT ============ */
-#main{position:fixed;top:50px;bottom:0;left:0;right:0;display:flex;overflow:hidden}
+#main{position:fixed;top:92px;bottom:0;left:0;right:0;display:flex;overflow:hidden}
 @media (max-width:560px){.fg-2{grid-template-columns:1fr}.fg-3{grid-template-columns:1fr}}
 #sidebar{position:relative;width:232px;flex-shrink:0;display:flex;flex-direction:column;background:var(--side);border-right:1.5px solid var(--side-line);z-index:10}
 #sb-head{height:64px;flex-shrink:0;display:flex;align-items:center;gap:8px;padding:0 10px 0 14px;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.16em;color:var(--txt-micro);border-bottom:1px solid var(--side-line)}
@@ -301,12 +304,20 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 
 /* ============ REV31: STATUS FILTER + RESET ============ */
 .sf-wrap{position:relative}
-#status-menu{position:absolute;top:34px;left:0;z-index:900;background:#fff;border:1.5px solid #CBD5E1;border-radius:10px;box-shadow:0 10px 30px rgba(15,23,42,.18);padding:8px;display:flex;flex-direction:column;gap:2px;min-width:170px}
-#status-menu.hidden{display:none}
-.sm-item{display:flex;align-items:center;gap:8px;font-size:12px;padding:4px 6px;border-radius:6px;cursor:pointer;white-space:nowrap;color:#334155}
+.tb-menu{position:absolute;top:34px;left:0;z-index:900;background:#fff;border:1.5px solid #CBD5E1;border-radius:10px;box-shadow:0 10px 30px rgba(15,23,42,.18);padding:8px;display:flex;flex-direction:column;gap:2px;min-width:180px}
+.sm-item{display:flex;align-items:center;gap:8px;font-size:12px;padding:6px 8px;border-radius:6px;cursor:pointer;white-space:nowrap;color:#334155}
 .sm-item:hover{background:#F1F5F9}
 .sm-all{margin-top:6px;border:none;background:#F1F5F9;border-radius:6px;padding:5px;font-size:11px;cursor:pointer;color:#334155}
 .sm-all:hover{background:#E2E8F0}
+.sm-lbl{font-size:8.5px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:#8194ab;padding:4px 8px 2px}
+.sm-note{font-family:var(--mono);font-size:10px;color:#8194ab;padding:6px 8px 2px;border-top:1px solid #E2E8F0;margin-top:4px;white-space:nowrap}
+/* Color toggle re-skinned for the white View menu (dark-chrome default is invisible here) */
+.vm-tog{margin:2px 6px 4px;border-color:#CBD5E1}
+.vm-tog .t-btn{color:#475569;border-right:1px solid #CBD5E1}
+.vm-tog .t-btn:hover{background:#E8EEF7;color:#1E293B}
+.vm-tog .t-btn.active{background:var(--acc);color:#fff}
+#t-tint::before{content:'○';color:#94a3b8;font-size:13px;width:14px;text-align:center;flex-shrink:0}
+#t-tint.on::before{content:'●';color:var(--acc)}
 
 /* ============ REV31: SPOTLIGHT FIX — dimmed rows keep clickable eyes ============ */
 .sb-row.dim{opacity:1;filter:none}
@@ -671,7 +682,7 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 .cal-wk{min-height:var(--calh,90px)}
 .cal-dow{position:sticky;top:0;z-index:5}
 .cal-mon{position:sticky;top:0;z-index:6}
-#t-tint.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+#t-tint.on{color:var(--acc);font-weight:600}
 
 
 /* ============ REV44: SORT GROUP HEADERS ============ */
@@ -891,42 +902,61 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 <body>
 
 <div id="toolbar">
-  <div class="t-brand">
-    <span class="tb-co">TWOSEVEN</span>
-    <span class="tb-app">Shop Timeline</span>
-    <span class="tb-rev">REV <span id="tb-rev-num"></span></span>
+  <div class="tb-row tb-global">
+    <div class="t-brand">
+      <span class="tb-co">TWOSEVEN</span>
+      <span class="tb-app">Shop Timeline</span>
+    </div>
+    <button id="btn-new-proj" class="t-btn accent" title="New project (N)">+ New Project</button>
+    <div class="sf-wrap">
+      <button id="btn-print" class="t-btn">⎙ Print ▾</button>
+      <div id="print-menu" class="tb-menu hidden">
+        <div class="sm-item" id="mi-print-timeline">⎙ Print Timeline</div>
+        <div class="sm-item" id="mi-meeting">☰ Meeting Sheet</div>
+      </div>
+    </div>
+    <div class="sf-wrap">
+      <button id="btn-settings" class="t-btn">⚙ Settings ▾</button>
+      <div id="settings-menu" class="tb-menu hidden">
+        <div class="sm-item" id="mi-people">People &amp; Availability</div>
+        <div class="sm-note">Shop Timeline · REV <span id="tb-rev-num"></span></div>
+      </div>
+    </div>
+    <span class="tb-spacer"></span>
+    <span id="sync-pill" class="busy" title="SharePoint sync status">● connecting…</span>
   </div>
-  <button id="btn-today" class="t-btn" title="Jump to today (T)">Today</button>
-  <button id="t-tint" class="t-btn" title="Month and week background tint">Tint</button>
-  <div class="tog-grp">
-    <button id="btn-days" class="t-btn active" title="Day scale (D)">Days</button>
-    <button id="btn-weeks" class="t-btn" title="Week scale (W)">Weeks</button>
+  <div class="tb-row tb-timeline">
+    <button id="btn-today" class="t-btn" title="Jump to today (T)">Today</button>
+    <div class="tog-grp">
+      <button id="btn-days" class="t-btn active" title="Day scale (D)">Days</button>
+      <button id="btn-weeks" class="t-btn" title="Week scale (W)">Weeks</button>
+    </div>
+    <div class="t-sep"></div>
+    <input id="t-search" type="text" placeholder="Search  /" autocomplete="off" spellcheck="false">
+    <div class="sf-wrap">
+      <button id="btn-status" class="t-btn">Status ▾</button>
+      <div id="status-menu" class="tb-menu hidden"></div>
+    </div>
+    <button id="btn-reset" class="t-btn" title="Clear spotlight, search and status filter">⟲ Clear filters</button>
+    <div class="t-sep"></div>
+    <div class="sf-wrap">
+      <button id="btn-view" class="t-btn">View ▾</button>
+      <div id="view-menu" class="tb-menu hidden">
+        <div class="sm-lbl">Color by</div>
+        <div class="tog-grp vm-tog">
+          <button id="btn-col-proj" class="t-btn active">Project</button>
+          <button id="btn-col-ent" class="t-btn">Team</button>
+        </div>
+        <div class="sm-item" id="t-tint" title="Month and week background tint">Calendar tint</div>
+      </div>
+    </div>
+    <span class="tb-spacer"></span>
+    <label class="lock-tog" title="Protect dates — drag only reassigns, never moves dates">
+      <input type="checkbox" id="lock-ck">
+      <span class="lock-track"><span class="lock-thumb"></span></span>
+      <span class="lock-txt">Protect dates</span>
+    </label>
   </div>
-  <div class="t-sep"></div>
-  <span class="t-mini">Color</span>
-  <div class="tog-grp">
-    <button id="btn-col-proj" class="t-btn active">Project</button>
-    <button id="btn-col-ent" class="t-btn">Team</button>
-  </div>
-  <div class="t-sep"></div>
-  <input id="t-search" type="text" placeholder="Search  /" autocomplete="off" spellcheck="false">
-  <div class="sf-wrap">
-    <button id="btn-status" class="t-btn">Status ▾</button>
-    <div id="status-menu" class="hidden"></div>
-  </div>
-  <button id="btn-reset" class="t-btn" title="Clear spotlight, search and status filter">⟲ Reset</button>
-  <span id="sync-pill" class="busy" title="SharePoint sync status">● connecting…</span>
-  <div class="t-sep"></div>
-  <button id="btn-new-proj" class="t-btn accent" title="New project (N)">+ New Project</button>
-  <button id="btn-staff" class="t-btn">⚙ Staff</button>
-  <div class="t-sep"></div>
-  <button id="btn-meeting" class="t-btn">☰ Meeting</button>
-  <button id="btn-print" class="t-btn">⎙ Print</button>
-  <label class="lock-tog" title="Lock dates — drag only reassigns, never moves dates">
-    <input type="checkbox" id="lock-ck">
-    <span class="lock-track"><span class="lock-thumb"></span></span>
-    <span class="lock-txt">Lock dates</span>
-  </label>
 </div>
 
 <div id="main">
@@ -2779,7 +2809,8 @@ function smRender(){
     box.appendChild(card);
   });
 }
-document.getElementById('btn-staff').addEventListener('click',()=>{
+document.getElementById('mi-people').addEventListener('click',()=>{
+  closeMenus();
   SM_PEOPLE=JSON.parse(JSON.stringify(PEOPLE));
   smRender();
   document.getElementById('staff-overlay').classList.remove('hidden');
@@ -2884,7 +2915,7 @@ function openPrintPreview(){
   renderPreview();
 }
 
-document.getElementById('btn-print').addEventListener('click',openPrintPreview);
+document.getElementById('mi-print-timeline').addEventListener('click',()=>{closeMenus();openPrintPreview();});
 document.getElementById('pp-start').addEventListener('change',renderPreview);
 document.getElementById('pp-end').addEventListener('change',renderPreview);
 document.getElementById('pp-cancel').addEventListener('click',()=>document.getElementById('print-overlay').classList.add('hidden'));
@@ -5307,7 +5338,7 @@ document.addEventListener('keydown',ev=>{
     document.getElementById('staff-overlay').classList.add('hidden');
     document.getElementById('print-overlay').classList.add('hidden');
     document.getElementById('meet-overlay').classList.add('hidden');
-    document.getElementById('status-menu').classList.add('hidden');
+    closeMenus();
     return;
   }
   if((ev.ctrlKey||ev.metaKey)&&ev.key.toLowerCase()==='z'&&!typing){ev.preventDefault();undo();return;}
@@ -5486,9 +5517,18 @@ function buildStatusMenu(){
   row.appendChild(all);row.appendChild(none);
   m.appendChild(row);
 }
-document.getElementById('btn-status').addEventListener('click',ev=>{ev.stopPropagation();document.getElementById('status-menu').classList.toggle('hidden');});
-document.getElementById('status-menu').addEventListener('click',ev=>ev.stopPropagation());
-document.addEventListener('click',()=>document.getElementById('status-menu').classList.add('hidden'));
+/* Toolbar dropdowns — one open at a time, close on outside click or Esc */
+function closeMenus(){document.querySelectorAll('.tb-menu').forEach(m=>m.classList.add('hidden'));}
+function wireMenu(btnId,menuId){
+  const b=document.getElementById(btnId),m=document.getElementById(menuId);
+  b.addEventListener('click',ev=>{ev.stopPropagation();const open=m.classList.contains('hidden');closeMenus();if(open)m.classList.remove('hidden');});
+  m.addEventListener('click',ev=>ev.stopPropagation());
+}
+wireMenu('btn-status','status-menu');
+wireMenu('btn-print','print-menu');
+wireMenu('btn-settings','settings-menu');
+wireMenu('btn-view','view-menu');
+document.addEventListener('click',closeMenus);
 document.getElementById('btn-reset').addEventListener('click',()=>{
   SPOT.clear();
   FILTER='';document.getElementById('t-search').value='';
@@ -5565,7 +5605,7 @@ function openMeeting(){
   z.innerHTML='';z.appendChild(buildMeetingSheet());
   document.getElementById('meet-overlay').classList.remove('hidden');
 }
-document.getElementById('btn-meeting').addEventListener('click',openMeeting);
+document.getElementById('mi-meeting').addEventListener('click',()=>{closeMenus();openMeeting();});
 document.getElementById('meet-cancel').addEventListener('click',()=>document.getElementById('meet-overlay').classList.add('hidden'));
 document.getElementById('meet-overlay').addEventListener('click',ev=>{if(ev.target.id==='meet-overlay')document.getElementById('meet-overlay').classList.add('hidden');});
 document.getElementById('meet-print').addEventListener('click',()=>{
