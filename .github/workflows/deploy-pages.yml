@@ -1,0 +1,52 @@
+name: Deploy Pages
+
+# One Pages site, two versions:
+#   /          <- main         (production)
+#   /preview/  <- development  (shareable preview for testing)
+# Every deploy rebuilds the WHOLE site from both branches, because the Pages
+# artifact fully replaces the live site each run. Triggered by pushes to either
+# branch, so this workflow must exist on both.
+on:
+  push:
+    branches: [main, development]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout main into site root (production)
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: site
+
+      - name: Checkout development into /preview (shareable preview)
+        uses: actions/checkout@v4
+        with:
+          ref: development
+          path: site/preview
+
+      - name: Drop nested .git so it isn't published
+        run: rm -rf site/.git site/preview/.git
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
