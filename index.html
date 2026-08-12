@@ -189,7 +189,7 @@ kbd{font-family:var(--mono);font-size:10px;background:#EDF1F7;border:1px solid #
 .job-bar[data-st="complete"]{filter:saturate(.25);opacity:.8}
 .bar-stripe{position:absolute;inset:0;border-radius:inherit;background:repeating-linear-gradient(45deg,transparent,transparent 5px,rgba(255,255,255,.22) 5px,rgba(255,255,255,.22) 10px);pointer-events:none}
 .bar-edge{position:absolute;left:0;top:0;bottom:0;width:4px;background:rgba(255,255,255,.65);border-radius:6px 0 0 6px;pointer-events:none}
-.bar-lbl{position:absolute;top:50%;transform:translateY(-50%);color:rgba(255,255,255,.96);font-size:11.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none;text-shadow:0 1px 3px rgba(0,0,0,.3)}
+.bar-lbl{position:absolute;top:50%;transform:translateY(-50%);font-size:11.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none;text-shadow:0 1px 3px rgba(0,0,0,.3)}
 .bar-pin{position:absolute;top:3px;right:5px;font-size:9px;pointer-events:none;opacity:.75}
 .bar-warn{position:absolute;top:1px;left:3px;font-size:10px;pointer-events:none;filter:drop-shadow(0 1px 1px rgba(0,0,0,.4))}
 .bar-handle{position:absolute;top:0;bottom:0;width:9px;z-index:12}
@@ -321,7 +321,7 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 
 /* ============ REV31: ON HOLD / CALLED OFF BAR TREATMENT ============ */
 .job-bar[data-st="on-hold"]{opacity:.55;background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.45) 0 5px,transparent 5px 11px)}
-.job-bar[data-st="complete"] .sum-pill{background:#F1F5F9;color:#64748B}
+.job-bar[data-st="complete"] .sum-pill{background:#F1F5F9;color:#475569}
 .job-bar[data-st="on-hold"] .sum-pill{background:#FFEDD5;color:#9A3412}
 .job-bar[data-st="in-design"] .sum-pill{background:#EDE9FE;color:#5B21B6}
 .job-bar[data-st="in-fabrication"] .sum-pill{background:#E1F5EE;color:#0F6E56}
@@ -343,7 +343,7 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 .mr-pill[data-st="in-design"]{background:#EDE9FE;color:#5B21B6}
 .mr-pill[data-st="estimating"]{background:#EEEDFE;color:#534AB7}
 .mr-pill[data-st="on-hold"]{background:#FFEDD5;color:#9A3412}
-.mr-pill[data-st="complete"]{background:#F1F5F9;color:#64748B}
+.mr-pill[data-st="complete"]{background:#F1F5F9;color:#475569}
 .mr-phase{color:#33415A}
 .meet-mini{position:relative;height:9px;background:#EEF2F7;border-radius:3px;overflow:hidden;margin-top:3px}
 .mm-fill{position:absolute;left:0;top:0;bottom:0;border-radius:3px}
@@ -425,7 +425,7 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 .npv-row:nth-child(odd){background:#FCFDFE}
 .npv-gut{position:sticky;left:0;z-index:3;width:104px;height:100%;display:flex;align-items:center;padding:0 8px;font-size:10.5px;font-weight:600;color:#475569;background:#fff;border-right:1px solid #EDF2F7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .npv-row:nth-child(odd) .npv-gut{background:#FCFDFE}
-.npv-bar{position:absolute;height:17px;top:4px;border-radius:4px;cursor:grab;display:flex;align-items:center;padding:0 6px;font-size:9.5px;font-weight:600;color:rgba(255,255,255,.97);white-space:nowrap;overflow:hidden;z-index:2;user-select:none}
+.npv-bar{position:absolute;height:17px;top:4px;border-radius:4px;cursor:grab;display:flex;align-items:center;padding:0 6px;font-size:9.5px;font-weight:600;white-space:nowrap;overflow:hidden;z-index:2;user-select:none}
 .npv-bar.dragging{cursor:grabbing;opacity:.85;z-index:6}
 .npv-bar.manual{box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.85)}
 .npv-hdl{position:absolute;left:0;top:0;bottom:0;width:7px;cursor:ew-resize;border-radius:4px 0 0 4px;background:rgba(255,255,255,.28)}
@@ -653,8 +653,8 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 
 /* ============ REV43 ============ */
 .job-bar[data-st="forecast"]{filter:grayscale(1) brightness(1.06);opacity:.72}
-.job-bar[data-st="forecast"] .sum-pill{background:#E2E8F0;color:#5F6B7A}
-.mr-pill[data-st="forecast"]{background:#E2E8F0;color:#5F6B7A}
+.job-bar[data-st="forecast"] .sum-pill{background:#E2E8F0;color:#475569}
+.mr-pill[data-st="forecast"]{background:#E2E8F0;color:#475569}
 .npv-web.off{background:none}
 
 /* the popover escapes the chart now, so it is positioned from the page */
@@ -864,7 +864,6 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 .npv-bar.sum{opacity:1;color:rgba(255,255,255,.98);
   background-image:linear-gradient(rgba(255,255,255,.42),rgba(255,255,255,.42));
   box-shadow:inset 0 0 0 1.5px currentColor,inset 0 -3px 0 -1px currentColor}
-.npv-bar.sum span{color:#33415A;text-shadow:0 1px 0 rgba(255,255,255,.7)}
 .npv-bar.sum.unlinked{cursor:pointer;
   background-image:linear-gradient(rgba(255,255,255,.62),rgba(255,255,255,.62)),
     repeating-linear-gradient(45deg,rgba(255,255,255,.5) 0 4px,transparent 4px 8px);
@@ -1168,7 +1167,7 @@ function phaseLabel(t){
 }
 function assigneeText(t){return isInstall(t)?(crewOf(t).join(', ')||'Crew TBD'):(t.assignee||'');}
 /* Stable identity colors per department for "Team" color mode */
-const DEPT_COLORS={pm:'#5B7C99',vinyl:'#E0518C',othunit7:'#8E9BB0',td:'#9050C3',othoffice:'#8A98AE',print:'#C04485',cnc:'#E27035',beamsaw:'#C09018','3dprint':'#2D9C56',laser:'#CE4242',other:'#7A8BA3',fab:'#3B7FD6',metal:'#8B5E3C',softgoods:'#C75D8A',electrical:'#D9A21B',othshop:'#93A08F',prefinish:'#3FA9BC',finish:'#1AA59C',othfinish:'#9AA6B5',install:'#6366F1'};
+const DEPT_COLORS={pm:'#567693',vinyl:'#E0518C',othunit7:'#8E9BB0',td:'#9050C3',othoffice:'#8A98AE',print:'#C04485',cnc:'#E27035',beamsaw:'#C09018','3dprint':'#2D9C56',laser:'#CE4242',other:'#7A8BA3',fab:'#3B7FD6',metal:'#8B5E3C',softgoods:'#C75D8A',electrical:'#D9A21B',othshop:'#93A08F',prefinish:'#3FA9BC',finish:'#1AA59C',othfinish:'#9AA6B5',install:'#5A5DEC'};
 const TN_TARGETS=['Client Approval','Shop Drawings',...DEPTS.filter(d=>d.id!=='pm').map(d=>d.name)];
 
 /* ===================== STATE ===================== */
@@ -1761,6 +1760,10 @@ function computeConflicts(){
 }
 
 /* ===================== COLORS ===================== */
+/* Text on a colored fill (Design-Language §2.5): whichever of ink/white has the
+   higher WCAG contrast against the fill. #0D131D must match --ink. */
+function relLum(hex){const n=parseInt(hex.slice(1),16),f=v=>{v/=255;return v<=.04045?v/12.92:Math.pow((v+.055)/1.055,2.4);};return .2126*f(n>>16&255)+.7152*f(n>>8&255)+.0722*f(n&255);}
+function labelColor(bg){const L=relLum(bg)+.05;return L*L>=1.05*(relLum('#0D131D')+.05)?'var(--ink)':'#FFFFFF';}
 function projColor(pid){const i=ST.projects.findIndex(p=>p.id===pid);return i<0?'#9CA3AF':PCOLS[i%PCOLS.length];}
 function hashColor(s){let h=0;for(let i=0;i<(s||'').length;i++)h=(h*31+s.charCodeAt(i))>>>0;return PCOLS[h%PCOLS.length];}
 function personColor(rosterKey,name){const arr=STAFF[rosterKey]||[];const i=arr.indexOf(name);return i<0?hashColor(name):PCOLS[i%PCOLS.length];}
@@ -2329,10 +2332,12 @@ function makeSummaryBar(p,s,e,row){
   bar.className='job-bar summary';bar.dataset.st=st;bar.dataset.pid=p.id;
   bar.style.left=x+'px';bar.style.top=(row.top+BAR_PAD)+'px';
   bar.style.width=w+'px';bar.style.height=BAR_H+'px';
-  bar.style.background=projColor(p.id);
+  const sumCol=projColor(p.id);
+  bar.style.background=sumCol;
   if(st==='estimating'){const ov=document.createElement('div');ov.className='bar-stripe';bar.appendChild(ov);}
   if(st==='in-production'||st==='installing'){const ed=document.createElement('div');ed.className='bar-edge';bar.appendChild(ed);}
   const lbl=document.createElement('div');lbl.className='bar-lbl';
+  lbl.style.color=labelColor(sumCol);
   lbl.dataset.base='10';lbl.dataset.min=String(LBL_MIN);
   lbl.style.left=labelLeftFor(x,w,10,LBL_MIN)+'px';lbl.style.right='10px';
   const who=[
@@ -2361,11 +2366,13 @@ function makeTaskBar(t,row,lane,labelMode){
   bar.className='job-bar';bar.dataset.st=st;bar.dataset.tid=t.id;
   bar.style.left=x+'px';bar.style.top=y+'px';
   bar.style.width=w+'px';bar.style.height=BAR_H+'px';
-  bar.style.background=barColor(t);
+  const taskCol=barColor(t);
+  bar.style.background=taskCol;
   if(t.pinned)bar.classList.add('is-pinned');
   if(st==='estimating'){const ov=document.createElement('div');ov.className='bar-stripe';bar.appendChild(ov);}
   if(st==='in-production'||st==='installing'){const ed=document.createElement('div');ed.className='bar-edge';bar.appendChild(ed);}
   const lbl=document.createElement('div');lbl.className='bar-lbl';
+  lbl.style.color=labelColor(taskCol);
   const lblBase=(st==='in-production'||st==='installing')?11:8;
   lbl.dataset.base=String(lblBase);lbl.dataset.min=String(LBL_MIN_TASK);
   lbl.style.left=labelLeftFor(x,w,lblBase,LBL_MIN_TASK)+'px';
@@ -4197,7 +4204,7 @@ function npvRender(){
     const bx=x(a)+NPV_PADL,bw=Math.max(dwv,(diffDays(a,b)+1)*dwv-NPV_PADR);
     const col=DEPT_COLORS[t.department]||'#8A98AE';
     return '<div class="npv-bar'+(t.__manual?' manual':'')+(cls?' '+cls:'')+'" data-i="'+i+'" '
-     + 'style="left:'+bx+'px;width:'+bw+'px;background:'+col+'" '
+     + 'style="left:'+bx+'px;width:'+bw+'px;background:'+col+';color:'+labelColor(col)+'" '
      + 'title="'+esc(nm+' · '+fmtNice(t.startDate)+' → '+fmtNice(t.endDate)+' · '+(t.estimatedDays||1)+'d')+'">'
      + '<div class="npv-hdl" data-i="'+i+'"></div>'
      + '<span style="margin-left:5px">'+esc(nm)+'</span></div>';
@@ -4217,7 +4224,7 @@ function npvRender(){
        + esc(nm)+'<span class="npv-n">'+row.kids.length+'</span></div>'
        + '<div class="npv-bar sum'+(LINK_SUBS?'':' unlinked')+'" data-dept="'+esc(row.dept)+'" '
        + 'style="left:'+bx+'px;width:'+bw+'px;background:'+col+'" title="'+esc(tip)+'">'
-       + '<span style="margin-left:5px">'+esc(nm)+'</span></div>'
+       + '<span style="margin-left:5px;color:'+labelColor(col)+'">'+esc(nm)+'</span></div>'
        + '</div>';
       continue;
     }
@@ -4757,7 +4764,7 @@ function npvPaintCalendar(lo,hi,dl){
     }
     items.forEach((it,r)=>{
       h+='<div class="cal-band '+it.kind+'" title="'+esc(it.txt)+'" style="grid-column:'+(it.s+1)+'/'+(it.e+2)
-        +';grid-row:'+(r+2)+(it.col?';background:'+it.col:'')+'">'+esc(it.txt)+'</div>';
+        +';grid-row:'+(r+2)+(it.col?';background:'+it.col+';color:'+labelColor(it.col):'')+'">'+esc(it.txt)+'</div>';
     });
     h+='</div>';
 

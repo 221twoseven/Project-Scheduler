@@ -46,7 +46,7 @@ Consequences: forecast and on-hold bars keep their **project's hue** and signal 
 
 ### 2.3 Department palette
 
-Keep the existing `DEPT_COLORS` map as-is (it's serviceable and staff know it), with two exceptions: raise `beamsaw` `#C09018` and `electrical` `#D9A21B` label contrast via §2.5, and ensure no department except `install`/`laser` sits within 15° of the reserved red.
+Keep the existing `DEPT_COLORS` map as-is (it's serviceable and staff know it), with these exceptions: raise `beamsaw` `#C09018` and `electrical` `#D9A21B` label contrast via §2.5; `pm` `#5B7C99` → `#567693` and `install` `#6366F1` → `#5A5DEC` (the originals sit in the mid-luminance dead zone where *neither* ink nor white reaches 4.5:1 — a small darkening keeps the hue and lets white pass); and ensure no department except `install`/`laser` sits within 15° of the reserved red.
 
 ### 2.4 Canvas (the quiet calendar)
 
@@ -62,12 +62,15 @@ One function, used everywhere a label sits on a colored fill:
 
 ```js
 function labelColor(bg){ /* relative luminance per WCAG */
-  const L = relLum(bg);                  // 0..1
-  return L > 0.44 ? 'var(--ink)' : '#FFFFFF';
+  const L = relLum(bg) + 0.05;
+  /* whichever of ink/white contrasts more against the fill */
+  return L * L >= 1.05 * (relLum(INK) + 0.05) ? 'var(--ink)' : '#FFFFFF';
 }
 ```
 
-No hand-picked per-bar text colors. Pills use the same rule. A jsdom test iterates every palette constant and asserts ≥4.5:1 — the palette can't regress.
+(An earlier draft used a fixed `L > 0.44` threshold; that maps mid-luminance fills like `#D9A21B` to white at ~2.3:1, contradicting the 4.5:1 rule below, so the shipped function compares the two candidates' actual contrast instead. `L*L ≥ 1.05·(L_ink+0.05)` is the algebraic form of "ink's contrast ≥ white's contrast".)
+
+No hand-picked per-bar text colors. Pills use the same rule. A jsdom test (`tests/test-contrast.js`) iterates every palette constant and asserts ≥4.5:1 — the palette can't regress.
 
 ### 2.6 Chrome (toolbar & sidebar)
 

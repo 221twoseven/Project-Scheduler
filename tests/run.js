@@ -18,6 +18,7 @@ const SUITES = [
   'test48.js',
   'test49.js',
   'test50.js',
+  'test-contrast.js',
 ];
 
 const repoRoot = path.resolve(__dirname, '..');
