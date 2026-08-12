@@ -309,15 +309,11 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 .sm-item:hover{background:#F1F5F9}
 .sm-all{margin-top:6px;border:none;background:#F1F5F9;border-radius:6px;padding:5px;font-size:11px;cursor:pointer;color:#334155}
 .sm-all:hover{background:#E2E8F0}
-.sm-lbl{font-size:8.5px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:#8194ab;padding:4px 8px 2px}
 .sm-note{font-family:var(--mono);font-size:10px;color:#8194ab;padding:6px 8px 2px;border-top:1px solid #E2E8F0;margin-top:4px;white-space:nowrap}
-/* Color toggle re-skinned for the white View menu (dark-chrome default is invisible here) */
-.vm-tog{margin:2px 6px 4px;border-color:#CBD5E1}
-.vm-tog .t-btn{color:#475569;border-right:1px solid #CBD5E1}
-.vm-tog .t-btn:hover{background:#E8EEF7;color:#1E293B}
-.vm-tog .t-btn.active{background:var(--acc);color:#fff}
-#t-tint::before{content:'○';color:#94a3b8;font-size:13px;width:14px;text-align:center;flex-shrink:0}
-#t-tint.on::before{content:'●';color:var(--acc)}
+/* Tint — low-priority toggle parked at the right of the timeline row */
+#t-tint{background:transparent;border-color:transparent;color:rgba(255,255,255,.42);font-size:11px;padding:5px 9px}
+#t-tint:hover{background:rgba(255,255,255,.08);color:rgba(255,255,255,.8)}
+#t-tint.on{background:rgba(47,111,228,.22);border-color:rgba(96,150,240,.5);color:#fff}
 
 /* ============ REV31: SPOTLIGHT FIX — dimmed rows keep clickable eyes ============ */
 .sb-row.dim{opacity:1;filter:none}
@@ -682,7 +678,6 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 .cal-wk{min-height:var(--calh,90px)}
 .cal-dow{position:sticky;top:0;z-index:5}
 .cal-mon{position:sticky;top:0;z-index:6}
-#t-tint.on{color:var(--acc);font-weight:600}
 
 
 /* ============ REV44: SORT GROUP HEADERS ============ */
@@ -932,25 +927,20 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
       <button id="btn-weeks" class="t-btn" title="Week scale (W)">Weeks</button>
     </div>
     <div class="t-sep"></div>
+    <span class="t-mini">Color</span>
+    <div class="tog-grp">
+      <button id="btn-col-proj" class="t-btn active">Project</button>
+      <button id="btn-col-ent" class="t-btn">Team</button>
+    </div>
+    <div class="t-sep"></div>
     <input id="t-search" type="text" placeholder="Search  /" autocomplete="off" spellcheck="false">
     <div class="sf-wrap">
       <button id="btn-status" class="t-btn">Status ▾</button>
       <div id="status-menu" class="tb-menu hidden"></div>
     </div>
     <button id="btn-reset" class="t-btn" title="Clear spotlight, search and status filter">⟲ Clear filters</button>
-    <div class="t-sep"></div>
-    <div class="sf-wrap">
-      <button id="btn-view" class="t-btn">View ▾</button>
-      <div id="view-menu" class="tb-menu hidden">
-        <div class="sm-lbl">Color by</div>
-        <div class="tog-grp vm-tog">
-          <button id="btn-col-proj" class="t-btn active">Project</button>
-          <button id="btn-col-ent" class="t-btn">Team</button>
-        </div>
-        <div class="sm-item" id="t-tint" title="Month and week background tint">Calendar tint</div>
-      </div>
-    </div>
     <span class="tb-spacer"></span>
+    <button id="t-tint" class="t-btn" title="Month and week background tint">Tint</button>
     <label class="lock-tog" title="Protect dates — drag only reassigns, never moves dates">
       <input type="checkbox" id="lock-ck">
       <span class="lock-track"><span class="lock-thumb"></span></span>
@@ -5527,7 +5517,6 @@ function wireMenu(btnId,menuId){
 wireMenu('btn-status','status-menu');
 wireMenu('btn-print','print-menu');
 wireMenu('btn-settings','settings-menu');
-wireMenu('btn-view','view-menu');
 document.addEventListener('click',closeMenus);
 document.getElementById('btn-reset').addEventListener('click',()=>{
   SPOT.clear();
