@@ -195,6 +195,10 @@ kbd{font-family:var(--mono);font-size:10px;background:#EDF1F7;border:1px solid #
 .bar-handle{position:absolute;top:0;bottom:0;width:9px;z-index:12}
 .bh-l{left:0;cursor:w-resize}
 .bh-r{right:0;cursor:e-resize}
+/* §6 affordance: hovering the bar shows a thin rule at each edge in the label color */
+.job-bar:hover .bar-handle::after{content:'';position:absolute;top:2px;bottom:2px;width:2px;border-radius:1px;background:currentColor;opacity:.4}
+.bh-l::after{left:2px}
+.bh-r::after{right:2px}
 body.dates-locked .bh-l,body.dates-locked .bh-r,
 .job-bar.is-pinned .bh-l,.job-bar.is-pinned .bh-r{cursor:not-allowed!important;opacity:.25}
 .tick-node{position:absolute;top:50%;width:15px;height:15px;margin-top:-7.5px;transform:rotate(45deg);background:#fff;border:2px solid rgba(15,23,42,.6);border-radius:2px;box-shadow:0 1px 4px rgba(0,0,0,.4);pointer-events:auto;cursor:help;z-index:13;transition:transform .1s}
@@ -428,8 +432,11 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 .npv-bar{position:absolute;height:17px;top:4px;border-radius:4px;cursor:grab;display:flex;align-items:center;padding:0 6px;font-size:9.5px;font-weight:600;white-space:nowrap;overflow:hidden;z-index:2;user-select:none}
 .npv-bar.dragging{cursor:grabbing;opacity:.85;z-index:6}
 .npv-bar.manual{box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.85)}
-.npv-hdl{position:absolute;left:0;top:0;bottom:0;width:7px;cursor:ew-resize;border-radius:4px 0 0 4px;background:rgba(255,255,255,.28)}
-.npv-hdl:hover{background:rgba(255,255,255,.55)}
+.npv-hdl{position:absolute;left:0;top:0;bottom:0;width:8px;cursor:ew-resize}
+.npv-hdl.r{left:auto;right:0}
+.npv-hdl::after{content:'';position:absolute;left:2px;top:2px;bottom:2px;width:2px;border-radius:1px;background:currentColor;opacity:0}
+.npv-hdl.r::after{left:auto;right:2px}
+.npv-bar:hover .npv-hdl::after{opacity:.4}
 .npv-today{position:absolute;top:0;bottom:0;width:2px;background:rgba(220,38,38,.75);z-index:4;pointer-events:none}
 .npv-dl{position:absolute;top:0;bottom:0;width:0;border-left:2px dashed #CE4242;z-index:4;pointer-events:none}
 .npv-foot{display:flex;align-items:center;gap:14px;padding:9px 12px;border-top:1px solid #E2E8F0;background:#FBFDFF;font-size:11px;color:#5B6B85;flex-wrap:wrap}
@@ -1596,7 +1603,9 @@ function toast(msg,kind,undoable){
   el.textContent=msg;
   if(undoable){
     const b=document.createElement('button');b.className='undo';b.textContent='Undo';
-    b.addEventListener('click',()=>{el.remove();undo();});
+    /* Pass a function as `undoable` to run it instead of the ST undo stack —
+       draft-page mutations live outside ST and bring their own reverser. */
+    b.addEventListener('click',()=>{el.remove();typeof undoable==='function'?undoable():undo();});
     el.appendChild(b);
   }
   box.appendChild(el);
@@ -2401,6 +2410,7 @@ function makeTaskBar(t,row,lane,labelMode){
   bar.style.width=w+'px';bar.style.height=BAR_H+'px';
   const taskCol=barColor(t);
   bar.style.background=taskCol;
+  bar.style.color=labelColor(taskCol); /* handles pick this up via currentColor */
   if(t.pinned)bar.classList.add('is-pinned');
   if(st==='estimating'){const ov=document.createElement('div');ov.className='bar-stripe';bar.appendChild(ov);}
   if(st==='in-production'||st==='installing'){const ed=document.createElement('div');ed.className='bar-edge';bar.appendChild(ed);}
@@ -4130,7 +4140,8 @@ function npvRebuild(){
   let tasks=generateSchedule(d.base,d.est,d.otherLabels);
   tasks=tasks.map(t=>{
     const m=NPV_MANUAL[npvKey(t)];
-    return m?{...t,startDate:m.startDate,endDate:m.endDate,__manual:true}:t;
+    return m?{...t,startDate:m.startDate,endDate:m.endDate,
+      ...(m.estimatedDays?{estimatedDays:m.estimatedDays}:{}),__manual:true}:t;
   });
   tasks=applyPhaseLines(tasks);
   NPV_ALL=tasks;
@@ -4240,6 +4251,7 @@ function npvRender(){
      + 'style="left:'+bx+'px;width:'+bw+'px;background:'+col+';color:'+labelColor(col)+'" '
      + 'title="'+esc(nm+' · '+fmtNice(t.startDate)+' → '+fmtNice(t.endDate)+' · '+(t.estimatedDays||1)+'d')+'">'
      + '<div class="npv-hdl" data-i="'+i+'"></div>'
+     + '<div class="npv-hdl r" data-i="'+i+'"></div>'
      + '<span style="margin-left:5px">'+esc(nm)+'</span></div>';
   };
   for(const row of NPV_PLAN){
@@ -5165,27 +5177,48 @@ function npvBindDrag(){
       ev.preventDefault();
       const i=+bar.dataset.i,t=NPV_TASKS[i];
       if(!t)return;
-      const resize=ev.target.classList.contains('npv-hdl');
+      /* Left handle edits the start date, right handle the end date. Same rule as the
+         main timeline's startDrag: Protect dates or a pin blocks resizing outright. */
+      const resize=ev.target.classList.contains('npv-hdl')
+        ?(ev.target.classList.contains('r')?'r':'l'):'';
+      /* Locked: the drag is swallowed but a click still selects, like the timeline. */
+      const locked=!!resize&&(DATE_LOCK||!!t.pinned);
       const x0=ev.clientX;
       const s0=parseDate(t.startDate),e0=parseDate(t.endDate);
       const dwv=NPV_GEO.dw;
+      const tip=document.getElementById('tooltip');
+      /* A resized edge lands on a workday: the start snaps forward, the end back. */
+      const snap=(d,dir)=>{while(!isWorking(d))d=addDays(d,dir);return d;};
+      const edge=e2=>{
+        const dd=Math.round((e2.clientX-x0)/dwv);
+        if(resize==='l'){let ns=snap(addDays(s0,dd),1);return ns>e0?new Date(e0):ns;}
+        const ne=snap(addDays(e0,dd),-1);return ne<s0?new Date(s0):ne;
+      };
+      if(resize&&!locked){document.body.style.cursor='ew-resize';document.body.style.userSelect='none';}
       bar.classList.add('dragging');
       let days=0;
       const mv=e2=>{
+        if(locked)return;
         days=Math.round((e2.clientX-x0)/dwv);
-        if(resize){
-          let ns=addDays(s0,days);
-          if(ns>e0)ns=new Date(e0);
+        if(resize==='l'){
+          const ns=edge(e2);
           bar.style.left=(NPV_GUT+diffDays(NPV_GEO.lo,ns)*dwv+NPV_PADL)+'px';
           bar.style.width=Math.max(dwv,(diffDays(ns,e0)+1)*dwv-NPV_PADR)+'px';
+        }else if(resize==='r'){
+          bar.style.width=Math.max(dwv,(diffDays(s0,edge(e2))+1)*dwv-NPV_PADR)+'px';
         }else{
           bar.style.left=(NPV_GUT+diffDays(NPV_GEO.lo,addDays(s0,days))*dwv+NPV_PADL)+'px';
         }
+        if(resize){
+          tip.innerHTML='<div class="tt-title">'+fmtNice(fmtDate(edge(e2)))+'</div>';
+          tip.classList.remove('hidden');posTooltip(e2);
+        }
       };
-      const up=()=>{
+      const up=e2=>{
         document.removeEventListener('mousemove',mv);
         document.removeEventListener('mouseup',up);
         bar.classList.remove('dragging');
+        if(resize){document.body.style.cursor='';document.body.style.userSelect='';hideTooltip();}
         if(!days){
           /* A click selects on a saved project; on a draft it opens the bar's editor,
              because draft bars aren't in ST for the inspector to find. */
@@ -5196,15 +5229,21 @@ function npvBindDrag(){
           return;
         }
         if(resize){
-          let ns=addDays(s0,days);
-          if(ns>e0)ns=new Date(e0);
-          const n=wdCount(ns,e0);
-          if(NPV_LIVE){commitPhaseDates(t.id,fmtDate(ns),fmtDate(e0),n);npvRebuild();
+          const ns=resize==='l'?edge(e2):s0, ne=resize==='r'?edge(e2):e0;
+          /* Snapping can round a short drag back to where it started — nothing to file. */
+          if(fmtDate(ns)===t.startDate&&fmtDate(ne)===t.endDate){npvRender();return;}
+          const n=wdCount(ns,ne);
+          if(NPV_LIVE){commitPhaseDates(t.id,fmtDate(ns),fmtDate(ne),n);npvRebuild();
             ppSelect(t.id,true);toastU('Resized '+phaseLabel(t)+' to '+n+'d');return;}
-          const inp=document.querySelector('#pp-depts input[data-dept="'+t.department+'"]');
-          const dd=inp?inp.parentElement.querySelector('.ddays'):null;
-          if(dd){dd.value=n;npvRebuild();}
-          else npvRender();
+          /* Draft: pin the dragged dates as a manual placement — the preview honors it
+             through rebuilds and Save files exactly what's shown; nothing touches ST. */
+          const k=npvKey(t),prev=NPV_MANUAL[k];
+          NPV_MANUAL[k]={startDate:fmtDate(ns),endDate:fmtDate(ne),estimatedDays:n};
+          npvRebuild();
+          toast('Resized '+phaseLabel(t)+' to '+n+'d',null,()=>{
+            if(prev)NPV_MANUAL[k]=prev;else delete NPV_MANUAL[k];
+            npvRebuild();
+          });
         }else{
           if(NPV_LIVE){
             commitPhaseDates(t.id,fmtDate(addDays(s0,days)),fmtDate(addDays(e0,days)));
