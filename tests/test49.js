@@ -67,17 +67,19 @@ function stage1(){
   ok('departments section exists', !!q('[data-sec="depts"]'));
   ok('agenda section exists', !!q('[data-sec="agenda"]'));
   ok('setup is open by default', q('[data-sec="setup"]').classList.contains('open'));
-  ok('team is folded by default', !q('[data-sec="team"]').classList.contains('open'));
+  ok('team is open by default', q('[data-sec="team"]').classList.contains('open'));
+  ok('departments is open by default', q('[data-sec="depts"]').classList.contains('open'));
+  ok('agenda is open by default', q('[data-sec="agenda"]').classList.contains('open'));
 
-  sec('sections fold');
+  sec('sections no longer fold (E1: dock columns)');
   click(q('[data-sec="team"]>h4'));
   setTimeout(()=>{
-    ok('clicking a heading opens it', q('[data-sec="team"]').classList.contains('open'));
-    click(q('[data-sec="team"]>h4'));
-    setTimeout(()=>{
-      ok('clicking again closes it', !q('[data-sec="team"]').classList.contains('open'));
-      stage2();
-    },150);
+    ok('clicking a heading leaves it open', q('[data-sec="team"]').classList.contains('open'));
+    ok('the dock exists with a resize handle',
+       !!doc.getElementById('pp-dock')&&!!doc.getElementById('dock-resize'));
+    ok('the footer lives inside the dock',
+       !!q('#pp-dock .dash-foot'));
+    stage2();
   },150);
 }
 

@@ -423,8 +423,6 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 
 /* ============ REV37: SPLIT CREATE PAGE + LIVE SCHEDULE PREVIEW ============ */
 .pg.split{max-width:1420px}
-.pg-cols{display:grid;grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr);gap:26px;align-items:start}
-.pg-right{position:sticky;top:16px;max-height:calc(100vh - 84px);overflow-y:auto;overflow-x:hidden;padding-right:3px}
 .npv{background:#fff;border:1px solid #E2E8F0;border-radius:11px;overflow:hidden}
 .npv-hd{display:flex;align-items:center;gap:9px;padding:9px 12px;border-bottom:1px solid #E2E8F0;background:#F7FAFD}
 .npv-ttl{flex:1;font-size:var(--fs-micro);font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:#7488A3}
@@ -457,7 +455,6 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 .npv-foot .warn{color:#CE4242;font-weight:700}
 .npv-empty{padding:36px 18px;text-align:center;font-size:12.5px;color:#94A3B8;font-style:italic}
 .npv-tip{font-size:11px;color:#94A3B8;margin-top:8px;line-height:1.5}
-@media(max-width:1080px){.pg-cols{grid-template-columns:1fr}.pg-right{position:static}}
 
 
 /* ============ REV38: DEPARTMENT REORDERING ============ */
@@ -480,8 +477,6 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 
 /* --- configurator uses the whole frame --- */
 .pg.split{max-width:none;padding:22px 30px 90px}
-.pg-cols{grid-template-columns:minmax(430px,600px) minmax(0,1fr);gap:30px}
-.pg-left{min-width:0}
 .pg-rbox{max-height:160px}   /* 132px was slicing the last name in half */
 .pg.split .pg-roles{grid-template-columns:repeat(2,1fr);gap:14px}
 
@@ -720,12 +715,16 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 .dash-meta .k{font-size:var(--fs-micro);font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#A3B1C4}
 .dash-meta .v{font-size:12px;font-weight:700;color:#33415A}
 .dash-meta .v.warn{color:#CE4242}
-.dash-body{flex:1;display:flex;gap:0;min-height:0;border-top:1px solid #E2E8F0}
-.dash-chart{flex:1;min-width:0;display:flex;flex-direction:column;background:#fff}
-.dash-insp{width:330px;flex-shrink:0;border-left:1px solid #E2E8F0;background:var(--paper);
-  display:flex;flex-direction:column;min-height:0}
-@media(max-width:1080px){.dash-body{flex-direction:column}
-  .dash-insp{width:auto;border-left:none;border-top:1px solid #E2E8F0;max-height:44vh}}
+.dash-body{flex:1;display:flex;flex-direction:column;gap:0;min-height:0;border-top:1px solid #E2E8F0}
+.dash-chart{flex:1;min-height:0;display:flex;flex-direction:column;background:#fff}
+/* E1: the inspector docks to the bottom — the title block of the drawing sheet. Chart
+   gets the full window width; the dock height is user-draggable and persisted, like the
+   old sidebar width. */
+.dash-insp{position:relative;flex-shrink:0;max-height:70vh;border-top:1px solid #E2E8F0;
+  background:var(--paper);display:flex;flex-direction:column;min-height:0}
+#dock-resize{position:absolute;top:-4px;left:0;right:0;height:8px;cursor:row-resize;z-index:30}
+#dock-resize:hover{background:rgba(47,111,228,.3)}
+.ins-wrap{flex:1;min-height:0;display:flex;flex-direction:column}
 .dash .npv{border:none;border-radius:0;flex:1;min-height:0;display:flex;flex-direction:column}
 .dash .npv-scroll{flex:1;min-height:0}
 .dash-foot{display:flex;align-items:center;gap:9px;padding:9px 22px;border-top:1px solid #E2E8F0;
@@ -740,18 +739,23 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 .ins-hd .x{background:none;border:none;color:#B4C0D0;font-size:17px;line-height:1;cursor:pointer;
   padding:0 2px;font-family:inherit}
 .ins-hd .x:hover{color:var(--acc)}
-.ins-body{flex:1;overflow-y:auto;min-height:0}
-.ins-sec{border-bottom:1px solid #E2E8F0}
-.ins-sec>h4{display:flex;align-items:center;gap:7px;margin:0;padding:10px 15px;cursor:pointer;
+/* E1: sections run side by side as columns — Setup | Team | Departments | Agenda — all
+   open at once. When the columns' minimums no longer fit, the panel scrolls sideways;
+   each column header stays put at the top of its own scrolling column. */
+.ins-body{flex:1;min-height:0;display:flex;align-items:stretch;overflow-x:auto;overflow-y:hidden}
+.ins-sec{flex:1 1 0;min-width:240px;display:flex;flex-direction:column;min-height:0;
+  border-right:1px solid #E2E8F0}
+.ins-sec:last-child{border-right:none}
+.ins-sec[data-sec="team"]{min-width:340px}
+.ins-sec[data-sec="depts"]{min-width:300px}
+.ins-sec>h4{display:flex;align-items:center;gap:7px;margin:0;padding:10px 15px;flex-shrink:0;
   font-size:var(--fs-fine);font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#7488A3;
-  user-select:none}
-.ins-sec>h4:hover{color:var(--acc);background:#F7FAFD}
-.ins-sec>h4 .cv{font-size:var(--fs-fine);color:#B4C0D0;transition:transform .12s ease}
-.ins-sec.open>h4 .cv{transform:rotate(90deg)}
+  user-select:none;border-bottom:1px solid #EDF2F7}
 .ins-sec>h4 .n{margin-left:auto;font-size:var(--fs-fine);font-weight:700;color:#94A3B8;background:#EDF2F8;
   border-radius:8px;padding:1px 6px}
-.ins-sec .in{padding:2px 15px 14px;display:none}
-.ins-sec.open .in{display:block}
+.ins-sec .in{padding:8px 15px 14px;flex:1;min-height:0;overflow-y:auto}
+.dash-insp .pg-roles{grid-template-columns:repeat(2,1fr);gap:10px}
+.dash-insp .pg-depts{column-count:1}
 .ins-f{margin-bottom:10px}
 .ins-f>label{display:block;font-size:var(--fs-fine);font-weight:700;letter-spacing:.07em;
   text-transform:uppercase;color:#94A3B8;margin-bottom:4px}
@@ -3201,7 +3205,11 @@ function renderProjectPage(){
    + '<div class="npv-axis" id="npv-axis"></div><div class="npv-body" id="npv-body"></div>'
    + '</div></div><div class="npv-foot" id="npv-foot"></div></div></div>';
 
-  h+='<div class="dash-insp" id="pp-insp"></div></div>';
+  /* E1: the inspector is a bottom dock. The footer lives on its bottom edge, keeping
+     destructive actions physically far from the chart. */
+  h+='<div class="dash-insp" id="pp-dock" style="height:'+DOCK_H+'px">'
+   + '<div id="dock-resize" title="Drag to resize the panel"></div>'
+   + '<div class="ins-wrap" id="pp-insp"></div>';
 
   h+='<div class="dash-foot">'
    + (isNew?'':'<span class="pg-auto"><b>&#10003;</b> Changes save automatically</span>')
@@ -3210,7 +3218,7 @@ function renderProjectPage(){
    + (isNew?'':'<button class="btn btn-danger" id="pp-del" title="Delete this project and everything on it">Delete project</button>')
    + '<button class="btn btn-ghost" id="pp-cancel" title="'+(isNew?'Leave without creating the project':'Go back to the timeline — changes are already saved')+'">'+(isNew?'Cancel':'Done')+'</button>'
    + (isNew?'<button class="btn btn-primary" id="pp-save" title="Create the project with the schedule shown">Create project</button>':'')
-   + '</div></div>';
+   + '</div></div></div></div>';
   h+='<div class="ks hidden" id="pp-ks"><div class="ks-in">'
    + '<h3>Keyboard</h3><div class="ks-g">'
    + [['S','New subtask'],['E','New event'],['T','New task'],['R','Rename selected'],
@@ -3478,10 +3486,10 @@ function insDeptList(p,boxId){
   }));
 }
 
-function ppSec(id,title,body,count,dflt){
-  const open=(PP_FOLD[id]===undefined)?!!dflt:!PP_FOLD[id];
-  return '<div class="ins-sec'+(open?' open':'')+'" data-sec="'+id+'">'
-   + '<h4><span class="cv">&#9654;</span>'+esc(title)
+/* E1: sections are columns in the bottom dock, always open — no accordion. */
+function ppSec(id,title,body,count){
+  return '<div class="ins-sec open" data-sec="'+id+'">'
+   + '<h4>'+esc(title)
    + (count!==undefined&&count!==null?'<span class="n">'+count+'</span>':'')
    + '</h4><div class="in">'+body+'</div></div>';
 }
@@ -3599,12 +3607,6 @@ function ppAgendaHTML(p,onlyDept){
 function ppBindInspector(p,sel){
   const box=document.getElementById('pp-insp');
   if(!box)return;
-  box.querySelectorAll('.ins-sec>h4').forEach(hd=>hd.addEventListener('click',()=>{
-    const id=hd.parentElement.dataset.sec;
-    PP_FOLD[id]=!PP_FOLD[id]===false?true:!PP_FOLD[id];
-    PP_FOLD[id]=hd.parentElement.classList.contains('open');
-    hd.parentElement.classList.toggle('open');
-  }));
   const x=document.getElementById('ins-x');
   if(x)x.addEventListener('click',()=>ppSelect(null));
 
@@ -3801,7 +3803,8 @@ let NPV_PLAN=[];          /* the row plan actually drawn: parent / child / leaf 
 let LINK_SUBS=true;       /* dragging a department bar carries its subtasks along */
 let PP_SEL=null;          /* REV49: selected phase id. Selection drives the inspector. */
 let PP_INSP='project';    /* which pane: 'project' or 'phase' */
-let PP_FOLD={};           /* collapsed inspector sections */
+let DOCK_H=280;           /* E1: bottom-dock height, persisted like the sidebar width */
+try{const v=parseInt(localStorage.getItem('shopTimelineDockH'),10);if(v>0)DOCK_H=v;}catch(e){}
 let PP_HELP=false;
 const NPV_ROWH=34;      /* must match .npv-row height in the stylesheet */
 let NPV_GEO=null;
@@ -5189,16 +5192,10 @@ function ppPopDelete(t){
   }
   ppClosePop();npvRebuild();
 }
-/* REV49: the tabs are gone. Anything that used to switch to one now just makes sure the
-   matching inspector section is open. */
+/* REV49: the tabs are gone; E1: every section is always visible, so a "tab switch" is
+   just a repaint. */
 function ppGoTab(tab){
-  if(document.getElementById('pp-insp')){
-    const map={setup:'setup',team:'team',depts:'depts',events:'agenda'};
-    const id=map[tab]||'agenda';
-    PP_FOLD[id]=false;
-    ppInspector();
-    return;
-  }
+  if(document.getElementById('pp-insp'))ppInspector();
 }
 
 function npvBindDrag(){
@@ -5273,7 +5270,7 @@ function npvBindDrag(){
         mk.classList.remove('dragging');
         if(!days){
           /* a click: open the agenda and rename it right there */
-          PP_FOLD['agenda']=false;ppInspector();
+          ppInspector();
           setTimeout(()=>ppEditAgenda(id,k),30);
           return;
         }
@@ -5673,6 +5670,23 @@ function setSideW(w){SIDE_W=Math.max(180,Math.min(480,Math.round(w)));document.g
   document.addEventListener('mousemove',ev=>{if(rs)setSideW(rs.ow+ev.clientX-rs.sx);});
   document.addEventListener('mouseup',()=>{if(!rs)return;rs=null;
     document.body.style.cursor='';document.body.style.userSelect='';saveUI();});
+})();
+
+/* E1: bottom-dock resize. The handle is re-created on every renderProjectPage, so the
+   listeners live on document and key off the id. */
+function setDockH(h){DOCK_H=Math.max(140,Math.min(Math.round(h),window.innerHeight-220));
+  const d=document.getElementById('pp-dock');if(d)d.style.height=DOCK_H+'px';}
+(function(){
+  let rs=null;
+  document.addEventListener('mousedown',ev=>{
+    if(!ev.target||ev.target.id!=='dock-resize')return;
+    rs={sy:ev.clientY,oh:DOCK_H};ev.preventDefault();
+    document.body.style.cursor='row-resize';document.body.style.userSelect='none';});
+  document.addEventListener('mousemove',ev=>{if(rs)setDockH(rs.oh+(rs.sy-ev.clientY));});
+  document.addEventListener('mouseup',()=>{if(!rs)return;rs=null;
+    document.body.style.cursor='';document.body.style.userSelect='';
+    try{localStorage.setItem('shopTimelineDockH',String(DOCK_H));}catch(e){}
+    npvQueue();});
 })();
 
 /* Dropping a project on empty sidebar space moves it to the end */
