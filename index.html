@@ -918,46 +918,46 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
       <span class="tb-co">TWOSEVEN</span>
       <span class="tb-app">Shop Timeline</span>
     </div>
-    <button id="btn-new-proj" class="t-btn accent" title="New project (N)">+ New Project</button>
+    <button id="btn-new-proj" class="t-btn accent" title="Create a new project (N)">+ New Project</button>
     <div class="sf-wrap">
-      <button id="btn-print" class="t-btn">⎙ Print ▾</button>
+      <button id="btn-print" class="t-btn" title="Print the timeline or a meeting sheet">⎙ Print ▾</button>
       <div id="print-menu" class="tb-menu hidden">
-        <div class="sm-item" id="mi-print-timeline">⎙ Print Timeline</div>
-        <div class="sm-item" id="mi-meeting">☰ Meeting Sheet</div>
+        <div class="sm-item" id="mi-print-timeline" title="Print the timeline as it looks on screen">⎙ Print Timeline</div>
+        <div class="sm-item" id="mi-meeting" title="Print a meeting sheet of every project grouped by PM">☰ Meeting Sheet</div>
       </div>
     </div>
     <div class="sf-wrap">
-      <button id="btn-settings" class="t-btn">⚙ Settings ▾</button>
+      <button id="btn-settings" class="t-btn" title="App settings and the shared staff list">⚙ Settings ▾</button>
       <div id="settings-menu" class="tb-menu hidden">
-        <div class="sm-item" id="mi-people">People &amp; Availability</div>
+        <div class="sm-item" id="mi-people" title="Edit staff names, departments and time off">People &amp; Availability</div>
         <div class="sm-note">Shop Timeline · REV <span id="tb-rev-num"></span></div>
       </div>
     </div>
     <span class="tb-spacer"></span>
-    <span id="sync-pill" class="busy" title="SharePoint sync status">● connecting…</span>
+    <span id="sync-pill" class="busy" title="Shows whether your changes are saved to SharePoint — click to retry after an error">● connecting…</span>
   </div>
   <div class="tb-row tb-timeline">
-    <button id="btn-today" class="t-btn" title="Jump to today (T)">Today</button>
+    <button id="btn-today" class="t-btn" title="Scroll the timeline to today (T)">Today</button>
     <div class="tog-grp">
-      <button id="btn-days" class="t-btn active" title="Day scale (D)">Days</button>
-      <button id="btn-weeks" class="t-btn" title="Week scale (W)">Weeks</button>
+      <button id="btn-days" class="t-btn active" title="Show the timeline day by day (D)">Days</button>
+      <button id="btn-weeks" class="t-btn" title="Show the timeline week by week (W)">Weeks</button>
     </div>
     <div class="t-sep"></div>
     <span class="t-mini">Color</span>
     <div class="tog-grp">
-      <button id="btn-col-proj" class="t-btn active">Project</button>
-      <button id="btn-col-ent" class="t-btn">Team</button>
+      <button id="btn-col-proj" class="t-btn active" title="Color every bar by its project">Project</button>
+      <button id="btn-col-ent" class="t-btn" title="Color every bar by its department team">Team</button>
     </div>
     <div class="t-sep"></div>
-    <input id="t-search" type="text" placeholder="Search  /" autocomplete="off" spellcheck="false">
+    <input id="t-search" type="text" placeholder="Search  /" autocomplete="off" spellcheck="false" title="Type to show only matching projects and phases (/)">
     <div class="sf-wrap">
-      <button id="btn-status" class="t-btn">Status ▾</button>
+      <button id="btn-status" class="t-btn" title="Choose which project statuses are shown">Status ▾</button>
       <div id="status-menu" class="tb-menu hidden"></div>
     </div>
-    <button id="btn-reset" class="t-btn" title="Clear spotlight, search and status filter">⟲ Clear filters</button>
+    <button id="btn-reset" class="t-btn" title="Clear the spotlight, search and status filters">⟲ Clear filters</button>
     <span class="tb-spacer"></span>
-    <button id="t-tint" class="t-btn" title="Month and week background tint">Tint</button>
-    <label class="lock-tog" title="Protect dates — drag only reassigns, never moves dates">
+    <button id="t-tint" class="t-btn" title="Tint the calendar background by month">Tint</button>
+    <label class="lock-tog" title="Lock all bars so drags can't change dates">
       <input type="checkbox" id="lock-ck">
       <span class="lock-track"><span class="lock-thumb"></span></span>
       <span class="lock-txt">Protect dates</span>
@@ -969,20 +969,20 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
   <div id="sidebar">
     <div id="sb-head">
       <div class="tog-grp sb-lens">
-        <button id="btn-lens-proj" class="t-btn active">Projects</button>
-        <button id="btn-lens-dept" class="t-btn">Departments</button>
+        <button id="btn-lens-proj" class="t-btn active" title="Group the rows by project">Projects</button>
+        <button id="btn-lens-dept" class="t-btn" title="Group the rows by department">Departments</button>
       </div>
-      <button id="sb-all" title="Collapse / expand all">⇕ All</button>
+      <button id="sb-all" title="Collapse or expand every row at once">⇕ All</button>
     </div>
     <div id="side-rows"></div>
     <div id="sb-foot">
       <span class="sbf-lbl">Sort</span>
-      <button id="sort-deadline" class="sbf-btn">Due date</button>
-      <button id="sort-client" class="sbf-btn">Client</button>
-      <button id="sort-pm" class="sbf-btn">PM</button>
-      <button id="sort-status" class="sbf-btn">Status</button>
+      <button id="sort-deadline" class="sbf-btn" title="Sort projects by due date">Due date</button>
+      <button id="sort-client" class="sbf-btn" title="Sort projects by client name">Client</button>
+      <button id="sort-pm" class="sbf-btn" title="Sort projects by project manager">PM</button>
+      <button id="sort-status" class="sbf-btn" title="Sort projects by status">Status</button>
     </div>
-    <div id="sb-resize" title="Drag to resize sidebar"></div>
+    <div id="sb-resize" title="Drag to resize the sidebar"></div>
   </div>
   <div id="gantt-area">
     <div id="hdr-wrap"><div id="gantt-hdr"></div></div>
@@ -996,7 +996,7 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 <!-- TASK MODAL -->
 <div id="task-overlay" class="overlay hidden">
   <div class="modal">
-    <h3 id="tm-head">Edit Task</h3>
+    <h3 id="tm-head">Edit Phase</h3>
     <div class="modal-body">
     <div class="fg-2">
       <div class="fg"><label>Project *</label><select id="tm-project"></select></div>
@@ -1024,7 +1024,7 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
     <div class="fg"><label>Notes</label><textarea id="tm-notes" rows="2"></textarea></div>
     </div>
     <div class="m-actions">
-      <button id="tm-del" class="btn btn-del hidden">Delete Task</button>
+      <button id="tm-del" class="btn btn-del hidden">Delete Phase</button>
       <div class="m-right">
         <button id="tm-cancel" class="btn btn-ghost">Cancel</button>
         <button id="tm-save" class="btn btn-primary">Save</button>
@@ -2859,7 +2859,7 @@ document.getElementById('tm-tnadd').addEventListener('click',()=>{
 function openTaskModal(taskId,prefill){
   EDIT_TASK_ID=taskId||null;
   const t=taskId?taskById(taskId):null;
-  document.getElementById('tm-head').textContent=t?'Edit Task':'New Task';
+  document.getElementById('tm-head').textContent=t?'Edit Phase':'New Phase';
   const psel=document.getElementById('tm-project');
   psel.innerHTML='';
   for(const p of currentProjOrder()){
@@ -2914,7 +2914,7 @@ document.getElementById('tm-save').addEventListener('click',()=>{
 
 document.getElementById('tm-del').addEventListener('click',()=>{
   if(!EDIT_TASK_ID)return;
-  if(!confirm('Delete this task?'))return;
+  if(!confirm('Delete this phase?'))return;
   saveState({...ST,tasks:ST.tasks.filter(x=>x.id!==EDIT_TASK_ID)});
   closeTaskModal();
 });
@@ -3176,7 +3176,7 @@ function renderProjectPage(){
   let h='<div class="pg dash">';
 
   h+='<div class="dash-top">'
-   + '<button class="pg-back" id="pp-back"><i></i>&larr; Timeline <kbd>esc</kbd></button>'
+   + '<button class="pg-back" id="pp-back" title="Go back to the timeline (Esc)"><i></i>&larr; Timeline <kbd>esc</kbd></button>'
    + '<span class="pg-dot" style="background:'+ppColor(p)+'"></span>'
    + '<input class="pg-name" id="pp-name" placeholder="Project name" value="'+esc(p.name||'')+'">'
    + (isNew?'<span class="pg-code">New project</span>'
@@ -3189,10 +3189,10 @@ function renderProjectPage(){
   h+='<div class="dash-body">'
    + '<div class="dash-chart"><div class="npv npv-full">'
    + '<div class="npv-hd"><span class="npv-ttl" id="npv-nums"></span>'
-   + '<div class="npv-modes"><button id="npv-m-g">Gantt</button><button id="npv-m-c">Calendar</button></div>'
-   + '<div class="npv-subs"><button id="npv-tint">Tint</button>'
+   + '<div class="npv-modes"><button id="npv-m-g" title="Show the schedule as a Gantt chart (G)">Gantt</button><button id="npv-m-c" title="Show the schedule as a month calendar (C)">Calendar</button></div>'
+   + '<div class="npv-subs"><button id="npv-tint" title="Tint the calendar background by month">Tint</button>'
    + '<button id="npv-link" title="Dragging a department bar moves its subtasks with it">Link</button></div>'
-   + '<button class="npv-btn" id="npv-reset" disabled>Reset</button></div>'
+   + '<button class="npv-btn" id="npv-reset" disabled title="Put the rows back in the schedule\'s own order">Reset</button></div>'
    + '<div class="npv-leg" id="npv-leg"></div>'
    + '<div class="npv-scroll" id="npv-scroll"><div class="npv-in">'
    + '<div class="npv-axis" id="npv-axis"></div><div class="npv-body" id="npv-body"></div>'
@@ -3203,10 +3203,10 @@ function renderProjectPage(){
   h+='<div class="dash-foot">'
    + (isNew?'':'<span class="pg-auto"><b>&#10003;</b> Changes save automatically</span>')
    + '<span class="sp"></span>'
-   + '<button class="ins-btn" id="pp-keys">Shortcuts <kbd>?</kbd></button>'
-   + (isNew?'':'<button class="btn btn-danger" id="pp-del">Delete project</button>')
-   + '<button class="btn btn-ghost" id="pp-cancel">'+(isNew?'Cancel':'Done')+'</button>'
-   + (isNew?'<button class="btn btn-primary" id="pp-save">Create project</button>':'')
+   + '<button class="ins-btn" id="pp-keys" title="Show the keyboard shortcuts (?)">Shortcuts <kbd>?</kbd></button>'
+   + (isNew?'':'<button class="btn btn-danger" id="pp-del" title="Delete this project and everything on it">Delete project</button>')
+   + '<button class="btn btn-ghost" id="pp-cancel" title="'+(isNew?'Leave without creating the project':'Go back to the timeline — changes are already saved')+'">'+(isNew?'Cancel':'Done')+'</button>'
+   + (isNew?'<button class="btn btn-primary" id="pp-save" title="Create the project with the schedule shown">Create project</button>':'')
    + '</div></div>';
   h+='<div class="ks hidden" id="pp-ks"><div class="ks-in">'
    + '<h3>Keyboard</h3><div class="ks-g">'
@@ -3512,10 +3512,10 @@ function ppInspector(){
        + allPeople().map(n=>'<option'+(n===who?' selected':'')+'>'+esc(n)+'</option>').join('')+'</select></div>';
     f+='<div class="ins-f"><label>Notes</label><textarea rows="2" data-f="notes" placeholder="Anything the shop needs to know">'+esc(sel.notes||'')+'</textarea></div>';
     f+='<div class="ins-acts">'
-     + '<button class="ins-btn" id="ins-sub">+ Subtask <kbd>S</kbd></button>'
-     + '<button class="ins-btn" id="ins-ev">+ Event <kbd>E</kbd></button>'
-     + '<button class="ins-btn" id="ins-tk">+ Task <kbd>T</kbd></button>'
-     + '<button class="ins-btn dngr" id="ins-del">Delete</button></div>';
+     + '<button class="ins-btn" id="ins-sub" title="Add another bar to this department (S)">+ Subtask <kbd>S</kbd></button>'
+     + '<button class="ins-btn" id="ins-ev" title="Add a dated event marker (E)">+ Event <kbd>E</kbd></button>'
+     + '<button class="ins-btn" id="ins-tk" title="Add a to-do task (T)">+ Task <kbd>T</kbd></button>'
+     + '<button class="ins-btn dngr" id="ins-del" title="Delete this phase">Delete</button></div>';
     h+=ppSec('phase','This phase',f,null,true);
     h+=ppAgendaHTML(p,sel.department);
     h+='</div>';
@@ -3565,8 +3565,8 @@ function ppAgendaHTML(p,onlyDept){
     return String(a.date||'').localeCompare(String(b.date||''));
   });
   let body='<div class="ag-add">'
-   + '<button class="ins-btn" data-ag="ev">+ Event <kbd>E</kbd></button>'
-   + '<button class="ins-btn" data-ag="tk">+ Task <kbd>T</kbd></button></div>';
+   + '<button class="ins-btn" data-ag="ev" title="Add a dated event marker (E)">+ Event <kbd>E</kbd></button>'
+   + '<button class="ins-btn" data-ag="tk" title="Add a to-do task (T)">+ Task <kbd>T</kbd></button></div>';
   if(!shown.length){
     body+='<div class="ag-empty">Nothing scheduled yet.<br>Right-click the chart on the day '
      + 'it happens, or use the buttons above.</div>';
@@ -5064,12 +5064,12 @@ function ppOpenPopLegacy(idx,barEl){
    +   '<div class="bp-f"><label>Days</label><input id="bp-d" type="number" min="1" value="'+(t.estimatedDays||1)+'"></div>'
    + '</div>'
    + '<div class="bp-acts">'
-   +   '<button class="bp-btn" id="bp-add-ph">+ Subtask</button>'
-   +   '<button class="bp-btn" id="bp-add-ev">+ Event</button>'
-   +   '<button class="bp-btn" id="bp-add-tk">+ Task</button>'
-   +   (live?'<button class="bp-btn" id="bp-pin">'+(t.pinned?'Unpin':'Pin')+'</button>':'')
+   +   '<button class="bp-btn" id="bp-add-ph" title="Add another bar to this department">+ Subtask</button>'
+   +   '<button class="bp-btn" id="bp-add-ev" title="Add a dated event marker">+ Event</button>'
+   +   '<button class="bp-btn" id="bp-add-tk" title="Add a to-do task">+ Task</button>'
+   +   (live?'<button class="bp-btn" id="bp-pin" title="'+(t.pinned?'Let dragging change this bar\'s dates again':'Pin this bar so dragging can\'t change its dates')+'">'+(t.pinned?'Unpin':'Pin')+'</button>':'')
    +   '<span style="flex:1"></span>'
-   +   '<button class="bp-btn dngr" id="bp-del">Delete</button>'
+   +   '<button class="bp-btn dngr" id="bp-del" title="Delete this phase">Delete</button>'
    + '</div>'
    + (live?'':'<div class="bp-note">Dates come from the scheduler on a new project. Drag the bar to change them.</div>');
 
@@ -5704,9 +5704,9 @@ function buildStatusMenu(){
     m.appendChild(l);
   }
   const row=document.createElement('div');row.className='sm-btns';
-  const all=document.createElement('button');all.className='sm-all';all.textContent='Show all';
+  const all=document.createElement('button');all.className='sm-all';all.textContent='Show all';all.title='Show projects of every status';
   all.addEventListener('click',()=>{SHOW_STATUS=new Set(ALL_STATUSES);saveUI();buildStatusMenu();updateFilterBadges();render();});
-  const none=document.createElement('button');none.className='sm-all';none.textContent='Clear all';
+  const none=document.createElement('button');none.className='sm-all';none.textContent='Clear all';none.title='Hide every status, then tick the ones you want';
   none.addEventListener('click',()=>{SHOW_STATUS=new Set();saveUI();buildStatusMenu();updateFilterBadges();render();});
   row.appendChild(all);row.appendChild(none);
   m.appendChild(row);
