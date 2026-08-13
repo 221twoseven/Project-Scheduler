@@ -5,7 +5,7 @@ within each. Checkboxes are for tracking; anything touching **SharePoint schema*
 **Entra/auth** is marked ⚠ and needs explicit approval first (it's shared with a
 separately maintained colleague app — see `CLAUDE.md`).
 
-Last reviewed: 2026-08-10.
+Last reviewed: 2026-08-13.
 
 ---
 
@@ -79,6 +79,40 @@ Last reviewed: 2026-08-10.
 - [ ] **Department overlap.** The scheduler chains strictly, so overlap only happens via
       hand-pinning (and a pinned bar stops tracking). Open question: should overlap be a
       per-department setting the scheduler honours?
+
+## 3.5 Phase 1 deferred items (ceilings from `docs/Milestones/Phase 1/`)
+
+Collated 2026-08-13 after the Phase 1 merge (PR #13). Each task record names its own
+ceilings; this is the roll-up so nothing rots. None are bugs; none block users.
+
+**Already covered by a Phase 2 brief — track there, not here:**
+
+- [ ] Unicode glyph icons → inline SVGs (T8 ceiling, finding C6) → **U6**.
+- [ ] Toast stacking/docking (T7 context, finding D3) → **U7**. If the ~5s auto-dismiss
+      still proves too fleeting after U7, revisit a persistent error banner with explicit
+      close (the upgrade named in the T7 record).
+
+**Deliberate design ceilings — no action planned, revisit only on real complaints:**
+
+- 12-slot palette must repeat with 13+ projects visible at once (T2 — math, not a bug;
+  each project's own color still never moves).
+- Quiet re-selection after a committed project-page resize/move (T4 — intentional
+  selection-ring feedback).
+- Sidebar names >~26 chars truncate at default width (T5 — drag wider, up to 480px).
+- Off-screen edge chips don't dim with the search filter (T6 — a dimmed bar is still a
+  real bar worth navigating to).
+
+**Genuine deferred work — small items for a later polish pass:**
+
+- [ ] Resize handle zones widen to 12px on bars narrower than 60px (Design-Language §6
+      refinement; shipped fixed 8px — T3).
+- [ ] Draft-page *moves* show no undo toast (pre-existing; resizes have one — T3).
+- [ ] Two-chip rows (bars straddling both viewport edges) untested against dense real
+      data (T6).
+- [ ] The "all hidden" empty-state card only knows the status filter, not search/
+      spotlight (T7; the sidebar's own "Nothing to show" covers those meanwhile).
+- [ ] Tooltips are native `title` attributes — unstyled, fixed delay, invisible on touch
+      (T8). Reconsider alongside U6's icon work if touch use materializes.
 
 ## 4. Data / schema (⚠ all need approval — shared Lists)
 
