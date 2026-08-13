@@ -1152,7 +1152,11 @@ const SECTIONS=[
 ];
 
 const MONTH_HSL=[[214,40,57],[265,36,59],[145,40,46],[177,43,44],[25,66,54],[44,68,49],[11,60,57],[338,50,57],[79,36,43],[34,60,47],[208,26,51],[240,40,53]];
-const PCOLS=['#3B7FD6','#E27035','#2D9C56','#9050C3','#1AA59C','#C09018','#C04485'];
+/* Identity palette, Design-Language §2.2 — 12 slots, hues ≥25° apart, each passes
+   labelColor() at 4.5:1 (tests/test-contrast.js). Slot 08 is #567693, not the doc's
+   #5B7C99: that hex is the mid-luminance dead zone §2.3 itself corrects. */
+const PCOLS=['#3B7FD6','#E27035','#2D9C56','#9050C3','#1AA59C','#C09018','#C04485',
+             '#567693','#7A5AE0','#3D8FA8','#A8642C','#6B8F3C'];
 /* Red is reserved exclusively for installations */
 const INSTALL_RED='#CE4242';
 function isInstall(t){return t.department==='install';}
@@ -1764,8 +1768,37 @@ function computeConflicts(){
    higher WCAG contrast against the fill. #0D131D must match --ink. */
 function relLum(hex){const n=parseInt(hex.slice(1),16),f=v=>{v/=255;return v<=.04045?v/12.92:Math.pow((v+.055)/1.055,2.4);};return .2126*f(n>>16&255)+.7152*f(n>>8&255)+.0722*f(n&255);}
 function labelColor(bg){const L=relLum(bg)+.05;return L*L>=1.05*(relLum('#0D131D')+.05)?'var(--ink)':'#FFFFFF';}
-function projColor(pid){const i=ST.projects.findIndex(p=>p.id===pid);return i<0?'#9CA3AF':PCOLS[i%PCOLS.length];}
-function hashColor(s){let h=0;for(let i=0;i<(s||'').length;i++)h=(h*31+s.charCodeAt(i))>>>0;return PCOLS[h%PCOLS.length];}
+function hashSlot(s){let h=0;for(let i=0;i<(s||'').length;i++)h=(h*31+s.charCodeAt(i))>>>0;return h%PCOLS.length;}
+function hashColor(s){return PCOLS[hashSlot(s)];}
+/* C1 (Design-Language §2.2): identity = stable hash of project id, never array index,
+   so adding, deleting, or re-sorting projects can't move anyone else's color. If two
+   *currently visible* projects hash to the same slot, the later-created one (ids sort
+   by creation time — genId leads with Date.now) shifts to the nearest free slot for
+   that render. The map is memoized on the visible-id list. */
+let _slotKey=null,_slotMap=null;
+function _projSlots(){
+  const vis=ST.projects.filter(p=>SHOW_STATUS.has(projectStatus(p)))
+    .sort((a,b)=>a.id<b.id?-1:a.id>b.id?1:0);
+  const key=vis.map(p=>p.id).join(',');
+  if(_slotKey===key)return _slotMap;
+  _slotKey=key;_slotMap=new Map();
+  const used=new Set();
+  for(const p of vis){
+    let s=hashSlot(p.id);
+    if(used.has(s))for(let d=1;d<PCOLS.length;d++){
+      const r=(s+d)%PCOLS.length,l=(s-d+PCOLS.length)%PCOLS.length;
+      if(!used.has(r)){s=r;break;}
+      if(!used.has(l)){s=l;break;}
+    }
+    used.add(s);_slotMap.set(p.id,s);
+  }
+  return _slotMap;
+}
+function projColor(pid){
+  const m=_projSlots();
+  if(m.has(pid))return PCOLS[m.get(pid)];
+  return projById(pid)?PCOLS[hashSlot(pid)]:'#9CA3AF';
+}
 function personColor(rosterKey,name){const arr=STAFF[rosterKey]||[];const i=arr.indexOf(name);return i<0?hashColor(name):PCOLS[i%PCOLS.length];}
 /* Color for a bar in "Team" mode: person color in roster lanes (dept lens),
    per-process color for Other, otherwise the department's identity color */
