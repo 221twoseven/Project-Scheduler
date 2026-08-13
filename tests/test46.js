@@ -41,6 +41,10 @@ function run(){
   const rowh=[...src.matchAll(/\.npv-row\{[^}]*height:(\d+)px/g)].pop();
   ok('NPV_GUT matches .npv-gut width', String(E('NPV_GUT'))===gut, 'JS '+E('NPV_GUT')+' vs CSS '+gut);
   ok('NPV_ROWH matches last .npv-row height', String(E('NPV_ROWH'))===rowh[1], 'JS '+E('NPV_ROWH')+' vs CSS '+rowh[1]);
+  if(/--fs-fine:/.test(src)){ /* C5 tokens — skipped on pre-C5 builds like the REV50 reference */
+    ok('--row-h token is Comfortable 44px (Design-Language §4)', /--row-h:44px/.test(src));
+    ok('no informational font-size below 11px (C5)', !/font-size:(10|[0-9])(\.[0-9]+)?px/.test(src));
+  }
 
   sec('boot and status migration');
   ok('rev label rendered', doc.getElementById('tb-rev-num').textContent!=='');
