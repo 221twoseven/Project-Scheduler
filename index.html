@@ -74,7 +74,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);font-size:13px;col
 /* ============ LAYOUT ============ */
 #main{position:fixed;top:92px;bottom:0;left:0;right:0;display:flex;overflow:hidden}
 @media (max-width:560px){.fg-2{grid-template-columns:1fr}.fg-3{grid-template-columns:1fr}}
-#sidebar{position:relative;width:232px;flex-shrink:0;display:flex;flex-direction:column;background:var(--side);border-right:1.5px solid var(--side-line);z-index:10}
+#sidebar{position:relative;width:300px;flex-shrink:0;display:flex;flex-direction:column;background:var(--side);border-right:1.5px solid var(--side-line);z-index:10}
 #sb-head{height:64px;flex-shrink:0;display:flex;align-items:center;gap:8px;padding:0 10px 0 14px;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.16em;color:var(--txt-micro);border-bottom:1px solid var(--side-line)}
 #sb-head .sb-lens{flex:1;border-color:var(--side-line);background:#fff;text-transform:none;letter-spacing:0}
 #sb-head .sb-lens .t-btn{flex:1;background:#fff;color:#475569;border-right:1px solid var(--side-line);font-weight:600}
@@ -114,6 +114,10 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);font-size:13px;col
 .c-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;box-shadow:inset 0 0 0 1px rgba(0,0,0,.12)}
 .sb-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12.5px;font-weight:600}
 .sb-sub{font-family:var(--mono);font-size:9.5px;color:var(--txt-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0;max-width:45%}
+.sb-2l{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:1px}
+.sb-2l .sb-name{flex:none}
+.sb-l2{display:flex;align-items:center;gap:6px;min-width:0}
+.sb-2l .sb-sub{font-size:11px;max-width:none;flex-shrink:1}
 .sb-chip{font-family:var(--mono);font-size:8.5px;font-weight:600;letter-spacing:.03em;padding:1.5px 6px;border-radius:8px;flex-shrink:0;line-height:1.5}
 .sb-chip.late{background:#FDE2E2;color:#B91C1C}
 .sb-chip.soon{background:#FCEEC8;color:#8F5E08}
@@ -1098,7 +1102,7 @@ const SET_KEY ='shopTimelineSettings_v1';
 const PEOPLE_KEY='shopTimelinePeople_v1';
 const UI_KEY  ='shopTimelineUI_v1';
 const BAR_H=32, BAR_PAD=12, LANE_G=6, HEAD_H=26, HDR_H=64;
-let SIDE_W=232;
+let SIDE_W=300;
 const DW={days:40,weeks:14};
 
 const DEPTS=[
@@ -2057,17 +2061,20 @@ function renderSidebar(){
         const id=ev.dataTransfer.getData('text/plain');if(id&&id!==p.id)reorderProject(id,p.id);});
       const ch=document.createElement('span');ch.className='sb-chev'+(EXPANDED.has(p.id)?' open':'');ch.textContent='▶';row.appendChild(ch);
       const dot=document.createElement('span');dot.className='c-dot';dot.style.background=projColor(p.id);row.appendChild(dot);
-      const nm=document.createElement('span');nm.className='sb-name';nm.textContent=p.name;row.appendChild(nm);
+      const col=document.createElement('span');col.className='sb-2l';
+      const nm=document.createElement('span');nm.className='sb-name';nm.textContent=p.name;col.appendChild(nm);
+      const l2=document.createElement('span');l2.className='sb-l2';
       const sub=document.createElement('span');sub.className='sb-sub';
-      sub.textContent=(p.jobCode?p.jobCode+' · ':'')+(p.deadline?fmtNice(p.deadline):'');row.appendChild(sub);
+      sub.textContent=(p.jobCode?p.jobCode+' · ':'')+(p.deadline?fmtNice(p.deadline):'');l2.appendChild(sub);
+      if(p.deadline&&projectStatus(p)!=='complete'){
+        const dl=diffDays(today(),parseDate(p.deadline));
+        if(dl<0){const c=document.createElement('span');c.className='sb-chip late';c.textContent='LATE '+Math.abs(dl)+'d';l2.appendChild(c);}
+        else if(dl<=5){const c=document.createElement('span');c.className='sb-chip soon';c.textContent=dl===0?'TODAY':dl+'d';l2.appendChild(c);}
+      }
+      col.appendChild(l2);row.appendChild(col);
       const eye=document.createElement('button');eye.className='sb-eye'+(SPOT.has(p.id)?' on':'');eye.textContent='👁';eye.title='Spotlight this project (dims all others)';
       eye.addEventListener('click',ev=>{ev.stopPropagation();if(SPOT.has(p.id))SPOT.delete(p.id);else SPOT.add(p.id);render();});
       row.appendChild(eye);
-      if(p.deadline&&projectStatus(p)!=='complete'){
-        const dl=diffDays(today(),parseDate(p.deadline));
-        if(dl<0){const c=document.createElement('span');c.className='sb-chip late';c.textContent='LATE '+Math.abs(dl)+'d';row.appendChild(c);}
-        else if(dl<=5){const c=document.createElement('span');c.className='sb-chip soon';c.textContent=dl===0?'TODAY':dl+'d';row.appendChild(c);}
-      }
       const ed=document.createElement('button');ed.className='sb-edit';ed.textContent='✎';ed.title='Edit project';
       ed.addEventListener('click',ev=>{ev.stopPropagation();openProjModal(p.id);});
       row.appendChild(ed);
