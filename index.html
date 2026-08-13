@@ -25,8 +25,11 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);font-size:13px;col
 :focus-visible{outline:2px solid var(--acc);outline-offset:1px}
 
 /* ============ TOOLBAR — drawing title block ============ */
-#toolbar{position:fixed;top:0;left:0;right:0;min-height:50px;z-index:100;display:flex;align-items:center;flex-wrap:wrap;gap:8px;row-gap:5px;padding:5px 12px 5px 0;background:linear-gradient(180deg,var(--ink-2),var(--ink));border-bottom:1px solid #000;box-shadow:0 2px 12px rgba(4,10,20,.45)}
-#toolbar>*{flex-shrink:0}
+#toolbar{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;flex-direction:column;background:linear-gradient(180deg,var(--ink-2),var(--ink));border-bottom:1px solid #000;box-shadow:0 2px 12px rgba(4,10,20,.45)}
+.tb-row{display:flex;align-items:center;flex-wrap:wrap;gap:8px;row-gap:5px;padding:5px 12px 5px 0;min-height:46px}
+.tb-row>*{flex-shrink:0}
+.tb-global{border-bottom:1px solid var(--chrome-line)}
+.tb-spacer{flex:1 1 auto;min-width:0}
 .t-brand{display:flex;align-items:center;gap:9px;align-self:stretch;padding:0 16px;border-right:1px solid var(--chrome-line);margin-right:4px;user-select:none;min-height:40px}
 .tb-co{font-size:13px;font-weight:800;letter-spacing:.24em;color:#fff}
 .tb-app{font-size:9.5px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:#5E7292}
@@ -69,9 +72,9 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);font-size:13px;col
 .lock-tog input:checked ~ .lock-txt{color:var(--warn)}
 
 /* ============ LAYOUT ============ */
-#main{position:fixed;top:50px;bottom:0;left:0;right:0;display:flex;overflow:hidden}
+#main{position:fixed;top:92px;bottom:0;left:0;right:0;display:flex;overflow:hidden}
 @media (max-width:560px){.fg-2{grid-template-columns:1fr}.fg-3{grid-template-columns:1fr}}
-#sidebar{position:relative;width:232px;flex-shrink:0;display:flex;flex-direction:column;background:var(--side);border-right:1.5px solid var(--side-line);z-index:10}
+#sidebar{position:relative;width:300px;flex-shrink:0;display:flex;flex-direction:column;background:var(--side);border-right:1.5px solid var(--side-line);z-index:10}
 #sb-head{height:64px;flex-shrink:0;display:flex;align-items:center;gap:8px;padding:0 10px 0 14px;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.16em;color:var(--txt-micro);border-bottom:1px solid var(--side-line)}
 #sb-head .sb-lens{flex:1;border-color:var(--side-line);background:#fff;text-transform:none;letter-spacing:0}
 #sb-head .sb-lens .t-btn{flex:1;background:#fff;color:#475569;border-right:1px solid var(--side-line);font-weight:600}
@@ -111,6 +114,10 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);font-size:13px;col
 .c-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;box-shadow:inset 0 0 0 1px rgba(0,0,0,.12)}
 .sb-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12.5px;font-weight:600}
 .sb-sub{font-family:var(--mono);font-size:9.5px;color:var(--txt-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0;max-width:45%}
+.sb-2l{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:1px}
+.sb-2l .sb-name{flex:none}
+.sb-l2{display:flex;align-items:center;gap:6px;min-width:0}
+.sb-2l .sb-sub{font-size:11px;max-width:none;flex-shrink:1}
 .sb-chip{font-family:var(--mono);font-size:8.5px;font-weight:600;letter-spacing:.03em;padding:1.5px 6px;border-radius:8px;flex-shrink:0;line-height:1.5}
 .sb-chip.late{background:#FDE2E2;color:#B91C1C}
 .sb-chip.soon{background:#FCEEC8;color:#8F5E08}
@@ -152,6 +159,9 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);font-size:13px;col
 .hover-guide{position:absolute;top:0;width:1px;background:rgba(20,40,70,.35);z-index:7;pointer-events:none}
 .hover-tag{position:absolute;top:4px;transform:translateX(-50%);font-family:var(--mono);font-size:9px;color:#fff;background:#28374E;border-radius:4px;padding:2px 7px;white-space:nowrap;z-index:8;pointer-events:none;box-shadow:0 2px 6px rgba(0,0,0,.25)}
 .dl-flag{position:absolute;width:0;z-index:5;pointer-events:none;border-left:2px dashed rgba(220,38,38,.55)}
+.edge-ind{position:absolute;z-index:12;display:inline-flex;align-items:center;gap:5px;height:24px;padding:0 8px;background:#fff;border:1px solid var(--side-line);border-radius:12px;font-family:var(--mono);font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;box-shadow:0 1px 4px rgba(13,19,29,.12)}
+.edge-ind[data-side="r"]{transform:translateX(-100%)}
+.edge-ind:hover{border-color:#9FB0C6}
 .dl-flag::before{content:'⚑';position:absolute;top:-2px;left:1px;font-size:11px;color:var(--late)}
 .dim{opacity:.16;filter:grayscale(.5)}
 .ooo-bar{position:absolute;border-radius:5px;background:repeating-linear-gradient(-45deg,#C3CBD7 0 5px,#DDE2EA 5px 10px);box-shadow:inset 0 0 0 1px rgba(90,105,125,.4);z-index:9;overflow:hidden;pointer-events:auto}
@@ -186,12 +196,16 @@ kbd{font-family:var(--mono);font-size:10px;background:#EDF1F7;border:1px solid #
 .job-bar[data-st="complete"]{filter:saturate(.25);opacity:.8}
 .bar-stripe{position:absolute;inset:0;border-radius:inherit;background:repeating-linear-gradient(45deg,transparent,transparent 5px,rgba(255,255,255,.22) 5px,rgba(255,255,255,.22) 10px);pointer-events:none}
 .bar-edge{position:absolute;left:0;top:0;bottom:0;width:4px;background:rgba(255,255,255,.65);border-radius:6px 0 0 6px;pointer-events:none}
-.bar-lbl{position:absolute;top:50%;transform:translateY(-50%);color:rgba(255,255,255,.96);font-size:11.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none;text-shadow:0 1px 3px rgba(0,0,0,.3)}
+.bar-lbl{position:absolute;top:50%;transform:translateY(-50%);font-size:11.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none;text-shadow:0 1px 3px rgba(0,0,0,.3)}
 .bar-pin{position:absolute;top:3px;right:5px;font-size:9px;pointer-events:none;opacity:.75}
 .bar-warn{position:absolute;top:1px;left:3px;font-size:10px;pointer-events:none;filter:drop-shadow(0 1px 1px rgba(0,0,0,.4))}
 .bar-handle{position:absolute;top:0;bottom:0;width:9px;z-index:12}
 .bh-l{left:0;cursor:w-resize}
 .bh-r{right:0;cursor:e-resize}
+/* §6 affordance: hovering the bar shows a thin rule at each edge in the label color */
+.job-bar:hover .bar-handle::after{content:'';position:absolute;top:2px;bottom:2px;width:2px;border-radius:1px;background:currentColor;opacity:.4}
+.bh-l::after{left:2px}
+.bh-r::after{right:2px}
 body.dates-locked .bh-l,body.dates-locked .bh-r,
 .job-bar.is-pinned .bh-l,.job-bar.is-pinned .bh-r{cursor:not-allowed!important;opacity:.25}
 .tick-node{position:absolute;top:50%;width:15px;height:15px;margin-top:-7.5px;transform:rotate(45deg);background:#fff;border:2px solid rgba(15,23,42,.6);border-radius:2px;box-shadow:0 1px 4px rgba(0,0,0,.4);pointer-events:auto;cursor:help;z-index:13;transition:transform .1s}
@@ -213,8 +227,11 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 
 /* ============ TOASTS ============ */
 #toasts{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:1000;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none}
-.toast{background:#101A29;color:rgba(255,255,255,.92);font-size:12.5px;padding:9px 16px;border-radius:9px;box-shadow:0 8px 28px rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.1);animation:toast-in .22s ease-out;max-width:76vw}
+.toast{background:#101A29;color:rgba(255,255,255,.92);font-size:12.5px;padding:9px 16px;border-radius:9px;box-shadow:0 8px 28px rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.1);animation:toast-in .22s ease-out;max-width:76vw;pointer-events:auto}
 .toast.err{border-color:rgba(255,110,110,.5);color:#FFC9C9}
+.toast details{margin-top:6px}
+.toast summary{cursor:pointer;font-size:11px;opacity:.65;user-select:none}
+.toast .toast-tech{font-family:var(--mono);font-size:10.5px;line-height:1.5;text-align:left;white-space:pre-wrap;word-break:break-word;max-height:110px;overflow:auto;margin-top:4px;opacity:.8}
 .toast.out{opacity:0;transform:translateY(6px);transition:opacity .3s,transform .3s}
 @keyframes toast-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 
@@ -301,12 +318,16 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 
 /* ============ REV31: STATUS FILTER + RESET ============ */
 .sf-wrap{position:relative}
-#status-menu{position:absolute;top:34px;left:0;z-index:900;background:#fff;border:1.5px solid #CBD5E1;border-radius:10px;box-shadow:0 10px 30px rgba(15,23,42,.18);padding:8px;display:flex;flex-direction:column;gap:2px;min-width:170px}
-#status-menu.hidden{display:none}
-.sm-item{display:flex;align-items:center;gap:8px;font-size:12px;padding:4px 6px;border-radius:6px;cursor:pointer;white-space:nowrap;color:#334155}
+.tb-menu{position:absolute;top:34px;left:0;z-index:900;background:#fff;border:1.5px solid #CBD5E1;border-radius:10px;box-shadow:0 10px 30px rgba(15,23,42,.18);padding:8px;display:flex;flex-direction:column;gap:2px;min-width:180px}
+.sm-item{display:flex;align-items:center;gap:8px;font-size:12px;padding:6px 8px;border-radius:6px;cursor:pointer;white-space:nowrap;color:#334155}
 .sm-item:hover{background:#F1F5F9}
 .sm-all{margin-top:6px;border:none;background:#F1F5F9;border-radius:6px;padding:5px;font-size:11px;cursor:pointer;color:#334155}
 .sm-all:hover{background:#E2E8F0}
+.sm-note{font-family:var(--mono);font-size:10px;color:#8194ab;padding:6px 8px 2px;border-top:1px solid #E2E8F0;margin-top:4px;white-space:nowrap}
+/* Tint — low-priority toggle parked at the right of the timeline row */
+#t-tint{background:transparent;border-color:transparent;color:rgba(255,255,255,.42);font-size:11px;padding:5px 9px}
+#t-tint:hover{background:rgba(255,255,255,.08);color:rgba(255,255,255,.8)}
+#t-tint.on{background:rgba(47,111,228,.22);border-color:rgba(96,150,240,.5);color:#fff}
 
 /* ============ REV31: SPOTLIGHT FIX — dimmed rows keep clickable eyes ============ */
 .sb-row.dim{opacity:1;filter:none}
@@ -314,7 +335,7 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 
 /* ============ REV31: ON HOLD / CALLED OFF BAR TREATMENT ============ */
 .job-bar[data-st="on-hold"]{opacity:.55;background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.45) 0 5px,transparent 5px 11px)}
-.job-bar[data-st="complete"] .sum-pill{background:#F1F5F9;color:#64748B}
+.job-bar[data-st="complete"] .sum-pill{background:#F1F5F9;color:#475569}
 .job-bar[data-st="on-hold"] .sum-pill{background:#FFEDD5;color:#9A3412}
 .job-bar[data-st="in-design"] .sum-pill{background:#EDE9FE;color:#5B21B6}
 .job-bar[data-st="in-fabrication"] .sum-pill{background:#E1F5EE;color:#0F6E56}
@@ -336,7 +357,7 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 .mr-pill[data-st="in-design"]{background:#EDE9FE;color:#5B21B6}
 .mr-pill[data-st="estimating"]{background:#EEEDFE;color:#534AB7}
 .mr-pill[data-st="on-hold"]{background:#FFEDD5;color:#9A3412}
-.mr-pill[data-st="complete"]{background:#F1F5F9;color:#64748B}
+.mr-pill[data-st="complete"]{background:#F1F5F9;color:#475569}
 .mr-phase{color:#33415A}
 .meet-mini{position:relative;height:9px;background:#EEF2F7;border-radius:3px;overflow:hidden;margin-top:3px}
 .mm-fill{position:absolute;left:0;top:0;bottom:0;border-radius:3px}
@@ -418,11 +439,14 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 .npv-row:nth-child(odd){background:#FCFDFE}
 .npv-gut{position:sticky;left:0;z-index:3;width:104px;height:100%;display:flex;align-items:center;padding:0 8px;font-size:10.5px;font-weight:600;color:#475569;background:#fff;border-right:1px solid #EDF2F7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .npv-row:nth-child(odd) .npv-gut{background:#FCFDFE}
-.npv-bar{position:absolute;height:17px;top:4px;border-radius:4px;cursor:grab;display:flex;align-items:center;padding:0 6px;font-size:9.5px;font-weight:600;color:rgba(255,255,255,.97);white-space:nowrap;overflow:hidden;z-index:2;user-select:none}
+.npv-bar{position:absolute;height:17px;top:4px;border-radius:4px;cursor:grab;display:flex;align-items:center;padding:0 6px;font-size:9.5px;font-weight:600;white-space:nowrap;overflow:hidden;z-index:2;user-select:none}
 .npv-bar.dragging{cursor:grabbing;opacity:.85;z-index:6}
 .npv-bar.manual{box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.85)}
-.npv-hdl{position:absolute;left:0;top:0;bottom:0;width:7px;cursor:ew-resize;border-radius:4px 0 0 4px;background:rgba(255,255,255,.28)}
-.npv-hdl:hover{background:rgba(255,255,255,.55)}
+.npv-hdl{position:absolute;left:0;top:0;bottom:0;width:8px;cursor:ew-resize}
+.npv-hdl.r{left:auto;right:0}
+.npv-hdl::after{content:'';position:absolute;left:2px;top:2px;bottom:2px;width:2px;border-radius:1px;background:currentColor;opacity:0}
+.npv-hdl.r::after{left:auto;right:2px}
+.npv-bar:hover .npv-hdl::after{opacity:.4}
 .npv-today{position:absolute;top:0;bottom:0;width:2px;background:rgba(220,38,38,.75);z-index:4;pointer-events:none}
 .npv-dl{position:absolute;top:0;bottom:0;width:0;border-left:2px dashed #CE4242;z-index:4;pointer-events:none}
 .npv-foot{display:flex;align-items:center;gap:14px;padding:9px 12px;border-top:1px solid #E2E8F0;background:#FBFDFF;font-size:11px;color:#5B6B85;flex-wrap:wrap}
@@ -646,8 +670,8 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 
 /* ============ REV43 ============ */
 .job-bar[data-st="forecast"]{filter:grayscale(1) brightness(1.06);opacity:.72}
-.job-bar[data-st="forecast"] .sum-pill{background:#E2E8F0;color:#5F6B7A}
-.mr-pill[data-st="forecast"]{background:#E2E8F0;color:#5F6B7A}
+.job-bar[data-st="forecast"] .sum-pill{background:#E2E8F0;color:#475569}
+.mr-pill[data-st="forecast"]{background:#E2E8F0;color:#475569}
 .npv-web.off{background:none}
 
 /* the popover escapes the chart now, so it is positioned from the page */
@@ -671,7 +695,6 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 .cal-wk{min-height:var(--calh,90px)}
 .cal-dow{position:sticky;top:0;z-index:5}
 .cal-mon{position:sticky;top:0;z-index:6}
-#t-tint.on{background:var(--acc);color:#fff;border-color:var(--acc)}
 
 
 /* ============ REV44: SORT GROUP HEADERS ============ */
@@ -858,7 +881,6 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 .npv-bar.sum{opacity:1;color:rgba(255,255,255,.98);
   background-image:linear-gradient(rgba(255,255,255,.42),rgba(255,255,255,.42));
   box-shadow:inset 0 0 0 1.5px currentColor,inset 0 -3px 0 -1px currentColor}
-.npv-bar.sum span{color:#33415A;text-shadow:0 1px 0 rgba(255,255,255,.7)}
 .npv-bar.sum.unlinked{cursor:pointer;
   background-image:linear-gradient(rgba(255,255,255,.62),rgba(255,255,255,.62)),
     repeating-linear-gradient(45deg,rgba(255,255,255,.5) 0 4px,transparent 4px 8px);
@@ -891,62 +913,76 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 <body>
 
 <div id="toolbar">
-  <div class="t-brand">
-    <span class="tb-co">TWOSEVEN</span>
-    <span class="tb-app">Shop Timeline</span>
-    <span class="tb-rev">REV <span id="tb-rev-num"></span></span>
+  <div class="tb-row tb-global">
+    <div class="t-brand">
+      <span class="tb-co">TWOSEVEN</span>
+      <span class="tb-app">Shop Timeline</span>
+    </div>
+    <button id="btn-new-proj" class="t-btn accent" title="Create a new project (N)">+ New Project</button>
+    <div class="sf-wrap">
+      <button id="btn-print" class="t-btn" title="Print the timeline or a meeting sheet">⎙ Print ▾</button>
+      <div id="print-menu" class="tb-menu hidden">
+        <div class="sm-item" id="mi-print-timeline" title="Print the timeline as it looks on screen">⎙ Print Timeline</div>
+        <div class="sm-item" id="mi-meeting" title="Print a meeting sheet of every project grouped by PM">☰ Meeting Sheet</div>
+      </div>
+    </div>
+    <div class="sf-wrap">
+      <button id="btn-settings" class="t-btn" title="App settings and the shared staff list">⚙ Settings ▾</button>
+      <div id="settings-menu" class="tb-menu hidden">
+        <div class="sm-item" id="mi-people" title="Edit staff names, departments and time off">People &amp; Availability</div>
+        <div class="sm-note">Shop Timeline · REV <span id="tb-rev-num"></span></div>
+      </div>
+    </div>
+    <span class="tb-spacer"></span>
+    <span id="sync-pill" class="busy" title="Shows whether your changes are saved to SharePoint — click to retry after an error">● connecting…</span>
   </div>
-  <button id="btn-today" class="t-btn" title="Jump to today (T)">Today</button>
-  <button id="t-tint" class="t-btn" title="Month and week background tint">Tint</button>
-  <div class="tog-grp">
-    <button id="btn-days" class="t-btn active" title="Day scale (D)">Days</button>
-    <button id="btn-weeks" class="t-btn" title="Week scale (W)">Weeks</button>
+  <div class="tb-row tb-timeline">
+    <button id="btn-today" class="t-btn" title="Scroll the timeline to today (T)">Today</button>
+    <div class="tog-grp">
+      <button id="btn-days" class="t-btn active" title="Show the timeline day by day (D)">Days</button>
+      <button id="btn-weeks" class="t-btn" title="Show the timeline week by week (W)">Weeks</button>
+    </div>
+    <div class="t-sep"></div>
+    <span class="t-mini">Color</span>
+    <div class="tog-grp">
+      <button id="btn-col-proj" class="t-btn active" title="Color every bar by its project">Project</button>
+      <button id="btn-col-ent" class="t-btn" title="Color every bar by its department team">Team</button>
+    </div>
+    <div class="t-sep"></div>
+    <input id="t-search" type="text" placeholder="Search  /" autocomplete="off" spellcheck="false" title="Type to show only matching projects and phases (/)">
+    <div class="sf-wrap">
+      <button id="btn-status" class="t-btn" title="Choose which project statuses are shown">Status ▾</button>
+      <div id="status-menu" class="tb-menu hidden"></div>
+    </div>
+    <button id="btn-reset" class="t-btn" title="Clear the spotlight, search and status filters">⟲ Clear filters</button>
+    <span class="tb-spacer"></span>
+    <button id="t-tint" class="t-btn" title="Tint the calendar background by month">Tint</button>
+    <label class="lock-tog" title="Lock all bars so drags can't change dates">
+      <input type="checkbox" id="lock-ck">
+      <span class="lock-track"><span class="lock-thumb"></span></span>
+      <span class="lock-txt">Protect dates</span>
+    </label>
   </div>
-  <div class="t-sep"></div>
-  <span class="t-mini">Color</span>
-  <div class="tog-grp">
-    <button id="btn-col-proj" class="t-btn active">Project</button>
-    <button id="btn-col-ent" class="t-btn">Team</button>
-  </div>
-  <div class="t-sep"></div>
-  <input id="t-search" type="text" placeholder="Search  /" autocomplete="off" spellcheck="false">
-  <div class="sf-wrap">
-    <button id="btn-status" class="t-btn">Status ▾</button>
-    <div id="status-menu" class="hidden"></div>
-  </div>
-  <button id="btn-reset" class="t-btn" title="Clear spotlight, search and status filter">⟲ Reset</button>
-  <span id="sync-pill" class="busy" title="SharePoint sync status">● connecting…</span>
-  <div class="t-sep"></div>
-  <button id="btn-new-proj" class="t-btn accent" title="New project (N)">+ New Project</button>
-  <button id="btn-staff" class="t-btn">⚙ Staff</button>
-  <div class="t-sep"></div>
-  <button id="btn-meeting" class="t-btn">☰ Meeting</button>
-  <button id="btn-print" class="t-btn">⎙ Print</button>
-  <label class="lock-tog" title="Lock dates — drag only reassigns, never moves dates">
-    <input type="checkbox" id="lock-ck">
-    <span class="lock-track"><span class="lock-thumb"></span></span>
-    <span class="lock-txt">Lock dates</span>
-  </label>
 </div>
 
 <div id="main">
   <div id="sidebar">
     <div id="sb-head">
       <div class="tog-grp sb-lens">
-        <button id="btn-lens-proj" class="t-btn active">Projects</button>
-        <button id="btn-lens-dept" class="t-btn">Departments</button>
+        <button id="btn-lens-proj" class="t-btn active" title="Group the rows by project">Projects</button>
+        <button id="btn-lens-dept" class="t-btn" title="Group the rows by department">Departments</button>
       </div>
-      <button id="sb-all" title="Collapse / expand all">⇕ All</button>
+      <button id="sb-all" title="Collapse or expand every row at once">⇕ All</button>
     </div>
     <div id="side-rows"></div>
     <div id="sb-foot">
       <span class="sbf-lbl">Sort</span>
-      <button id="sort-deadline" class="sbf-btn">Due date</button>
-      <button id="sort-client" class="sbf-btn">Client</button>
-      <button id="sort-pm" class="sbf-btn">PM</button>
-      <button id="sort-status" class="sbf-btn">Status</button>
+      <button id="sort-deadline" class="sbf-btn" title="Sort projects by due date">Due date</button>
+      <button id="sort-client" class="sbf-btn" title="Sort projects by client name">Client</button>
+      <button id="sort-pm" class="sbf-btn" title="Sort projects by project manager">PM</button>
+      <button id="sort-status" class="sbf-btn" title="Sort projects by status">Status</button>
     </div>
-    <div id="sb-resize" title="Drag to resize sidebar"></div>
+    <div id="sb-resize" title="Drag to resize the sidebar"></div>
   </div>
   <div id="gantt-area">
     <div id="hdr-wrap"><div id="gantt-hdr"></div></div>
@@ -960,7 +996,7 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 <!-- TASK MODAL -->
 <div id="task-overlay" class="overlay hidden">
   <div class="modal">
-    <h3 id="tm-head">Edit Task</h3>
+    <h3 id="tm-head">Edit Phase</h3>
     <div class="modal-body">
     <div class="fg-2">
       <div class="fg"><label>Project *</label><select id="tm-project"></select></div>
@@ -988,7 +1024,7 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
     <div class="fg"><label>Notes</label><textarea id="tm-notes" rows="2"></textarea></div>
     </div>
     <div class="m-actions">
-      <button id="tm-del" class="btn btn-del hidden">Delete Task</button>
+      <button id="tm-del" class="btn btn-del hidden">Delete Phase</button>
       <div class="m-right">
         <button id="tm-cancel" class="btn btn-ghost">Cancel</button>
         <button id="tm-save" class="btn btn-primary">Save</button>
@@ -1072,7 +1108,7 @@ const SET_KEY ='shopTimelineSettings_v1';
 const PEOPLE_KEY='shopTimelinePeople_v1';
 const UI_KEY  ='shopTimelineUI_v1';
 const BAR_H=32, BAR_PAD=12, LANE_G=6, HEAD_H=26, HDR_H=64;
-let SIDE_W=232;
+let SIDE_W=300;
 const DW={days:40,weeks:14};
 
 const DEPTS=[
@@ -1133,7 +1169,11 @@ const SECTIONS=[
 ];
 
 const MONTH_HSL=[[214,40,57],[265,36,59],[145,40,46],[177,43,44],[25,66,54],[44,68,49],[11,60,57],[338,50,57],[79,36,43],[34,60,47],[208,26,51],[240,40,53]];
-const PCOLS=['#3B7FD6','#E27035','#2D9C56','#9050C3','#1AA59C','#C09018','#C04485'];
+/* Identity palette, Design-Language §2.2 — 12 slots, hues ≥25° apart, each passes
+   labelColor() at 4.5:1 (tests/test-contrast.js). Slot 08 is #567693, not the doc's
+   #5B7C99: that hex is the mid-luminance dead zone §2.3 itself corrects. */
+const PCOLS=['#3B7FD6','#E27035','#2D9C56','#9050C3','#1AA59C','#C09018','#C04485',
+             '#567693','#7A5AE0','#3D8FA8','#A8642C','#6B8F3C'];
 /* Red is reserved exclusively for installations */
 const INSTALL_RED='#CE4242';
 function isInstall(t){return t.department==='install';}
@@ -1148,7 +1188,7 @@ function phaseLabel(t){
 }
 function assigneeText(t){return isInstall(t)?(crewOf(t).join(', ')||'Crew TBD'):(t.assignee||'');}
 /* Stable identity colors per department for "Team" color mode */
-const DEPT_COLORS={pm:'#5B7C99',vinyl:'#E0518C',othunit7:'#8E9BB0',td:'#9050C3',othoffice:'#8A98AE',print:'#C04485',cnc:'#E27035',beamsaw:'#C09018','3dprint':'#2D9C56',laser:'#CE4242',other:'#7A8BA3',fab:'#3B7FD6',metal:'#8B5E3C',softgoods:'#C75D8A',electrical:'#D9A21B',othshop:'#93A08F',prefinish:'#3FA9BC',finish:'#1AA59C',othfinish:'#9AA6B5',install:'#6366F1'};
+const DEPT_COLORS={pm:'#567693',vinyl:'#E0518C',othunit7:'#8E9BB0',td:'#9050C3',othoffice:'#8A98AE',print:'#C04485',cnc:'#E27035',beamsaw:'#C09018','3dprint':'#2D9C56',laser:'#CE4242',other:'#7A8BA3',fab:'#3B7FD6',metal:'#8B5E3C',softgoods:'#C75D8A',electrical:'#D9A21B',othshop:'#93A08F',prefinish:'#3FA9BC',finish:'#1AA59C',othfinish:'#9AA6B5',install:'#5A5DEC'};
 const TN_TARGETS=['Client Approval','Shop Drawings',...DEPTS.filter(d=>d.id!=='pm').map(d=>d.name)];
 
 /* ===================== STATE ===================== */
@@ -1567,24 +1607,39 @@ async function spSync(oldST,newST){
 /* ===================== TOASTS + SYNC STATUS ===================== */
 /* REV49: a toast can carry its own Undo. Every Gantt tool's loudest complaint is the
    accidental drag or delete, and an undo you have to know the shortcut for isn't one. */
-function toast(msg,kind,undoable){
+/* `details` (optional string) tucks the raw technical error behind a collapsible
+   "Details" — users read the sentence, whoever maintains the app opens the details. */
+function toast(msg,kind,undoable,details){
   const box=document.getElementById('toasts');
   const el=document.createElement('div');el.className='toast'+(kind==='err'?' err':'');
   el.textContent=msg;
   if(undoable){
     const b=document.createElement('button');b.className='undo';b.textContent='Undo';
-    b.addEventListener('click',()=>{el.remove();undo();});
+    /* Pass a function as `undoable` to run it instead of the ST undo stack —
+       draft-page mutations live outside ST and bring their own reverser. */
+    b.addEventListener('click',()=>{el.remove();typeof undoable==='function'?undoable():undo();});
     el.appendChild(b);
   }
+  if(details){
+    const d=document.createElement('details');
+    const s=document.createElement('summary');s.textContent='Details';d.appendChild(s);
+    const t=document.createElement('div');t.className='toast-tech';t.textContent=details;d.appendChild(t);
+    el.appendChild(d);
+  }
+  /* Hovering pauses dismissal so Undo and Details are actually reachable. */
+  let tm;
+  const hide=()=>{el.classList.add('out');setTimeout(()=>el.remove(),350);};
+  const arm=()=>{tm=setTimeout(hide,kind==='err'?5200:(undoable?5200:2600));};
+  el.addEventListener('mouseenter',()=>clearTimeout(tm));
+  el.addEventListener('mouseleave',arm);
   box.appendChild(el);
-  setTimeout(()=>{el.classList.add('out');setTimeout(()=>el.remove(),350);},
-    kind==='err'?5200:(undoable?5200:2600));
+  arm();
 }
 const toastU=msg=>toast(msg,null,true);
 function setSync(state,msg){
   const el=document.getElementById('sync-pill');
   el.className=state;
-  el.textContent='● '+(msg||(state==='ok'?'synced':state==='busy'?'saving…':'sync failed'));
+  el.textContent='● '+(msg||(state==='ok'?'synced':state==='busy'?'saving…':'not saved'));
 }
 function stamp(){return new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});}
 
@@ -1629,7 +1684,7 @@ function syncNow(oldST,newST){
         SYNCING=false;
         console.error(e);
         setSync('err','not saved — click to retry');
-        toast('Could not save to SharePoint. Your change is visible here but not saved yet.','err');
+        toast('Couldn\'t save to SharePoint. Your change is still on screen — click "not saved" at the top right to retry.','err',null,e.message);
         PENDING_SYNC={oldST,newST};
       }));
 }
@@ -1651,11 +1706,11 @@ function savePeople(np){
   const old=PEOPLE;PEOPLE=np;rebuildStaff();
   localStorage.setItem(PEOPLE_KEY,JSON.stringify(PEOPLE));
   render();
-  if(!STAFF_OK){toast('Staff saved in this browser only — the ShopTimeline_Staff list isn\'t reachable.','err');return;}
+  if(!STAFF_OK){toast('Staff saved in this browser only — it won\'t sync to your teammates until SharePoint is reachable again.','err');return;}
   setSync('busy');
   spSyncStaff(old,PEOPLE)
     .then(()=>setSync('ok','synced '+stamp()))
-    .catch(e=>{console.error(e);setSync('err','staff not saved');toast('Could not save staff to SharePoint.','err');});
+    .catch(e=>{console.error(e);setSync('err','staff not saved');toast('Couldn\'t save the staff list to SharePoint. Try saving again in a moment.','err',null,e.message);});
 }
 function saveUI(){
   try{localStorage.setItem('shopTimelineTint',TINT?'1':'0');
@@ -1741,8 +1796,41 @@ function computeConflicts(){
 }
 
 /* ===================== COLORS ===================== */
-function projColor(pid){const i=ST.projects.findIndex(p=>p.id===pid);return i<0?'#9CA3AF':PCOLS[i%PCOLS.length];}
-function hashColor(s){let h=0;for(let i=0;i<(s||'').length;i++)h=(h*31+s.charCodeAt(i))>>>0;return PCOLS[h%PCOLS.length];}
+/* Text on a colored fill (Design-Language §2.5): whichever of ink/white has the
+   higher WCAG contrast against the fill. #0D131D must match --ink. */
+function relLum(hex){const n=parseInt(hex.slice(1),16),f=v=>{v/=255;return v<=.04045?v/12.92:Math.pow((v+.055)/1.055,2.4);};return .2126*f(n>>16&255)+.7152*f(n>>8&255)+.0722*f(n&255);}
+function labelColor(bg){const L=relLum(bg)+.05;return L*L>=1.05*(relLum('#0D131D')+.05)?'var(--ink)':'#FFFFFF';}
+function hashSlot(s){let h=0;for(let i=0;i<(s||'').length;i++)h=(h*31+s.charCodeAt(i))>>>0;return h%PCOLS.length;}
+function hashColor(s){return PCOLS[hashSlot(s)];}
+/* C1 (Design-Language §2.2): identity = stable hash of project id, never array index,
+   so adding, deleting, or re-sorting projects can't move anyone else's color. If two
+   *currently visible* projects hash to the same slot, the later-created one (ids sort
+   by creation time — genId leads with Date.now) shifts to the nearest free slot for
+   that render. The map is memoized on the visible-id list. */
+let _slotKey=null,_slotMap=null;
+function _projSlots(){
+  const vis=ST.projects.filter(p=>SHOW_STATUS.has(projectStatus(p)))
+    .sort((a,b)=>a.id<b.id?-1:a.id>b.id?1:0);
+  const key=vis.map(p=>p.id).join(',');
+  if(_slotKey===key)return _slotMap;
+  _slotKey=key;_slotMap=new Map();
+  const used=new Set();
+  for(const p of vis){
+    let s=hashSlot(p.id);
+    if(used.has(s))for(let d=1;d<PCOLS.length;d++){
+      const r=(s+d)%PCOLS.length,l=(s-d+PCOLS.length)%PCOLS.length;
+      if(!used.has(r)){s=r;break;}
+      if(!used.has(l)){s=l;break;}
+    }
+    used.add(s);_slotMap.set(p.id,s);
+  }
+  return _slotMap;
+}
+function projColor(pid){
+  const m=_projSlots();
+  if(m.has(pid))return PCOLS[m.get(pid)];
+  return projById(pid)?PCOLS[hashSlot(pid)]:'#9CA3AF';
+}
 function personColor(rosterKey,name){const arr=STAFF[rosterKey]||[];const i=arr.indexOf(name);return i<0?hashColor(name):PCOLS[i%PCOLS.length];}
 /* Color for a bar in "Team" mode: person color in roster lanes (dept lens),
    per-process color for Other, otherwise the department's identity color */
@@ -1959,16 +2047,36 @@ function render(){
   renderEmptyState();
 }
 
+/* Always shows a card when the canvas has no visible projects: signed out → the
+   sign-in call to action; empty → the teach card; all filtered out → how to unhide. */
 function renderEmptyState(){
   const old=document.getElementById('empty-state');if(old)old.remove();
-  if(ST.projects.length)return;
+  let html;
+  if(!ACCOUNT){
+    html='<div class="es-big">Shop Timeline</div>'
+      +'<div class="es-sub">The shared shop schedule — every project, phase and deadline in one place.<br>Sign in with your work account to see it.</div>'
+      +'<button class="btn btn-primary" id="es-signin" style="margin-top:14px">Sign in with Microsoft</button>';
+  }else if(!ST.projects.length){
+    html='<div class="es-big">Nothing scheduled yet</div>'
+      +'<div class="es-sub">Create your first project and the schedule builds itself<br>backward from the deadline. Press <kbd>N</kbd> or use <b>+ New Project</b>.</div>';
+  }else if(!ST.projects.some(p=>SHOW_STATUS.has(projectStatus(p)))){
+    html='<div class="es-big">All projects are hidden</div>'
+      +'<div class="es-sub">The status filter is hiding every project.<br>Click <b>⟲ Clear filters</b> in the toolbar to see them again.</div>';
+  }else return;
   const sc=document.getElementById('gantt-scroll');
   const es=document.createElement('div');es.className='empty-state';es.id='empty-state';
-  es.innerHTML='<div class="es-big">Nothing scheduled yet</div>'
-    +'<div class="es-sub">Create your first project and the schedule builds itself<br>backward from the deadline. Press <kbd>N</kbd> or use <b>+ New Project</b>.</div>';
+  es.innerHTML=html;
   es.style.left=(sc.scrollLeft+sc.clientWidth/2-190)+'px';
   es.style.top='90px';es.style.width='380px';
   document.getElementById('gantt-canvas').appendChild(es);
+  es.addEventListener('mousedown',ev=>ev.stopPropagation());
+  const btn=es.querySelector('#es-signin');
+  if(btn)btn.addEventListener('click',async()=>{
+    btn.disabled=true;
+    await boot();
+    render();
+    setTimeout(scrollTodayLeft,80);
+  });
 }
 
 function renderSidebar(){
@@ -1992,17 +2100,20 @@ function renderSidebar(){
         const id=ev.dataTransfer.getData('text/plain');if(id&&id!==p.id)reorderProject(id,p.id);});
       const ch=document.createElement('span');ch.className='sb-chev'+(EXPANDED.has(p.id)?' open':'');ch.textContent='▶';row.appendChild(ch);
       const dot=document.createElement('span');dot.className='c-dot';dot.style.background=projColor(p.id);row.appendChild(dot);
-      const nm=document.createElement('span');nm.className='sb-name';nm.textContent=p.name;row.appendChild(nm);
+      const col=document.createElement('span');col.className='sb-2l';
+      const nm=document.createElement('span');nm.className='sb-name';nm.textContent=p.name;col.appendChild(nm);
+      const l2=document.createElement('span');l2.className='sb-l2';
       const sub=document.createElement('span');sub.className='sb-sub';
-      sub.textContent=(p.jobCode?p.jobCode+' · ':'')+(p.deadline?fmtNice(p.deadline):'');row.appendChild(sub);
+      sub.textContent=(p.jobCode?p.jobCode+' · ':'')+(p.deadline?fmtNice(p.deadline):'');l2.appendChild(sub);
+      if(p.deadline&&projectStatus(p)!=='complete'){
+        const dl=diffDays(today(),parseDate(p.deadline));
+        if(dl<0){const c=document.createElement('span');c.className='sb-chip late';c.textContent='LATE '+Math.abs(dl)+'d';l2.appendChild(c);}
+        else if(dl<=5){const c=document.createElement('span');c.className='sb-chip soon';c.textContent=dl===0?'TODAY':dl+'d';l2.appendChild(c);}
+      }
+      col.appendChild(l2);row.appendChild(col);
       const eye=document.createElement('button');eye.className='sb-eye'+(SPOT.has(p.id)?' on':'');eye.textContent='👁';eye.title='Spotlight this project (dims all others)';
       eye.addEventListener('click',ev=>{ev.stopPropagation();if(SPOT.has(p.id))SPOT.delete(p.id);else SPOT.add(p.id);render();});
       row.appendChild(eye);
-      if(p.deadline&&projectStatus(p)!=='complete'){
-        const dl=diffDays(today(),parseDate(p.deadline));
-        if(dl<0){const c=document.createElement('span');c.className='sb-chip late';c.textContent='LATE '+Math.abs(dl)+'d';row.appendChild(c);}
-        else if(dl<=5){const c=document.createElement('span');c.className='sb-chip soon';c.textContent=dl===0?'TODAY':dl+'d';row.appendChild(c);}
-      }
       const ed=document.createElement('button');ed.className='sb-edit';ed.textContent='✎';ed.title='Edit project';
       ed.addEventListener('click',ev=>{ev.stopPropagation();openProjModal(p.id);});
       row.appendChild(ed);
@@ -2146,12 +2257,12 @@ function renderGantt(){
       let s,e;
       if(ts.length){s=new Date(Math.min(...ts.map(t=>parseDate(t.startDate).getTime())));e=new Date(Math.max(...ts.map(t=>parseDate(t.endDate).getTime())));}
       else{e=parseDate(p.deadline);s=addDays(e,-14);}
-      barFrag.appendChild(makeSummaryBar(p,s,e,r));
+      barFrag.appendChild(recBar(r,makeSummaryBar(p,s,e,r),s,e));
     }else if(r.kind==='projTask'){
       const t=taskById(r.taskId);
-      if(t)barFrag.appendChild(makeTaskBar(t,r,0,'dept'));
+      if(t)barFrag.appendChild(recBar(r,makeTaskBar(t,r,0,'dept'),parseDate(t.startDate),parseDate(t.endDate)));
     }else if(r.kind==='deptLane'){
-      for(const t of r.tasks)barFrag.appendChild(makeTaskBar(t,r,r.laneMap.get(t.id)||0,'proj'));
+      for(const t of r.tasks)barFrag.appendChild(recBar(r,makeTaskBar(t,r,r.laneMap.get(t.id)||0,'proj'),parseDate(t.startDate),parseDate(t.endDate)));
       /* Out-of-office bars in people lanes */
       if(deptById(r.dept)?.roster&&personByName(r.assignee)){
         for(const o of oooFor(r.assignee)){
@@ -2173,6 +2284,9 @@ function renderGantt(){
   canvas.appendChild(barFrag);
   /* Diamonds are children of the bars, so label placement has to settle after this. */
   repositionBarLabels();
+  const ei=document.createElement('div');ei.id='edge-inds';canvas.appendChild(ei);
+  EI_SIG='';
+  updateEdgeIndicators();
 }
 
 function buildHeaderInto(hdr,DW_){
@@ -2298,7 +2412,63 @@ function repositionSummaryLabels(){repositionBarLabels();}
 let LBL_RAF=null;
 function queueLabelReposition(){
   if(LBL_RAF)return;
-  LBL_RAF=requestAnimationFrame(()=>{LBL_RAF=null;repositionBarLabels();});
+  LBL_RAF=requestAnimationFrame(()=>{LBL_RAF=null;repositionBarLabels();updateEdgeIndicators();});
+}
+
+/* ===================== B1: OFF-SCREEN BAR EDGE INDICATORS ===================== */
+/* A row whose bars all sit outside the horizontal viewport reads as empty. A chip hugs
+   that row's viewport edge naming the nearest bar edge ("› Oct 8" / "Sep 2 ‹"); clicking
+   centres the bar. Geometry is recorded by the render pass (r._bars) — this never
+   measures the DOM, and scroll updates ride the same rAF as label repositioning. */
+let EI_SIG='';
+function recBar(r,el,s,e){
+  const x1=parseFloat(el.style.left);
+  (r._bars||(r._bars=[])).push({x1,x2:x1+parseFloat(el.style.width),s,e,col:el.style.background});
+  return el;
+}
+function edgeChevron(dir,col){
+  return '<svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="'+col
+    +'" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="'
+    +(dir==='l'?'M10 3.5 5.5 8 10 12.5':'M6 3.5 10.5 8 6 12.5')+'"/></svg>';
+}
+function updateEdgeIndicators(){
+  const sc=document.getElementById('gantt-scroll'),host=document.getElementById('edge-inds');
+  if(!sc||!host)return;
+  const vl=sc.scrollLeft,vr=vl+sc.clientWidth;
+  const chips=[];
+  for(const r of ROWS){
+    if(!r._bars||r._bars.some(b=>b.x1<vr&&b.x2>vl))continue; /* some bar is (partly) in view */
+    let L=null,R=null;
+    for(const b of r._bars){if(b.x2<=vl){if(!L||b.x2>L.x2)L=b;}else if(!R||b.x1<R.x1)R=b;}
+    if(L)chips.push({r,side:'l',b:L,d:L.e});
+    if(R)chips.push({r,side:'r',b:R,d:R.s});
+  }
+  const sig=chips.map(c=>c.r.key+c.side+(+c.d)).join('|');
+  if(sig!==EI_SIG){
+    EI_SIG=sig;host.innerHTML='';
+    for(const c of chips){
+      const el=document.createElement('button');
+      el.type='button';el.className='edge-ind';
+      el.dataset.side=c.side;el.dataset.key=c.r.key;
+      el.style.top=(c.r.top+BAR_PAD+(BAR_H-24)/2)+'px';
+      el.style.color=labelColor('#FFFFFF'); /* chip is a white fill — T1 rule, not hand-picked */
+      const dt='<span>'+c.d.toLocaleDateString('en-US',{month:'short',day:'numeric'})+'</span>';
+      el.innerHTML=c.side==='l'?dt+edgeChevron('l',c.b.col):edgeChevron('r',c.b.col)+dt;
+      el.title='This row’s bar is off-screen — click to scroll it into view';
+      const cx=(c.b.x1+c.b.x2)/2;
+      el.addEventListener('click',ev=>{
+        ev.stopPropagation();
+        const left=Math.max(0,cx-sc.clientWidth/2);
+        const reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if(!reduce&&sc.scrollTo){try{sc.scrollTo({left,behavior:'smooth'});return;}catch(e){}}
+        sc.scrollLeft=left;
+      });
+      host.appendChild(el);
+    }
+  }
+  /* Position every frame — chips live in canvas space, so they track the viewport edges */
+  for(const el of host.children)
+    el.style.left=(el.dataset.side==='l'?vl+6:vr-6)+'px';
 }
 
 function makeSummaryBar(p,s,e,row){
@@ -2309,10 +2479,12 @@ function makeSummaryBar(p,s,e,row){
   bar.className='job-bar summary';bar.dataset.st=st;bar.dataset.pid=p.id;
   bar.style.left=x+'px';bar.style.top=(row.top+BAR_PAD)+'px';
   bar.style.width=w+'px';bar.style.height=BAR_H+'px';
-  bar.style.background=projColor(p.id);
+  const sumCol=projColor(p.id);
+  bar.style.background=sumCol;
   if(st==='estimating'){const ov=document.createElement('div');ov.className='bar-stripe';bar.appendChild(ov);}
   if(st==='in-production'||st==='installing'){const ed=document.createElement('div');ed.className='bar-edge';bar.appendChild(ed);}
   const lbl=document.createElement('div');lbl.className='bar-lbl';
+  lbl.style.color=labelColor(sumCol);
   lbl.dataset.base='10';lbl.dataset.min=String(LBL_MIN);
   lbl.style.left=labelLeftFor(x,w,10,LBL_MIN)+'px';lbl.style.right='10px';
   const who=[
@@ -2341,11 +2513,14 @@ function makeTaskBar(t,row,lane,labelMode){
   bar.className='job-bar';bar.dataset.st=st;bar.dataset.tid=t.id;
   bar.style.left=x+'px';bar.style.top=y+'px';
   bar.style.width=w+'px';bar.style.height=BAR_H+'px';
-  bar.style.background=barColor(t);
+  const taskCol=barColor(t);
+  bar.style.background=taskCol;
+  bar.style.color=labelColor(taskCol); /* handles pick this up via currentColor */
   if(t.pinned)bar.classList.add('is-pinned');
   if(st==='estimating'){const ov=document.createElement('div');ov.className='bar-stripe';bar.appendChild(ov);}
   if(st==='in-production'||st==='installing'){const ed=document.createElement('div');ed.className='bar-edge';bar.appendChild(ed);}
   const lbl=document.createElement('div');lbl.className='bar-lbl';
+  lbl.style.color=labelColor(taskCol);
   const lblBase=(st==='in-production'||st==='installing')?11:8;
   lbl.dataset.base=String(lblBase);lbl.dataset.min=String(LBL_MIN_TASK);
   lbl.style.left=labelLeftFor(x,w,lblBase,LBL_MIN_TASK)+'px';
@@ -2382,9 +2557,13 @@ function makeTaskBar(t,row,lane,labelMode){
     const lh=document.createElement('div');lh.className='bar-handle bh-l';bar.appendChild(lh);
     const rh=document.createElement('div');rh.className='bar-handle bh-r';bar.appendChild(rh);
     bar.addEventListener('mousedown',ev=>{if(ev.button!==0)return;ev.stopPropagation();hideTooltip();startDrag(ev,t.id,bar,row);});
-    lh.addEventListener('click',ev=>ev.stopPropagation());
-    rh.addEventListener('click',ev=>ev.stopPropagation());
   }
+  /* §6 click hierarchy — main timeline: a plain click (<3px pointer travel) opens the
+     task modal, this surface's edit-details. Any drag — move or resize, engaged or
+     merely attempted — sets SUPPRESS_CLICK on mouseup so this never fires after a drag.
+     (The project page differs: there a plain click selects the bar and the bottom
+     inspector is the details surface.) Handle clicks bubble here on purpose, so a clean
+     click on a resize handle still opens the modal. */
   bar.addEventListener('click',ev=>{ev.stopPropagation();if(!SUPPRESS_CLICK)openTaskModal(t.id);});
   bar.addEventListener('mouseenter',ev=>{if(!DRAG)showTooltipTask(t,ev);});
   bar.addEventListener('mousemove',ev=>{if(!DRAG)posTooltip(ev);});
@@ -2399,7 +2578,10 @@ function startDrag(ev,taskId,bar,row){
   let type=relX<=9?'resize-l':relX>=w-9?'resize-r':'move';
   const t=taskById(taskId);
   const pinned=!!(t&&t.pinned);
-  if((DATE_LOCK||pinned)&&type!=='move')return;
+  /* Protect dates / a pin blocks resizing, but the grab still registers as a move so
+     mouseup can tell a drag attempt from a click (a bare return would let a dragged-on
+     pinned bar fire the modal). Move already no-ops dates for pinned/locked below. */
+  if((DATE_LOCK||pinned)&&type!=='move')type='move';
   DRAG={type,taskId,pinned,bar,row,ghost:null,holdReady:false,
     holdTimer:setTimeout(()=>{if(DRAG)DRAG.holdReady=true;},200),
     sx:ev.clientX,sy:ev.clientY,
@@ -2446,7 +2628,7 @@ document.addEventListener('mousemove',ev=>{
 
 document.addEventListener('mouseup',ev=>{
   if(!DRAG)return;
-  const{type,taskId,pinned,dragging,sx,oStart,oEnd,ghost,bar,holdTimer,row,targetRow}=DRAG;
+  const{type,taskId,pinned,dragging,sx,sy,oStart,oEnd,ghost,bar,holdTimer,row,targetRow}=DRAG;
   const dx=ev.clientX-sx;
   clearTimeout(holdTimer);
   if(ghost)ghost.remove();
@@ -2454,7 +2636,12 @@ document.addEventListener('mouseup',ev=>{
   document.querySelectorAll('.g-row,.sb-row').forEach(r=>r.classList.remove('drop-hi'));
   document.body.style.cursor='';document.body.style.userSelect='';
   DRAG=null;
-  if(!dragging)return;
+  if(!dragging){
+    /* No drag engaged (released inside the 200ms hold or under the 6px slop), but ≥3px
+       of pointer travel is still a drag attempt, not a click (§6) — eat the click. */
+    if(Math.abs(dx)>=3||Math.abs(ev.clientY-sy)>=3){SUPPRESS_CLICK=true;requestAnimationFrame(()=>{SUPPRESS_CLICK=false;});}
+    return;
+  }
   SUPPRESS_CLICK=true;requestAnimationFrame(()=>{SUPPRESS_CLICK=false;});
   const DW_=dw(),dd=Math.round(dx/DW_);
   const t=taskById(taskId);
@@ -2672,7 +2859,7 @@ document.getElementById('tm-tnadd').addEventListener('click',()=>{
 function openTaskModal(taskId,prefill){
   EDIT_TASK_ID=taskId||null;
   const t=taskId?taskById(taskId):null;
-  document.getElementById('tm-head').textContent=t?'Edit Task':'New Task';
+  document.getElementById('tm-head').textContent=t?'Edit Phase':'New Phase';
   const psel=document.getElementById('tm-project');
   psel.innerHTML='';
   for(const p of currentProjOrder()){
@@ -2727,7 +2914,7 @@ document.getElementById('tm-save').addEventListener('click',()=>{
 
 document.getElementById('tm-del').addEventListener('click',()=>{
   if(!EDIT_TASK_ID)return;
-  if(!confirm('Delete this task?'))return;
+  if(!confirm('Delete this phase?'))return;
   saveState({...ST,tasks:ST.tasks.filter(x=>x.id!==EDIT_TASK_ID)});
   closeTaskModal();
 });
@@ -2779,7 +2966,8 @@ function smRender(){
     box.appendChild(card);
   });
 }
-document.getElementById('btn-staff').addEventListener('click',()=>{
+document.getElementById('mi-people').addEventListener('click',()=>{
+  closeMenus();
   SM_PEOPLE=JSON.parse(JSON.stringify(PEOPLE));
   smRender();
   document.getElementById('staff-overlay').classList.remove('hidden');
@@ -2884,7 +3072,7 @@ function openPrintPreview(){
   renderPreview();
 }
 
-document.getElementById('btn-print').addEventListener('click',openPrintPreview);
+document.getElementById('mi-print-timeline').addEventListener('click',()=>{closeMenus();openPrintPreview();});
 document.getElementById('pp-start').addEventListener('change',renderPreview);
 document.getElementById('pp-end').addEventListener('change',renderPreview);
 document.getElementById('pp-cancel').addEventListener('click',()=>document.getElementById('print-overlay').classList.add('hidden'));
@@ -2988,7 +3176,7 @@ function renderProjectPage(){
   let h='<div class="pg dash">';
 
   h+='<div class="dash-top">'
-   + '<button class="pg-back" id="pp-back"><i></i>&larr; Timeline <kbd>esc</kbd></button>'
+   + '<button class="pg-back" id="pp-back" title="Go back to the timeline (Esc)"><i></i>&larr; Timeline <kbd>esc</kbd></button>'
    + '<span class="pg-dot" style="background:'+ppColor(p)+'"></span>'
    + '<input class="pg-name" id="pp-name" placeholder="Project name" value="'+esc(p.name||'')+'">'
    + (isNew?'<span class="pg-code">New project</span>'
@@ -3001,10 +3189,10 @@ function renderProjectPage(){
   h+='<div class="dash-body">'
    + '<div class="dash-chart"><div class="npv npv-full">'
    + '<div class="npv-hd"><span class="npv-ttl" id="npv-nums"></span>'
-   + '<div class="npv-modes"><button id="npv-m-g">Gantt</button><button id="npv-m-c">Calendar</button></div>'
-   + '<div class="npv-subs"><button id="npv-tint">Tint</button>'
+   + '<div class="npv-modes"><button id="npv-m-g" title="Show the schedule as a Gantt chart (G)">Gantt</button><button id="npv-m-c" title="Show the schedule as a month calendar (C)">Calendar</button></div>'
+   + '<div class="npv-subs"><button id="npv-tint" title="Tint the calendar background by month">Tint</button>'
    + '<button id="npv-link" title="Dragging a department bar moves its subtasks with it">Link</button></div>'
-   + '<button class="npv-btn" id="npv-reset" disabled>Reset</button></div>'
+   + '<button class="npv-btn" id="npv-reset" disabled title="Put the rows back in the schedule\'s own order">Reset</button></div>'
    + '<div class="npv-leg" id="npv-leg"></div>'
    + '<div class="npv-scroll" id="npv-scroll"><div class="npv-in">'
    + '<div class="npv-axis" id="npv-axis"></div><div class="npv-body" id="npv-body"></div>'
@@ -3015,10 +3203,10 @@ function renderProjectPage(){
   h+='<div class="dash-foot">'
    + (isNew?'':'<span class="pg-auto"><b>&#10003;</b> Changes save automatically</span>')
    + '<span class="sp"></span>'
-   + '<button class="ins-btn" id="pp-keys">Shortcuts <kbd>?</kbd></button>'
-   + (isNew?'':'<button class="btn btn-danger" id="pp-del">Delete project</button>')
-   + '<button class="btn btn-ghost" id="pp-cancel">'+(isNew?'Cancel':'Done')+'</button>'
-   + (isNew?'<button class="btn btn-primary" id="pp-save">Create project</button>':'')
+   + '<button class="ins-btn" id="pp-keys" title="Show the keyboard shortcuts (?)">Shortcuts <kbd>?</kbd></button>'
+   + (isNew?'':'<button class="btn btn-danger" id="pp-del" title="Delete this project and everything on it">Delete project</button>')
+   + '<button class="btn btn-ghost" id="pp-cancel" title="'+(isNew?'Leave without creating the project':'Go back to the timeline — changes are already saved')+'">'+(isNew?'Cancel':'Done')+'</button>'
+   + (isNew?'<button class="btn btn-primary" id="pp-save" title="Create the project with the schedule shown">Create project</button>':'')
    + '</div></div>';
   h+='<div class="ks hidden" id="pp-ks"><div class="ks-in">'
    + '<h3>Keyboard</h3><div class="ks-g">'
@@ -3324,10 +3512,10 @@ function ppInspector(){
        + allPeople().map(n=>'<option'+(n===who?' selected':'')+'>'+esc(n)+'</option>').join('')+'</select></div>';
     f+='<div class="ins-f"><label>Notes</label><textarea rows="2" data-f="notes" placeholder="Anything the shop needs to know">'+esc(sel.notes||'')+'</textarea></div>';
     f+='<div class="ins-acts">'
-     + '<button class="ins-btn" id="ins-sub">+ Subtask <kbd>S</kbd></button>'
-     + '<button class="ins-btn" id="ins-ev">+ Event <kbd>E</kbd></button>'
-     + '<button class="ins-btn" id="ins-tk">+ Task <kbd>T</kbd></button>'
-     + '<button class="ins-btn dngr" id="ins-del">Delete</button></div>';
+     + '<button class="ins-btn" id="ins-sub" title="Add another bar to this department (S)">+ Subtask <kbd>S</kbd></button>'
+     + '<button class="ins-btn" id="ins-ev" title="Add a dated event marker (E)">+ Event <kbd>E</kbd></button>'
+     + '<button class="ins-btn" id="ins-tk" title="Add a to-do task (T)">+ Task <kbd>T</kbd></button>'
+     + '<button class="ins-btn dngr" id="ins-del" title="Delete this phase">Delete</button></div>';
     h+=ppSec('phase','This phase',f,null,true);
     h+=ppAgendaHTML(p,sel.department);
     h+='</div>';
@@ -3377,8 +3565,8 @@ function ppAgendaHTML(p,onlyDept){
     return String(a.date||'').localeCompare(String(b.date||''));
   });
   let body='<div class="ag-add">'
-   + '<button class="ins-btn" data-ag="ev">+ Event <kbd>E</kbd></button>'
-   + '<button class="ins-btn" data-ag="tk">+ Task <kbd>T</kbd></button></div>';
+   + '<button class="ins-btn" data-ag="ev" title="Add a dated event marker (E)">+ Event <kbd>E</kbd></button>'
+   + '<button class="ins-btn" data-ag="tk" title="Add a to-do task (T)">+ Task <kbd>T</kbd></button></div>';
   if(!shown.length){
     body+='<div class="ag-empty">Nothing scheduled yet.<br>Right-click the chart on the day '
      + 'it happens, or use the buttons above.</div>';
@@ -4069,7 +4257,8 @@ function npvRebuild(){
   let tasks=generateSchedule(d.base,d.est,d.otherLabels);
   tasks=tasks.map(t=>{
     const m=NPV_MANUAL[npvKey(t)];
-    return m?{...t,startDate:m.startDate,endDate:m.endDate,__manual:true}:t;
+    return m?{...t,startDate:m.startDate,endDate:m.endDate,
+      ...(m.estimatedDays?{estimatedDays:m.estimatedDays}:{}),__manual:true}:t;
   });
   tasks=applyPhaseLines(tasks);
   NPV_ALL=tasks;
@@ -4176,9 +4365,10 @@ function npvRender(){
     const bx=x(a)+NPV_PADL,bw=Math.max(dwv,(diffDays(a,b)+1)*dwv-NPV_PADR);
     const col=DEPT_COLORS[t.department]||'#8A98AE';
     return '<div class="npv-bar'+(t.__manual?' manual':'')+(cls?' '+cls:'')+'" data-i="'+i+'" '
-     + 'style="left:'+bx+'px;width:'+bw+'px;background:'+col+'" '
+     + 'style="left:'+bx+'px;width:'+bw+'px;background:'+col+';color:'+labelColor(col)+'" '
      + 'title="'+esc(nm+' · '+fmtNice(t.startDate)+' → '+fmtNice(t.endDate)+' · '+(t.estimatedDays||1)+'d')+'">'
      + '<div class="npv-hdl" data-i="'+i+'"></div>'
+     + '<div class="npv-hdl r" data-i="'+i+'"></div>'
      + '<span style="margin-left:5px">'+esc(nm)+'</span></div>';
   };
   for(const row of NPV_PLAN){
@@ -4196,7 +4386,7 @@ function npvRender(){
        + esc(nm)+'<span class="npv-n">'+row.kids.length+'</span></div>'
        + '<div class="npv-bar sum'+(LINK_SUBS?'':' unlinked')+'" data-dept="'+esc(row.dept)+'" '
        + 'style="left:'+bx+'px;width:'+bw+'px;background:'+col+'" title="'+esc(tip)+'">'
-       + '<span style="margin-left:5px">'+esc(nm)+'</span></div>'
+       + '<span style="margin-left:5px;color:'+labelColor(col)+'">'+esc(nm)+'</span></div>'
        + '</div>';
       continue;
     }
@@ -4428,7 +4618,7 @@ function liveDeleteEvent(evId){
 let TODO_WARNED=false;
 function liveAddTodo(p,dept,due){
   if(!TODOS_OK&&!TODO_WARNED){TODO_WARNED=true;
-    toast('The ShopTimeline_Tasks2 list does not exist yet — tasks stay in this browser session.','err');}
+    toast('Tasks can\'t be saved to SharePoint yet, so they\'ll only last until you close this tab. Ask whoever maintains the app to set up the tasks list.','err',null,'The ShopTimeline_Tasks2 list was not found on the SharePoint site.');}
   const td={id:genId(),projectId:p.id,dept:dept||'',title:'',who:[],due:due||'',
     start:'',progress:'notstarted',priority:'medium',notes:'',createdBy:'',
     completedOn:'',completedBy:'',sortIndex:(ST.todos||[]).length};
@@ -4736,7 +4926,7 @@ function npvPaintCalendar(lo,hi,dl){
     }
     items.forEach((it,r)=>{
       h+='<div class="cal-band '+it.kind+'" title="'+esc(it.txt)+'" style="grid-column:'+(it.s+1)+'/'+(it.e+2)
-        +';grid-row:'+(r+2)+(it.col?';background:'+it.col:'')+'">'+esc(it.txt)+'</div>';
+        +';grid-row:'+(r+2)+(it.col?';background:'+it.col+';color:'+labelColor(it.col):'')+'">'+esc(it.txt)+'</div>';
     });
     h+='</div>';
 
@@ -4874,12 +5064,12 @@ function ppOpenPopLegacy(idx,barEl){
    +   '<div class="bp-f"><label>Days</label><input id="bp-d" type="number" min="1" value="'+(t.estimatedDays||1)+'"></div>'
    + '</div>'
    + '<div class="bp-acts">'
-   +   '<button class="bp-btn" id="bp-add-ph">+ Subtask</button>'
-   +   '<button class="bp-btn" id="bp-add-ev">+ Event</button>'
-   +   '<button class="bp-btn" id="bp-add-tk">+ Task</button>'
-   +   (live?'<button class="bp-btn" id="bp-pin">'+(t.pinned?'Unpin':'Pin')+'</button>':'')
+   +   '<button class="bp-btn" id="bp-add-ph" title="Add another bar to this department">+ Subtask</button>'
+   +   '<button class="bp-btn" id="bp-add-ev" title="Add a dated event marker">+ Event</button>'
+   +   '<button class="bp-btn" id="bp-add-tk" title="Add a to-do task">+ Task</button>'
+   +   (live?'<button class="bp-btn" id="bp-pin" title="'+(t.pinned?'Let dragging change this bar\'s dates again':'Pin this bar so dragging can\'t change its dates')+'">'+(t.pinned?'Unpin':'Pin')+'</button>':'')
    +   '<span style="flex:1"></span>'
-   +   '<button class="bp-btn dngr" id="bp-del">Delete</button>'
+   +   '<button class="bp-btn dngr" id="bp-del" title="Delete this phase">Delete</button>'
    + '</div>'
    + (live?'':'<div class="bp-note">Dates come from the scheduler on a new project. Drag the bar to change them.</div>');
 
@@ -5104,46 +5294,81 @@ function npvBindDrag(){
       ev.preventDefault();
       const i=+bar.dataset.i,t=NPV_TASKS[i];
       if(!t)return;
-      const resize=ev.target.classList.contains('npv-hdl');
-      const x0=ev.clientX;
+      /* Left handle edits the start date, right handle the end date. Same rule as the
+         main timeline's startDrag: Protect dates or a pin blocks resizing outright. */
+      const resize=ev.target.classList.contains('npv-hdl')
+        ?(ev.target.classList.contains('r')?'r':'l'):'';
+      /* Locked: the drag is swallowed but a click still selects, like the timeline. */
+      const locked=!!resize&&(DATE_LOCK||!!t.pinned);
+      const x0=ev.clientX,y0=ev.clientY;
+      let moved=false; /* ≥3px pointer travel — the §6 click/drag disambiguator */
       const s0=parseDate(t.startDate),e0=parseDate(t.endDate);
       const dwv=NPV_GEO.dw;
+      const tip=document.getElementById('tooltip');
+      /* A resized edge lands on a workday: the start snaps forward, the end back. */
+      const snap=(d,dir)=>{while(!isWorking(d))d=addDays(d,dir);return d;};
+      const edge=e2=>{
+        const dd=Math.round((e2.clientX-x0)/dwv);
+        if(resize==='l'){let ns=snap(addDays(s0,dd),1);return ns>e0?new Date(e0):ns;}
+        const ne=snap(addDays(e0,dd),-1);return ne<s0?new Date(s0):ne;
+      };
+      if(resize&&!locked){document.body.style.cursor='ew-resize';document.body.style.userSelect='none';}
       bar.classList.add('dragging');
       let days=0;
       const mv=e2=>{
+        if(Math.abs(e2.clientX-x0)>=3||Math.abs(e2.clientY-y0)>=3)moved=true;
+        if(locked)return;
         days=Math.round((e2.clientX-x0)/dwv);
-        if(resize){
-          let ns=addDays(s0,days);
-          if(ns>e0)ns=new Date(e0);
+        if(resize==='l'){
+          const ns=edge(e2);
           bar.style.left=(NPV_GUT+diffDays(NPV_GEO.lo,ns)*dwv+NPV_PADL)+'px';
           bar.style.width=Math.max(dwv,(diffDays(ns,e0)+1)*dwv-NPV_PADR)+'px';
+        }else if(resize==='r'){
+          bar.style.width=Math.max(dwv,(diffDays(s0,edge(e2))+1)*dwv-NPV_PADR)+'px';
         }else{
           bar.style.left=(NPV_GUT+diffDays(NPV_GEO.lo,addDays(s0,days))*dwv+NPV_PADL)+'px';
         }
+        if(resize){
+          tip.innerHTML='<div class="tt-title">'+fmtNice(fmtDate(edge(e2)))+'</div>';
+          tip.classList.remove('hidden');posTooltip(e2);
+        }
       };
-      const up=()=>{
+      const up=e2=>{
         document.removeEventListener('mousemove',mv);
         document.removeEventListener('mouseup',up);
         bar.classList.remove('dragging');
-        if(!days){
-          /* A click selects on a saved project; on a draft it opens the bar's editor,
-             because draft bars aren't in ST for the inspector to find. */
+        if(resize){document.body.style.cursor='';document.body.style.userSelect='';hideTooltip();}
+        if(!moved){
+          /* §6 click hierarchy — project page: a plain click (<3px travel) selects the
+             bar, and the bottom inspector — driven by that selection — IS this surface's
+             edit-details; there is no phase modal here. (The main timeline instead opens
+             the task modal on a plain click.) A drag of any kind never selects. On a
+             draft the click opens the bar's popover editor, because draft bars aren't in
+             ST for the inspector to find. */
           npvRender();
           if(NPV_LIVE){ppSelect(t.id);return;}
           const again=document.querySelector('#npv-body .npv-bar[data-i="'+i+'"]');
           if(again)ppOpenPop(i,again);
           return;
         }
+        /* A real drag that was locked, or rounded back to zero days: reset, no select. */
+        if(locked||!days){npvRender();return;}
         if(resize){
-          let ns=addDays(s0,days);
-          if(ns>e0)ns=new Date(e0);
-          const n=wdCount(ns,e0);
-          if(NPV_LIVE){commitPhaseDates(t.id,fmtDate(ns),fmtDate(e0),n);npvRebuild();
+          const ns=resize==='l'?edge(e2):s0, ne=resize==='r'?edge(e2):e0;
+          /* Snapping can round a short drag back to where it started — nothing to file. */
+          if(fmtDate(ns)===t.startDate&&fmtDate(ne)===t.endDate){npvRender();return;}
+          const n=wdCount(ns,ne);
+          if(NPV_LIVE){commitPhaseDates(t.id,fmtDate(ns),fmtDate(ne),n);npvRebuild();
             ppSelect(t.id,true);toastU('Resized '+phaseLabel(t)+' to '+n+'d');return;}
-          const inp=document.querySelector('#pp-depts input[data-dept="'+t.department+'"]');
-          const dd=inp?inp.parentElement.querySelector('.ddays'):null;
-          if(dd){dd.value=n;npvRebuild();}
-          else npvRender();
+          /* Draft: pin the dragged dates as a manual placement — the preview honors it
+             through rebuilds and Save files exactly what's shown; nothing touches ST. */
+          const k=npvKey(t),prev=NPV_MANUAL[k];
+          NPV_MANUAL[k]={startDate:fmtDate(ns),endDate:fmtDate(ne),estimatedDays:n};
+          npvRebuild();
+          toast('Resized '+phaseLabel(t)+' to '+n+'d',null,()=>{
+            if(prev)NPV_MANUAL[k]=prev;else delete NPV_MANUAL[k];
+            npvRebuild();
+          });
         }else{
           if(NPV_LIVE){
             commitPhaseDates(t.id,fmtDate(addDays(s0,days)),fmtDate(addDays(e0,days)));
@@ -5234,7 +5459,7 @@ function savePageProject(){
     if(newTodos.length)bits.push(newTodos.length+' task'+(newTodos.length>1?'s':''));
     toast('Created "'+p.name+'" with '+bits.join(', '));
     if(newTodos.length&&!TODOS_OK)
-      toast('Tasks are saved in this session only — the ShopTimeline_Tasks2 list isn\'t reachable.','err');
+      toast('Tasks can\'t be saved to SharePoint yet, so they\'ll only last until you close this tab. Ask whoever maintains the app to set up the tasks list.','err',null,'The ShopTimeline_Tasks2 list was not found on the SharePoint site.');
     goProject(p.id);
     return;
   }
@@ -5307,7 +5532,7 @@ document.addEventListener('keydown',ev=>{
     document.getElementById('staff-overlay').classList.add('hidden');
     document.getElementById('print-overlay').classList.add('hidden');
     document.getElementById('meet-overlay').classList.add('hidden');
-    document.getElementById('status-menu').classList.add('hidden');
+    closeMenus();
     return;
   }
   if((ev.ctrlKey||ev.metaKey)&&ev.key.toLowerCase()==='z'&&!typing){ev.preventDefault();undo();return;}
@@ -5479,16 +5704,24 @@ function buildStatusMenu(){
     m.appendChild(l);
   }
   const row=document.createElement('div');row.className='sm-btns';
-  const all=document.createElement('button');all.className='sm-all';all.textContent='Show all';
+  const all=document.createElement('button');all.className='sm-all';all.textContent='Show all';all.title='Show projects of every status';
   all.addEventListener('click',()=>{SHOW_STATUS=new Set(ALL_STATUSES);saveUI();buildStatusMenu();updateFilterBadges();render();});
-  const none=document.createElement('button');none.className='sm-all';none.textContent='Clear all';
+  const none=document.createElement('button');none.className='sm-all';none.textContent='Clear all';none.title='Hide every status, then tick the ones you want';
   none.addEventListener('click',()=>{SHOW_STATUS=new Set();saveUI();buildStatusMenu();updateFilterBadges();render();});
   row.appendChild(all);row.appendChild(none);
   m.appendChild(row);
 }
-document.getElementById('btn-status').addEventListener('click',ev=>{ev.stopPropagation();document.getElementById('status-menu').classList.toggle('hidden');});
-document.getElementById('status-menu').addEventListener('click',ev=>ev.stopPropagation());
-document.addEventListener('click',()=>document.getElementById('status-menu').classList.add('hidden'));
+/* Toolbar dropdowns — one open at a time, close on outside click or Esc */
+function closeMenus(){document.querySelectorAll('.tb-menu').forEach(m=>m.classList.add('hidden'));}
+function wireMenu(btnId,menuId){
+  const b=document.getElementById(btnId),m=document.getElementById(menuId);
+  b.addEventListener('click',ev=>{ev.stopPropagation();const open=m.classList.contains('hidden');closeMenus();if(open)m.classList.remove('hidden');});
+  m.addEventListener('click',ev=>ev.stopPropagation());
+}
+wireMenu('btn-status','status-menu');
+wireMenu('btn-print','print-menu');
+wireMenu('btn-settings','settings-menu');
+document.addEventListener('click',closeMenus);
 document.getElementById('btn-reset').addEventListener('click',()=>{
   SPOT.clear();
   FILTER='';document.getElementById('t-search').value='';
@@ -5565,7 +5798,7 @@ function openMeeting(){
   z.innerHTML='';z.appendChild(buildMeetingSheet());
   document.getElementById('meet-overlay').classList.remove('hidden');
 }
-document.getElementById('btn-meeting').addEventListener('click',openMeeting);
+document.getElementById('mi-meeting').addEventListener('click',()=>{closeMenus();openMeeting();});
 document.getElementById('meet-cancel').addEventListener('click',()=>document.getElementById('meet-overlay').classList.add('hidden'));
 document.getElementById('meet-overlay').addEventListener('click',ev=>{if(ev.target.id==='meet-overlay')document.getElementById('meet-overlay').classList.add('hidden');});
 document.getElementById('meet-print').addEventListener('click',()=>{
@@ -5582,7 +5815,8 @@ document.getElementById('tb-rev-num').textContent=APP_REV;
 loadLocalPrefs();
 buildStatusMenu();updateFilterBadges();
 ST={projects:[],tasks:[],todos:[]};
-(async()=>{
+/* Sign in + load, callable again from the signed-out empty-state card's button. */
+async function boot(){
   try{
     setSync('busy','signing in…');
     await spInit();          /* Microsoft sign-in */
@@ -5592,10 +5826,11 @@ ST={projects:[],tasks:[],todos:[]};
   }catch(e){
     console.error(e);
     setSync('err','offline');
-    toast('Sign-in or SharePoint load failed: '+e.message,'err');
+    toast('Couldn\'t sign in or reach SharePoint. Check your connection, then use "Sign in with Microsoft" to try again.','err',null,e.message);
   }
-  /* Staff list loads separately so a missing ShopTimeline_Staff list doesn't block the schedule */
-  try{
+  /* Staff list loads separately so a missing ShopTimeline_Staff list doesn't block the
+     schedule. Skipped entirely when sign-in failed — one problem, one toast. */
+  if(ACCOUNT)try{
     const remote=await spLoadStaff();
     STAFF_OK=true;
     if(!remote.length&&PEOPLE.length){
@@ -5609,9 +5844,12 @@ ST={projects:[],tasks:[],todos:[]};
   }catch(e){
     console.error(e);
     STAFF_OK=false;
-    toast('ShopTimeline_Staff list not found — staff is local to this browser until it\'s created.','err');
+    toast('Couldn\'t load the staff list from SharePoint, so staff lives in this browser only for now.','err',null,e.message);
   }
   rebuildStaff();
+}
+(async()=>{
+  await boot();
   EXPANDED=new Set();   /* open collapsed — one tidy row per job */
   applyRoute();
   setTimeout(scrollTodayLeft,80);

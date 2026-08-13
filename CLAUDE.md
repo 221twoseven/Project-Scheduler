@@ -18,6 +18,11 @@ Project rules and context for working in this repository. Read this before makin
 - **`index.html` — the company-developed application. This is the primary
   implementation file.** All company feature work happens here. It began as a
   byte-for-byte copy of the REV50 reference; divergence is expected over time.
++- **`docs/Design-Language.md` — the design system. Read it before any change that
++  touches appearance or interaction.** If a change contradicts it, either follow the
++  doc or update the doc in the same PR — never silently diverge.
++- **`docs/UX-Audit-and-Strategy.md` — the current UX plan.** Findings, phases, and
++  the finding→fix index. Task briefs reference its IDs (C1, B2, E3, …).
 
 ## Branches
 
@@ -81,6 +86,9 @@ The current infrastructure values (for reference — do not change without instr
 
 - **Prefer small, reviewable changes.** Do not refactor unrelated working code unless
   explicitly requested.
++- **UI changes ship with evidence:** before/after screenshots from `/preview/` in the
++  PR description, and the accessibility checklist from `docs/Design-Language.md` §9
++  confirmed for any surface you touched.
 - **Before any substantial architectural change, first explain:** the proposed change,
   the files it affects, the risks (especially to shared SharePoint/Entra infrastructure
   and the colleague app), and the rollback path. Wait for approval before proceeding.

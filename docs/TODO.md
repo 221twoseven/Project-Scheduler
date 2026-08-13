@@ -73,8 +73,9 @@ Last reviewed: 2026-08-10.
       Departments). Designed, not built. Needs the identity chain: signed-in email →
       `Staff.email`, fallback to display-name match, fallback to a remembered person
       picker.
-- [ ] **Retire the phase modal?** It's bypassed on the project page but still reachable
-      from the main timeline. Decide whether it goes.
+- [x] **Retire the phase modal?** Decided (E2, 2026-08-13): it stays. A plain click on a
+      main-timeline bar opens it — that surface's edit-details path per Design-Language
+      §6. The project page keeps click-selects-into-inspector instead.
 - [ ] **Department overlap.** The scheduler chains strictly, so overlap only happens via
       hand-pinning (and a pinned bar stops tracking). Open question: should overlap be a
       per-department setting the scheduler honours?

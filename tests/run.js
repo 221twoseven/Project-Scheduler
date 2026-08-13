@@ -18,6 +18,11 @@ const SUITES = [
   'test48.js',
   'test49.js',
   'test50.js',
+  'test-contrast.js',
+  'test-e2-click.js',
+  'test-e3-resize.js',
+  'test-c1-color.js',
+  'test-b1.js',
 ];
 
 const repoRoot = path.resolve(__dirname, '..');
