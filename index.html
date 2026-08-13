@@ -227,8 +227,11 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 
 /* ============ TOASTS ============ */
 #toasts{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:1000;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none}
-.toast{background:#101A29;color:rgba(255,255,255,.92);font-size:12.5px;padding:9px 16px;border-radius:9px;box-shadow:0 8px 28px rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.1);animation:toast-in .22s ease-out;max-width:76vw}
+.toast{background:#101A29;color:rgba(255,255,255,.92);font-size:12.5px;padding:9px 16px;border-radius:9px;box-shadow:0 8px 28px rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.1);animation:toast-in .22s ease-out;max-width:76vw;pointer-events:auto}
 .toast.err{border-color:rgba(255,110,110,.5);color:#FFC9C9}
+.toast details{margin-top:6px}
+.toast summary{cursor:pointer;font-size:11px;opacity:.65;user-select:none}
+.toast .toast-tech{font-family:var(--mono);font-size:10.5px;line-height:1.5;text-align:left;white-space:pre-wrap;word-break:break-word;max-height:110px;overflow:auto;margin-top:4px;opacity:.8}
 .toast.out{opacity:0;transform:translateY(6px);transition:opacity .3s,transform .3s}
 @keyframes toast-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 
@@ -1604,7 +1607,9 @@ async function spSync(oldST,newST){
 /* ===================== TOASTS + SYNC STATUS ===================== */
 /* REV49: a toast can carry its own Undo. Every Gantt tool's loudest complaint is the
    accidental drag or delete, and an undo you have to know the shortcut for isn't one. */
-function toast(msg,kind,undoable){
+/* `details` (optional string) tucks the raw technical error behind a collapsible
+   "Details" — users read the sentence, whoever maintains the app opens the details. */
+function toast(msg,kind,undoable,details){
   const box=document.getElementById('toasts');
   const el=document.createElement('div');el.className='toast'+(kind==='err'?' err':'');
   el.textContent=msg;
@@ -1615,15 +1620,26 @@ function toast(msg,kind,undoable){
     b.addEventListener('click',()=>{el.remove();typeof undoable==='function'?undoable():undo();});
     el.appendChild(b);
   }
+  if(details){
+    const d=document.createElement('details');
+    const s=document.createElement('summary');s.textContent='Details';d.appendChild(s);
+    const t=document.createElement('div');t.className='toast-tech';t.textContent=details;d.appendChild(t);
+    el.appendChild(d);
+  }
+  /* Hovering pauses dismissal so Undo and Details are actually reachable. */
+  let tm;
+  const hide=()=>{el.classList.add('out');setTimeout(()=>el.remove(),350);};
+  const arm=()=>{tm=setTimeout(hide,kind==='err'?5200:(undoable?5200:2600));};
+  el.addEventListener('mouseenter',()=>clearTimeout(tm));
+  el.addEventListener('mouseleave',arm);
   box.appendChild(el);
-  setTimeout(()=>{el.classList.add('out');setTimeout(()=>el.remove(),350);},
-    kind==='err'?5200:(undoable?5200:2600));
+  arm();
 }
 const toastU=msg=>toast(msg,null,true);
 function setSync(state,msg){
   const el=document.getElementById('sync-pill');
   el.className=state;
-  el.textContent='● '+(msg||(state==='ok'?'synced':state==='busy'?'saving…':'sync failed'));
+  el.textContent='● '+(msg||(state==='ok'?'synced':state==='busy'?'saving…':'not saved'));
 }
 function stamp(){return new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});}
 
@@ -1668,7 +1684,7 @@ function syncNow(oldST,newST){
         SYNCING=false;
         console.error(e);
         setSync('err','not saved — click to retry');
-        toast('Could not save to SharePoint. Your change is visible here but not saved yet.','err');
+        toast('Couldn\'t save to SharePoint. Your change is still on screen — click "not saved" at the top right to retry.','err',null,e.message);
         PENDING_SYNC={oldST,newST};
       }));
 }
@@ -1690,11 +1706,11 @@ function savePeople(np){
   const old=PEOPLE;PEOPLE=np;rebuildStaff();
   localStorage.setItem(PEOPLE_KEY,JSON.stringify(PEOPLE));
   render();
-  if(!STAFF_OK){toast('Staff saved in this browser only — the ShopTimeline_Staff list isn\'t reachable.','err');return;}
+  if(!STAFF_OK){toast('Staff saved in this browser only — it won\'t sync to your teammates until SharePoint is reachable again.','err');return;}
   setSync('busy');
   spSyncStaff(old,PEOPLE)
     .then(()=>setSync('ok','synced '+stamp()))
-    .catch(e=>{console.error(e);setSync('err','staff not saved');toast('Could not save staff to SharePoint.','err');});
+    .catch(e=>{console.error(e);setSync('err','staff not saved');toast('Couldn\'t save the staff list to SharePoint. Try saving again in a moment.','err',null,e.message);});
 }
 function saveUI(){
   try{localStorage.setItem('shopTimelineTint',TINT?'1':'0');
@@ -2031,16 +2047,36 @@ function render(){
   renderEmptyState();
 }
 
+/* Always shows a card when the canvas has no visible projects: signed out → the
+   sign-in call to action; empty → the teach card; all filtered out → how to unhide. */
 function renderEmptyState(){
   const old=document.getElementById('empty-state');if(old)old.remove();
-  if(ST.projects.length)return;
+  let html;
+  if(!ACCOUNT){
+    html='<div class="es-big">Shop Timeline</div>'
+      +'<div class="es-sub">The shared shop schedule — every project, phase and deadline in one place.<br>Sign in with your work account to see it.</div>'
+      +'<button class="btn btn-primary" id="es-signin" style="margin-top:14px">Sign in with Microsoft</button>';
+  }else if(!ST.projects.length){
+    html='<div class="es-big">Nothing scheduled yet</div>'
+      +'<div class="es-sub">Create your first project and the schedule builds itself<br>backward from the deadline. Press <kbd>N</kbd> or use <b>+ New Project</b>.</div>';
+  }else if(!ST.projects.some(p=>SHOW_STATUS.has(projectStatus(p)))){
+    html='<div class="es-big">All projects are hidden</div>'
+      +'<div class="es-sub">The status filter is hiding every project.<br>Click <b>⟲ Clear filters</b> in the toolbar to see them again.</div>';
+  }else return;
   const sc=document.getElementById('gantt-scroll');
   const es=document.createElement('div');es.className='empty-state';es.id='empty-state';
-  es.innerHTML='<div class="es-big">Nothing scheduled yet</div>'
-    +'<div class="es-sub">Create your first project and the schedule builds itself<br>backward from the deadline. Press <kbd>N</kbd> or use <b>+ New Project</b>.</div>';
+  es.innerHTML=html;
   es.style.left=(sc.scrollLeft+sc.clientWidth/2-190)+'px';
   es.style.top='90px';es.style.width='380px';
   document.getElementById('gantt-canvas').appendChild(es);
+  es.addEventListener('mousedown',ev=>ev.stopPropagation());
+  const btn=es.querySelector('#es-signin');
+  if(btn)btn.addEventListener('click',async()=>{
+    btn.disabled=true;
+    await boot();
+    render();
+    setTimeout(scrollTodayLeft,80);
+  });
 }
 
 function renderSidebar(){
@@ -4582,7 +4618,7 @@ function liveDeleteEvent(evId){
 let TODO_WARNED=false;
 function liveAddTodo(p,dept,due){
   if(!TODOS_OK&&!TODO_WARNED){TODO_WARNED=true;
-    toast('The ShopTimeline_Tasks2 list does not exist yet — tasks stay in this browser session.','err');}
+    toast('Tasks can\'t be saved to SharePoint yet, so they\'ll only last until you close this tab. Ask whoever maintains the app to set up the tasks list.','err',null,'The ShopTimeline_Tasks2 list was not found on the SharePoint site.');}
   const td={id:genId(),projectId:p.id,dept:dept||'',title:'',who:[],due:due||'',
     start:'',progress:'notstarted',priority:'medium',notes:'',createdBy:'',
     completedOn:'',completedBy:'',sortIndex:(ST.todos||[]).length};
@@ -5423,7 +5459,7 @@ function savePageProject(){
     if(newTodos.length)bits.push(newTodos.length+' task'+(newTodos.length>1?'s':''));
     toast('Created "'+p.name+'" with '+bits.join(', '));
     if(newTodos.length&&!TODOS_OK)
-      toast('Tasks are saved in this session only — the ShopTimeline_Tasks2 list isn\'t reachable.','err');
+      toast('Tasks can\'t be saved to SharePoint yet, so they\'ll only last until you close this tab. Ask whoever maintains the app to set up the tasks list.','err',null,'The ShopTimeline_Tasks2 list was not found on the SharePoint site.');
     goProject(p.id);
     return;
   }
@@ -5779,7 +5815,8 @@ document.getElementById('tb-rev-num').textContent=APP_REV;
 loadLocalPrefs();
 buildStatusMenu();updateFilterBadges();
 ST={projects:[],tasks:[],todos:[]};
-(async()=>{
+/* Sign in + load, callable again from the signed-out empty-state card's button. */
+async function boot(){
   try{
     setSync('busy','signing in…');
     await spInit();          /* Microsoft sign-in */
@@ -5789,10 +5826,11 @@ ST={projects:[],tasks:[],todos:[]};
   }catch(e){
     console.error(e);
     setSync('err','offline');
-    toast('Sign-in or SharePoint load failed: '+e.message,'err');
+    toast('Couldn\'t sign in or reach SharePoint. Check your connection, then use "Sign in with Microsoft" to try again.','err',null,e.message);
   }
-  /* Staff list loads separately so a missing ShopTimeline_Staff list doesn't block the schedule */
-  try{
+  /* Staff list loads separately so a missing ShopTimeline_Staff list doesn't block the
+     schedule. Skipped entirely when sign-in failed — one problem, one toast. */
+  if(ACCOUNT)try{
     const remote=await spLoadStaff();
     STAFF_OK=true;
     if(!remote.length&&PEOPLE.length){
@@ -5806,9 +5844,12 @@ ST={projects:[],tasks:[],todos:[]};
   }catch(e){
     console.error(e);
     STAFF_OK=false;
-    toast('ShopTimeline_Staff list not found — staff is local to this browser until it\'s created.','err');
+    toast('Couldn\'t load the staff list from SharePoint, so staff lives in this browser only for now.','err',null,e.message);
   }
   rebuildStaff();
+}
+(async()=>{
+  await boot();
   EXPANDED=new Set();   /* open collapsed — one tidy row per job */
   applyRoute();
   setTimeout(scrollTodayLeft,80);
