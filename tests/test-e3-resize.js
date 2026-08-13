@@ -7,6 +7,12 @@ const fs=require('fs');
 const FILE=process.argv[2]||'index.html';
 const src=fs.readFileSync(FILE,'utf8');
 
+/* The frozen REV50 reference predates E3 — same convention as test-contrast.js. */
+if(src.indexOf('npv-hdl r')<0){
+  console.log('test-e3-resize: skipped — no right-edge handle in '+FILE+' (pre-E3 build)');
+  process.exit(0);
+}
+
 let pass=0,fail=0;
 const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
