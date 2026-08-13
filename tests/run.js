@@ -19,6 +19,7 @@ const SUITES = [
   'test49.js',
   'test50.js',
   'test-contrast.js',
+  'test-e2-click.js',
   'test-e3-resize.js',
   'test-c1-color.js',
 ];

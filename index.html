@@ -2452,9 +2452,13 @@ function makeTaskBar(t,row,lane,labelMode){
     const lh=document.createElement('div');lh.className='bar-handle bh-l';bar.appendChild(lh);
     const rh=document.createElement('div');rh.className='bar-handle bh-r';bar.appendChild(rh);
     bar.addEventListener('mousedown',ev=>{if(ev.button!==0)return;ev.stopPropagation();hideTooltip();startDrag(ev,t.id,bar,row);});
-    lh.addEventListener('click',ev=>ev.stopPropagation());
-    rh.addEventListener('click',ev=>ev.stopPropagation());
   }
+  /* §6 click hierarchy — main timeline: a plain click (<3px pointer travel) opens the
+     task modal, this surface's edit-details. Any drag — move or resize, engaged or
+     merely attempted — sets SUPPRESS_CLICK on mouseup so this never fires after a drag.
+     (The project page differs: there a plain click selects the bar and the bottom
+     inspector is the details surface.) Handle clicks bubble here on purpose, so a clean
+     click on a resize handle still opens the modal. */
   bar.addEventListener('click',ev=>{ev.stopPropagation();if(!SUPPRESS_CLICK)openTaskModal(t.id);});
   bar.addEventListener('mouseenter',ev=>{if(!DRAG)showTooltipTask(t,ev);});
   bar.addEventListener('mousemove',ev=>{if(!DRAG)posTooltip(ev);});
@@ -2469,7 +2473,10 @@ function startDrag(ev,taskId,bar,row){
   let type=relX<=9?'resize-l':relX>=w-9?'resize-r':'move';
   const t=taskById(taskId);
   const pinned=!!(t&&t.pinned);
-  if((DATE_LOCK||pinned)&&type!=='move')return;
+  /* Protect dates / a pin blocks resizing, but the grab still registers as a move so
+     mouseup can tell a drag attempt from a click (a bare return would let a dragged-on
+     pinned bar fire the modal). Move already no-ops dates for pinned/locked below. */
+  if((DATE_LOCK||pinned)&&type!=='move')type='move';
   DRAG={type,taskId,pinned,bar,row,ghost:null,holdReady:false,
     holdTimer:setTimeout(()=>{if(DRAG)DRAG.holdReady=true;},200),
     sx:ev.clientX,sy:ev.clientY,
@@ -2516,7 +2523,7 @@ document.addEventListener('mousemove',ev=>{
 
 document.addEventListener('mouseup',ev=>{
   if(!DRAG)return;
-  const{type,taskId,pinned,dragging,sx,oStart,oEnd,ghost,bar,holdTimer,row,targetRow}=DRAG;
+  const{type,taskId,pinned,dragging,sx,sy,oStart,oEnd,ghost,bar,holdTimer,row,targetRow}=DRAG;
   const dx=ev.clientX-sx;
   clearTimeout(holdTimer);
   if(ghost)ghost.remove();
@@ -2524,7 +2531,12 @@ document.addEventListener('mouseup',ev=>{
   document.querySelectorAll('.g-row,.sb-row').forEach(r=>r.classList.remove('drop-hi'));
   document.body.style.cursor='';document.body.style.userSelect='';
   DRAG=null;
-  if(!dragging)return;
+  if(!dragging){
+    /* No drag engaged (released inside the 200ms hold or under the 6px slop), but ≥3px
+       of pointer travel is still a drag attempt, not a click (§6) — eat the click. */
+    if(Math.abs(dx)>=3||Math.abs(ev.clientY-sy)>=3){SUPPRESS_CLICK=true;requestAnimationFrame(()=>{SUPPRESS_CLICK=false;});}
+    return;
+  }
   SUPPRESS_CLICK=true;requestAnimationFrame(()=>{SUPPRESS_CLICK=false;});
   const DW_=dw(),dd=Math.round(dx/DW_);
   const t=taskById(taskId);
@@ -5183,7 +5195,8 @@ function npvBindDrag(){
         ?(ev.target.classList.contains('r')?'r':'l'):'';
       /* Locked: the drag is swallowed but a click still selects, like the timeline. */
       const locked=!!resize&&(DATE_LOCK||!!t.pinned);
-      const x0=ev.clientX;
+      const x0=ev.clientX,y0=ev.clientY;
+      let moved=false; /* ≥3px pointer travel — the §6 click/drag disambiguator */
       const s0=parseDate(t.startDate),e0=parseDate(t.endDate);
       const dwv=NPV_GEO.dw;
       const tip=document.getElementById('tooltip');
@@ -5198,6 +5211,7 @@ function npvBindDrag(){
       bar.classList.add('dragging');
       let days=0;
       const mv=e2=>{
+        if(Math.abs(e2.clientX-x0)>=3||Math.abs(e2.clientY-y0)>=3)moved=true;
         if(locked)return;
         days=Math.round((e2.clientX-x0)/dwv);
         if(resize==='l'){
@@ -5219,15 +5233,21 @@ function npvBindDrag(){
         document.removeEventListener('mouseup',up);
         bar.classList.remove('dragging');
         if(resize){document.body.style.cursor='';document.body.style.userSelect='';hideTooltip();}
-        if(!days){
-          /* A click selects on a saved project; on a draft it opens the bar's editor,
-             because draft bars aren't in ST for the inspector to find. */
+        if(!moved){
+          /* §6 click hierarchy — project page: a plain click (<3px travel) selects the
+             bar, and the bottom inspector — driven by that selection — IS this surface's
+             edit-details; there is no phase modal here. (The main timeline instead opens
+             the task modal on a plain click.) A drag of any kind never selects. On a
+             draft the click opens the bar's popover editor, because draft bars aren't in
+             ST for the inspector to find. */
           npvRender();
           if(NPV_LIVE){ppSelect(t.id);return;}
           const again=document.querySelector('#npv-body .npv-bar[data-i="'+i+'"]');
           if(again)ppOpenPop(i,again);
           return;
         }
+        /* A real drag that was locked, or rounded back to zero days: reset, no select. */
+        if(locked||!days){npvRender();return;}
         if(resize){
           const ns=resize==='l'?edge(e2):s0, ne=resize==='r'?edge(e2):e0;
           /* Snapping can round a short drag back to where it started — nothing to file. */
