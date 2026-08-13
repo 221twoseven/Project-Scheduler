@@ -3,7 +3,14 @@
    color; visible-collision shifts go to the nearest free slot; nothing nears
    INSTALL_RED. Run: node tests/test-c1-color.js index.html */
 const {boot}=require('./harness');
+const fs=require('fs');
 const FILE=process.argv[2]||'index.html';
+
+/* The frozen REV50 reference predates C1 — same convention as test-e3-resize.js. */
+if(fs.readFileSync(FILE,'utf8').indexOf('hashSlot')<0){
+  console.log('test-c1-color: skipped — no hashSlot() in '+FILE+' (pre-C1 build)');
+  process.exit(0);
+}
 
 let pass=0,fail=0;
 const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
