@@ -159,6 +159,9 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);font-size:13px;col
 .hover-guide{position:absolute;top:0;width:1px;background:rgba(20,40,70,.35);z-index:7;pointer-events:none}
 .hover-tag{position:absolute;top:4px;transform:translateX(-50%);font-family:var(--mono);font-size:9px;color:#fff;background:#28374E;border-radius:4px;padding:2px 7px;white-space:nowrap;z-index:8;pointer-events:none;box-shadow:0 2px 6px rgba(0,0,0,.25)}
 .dl-flag{position:absolute;width:0;z-index:5;pointer-events:none;border-left:2px dashed rgba(220,38,38,.55)}
+.edge-ind{position:absolute;z-index:12;display:inline-flex;align-items:center;gap:5px;height:24px;padding:0 8px;background:#fff;border:1px solid var(--side-line);border-radius:12px;font-family:var(--mono);font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;box-shadow:0 1px 4px rgba(13,19,29,.12)}
+.edge-ind[data-side="r"]{transform:translateX(-100%)}
+.edge-ind:hover{border-color:#9FB0C6}
 .dl-flag::before{content:'⚑';position:absolute;top:-2px;left:1px;font-size:11px;color:var(--late)}
 .dim{opacity:.16;filter:grayscale(.5)}
 .ooo-bar{position:absolute;border-radius:5px;background:repeating-linear-gradient(-45deg,#C3CBD7 0 5px,#DDE2EA 5px 10px);box-shadow:inset 0 0 0 1px rgba(90,105,125,.4);z-index:9;overflow:hidden;pointer-events:auto}
@@ -2218,12 +2221,12 @@ function renderGantt(){
       let s,e;
       if(ts.length){s=new Date(Math.min(...ts.map(t=>parseDate(t.startDate).getTime())));e=new Date(Math.max(...ts.map(t=>parseDate(t.endDate).getTime())));}
       else{e=parseDate(p.deadline);s=addDays(e,-14);}
-      barFrag.appendChild(makeSummaryBar(p,s,e,r));
+      barFrag.appendChild(recBar(r,makeSummaryBar(p,s,e,r),s,e));
     }else if(r.kind==='projTask'){
       const t=taskById(r.taskId);
-      if(t)barFrag.appendChild(makeTaskBar(t,r,0,'dept'));
+      if(t)barFrag.appendChild(recBar(r,makeTaskBar(t,r,0,'dept'),parseDate(t.startDate),parseDate(t.endDate)));
     }else if(r.kind==='deptLane'){
-      for(const t of r.tasks)barFrag.appendChild(makeTaskBar(t,r,r.laneMap.get(t.id)||0,'proj'));
+      for(const t of r.tasks)barFrag.appendChild(recBar(r,makeTaskBar(t,r,r.laneMap.get(t.id)||0,'proj'),parseDate(t.startDate),parseDate(t.endDate)));
       /* Out-of-office bars in people lanes */
       if(deptById(r.dept)?.roster&&personByName(r.assignee)){
         for(const o of oooFor(r.assignee)){
@@ -2245,6 +2248,9 @@ function renderGantt(){
   canvas.appendChild(barFrag);
   /* Diamonds are children of the bars, so label placement has to settle after this. */
   repositionBarLabels();
+  const ei=document.createElement('div');ei.id='edge-inds';canvas.appendChild(ei);
+  EI_SIG='';
+  updateEdgeIndicators();
 }
 
 function buildHeaderInto(hdr,DW_){
@@ -2370,7 +2376,63 @@ function repositionSummaryLabels(){repositionBarLabels();}
 let LBL_RAF=null;
 function queueLabelReposition(){
   if(LBL_RAF)return;
-  LBL_RAF=requestAnimationFrame(()=>{LBL_RAF=null;repositionBarLabels();});
+  LBL_RAF=requestAnimationFrame(()=>{LBL_RAF=null;repositionBarLabels();updateEdgeIndicators();});
+}
+
+/* ===================== B1: OFF-SCREEN BAR EDGE INDICATORS ===================== */
+/* A row whose bars all sit outside the horizontal viewport reads as empty. A chip hugs
+   that row's viewport edge naming the nearest bar edge ("› Oct 8" / "Sep 2 ‹"); clicking
+   centres the bar. Geometry is recorded by the render pass (r._bars) — this never
+   measures the DOM, and scroll updates ride the same rAF as label repositioning. */
+let EI_SIG='';
+function recBar(r,el,s,e){
+  const x1=parseFloat(el.style.left);
+  (r._bars||(r._bars=[])).push({x1,x2:x1+parseFloat(el.style.width),s,e,col:el.style.background});
+  return el;
+}
+function edgeChevron(dir,col){
+  return '<svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="'+col
+    +'" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="'
+    +(dir==='l'?'M10 3.5 5.5 8 10 12.5':'M6 3.5 10.5 8 6 12.5')+'"/></svg>';
+}
+function updateEdgeIndicators(){
+  const sc=document.getElementById('gantt-scroll'),host=document.getElementById('edge-inds');
+  if(!sc||!host)return;
+  const vl=sc.scrollLeft,vr=vl+sc.clientWidth;
+  const chips=[];
+  for(const r of ROWS){
+    if(!r._bars||r._bars.some(b=>b.x1<vr&&b.x2>vl))continue; /* some bar is (partly) in view */
+    let L=null,R=null;
+    for(const b of r._bars){if(b.x2<=vl){if(!L||b.x2>L.x2)L=b;}else if(!R||b.x1<R.x1)R=b;}
+    if(L)chips.push({r,side:'l',b:L,d:L.e});
+    if(R)chips.push({r,side:'r',b:R,d:R.s});
+  }
+  const sig=chips.map(c=>c.r.key+c.side+(+c.d)).join('|');
+  if(sig!==EI_SIG){
+    EI_SIG=sig;host.innerHTML='';
+    for(const c of chips){
+      const el=document.createElement('button');
+      el.type='button';el.className='edge-ind';
+      el.dataset.side=c.side;el.dataset.key=c.r.key;
+      el.style.top=(c.r.top+BAR_PAD+(BAR_H-24)/2)+'px';
+      el.style.color=labelColor('#FFFFFF'); /* chip is a white fill — T1 rule, not hand-picked */
+      const dt='<span>'+c.d.toLocaleDateString('en-US',{month:'short',day:'numeric'})+'</span>';
+      el.innerHTML=c.side==='l'?dt+edgeChevron('l',c.b.col):edgeChevron('r',c.b.col)+dt;
+      el.title='This row’s bar is off-screen — click to scroll it into view';
+      const cx=(c.b.x1+c.b.x2)/2;
+      el.addEventListener('click',ev=>{
+        ev.stopPropagation();
+        const left=Math.max(0,cx-sc.clientWidth/2);
+        const reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if(!reduce&&sc.scrollTo){try{sc.scrollTo({left,behavior:'smooth'});return;}catch(e){}}
+        sc.scrollLeft=left;
+      });
+      host.appendChild(el);
+    }
+  }
+  /* Position every frame — chips live in canvas space, so they track the viewport edges */
+  for(const el of host.children)
+    el.style.left=(el.dataset.side==='l'?vl+6:vr-6)+'px';
 }
 
 function makeSummaryBar(p,s,e,row){
