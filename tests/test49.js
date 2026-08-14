@@ -2,6 +2,10 @@
 const {boot}=require('./harness');
 const FILE=process.argv[2]||'Timeline_49.html';
 
+/* The frozen REV50 reference predates E1 (bottom dock) — same convention as
+   test-b1.js: E1-only assertions are skipped on pre-E1 builds. */
+const E1=require('fs').readFileSync(FILE,'utf8').indexOf('pp-dock')>=0;
+
 let pass=0,fail=0;
 const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
@@ -67,18 +71,22 @@ function stage1(){
   ok('departments section exists', !!q('[data-sec="depts"]'));
   ok('agenda section exists', !!q('[data-sec="agenda"]'));
   ok('setup is open by default', q('[data-sec="setup"]').classList.contains('open'));
-  ok('team is open by default', q('[data-sec="team"]').classList.contains('open'));
-  ok('departments is open by default', q('[data-sec="depts"]').classList.contains('open'));
+  if(E1){ /* pre-E1 builds default team/depts closed */
+    ok('team is open by default', q('[data-sec="team"]').classList.contains('open'));
+    ok('departments is open by default', q('[data-sec="depts"]').classList.contains('open'));
+  }
   ok('agenda is open by default', q('[data-sec="agenda"]').classList.contains('open'));
 
   sec('sections no longer fold (E1: dock columns)');
   click(q('[data-sec="team"]>h4'));
   setTimeout(()=>{
     ok('clicking a heading leaves it open', q('[data-sec="team"]').classList.contains('open'));
-    ok('the dock exists with a resize handle',
-       !!doc.getElementById('pp-dock')&&!!doc.getElementById('dock-resize'));
-    ok('the footer lives inside the dock',
-       !!q('#pp-dock .dash-foot'));
+    if(E1){
+      ok('the dock exists with a resize handle',
+         !!doc.getElementById('pp-dock')&&!!doc.getElementById('dock-resize'));
+      ok('the footer lives inside the dock',
+         !!q('#pp-dock .dash-foot'));
+    }
     stage2();
   },150);
 }
