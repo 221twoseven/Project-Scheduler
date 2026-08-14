@@ -23,6 +23,7 @@ const SUITES = [
   'test-e3-resize.js',
   'test-c1-color.js',
   'test-b1.js',
+  'test-quiet.js',
 ];
 
 const repoRoot = path.resolve(__dirname, '..');

@@ -150,7 +150,12 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);font-size:var(--fs
 
 /* ============ CANVAS ============ */
 .bg-col{position:absolute;top:0;pointer-events:none;z-index:0}
-.wknd-col{position:absolute;top:0;pointer-events:none;z-index:1;background:rgba(148,163,184,.24);backdrop-filter:saturate(.35) brightness(.98)}
+.wknd-col{position:absolute;top:0;pointer-events:none;z-index:1;background-color:#EEF1F5;
+  background-image:repeating-linear-gradient(45deg,rgba(100,116,139,.044) 0 4px,transparent 4px 8px)}
+body.vivid .wknd-col{background:rgba(148,163,184,.24);backdrop-filter:saturate(.35) brightness(.98)}
+/* C2: quiet canvas — month boundary hairline, and the month header loses its white-on-color text */
+.mon-line{position:absolute;top:0;bottom:0;width:1px;background:var(--side-line);pointer-events:none;z-index:1}
+body:not(.vivid) .hdr-m-cell{text-shadow:none;border-right-color:rgba(13,19,29,.10)}
 .g-row{position:absolute;left:0;border-bottom:1px solid rgba(0,0,0,.05);z-index:2}
 .g-row.clickable{cursor:crosshair}
 .g-row.clickable:hover{background:rgba(255,255,255,.25)}
@@ -434,7 +439,8 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 .npv-axis{position:relative;height:34px;border-bottom:1px solid #E2E8F0;background:#FBFDFF}
 .npv-mon{position:absolute;top:2px;height:14px;font-size:var(--fs-fine);font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#94A3B8;padding-left:4px;white-space:nowrap;overflow:hidden}
 .npv-dnum{position:absolute;top:18px;height:14px;font-size:var(--fs-fine);color:#B4C0D0;text-align:center}
-.npv-we{position:absolute;top:0;bottom:0;background:#F1F5F9;pointer-events:none}
+.npv-we{position:absolute;top:0;bottom:0;background:#EEF1F5;pointer-events:none}
+body.vivid .npv-we{background:#F1F5F9}
 .npv-body{position:relative}
 .npv-row{position:relative;height:25px}
 .npv-row:nth-child(odd){background:#FCFDFE}
@@ -589,7 +595,7 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
   border-bottom:1px solid #16202E;position:relative;padding-bottom:4px}
 .cal-col{position:absolute;top:0;bottom:0;width:calc(100%/7);border-right:1px solid #D8E2EF;z-index:0;box-sizing:border-box}
 .cal-col:first-of-type{border-left:1px solid #D8E2EF}
-.cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,139,.11) 0 4px,transparent 4px 8px)}
+.cal-col.we{background-color:#EEF1F5;background-image:repeating-linear-gradient(45deg,rgba(100,116,139,.044) 0 4px,transparent 4px 8px)}
 .cal-col.tod{background:#FFF3F3;box-shadow:inset 0 0 0 1.5px #CE4242}
 .cal-dn{grid-row:1;font-family:var(--mono);font-size:var(--fs-fine);color:#64748B;padding:3px 0 3px 5px;z-index:1;min-height:17px}
 .cal-band{margin:1px 2px;border-radius:2px;font-size:var(--fs-fine);font-weight:700;text-transform:uppercase;
@@ -683,7 +689,8 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 .cal-wk{grid-auto-rows:auto;padding-bottom:5px;align-content:start}
 .cal-dn{grid-row:1;font-family:var(--mono);font-size:var(--fs-fine);color:#64748B;padding:4px 0 3px 6px;z-index:2;position:relative}
 .cal-band{margin:1px 3px;height:16px;font-size:var(--fs-fine)}
-.cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,139,.10) 0 4px,transparent 4px 8px)}
+.cal-col.we{background-color:#EEF1F5;background-image:repeating-linear-gradient(45deg,rgba(100,116,139,.04) 0 4px,transparent 4px 8px)}
+body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,139,.10) 0 4px,transparent 4px 8px)}
 .cal-tint .cal-col{background-blend-mode:multiply}
 .npv-subs{display:flex;gap:0;border:1px solid #CBD6E4;border-radius:6px;overflow:hidden;margin-left:6px}
 .npv-subs button{background:#fff;border:none;padding:3px 10px;font-size:var(--fs-fine);font-weight:600;color:#7488A3;cursor:pointer;font-family:inherit}
@@ -896,7 +903,7 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 /* ============ REV46: TINT ON THE PROJECT-PAGE GANTT ============ */
 /* Only calendar mode painted the month/week tint, so the Tint button looked dead
    while the Gantt was showing. */
-.npv-tintcol{position:absolute;top:0;bottom:0;pointer-events:none;z-index:0}
+.npv-tintcol,.npv-qcol{position:absolute;top:0;bottom:0;pointer-events:none;z-index:0}
 .npv-tintl{position:absolute;left:0;top:0;right:0;bottom:0;pointer-events:none;z-index:0}
 .npv-body .npv-row{z-index:1}
 .npv-body.tinted .npv-row{background:transparent}
@@ -914,6 +921,10 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
   .p-sheet{box-shadow:none}
   .meet-sheet{box-shadow:none;width:100%}
   .meet-row,.meet-pm tr{page-break-inside:avoid}
+  /* C2: print never emits the vivid tints — force the quiet canvas whatever is on screen */
+  .bg-col,.hdr-d-cell{background-color:#FCFDFE!important}
+  .hdr-m-cell{background-color:#EDF1F7!important;color:#33415A!important;text-shadow:none!important}
+  .wknd-col{background:#EEF1F5!important;backdrop-filter:none!important}
 }
 </style>
 </head>
@@ -963,7 +974,7 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
     </div>
     <button id="btn-reset" class="t-btn" title="Clear the spotlight, search and status filters">⟲ Clear filters</button>
     <span class="tb-spacer"></span>
-    <button id="t-tint" class="t-btn" title="Tint the calendar background by month">Tint</button>
+    <button id="t-tint" class="t-btn" title="Colour the calendar background vividly by month">Vivid months</button>
     <label class="lock-tog" title="Lock all bars so drags can't change dates">
       <input type="checkbox" id="lock-ck">
       <span class="lock-track"><span class="lock-thumb"></span></span>
@@ -1857,7 +1868,13 @@ function laneColor(dept,assignee){
   return DEPT_COLORS[dept]||'#9CA3AF';
 }
 function cellBg(m,par){const[h,s,l]=MONTH_HSL[m];const s2=Math.max(8,s*.5);return par===0?`hsl(${h},${Math.max(6,s2-5)}%,${l+21}%)`:`hsl(${h},${s2}%,${l+15}%)`;}
-function monthHdrBg(m){const[h,s,l]=MONTH_HSL[m];return `hsl(${h},${Math.round(s*.7)}%,${l-4}%)`;}
+/* C2 quiet canvas (Design-Language §2.4): workdays near-white, alternating months get a
+   wash capped at hsl(h,6%,97%) — perceptible side by side, invisible behind bars. */
+function quietCellBg(m){return m%2?`hsl(${MONTH_HSL[m][0]},6%,97%)`:'#FCFDFE';}
+function dayBg(m,par){return TINT?cellBg(m,par):quietCellBg(m);}
+function monthHdrBg(m){const[h,s,l]=MONTH_HSL[m];return TINT?`hsl(${h},${Math.round(s*.7)}%,${l-4}%)`:`hsl(${h},30%,88%)`;}
+function monthHdrFg(m){return TINT?'':`hsl(${MONTH_HSL[m][0]},35%,30%)`;}
+function syncVivid(){document.body.classList.toggle('vivid',TINT);}
 
 /* ===================== LANES / ROWS ===================== */
 function laneAssign(tasks){
@@ -2307,6 +2324,7 @@ function buildHeaderInto(hdr,DW_){
     const mc=document.createElement('div');mc.className='hdr-m-cell';
     mc.style.left=d2x(cellS)+'px';mc.style.width=(cnt*DW_)+'px';
     mc.style.background=monthHdrBg(month);
+    mc.style.color=monthHdrFg(month);
     mc.textContent=cellS.toLocaleString('default',{month:'long'})+' '+cellS.getFullYear();
     mRow.appendChild(mc);
   }
@@ -2315,7 +2333,7 @@ function buildHeaderInto(hdr,DW_){
     while(cur<=TL_E){
       const dc=document.createElement('div');dc.className='hdr-d-cell';
       dc.style.left=d2x(cur)+'px';dc.style.width=DW_+'px';
-      dc.style.background=cellBg(cur.getMonth(),isoWeek(cur)%2);
+      dc.style.background=dayBg(cur.getMonth(),isoWeek(cur)%2);
       dc.textContent=cur.getDate();
       if(cur.getTime()===td.getTime())dc.classList.add('is-today');
       if(!isWorking(cur))dc.classList.add('is-wknd');
@@ -2326,7 +2344,7 @@ function buildHeaderInto(hdr,DW_){
     while(cur<=TL_E){
       const dc=document.createElement('div');dc.className='hdr-d-cell';
       dc.style.left=d2x(cur)+'px';dc.style.width=(7*DW_)+'px';
-      dc.style.background=cellBg(cur.getMonth(),isoWeek(cur)%2);
+      dc.style.background=dayBg(cur.getMonth(),isoWeek(cur)%2);
       dc.textContent=cur.getDate()+' '+cur.toLocaleString('default',{month:'short'});
       dRow.appendChild(dc);cur=addDays(cur,7);
     }
@@ -2340,8 +2358,18 @@ function buildCanvasBgInto(canvas,totalW,DW_){
     const x=Math.max(0,d2x(wk)),ex=Math.min(totalW,d2x(wk)+7*DW_);
     if(ex>x){const bg=document.createElement('div');bg.className='bg-col';
       bg.style.left=x+'px';bg.style.width=(ex-x)+'px';bg.style.height=TOTAL_H+'px';
-      bg.style.background=TINT?cellBg(wk.getMonth(),isoWeek(wk)%2):'#fff';bgFrag.appendChild(bg);}
+      bg.style.background=dayBg(wk.getMonth(),isoWeek(wk)%2);bgFrag.appendChild(bg);}
     wk=addDays(wk,7);
+  }
+  /* Quiet canvas: months separate with a hairline, not a colour band. */
+  if(!TINT){
+    let mo=new Date(TL_S.getFullYear(),TL_S.getMonth()+1,1);
+    while(mo<=TL_E){
+      const ln=document.createElement('div');ln.className='mon-line';
+      ln.style.left=d2x(mo)+'px';ln.style.height=TOTAL_H+'px';
+      bgFrag.appendChild(ln);
+      mo=new Date(mo.getFullYear(),mo.getMonth()+1,1);
+    }
   }
   /* Grey out weekends + holidays all the way down the column */
   let d=new Date(TL_S),runS=null;
@@ -3197,7 +3225,7 @@ function renderProjectPage(){
    + '<div class="dash-chart"><div class="npv npv-full">'
    + '<div class="npv-hd"><span class="npv-ttl" id="npv-nums"></span>'
    + '<div class="npv-modes"><button id="npv-m-g" title="Show the schedule as a Gantt chart (G)">Gantt</button><button id="npv-m-c" title="Show the schedule as a month calendar (C)">Calendar</button></div>'
-   + '<div class="npv-subs"><button id="npv-tint" title="Tint the calendar background by month">Tint</button>'
+   + '<div class="npv-subs"><button id="npv-tint" title="Colour the calendar background vividly by month">Vivid months</button>'
    + '<button id="npv-link" title="Dragging a department bar moves its subtasks with it">Link</button></div>'
    + '<button class="npv-btn" id="npv-reset" disabled title="Put the rows back in the schedule\'s own order">Reset</button></div>'
    + '<div class="npv-leg" id="npv-leg"></div>'
@@ -3266,7 +3294,7 @@ function renderProjectPage(){
   if(mg)mg.addEventListener('click',()=>{NPV_MODE='gantt';npvRender();});
   if(mc)mc.addEventListener('click',()=>{NPV_MODE='calendar';npvRender();});
   const tg=document.getElementById('npv-tint');
-  if(tg)tg.addEventListener('click',()=>{TINT=!TINT;saveUI();npvRender();});
+  if(tg)tg.addEventListener('click',()=>{TINT=!TINT;syncVivid();saveUI();npvRender();});
   const lk=document.getElementById('npv-link');
   if(lk)lk.addEventListener('click',()=>{LINK_SUBS=!LINK_SUBS;saveUI();npvRender();
     toast(LINK_SUBS?'Subtasks move with their department'
@@ -3793,7 +3821,7 @@ let NPV_TODOS=[];        /* draft tasks   {id,title,who,due,priority,dept} */
 let NPV_LINES=[];        /* named phase lines {id,name,dept,who} */
 let NPV_MODE='gantt';    /* 'gantt' | 'calendar' */
 let NPV_LIVE=false;      /* true when the chart mirrors a saved project instead of a draft */
-let TINT=true;
+let TINT=false;              /* C2: quiet canvas is the default; true = the vivid MONTH_HSL look */
 let GROUP_BY=null;       /* 'client' | 'pm' | 'status' — drives the sidebar group headers */           /* month hue + week saturation behind the charts */
 let PP_FORM=null;        /* new-project values, kept out of the DOM so tabs can't lose them */
 let PP_KEEP=false;       /* set when a redraw must not wipe the draft */
@@ -4341,8 +4369,10 @@ function npvRender(){
   let ax='';
   let cur=new Date(lo);
   while(cur<=hi){
-    if(TINT)ax+='<div class="npv-tintcol" style="left:'+x(cur)+'px;width:'+dwv+'px;background:'
-      +cellBg(cur.getMonth(),isoWeek(cur)%2)+'"></div>';
+    ax+='<div class="'+(TINT?'npv-tintcol':'npv-qcol')+'" style="left:'+x(cur)+'px;width:'+dwv+'px;background:'
+      +dayBg(cur.getMonth(),isoWeek(cur)%2)+'"></div>';
+    if(!TINT&&cur.getDate()===1&&cur.getTime()!==lo.getTime())
+      ax+='<div class="mon-line" style="left:'+x(cur)+'px"></div>';
     if(!isWorking(cur))ax+='<div class="npv-we" style="left:'+x(cur)+'px;width:'+dwv+'px"></div>';
     /* Only label a month if there's room before the next one starts, otherwise the
        first-of-month label lands on top of the range-start label and you get "A G". */
@@ -4448,12 +4478,14 @@ function npvRender(){
   h+='<div class="npv-dl" style="left:'+(x(dl)+dwv)+'px"></div>';
   /* Tint sits in its own layer appended last so it can't shift the rows' nth-child
      zebra, and is held under them by z-index rather than document order. */
-  if(TINT){
+  {
     let tl='<div class="npv-tintl">';
     let c3=new Date(lo);
     while(c3<=hi){
-      tl+='<div class="npv-tintcol" style="left:'+x(c3)+'px;width:'+dwv+'px;background:'
-        +cellBg(c3.getMonth(),isoWeek(c3)%2)+'"></div>';
+      tl+='<div class="'+(TINT?'npv-tintcol':'npv-qcol')+'" style="left:'+x(c3)+'px;width:'+dwv+'px;background:'
+        +dayBg(c3.getMonth(),isoWeek(c3)%2)+'"></div>';
+      if(!TINT&&c3.getDate()===1&&c3.getTime()!==lo.getTime())
+        tl+='<div class="mon-line" style="left:'+x(c3)+'px"></div>';
       c3=addDays(c3,1);
     }
     h+=tl+'</div>';
@@ -4923,7 +4955,7 @@ function npvPaintCalendar(lo,hi,dl){
       const cls=['cal-col'];
       if(!isWorking(d))cls.push('we');
       if(d.getTime()===td.getTime())cls.push('tod');
-      const tintBg=(TINT&&isWorking(d))?';background:'+cellBg(d.getMonth(),isoWeek(d)%2):'';
+      const tintBg=isWorking(d)?';background:'+dayBg(d.getMonth(),isoWeek(d)%2):'';
       h+='<div class="'+cls.join(' ')+'" style="left:calc('+i+'*100%/7)'+tintBg+'"></div>';
     }
     for(let i=0;i<7;i++){
@@ -5509,6 +5541,7 @@ try{const tv=localStorage.getItem('shopTimelineTint');if(tv!==null)TINT=(tv==='1
   const ov=localStorage.getItem('shopTimelineOpenDepts');
   if(ov)NPV_OPEN=new Set(JSON.parse(ov)||[]);
   const gv=localStorage.getItem('shopTimelineGroup');if(gv)GROUP_BY=gv;}catch(e){}
+syncVivid();
 
 /* ===================== KEYBOARD ===================== */
 document.addEventListener('keydown',ev=>{
@@ -5605,7 +5638,7 @@ document.getElementById('btn-today').addEventListener('click',scrollTodayLeft);
 const tintBtn=document.getElementById('t-tint');
 tintBtn.classList.toggle('on',TINT);
 tintBtn.addEventListener('click',()=>{
-  TINT=!TINT;tintBtn.classList.toggle('on',TINT);saveUI();
+  TINT=!TINT;tintBtn.classList.toggle('on',TINT);syncVivid();saveUI();
   if(ROUTE.view==='project')npvRender();else render();
 });
 document.getElementById('btn-days').addEventListener('click',()=>{if(VIEW==='days')return;VIEW='days';
