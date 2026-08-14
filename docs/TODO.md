@@ -87,7 +87,7 @@ ceilings; this is the roll-up so nothing rots. None are bugs; none block users.
 
 **Already covered by a Phase 2 brief — track there, not here:**
 
-- [ ] Unicode glyph icons → inline SVGs (T8 ceiling, finding C6) → **U6**.
+- [x] Unicode glyph icons → inline SVGs (T8 ceiling, finding C6) → **U6** (shipped 2026-08-14).
 - [ ] Toast stacking/docking (T7 context, finding D3) → **U7**. If the ~5s auto-dismiss
       still proves too fleeting after U7, revisit a persistent error banner with explicit
       close (the upgrade named in the T7 record).

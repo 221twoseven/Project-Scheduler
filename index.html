@@ -29,7 +29,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);font-size:var(--fs
 
 /* ============ TOOLBAR — drawing title block ============ */
 #toolbar{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;flex-direction:column;background:linear-gradient(180deg,var(--ink-2),var(--ink));border-bottom:1px solid #000;box-shadow:0 2px 12px rgba(4,10,20,.45)}
-.tb-row{display:flex;align-items:center;flex-wrap:wrap;gap:8px;row-gap:5px;padding:5px 12px 5px 0;min-height:46px}
+.tb-row{display:flex;align-items:center;flex-wrap:wrap;gap:8px;row-gap:4px;padding:4px 12px 4px 0;min-height:46px}
 .tb-row>*{flex-shrink:0}
 .tb-global{border-bottom:1px solid var(--chrome-line)}
 .tb-spacer{flex:1 1 auto;min-width:0}
@@ -37,20 +37,22 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);font-size:var(--fs
 .tb-co{font-size:13px;font-weight:800;letter-spacing:.24em;color:#fff}
 .tb-app{font-size:var(--fs-fine);font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:#5E7292}
 .tb-rev{font-family:var(--mono);font-size:var(--fs-micro);letter-spacing:.08em;color:var(--warn);border:1px solid rgba(240,168,20,.45);border-radius:3px;padding:1.5px 6px;line-height:1}
-.t-btn{background:rgba(255,255,255,.06);color:rgba(255,255,255,.82);border:1px solid rgba(255,255,255,.13);border-radius:6px;padding:5.5px 12px;font-size:var(--fs-label);font-weight:500;cursor:pointer;font-family:inherit;transition:background .12s,color .12s;white-space:nowrap}
+.t-btn{display:inline-flex;align-items:center;justify-content:center;gap:4px;height:28px;background:rgba(255,255,255,.06);color:rgba(255,255,255,.82);border:1px solid rgba(255,255,255,.13);border-radius:6px;padding:0 12px;font-size:var(--fs-label);font-weight:500;cursor:pointer;font-family:inherit;transition:background .12s,color .12s;white-space:nowrap}
+.ico{width:16px;height:16px;flex:none;vertical-align:-3px}
+.ico-s{width:12px;height:12px;flex:none;vertical-align:-2px}
 .t-btn:hover{background:rgba(255,255,255,.14);color:#fff}
 .t-btn.active{background:rgba(47,111,228,.32);border-color:rgba(96,150,240,.65);color:#fff}
 .t-btn.accent{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:600}
 .t-btn.accent:hover{background:var(--acc-deep)}
-.t-sep{width:1px;height:22px;background:var(--chrome-line);flex-shrink:0}
-.t-mini{font-size:var(--fs-micro);font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:#5E7292;white-space:nowrap;margin-right:-2px}
+.t-sep{width:1px;height:24px;background:var(--chrome-line);flex-shrink:0}
+.t-mini{font-size:var(--fs-micro);font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:#5E7292;white-space:nowrap}
 .tog-grp{display:flex;border:1px solid rgba(255,255,255,.13);border-radius:6px;overflow:hidden}
-.tog-grp .t-btn{border:none;border-right:1px solid rgba(255,255,255,.1);border-radius:0;padding:5.5px 11px}
+.tog-grp .t-btn{border:none;border-right:1px solid rgba(255,255,255,.1);border-radius:0;height:26px;padding:0 12px}
 .tog-grp .t-btn:last-child{border-right:none}
-#t-search{flex:1 1 90px;min-width:70px;max-width:230px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.13);border-radius:6px;color:#fff;font-family:inherit;font-size:12px;padding:6px 10px;outline:none;transition:border-color .14s,background .14s}
+#t-search{flex:1 1 90px;min-width:70px;max-width:230px;height:28px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.13);border-radius:6px;color:#fff;font-family:inherit;font-size:12px;padding:0 8px;outline:none;transition:border-color .14s,background .14s}
 @media (max-width:1400px){
-  .t-btn{padding:5.5px 9px;font-size:var(--fs-fine)}
-  .tog-grp .t-btn{padding:5.5px 8px}
+  .t-btn{padding:0 8px;font-size:var(--fs-fine)}
+  .tog-grp .t-btn{padding:0 8px}
   .t-mini{display:none}
   .tb-app{display:none}
   .t-brand{padding:0 12px}
@@ -61,11 +63,11 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);font-size:var(--fs
 }
 #t-search::placeholder{color:#5E7292}
 #t-search:focus{border-color:rgba(96,150,240,.7);background:rgba(255,255,255,.1)}
-#sync-pill{font-family:var(--mono);font-size:var(--fs-fine);letter-spacing:.04em;padding:3.5px 9px;border-radius:20px;white-space:nowrap;border:1px solid transparent;user-select:none}
+#sync-pill{display:inline-flex;align-items:center;height:24px;font-family:var(--mono);font-size:var(--fs-fine);letter-spacing:.04em;padding:0 8px;border-radius:20px;white-space:nowrap;border:1px solid transparent;user-select:none}
 #sync-pill.ok{color:#7BD8A0;border-color:rgba(123,216,160,.3);background:rgba(50,160,95,.12)}
 #sync-pill.busy{color:#F7CE68;border-color:rgba(247,206,104,.3);background:rgba(240,168,20,.1)}
 #sync-pill.err{color:#FF9E9E;border-color:rgba(255,120,120,.35);background:rgba(220,60,60,.14);cursor:pointer}
-.lock-tog{display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none}
+.lock-tog{display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none}
 .lock-tog input{display:none}
 .lock-track{width:28px;height:15px;background:rgba(255,255,255,.12);border-radius:8px;border:1px solid rgba(255,255,255,.15);position:relative;flex-shrink:0;transition:background .18s}
 .lock-thumb{position:absolute;top:2px;left:2px;width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.45);transition:transform .16s}
@@ -97,7 +99,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);font-size:var(--fs
 .sb-eye.on{opacity:1}
 .role-tag{display:inline-block;font-family:var(--mono);font-size:var(--fs-fine);font-weight:800;letter-spacing:.08em;padding:1.5px 4px;border-radius:4px;background:rgba(0,0,0,.28);color:rgba(255,255,255,.92);margin:0 4px 0 10px;vertical-align:1px}
 #sb-head .sbh-lbl{flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
-#sb-all{background:none;border:1px solid #CBD6E4;border-radius:5px;color:#7488A3;font-size:var(--fs-fine);font-family:inherit;padding:3px 8px;cursor:pointer;letter-spacing:.05em;flex-shrink:0}
+#sb-all{display:inline-flex;align-items:center;gap:4px;background:none;border:1px solid #CBD6E4;border-radius:5px;color:#7488A3;font-size:var(--fs-fine);font-family:inherit;padding:3px 8px;cursor:pointer;letter-spacing:.05em;flex-shrink:0}
 #sb-all:hover{border-color:var(--acc);color:var(--acc)}
 #side-rows{flex:1;overflow:hidden;min-height:0}
 #gantt-area{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
@@ -137,6 +139,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);font-size:var(--fs
 .sb-edit:hover{color:var(--acc)}
 .sb-grip{flex-shrink:0;color:#A8B6C8;font-size:11px;cursor:grab;user-select:none;padding:0 1px}
 .sb-grip:hover{color:var(--acc)}
+.sb-chev,.sb-eye,.sb-edit,.sb-grip{display:inline-flex;align-items:center}
 .sb-row.drop-before{box-shadow:inset 0 3px 0 var(--acc)}
 #sb-resize{position:absolute;top:0;right:-3px;width:7px;bottom:0;cursor:col-resize;z-index:30}
 #sb-resize:hover{background:rgba(47,111,228,.3)}
@@ -335,7 +338,7 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 
 /* ============ REV31: STATUS FILTER + RESET ============ */
 .sf-wrap{position:relative}
-.tb-menu{position:absolute;top:34px;left:0;z-index:900;background:#fff;border:1.5px solid #CBD5E1;border-radius:10px;box-shadow:0 10px 30px rgba(15,23,42,.18);padding:8px;display:flex;flex-direction:column;gap:2px;min-width:180px}
+.tb-menu{position:absolute;top:32px;left:0;z-index:900;background:#fff;border:1.5px solid #CBD5E1;border-radius:10px;box-shadow:0 10px 30px rgba(15,23,42,.18);padding:8px;display:flex;flex-direction:column;gap:2px;min-width:180px}
 .sm-item{display:flex;align-items:center;gap:8px;font-size:12px;padding:6px 8px;border-radius:6px;cursor:pointer;white-space:nowrap;color:#334155}
 .sm-item:hover{background:#F1F5F9}
 .sm-all{margin-top:6px;border:none;background:#F1F5F9;border-radius:6px;padding:5px;font-size:11px;cursor:pointer;color:#334155}
@@ -962,14 +965,14 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
     </div>
     <button id="btn-new-proj" class="t-btn accent" title="Create a new project (N)">+ New Project</button>
     <div class="sf-wrap">
-      <button id="btn-print" class="t-btn" title="Print the timeline or a meeting sheet">⎙ Print ▾</button>
+      <button id="btn-print" class="t-btn" title="Print the timeline or a meeting sheet"><svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 5.5V2h7v3.5"/><path d="M4.5 11.5H2.75A1.25 1.25 0 0 1 1.5 10.25v-3.5A1.25 1.25 0 0 1 2.75 5.5h10.5a1.25 1.25 0 0 1 1.25 1.25v3.5a1.25 1.25 0 0 1-1.25 1.25H11.5"/><rect x="4.5" y="9.5" width="7" height="4.5" rx="1"/></svg> Print <svg class="ico-s" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 6 8 9.5 11.5 6"/></svg></button>
       <div id="print-menu" class="tb-menu hidden">
-        <div class="sm-item" id="mi-print-timeline" title="Print the timeline as it looks on screen">⎙ Print Timeline</div>
-        <div class="sm-item" id="mi-meeting" title="Print a meeting sheet of every project grouped by PM">☰ Meeting Sheet</div>
+        <div class="sm-item" id="mi-print-timeline" title="Print the timeline as it looks on screen"><svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 5.5V2h7v3.5"/><path d="M4.5 11.5H2.75A1.25 1.25 0 0 1 1.5 10.25v-3.5A1.25 1.25 0 0 1 2.75 5.5h10.5a1.25 1.25 0 0 1 1.25 1.25v3.5a1.25 1.25 0 0 1-1.25 1.25H11.5"/><rect x="4.5" y="9.5" width="7" height="4.5" rx="1"/></svg> Print Timeline</div>
+        <div class="sm-item" id="mi-meeting" title="Print a meeting sheet of every project grouped by PM"><svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 4.5h11M2.5 8h11M2.5 11.5h11"/></svg> Meeting Sheet</div>
       </div>
     </div>
     <div class="sf-wrap">
-      <button id="btn-settings" class="t-btn" title="App settings and the shared staff list">⚙ Settings ▾</button>
+      <button id="btn-settings" class="t-btn" title="App settings and the shared staff list"><svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 2.5V8M3.5 11v2.5M8 2.5v2M8 7.5v6M12.5 2.5V8M12.5 11v2.5M1.5 9.5h4M6 6h4M10.5 9.5h4"/></svg> Settings <svg class="ico-s" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 6 8 9.5 11.5 6"/></svg></button>
       <div id="settings-menu" class="tb-menu hidden">
         <div class="sm-item" id="mi-people" title="Edit staff names, departments and time off">People &amp; Availability</div>
         <div class="sm-note">Shop Timeline · REV <span id="tb-rev-num"></span></div>
@@ -993,10 +996,10 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
     <div class="t-sep"></div>
     <input id="t-search" type="text" placeholder="Search  /" autocomplete="off" spellcheck="false" title="Type to show only matching projects and phases (/)">
     <div class="sf-wrap">
-      <button id="btn-status" class="t-btn" title="Choose which project statuses are shown">Status ▾</button>
+      <button id="btn-status" class="t-btn" title="Choose which project statuses are shown">Status <svg class="ico-s" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 6 8 9.5 11.5 6"/></svg></button>
       <div id="status-menu" class="tb-menu hidden"></div>
     </div>
-    <button id="btn-reset" class="t-btn" title="Clear the spotlight, search and status filters">⟲ Clear filters</button>
+    <button id="btn-reset" class="t-btn" title="Clear the spotlight, search and status filters"><svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1.5 3v4h4"/><path d="M2.3 10a6 6 0 1 0 1.5-6.3L1.5 7"/></svg> Clear filters</button>
     <span class="tb-spacer"></span>
     <button id="t-tint" class="t-btn" title="Colour the calendar background vividly by month">Vivid months</button>
     <label class="lock-tog" title="Lock all bars so drags can't change dates">
@@ -1018,7 +1021,7 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
         <button id="btn-lens-proj" class="t-btn active" title="Group the rows by project">Projects</button>
         <button id="btn-lens-dept" class="t-btn" title="Group the rows by department">Departments</button>
       </div>
-      <button id="sb-all" title="Collapse or expand every row at once">⇕ All</button>
+      <button id="sb-all" title="Collapse or expand every row at once"><svg class="ico-s" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 5.5 8 2l3.5 3.5M4.5 10.5 8 14l3.5-3.5"/></svg> All</button>
     </div>
     <div id="side-rows"></div>
     <div id="sb-foot">
@@ -1114,7 +1117,7 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
       <span></span>
       <div class="m-right">
         <button id="pp-cancel" class="btn btn-ghost">Close</button>
-        <button id="pp-print" class="btn btn-primary">⎙ Print</button>
+        <button id="pp-print" class="btn btn-primary"><svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 5.5V2h7v3.5"/><path d="M4.5 11.5H2.75A1.25 1.25 0 0 1 1.5 10.25v-3.5A1.25 1.25 0 0 1 2.75 5.5h10.5a1.25 1.25 0 0 1 1.25 1.25v3.5a1.25 1.25 0 0 1-1.25 1.25H11.5"/><rect x="4.5" y="9.5" width="7" height="4.5" rx="1"/></svg> Print</button>
       </div>
     </div>
   </div>
@@ -1134,7 +1137,7 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
       <span></span>
       <div class="m-right">
         <button id="meet-cancel" class="btn btn-ghost">Close</button>
-        <button id="meet-print" class="btn btn-primary">⎙ Print</button>
+        <button id="meet-print" class="btn btn-primary"><svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 5.5V2h7v3.5"/><path d="M4.5 11.5H2.75A1.25 1.25 0 0 1 1.5 10.25v-3.5A1.25 1.25 0 0 1 2.75 5.5h10.5a1.25 1.25 0 0 1 1.25 1.25v3.5a1.25 1.25 0 0 1-1.25 1.25H11.5"/><rect x="4.5" y="9.5" width="7" height="4.5" rx="1"/></svg> Print</button>
       </div>
     </div>
   </div>
@@ -2113,7 +2116,7 @@ function renderEmptyState(){
       +'<div class="es-sub">Create your first project and the schedule builds itself<br>backward from the deadline. Press <kbd>N</kbd> or use <b>+ New Project</b>.</div>';
   }else if(!ST.projects.some(p=>SHOW_STATUS.has(projectStatus(p)))){
     html='<div class="es-big">All projects are hidden</div>'
-      +'<div class="es-sub">The status filter is hiding every project.<br>Click <b>⟲ Clear filters</b> in the toolbar to see them again.</div>';
+      +'<div class="es-sub">The status filter is hiding every project.<br>Click <b>Clear filters</b> in the toolbar to see them again.</div>';
   }else return;
   const sc=document.getElementById('gantt-scroll');
   const es=document.createElement('div');es.className='empty-state';es.id='empty-state';
@@ -2142,7 +2145,7 @@ function renderSidebar(){
     if(r.kind==='projHead'){
       const p=projById(r.projectId);
       row.className='sb-row proj-head';
-      const gr=document.createElement('span');gr.className='sb-grip';gr.textContent='⠿';gr.title='Drag to reorder';gr.draggable=true;
+      const gr=document.createElement('span');gr.className='sb-grip';gr.innerHTML=ICO.grip;gr.title='Drag to reorder';gr.draggable=true;
       gr.addEventListener('dragstart',ev=>{ev.dataTransfer.setData('text/plain',p.id);ev.dataTransfer.effectAllowed='move';});
       gr.addEventListener('click',ev=>ev.stopPropagation());
       row.appendChild(gr);
@@ -2150,7 +2153,7 @@ function renderSidebar(){
       row.addEventListener('dragleave',()=>row.classList.remove('drop-before'));
       row.addEventListener('drop',ev=>{ev.preventDefault();ev.stopPropagation();row.classList.remove('drop-before');
         const id=ev.dataTransfer.getData('text/plain');if(id&&id!==p.id)reorderProject(id,p.id);});
-      const ch=document.createElement('span');ch.className='sb-chev'+(EXPANDED.has(p.id)?' open':'');ch.textContent='▶';row.appendChild(ch);
+      const ch=document.createElement('span');ch.className='sb-chev'+(EXPANDED.has(p.id)?' open':'');ch.innerHTML=ICO.chev;row.appendChild(ch);
       const dot=document.createElement('span');dot.className='c-dot';dot.style.background=projColor(p.id);row.appendChild(dot);
       const col=document.createElement('span');col.className='sb-2l';
       const nm=document.createElement('span');nm.className='sb-name';nm.textContent=p.name;col.appendChild(nm);
@@ -2163,10 +2166,10 @@ function renderSidebar(){
         else if(dl<=5){const c=document.createElement('span');c.className='sb-chip soon';c.textContent=dl===0?'TODAY':dl+'d';l2.appendChild(c);}
       }
       col.appendChild(l2);row.appendChild(col);
-      const eye=document.createElement('button');eye.className='sb-eye'+(SPOT.has(p.id)?' on':'');eye.textContent='👁';eye.title='Spotlight this project (dims all others)';
+      const eye=document.createElement('button');eye.className='sb-eye'+(SPOT.has(p.id)?' on':'');eye.innerHTML=ICO.eye;eye.title='Spotlight this project (dims all others)';
       eye.addEventListener('click',ev=>{ev.stopPropagation();if(SPOT.has(p.id))SPOT.delete(p.id);else SPOT.add(p.id);render();});
       row.appendChild(eye);
-      const ed=document.createElement('button');ed.className='sb-edit';ed.textContent='✎';ed.title='Edit project';
+      const ed=document.createElement('button');ed.className='sb-edit';ed.innerHTML=ICO.edit;ed.title='Edit project';
       ed.addEventListener('click',ev=>{ev.stopPropagation();openProjModal(p.id);});
       row.appendChild(ed);
       row.addEventListener('click',()=>{if(EXPANDED.has(p.id))EXPANDED.delete(p.id);else EXPANDED.add(p.id);render();});
@@ -2189,7 +2192,7 @@ function renderSidebar(){
       const ct=document.createElement('span');ct.className='sb-count';ct.textContent=r.count;row.appendChild(ct);
     }else if(r.kind==='deptHead'){
       row.className='sb-row dept-head';
-      const ch=document.createElement('span');ch.className='sb-chev'+(COLLAPSED.has(r.secId)?'':' open');ch.textContent='▶';row.appendChild(ch);
+      const ch=document.createElement('span');ch.className='sb-chev'+(COLLAPSED.has(r.secId)?'':' open');ch.innerHTML=ICO.chev;row.appendChild(ch);
       const nm=document.createElement('span');nm.className='sb-name';nm.textContent=r.label;row.appendChild(nm);
       const ct=document.createElement('span');ct.className='sb-count';ct.textContent=r.count;row.appendChild(ct);
       row.addEventListener('click',()=>{
@@ -2499,6 +2502,16 @@ function edgeChevron(dir,col){
     +'" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="'
     +(dir==='l'?'M10 3.5 5.5 8 10 12.5':'M6 3.5 10.5 8 6 12.5')+'"/></svg>';
 }
+/* C6: the drafting-instrument icon set (§5) for JS-built chrome — same 16×16/1.5px
+   style as the SVGs pasted into the static toolbar HTML. */
+const SVG_O='<svg class="ico-s" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">';
+const ICO={
+  chev:SVG_O+'<path d="M6 3.5 10.5 8 6 12.5"/></svg>',
+  caret:SVG_O+'<path d="M4.5 6 8 9.5 11.5 6"/></svg>',
+  eye:SVG_O+'<path d="M1.5 8c1.8-3 4-4.5 6.5-4.5S12.7 5 14.5 8c-1.8 3-4 4.5-6.5 4.5S3.3 11 1.5 8Z"/><circle cx="8" cy="8" r="2"/></svg>',
+  edit:SVG_O+'<path d="M11.3 2a1.9 1.9 0 0 1 2.7 2.7L5 13.7l-3.7 1 1-3.7Z"/></svg>',
+  grip:'<svg class="ico-s" viewBox="0 0 16 16" fill="currentColor" stroke="none" aria-hidden="true"><circle cx="5.5" cy="3.5" r="1.2"/><circle cx="10.5" cy="3.5" r="1.2"/><circle cx="5.5" cy="8" r="1.2"/><circle cx="10.5" cy="8" r="1.2"/><circle cx="5.5" cy="12.5" r="1.2"/><circle cx="10.5" cy="12.5" r="1.2"/></svg>'
+};
 function updateEdgeIndicators(){
   const sc=document.getElementById('gantt-scroll'),host=document.getElementById('edge-inds');
   if(!sc||!host)return;
@@ -2788,7 +2801,7 @@ function fillRoleChecks(elId,names,currentStr){
   const el=document.getElementById(elId);el.innerHTML='';
   const sel=new Set(roleList(currentStr));
   const all=[...new Set([...(names||[]),...sel])];
-  if(!all.length){el.innerHTML='<div class="tn-empty">No names yet — add in ⚙ Staff.</div>';return;}
+  if(!all.length){el.innerHTML='<div class="tn-empty">No names yet — add people in Settings.</div>';return;}
   for(const n of all){
     const lb=document.createElement('label');
     const ck=document.createElement('input');ck.type='checkbox';ck.value=n;ck.checked=sel.has(n);
@@ -2860,7 +2873,7 @@ function openProjModal(projId){
 function buildCrewList(checked){
   const box=document.getElementById('tm-crew');box.innerHTML='';
   const names=[...new Set([...PEOPLE.map(p=>p.name),...checked])].sort((a,b)=>a.localeCompare(b));
-  if(!names.length){box.innerHTML='<div class="tn-empty">No staff yet — add people in ⚙ Staff.</div>';return;}
+  if(!names.length){box.innerHTML='<div class="tn-empty">No staff yet — add people in Settings.</div>';return;}
   for(const n of names){
     const l=document.createElement('label');
     const c=document.createElement('input');c.type='checkbox';c.value=n;c.checked=checked.includes(n);
@@ -5775,7 +5788,7 @@ function statusFilterDirty(){const d=defaultShowStatus();if(SHOW_STATUS.size!==d
 function updateFilterBadges(){
   const b=document.getElementById('btn-status');
   b.classList.toggle('active',statusFilterDirty());
-  b.textContent='Status ('+SHOW_STATUS.size+'/'+ALL_STATUSES.length+') ▾';
+  b.innerHTML='Status ('+SHOW_STATUS.size+'/'+ALL_STATUSES.length+') '+ICO.caret;
 }
 function buildStatusMenu(){
   const m=document.getElementById('status-menu');
