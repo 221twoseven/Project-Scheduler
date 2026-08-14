@@ -41,11 +41,11 @@ Screenshots from the harness-style preview stub, firing 10 rapid errors plus
 an undoable move (the D3 acceptance scenario):
 
 - Before — bottom-center tower covering the canvas:
-  ![before](Phase%202/screenshots/before-toasts.png)
+  ![before](screenshots/before-toasts.png)
 - After — right-docked stack of 3 + counter, duplicates collapsed:
-  ![after](Phase%202/screenshots/after-toasts.png)
+  ![after](screenshots/after-toasts.png)
 - After, project page — the stack rides above the bottom inspector dock:
-  ![after dock](Phase%202/screenshots/after-toasts-dock.png)
+  ![after dock](screenshots/after-toasts-dock.png)
 
 - All 14 suites pass (488 assertions), including test49's Undo-toast clicks.
 - Real-browser check: with the dock open, the stack's bottom edge sits 10px

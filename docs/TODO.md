@@ -5,7 +5,7 @@ within each. Checkboxes are for tracking; anything touching **SharePoint schema*
 **Entra/auth** is marked ⚠ and needs explicit approval first (it's shared with a
 separately maintained colleague app — see `CLAUDE.md`).
 
-Last reviewed: 2026-08-13.
+Last reviewed: 2026-08-14 (Phase 2 close-out audit).
 
 ---
 
@@ -88,9 +88,9 @@ ceilings; this is the roll-up so nothing rots. None are bugs; none block users.
 **Already covered by a Phase 2 brief — track there, not here:**
 
 - [x] Unicode glyph icons → inline SVGs (T8 ceiling, finding C6) → **U6** (shipped 2026-08-14).
-- [ ] Toast stacking/docking (T7 context, finding D3) → **U7**. If the ~5s auto-dismiss
-      still proves too fleeting after U7, revisit a persistent error banner with explicit
-      close (the upgrade named in the T7 record).
+- [x] Toast stacking/docking (T7 context, finding D3) → **U7** (shipped 2026-08-14).
+      The conditional follow-up (persistent error banner if ~5s auto-dismiss still proves
+      too fleeting) carries forward in §3.6.
 
 **Deliberate design ceilings — no action planned, revisit only on real complaints:**
 
@@ -113,6 +113,38 @@ ceilings; this is the roll-up so nothing rots. None are bugs; none block users.
       spotlight (T7; the sidebar's own "Nothing to show" covers those meanwhile).
 - [ ] Tooltips are native `title` attributes — unstyled, fixed delay, invisible on touch
       (T8). Reconsider alongside U6's icon work if touch use materializes.
+
+## 3.6 Phase 2 deferred items (ceilings from `docs/Milestones/Phase 2/`)
+
+Collated 2026-08-14 after the U1–U8 close-out audit. None are bugs; none block users.
+The "do now" items from the same audit (test50 skip guard on the reference build,
+hallway test round 2, the development→main promotion PR + backfilling the "PR link:
+pending" lines in the Phase 2 records) are tracked in §2 territory / the U8 record,
+not here — this section is deferrals only.
+
+**Deliberate design ceilings — no action planned, revisit only on real complaints:**
+
+- Bottom-dock column minimum widths are fixed (Setup/Agenda 240px, Team 340px,
+  Departments 300px). If section content grows, widen the minimums — do not re-add
+  folding (U2/E1).
+- In-Design and In-Fabrication bars are both full-strength on purpose (both are
+  "active work"); the pill word separates them. A bar-level cue is a Phase 3 decision,
+  only if shop feedback asks for it (U8).
+
+**Genuine deferred work — small items for a later polish pass:**
+
+- [ ] Toast stack's dock offset is computed when a toast fires, not on dock
+      drag-resize; a live toast can overlap the dock for the seconds it lives.
+      Add a resize listener only if someone notices (U7).
+- [ ] The 📌 glyph on the "Pin dates" modal label is still unicode — U6 scoped it out
+      (overlay, not chrome) and U8's overlay pass didn't sweep it. Swap to the SVG set
+      whenever that modal is next touched (U6).
+- [ ] Persistent error banner with explicit close, if the ~5s toast auto-dismiss still
+      proves too fleeting now that U7's docking/collapse has landed (carried from
+      Phase 1 §3.5 / T7).
+
+**Phase 3 scope (per the brief and U8):** B3 zoom / B5 compact density if PMs still
+report navigation pain after the hallway test; B6 saved views if they don't.
 
 ## 4. Data / schema (⚠ all need approval — shared Lists)
 

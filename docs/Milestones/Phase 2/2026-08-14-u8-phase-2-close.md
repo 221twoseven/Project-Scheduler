@@ -51,14 +51,14 @@ asserts:
 
 ## Evidence — before (REV50) vs after (Phase 2), identical seed data
 
-In `Phase 2/screenshots/`:
+In `screenshots/`:
 
 | View | Before | After |
 |---|---|---|
-| Dense timeline | ![before](Phase%202/screenshots/before-phase2-timeline.png) | ![after](Phase%202/screenshots/after-phase2-timeline.png) |
-| Project page | ![before](Phase%202/screenshots/before-phase2-project.png) | ![after](Phase%202/screenshots/after-phase2-project.png) |
-| Meeting sheet | ![before](Phase%202/screenshots/before-phase2-meeting.png) | ![after](Phase%202/screenshots/after-phase2-meeting.png) |
-| Print preview | ![before](Phase%202/screenshots/before-phase2-print.png) | ![after](Phase%202/screenshots/after-phase2-print.png) |
+| Dense timeline | ![before](screenshots/before-phase2-timeline.png) | ![after](screenshots/after-phase2-timeline.png) |
+| Project page | ![before](screenshots/before-phase2-project.png) | ![after](screenshots/after-phase2-project.png) |
+| Meeting sheet | ![before](screenshots/before-phase2-meeting.png) | ![after](screenshots/after-phase2-meeting.png) |
+| Print preview | ![before](screenshots/before-phase2-print.png) | ![after](screenshots/after-phase2-print.png) |
 
 The pairs were captured from the same build process with the same 14-project
 seed; the only variable is the app version.
