@@ -161,16 +161,21 @@ body:not(.vivid) .hdr-m-cell{text-shadow:none;border-right-color:rgba(13,19,29,.
 .g-row.clickable:hover{background:rgba(255,255,255,.25)}
 .g-row.dept-band{background:rgba(87,104,127,.13);border-bottom:1px solid rgba(0,0,0,.08)}
 .g-row.drop-hi{background:rgba(47,111,228,.1)!important;outline:2px solid rgba(47,111,228,.35);outline-offset:-2px}
-.today-line{position:absolute;top:0;width:2px;background:rgba(220,38,38,.85);z-index:6;pointer-events:none}
-.today-line::before{content:'';position:absolute;top:-1px;left:-3px;width:8px;height:8px;border-radius:50%;background:var(--late)}
+/* B4: Today is the strongest line on the canvas — full-day wash + 2px line + pill.
+   Width is the day width, set inline at render. The 6% wash sits over the bars;
+   at that opacity it reads as a column marker, not a tint on the data. */
+.today-line{position:absolute;top:0;background:rgba(47,111,228,.06);border-left:2px solid var(--late);z-index:6;pointer-events:none}
 .today-tag{position:absolute;top:2px;left:5px;font-family:var(--mono);font-size:var(--fs-fine);font-weight:700;letter-spacing:.1em;color:#fff;background:var(--late);border-radius:3px;padding:1px 5px;white-space:nowrap}
 .hover-guide{position:absolute;top:0;width:1px;background:rgba(20,40,70,.35);z-index:7;pointer-events:none}
 .hover-tag{position:absolute;top:4px;transform:translateX(-50%);font-family:var(--mono);font-size:var(--fs-fine);color:#fff;background:#28374E;border-radius:4px;padding:2px 7px;white-space:nowrap;z-index:8;pointer-events:none;box-shadow:0 2px 6px rgba(0,0,0,.25)}
-.dl-flag{position:absolute;width:0;z-index:5;pointer-events:none;border-left:2px dashed rgba(220,38,38,.55)}
+/* B4: deadline = per-project pennant + dotted neutral-ink drop-line. The line color is
+   fixed ink-at-60% here; the element's inline `color` carries the project hue, which only
+   the ▸ pennant (::before, currentColor) picks up. Never red — red belongs to install. */
+.dl-flag{position:absolute;width:0;z-index:5;pointer-events:none;border-left:2px dotted rgba(13,19,29,.6)}
 .edge-ind{position:absolute;z-index:12;display:inline-flex;align-items:center;gap:5px;height:24px;padding:0 8px;background:#fff;border:1px solid var(--side-line);border-radius:12px;font-family:var(--mono);font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;box-shadow:0 1px 4px rgba(13,19,29,.12)}
 .edge-ind[data-side="r"]{transform:translateX(-100%)}
 .edge-ind:hover{border-color:#9FB0C6}
-.dl-flag::before{content:'⚑';position:absolute;top:-2px;left:1px;font-size:11px;color:var(--late)}
+.dl-flag::before{content:'▸';position:absolute;top:0;left:1px;font-size:12px;line-height:1;color:currentColor}
 .dim{opacity:.16;filter:grayscale(.5)}
 .ooo-bar{position:absolute;border-radius:5px;background:repeating-linear-gradient(-45deg,#C3CBD7 0 5px,#DDE2EA 5px 10px);box-shadow:inset 0 0 0 1px rgba(90,105,125,.4);z-index:9;overflow:hidden;pointer-events:auto}
 .ooo-lbl{position:absolute;top:50%;left:8px;transform:translateY(-50%);font-family:var(--mono);font-size:var(--fs-fine);font-weight:700;letter-spacing:.12em;color:#5A6980;white-space:nowrap}
@@ -454,8 +459,12 @@ body.vivid .npv-we{background:#F1F5F9}
 .npv-hdl::after{content:'';position:absolute;left:2px;top:2px;bottom:2px;width:2px;border-radius:1px;background:currentColor;opacity:0}
 .npv-hdl.r::after{left:auto;right:2px}
 .npv-bar:hover .npv-hdl::after{opacity:.4}
-.npv-today{position:absolute;top:0;bottom:0;width:2px;background:rgba(220,38,38,.75);z-index:4;pointer-events:none}
-.npv-dl{position:absolute;top:0;bottom:0;width:0;border-left:2px dashed #CE4242;z-index:4;pointer-events:none}
+/* B4: same marker language as the main timeline — Today wash + line + pill,
+   deadline pennant + dotted ink drop-line. Width set inline (day width). */
+.npv-today{position:absolute;top:0;bottom:0;background:rgba(47,111,228,.06);border-left:2px solid var(--late);z-index:4;pointer-events:none}
+.npv-today::after{content:'TODAY';position:absolute;top:2px;left:3px;font-family:var(--mono);font-size:var(--fs-fine);font-weight:700;letter-spacing:.1em;color:#fff;background:var(--late);border-radius:3px;padding:0 4px;line-height:14px}
+.npv-dl{position:absolute;top:0;bottom:0;width:0;border-left:2px dotted rgba(13,19,29,.6);z-index:4;pointer-events:none}
+.npv-dl::before{content:'▸';position:absolute;top:0;left:1px;font-size:12px;line-height:1;color:rgba(13,19,29,.75)}
 .npv-foot{display:flex;align-items:center;gap:14px;padding:9px 12px;border-top:1px solid #E2E8F0;background:#FBFDFF;font-size:11px;color:#5B6B85;flex-wrap:wrap}
 .npv-foot b{font-weight:700;color:#16202E}
 .npv-foot .warn{color:#CE4242;font-weight:700}
@@ -2238,21 +2247,26 @@ function renderGantt(){
   const td2=today();
   if(td2>=TL_S&&td2<=TL_E){
     const tl=document.createElement('div');tl.className='today-line';
-    tl.style.left=d2x(td2)+'px';tl.style.height=TOTAL_H+'px';
+    tl.style.left=d2x(td2)+'px';tl.style.width=DW_+'px';tl.style.height=TOTAL_H+'px';
     const tg=document.createElement('span');tg.className='today-tag';tg.textContent='TODAY';tl.appendChild(tg);
     canvas.appendChild(tl);
   }
 
   /* Deadline flags on project rows */
   if(LENS==='project'){
-    for(const r of ROWS){
+    for(let i=0;i<ROWS.length;i++){
+      const r=ROWS[i];
       if(r.kind!=='projHead')continue;
       const p=projById(r.projectId);
       if(!p||!p.deadline)continue;
       const dl=parseDate(p.deadline);
       if(dl<TL_S||dl>TL_E)continue;
+      /* The drop-line falls from the pennant through the project's expanded task rows. */
+      let j=i+1;while(j<ROWS.length&&ROWS[j].projectId===r.projectId)j++;
+      const bot=ROWS[j-1].top+ROWS[j-1].height;
       const f=document.createElement('div');f.className='dl-flag';
-      f.style.left=(d2x(dl)+DW_-1)+'px';f.style.top=r.top+'px';f.style.height=r.height+'px';
+      f.style.left=(d2x(dl)+DW_-1)+'px';f.style.top=r.top+'px';f.style.height=(bot-r.top)+'px';
+      f.style.color=projColor(p.id);
       f.title='Deadline '+fmtNice(p.deadline);
       canvas.appendChild(f);
     }
@@ -4474,7 +4488,7 @@ function npvRender(){
      if(!isWorking(c2))h+='<div class="npv-web" style="left:'+x(c2)+'px;width:'+dwv+'px"></div>';
      c2=addDays(c2,1);
    }}
-  h+='<div class="npv-today" style="left:'+(x(td)+Math.floor(dwv/2))+'px"></div>';
+  h+='<div class="npv-today" style="left:'+x(td)+'px;width:'+dwv+'px"></div>';
   h+='<div class="npv-dl" style="left:'+(x(dl)+dwv)+'px"></div>';
   /* Tint sits in its own layer appended last so it can't shift the rows' nth-child
      zebra, and is held under them by z-index rather than document order. */
