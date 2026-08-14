@@ -25,6 +25,7 @@ const SUITES = [
   'test-b1.js',
   'test-quiet.js',
   'test-b4.js',
+  'test-c3-status.js',
 ];
 
 const repoRoot = path.resolve(__dirname, '..');

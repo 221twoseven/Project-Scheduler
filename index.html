@@ -206,7 +206,11 @@ kbd{font-family:var(--mono);font-size:var(--fs-fine);background:#EDF1F7;border:1
 .job-bar.is-drag-src{opacity:.25;pointer-events:none}
 .job-bar.is-pinned{box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.5),0 1px 4px rgba(10,25,50,.18)!important}
 .job-bar[data-st="estimating"]{opacity:.74}
-.job-bar[data-st="complete"]{filter:saturate(.25);opacity:.8}
+/* C3 §2.1 one-job rule: status is pattern + opacity on the project's own hue — never a
+   hue change. Forecast's dashed outline-color is set inline to the identity color. */
+.job-bar[data-st="forecast"]{opacity:.4;outline:1.5px dashed;outline-offset:-2px}
+.job-bar[data-st="complete"]{opacity:.6}
+.job-bar[data-st="complete"] .sum-pill::before,.sum-pill[data-st="complete"]::before,.mr-pill[data-st="complete"]::before{content:'✓ '}
 .bar-stripe{position:absolute;inset:0;border-radius:inherit;background:repeating-linear-gradient(45deg,transparent,transparent 5px,rgba(255,255,255,.22) 5px,rgba(255,255,255,.22) 10px);pointer-events:none}
 .bar-edge{position:absolute;left:0;top:0;bottom:0;width:4px;background:rgba(255,255,255,.65);border-radius:6px 0 0 6px;pointer-events:none}
 .bar-lbl{position:absolute;top:50%;transform:translateY(-50%);font-size:var(--fs-label);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none;text-shadow:0 1px 3px rgba(0,0,0,.3)}
@@ -682,9 +686,6 @@ body.vivid .npv-we{background:#F1F5F9}
 
 
 /* ============ REV43 ============ */
-.job-bar[data-st="forecast"]{filter:grayscale(1) brightness(1.06);opacity:.72}
-.job-bar[data-st="forecast"] .sum-pill{background:#E2E8F0;color:#475569}
-.mr-pill[data-st="forecast"]{background:#E2E8F0;color:#475569}
 .npv-web.off{background:none}
 
 /* the popover escapes the chart now, so it is positioned from the page */
@@ -920,6 +921,20 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
 .npv-body.tinted .npv-row .npv-gut{background:#fff}
 .npv-body.tinted .npv-row:nth-child(odd) .npv-gut{background:#FCFDFE}
 
+/* ============ C3: LEGEND POPOVER ============ */
+/* Swatches reuse the real .job-bar/.sum-pill/.dl-flag classes so the legend always
+   shows what the live CSS renders. These rules only undo bar positioning for the menu.
+   Placed after every .job-bar rule so the static positioning wins the specificity tie. */
+#legend-menu{left:auto;right:0;width:390px;padding:12px;cursor:default}
+.lg-sec{font-size:var(--fs-fine);font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:#7488A3;margin:8px 0 5px}
+.lg-sec:first-child{margin-top:0}
+.lg-hint{font-size:var(--fs-fine);color:#94A3B8;margin-bottom:6px;line-height:1.4}
+.lg-row{display:flex;align-items:center;gap:10px;margin-bottom:5px;font-size:var(--fs-label);color:#33415A}
+.lg-row>span:last-child{flex:1;min-width:0}
+.lg-bar{position:static;flex:0 0 128px;display:flex;align-items:center;padding:0 5px;height:20px;cursor:default;pointer-events:none;overflow:hidden}
+.lg-bar .sum-pill{position:static;transform:none}
+.lg-mk{position:relative;flex:0 0 128px;height:22px;pointer-events:none;overflow:hidden}
+
 /* ============ PRINT ============ */
 @media print{
   @page{size:landscape;margin:7mm 9mm}
@@ -989,6 +1004,10 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
       <span class="lock-track"><span class="lock-thumb"></span></span>
       <span class="lock-txt">Protect dates</span>
     </label>
+    <div class="sf-wrap">
+      <button id="btn-legend" class="t-btn" title="What the colors, patterns and markers mean">?</button>
+      <div id="legend-menu" class="tb-menu hidden"></div>
+    </div>
   </div>
 </div>
 
@@ -2529,7 +2548,10 @@ function makeSummaryBar(p,s,e,row){
   bar.style.left=x+'px';bar.style.top=(row.top+BAR_PAD)+'px';
   bar.style.width=w+'px';bar.style.height=BAR_H+'px';
   const sumCol=projColor(p.id);
-  bar.style.background=sumCol;
+  /* backgroundColor, not the background shorthand — the shorthand resets
+     background-image inline and silently kills the on-hold hatch (§2.1). */
+  bar.style.backgroundColor=sumCol;
+  if(st==='forecast')bar.style.outlineColor=sumCol;
   if(st==='estimating'){const ov=document.createElement('div');ov.className='bar-stripe';bar.appendChild(ov);}
   if(st==='in-production'||st==='installing'){const ed=document.createElement('div');ed.className='bar-edge';bar.appendChild(ed);}
   const lbl=document.createElement('div');lbl.className='bar-lbl';
@@ -2563,8 +2585,9 @@ function makeTaskBar(t,row,lane,labelMode){
   bar.style.left=x+'px';bar.style.top=y+'px';
   bar.style.width=w+'px';bar.style.height=BAR_H+'px';
   const taskCol=barColor(t);
-  bar.style.background=taskCol;
+  bar.style.backgroundColor=taskCol; /* not the shorthand — it would wipe the on-hold hatch */
   bar.style.color=labelColor(taskCol); /* handles pick this up via currentColor */
+  if(st==='forecast')bar.style.outlineColor=taskCol;
   if(t.pinned)bar.classList.add('is-pinned');
   if(st==='estimating'){const ov=document.createElement('div');ov.className='bar-stripe';bar.appendChild(ov);}
   if(st==='in-production'||st==='installing'){const ed=document.createElement('div');ed.className='bar-edge';bar.appendChild(ed);}
@@ -5775,6 +5798,39 @@ function buildStatusMenu(){
   row.appendChild(all);row.appendChild(none);
   m.appendChild(row);
 }
+/* ===================== C3: LEGEND ===================== */
+/* One screen explaining the five encodings: status treatments, red = install,
+   PM/D/F chips, Today, deadline. Swatches are real .job-bar/.sum-pill/.dl-flag
+   elements styled by the live CSS, so the legend can never drift from the app. */
+function buildLegend(){
+  const hue=PCOLS[0],fg=labelColor(hue);
+  const bar=(st,inner)=>'<span class="job-bar lg-bar"'+(st?' data-st="'+st+'"':'')
+    +' style="background-color:'+hue+';color:'+fg+';outline-color:'+hue+'">'+(inner||'')+'</span>';
+  const row=(sw,txt)=>'<div class="lg-row">'+sw+'<span>'+txt+'</span></div>';
+  const NOTE={'forecast':'Penciled in — faded, dashed edge','estimating':'Being quoted — striped',
+    'in-design':'Active — solid bar','in-fabrication':'Active — solid bar',
+    'on-hold':'Paused — hatched','complete':'Done — dimmed, ✓'};
+  document.getElementById('legend-menu').innerHTML=
+    '<div class="lg-sec">Project status</div>'
+    +'<div class="lg-hint">Bars keep their project’s color at every status — only the pattern and the pill change.</div>'
+    +ALL_STATUSES.map(st=>{
+      let inner='<span class="sum-pill">'+esc(STATUS_LBL[st])+'</span>';
+      if(st==='estimating')inner='<span class="bar-stripe"></span>'+inner;
+      return row(bar(st,inner),NOTE[st]);
+    }).join('')
+    +'<div class="lg-sec">Installation</div>'
+    +row('<span class="job-bar lg-bar" style="background-color:'+INSTALL_RED+';color:'+labelColor(INSTALL_RED)+'"></span>',
+      'Red bars are installs — nothing else is ever red')
+    +'<div class="lg-sec">People chips</div>'
+    +row(bar('','<span class="role-tag">PM</span><span class="role-tag">D</span><span class="role-tag">F</span>'),
+      'Project manager · Drafter · Lead fabricator')
+    +'<div class="lg-sec">Markers</div>'
+    +row('<span class="lg-mk"><span class="today-line" style="left:8px;width:56px;height:100%"><span class="today-tag">TODAY</span></span></span>',
+      'Today — the strongest line on the canvas')
+    +row('<span class="lg-mk"><span class="dl-flag" style="left:14px;height:100%;color:'+hue+'"></span></span>',
+      'Deadline — pennant and dotted drop-line');
+}
+
 /* Toolbar dropdowns — one open at a time, close on outside click or Esc */
 function closeMenus(){document.querySelectorAll('.tb-menu').forEach(m=>m.classList.add('hidden'));}
 function wireMenu(btnId,menuId){
@@ -5785,6 +5841,8 @@ function wireMenu(btnId,menuId){
 wireMenu('btn-status','status-menu');
 wireMenu('btn-print','print-menu');
 wireMenu('btn-settings','settings-menu');
+wireMenu('btn-legend','legend-menu');
+buildLegend();
 document.addEventListener('click',closeMenus);
 document.getElementById('btn-reset').addEventListener('click',()=>{
   SPOT.clear();
