@@ -246,8 +246,12 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 .tt-notes{color:rgba(255,255,255,.45);font-size:11px;margin-top:5px;padding-top:5px;border-top:1px solid rgba(255,255,255,.08)}
 
 /* ============ TOASTS ============ */
-#toasts{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:1000;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none}
-.toast{background:#101A29;color:rgba(255,255,255,.92);font-size:12.5px;padding:9px 16px;border-radius:9px;box-shadow:0 8px 28px rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.1);animation:toast-in .22s ease-out;max-width:76vw;pointer-events:auto}
+/* D3: toasts dock bottom-right, capped at 3 visible with a "+N more" counter, and a
+   width cap so long errors wrap instead of spanning the canvas. */
+#toasts{position:fixed;bottom:18px;right:18px;z-index:1000;display:flex;flex-direction:column;gap:8px;align-items:flex-end;pointer-events:none}
+.toast{background:#101A29;color:rgba(255,255,255,.92);font-size:12.5px;padding:9px 16px;border-radius:9px;box-shadow:0 8px 28px rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.1);animation:toast-in .22s ease-out;max-width:min(380px,calc(100vw - 36px));pointer-events:auto}
+.toast-n{display:inline-block;margin-left:8px;padding:0 6px;border-radius:8px;background:rgba(255,255,255,.18);font-size:11px;font-weight:700}
+#toast-more{font-size:11px;font-weight:600;color:rgba(255,255,255,.75);background:#101A29;border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:3px 9px}
 .toast.err{border-color:rgba(255,110,110,.5);color:#FFC9C9}
 .toast details{margin-top:6px}
 .toast summary{cursor:pointer;font-size:11px;opacity:.65;user-select:none}
@@ -1660,13 +1664,22 @@ async function spSync(oldST,newST){
    "Details" — users read the sentence, whoever maintains the app opens the details. */
 function toast(msg,kind,undoable,details){
   const box=document.getElementById('toasts');
+  /* D3: never cover the bottom inspector dock — when a project page's dock is open,
+     the stack sits just above its top edge (recomputed per toast; toasts are short-lived). */
+  const dockRect=(d=>d&&d.getBoundingClientRect())(document.getElementById('pp-dock'));
+  box.style.bottom=(dockRect&&dockRect.height?window.innerHeight-dockRect.top+10:18)+'px';
+  /* D3: an identical message right behind the last one bumps a ×N badge on it instead of
+     stacking a copy. Undo toasts never collapse — each carries its own reverser. */
+  const prev=box.lastElementChild;
+  if(prev&&prev.classList.contains('toast')&&!prev.classList.contains('out')
+     &&!undoable&&!prev.querySelector('.undo')&&prev.dataset.msg===msg){prev._bump();return;}
   const el=document.createElement('div');el.className='toast'+(kind==='err'?' err':'');
-  el.textContent=msg;
+  el.textContent=msg;el.dataset.msg=msg;
   if(undoable){
     const b=document.createElement('button');b.className='undo';b.textContent='Undo';
     /* Pass a function as `undoable` to run it instead of the ST undo stack —
        draft-page mutations live outside ST and bring their own reverser. */
-    b.addEventListener('click',()=>{el.remove();typeof undoable==='function'?undoable():undo();});
+    b.addEventListener('click',()=>{el.remove();toastLayout();typeof undoable==='function'?undoable():undo();});
     el.appendChild(b);
   }
   if(details){
@@ -1676,13 +1689,29 @@ function toast(msg,kind,undoable,details){
     el.appendChild(d);
   }
   /* Hovering pauses dismissal so Undo and Details are actually reachable. */
-  let tm;
-  const hide=()=>{el.classList.add('out');setTimeout(()=>el.remove(),350);};
-  const arm=()=>{tm=setTimeout(hide,kind==='err'?5200:(undoable?5200:2600));};
+  let tm,count=1,badge=null;
+  const hide=()=>{el.classList.add('out');setTimeout(()=>{el.remove();toastLayout();},350);};
+  const arm=()=>{clearTimeout(tm);tm=setTimeout(hide,kind==='err'?5200:(undoable?5200:2600));};
+  el._bump=()=>{count++;
+    if(!badge){badge=document.createElement('span');badge.className='toast-n';el.insertBefore(badge,el.childNodes[1]||null);}
+    badge.textContent='×'+count;arm();};
   el.addEventListener('mouseenter',()=>clearTimeout(tm));
   el.addEventListener('mouseleave',arm);
   box.appendChild(el);
+  toastLayout();
   arm();
+}
+/* D3: at most 3 toasts visible; older ones hide behind a "+N more" counter at the top of
+   the stack. Hidden toasts keep their timers, so the counter drains by itself. */
+function toastLayout(){
+  const box=document.getElementById('toasts');
+  const ts=[...box.querySelectorAll('.toast')];
+  ts.forEach((t,i)=>{t.style.display=i<ts.length-3?'none':'';});
+  let m=document.getElementById('toast-more');
+  if(ts.length>3){
+    if(!m){m=document.createElement('div');m.id='toast-more';box.prepend(m);}
+    m.textContent='+'+(ts.length-3)+' more';
+  }else if(m)m.remove();
 }
 const toastU=msg=>toast(msg,null,true);
 function setSync(state,msg){
