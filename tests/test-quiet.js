@@ -120,7 +120,7 @@ function stage2(){
         sec('print never emits vivid tints');
         const pr=(src.match(/@media print\{[\s\S]*?\n\}/)||[''])[0];
         ok('print forces quiet day columns', /\.bg-col,\.hdr-d-cell\{background-color:#FCFDFE!important\}/.test(pr));
-        ok('print neutralises the month header band', /\.hdr-m-cell\{background-color:#EDF1F7!important;color:#33415A!important/.test(pr));
+        ok('print neutralises the month header band', /\.hdr-m-cell\{background-color:var\(--side\)!important;color:#33415A!important/.test(pr));
         ok('print flattens the weekend overlay', /\.wknd-col\{background:#EEF1F5!important/.test(pr));
         done();
       },300);

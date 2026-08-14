@@ -323,7 +323,7 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 #print-overlay .modal{width:880px;max-width:96vw}
 .pp-controls{display:flex;gap:10px;align-items:flex-end;margin-bottom:12px;flex-wrap:wrap}
 .pp-controls .fg{margin-bottom:0;flex:0 0 150px}
-.pp-note{font-size:11px;color:#94A3B8;flex:1;min-width:200px;padding-bottom:6px}
+.pp-note{font-size:var(--fs-fine);color:#94A3B8;flex:1;min-width:200px;padding-bottom:6px}
 #pp-zoom{border:1.5px solid #E2E8F0;border-radius:8px;background:#E8ECF2;overflow:auto;max-height:55vh;padding:14px}
 #pp-zoom-inner{transform-origin:top left}
 
@@ -368,11 +368,11 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 .meet-modal{max-width:1150px;width:94vw}
 #meet-zoom{border:1.5px solid #E2E8F0;border-radius:8px;background:#E8ECF2;overflow:auto;max-height:62vh;padding:14px}
 .meet-sheet{background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.12)}
-.meet-table{width:100%;border-collapse:collapse;font-size:11px;color:#1B2537}
-.meet-title th{text-align:left;font-size:15px;font-weight:800;padding:10px 12px 8px;border-bottom:2px solid #1B2537}
+.meet-table{width:100%;border-collapse:collapse;font-size:var(--fs-fine);color:var(--txt)}
+.meet-title th{text-align:left;font-size:var(--fs-title);font-weight:800;padding:10px 12px 8px;border-bottom:2px solid var(--txt)}
 .meet-sub{font-family:var(--mono);font-weight:400;font-size:var(--fs-fine);color:#64748B;margin-left:12px}
 .meet-cols th{text-align:left;font-size:var(--fs-fine);font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#64748B;padding:6px 8px;border-bottom:1.5px solid #CBD5E1;background:#F8FAFC}
-.meet-pm td{background:#E6F1FB;color:#185FA5;font-weight:800;font-size:11px;padding:5px 8px;border-top:1.5px solid #CBD5E1}
+.meet-pm td{background:#E6F1FB;color:#185FA5;font-weight:800;font-size:var(--fs-fine);padding:5px 8px;border-top:1.5px solid #CBD5E1}
 .meet-row td{padding:6px 8px;border-bottom:1px solid #E2E8F0;vertical-align:top}
 .mr-name{display:block;font-weight:700}
 .mr-sub{display:block;font-family:var(--mono);font-size:var(--fs-fine);color:#8B99AD}
@@ -954,7 +954,7 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
   .meet-row,.meet-pm tr{page-break-inside:avoid}
   /* C2: print never emits the vivid tints — force the quiet canvas whatever is on screen */
   .bg-col,.hdr-d-cell{background-color:#FCFDFE!important}
-  .hdr-m-cell{background-color:#EDF1F7!important;color:#33415A!important;text-shadow:none!important}
+  .hdr-m-cell{background-color:var(--side)!important;color:#33415A!important;text-shadow:none!important}
   .wknd-col{background:#EEF1F5!important;backdrop-filter:none!important}
 }
 </style>
@@ -5914,7 +5914,9 @@ function phaseNow(p){
   if(fut.length){const d=deptById(fut[0].department);return 'Next: '+((d&&!d.freeText)?d.name:(fut[0].assignee||'Other'))+' '+fmtNice(fut[0].startDate);}
   return ts.length?'Wrapped':'—';
 }
-const MEET_FILL={'estimating':'#AFA9EC','approved':'#85B7EB','in-production':'#5DCAA5','installing':'#1D9E75','on-hold':'#FAC775','complete':'#B4B2A9','invoiced':'#97C459','called-off':'#D3D1C7'};
+/* U8: keys must match ALL_STATUSES — the pre-migration names left every
+   forecast/in-design/in-fabrication mini-bar on the gray fallback */
+const MEET_FILL={'forecast':'#C9D4E6','estimating':'#AFA9EC','in-design':'#C4B5FD','in-fabrication':'#5DCAA5','on-hold':'#FAC775','complete':'#B4B2A9'};
 function buildMeetingSheet(){
   const wrap=document.createElement('div');wrap.className='meet-sheet';
   const projs=currentProjOrder().filter(p=>SHOW_STATUS.has(projectStatus(p)));
