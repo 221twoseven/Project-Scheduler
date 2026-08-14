@@ -48,6 +48,10 @@ users, finding D2), and the legend gives new users the decoder ring.
 - Verified in a real browser against a six-project seed (one per status):
   computed styles confirm every treatment renders, including the previously
   dead on-hold hatch, on bars and in the legend swatches.
+- Before/after screenshots in [`Phase 2/screenshots/`](Phase%202/screenshots/):
+  `before-status-bars.png` (gray forecast, hatchless on-hold, no legend button)
+  vs `after-status-bars.png` (identity hues kept, hatch renders) and
+  `after-legend.png` (the `?` popover, all five encodings on one screen).
 
 ## Known ceiling / follow-up
 
