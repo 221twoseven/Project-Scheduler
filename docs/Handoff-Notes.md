@@ -230,8 +230,9 @@ Everything else — code, deploys, UI — needs no one.
 
 ## 11. Development workflow & conventions
 
-The app carries a regression suite — **276 assertions across 6 jsdom suites** — run before
-every release (see [../tests/README.md](../tests/README.md)). The suites stub MSAL and
+The app carries a regression suite — **15 jsdom suites, run with `npm test`** (originally
+6 suites / 276 assertions; grown since) — run before every release (see
+[../tests/README.md](../tests/README.md)). The suites stub MSAL and
 `fetch` and record every Graph call on `window.__spCalls`, so persistence is asserted on the
 actual outgoing request body rather than assumed. They assert **behaviour, not
 implementation**, and are updated deliberately when behaviour changes on purpose.
@@ -273,6 +274,6 @@ patching the wrong function; output was syntax-checked with Node before shipping
 ---
 
 **Open items** (calendar create-menu/parity, standalone events, dependencies, the Dash view,
-`ShopTimeline_Tasks2`, staff `email`/`role` columns, 2FA, org transfer, and the rest) are
-tracked and kept current in **[TODO.md](TODO.md)** — not duplicated here, so there's one
-source of truth.
+`ShopTimeline_Tasks2`, staff `email`/`role` columns, 2FA, and the rest) are tracked, ranked,
+and kept current in **[TODO.md](TODO.md)** — not duplicated here, so there's one source of
+truth. (The org transfer is done; the repo lives under `221twoseven`.)

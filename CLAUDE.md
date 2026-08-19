@@ -70,13 +70,13 @@ The current infrastructure values (for reference — do not change without instr
 - **Preserve the existing test harness.** `harness.js` boots a Timeline HTML file in
   jsdom with MSAL and `fetch` stubbed, recording every Graph request so persistence is
   asserted on the actual outgoing request bodies.
-- **Run the relevant tests after implementation changes.** The suites are `test46.js`,
-  `test47.js`, `test48.js`, `test49.js`, `test50.js`, and `test-label.js` (276 assertions
-  total). Point them at `index.html` when validating company changes:
+- **Run the tests after implementation changes.** `tests/run.js` aggregates all 15 suites
+  (behaviour suites `test46`–`test50`, `test-label`, plus the Phase 1–2 UX/design suites);
+  see `tests/README.md`. Validate company changes against `index.html`, and the frozen
+  baseline with `test:ref`:
 
   ```bash
-  npm install jsdom
-  for t in test46 test47 test48 test49 test50 test-label; do node $t.js ./index.html; done
+  npm install && npm test && npm run test:ref
   ```
 
   Every feature should be asserted on BOTH the new-project draft page and the saved
