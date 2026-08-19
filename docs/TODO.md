@@ -67,9 +67,12 @@ Last reviewed: 2026-08-19 (doc tidy & re-prioritization).
 
 Roughly in build order:
 
-- [ ] **1. Calendar create menu + parity — crucial.** The Gantt has a create menu,
-      selection, and keyboard as of REV48–50; the Calendar has none of it. Needs its own
-      hit-testing against week bands (not a linear day axis).
+- [x] **1. Calendar create menu + parity — DONE 2026-08-19 (REV53).** Create menu on
+      empty cells, bar menu + selection on phase bands, keyboard carries over; both
+      draft and saved paths. Hit-testing is target-based (`data-d` on cells), not
+      coordinate math. Suite: `tests/test53.js` (38 assertions, skips on the reference).
+      Record: `docs/Milestones/2026-08-19-calendar-create-parity.md`. Ceilings noted
+      there: marker bands stay inert; 16px band hit-targets; no menu on the empty state.
 - [ ] **2. Standalone events, properly.** An event still *saves* on a host phase, so
       deleting the phase deletes its events. Real fix: a nullable phase reference or an
       events List of its own. ⚠ (may imply schema — schedule the approval conversation
@@ -80,6 +83,15 @@ Roughly in build order:
       Departments). Designed, not built. Needs the identity chain: signed-in email →
       `Staff.email`, fallback to display-name match, fallback to a remembered person
       picker. Depends on the ⚠ schema item in §5 — start that approval early.
+- [ ] **5. Project edit page — subtask/phase-bar behavior** (owner notes, 2026-08-19):
+      - Subtasks render in a **lighter shade of the parent bar's hue** (identity stays
+        with the project per Design-Language §2; only lightness separates child from
+        parent).
+      - Clicking a subtask must **not duplicate the primary phase bar as a subtask** in
+        the expanded view.
+      - Subtasks are **resizeable by edge click/drag** (same handles/snapping as E3).
+      - Subtask duration is **independent of the parent task**; the parent's start/end
+        act only as min/max constraints on the subtask.
 - [ ] **Decide: dependencies between bars.** Nothing links a bar to its predecessor
       except the scheduler chain. Have real dependencies, or consciously don't —
       avoid half-having them.
