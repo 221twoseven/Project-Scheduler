@@ -624,6 +624,11 @@ body.vivid .npv-we{background:#F1F5F9}
 .cal-band.ev{background:#16324F!important;border-radius:0}
 .cal-band.tk{background:#fff!important;color:#1D4ED8;border:1.5px solid #3B7FD6}
 .cal-empty{padding:34px 18px;text-align:center;font-size:12.5px;color:#B4C0D0;font-style:italic}
+/* REV53: the calendar is a live surface like the Gantt — phase bands click and
+   right-click, and the selected phase carries the same ring (it can be several
+   bands, one per week the phase crosses). */
+.cal-band.ph{cursor:pointer}
+.cal-band.pick{box-shadow:0 0 0 2px #fff,0 0 0 4px var(--acc);z-index:3}
 
 
 .dr-row.ln,.dr-hd.ln{grid-template-columns:minmax(0,1fr) 128px 108px 24px}
@@ -1154,7 +1159,7 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_REV=52; // bump this ONE number on every release; used everywhere the rev shows up
+const APP_REV=53; // bump this ONE number on every release; used everywhere the rev shows up
 
 /* ===================== CONSTANTS ===================== */
 const SET_KEY ='shopTimelineSettings_v1';
@@ -3534,13 +3539,16 @@ function commitPhaseDates(id,s,e,days){
 function ppSelect(id,quiet){
   PP_SEL=id||null;
   PP_INSP=PP_SEL?'phase':'project';
-  document.querySelectorAll('#npv-body .npv-bar.pick').forEach(b=>b.classList.remove('pick'));
+  document.querySelectorAll('#npv-body .npv-bar.pick,#npv-body .cal-band.pick').forEach(b=>b.classList.remove('pick'));
   document.querySelectorAll('#npv-body .npv-row.pickrow').forEach(r=>r.classList.remove('pickrow'));
   if(PP_SEL){
     const i=NPV_TASKS.findIndex(t=>t.id===PP_SEL);
     const el=document.querySelector('#npv-body .npv-bar[data-i="'+i+'"]');
     if(el){el.classList.add('pick');
       const row=el.closest('.npv-row');if(row)row.classList.add('pickrow');}
+    /* REV53: the calendar clips a phase at week boundaries, so one selection can be
+       several bands — ring them all. */
+    document.querySelectorAll('#npv-body .cal-band.ph[data-i="'+i+'"]').forEach(b=>b.classList.add('pick'));
   }
   ppInspector();
   if(!quiet&&PP_SEL){
@@ -4057,6 +4065,16 @@ function npvHit(ev){
   return {date:fmtDate(addDays(NPV_GEO.lo,day)),ri:ri,
           row:(ri>=0&&ri<NPV_PLAN.length)?NPV_PLAN[ri]:null};
 }
+/* REV53 — the calendar's counterpart. Weeks stack and month headers interleave, so
+   there is no linear axis to do arithmetic against; instead every day cell carries its
+   own date (data-d) and the hit is whatever cell the event landed on. The calendar has
+   no department axis, so row is always null and the menu offers the date-scoped set. */
+function npvCalHit(ev){
+  const tg=ev.target;
+  if(!tg||!tg.closest)return null;
+  const el=tg.closest('#npv-body [data-d]');
+  return el?{date:el.dataset.d,ri:-1,row:null}:null;
+}
 /* REV50 — why the hotkeys 'did nothing': in a real browser, focus lives in an input
    almost constantly (the name field autofocuses; every inspector edit leaves the caret
    in a field), and the typing guard rightly swallows single letters while typing.
@@ -4115,7 +4133,7 @@ function npvBarMenu(x,y,t){
     if(act==='ren'){
       if(!NPV_LIVE){
         const i=NPV_TASKS.findIndex(z=>z.id===t.id);
-        const el=document.querySelector('#npv-body .npv-bar[data-i="'+i+'"]');
+        const el=document.querySelector('#npv-body .npv-bar[data-i="'+i+'"],#npv-body .cal-band.ph[data-i="'+i+'"]');
         if(el){ppOpenPop(i,el);const bn=document.getElementById('bp-name');if(bn){bn.focus();bn.select();}}
         return;
       }
@@ -4578,11 +4596,17 @@ function npvRender(){
   npvBindReorder();
   /* Keep the selection ring on whichever bar is selected after a re-render. */
   if(PP_SEL){
-    const si=NPV_TASKS.findIndex(t=>t.id===PP_SEL);
-    const sb=host.querySelector('.npv-bar[data-i="'+si+'"]');
-    if(sb){sb.classList.add('pick');
-      const sr=sb.closest('.npv-row');if(sr)sr.classList.add('pickrow');}
-    else PP_SEL=null;
+    if(NPV_MODE==='calendar'){
+      /* REV53: the calendar paint stamps .pick on the selected phase's bands itself;
+         only a selection that no longer exists gets dropped here. */
+      if(!NPV_TASKS.some(t=>t.id===PP_SEL))PP_SEL=null;
+    }else{
+      const si=NPV_TASKS.findIndex(t=>t.id===PP_SEL);
+      const sb=host.querySelector('.npv-bar[data-i="'+si+'"]');
+      if(sb){sb.classList.add('pick');
+        const sr=sb.closest('.npv-row');if(sr)sr.classList.add('pickrow');}
+      else PP_SEL=null;
+    }
   }
   const mp=ppProject();
   if(mp)ppPaintMeta(mp);
@@ -4592,7 +4616,7 @@ function npvRender(){
     host.dataset.bound='1';
     let dnX=0,dnY=0,dnBlank=false;
     const blank=tg=>!!tg&&!!tg.closest&&!tg.closest('.npv-bar')&&!tg.closest('.npv-gut')
-      &&!tg.closest('#bar-pop')&&!tg.closest('#npv-menu');
+      &&!tg.closest('.cal-band')&&!tg.closest('#bar-pop')&&!tg.closest('#npv-menu');
     host.addEventListener('mousedown',ev=>{
       npvBlur();
       dnX=ev.clientX;dnY=ev.clientY;
@@ -4605,10 +4629,15 @@ function npvRender(){
        open — otherwise clicking away from a popover would immediately open one — and
        only when the mouse didn't travel, so a drag never triggers it. */
     host.addEventListener('click',ev=>{
+      /* REV53: a calendar phase band behaves like a Gantt bar — click selects on a
+         saved project, opens the draft popover on a new one (ppOpenPop branches). */
+      if(NPV_MODE==='calendar'&&Math.abs(ev.clientX-dnX)<=4&&Math.abs(ev.clientY-dnY)<=4){
+        const band=ev.target&&ev.target.closest?ev.target.closest('.cal-band.ph'):null;
+        if(band){ppOpenPop(+band.dataset.i,band);return;}
+      }
       if(!dnBlank)return;
       if(Math.abs(ev.clientX-dnX)>4||Math.abs(ev.clientY-dnY)>4)return;
-      if(NPV_MODE!=='gantt')return;
-      const hit=npvHit(ev);
+      const hit=NPV_MODE==='gantt'?npvHit(ev):npvCalHit(ev);
       if(hit)npvOpenMenu(ev.clientX,ev.clientY,hit);
     });
     /* A faint column and a date chip under the cursor. Context menus are invisible until
@@ -4635,7 +4664,24 @@ function npvRender(){
       if(hv)hv.remove();if(hc)hc.remove();
     });
     host.addEventListener('contextmenu',ev=>{
-      if(NPV_MODE!=='gantt')return;
+      if(NPV_MODE==='calendar'){
+        /* REV53: parity with the Gantt — a phase band gets the bar menu, empty space
+           gets the create menu seeded with the cell's date. Event/task bands are left
+           to the browser; the Gantt stays the surface that edits markers. */
+        const band=ev.target&&ev.target.closest?ev.target.closest('.cal-band.ph'):null;
+        if(band){
+          ev.preventDefault();
+          const bt=NPV_TASKS[+band.dataset.i];
+          if(bt){if(NPV_LIVE)ppSelect(bt.id,true);npvBarMenu(ev.clientX,ev.clientY,bt);}
+          return;
+        }
+        if(!blank(ev.target))return;
+        const hit=npvCalHit(ev);
+        if(!hit)return;
+        ev.preventDefault();
+        npvOpenMenu(ev.clientX,ev.clientY,hit);
+        return;
+      }
       const tg=ev.target;
       const barEl=tg&&tg.closest?tg.closest('.npv-bar:not(.sum)'):null;
       if(barEl){
@@ -5015,12 +5061,13 @@ function npvPaintCalendar(lo,hi,dl){
 
     /* Everything that touches this week, clipped to it. */
     const items=[];
-    for(const t of NPV_TASKS){
+    NPV_TASKS.forEach((t,ti)=>{
       const a=parseDate(t.startDate),b=parseDate(t.endDate);
-      if(b<c||a>wEnd)continue;
+      if(b<c||a>wEnd)return;
       items.push({s:Math.max(0,diffDays(c,a)),e:Math.min(6,diffDays(c,b)),
-        txt:phaseLabel(t),col:DEPT_COLORS[t.department]||'#8A98AE',kind:'ph'});
-    }
+        txt:phaseLabel(t),col:DEPT_COLORS[t.department]||'#8A98AE',kind:'ph',
+        ti:ti,sel:t.id===PP_SEL});
+    });
     for(const mk of marks){
       const d=parseDate(mk.date);
       if(d<c||d>wEnd)continue;
@@ -5035,14 +5082,17 @@ function npvPaintCalendar(lo,hi,dl){
       if(!isWorking(d))cls.push('we');
       if(d.getTime()===td.getTime())cls.push('tod');
       const tintBg=isWorking(d)?';background:'+dayBg(d.getMonth(),isoWeek(d)%2):'';
-      h+='<div class="'+cls.join(' ')+'" style="left:calc('+i+'*100%/7)'+tintBg+'"></div>';
+      /* REV53: each cell carries its date so npvCalHit needs no coordinate arithmetic. */
+      h+='<div class="'+cls.join(' ')+'" data-d="'+fmtDate(d)+'" style="left:calc('+i+'*100%/7)'+tintBg+'"></div>';
     }
     for(let i=0;i<7;i++){
       const d=addDays(c,i);
-      h+='<div class="cal-dn" style="grid-column:'+(i+1)+'">'+p2(d.getMonth()+1)+'/'+p2(d.getDate())+'</div>';
+      h+='<div class="cal-dn" data-d="'+fmtDate(d)+'" style="grid-column:'+(i+1)+'">'+p2(d.getMonth()+1)+'/'+p2(d.getDate())+'</div>';
     }
     items.forEach((it,r)=>{
-      h+='<div class="cal-band '+it.kind+'" title="'+esc(it.txt)+'" style="grid-column:'+(it.s+1)+'/'+(it.e+2)
+      h+='<div class="cal-band '+it.kind+(it.sel?' pick':'')+'"'
+        +(it.kind==='ph'?' data-i="'+it.ti+'"':'')
+        +' title="'+esc(it.txt)+'" style="grid-column:'+(it.s+1)+'/'+(it.e+2)
         +';grid-row:'+(r+2)+(it.col?';background:'+it.col+';color:'+labelColor(it.col):'')+'">'+esc(it.txt)+'</div>';
     });
     h+='</div>';

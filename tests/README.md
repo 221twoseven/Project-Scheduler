@@ -33,6 +33,10 @@ non-zero on failure.
   toasts, the keyboard, Escape layering, the agenda.
 - `test48.js` — 57 assertions. The canvas create menu: hit-testing, both triggers, each
   create action, dept-less events, drag-vs-click, calendar-mode suppression.
+- `test53.js` — 38 assertions. Calendar create menu + parity (REV53): cells resolve to
+  dates without layout, the create menu on empty cells, the bar menu and selection on
+  phase bands, keyboard in calendar mode, and the draft/saved split on band clicks.
+  Skips on builds without `npvCalHit` (the frozen reference).
 - `test50.js` — 51 assertions. One per issue reported against REV49, each verified on the
   page it was reported on (the new-project draft): meta entities, the departments panel,
   the hotkey focus rule, event default dates, yellow diamonds, marker drag and
