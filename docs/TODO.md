@@ -26,11 +26,11 @@ Last reviewed: 2026-08-19 (doc tidy & re-prioritization).
       Onboarding-Fork Part B is done — the collaborator's sandbox is unblocked.
 - [x] **CI is green** — verified 2026-08-19: latest `development` push ("Docs Cleanup")
       passed both CI and Deploy Pages.
-- [ ] **Enable 2FA** on the GitHub account(s) with access. Quick, and it's the standing
-      security gap the docs used to advertise. (Carried from the handoff.)
-- [ ] **Confirm `ShopTimeline_Tasks2` (to-dos) exists.** Check Site Contents, or add a
-      task and reload. If absent the app degrades gracefully and needs no code change
-      when it appears. **Do not** re-flag `label` on `ShopTimeline_Tasks` — it exists
+- [x] **2FA enabled** on the GitHub account(s) with access (owner, 2026-08-19). Closes
+      the standing security gap carried from the handoff.
+- [x] **`ShopTimeline_Tasks2` exists** — confirmed in Site Contents 2026-08-19 (empty,
+      which is fine; to-dos persist there instead of browser-local storage). No code
+      change needed. **Do not** re-flag `label` on `ShopTimeline_Tasks` — it exists
       (verified by `test-label.js`).
 - [x] **test50 skip guard on the reference build** — dropped 2026-08-19: the guard
       already exists (`tests/test49.js` detects E1 builds via `pp-dock` and gates the
