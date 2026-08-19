@@ -23,10 +23,11 @@ non-zero on failure.
 ## What's here
 
 - `harness.js` — boots a Timeline HTML file in jsdom with MSAL and `fetch` stubbed.
-  `boot(file, {data:{projects,tasks,staff,todos}, todosList:false})`. Set
-  `todosList:true` to simulate the `ShopTimeline_Tasks2` List existing. Records every
-  Graph request on `window.__spCalls`, so persistence is asserted on the actual outgoing
-  body rather than on internal state.
+  `boot(file, {data:{projects,tasks,staff,todos,events}, todosList:false, eventsList:false})`.
+  Set `todosList:true` / `eventsList:true` to simulate the `ShopTimeline_Tasks2` /
+  `ShopTimeline_Events` Lists existing. Records every Graph request on
+  `window.__spCalls`, so persistence is asserted on the actual outgoing body rather
+  than on internal state.
 - `run.js` — runs all suites against one build and aggregates pass/fail.
 - `test49.js` — 78 assertions. The dashboard: inspector replacing the tabs, the meta
   strip, selection driving the pane, right-click on bars / summaries / gutters, undo
@@ -37,6 +38,11 @@ non-zero on failure.
   dates without layout, the create menu on empty cells, the bar menu and selection on
   phase bands, keyboard in calendar mode, and the draft/saved split on band clicks.
   Skips on builds without `npvCalHit` (the frozen reference).
+- `test54.js` — 27 assertions. Standalone events (REV54): with the Events list present,
+  events are rows (create needs no host phase, rename/delete in place, asserted on the
+  outgoing Graph bodies); deleting a phase rescues its hosted events; deleting a project
+  removes its events; the draft page files events as rows; without the list, the legacy
+  phase-hosted behaviour is untouched. Skips on builds without `ShopTimeline_Events`.
 - `test50.js` — 51 assertions. One per issue reported against REV49, each verified on the
   page it was reported on (the new-project draft): meta entities, the departments panel,
   the hotkey focus rule, event default dates, yellow diamonds, marker drag and

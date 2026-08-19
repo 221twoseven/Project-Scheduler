@@ -73,10 +73,14 @@ Roughly in build order:
       coordinate math. Suite: `tests/test53.js` (38 assertions, skips on the reference).
       Record: `docs/Milestones/2026-08-19-calendar-create-parity.md`. Ceilings noted
       there: marker bands stay inert; 16px band hit-targets; no menu on the empty state.
-- [ ] **2. Standalone events, properly.** An event still *saves* on a host phase, so
-      deleting the phase deletes its events. Real fix: a nullable phase reference or an
-      events List of its own. ⚠ (may imply schema — schedule the approval conversation
-      early)
+- [x] **2. Standalone events — DONE 2026-08-19 (REV54).** Events are rows in a new
+      `ShopTimeline_Events` list (⚠ approved by the owner 2026-08-19 — additive only,
+      colleague app unaffected). Hostless create, in-place edit/delete, phase-delete
+      rescues hosted events, project-delete cleans up, draft path files rows; without
+      the list the app falls back to the legacy phase-hosted save. Suite:
+      `tests/test54.js`. Record: `docs/Milestones/2026-08-19-standalone-events.md`.
+      **Owner to-do: create the list** (column recipe in `docs/SETUP.md`) — until then
+      the app keeps the old behaviour.
 - [ ] **3. Converge draft vs saved phase-splitting.** `NPV_LINES` still drives phase
       splitting on the new-project draft; the saved path creates subtasks directly.
 - [ ] **4. Dash view** — the per-person dashboard (third lens beside Projects and

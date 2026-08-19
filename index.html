@@ -1500,6 +1500,7 @@ function seed(){
 
 function migrate(d){
   d.todos=d.todos||[];
+  d.events=d.events||[];
   /* Retired statuses fold into the new five. */
   d.projects=d.projects.map(p=>STATUS_MIGRATE[p.status]?{...p,status:STATUS_MIGRATE[p.status]}:p);
   /* vacuum dept removed → folds into 'other' with its name preserved */
@@ -1536,10 +1537,15 @@ const LIST_STAFF='ShopTimeline_Staff';
    the Gantt phases. If this list doesn't exist yet the app runs fine and simply keeps
    tasks in the session, with one warning, the same way staff degrades. */
 const LIST_TODOS='ShopTimeline_Tasks2';
+/* Standalone events get their own list so deleting a phase no longer deletes its events.
+   Additive — the colleague app never reads it. Until the list exists on the site the app
+   falls back to the legacy behaviour: an event saves as a ticketNode on a host phase. */
+const LIST_EVENTS='ShopTimeline_Events';
 const SCOPES=['User.Read','Sites.ReadWrite.All'];
 let PCA=null,ACCOUNT=null,SITE_ID=null;
-let SP_IDS={proj:{},task:{},staff:{},todo:{}};   /* our appId -> SharePoint item id */
+let SP_IDS={proj:{},task:{},staff:{},todo:{},event:{}};   /* our appId -> SharePoint item id */
 let TODOS_OK=false;          /* true once the ShopTimeline_Tasks2 list loads */
+let EVENTS_OK=false;         /* true once the ShopTimeline_Events list loads */
 
 async function spInit(){
   PCA=new msal.PublicClientApplication({
@@ -1589,6 +1595,10 @@ function fieldsToTodo(f){return{id:f.appId,projectId:f.projectId||'',dept:f.depa
   progress:f.progress||'notstarted',priority:f.priority||'medium',notes:f.notes||'',
   createdBy:f.createdBy||'',completedOn:isoDay(f.completedOn),completedBy:f.completedBy||'',
   sortIndex:Number(f.sortIndex)||0};}
+function eventToFields(e){return{Title:e.name||'Event',appId:e.id,projectId:e.projectId||'',
+  department:e.dept||'',date:e.date||null,notes:e.notes||''};}
+function fieldsToEvent(f){return{id:f.appId,projectId:f.projectId||'',dept:f.department||'',
+  name:f.Title||'',date:isoDay(f.date),notes:f.notes||''};}
 function safeArr(s){if(Array.isArray(s))return s;try{const a=JSON.parse(s);return Array.isArray(a)?a:[];}catch(e){return[];}}
 
 function projToFields(p){const f={Title:p.name||'',client:p.client||'',jobCode:p.jobCode||'',deadline:p.deadline||null,status:p.status||'auto',projectManager:p.projectManager||'',drafter:p.drafter||'',leadFab:p.leadFab||'',fabricators:p.fabricators||'',metalFab:p.metalFab||'',activeDepartments:JSON.stringify(p.activeDepartments||[]),appId:p.id,createdAt:p.createdAt||null};if(p.sortIndex!=null)f.sortIndex=p.sortIndex;return f;}
@@ -1638,7 +1648,15 @@ async function spLoad(){
       const td=fieldsToTodo(it.fields);td.updatedBy=graphWho(it);td.updatedAt=graphWhen(it);todos.push(td);}
     TODOS_OK=true;
   }catch(e){TODOS_OK=false;console.warn('ShopTimeline_Tasks2 not reachable — tasks stay local.');}
-  return migrate({projects,tasks,todos});
+  /* Events are optional the same way. */
+  const events=[];SP_IDS.event={};
+  try{
+    const er=await gfetch(listUrl(LIST_EVENTS)+'/items?expand=fields&$top=2000');
+    for(const it of er.value){if(!it.fields.appId)continue;SP_IDS.event[it.fields.appId]=it.id;
+      events.push(fieldsToEvent(it.fields));}
+    EVENTS_OK=true;
+  }catch(e){EVENTS_OK=false;console.warn('ShopTimeline_Events not reachable — events save on host phases (legacy).');}
+  return migrate({projects,tasks,todos,events});
 }
 
 /* Diff old vs new state -> per-record create/update/delete on SharePoint */
@@ -1659,6 +1677,7 @@ async function spSync(oldST,newST){
   plan('proj',LIST_PROJECTS,projToFields,oldST.projects,newST.projects);
   plan('task',LIST_TASKS,taskToFields,oldST.tasks,newST.tasks);
   if(TODOS_OK)plan('todo',LIST_TODOS,todoToFields,oldST.todos||[],newST.todos||[]);
+  if(EVENTS_OK)plan('event',LIST_EVENTS,eventToFields,oldST.events||[],newST.events||[]);
   for(const j of jobs)await j();
 }
 
@@ -1780,7 +1799,8 @@ document.getElementById('sync-pill').addEventListener('click',()=>{
 function saveState(s){
   const old=ST;pushUndo(old);
   ST={projects:stampUpdated(s.projects,old.projects),tasks:stampUpdated(s.tasks,old.tasks),
-      todos:s.todos!==undefined?s.todos:(old.todos||[])};
+      todos:s.todos!==undefined?s.todos:(old.todos||[]),
+      events:s.events!==undefined?s.events:(old.events||[])};
   render();
   syncNow(old,ST);
 }
@@ -2663,7 +2683,7 @@ function makeTaskBar(t,row,lane,labelMode){
       bar.appendChild(hv);
     }
   }
-  for(const n of (t.ticketNodes||[])){
+  for(const n of barNodes(t)){
     const nd=parseDate(n.date);
     if(nd<js||nd>je)continue;
     const tn=document.createElement('div');tn.className='tick-node';
@@ -2792,8 +2812,9 @@ function showTooltipTask(t,ev,hiNode){
   const dd=deptById(t.department);
   const deptName=(dd&&dd.freeText)?('Other — '+(t.assignee||'')):(dd?.name||t.department);
   let tn='';
-  if((t.ticketNodes||[]).length){
-    tn='<div class="tt-notes">'+t.ticketNodes.map(n=>{
+  const tnodes=barNodes(t);
+  if(tnodes.length){
+    tn='<div class="tt-notes">'+tnodes.map(n=>{
       const cls=hiNode?(n.id===hiNode?' class="tt-node-hi"':' class="tt-node-dim"'):'';
       return '<div'+cls+'>◆ '+esc(fmtNice(n.date))+' → '+esc(n.target)+(n.notes?' — '+esc(n.notes):'')+'</div>';
     }).join('')+'</div>';
@@ -3359,7 +3380,8 @@ function renderProjectPage(){
     if(!confirm('Delete \u201c'+(p.name||'')+'\u201d and everything on it? This can be undone.'))return;
     saveState({projects:ST.projects.filter(x=>x.id!==p.id),
       tasks:ST.tasks.filter(t=>t.projectId!==p.id),
-      todos:(ST.todos||[]).filter(t=>t.projectId!==p.id)});
+      todos:(ST.todos||[]).filter(t=>t.projectId!==p.id),
+      events:(ST.events||[]).filter(e=>e.projectId!==p.id)});
     goTimeline();
   });
   const ks=document.getElementById('pp-ks'),kb=document.getElementById('pp-keys');
@@ -3840,8 +3862,16 @@ function ppDeletePhase(id){
   const t=taskById(id);
   if(!t)return;
   const nm=phaseLabel(t);
+  /* A deleted phase's hosted (legacy) events move to the Events list instead of dying
+     with the row — the whole point of the standalone store. */
+  const rescued=(EVENTS_OK&&(t.ticketNodes||[]).length)
+    ? t.ticketNodes.map(n=>({id:n.id,projectId:t.projectId,
+        dept:(n.dept!==undefined?n.dept:t.department),date:n.date||'',
+        name:n.target||'',notes:n.notes||''}))
+    : [];
   PP_QUIET=true;
-  try{saveState({projects:ST.projects,tasks:ST.tasks.filter(x=>x.id!==id)});}
+  try{saveState({projects:ST.projects,tasks:ST.tasks.filter(x=>x.id!==id),
+    events:rescued.length?[...(ST.events||[]),...rescued]:undefined});}
   finally{PP_QUIET=false;}
   ppSelect(null,true);npvRebuild();
   toastU('Deleted '+nm);
@@ -4740,8 +4770,18 @@ function liveEvents(p){
     for(const n of (t.ticketNodes||[]))
       out.push({id:n.id,name:n.target||'',date:n.date||'',
         dept:(n.dept!==undefined?n.dept:t.department)});
+  for(const e of (ST.events||[]))
+    if(e.projectId===p.id)out.push({id:e.id,name:e.name||'',date:e.date||'',dept:e.dept||''});
   out.sort((a,b)=>String(a.date||'9999').localeCompare(String(b.date||'9999')));
   return out;
+}
+/* A bar's diamonds: its own ticketNodes plus standalone events on its project+department.
+   ponytail: a department with several bars can draw the same standalone event on each bar
+   spanning its date; dedupe per-bar only if anyone notices. */
+function barNodes(t){
+  return [...(t.ticketNodes||[]),
+    ...(ST.events||[]).filter(e=>e.projectId===t.projectId&&e.dept===t.department)
+      .map(e=>({id:e.id,date:e.date,target:e.name,notes:e.notes}))];
 }
 function liveTodos(p){
   return (ST.todos||[]).filter(t=>t.projectId===p.id)
@@ -4752,13 +4792,20 @@ function phaseHostFor(p,dept){
   const ts=tasksOf(p.id).filter(t=>!t.__ghost);
   return ts.find(t=>t.department===dept)||ts.find(t=>t.department!=='pm')||ts[0]||null;
 }
-function liveSave(tasks,todos){
+function liveSave(tasks,todos,events){
   PP_QUIET=true;
   try{saveState({projects:ST.projects,tasks:tasks||ST.tasks,
-                 todos:todos!==undefined?todos:(ST.todos||[])});}
+                 todos:todos!==undefined?todos:(ST.todos||[]),
+                 events:events!==undefined?events:(ST.events||[])});}
   finally{PP_QUIET=false;}
 }
 function liveAddEvent(p,dept,date){
+  if(EVENTS_OK){
+    /* Standalone: an event is its own row, no host phase needed. */
+    liveSave(undefined,undefined,[...(ST.events||[]),
+      {id:genId(),projectId:p.id,dept:dept||'',date:date||'',name:'',notes:''}]);
+    return;
+  }
   const host=phaseHostFor(p,dept);
   if(!host){toast('Add a department first — an event still needs a phase to save on.','err');return;}
   const node={id:genId(),date:date||host.endDate||host.startDate||'',target:'',notes:'',
@@ -4767,6 +4814,11 @@ function liveAddEvent(p,dept,date){
     ?{...t,ticketNodes:[...(t.ticketNodes||[]),node]}:t));
 }
 function liveCommitEvent(evId,field,val){
+  if((ST.events||[]).some(e=>e.id===evId)){
+    const k=(field==='name')?'name':(field==='dept'?'dept':'date');
+    liveSave(undefined,undefined,ST.events.map(e=>e.id===evId?{...e,[k]:val}:e));
+    return;
+  }
   const p=ppProject();if(!p)return;
   /* REV48: changing the department is a field on the node now, not a move between
      phases. Shuffling nodes between hosts rewrote two rows to change one label. */
@@ -4775,6 +4827,9 @@ function liveCommitEvent(evId,field,val){
     ?{...t,ticketNodes:t.ticketNodes.map(n=>n.id===evId?{...n,[k]:val}:n)}:t));
 }
 function liveDeleteEvent(evId){
+  if((ST.events||[]).some(e=>e.id===evId)){
+    liveSave(undefined,undefined,ST.events.filter(e=>e.id!==evId));return;
+  }
   liveSave(ST.tasks.map(t=>(t.ticketNodes||[]).some(n=>n.id===evId)
     ?{...t,ticketNodes:t.ticketNodes.filter(n=>n.id!==evId)}:t));
 }
@@ -4996,6 +5051,9 @@ function npvMarkers(){
       for(const n of (t.ticketNodes||[]))
         if(n.date)out.push({k:'ev',id:n.id,date:n.date,dept:(n.dept!==undefined?n.dept:t.department),
           nm:n.target||'',pr:''});
+    for(const e of (ST.events||[]))
+      if(e.projectId===pj.id&&e.date)
+        out.push({k:'ev',id:e.id,date:e.date,dept:e.dept||'',nm:e.name||'',pr:''});
     for(const td of (ST.todos||[]))
       if(td.projectId===pj.id&&td.due)
         out.push({k:'tk',id:td.id,date:td.due,dept:td.dept||'',nm:td.title||'',pr:td.priority||'medium'});
@@ -5593,12 +5651,18 @@ function savePageProject(){
     const tasks=(NPV_ALL&&NPV_ALL.length)
       ? NPV_ALL.map(t=>{const n={...t,id:genId(),projectId:p.id,ticketNodes:[]};delete n.__manual;return n;})
       : generateSchedule(p,est,otherLabels);
-    /* Events become ticket nodes on the phase they point at, which is the store the app
-       already syncs. A draft event names a department; phases only get real ids here, so
-       the binding has to happen now rather than while editing. */
-    let nEv=0;
+    /* With the Events list present, draft events file as their own rows. Otherwise the
+       legacy binding: events become ticket nodes on the phase they point at, which is
+       the store the app already syncs. A draft event names a department; phases only get
+       real ids here, so the binding has to happen now rather than while editing. */
+    let nEv=0;const newEvents=[];
     for(const e of NPV_EVENTS){
       if(!e.date||!(e.name||'').trim())continue;
+      if(EVENTS_OK){
+        newEvents.push({id:genId(),projectId:p.id,dept:e.dept||'',date:e.date,
+          name:e.name.trim(),notes:e.notes||''});
+        nEv++;continue;
+      }
       const host=tasks.find(t=>t.department===e.dept)||tasks[0];
       if(!host)continue;
       host.ticketNodes=[...(host.ticketNodes||[]),
@@ -5614,7 +5678,8 @@ function savePageProject(){
     EXPANDED.add(p.id);
     PP_QUIET=true;
     try{saveState({projects:[...ST.projects,p],tasks:[...ST.tasks,...tasks],
-      todos:[...(ST.todos||[]),...newTodos]});}finally{PP_QUIET=false;}
+      todos:[...(ST.todos||[]),...newTodos],
+      events:[...(ST.events||[]),...newEvents]});}finally{PP_QUIET=false;}
     const bits=[tasks.length+' phases'];
     if(nEv)bits.push(nEv+' event'+(nEv>1?'s':''));
     if(newTodos.length)bits.push(newTodos.length+' task'+(newTodos.length>1?'s':''));
@@ -6086,7 +6151,8 @@ async function boot(){
          matched, so every tick replaced ST wholesale and re-rendered — and, with
          ShopTimeline_Tasks2 missing, wiped every session-only task. */
       if(!TODOS_OK&&(ST.todos||[]).length&&!(fresh.todos||[]).length)fresh.todos=ST.todos;
-      if(JSON.stringify(fresh)!==JSON.stringify({projects:ST.projects,tasks:ST.tasks,todos:ST.todos||[]})){ST=fresh;dirty=true;}
+      if(!EVENTS_OK&&(ST.events||[]).length&&!(fresh.events||[]).length)fresh.events=ST.events;
+      if(JSON.stringify(fresh)!==JSON.stringify({projects:ST.projects,tasks:ST.tasks,todos:ST.todos||[],events:ST.events||[]})){ST=fresh;dirty=true;}
       /* Staff changes rarely — poll it every other tick to halve that list's Graph calls. */
       if(STAFF_OK&&POLL_N%2===0){
         const fp=await spLoadStaff();

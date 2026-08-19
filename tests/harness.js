@@ -42,7 +42,8 @@ function msalStub(){
 function makeFetch(data,opts){
   const calls=[];
   const listNames={projects:'ShopTimeline_Projects',tasks:'ShopTimeline_Tasks',
-                   staff:'ShopTimeline_Staff',todos:'ShopTimeline_Tasks2'};
+                   staff:'ShopTimeline_Staff',todos:'ShopTimeline_Tasks2',
+                   events:'ShopTimeline_Events'};
   const fn=async function(url,init){
     calls.push({url:String(url),init,
       body:(init&&init.body)?JSON.parse(init.body):null,
@@ -53,6 +54,10 @@ function makeFetch(data,opts){
     if(/\/sites\/[^/]+:\//.test(u)&&!/\/lists\//.test(u))return ok({id:'SITE1'});
     if(u.includes(listNames.todos)){
       if(opts.todosList)return ok({value:(data.todos||[]).map(toItem)});
+      return fail(404);
+    }
+    if(u.includes(listNames.events)){
+      if(opts.eventsList)return ok({value:(data.events||[]).map(toItem)});
       return fail(404);
     }
     if(u.includes(listNames.staff))return ok({value:(data.staff||[]).map(toItem)});
