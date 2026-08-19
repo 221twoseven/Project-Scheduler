@@ -48,13 +48,12 @@ Last reviewed: 2026-08-19 (doc tidy & re-prioritization).
       `tests/`, `reference/` are no longer published as web pages. A guard step fails
       the deploy if the app references a file missing from the allowlist. See
       `docs/Milestones/2026-08-19-pages-deploy-trim.md`.
-- [ ] **Deal with sensitive info in a public repo** (now active — staying public): scrub
-      live docs of personal names and security-gap notes (consistency pass over `docs/`).
-      Scope shrank with the deploy trim above — the docs are now only visible through
-      the repo itself, not the website.
-      Remember **deleting a file does not remove it from git history** — truly
-      unpublishing anything needs a history rewrite (`git filter-repo`) + force-push,
-      coordinated; there are no real secrets in the repo (IDs are public by design).
+- [x] **Sensitive info scrubbed from live docs** (2026-08-19): personal names → role
+      wording, stale security-gap notes dropped, harness.js stub neutralized. Generic
+      fixture first names in test data deliberately left (sample data; suites assert on
+      them). Old versions remain in **git history** — truly unpublishing them would need
+      a history rewrite (`git filter-repo`) + force-push, coordinated; not planned, as
+      there are no real secrets in the repo (IDs are public by design).
 - [x] **Repo under the Twoseven org** — `github.com/221twoseven/Project-Scheduler`.
       If ever renamed/moved again, re-register the MSAL redirect URI. ⚠ See `docs/SETUP.md`.
 - [x] **`main` protected** — PR + green CI required, empty bypass list. Recipe in
