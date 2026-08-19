@@ -39,17 +39,18 @@ Last reviewed: 2026-08-19 (doc tidy & re-prioritization).
 
 ## 2. Security & governance decisions (high priority, owner's call)
 
-- [ ] **Decide repo visibility.** The repo is **public** but holds an internal business
-      app. Going private is the cleanest fix and moots most of the item below. (Note:
-      branch rulesets are free on public repos; private on a free org plan may need a
-      paid plan to keep protection — see `docs/SETUP.md`.)
+- [x] **Repo visibility decided (2026-08-19): staying PUBLIC**, org staying on the free
+      plan. Rationale: private Pages needs a paid plan (Free = the site goes dark), the
+      `main` ruleset stops being enforced on private+Free, and the deploy trim below
+      already keeps repo internals off the public website. Revisit only if the org
+      upgrades. Consequence: the doc-scrub item below is now active.
 - [x] **Pages deploy trimmed to app files only** (2026-08-19, PR #14): the public site
       now serves just `index.html` + `msal-browser.min.js` per subpath — `docs/`,
       `tests/`, `reference/` are no longer published as web pages. A guard step fails
       the deploy if the app references a file missing from the allowlist. See
       `docs/Milestones/2026-08-19-pages-deploy-trim.md`.
-- [ ] **Deal with sensitive info in a public repo** (only if staying public): scrub live
-      docs of personal names and security-gap notes (consistency pass over `docs/`).
+- [ ] **Deal with sensitive info in a public repo** (now active — staying public): scrub
+      live docs of personal names and security-gap notes (consistency pass over `docs/`).
       Scope shrank with the deploy trim above — the docs are now only visible through
       the repo itself, not the website.
       Remember **deleting a file does not remove it from git history** — truly
