@@ -274,6 +274,6 @@ patching the wrong function; output was syntax-checked with Node before shipping
 ---
 
 **Open items** (calendar create-menu/parity, standalone events, dependencies, the Dash view,
-`ShopTimeline_Tasks2`, staff `email`/`role` columns, 2FA, and the rest) are tracked, ranked,
+`ShopTimeline_Tasks2`, staff `email`/`role` columns, and the rest) are tracked, ranked,
 and kept current in **[TODO.md](TODO.md)** — not duplicated here, so there's one source of
 truth. (The org transfer is done; the repo lives under `221twoseven`.)

@@ -1,7 +1,7 @@
 # Project Scheduler (Shop Timeline) — UX Audit & Strategy
 
 **Prepared:** August 12, 2026 · **Build reviewed:** REV52 (`development` branch = `/preview/`)
-**Focus areas (per Robert):** first-run & learnability · timeline density & navigation · color & styles
+**Focus areas (per the owner):** first-run & learnability · timeline density & navigation · color & styles
 **Primary audiences:** PMs / schedulers · management & leadership
 
 ---
@@ -110,7 +110,7 @@ Unicode glyphs (⎙ ⚙ ⟲ ⇕ ●) render with different metrics and weights p
 **C7 (P3) — The dark toolbar is a strong brand move — commit to it.**
 The "drawing title block" concept (TWOSEVEN · SHOP TIMELINE, mono REV chip) is distinctive and fits a fabrication shop. Keep it; tighten spacing, align the two toolbar rows to a consistent rhythm, and let the Design Language doc's chrome palette formalize it.
 
-### Theme E — Directed changes (Robert, Aug 12, 2026)
+### Theme E — Directed changes (owner, Aug 12, 2026)
 
 These are decisions, not findings — requirements to build into the plan.
 

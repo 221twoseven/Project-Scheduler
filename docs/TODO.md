@@ -26,8 +26,7 @@ Last reviewed: 2026-08-19 (doc tidy & re-prioritization).
       Onboarding-Fork Part B is done — the collaborator's sandbox is unblocked.
 - [x] **CI is green** — verified 2026-08-19: latest `development` push ("Docs Cleanup")
       passed both CI and Deploy Pages.
-- [x] **2FA enabled** on the GitHub account(s) with access (owner, 2026-08-19). Closes
-      the standing security gap carried from the handoff.
+- [x] **2FA confirmed** on the GitHub account(s) with access (owner, 2026-08-19).
 - [x] **`ShopTimeline_Tasks2` exists** — confirmed in Site Contents 2026-08-19 (empty,
       which is fine; to-dos persist there instead of browser-local storage). No code
       change needed. **Do not** re-flag `label` on `ShopTimeline_Tasks` — it exists
@@ -171,8 +170,8 @@ the pill word separates them (U8).
       deliberately (history rewrite — only on agreement, never on shared branches).
 - [ ] Consider a lightweight lint/format pass for the single HTML file (optional; don't
       let it cause churn on working code).
-- [ ] `tests/harness.js` hardcodes an old personal Pages URL and `peter@twoseven.net` in
-      its jsdom stub — cosmetic, tidy when convenient.
+- [x] `tests/harness.js` jsdom stub tidied (2026-08-19): neutral example.com URL and
+      account replace the old personal Pages URL and email.
 - [ ] Shared shop-terminal account — decide whether it needs a paid licence.
 
 ---
