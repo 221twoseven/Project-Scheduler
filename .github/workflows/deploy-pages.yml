@@ -29,26 +29,58 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      # ONLY the files listed below are published. The rest of the repo (docs/,
+      # tests/, reference/, ...) stays off the public site on purpose. If the app
+      # ever gains a new local asset (image, CSS file, favicon, script), add it to
+      # ALL THREE sparse-checkout lists — the guard step below fails the deploy if
+      # index.html references a file that would be missing from the site.
       - name: Checkout main into site root (production)
         uses: actions/checkout@v4
         with:
           ref: main
           path: site
+          sparse-checkout: |
+            index.html
+            msal-browser.min.js
+          sparse-checkout-cone-mode: false
 
       - name: Checkout development into /preview (shareable preview)
         uses: actions/checkout@v4
         with:
           ref: development
           path: site/preview
+          sparse-checkout: |
+            index.html
+            msal-browser.min.js
+          sparse-checkout-cone-mode: false
 
       - name: Checkout sandbox into /sandbox (collaborator copy)
         uses: actions/checkout@v4
         with:
           ref: sandbox
           path: site/sandbox
+          sparse-checkout: |
+            index.html
+            msal-browser.min.js
+          sparse-checkout-cone-mode: false
 
       - name: Drop nested .git so it isn't published
         run: rm -rf site/.git site/preview/.git site/sandbox/.git
+
+      - name: Guard — every local file the app references must be in the deploy
+        run: |
+          for d in site site/preview site/sandbox; do
+            grep -oE '(src|href)="[^"]+"' "$d/index.html" \
+              | sed -E 's/^(src|href)="//; s/"$//' \
+              | grep -vE '^(https?:|//|#|data:|mailto:|javascript:)' \
+              | while read -r f; do
+                  if [ ! -f "$d/$f" ]; then
+                    echo "::error::$d/index.html references '$f' but it is not deployed — add it to the sparse-checkout lists in deploy-pages.yml"
+                    exit 1
+                  fi
+                done
+          done
+          echo "All referenced local assets are present."
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
