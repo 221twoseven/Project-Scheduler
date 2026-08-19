@@ -20,22 +20,22 @@ Last reviewed: 2026-08-19 (doc tidy & re-prioritization).
 
 ## 1. Quick checks & low-hanging fruit (minutes each — do first)
 
-- [ ] **Verify the `/sandbox/` and `/preview/` redirect URIs are registered in Entra.** ⚠
-      Reported in progress 2026-08-12 (`docs/Onboarding-Fork.md` Part B); never confirmed.
-      Check: open https://221twoseven.github.io/Project-Scheduler/sandbox/ and
-      /preview/ and sign in. An `AADSTS...redirect` error means Part B isn't done.
-      This blocks the collaborator's sandbox — highest-value quick check.
-- [ ] **Confirm CI is green** on GitHub (`.github/workflows/ci.yml` runs all 15 suites on
-      push/PR to `development` and `main`).
+- [x] **`/sandbox/` and `/preview/` redirect URIs are registered in Entra.** ⚠ Verified
+      2026-08-19 via credential-free authorize-endpoint probes (`prompt=none`: both URIs
+      redirect back to the app; an unregistered control URI errors at Microsoft's page).
+      Onboarding-Fork Part B is done — the collaborator's sandbox is unblocked.
+- [x] **CI is green** — verified 2026-08-19: latest `development` push ("Docs Cleanup")
+      passed both CI and Deploy Pages.
 - [ ] **Enable 2FA** on the GitHub account(s) with access. Quick, and it's the standing
       security gap the docs used to advertise. (Carried from the handoff.)
 - [ ] **Confirm `ShopTimeline_Tasks2` (to-dos) exists.** Check Site Contents, or add a
       task and reload. If absent the app degrades gracefully and needs no code change
       when it appears. **Do not** re-flag `label` on `ShopTimeline_Tasks` — it exists
       (verified by `test-label.js`).
-- [ ] **test50 skip guard on the reference build** — the U8 close-out flagged this as a
-      "do now"; verify whether it's still needed (`npm run test:ref` currently reports
-      15/15) and add the guard or drop the item.
+- [x] **test50 skip guard on the reference build** — dropped 2026-08-19: the guard
+      already exists (`tests/test49.js` detects E1 builds via `pp-dock` and gates the
+      dock assertions; the B4 record misattributed it to test50). `npm run test:ref`
+      passes 15/15.
 
 ## 2. Security & governance decisions (high priority, owner's call)
 
