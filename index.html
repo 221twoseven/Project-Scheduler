@@ -1156,7 +1156,7 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_REV=56; // bump this ONE number on every release; used everywhere the rev shows up
+const APP_REV=57; // bump this ONE number on every release; used everywhere the rev shows up
 
 /* ===================== CONSTANTS ===================== */
 const SET_KEY ='shopTimelineSettings_v1';
@@ -1471,7 +1471,7 @@ function _projStatus(p){
   if(started(['tdg']))return 'in-design';
   return 'estimating';
 }
-const STATUS_LBL={'forecast':'Forecast','estimating':'Estimating','in-design':'In Design','in-fabrication':'In Fabrication','on-hold':'On Hold','complete':'Complete'};
+const STATUS_LBL={'forecast':'Forecast','estimating':'Estimating','in-design':'Design','in-fabrication':'Fabrication','on-hold':'On Hold','complete':'Complete'};
 /* Retired statuses -> where they land. Applied once on load, in migrate(). */
 const STATUS_MIGRATE={'approved':'in-fabrication','in-production':'in-fabrication','installing':'in-fabrication','invoiced':'complete','called-off':'complete'};
 
@@ -4616,7 +4616,7 @@ function npvRender(){
   if(orphans.length){
     h+='<div class="npv-row extra" style="width:'+innerW+'px">'
      + '<div class="npv-gut" title="Events and tasks pointing at a department this job '
-     + 'doesn\'t use">Not on a phase</div></div>';
+     + 'doesn\'t use">Events</div></div>';
   }
   const orphanRow=NPV_PLAN.length;
   for(const mk of marks){
