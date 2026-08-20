@@ -14,7 +14,7 @@ Sequencing decisions (2026-08-19):
 - `docs/UX-Audit-and-Strategy.md` is a **strategy summary, not a to-do list** — it stays
   as-is; this file is where actionable state lives.
 
-Last reviewed: 2026-08-19 (doc tidy & re-prioritization).
+Last reviewed: 2026-08-20 (recovered 2026-08-17 field-notes handoff reconciled into §3a).
 
 ---
 
@@ -114,6 +114,77 @@ Roughly in build order:
       main-timeline bar opens it (Design-Language §6); the project page keeps
       click-selects-into-inspector.
 
+### 3a. Project Page Refinement — recovered field notes (Robert, 2026-08-17)
+
+Robert's project-page review notes (N1–N16) travelled in a handoff that went missing;
+it surfaced 2026-08-20 and is reconciled here. Four of the sixteen were built in the
+meantime without the doc (the notes reached the team through the owner directly):
+
+- **N10 — subtask behaviour, all four points** → shipped as §3 item 5 (REV56).
+  Born-distinct subtasks, both-edge resize, parent start/end as min/max clamp,
+  light-shade rendering (`kidShade()`); the draft/saved seam it warned about was
+  converged first (REV55).
+- **N12 — calendar click parity** → shipped as §3 item 1 (REV53).
+- **N6, storage half** — "Phase: None" needed standalone events ⚠ → shipped as §3
+  item 2 (REV54); the schema conversation the notes flagged happened 2026-08-19.
+- **N14 — coach marks + help button** → already tracked as Phase 4 (§6). Pull forward
+  only if hallway round 2 shows testers stuck.
+
+Still open — this track was meant to run **before hallway test round 2** (testers will
+live on this page). Small copy/context wins first, per the recovered build order:
+
+- [ ] **N5 — Drop "In" from status labels.** Pills read "Design" / "Fabrication".
+      Display-only (`STATUS_LBL`, ~line 1474); stored keys (`in-design`,
+      `in-fabrication`) unchanged — zero schema risk. Sweep pills, filters, group
+      headers, Meeting Sheet, legend.
+- [ ] **N15 — Mute the timeline toolbar on the project page.** Days/Weeks, COLOR,
+      search, status filter, Clear filters act on the main timeline and do nothing
+      here — grey out or hide while `ROUTE.view==='project'` (greyed-out must be
+      truly non-interactive, cf. N13's affordance rule). Restore on return.
+- [ ] **N4 — Anchor the status label** — right-justify it in the summary/footer bar
+      with Kickoff, Lead time, Starts-in (it currently floats with no visual anchor).
+- [ ] **N1 — Visible breadcrumb** (Timeline ‹ Project name ‹ selected phase) — the
+      visible equivalent of Escape's invisible unwind; extends the Design-Language
+      §7.5 dock breadcrumb to page level.
+- [ ] **N2 — Unsaved-changes warning.** Exit/Cancel/Esc on an unsaved draft
+      (`#/project/new`) or a dirty modal raises a confirm (keep editing / discard);
+      `beforeunload` guard on a dirty draft. Saved pages autosave — draft-only scope.
+- [ ] **N13 — Departments: manual Start/End date fields** beside the day-quantity
+      input, bidirectional (edit days → recompute end; edit dates → recompute days),
+      workday-snapped. Move the 'process name' field under the "Other" choice. Fix
+      the affordance rule: anything clickable must not render greyed.
+- [ ] **N11 — Left/right click mute each other on the project-page Gantt.** Left-click
+      edits/selects only; right-click add-new only; opening one closes the other. The
+      add-new context menu grows an **inline name field** (type name, Enter creates —
+      no second dialog). Note: REV53's calendar accepts left-click for the create menu
+      on empty cells — align both surfaces when this lands, and update
+      Design-Language §6.
+- [ ] **N6/N7 — Agenda inline editors.** Rename-in-place exists (`ppEditAgenda`,
+      name-only). Events still need the caret-expand editor (Name, Date, Time, Notes,
+      Phase dropdown incl. "None" — storage shipped in REV54); tasks the same pattern
+      plus due date. Gate polish on the N9 decision below.
+- [ ] **N8 — Rename the "Not on a phase" row to "Events"** (~line 4619). Rename can
+      ship on its own; the semantics already landed with REV54.
+- [ ] **N16 — Calendar density.** (a) Collapse roster fan-out to one row per phase
+      regardless of assignees (stack names in the label or +N chip) — render-side
+      only. (b) Filter to show only selected phases/events.
+- [ ] **N3 — Client list. ⚠** Client assignment becomes a dropdown fed by a shared
+      list, with "Add new…" opening an edit modal (Name, Color, Notes); manageable
+      from a home-page Settings entry like Staff; degrade to browser-local with one
+      warning if the List is absent. Needs a new `ShopTimeline_Clients` List —
+      additive only, but ⚠ approval + colleague-app check first (bundle into the §5
+      conversation). **[decision]** Client Color's job first: (a) becomes the
+      project's hue (one identity system — recommended), (b) accent only, or
+      (c) drop the field. Record the choice in Design-Language §2.
+
+**Decisions gating this track (owner):**
+
+- [ ] **N9 — Tasks vs events.** Different enough for two flows? An Event = dated
+      marker on the chart; a Task = checkable to-do in lists. Decide with hallway
+      round 2 data; if merged, one "agenda item" with optional date/checkbox
+      collapses N6/N7 into one editor.
+- [ ] **N3 schema + color** — see above; same sitting as the §5 ⚠ conversation.
+
 Keep the **"test both draft and saved paths"** rule for every feature here (the REV49
 lesson — `tests/README.md`).
 
@@ -135,6 +206,9 @@ In order:
 
 - [ ] **Add `email` and `role` columns to `ShopTimeline_Staff`** (needed for Dash view's
       identity chain, §3 item 4). ⚠
+- [ ] **New `ShopTimeline_Clients` List** (for §3a N3 — client dropdown + Settings
+      management). Additive only, colleague app never reads it — same shape as the
+      Events-list approval. ⚠ Bundle into one conversation with the Staff columns above.
 - [ ] Any schema change must be checked against the colleague app before shipping.
 - (`ShopTimeline_Tasks2` existence check lives in §1.)
 

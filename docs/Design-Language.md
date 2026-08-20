@@ -48,6 +48,11 @@ Consequences: forecast and on-hold bars keep their **project's hue** and signal 
 
 Keep the existing `DEPT_COLORS` map as-is (it's serviceable and staff know it), with these exceptions: raise `beamsaw` `#C09018` and `electrical` `#D9A21B` label contrast via §2.5; `pm` `#5B7C99` → `#567693` and `install` `#6366F1` → `#5A5DEC` (the originals sit in the mid-luminance dead zone where *neither* ink nor white reaches 4.5:1 — a small darkening keeps the hue and lets white pass); and ensure no department except `install`/`laser` sits within 15° of the reserved red.
 
+**Subtask shading (REV56):** on the project page, subtasks render as a **light shade of
+their parent bar's hue** — same hue, ~45% toward white (`kidShade()`); only lightness
+separates child from parent, on the Gantt and the calendar bands alike. Labels on shaded
+fills still route through `labelColor()` (§2.5).
+
 ### 2.4 Canvas (the quiet calendar)
 
 Default ("Quiet" — new): workdays `#FCFDFE`; weekends/holidays `#EEF1F5` with the existing hatch at 40% of current opacity; month boundary = 1px `#C9D4E3` hairline + month label; alternating months get at most `hsl(h, 6%, 97%)` — perceptible side by side, invisible behind bars. Today column: `rgba(47,111,228,.06)` full-height wash + 2px `--late` line + the TODAY pill.
