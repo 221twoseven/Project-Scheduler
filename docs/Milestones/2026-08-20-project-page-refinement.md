@@ -51,6 +51,10 @@ draft loss, the floating status word — and makes creation one gesture instead 
 sniff so they keep guarding the frozen REV50 reference unchanged; `test53`'s calendar
 assertions updated in place (it never runs on the reference).
 
+**Evidence:** before/after screenshots in `screenshots/rev57-*.png` — the project page
+(muted toolbar, footer pill, department date fields, "Fabrication" label) and the
+calendar (fan-out collapsed to "Main Shop Fab +1", the "Selected only" toggle).
+
 **App REV:** 57. **PR link:** pending (ships with the `development` → `main` promotion).
 
 **Ceilings (deliberate, revisit on complaint):**
