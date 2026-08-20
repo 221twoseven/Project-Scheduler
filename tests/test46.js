@@ -37,7 +37,11 @@ setTimeout(run,1300);
 
 function run(){
   sec('geometry constants match the stylesheet');
-  const gut=[...src.matchAll(/\.npv-gut\{[^}]*width:(\d+)px/g)].pop()[1];
+  /* Since the resizable gutter, the stylesheet reads var(--npv-gut) and geometry reads
+     NPV_GUT (npvSetGut keeps them in step) — assert the var's fallback matches the
+     boot default. Pre-var builds (the REV50 reference) still carry a literal width. */
+  const gutVar=src.match(/\.npv-gut\{[^}]*width:var\(--npv-gut,(\d+)px\)/);
+  const gut=gutVar?gutVar[1]:([...src.matchAll(/\.npv-gut\{[^}]*width:(\d+)px/g)].pop()||[])[1];
   const rowh=[...src.matchAll(/\.npv-row\{[^}]*height:(\d+)px/g)].pop();
   ok('NPV_GUT matches .npv-gut width', String(E('NPV_GUT'))===gut, 'JS '+E('NPV_GUT')+' vs CSS '+gut);
   ok('NPV_ROWH matches last .npv-row height', String(E('NPV_ROWH'))===rowh[1], 'JS '+E('NPV_ROWH')+' vs CSS '+rowh[1]);

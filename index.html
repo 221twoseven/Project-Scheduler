@@ -459,6 +459,10 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 .npv-btn:hover{border-color:var(--acc);color:var(--acc)}
 .npv-btn[disabled]{opacity:.4;cursor:default}
 .npv-scroll{overflow-x:auto;overflow-y:hidden;scrollbar-width:thin}
+.npv-swrap{position:relative;display:flex;flex-direction:column;min-height:0}
+.dash .npv-swrap{flex:1;min-height:0}
+#npv-gutrs{position:absolute;top:0;bottom:0;left:calc(var(--npv-gut,150px) - 3px);width:7px;cursor:col-resize;z-index:8}
+#npv-gutrs:hover,#npv-gutrs.on{background:rgba(47,111,228,.3)}
 .npv-in{position:relative;min-width:100%}
 .npv-axis{position:relative;height:34px;border-bottom:1px solid #E2E8F0;background:#FBFDFF}
 /* z-index lifts the label above the day/tint background columns painted after it —
@@ -470,7 +474,7 @@ body.vivid .npv-we{background:#F1F5F9}
 .npv-body{position:relative}
 .npv-row{position:relative;height:25px}
 .npv-row:nth-child(odd){background:#FCFDFE}
-.npv-gut{position:sticky;left:0;z-index:3;width:104px;height:100%;display:flex;align-items:center;padding:0 8px;font-size:var(--fs-fine);font-weight:600;color:#475569;background:#fff;border-right:1px solid #EDF2F7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.npv-gut{position:sticky;left:0;z-index:3;width:var(--npv-gut,150px);height:100%;display:flex;align-items:center;padding:0 8px;font-size:var(--fs-fine);font-weight:600;color:#475569;background:#fff;border-right:1px solid #EDF2F7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .npv-row:nth-child(odd) .npv-gut{background:#FCFDFE}
 .npv-bar{position:absolute;height:17px;top:4px;border-radius:4px;cursor:grab;display:flex;align-items:center;padding:0 6px;font-size:var(--fs-fine);font-weight:600;white-space:nowrap;overflow:hidden;z-index:2;user-select:none}
 .npv-bar.dragging{cursor:grabbing;opacity:.85;z-index:6}
@@ -521,7 +525,7 @@ body.vivid .npv-we{background:#F1F5F9}
 
 /* --- preview: bigger, wider gutter --- */
 .npv-row{height:28px}
-.npv-gut{width:150px;font-size:11px}
+.npv-gut{font-size:11px}
 .npv-bar{height:19px;top:4.5px;font-size:var(--fs-fine)}
 .npv-axis{height:36px}
 .npv-body{min-height:56px}
@@ -1546,6 +1550,7 @@ function loadLocalPrefs(){
   try{const u=localStorage.getItem(UI_KEY);if(u){const ui=JSON.parse(u);COLLAPSED=new Set(ui.collapsedDepts||[]);
     if(Array.isArray(ui.showStatus)&&ui.showStatus.length)SHOW_STATUS=new Set(ui.showStatus.filter(x=>ALL_STATUSES.includes(x)));
     if(ui.sideW)setSideW(ui.sideW);
+    if(ui.npvGut)npvSetGut(ui.npvGut);
     if(ui.colorMode==='entity'){COLOR_MODE='entity';
       document.getElementById('btn-col-ent').classList.add('active');
       document.getElementById('btn-col-proj').classList.remove('active');}
@@ -1846,7 +1851,7 @@ function saveUI(){
   try{localStorage.setItem('shopTimelineTint',TINT?'1':'0');
     localStorage.setItem('shopTimelineLinkSubs',LINK_SUBS?'1':'0');
     localStorage.setItem('shopTimelineOpenDepts',JSON.stringify([...NPV_OPEN]));
-    localStorage.setItem('shopTimelineGroup',GROUP_BY||'');}catch(e){}localStorage.setItem(UI_KEY,JSON.stringify({collapsedDepts:[...COLLAPSED],colorMode:COLOR_MODE,sideW:SIDE_W,showStatus:[...SHOW_STATUS]}));}
+    localStorage.setItem('shopTimelineGroup',GROUP_BY||'');}catch(e){}localStorage.setItem(UI_KEY,JSON.stringify({collapsedDepts:[...COLLAPSED],colorMode:COLOR_MODE,sideW:SIDE_W,npvGut:NPV_GUT,showStatus:[...SHOW_STATUS]}));}
 
 /* ===================== SEARCH FILTER ===================== */
 let FILTER='';
@@ -3407,9 +3412,12 @@ function renderProjectPage(){
    + '<button id="npv-focus" class="hidden" title="Show only the selected phase\'s bands on the calendar">Selected only</button></div>'
    + '<button class="npv-btn" id="npv-reset" disabled title="Put the rows back in the schedule\'s own order">Reset</button></div>'
    + '<div class="npv-leg" id="npv-leg"></div>'
+   /* The wrap gives the gutter-resize handle a non-scrolling box to pin to — the
+      gutter cells are sticky, so their edge always sits at NPV_GUT from the left. */
+   + '<div class="npv-swrap"><div id="npv-gutrs" title="Drag to resize the name column"></div>'
    + '<div class="npv-scroll" id="npv-scroll"><div class="npv-in">'
    + '<div class="npv-axis" id="npv-axis"></div><div class="npv-body" id="npv-body"></div>'
-   + '</div></div><div class="npv-foot" id="npv-foot"></div></div></div>';
+   + '</div></div></div><div class="npv-foot" id="npv-foot"></div></div></div>';
 
   /* E1: the inspector is a bottom dock. The footer lives on its bottom edge, keeping
      destructive actions physically far from the chart. */
@@ -3482,6 +3490,25 @@ function renderProjectPage(){
   const fk=document.getElementById('npv-focus');
   if(fk)fk.addEventListener('click',()=>{NPV_CAL_FOCUS=!NPV_CAL_FOCUS;npvRender();});
   if(!NPV_RESIZE_BOUND){window.addEventListener('resize',()=>{if(ROUTE.view==='project')npvQueue();});NPV_RESIZE_BOUND=true;}
+
+  /* Drag the gutter edge to resize the name column. The handle re-renders with the
+     page; the document listeners bind once and read the shared drag state. */
+  const gr=document.getElementById('npv-gutrs');
+  if(gr)gr.addEventListener('mousedown',ev=>{
+    NPV_GUTDRAG={sx:ev.clientX,ow:NPV_GUT};gr.classList.add('on');ev.preventDefault();
+  });
+  if(!NPV_GUTDRAG_BOUND){
+    NPV_GUTDRAG_BOUND=true;
+    document.addEventListener('mousemove',ev=>{
+      if(!NPV_GUTDRAG)return;
+      npvSetGut(NPV_GUTDRAG.ow+ev.clientX-NPV_GUTDRAG.sx);npvQueue();
+    });
+    document.addEventListener('mouseup',()=>{
+      if(!NPV_GUTDRAG)return;
+      NPV_GUTDRAG=null;saveUI();
+      const g2=document.getElementById('npv-gutrs');if(g2)g2.classList.remove('on');
+    });
+  }
 
   npvRebuild();
   if(isNew)setTimeout(()=>{const n=document.getElementById('pp-name');if(n)n.focus();},40);
@@ -4096,6 +4123,7 @@ function ppRefreshMetrics(p){
    and are marked with an inset outline. Save uses exactly these bars, so what you see
    on screen is what lands in SharePoint. */
 let NPV_RESIZE_BOUND=false;
+let NPV_GUTDRAG=null,NPV_GUTDRAG_BOUND=false;
 let NPV_ALL=[];          /* every generated row, Project Management included */
 let NPV_TASKS=[];        /* the rows actually drawn */
 let NPV_MANUAL={};
@@ -4123,7 +4151,13 @@ let PP_HELP=false;
 const NPV_ROWH=34;      /* must match .npv-row height in the stylesheet */
 let NPV_GEO=null;
 let NPV_RAF=null;
-const NPV_GUT=150, NPV_PADL=3, NPV_PADR=6;   /* must match .npv-gut width in the stylesheet */
+let NPV_GUT=150;                             /* left gutter width — the column edge drags */
+const NPV_PADL=3, NPV_PADR=6;
+/* One source of truth: geometry reads NPV_GUT, the stylesheet reads --npv-gut. */
+function npvSetGut(w){
+  NPV_GUT=Math.max(90,Math.min(340,Math.round(w)));
+  document.documentElement.style.setProperty('--npv-gut',NPV_GUT+'px');
+}
 
 function npvKey(t){return t.department+'::'+(t.label||'')+'::'+(Array.isArray(t.assignee)?t.assignee.join(','):(t.assignee||''));}
 function wdCount(a,b){let n=0,c=new Date(a);while(c<=b){if(isWorking(c))n++;c=addDays(c,1);}return Math.max(1,n);}
@@ -4739,13 +4773,16 @@ function npvRender(){
   const innerW=NPV_GUT+span*dwv;
 
   const axHost=document.getElementById('npv-axis');
+  const gutrs=document.getElementById('npv-gutrs');
   if(NPV_MODE==='calendar'){
     axHost.innerHTML='';axHost.style.display='none';
+    if(gutrs)gutrs.style.display='none'; /* the calendar has no gutter to resize */
     npvPaintCalendar(lo,hi,dl);
     npvPaintFooter(dl);
     return;
   }
   axHost.style.display='';
+  if(gutrs)gutrs.style.display='';
 
   /* axis */
   let ax='';
