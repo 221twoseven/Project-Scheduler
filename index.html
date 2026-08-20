@@ -4756,16 +4756,18 @@ function npvRender(){
     if(!TINT&&cur.getDate()===1&&cur.getTime()!==lo.getTime())
       ax+='<div class="mon-line" style="left:'+x(cur)+'px"></div>';
     if(!isWorking(cur))ax+='<div class="npv-we" style="left:'+x(cur)+'px;width:'+dwv+'px"></div>';
-    /* Only label a month if there's room before the next one starts, otherwise the
-       first-of-month label lands on top of the range-start label and you get "A G". */
+    /* Always the whole month name. Interior months span ~28 day columns, so the full
+       name always fits at any day zoom; only a clipped edge partial (a month with a
+       day or two poking into the range) measures short — it degrades to the short
+       name, then to nothing, but never renders a chopped fragment. */
     if(cur.getDate()===1||cur.getTime()===lo.getTime()){
       const nxt=new Date(cur.getFullYear(),cur.getMonth()+1,1);
       const room=(Math.min(diffDays(cur,nxt),diffDays(cur,hi)+1))*dwv;
-      if(room>=30){
-        /* Full month name when its run has room for one; short otherwise. */
-        ax+='<div class="npv-mon" style="left:'+x(cur)+'px;max-width:'+Math.round(room-3)+'px">'
-          + cur.toLocaleDateString('en-US',{month:room>=110?'long':'short'})+'</div>';
-      }
+      const long=cur.toLocaleDateString('en-US',{month:'long'});
+      const short=cur.toLocaleDateString('en-US',{month:'short'});
+      const w=t=>t.length*8+8; /* uppercase fs-fine + .1em tracking ≈ 8px/char */
+      const label=room>=w(long)?long:(room>=w(short)?short:null);
+      if(label)ax+='<div class="npv-mon" style="left:'+x(cur)+'px">'+label+'</div>';
     }
     if(dwv>=13||cur.getDay()===1){
       ax+='<div class="npv-dnum" style="left:'+(x(cur))+'px;width:'+dwv+'px">'+cur.getDate()+'</div>';
