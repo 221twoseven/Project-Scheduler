@@ -41,4 +41,4 @@ the draft path, and the no-list fallback. Harness gained `eventsList` /`data.eve
 (defaults keep every older suite on the legacy behaviour). Full matrix 17/17 on
 `index.html`; reference build suites all green (test54 skips there).
 
-**App REV:** 54. **PR link:** pending (next `development` → `main` promotion).
+**App REV:** 54. **PR link:** [#15](https://github.com/221twoseven/Project-Scheduler/pull/15).

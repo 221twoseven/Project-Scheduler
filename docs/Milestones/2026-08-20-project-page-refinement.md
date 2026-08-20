@@ -55,7 +55,7 @@ assertions updated in place (it never runs on the reference).
 (muted toolbar, footer pill, department date fields, "Fabrication" label) and the
 calendar (fan-out collapsed to "Main Shop Fab +1", the "Selected only" toggle).
 
-**App REV:** 57. **PR link:** pending (ships with the `development` → `main` promotion).
+**App REV:** 57. **PR link:** [#15](https://github.com/221twoseven/Project-Scheduler/pull/15).
 
 **Ceilings (deliberate, revisit on complaint):**
 

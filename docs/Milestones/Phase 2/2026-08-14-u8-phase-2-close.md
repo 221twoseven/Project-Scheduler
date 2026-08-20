@@ -80,4 +80,4 @@ seed; the only variable is the app version.
   wants a bar-level cue, that's a Phase 3 decision.
 - Phase 3 scope per the brief: B3 zoom / B5 compact density if PMs still
   report navigation pain, B6 saved views if they don't.
-- PR link: _pending — changes are on `development`, not yet promoted._
+- PR link: [#15](https://github.com/221twoseven/Project-Scheduler/pull/15) (promotion PR).

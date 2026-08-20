@@ -44,4 +44,4 @@ deadline, red fill = install. They hold up on both Quiet and Vivid canvases.
 - `npm run test:ref` has a pre-existing failure unrelated to B4: `test50.js`
   gained E1 dock assertions without a skip guard, so it fails on the
   reference build. Flagged as a separate task.
-- PR link: _pending — changes are on `development`, not yet committed._
+- PR link: [#15](https://github.com/221twoseven/Project-Scheduler/pull/15) (promotion PR).

@@ -61,4 +61,4 @@ users, finding D2), and the legend gives new users the decoder ring.
 - The meeting sheet's mini progress bars (`MEET_FILL`) still colour by
   status, mostly in retired status keys — U8's print pass is the natural
   place to reconcile them.
-- PR link: _pending — changes are on `development`, not yet committed._
+- PR link: [#15](https://github.com/221twoseven/Project-Scheduler/pull/15) (promotion PR).

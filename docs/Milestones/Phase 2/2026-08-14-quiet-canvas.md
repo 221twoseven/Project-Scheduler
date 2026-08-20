@@ -40,4 +40,4 @@ readable.
 
 - The main timeline's weekend column never had a hatch (it was a translucent
   grey wash); quiet gives it the same faint hatch as the calendars.
-- PR link: _pending — changes are on `development`, not yet committed._
+- PR link: [#15](https://github.com/221twoseven/Project-Scheduler/pull/15) (promotion PR).

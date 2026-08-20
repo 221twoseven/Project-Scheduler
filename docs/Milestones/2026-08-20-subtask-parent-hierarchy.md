@@ -61,4 +61,4 @@ behaviours. Full matrix 19/19 on `index.html` **and** on the frozen reference.
 **Also in this release:** `APP_REV` had stayed at 53 through REV54 and REV55 (the
 "bump this ONE number" comment notwithstanding); it now reads 56.
 
-**App REV:** 56. **PR link:** pending (next `development` → `main` promotion).
+**App REV:** 56. **PR link:** [#15](https://github.com/221twoseven/Project-Scheduler/pull/15).

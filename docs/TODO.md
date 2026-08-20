@@ -189,13 +189,15 @@ In order:
 
 - [ ] **Hallway test round 2** — the five tasks from `docs/UX-Audit-and-Strategy.md` §6,
       with real people; compare assist counts to round 1. Deliberately deferred until the
-      §3 features exist so the test covers them.
-- [ ] **Promote `development` → `main` via PR** (the branch-model working in practice:
-      daily work on `development`, deliberate promotion). If production needs Phase 2's
-      fixes sooner, promoting before §3 completes is the owner's call — the ruleset and
-      CI gate it either way.
-- [ ] **Backfill the "PR link: pending" lines** in the Phase 2 milestone records once the
-      promotion PR exists.
+      §3 features exist so the test covers them. The refinement batch (REV57) is live on
+      `/preview/` — the page is ready for testers.
+- [ ] **Promote `development` → `main`** — the PR is open:
+      [#15](https://github.com/221twoseven/Project-Scheduler/pull/15), carrying REV53–57,
+      evidence screenshots and the §9 checklist. **Merge is the owner's call** — after
+      hallway round 2, or sooner if production wants the fixes now; the ruleset and CI
+      gate it either way.
+- [x] **Backfill the "PR link: pending" lines** — done 2026-08-20: all five Phase 2
+      records and the five REV53–57 records now link PR #15.
 
 ## 5. Data / schema (⚠ all need approval — shared Lists)
 

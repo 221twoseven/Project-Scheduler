@@ -1,6 +1,6 @@
 # Calendar create menu + parity (REV53)
 
-**Date:** 2026-08-19 · **PR:** pending (ships with the next `development` → `main`
+**Date:** 2026-08-19 · **PR:** [#15](https://github.com/221twoseven/Project-Scheduler/pull/15) (the `development` → `main`
 promotion) · **App REV:** 53
 
 ## What changed

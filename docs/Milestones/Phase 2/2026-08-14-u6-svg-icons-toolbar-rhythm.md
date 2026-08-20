@@ -52,4 +52,4 @@ gaps that made the toolbar look hand-placed.
   mix with. Sweep it in U8's print/overlay pass if it grates.
 - Edge-vs-Chrome parity is by construction (both Chromium, same SVG paths);
   no separate Edge run was made.
-- PR link: _pending — changes are on `development`, not yet committed._
+- PR link: [#15](https://github.com/221twoseven/Project-Scheduler/pull/15) (promotion PR).

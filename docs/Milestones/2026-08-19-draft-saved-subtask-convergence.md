@@ -38,4 +38,4 @@ the sibling keeps scheduler dates → rename keeps the placement → same-named 
 distinct → save files the exact previewed rows → saved-path parity guard. Full matrix
 18/18 on `index.html`; reference build green (test55 skips there).
 
-**App REV:** 55. **PR link:** pending (next `development` → `main` promotion).
+**App REV:** 55. **PR link:** [#15](https://github.com/221twoseven/Project-Scheduler/pull/15).
