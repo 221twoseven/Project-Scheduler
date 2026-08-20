@@ -45,6 +45,12 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);font-size:var(--fs
 .t-btn.accent{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:600}
 .t-btn.accent:hover{background:var(--acc-deep)}
 .t-sep{width:1px;height:24px;background:var(--chrome-line);flex-shrink:0}
+/* N15: on the project page the main-timeline controls (scale, color, search, status,
+   clear) act on a chart that isn't visible — hide them rather than grey them out, so
+   nothing renders that can't be used (affordance rule, Design-Language §6). */
+body.pp-route #tg-scale,body.pp-route #tg-color,body.pp-route #t-search,
+body.pp-route #btn-status,body.pp-route #btn-reset,
+body.pp-route .tb-timeline .t-sep,body.pp-route .tb-timeline .t-mini{display:none}
 .t-mini{font-size:var(--fs-micro);font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:#5E7292;white-space:nowrap}
 .tog-grp{display:flex;border:1px solid rgba(255,255,255,.13);border-radius:6px;overflow:hidden}
 .tog-grp .t-btn{border:none;border-right:1px solid rgba(255,255,255,.1);border-radius:0;height:26px;padding:0 12px}
@@ -989,13 +995,13 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
   </div>
   <div class="tb-row tb-timeline">
     <button id="btn-today" class="t-btn" title="Scroll the timeline to today (T)">Today</button>
-    <div class="tog-grp">
+    <div class="tog-grp" id="tg-scale">
       <button id="btn-days" class="t-btn active" title="Show the timeline day by day (D)">Days</button>
       <button id="btn-weeks" class="t-btn" title="Show the timeline week by week (W)">Weeks</button>
     </div>
     <div class="t-sep"></div>
     <span class="t-mini">Color</span>
-    <div class="tog-grp">
+    <div class="tog-grp" id="tg-color">
       <button id="btn-col-proj" class="t-btn active" title="Color every bar by its project">Project</button>
       <button id="btn-col-ent" class="t-btn" title="Color every bar by its department team">Team</button>
     </div>
@@ -3261,9 +3267,11 @@ function applyRoute(){
   const exists=r.creating||(r.id&&ST.projects.some(p=>p.id===r.id));
   if(r.view==='project'&&exists){
     ROUTE=r;
+    document.body.classList.add('pp-route');
     mn.classList.add('hidden');pg.classList.remove('hidden');
     renderProjectPage();
   }else{
+    document.body.classList.remove('pp-route');
     if(r.view==='project'&&!exists&&ST.projects.length)toast('That project no longer exists.','err');
     ROUTE={view:'timeline',id:null,creating:false};
     pg.classList.add('hidden');pg.innerHTML='';mn.classList.remove('hidden');
@@ -5844,9 +5852,10 @@ document.addEventListener('keydown',ev=>{
   const anyModal=[...document.querySelectorAll('.overlay')].some(o=>!o.classList.contains('hidden'));
   if(anyModal)return;
   const k=ev.key.toLowerCase();
+  if(k==='n'){openProjModal(null);return;}
+  if(ROUTE.view==='project')return; /* N15: the keys below drive main-timeline controls hidden here */
   if(k==='/'){ev.preventDefault();document.getElementById('t-search').focus();}
   else if(k==='t')scrollToToday();
-  else if(k==='n')openProjModal(null);
   else if(k==='d')document.getElementById('btn-days').click();
   else if(k==='w')document.getElementById('btn-weeks').click();
 });
