@@ -162,8 +162,14 @@ function stage3(){
     setTimeout(()=>{
       ok('the bar editor opened', !!doc.getElementById('bar-pop'));
       ok('it has a name field', !!doc.getElementById('bp-name'));
-      ok('draft dates are read-only, as the note says',
-         (()=>{const s=doc.getElementById('bp-s');return s&&s.readOnly;})());
+      /* REV61 made draft popover dates editable (they commit like a drag would);
+         pre-REV61 builds keep the read-only assertion. */
+      if(/ppPopDate/.test(src))
+        ok('draft dates are editable (REV61)',
+           (()=>{const s=doc.getElementById('bp-s');return s&&!s.readOnly;})());
+      else
+        ok('draft dates are read-only, as the note says',
+           (()=>{const s=doc.getElementById('bp-s');return s&&s.readOnly;})());
       E('ppClosePop();');
 
       sec('right-click a draft bar');

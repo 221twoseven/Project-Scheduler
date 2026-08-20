@@ -97,6 +97,8 @@ body.pp-route .tb-timeline{display:none}
 .crew-list{display:grid;grid-template-columns:repeat(3,1fr);gap:4px 10px;max-height:180px;overflow:auto;background:#F7FAFD;border:1px solid #D8E2EF;border-radius:8px;padding:10px}
 .crew-list label{display:flex;gap:6px;align-items:center;font-size:12px;color:#33415A;cursor:pointer;user-select:none}
 .crew-list input{width:13px;height:13px;accent-color:#CE4242;flex-shrink:0}
+/* The inspector pane is narrower than the staff modal the crew list was built for. */
+.ins-crew{grid-template-columns:repeat(2,1fr);max-height:120px}
 .job-bar.is-ghost{outline:1.5px dashed rgba(255,255,255,.6);outline-offset:-3px;cursor:pointer}
 #sb-foot{flex-shrink:0;display:flex;align-items:center;gap:6px;padding:8px 10px;border-top:1px solid var(--side-line);background:var(--side);flex-wrap:wrap;}
 .sbf-lbl{font-size:var(--fs-micro);font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--txt-micro)}
@@ -700,7 +702,7 @@ body.vivid .npv-we{background:#F1F5F9}
   font-size:12px;font-family:inherit;background:#fff;color:#1E293B;outline:none;box-sizing:border-box}
 .bp-f input:focus,.bp-f select:focus{border-color:var(--acc)}
 .bp-f input[readonly]{background:#F7FAFD;color:#7488A3}
-.bp-grid{display:grid;grid-template-columns:1.2fr 1fr 1fr 58px;gap:7px}
+.bp-grid{display:grid;grid-template-columns:1fr 1fr 58px;gap:7px}
 .bp-acts{display:flex;gap:6px;flex-wrap:wrap;border-top:1px solid #EDF2F7;padding-top:10px;margin-top:2px}
 .bp-btn{background:#fff;border:1px solid #CBD6E4;border-radius:6px;padding:5px 10px;font-size:11px;
   font-weight:600;color:#33415A;cursor:pointer;font-family:inherit}
@@ -1189,7 +1191,7 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_REV=60; // bump this ONE number on every release; used everywhere the rev shows up
+const APP_REV=62; // bump this ONE number on every release; used everywhere the rev shows up
 
 /* ===================== CONSTANTS ===================== */
 const SET_KEY ='shopTimelineSettings_v1';
@@ -3787,23 +3789,28 @@ function ppInspector(){
     h+='<div class="ins-body">';
     let f='<div class="ins-f"><label>Name</label>'
      + '<input id="ins-name" data-f="label" value="'+esc(sel.label||'')+'" placeholder="'+esc(d.name||sel.department)+'"></div>'
-     + '<div class="ins-f"><label>Department</label><select data-f="department">'+deptOptions(sel.department)+'</select></div>'
-     + '<div class="ins-row3">'
+     + '<div class="ins-f"><label>Department</label><select data-f="department">'+deptOptions(sel.department)+'</select></div>';
+    /* Who sits on its own line above the dates. Always a picker off the people list —
+       install keeps multi-select (a crew), everyone else single. */
+    const who=Array.isArray(sel.assignee)?sel.assignee.join(', '):(sel.assignee||'');
+    if(sel.department==='install'){
+      const crew=Array.isArray(sel.assignee)?sel.assignee:String(sel.assignee||'').split(',').map(x=>x.trim()).filter(Boolean);
+      f+='<div class="ins-f"><label>Crew</label><div class="crew-list ins-crew" id="ins-crew">'
+       + [...new Set([...allPeople(),...crew])].map(n=>'<label><input type="checkbox" value="'+esc(n)+'"'
+         +(crew.indexOf(n)>=0?' checked':'')+'>'+esc(n)+'</label>').join('')
+       + '</div></div>';
+    }else
+      f+='<div class="ins-f"><label>Assigned</label><select data-f="assignee"><option value="">&mdash;</option>'
+       + allPeople().map(n=>'<option'+(n===who?' selected':'')+'>'+esc(n)+'</option>').join('')+'</select></div>';
+    f+='<div class="ins-row3">'
      + '<div class="ins-f"><label>Start</label><input type="date" data-f="startDate" value="'+esc(sel.startDate||'')+'"></div>'
      + '<div class="ins-f"><label>End</label><input type="date" data-f="endDate" value="'+esc(sel.endDate||'')+'"></div>'
      + '<div class="ins-f"><label>Days</label><input type="number" min="1" data-f="estimatedDays" value="'+(sel.estimatedDays||1)+'"></div>'
      + '</div>';
-    const who=Array.isArray(sel.assignee)?sel.assignee.join(', '):(sel.assignee||'');
-    if(sel.department==='install')
-      f+='<div class="ins-f"><label>Crew</label><input data-f="assignee" value="'+esc(who)+'" placeholder="Comma separated"></div>';
-    else
-      f+='<div class="ins-f"><label>Assigned</label><select data-f="assignee"><option value="">&mdash;</option>'
-       + allPeople().map(n=>'<option'+(n===who?' selected':'')+'>'+esc(n)+'</option>').join('')+'</select></div>';
     f+='<div class="ins-f"><label>Notes</label><textarea rows="2" data-f="notes" placeholder="Anything the shop needs to know">'+esc(sel.notes||'')+'</textarea></div>';
+    /* N11 said adds live on right-click; the +Subtask/+Event/+Task buttons duplicated
+       that and are gone. Keyboard S/E/T still works. */
     f+='<div class="ins-acts">'
-     + '<button class="ins-btn" id="ins-sub" title="Add another bar to this department (S)">+ Subtask <kbd>S</kbd></button>'
-     + '<button class="ins-btn" id="ins-ev" title="Add a dated event marker (E)">+ Event <kbd>E</kbd></button>'
-     + '<button class="ins-btn" id="ins-tk" title="Add a to-do task (T)">+ Task <kbd>T</kbd></button>'
      + '<button class="ins-btn" id="ins-dup" title="Copy this phase as a new bar">Duplicate</button>'
      + '<button class="ins-btn dngr" id="ins-del" title="Delete this phase">Delete</button></div>';
     h+=ppSec('phase','This phase',f,null,true);
@@ -3897,11 +3904,16 @@ function ppBindInspector(p,sel){
       npvRebuild();ppSelect(sel.id,true);
     }));
     const g=(id,fn)=>{const b=document.getElementById(id);if(b)b.addEventListener('click',fn);};
-    g('ins-sub',()=>npvCreateSubtask(sel.department,sel.startDate));
-    g('ins-ev',()=>npvCreateEvent(sel.department,sel.startDate));
-    g('ins-tk',()=>npvCreateTask(sel.department,sel.startDate));
     g('ins-dup',()=>npvDuplicatePhase(sel)); /* N11: moved here from the bar menu */
     g('ins-del',()=>ppDeletePhase(sel.id));
+    /* Crew checkboxes commit the whole set — commitPhase splits the comma list back
+       into an array for install. */
+    const cw=document.getElementById('ins-crew');
+    if(cw)cw.addEventListener('change',()=>{
+      const names=[...cw.querySelectorAll('input:checked')].map(i=>i.value);
+      commitPhase(sel.id,'assignee',names.join(', '));
+      npvRebuild();ppSelect(sel.id,true);
+    });
   }else{
     ['pp-client','pp-code','pp-deadline','pp-status'].forEach(id=>{
       const el=document.getElementById(id);
@@ -4231,7 +4243,11 @@ function npvSyncOrder(tasks){
 function applyPhaseLines(tasks){
   const byDept={};
   for(const l of NPV_LINES){
-    if(!l.dept||!(l.name||'').trim())continue;
+    /* A line renders if it has a name OR a person. Unnamed-but-assigned lines are the
+       roster fan-out (one bar per person) after ppSeedLines line-backed it — dropping
+       them here is what used to delete everyone else's bar on a rename. Blank
+       placeholder lines (no name, no who) still don't render. */
+    if(!l.dept||(!(l.name||'').trim()&&!(l.who||'').trim()))continue;
     (byDept[l.dept]=byDept[l.dept]||[]).push(l);
   }
   if(!Object.keys(byDept).length)return tasks;
@@ -4504,12 +4520,9 @@ function npvCreateSubtask(dept,date,newDept,name){
     /* REV50: this used to push a nameless line and point at a tab that no longer
        exists — a silent no-op. Named lines split the bar immediately, so the subtask
        appears the moment it's asked for, and the bar's editor renames it. */
-    const existing=NPV_LINES.filter(l=>l.dept===dept);
-    if(!existing.length){
-      const base=NPV_TASKS.find(t=>t.department===dept);
-      NPV_LINES.push({id:genId(),name:phaseLabel(base||{department:dept}),dept:dept,
-        who:base?(Array.isArray(base.assignee)?'':base.assignee||''):''});
-    }
+    /* Line-back the department's existing bars first (all of them — the roster
+       fan-out is one bar per person, and a partial seed dropped the rest). */
+    ppSeedLines(dept);
     const n=NPV_LINES.filter(l=>l.dept===dept).length+1;
     const nm=(name&&name.trim())||('Subtask '+n);
     NPV_LINES.push({id:genId(),name:nm,dept:dept,who:''});
@@ -4993,7 +5006,12 @@ function npvRender(){
       if(tg.closest('#bar-pop'))return;
       ppClosePop();
     },true);
-    window.addEventListener('scroll',npvCloseMenu,true);
+    /* Same trap as the popover: the menu's inline name field scrolls itself when a
+       typed name outgrows it — that must not dismiss the menu mid-word. */
+    window.addEventListener('scroll',ev=>{
+      if(ev&&ev.target&&ev.target.closest&&ev.target.closest('#npv-menu'))return;
+      npvCloseMenu();
+    },true);
     BP_DOC_BOUND=true;
   }
 }
@@ -5507,11 +5525,17 @@ function npvBindReorder(){
 let BP_ID=null;
 let BP_DOC_BOUND=false;
 
+/* Close on page scroll, but never on a scroll that originates inside the popover —
+   an input scrolling its own overflowing text is a scroll event too. */
+function bpScrollAway(ev){
+  if(ev&&ev.target&&ev.target.closest&&ev.target.closest('#bar-pop'))return;
+  ppClosePop();
+}
 function ppClosePop(){
   const el=document.getElementById('bar-pop');
   if(!el)return false;
   el.remove();
-  window.removeEventListener('scroll',ppClosePop,true);
+  window.removeEventListener('scroll',bpScrollAway,true);
   BP_ID=null;
   const body=document.getElementById('npv-body');
   if(body){body.classList.remove('picking');
@@ -5545,11 +5569,12 @@ function ppOpenPopLegacy(idx,barEl){
 
   const roster=d.roster?(STAFF[d.roster]||[]):null;
   const who=Array.isArray(t.assignee)?t.assignee.join(', '):(t.assignee||'');
-  const whoField=(roster&&roster.length)
-    ? '<select id="bp-who"><option value="">&mdash;</option>'
-      + [...new Set([...roster,...(who?[who]:[])])].map(n=>'<option'+(n===who?' selected':'')+'>'+esc(n)+'</option>').join('')
-      + '</select>'
-    : '<input id="bp-who" value="'+esc(who)+'" placeholder="&mdash;">';
+  /* Who is always a picker — the roster when the department has one, the whole people
+     list otherwise. Free text is gone: names come from the Staff list, nowhere else. */
+  const pool=(roster&&roster.length)?roster:allPeople();
+  const whoField='<select id="bp-who"><option value="">&mdash;</option>'
+    + [...new Set([...pool,...(who?[who]:[])])].map(n=>'<option'+(n===who?' selected':'')+'>'+esc(n)+'</option>').join('')
+    + '</select>';
 
   const el=document.createElement('div');
   el.className='bp';el.id='bar-pop';
@@ -5557,21 +5582,17 @@ function ppOpenPopLegacy(idx,barEl){
    + '<span class="bp-dept">'+esc(d.name||t.department)+'</span>'
    + '<button class="bp-x" id="bp-x" title="Close">&times;</button></div>'
    + '<div class="bp-f"><label>Name</label><input id="bp-name" value="'+esc(t.label||'')+'" placeholder="'+esc(d.name||t.department)+'"></div>'
+   + '<div class="bp-f"><label>Who</label>'+whoField+'</div>'
    + '<div class="bp-grid">'
-   +   '<div class="bp-f"><label>Who</label>'+whoField+'</div>'
-   +   '<div class="bp-f"><label>Start</label><input id="bp-s" type="date" value="'+esc(t.startDate||'')+'"'+(live?'':' readonly')+'></div>'
-   +   '<div class="bp-f"><label>End</label><input id="bp-e" type="date" value="'+esc(t.endDate||'')+'"'+(live?'':' readonly')+'></div>'
+   +   '<div class="bp-f"><label>Start</label><input id="bp-s" type="date" value="'+esc(t.startDate||'')+'"></div>'
+   +   '<div class="bp-f"><label>End</label><input id="bp-e" type="date" value="'+esc(t.endDate||'')+'"></div>'
    +   '<div class="bp-f"><label>Days</label><input id="bp-d" type="number" min="1" value="'+(t.estimatedDays||1)+'"></div>'
    + '</div>'
    + '<div class="bp-acts">'
-   +   '<button class="bp-btn" id="bp-add-ph" title="Add another bar to this department">+ Subtask</button>'
-   +   '<button class="bp-btn" id="bp-add-ev" title="Add a dated event marker">+ Event</button>'
-   +   '<button class="bp-btn" id="bp-add-tk" title="Add a to-do task">+ Task</button>'
    +   (live?'<button class="bp-btn" id="bp-pin" title="'+(t.pinned?'Let dragging change this bar\'s dates again':'Pin this bar so dragging can\'t change its dates')+'">'+(t.pinned?'Unpin':'Pin')+'</button>':'')
    +   '<span style="flex:1"></span>'
    +   '<button class="bp-btn dngr" id="bp-del" title="Delete this phase">Delete</button>'
-   + '</div>'
-   + (live?'':'<div class="bp-note">Dates come from the scheduler on a new project. Drag the bar to change them.</div>');
+   + '</div>';
 
   /* Mounted on the page, not inside the scrolling chart, so it can overhang the edges
      instead of being clipped by them. Positioned from the bar's on-screen box. */
@@ -5589,16 +5610,19 @@ function ppOpenPopLegacy(idx,barEl){
 
   document.getElementById('bp-x').addEventListener('click',ppClosePop);
   el.addEventListener('mousedown',ev=>ev.stopPropagation());
-  /* Scrolling would leave it stranded away from its bar. */
-  window.addEventListener('scroll',ppClosePop,true);
+  /* Page scrolling would leave it stranded away from its bar — but a scroll INSIDE the
+     popover must not close it: an input scrolls itself when typing or selecting past
+     its visible edge, and that capture-phase event used to slam the popover shut
+     mid-keystroke. */
+  window.addEventListener('scroll',bpScrollAway,true);
 
   const nameEl=document.getElementById('bp-name');
   nameEl.addEventListener('change',()=>ppPopName(t,nameEl.value.trim()));
   document.getElementById('bp-who').addEventListener('change',e=>ppPopWho(t,e.target.value));
   document.getElementById('bp-d').addEventListener('change',e=>ppPopDays(t,e.target.value));
+  document.getElementById('bp-s').addEventListener('change',e=>ppPopDate(t,'s',e.target.value));
+  document.getElementById('bp-e').addEventListener('change',e=>ppPopDate(t,'e',e.target.value));
   if(live){
-    document.getElementById('bp-s').addEventListener('change',e=>{commitPhase(t.id,'startDate',e.target.value);npvRebuild();});
-    document.getElementById('bp-e').addEventListener('change',e=>{commitPhase(t.id,'endDate',e.target.value);npvRebuild();});
     const pn=document.getElementById('bp-pin');
     if(pn)pn.addEventListener('click',()=>{
       PP_QUIET=true;
@@ -5607,22 +5631,32 @@ function ppOpenPopLegacy(idx,barEl){
       ppClosePop();npvRebuild();
     });
   }
-  document.getElementById('bp-add-ph').addEventListener('click',()=>ppPopAddPhase(t));
-  document.getElementById('bp-add-ev').addEventListener('click',()=>ppPopAddMarker(t,'ev'));
-  document.getElementById('bp-add-tk').addEventListener('click',()=>ppPopAddMarker(t,'tk'));
   document.getElementById('bp-del').addEventListener('click',()=>ppPopDelete(t));
   setTimeout(()=>nameEl.focus(),30);
 }
 
 /* On a saved project the popover writes to state. On a new one it writes to the draft,
    because NPV_TASKS is regenerated from the scheduler on every keystroke. */
+/* Draft bars regenerate on every keystroke — only lines are durable. The roster
+   fan-out (one bar per person on PM/TD/Fab) draws bars with NO lines behind them, so
+   before the first line is created for a department, line-back every bar it currently
+   draws. Otherwise editing one person's bar silently dropped everyone else's. */
+function ppSeedLines(dept){
+  if(NPV_LINES.some(l=>l.dept===dept))return;
+  for(const b of (NPV_ALL||[]).filter(t=>t.department===dept))
+    NPV_LINES.push({id:genId(),name:b.label||'',dept:dept,
+      who:Array.isArray(b.assignee)?b.assignee.join(', '):(b.assignee||'')});
+}
 function ppDraftLineFor(t){
+  ppSeedLines(t.department);
   /* A split bar names its line in its own id (baseId::lineId) — exact, rename-proof.
-     The name-match only remains for unsplit bars, which have no line yet. */
+     The name+who match remains for bars whose line was just seeded. */
   const lid=String(t.id).split('::')[1];
   let l=lid?NPV_LINES.find(x=>x.id===lid):null;
-  if(!l)l=NPV_LINES.find(x=>x.dept===t.department&&(x.name||'').trim()===(t.label||'').trim());
-  if(!l){l={id:genId(),name:'',dept:t.department,who:''};NPV_LINES.push(l);}
+  if(!l)l=NPV_LINES.find(x=>x.dept===t.department&&(x.name||'').trim()===(t.label||'').trim()
+        &&(!x.who||x.who===t.assignee));
+  if(!l){l={id:genId(),name:t.label||'',dept:t.department,
+    who:Array.isArray(t.assignee)?t.assignee.join(', '):(t.assignee||'')};NPV_LINES.push(l);}
   return l;
 }
 function ppPopName(t,v){
@@ -5650,31 +5684,18 @@ function ppPopDays(t,v){
   else if(PP_FORM){PP_FORM.est[t.department]=n;}
   npvRebuild();ppClosePop();
 }
-function ppPopAddPhase(t){
-  if(NPV_LIVE){
-    /* REV56: same path as the S key and the menus — a named, distinct subtask,
-       not an exact clone of the bar it was asked from. */
-    ppClosePop();
-    npvCreateSubtask(t.department,t.startDate);
-    return;
-  }
-  if(!NPV_LINES.some(l=>l.dept===t.department))
-    NPV_LINES.push({id:genId(),name:phaseLabel(t),dept:t.department,who:(t.assignee||'')});
-  NPV_LINES.push({id:genId(),name:'',dept:t.department,who:''});
-  ppClosePop();
-  ppGoTab('depts');
-}
-function ppPopAddMarker(t,kind){
-  const seed=t.endDate||t.startDate||'';
-  if(NPV_LIVE){
-    const p=ppProject();
-    if(p){if(kind==='ev')liveAddEvent(p,t.department,seed);else liveAddTodo(p,t.department,seed);}
-    ppClosePop();ppGoTab('events');npvRebuild();return;
-  }
-  if(kind==='ev')NPV_EVENTS.push({id:genId(),name:'',date:seed,dept:t.department});
-  else NPV_TODOS.push({id:genId(),title:'',who:[],due:seed,priority:'medium',dept:t.department});
-  ppClosePop();
-  ppGoTab('events');
+/* A date edit in the popover moves the bar the same way a drag would: snapped to a
+   workday, days recounted, into ST on a saved page and the manual overlay on a draft
+   (N13's rule, per-bar instead of per-department). */
+function ppPopDate(t,which,val){
+  if(!val)return;
+  let s=t.startDate,e=t.endDate;
+  if(which==='s')s=wdSnap(val);else e=wdSnap(val);
+  if(parseDate(e)<parseDate(s)){if(which==='s')e=s;else s=e;}
+  const days=wdCount(parseDate(s),parseDate(e));
+  if(NPV_LIVE){commitPhaseDates(t.id,s,e,days);npvRebuild();ppClosePop();return;}
+  NPV_MANUAL[npvKey(t)]={startDate:s,endDate:e,estimatedDays:days};
+  npvRebuild();ppClosePop();
 }
 function ppPopDelete(t){
   const nm=phaseLabel(t);
@@ -5684,14 +5705,18 @@ function ppPopDelete(t){
     try{saveState({projects:ST.projects,tasks:ST.tasks.filter(x=>x.id!==t.id)});}finally{PP_QUIET=false;}
     ppClosePop();npvRebuild();return;
   }
-  const lid=String(t.id).split('::')[1];
-  const l=(lid?NPV_LINES.find(x=>x.id===lid):null)
-        ||NPV_LINES.find(x=>x.dept===t.department&&(x.name||'').trim()===(t.label||'').trim());
-  if(l&&t.label){NPV_LINES=NPV_LINES.filter(x=>x.id!==l.id);renderDraftLines();}
-  else{
+  /* Deleting one bar of several removes just that bar (its line); deleting a
+     department's only bar unchecks the department. The roster fan-out used to fall
+     through to the uncheck — one person's bar deleted the whole department. */
+  const sibs=(NPV_ALL||[]).filter(x=>x.department===t.department);
+  if(sibs.length>1){
+    const l=ppDraftLineFor(t);
+    NPV_LINES=NPV_LINES.filter(x=>x.id!==l.id);renderDraftLines();
+  }else{
     const ck=document.querySelector('#pp-depts input[data-dept="'+t.department+'"]');
     if(ck){ck.checked=false;ppFormSync();}
     else if(PP_FORM)PP_FORM.activeDepartments=PP_FORM.activeDepartments.filter(d=>d!==t.department);
+    NPV_LINES=NPV_LINES.filter(x=>x.dept!==t.department);
   }
   ppClosePop();npvRebuild();
 }
