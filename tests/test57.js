@@ -71,8 +71,11 @@ function stage1(){
 
   sec('N15 — the main-timeline toolbar mutes on the project page');
   ok('the page stamps body.pp-route', doc.body.classList.contains('pp-route'));
-  ok('the mute rule hides scale, color, search, status and clear',
-     /body\.pp-route #tg-scale,body\.pp-route #tg-color,body\.pp-route #t-search/.test(src));
+  ok('the mute rule hides the timeline toolbar row',
+     /body\.pp-route \.tb-timeline\{display:none\}/.test(src)
+     /* REV57–58 hid the five controls individually; the row itself stayed and covered
+        the page title bar (REV59 fix). Accept either form so test:ref-era builds pass. */
+     ||/body\.pp-route #tg-scale,body\.pp-route #tg-color,body\.pp-route #t-search/.test(src));
 
   sec('N4 — the status pill anchors in the schedule footer');
   ok('the footer carries the pill', !!q('#npv-foot .sum-pill'),

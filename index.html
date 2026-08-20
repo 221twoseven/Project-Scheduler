@@ -45,12 +45,13 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);font-size:var(--fs
 .t-btn.accent{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:600}
 .t-btn.accent:hover{background:var(--acc-deep)}
 .t-sep{width:1px;height:24px;background:var(--chrome-line);flex-shrink:0}
-/* N15: on the project page the main-timeline controls (scale, color, search, status,
-   clear) act on a chart that isn't visible — hide them rather than grey them out, so
-   nothing renders that can't be used (affordance rule, Design-Language §6). */
-body.pp-route #tg-scale,body.pp-route #tg-color,body.pp-route #t-search,
-body.pp-route #btn-status,body.pp-route #btn-reset,
-body.pp-route .tb-timeline .t-sep,body.pp-route .tb-timeline .t-mini{display:none}
+/* N15: on the project page every control in the timeline toolbar row acts on a chart
+   that isn't visible — hide the whole row rather than grey it out, so nothing renders
+   that can't be used (affordance rule, Design-Language §6). Hiding the row, not just
+   its controls, also matters for layout: #page is fixed at top:50 (below .tb-global
+   only), so a visible .tb-timeline row sat on top of the page's title bar — the
+   ← Timeline button and the N1 breadcrumb were painted but never visible. */
+body.pp-route .tb-timeline{display:none}
 .t-mini{font-size:var(--fs-micro);font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:#5E7292;white-space:nowrap}
 .tog-grp{display:flex;border:1px solid rgba(255,255,255,.13);border-radius:6px;overflow:hidden}
 .tog-grp .t-btn{border:none;border-right:1px solid rgba(255,255,255,.1);border-radius:0;height:26px;padding:0 12px}
@@ -1186,7 +1187,7 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_REV=58; // bump this ONE number on every release; used everywhere the rev shows up
+const APP_REV=59; // bump this ONE number on every release; used everywhere the rev shows up
 
 /* ===================== CONSTANTS ===================== */
 const SET_KEY ='shopTimelineSettings_v1';
