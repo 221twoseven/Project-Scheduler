@@ -834,9 +834,20 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
   padding:3px 5px;font-size:11.5px;font-family:inherit;text-align:right;box-sizing:border-box}
 .ins-depts .idr .ddays:disabled{background:#F7FAFD;color:#C3CEDC;border-color:#EDF2F7}
 .ins-depts .idr .dlbl{flex-shrink:0;font-size:var(--fs-fine);color:#B4C0D0;width:14px}
-.ins-depts .idr .dother{flex:1;min-width:0;border:1px solid #DDE5EF;border-radius:5px;
-  padding:3px 6px;font-size:11.5px;font-family:inherit;box-sizing:border-box}
+/* N13: the row wraps — process name and the date pair each take their own line,
+   indented under the checkbox. An unticked row hides its date line entirely
+   (nothing greyed pretends to be a control). */
+.ins-depts .idr{flex-wrap:wrap}
+.ins-depts .idr .dother{flex-basis:100%;min-width:0;margin-left:22px;border:1px solid #DDE5EF;
+  border-radius:5px;padding:3px 6px;font-size:11.5px;font-family:inherit;box-sizing:border-box}
 .ins-depts .idr .dother:disabled{background:#F7FAFD;border-color:#EDF2F7}
+.ins-depts .idr .ddates{flex-basis:100%;display:flex;align-items:center;gap:5px;
+  margin-left:22px;min-width:0}
+.ins-depts .idr.off .ddates{display:none}
+.ins-depts .idr.off .dother{display:none}
+.ins-depts .idr .ddates input{flex:1;min-width:0;border:1px solid #DDE5EF;border-radius:5px;
+  padding:2px 4px;font-size:11px;font-family:var(--mono);color:#33415A;box-sizing:border-box}
+.ins-depts .idr .ddates .da{flex-shrink:0;font-size:11px;color:#B4C0D0}
 
 /* --- agenda: the one list of everything dated on this job --- */
 .ag-add{display:flex;gap:6px;padding:0 15px 12px}
@@ -3661,14 +3672,25 @@ function insDeptList(p,boxId){
        + '<input type="checkbox" data-dept="'+esc(id)+'"'+(active?' checked':'')
        +   (id==='pm'?' checked disabled':'')+'>'
        + '<span class="dname">'+esc(d.freeText?'Other':d.name)+'</span>';
-      if(d.freeText)
-        h+='<input type="text" class="dother" data-dept="'+esc(id)+'" placeholder="process name" '
-         + 'value="'+esc(other||'')+'"'+(active?'':' disabled')+'>';
       if(id==='pm')
         h+='<span class="dlbl" style="width:auto">spans job</span>';
       else
         h+='<input type="number" class="ddays" min="1" value="'+days+'"'
          + (active?'':' disabled')+'><span class="dlbl">d</span>';
+      /* N13: the process name sits on its own line under the "Other" choice. */
+      if(d.freeText)
+        h+='<input type="text" class="dother" data-dept="'+esc(id)+'" placeholder="process name" '
+         + 'value="'+esc(other||'')+'"'+(active?'':' disabled')+'>';
+      /* N13: manual dates beside the day quantity — edit days and the end moves;
+         edit a date and the days recount. Same bar a drag would move. */
+      if(id!=='pm'){
+        const bar=p?ex:((typeof NPV_ALL!=='undefined'&&NPV_ALL)||[]).find(t=>t.department===id);
+        h+='<span class="ddates">'
+         + '<input type="date" class="dstart" data-dept="'+esc(id)+'" value="'+esc((bar&&bar.startDate)||'')+'"'+(active?'':' disabled')+'>'
+         + '<span class="da">&rarr;</span>'
+         + '<input type="date" class="dend" data-dept="'+esc(id)+'" value="'+esc((bar&&bar.endDate)||'')+'"'+(active?'':' disabled')+'>'
+         + '</span>';
+      }
       h+='</div>';
     }
   });
@@ -3678,7 +3700,44 @@ function insDeptList(p,boxId){
     row.classList.toggle('off',!ck.checked);
     const dd=row.querySelector('.ddays');if(dd)dd.disabled=!ck.checked;
     const ot=row.querySelector('.dother');if(ot)ot.disabled=!ck.checked;
+    row.querySelectorAll('.dstart,.dend').forEach(i=>{i.disabled=!ck.checked;});
   }));
+}
+
+/* N13: commit a department date edit through the same paths a drag uses — straight to
+   ST on a saved page, into the manual overlay on a draft. Dates snap forward to a
+   workday; days recount from the window. */
+function wdSnap(iso){
+  let d=parseDate(iso),n=0;
+  while(!isWorking(d)&&n<14){d=addDays(d,1);n++;}
+  return fmtDate(d);
+}
+/* Forward twin of backN: the end of a bar that starts here and runs n workdays. */
+function fwdN(start,n){let e=new Date(start);for(let i=1;i<n;i++){e=addDays(e,1);while(!isWorking(e))e=addDays(e,1);}return e;}
+function ppDeptDates(dept,which,val){
+  const bar=(NPV_ALL||[]).find(t=>t.department===dept);
+  if(!bar||!val)return;
+  let s=bar.startDate,e=bar.endDate;
+  if(which==='s')s=wdSnap(val);else e=wdSnap(val);
+  if(parseDate(e)<parseDate(s)){if(which==='s')e=s;else s=e;}
+  const days=wdCount(parseDate(s),parseDate(e));
+  const ck=document.querySelector('#pp-depts input[data-dept="'+dept+'"]');
+  const dd=ck?ck.closest('.idr').querySelector('.ddays'):null;
+  if(dd)dd.value=days;
+  if(NPV_LIVE){commitPhaseDates(bar.id,s,e,days);npvRebuild();return;}
+  NPV_MANUAL[npvKey(bar)]={startDate:s,endDate:e,estimatedDays:days};
+  npvRebuild();
+}
+/* Keep the date fields tracking the bars — a drag, undo or days edit repaints them. */
+function npvSyncDeptDates(){
+  const box=document.getElementById('pp-depts');
+  if(!box)return;
+  box.querySelectorAll('.dstart,.dend').forEach(inp=>{
+    const bar=(NPV_ALL||[]).find(t=>t.department===inp.dataset.dept);
+    if(!bar)return;
+    const v=inp.classList.contains('dstart')?(bar.startDate||''):(bar.endDate||'');
+    if(inp.value!==v&&document.activeElement!==inp)inp.value=v;
+  });
 }
 
 /* E1: sections are columns in the bottom dock, always open — no accordion. */
@@ -3834,6 +3893,22 @@ function ppBindInspector(p,sel){
     box.addEventListener('change',ev=>{
       const t=ev.target;
       if(!t||!t.closest)return;
+      /* N13: date edits route to the bar, not to the checklist commit. */
+      if(t.classList&&(t.classList.contains('dstart')||t.classList.contains('dend'))){
+        ppDeptDates(t.dataset.dept,t.classList.contains('dstart')?'s':'e',t.value);
+        return;
+      }
+      /* N13: on a saved page a days edit moves the phase's end — the other half of
+         the bidirectional pair. (Drafts already recompute through the scheduler.) */
+      if(t.classList&&t.classList.contains('ddays')&&NPV_LIVE){
+        const ck2=t.closest('.idr').querySelector('input[data-dept]');
+        const bar=ck2?(NPV_ALL||[]).find(b=>b.department===ck2.dataset.dept):null;
+        if(bar&&bar.startDate){
+          const n=Math.max(1,parseInt(t.value,10)||1);
+          commitPhaseDates(bar.id,bar.startDate,fmtDate(fwdN(parseDate(bar.startDate),n)),n);
+          npvRebuild();return;
+        }
+      }
       if(t.closest('.pg-rbox')){
         if(ROUTE.creating){npvQueue();return;}
         const patch={};
@@ -4509,6 +4584,7 @@ function npvRebuild(){
     npvSyncOrder(shown);
     NPV_TASKS=npvSortTasks(shown);
     npvRender();
+    npvSyncDeptDates();
     return;
   }
   const d=readPageDraft();
@@ -4532,6 +4608,7 @@ function npvRebuild(){
   npvSyncOrder(shown);
   NPV_TASKS=npvSortTasks(shown);
   npvRender();
+  npvSyncDeptDates();
 }
 function npvQueue(){if(NPV_RAF)return;NPV_RAF=requestAnimationFrame(()=>{NPV_RAF=null;npvRebuild();});}
 
