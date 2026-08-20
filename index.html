@@ -4380,7 +4380,11 @@ function npvSortTasks(tasks){
   const ix=d=>{const i=NPV_ORDER.indexOf(d);return i>=0?i:1000+(DEPT_IDX[d]??999);};
   const lineIx=t=>{
     if(!t.label)return -1;
-    const i=NPV_LINES.findIndex(l=>(l.name||'').trim()===t.label&&l.dept===t.department);
+    /* A split draft bar carries its line's id (baseId::lineId) — resolve exactly.
+       Saved rows have plain ids and keep the old name-match (usually 999). */
+    const lid=String(t.id).split('::')[1];
+    const i=lid?NPV_LINES.findIndex(l=>l.id===lid)
+               :NPV_LINES.findIndex(l=>(l.name||'').trim()===t.label&&l.dept===t.department);
     return i<0?999:i;
   };
   return tasks.slice().sort((a,b)=>
@@ -4415,13 +4419,18 @@ function npvRebuild(){
   }
   const d=readPageDraft();
   if(!d.base.deadline||!d.base.activeDepartments.length){NPV_TASKS=[];npvRender();return;}
-  let tasks=generateSchedule(d.base,d.est,d.otherLabels);
-  tasks=tasks.map(t=>{
+  const overlay=t=>{
     const m=NPV_MANUAL[npvKey(t)];
     return m?{...t,startDate:m.startDate,endDate:m.endDate,
       ...(m.estimatedDays?{estimatedDays:m.estimatedDays}:{}),__manual:true}:t;
-  });
-  tasks=applyPhaseLines(tasks);
+  };
+  let tasks=generateSchedule(d.base,d.est,d.otherLabels).map(overlay);
+  /* Manual keys are per-bar (dept::label::who). A split bar's own placement can only
+     match AFTER applyPhaseLines gives it its label, so the overlay runs again — that's
+     what lets a dragged draft subtask keep its own dates through rebuilds, the same
+     independence a saved subtask row has. The first pass still applies a whole-
+     department drag, which the split copies then inherit. */
+  tasks=applyPhaseLines(tasks).map(overlay);
   NPV_ALL=tasks;
   /* PM spans the whole job, so a bar for it repeats what the summary row already says.
      It is still generated and still saved — it just isn't drawn. */
@@ -5342,13 +5351,22 @@ function ppOpenPopLegacy(idx,barEl){
 /* On a saved project the popover writes to state. On a new one it writes to the draft,
    because NPV_TASKS is regenerated from the scheduler on every keystroke. */
 function ppDraftLineFor(t){
-  let l=NPV_LINES.find(x=>x.dept===t.department&&(x.name||'').trim()===(t.label||'').trim());
-  if(!l&&t.label)l=NPV_LINES.find(x=>x.dept===t.department);
+  /* A split bar names its line in its own id (baseId::lineId) — exact, rename-proof.
+     The name-match only remains for unsplit bars, which have no line yet. */
+  const lid=String(t.id).split('::')[1];
+  let l=lid?NPV_LINES.find(x=>x.id===lid):null;
+  if(!l)l=NPV_LINES.find(x=>x.dept===t.department&&(x.name||'').trim()===(t.label||'').trim());
   if(!l){l={id:genId(),name:'',dept:t.department,who:''};NPV_LINES.push(l);}
   return l;
 }
 function ppPopName(t,v){
   if(NPV_LIVE){commitPhase(t.id,'label',v);npvRebuild();return;}
+  /* The manual-placement key contains the label, so a rename moves the entry with it —
+     otherwise renaming a dragged subtask would snap it back to the scheduler dates.
+     (Renames from the departments panel don't have the bar at hand and still drop the
+     placement — pre-existing; migrate there too if anyone notices.) */
+  const m=NPV_MANUAL[npvKey(t)];
+  if(m){delete NPV_MANUAL[npvKey(t)];NPV_MANUAL[npvKey({...t,label:v})]=m;}
   ppDraftLineFor(t).name=v;
   renderDraftLines();npvRebuild();ppClosePop();
 }
@@ -5402,7 +5420,9 @@ function ppPopDelete(t){
     try{saveState({projects:ST.projects,tasks:ST.tasks.filter(x=>x.id!==t.id)});}finally{PP_QUIET=false;}
     ppClosePop();npvRebuild();return;
   }
-  const l=NPV_LINES.find(x=>x.dept===t.department&&(x.name||'').trim()===(t.label||'').trim());
+  const lid=String(t.id).split('::')[1];
+  const l=(lid?NPV_LINES.find(x=>x.id===lid):null)
+        ||NPV_LINES.find(x=>x.dept===t.department&&(x.name||'').trim()===(t.label||'').trim());
   if(l&&t.label){NPV_LINES=NPV_LINES.filter(x=>x.id!==l.id);renderDraftLines();}
   else{
     const ck=document.querySelector('#pp-depts input[data-dept="'+t.department+'"]');

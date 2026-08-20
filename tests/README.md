@@ -43,6 +43,11 @@ non-zero on failure.
   outgoing Graph bodies); deleting a phase rescues its hosted events; deleting a project
   removes its events; the draft page files events as rows; without the list, the legacy
   phase-hosted behaviour is untouched. Skips on builds without `ShopTimeline_Events`.
+- `test55.js` — 17 assertions. Draft/saved subtask convergence (REV55): a draft
+  subtask's manual placement survives rebuilds (it used to snap back), a rename carries
+  the placement, same-named lines stay distinct via the split bar's embedded line id,
+  Save files exactly the previewed rows, and the saved path still makes real rows.
+  Skips on builds without the post-split overlay (the frozen reference).
 - `test50.js` — 51 assertions. One per issue reported against REV49, each verified on the
   page it was reported on (the new-project draft): meta entities, the departments panel,
   the hotkey focus rule, event default dates, yellow diamonds, marker drag and

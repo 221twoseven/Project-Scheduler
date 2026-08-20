@@ -20,6 +20,7 @@ const SUITES = [
   'test50.js',
   'test53.js',
   'test54.js',
+  'test55.js',
   'test-contrast.js',
   'test-e2-click.js',
   'test-e3-resize.js',

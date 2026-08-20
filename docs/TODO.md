@@ -81,8 +81,15 @@ Roughly in build order:
       `tests/test54.js`. Record: `docs/Milestones/2026-08-19-standalone-events.md`.
       **Owner to-do: create the list** (column recipe in `docs/SETUP.md`) — until then
       the app keeps the old behaviour.
-- [ ] **3. Converge draft vs saved phase-splitting.** `NPV_LINES` still drives phase
-      splitting on the new-project draft; the saved path creates subtasks directly.
+- [x] **3. Converge draft vs saved phase-splitting — DONE 2026-08-19 (REV55).** The real
+      divergence was behavioural: a dragged draft subtask snapped back on the next
+      rebuild (its manual-placement key could never match pre-split bars) and line
+      lookups guessed by name. Now the placement overlay reapplies after the split,
+      lines resolve by the id a split bar already carries, and a rename moves the
+      placement with it — draft subtasks behave like saved rows, and Save files exactly
+      what the preview shows. `NPV_LINES` stays as the draft's durable store (rows can't
+      survive the per-keystroke scheduler regeneration). Suite: `tests/test55.js`.
+      Record: `docs/Milestones/2026-08-19-draft-saved-subtask-convergence.md`.
 - [ ] **4. Dash view** — the per-person dashboard (third lens beside Projects and
       Departments). Designed, not built. Needs the identity chain: signed-in email →
       `Staff.email`, fallback to display-name match, fallback to a remembered person
