@@ -15,7 +15,9 @@ Sequencing decisions (2026-08-19):
   as-is; this file is where actionable state lives.
 
 Last reviewed: 2026-08-20 (§3a ungated items shipped as REV57; N6/N7, N3 and the N9
-decision remain open there).
+decision remain open there. REV58 same day: new-project draft autosave — a slept/discarded
+browser tab no longer wipes an unsaved draft; see
+`docs/Milestones/2026-08-20-draft-autosave.md`).
 
 ---
 

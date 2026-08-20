@@ -1186,7 +1186,7 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_REV=57; // bump this ONE number on every release; used everywhere the rev shows up
+const APP_REV=58; // bump this ONE number on every release; used everywhere the rev shows up
 
 /* ===================== CONSTANTS ===================== */
 const SET_KEY ='shopTimelineSettings_v1';
@@ -3308,6 +3308,11 @@ function applyRoute(){
      &&!confirm('Discard this unsaved project?')){
     PP_KEEP=true;location.hash='#/project/new';return;
   }
+  /* Reaching here with the draft route behind us means the exit was accepted — the
+     draft was filed (Create) or knowingly discarded. Drop the autosave stash so the
+     next new project doesn't resurrect it. */
+  if(ROUTE.creating&&!(r.view==='project'&&r.creating))
+    try{sessionStorage.removeItem(PP_STASH);}catch(e){}
   const pg=document.getElementById('page'),mn=document.getElementById('main');
   const exists=r.creating||(r.id&&ST.projects.some(p=>p.id===r.id));
   if(r.view==='project'&&exists){
@@ -3366,6 +3371,10 @@ function renderProjectPage(){
     NPV_MANUAL={};NPV_TASKS=[];NPV_ALL=[];NPV_ORDER=[];NPV_ORDER_DIRTY=false;
     NPV_EVENTS=[];NPV_TODOS=[];NPV_LINES=[];NPV_MODE='gantt';
     ppFormInit();
+    /* A tab the browser put to sleep reloads right here with everything the user typed
+       gone from memory — pick the autosaved draft back up. PP_SNAP stays at the clean
+       defaults from ppFormInit, so the restored draft still counts as dirty. */
+    ppDraftUnstash();
   }
   PP_KEEP=false;
   const p=ppProject();
@@ -4152,6 +4161,33 @@ function ppFormSync(){
     PP_FORM.activeDepartments=act;PP_FORM.est=est;PP_FORM.otherLabels=ol;
   }
 }
+
+/* Draft autosave. The draft lives only in JS memory, and the browser is allowed to put a
+   background tab to sleep and reload it later (Edge/Chrome memory saver) — beforeunload
+   never fires on that path, so a filled-in form silently reverted to defaults. Stash the
+   whole draft whenever the tab goes hidden; sessionStorage survives the discard but dies
+   with the tab, so nothing stale lingers on shared machines. */
+const PP_STASH='shopTimelineDraft';
+function ppDraftStash(){
+  try{
+    if(ROUTE.creating&&ppDraftDirty())
+      sessionStorage.setItem(PP_STASH,JSON.stringify({f:PP_FORM,ev:NPV_EVENTS,tk:NPV_TODOS,
+        ln:NPV_LINES,man:NPV_MANUAL,ord:NPV_ORDER,od:NPV_ORDER_DIRTY,mode:NPV_MODE}));
+  }catch(e){}
+}
+function ppDraftUnstash(){
+  try{
+    const raw=sessionStorage.getItem(PP_STASH);
+    if(!raw)return;
+    const d=JSON.parse(raw);
+    if(d.f)PP_FORM=d.f;
+    NPV_EVENTS=d.ev||[];NPV_TODOS=d.tk||[];NPV_LINES=d.ln||[];
+    NPV_MANUAL=d.man||{};NPV_ORDER=d.ord||[];NPV_ORDER_DIRTY=!!d.od;
+    NPV_MODE=d.mode||'gantt';
+  }catch(e){}
+}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')ppDraftStash();});
+window.addEventListener('pagehide',ppDraftStash);
 
 function readPageDraft(){
   if(!PP_FORM)ppFormInit();
