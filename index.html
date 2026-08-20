@@ -461,7 +461,9 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 .npv-scroll{overflow-x:auto;overflow-y:hidden;scrollbar-width:thin}
 .npv-in{position:relative;min-width:100%}
 .npv-axis{position:relative;height:34px;border-bottom:1px solid #E2E8F0;background:#FBFDFF}
-.npv-mon{position:absolute;top:2px;height:14px;font-size:var(--fs-fine);font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#94A3B8;padding-left:4px;white-space:nowrap;overflow:hidden}
+/* z-index lifts the label above the day/tint background columns painted after it —
+   without it every column after the 1st covers the text ("AUGUST" read "AU"). */
+.npv-mon{position:absolute;top:2px;height:14px;font-size:var(--fs-fine);font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#94A3B8;padding-left:4px;white-space:nowrap;overflow:hidden;z-index:2;pointer-events:none}
 .npv-dnum{position:absolute;top:18px;height:14px;font-size:var(--fs-fine);color:#B4C0D0;text-align:center}
 .npv-we{position:absolute;top:0;bottom:0;background:#EEF1F5;pointer-events:none}
 body.vivid .npv-we{background:#F1F5F9}
@@ -4760,8 +4762,9 @@ function npvRender(){
       const nxt=new Date(cur.getFullYear(),cur.getMonth()+1,1);
       const room=(Math.min(diffDays(cur,nxt),diffDays(cur,hi)+1))*dwv;
       if(room>=30){
+        /* Full month name when its run has room for one; short otherwise. */
         ax+='<div class="npv-mon" style="left:'+x(cur)+'px;max-width:'+Math.round(room-3)+'px">'
-          + cur.toLocaleDateString('en-US',{month:'short'})+'</div>';
+          + cur.toLocaleDateString('en-US',{month:room>=110?'long':'short'})+'</div>';
       }
     }
     if(dwv>=13||cur.getDay()===1){
