@@ -5,6 +5,9 @@ const FILE=process.argv[2]||'Timeline_49.html';
 /* The frozen REV50 reference predates E1 (bottom dock) — same convention as
    test-b1.js: E1-only assertions are skipped on pre-E1 builds. */
 const E1=require('fs').readFileSync(FILE,'utf8').indexOf('pp-dock')>=0;
+/* REV56 replaced the synthetic summary bar with the primary bar as the parent row;
+   the summary-bar assertions only apply to older builds (test56 owns the new model). */
+const SUMBAR=require('fs').readFileSync(FILE,'utf8').indexOf('npv-env')<0;
 
 let pass=0,fail=0;
 const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
@@ -174,6 +177,11 @@ function stage4(){
   sec('right-click a department summary');
   E("NPV_OPEN=new Set();npvRebuild();ppSelect(null,true);");
   setTimeout(()=>{
+    if(!SUMBAR){
+      console.log('  SKIP  REV56 has no summary bar — the parent row is the primary bar (test56)');
+      gutterSection();
+      return;
+    }
     const sum=q('#npv-body .npv-bar.sum');
     ok('there is a summary bar', !!sum);
     const ev=new win.MouseEvent('contextmenu',{bubbles:true,cancelable:true,clientX:200,clientY:20,button:2});
@@ -184,18 +192,23 @@ function stage4(){
       ok('it offers add subtask', !!byAct('sub'));
       ok('it offers removing the department from the job', !!byAct('rmv'));
       E('npvCloseMenu();');
-
-      sec('right-click a row gutter');
-      const gut=q('#npv-body .npv-gut');
-      const ev2=new win.MouseEvent('contextmenu',{bubbles:true,cancelable:true,clientX:40,clientY:20,button:2});
-      gut.dispatchEvent(ev2);
-      setTimeout(()=>{
-        ok('the gutter opens the department menu too', !!menu()&&!!byAct('sub'));
-        ok('the browser menu is suppressed there as well', ev2.defaultPrevented);
-        E('npvCloseMenu();');
-        stage5();
-      },250);
+      gutterSection();
     },300);
+  },300);
+}
+
+function gutterSection(){
+  setTimeout(()=>{
+    sec('right-click a row gutter');
+    const gut=q('#npv-body .npv-gut');
+    const ev2=new win.MouseEvent('contextmenu',{bubbles:true,cancelable:true,clientX:40,clientY:20,button:2});
+    gut.dispatchEvent(ev2);
+    setTimeout(()=>{
+      ok('the gutter opens the department menu too', !!menu()&&!!byAct('sub'));
+      ok('the browser menu is suppressed there as well', ev2.defaultPrevented);
+      E('npvCloseMenu();');
+      stage5();
+    },250);
   },300);
 }
 

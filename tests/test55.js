@@ -66,8 +66,12 @@ function stage1(){
     ok('the department split into two bars', bars.length===2, bars.length+' bars');
     ok('each split bar carries its line id (baseId::lineId)',
        bars.every(b=>String(b.id).includes('::')), JSON.stringify(bars.map(b=>b.id)));
-    ok('both bars share the department window (nothing dragged yet)',
-       bars[0].startDate===bars[1].startDate&&bars[0].endDate===bars[1].endDate);
+    /* REV56: the new subtask is born nested — half the parent's window — instead of
+       an exact copy of it. */
+    ok('the subtask starts with its parent', bars[0].startDate===bars[1].startDate,
+       bars[0].startDate+' vs '+bars[1].startDate);
+    ok('the subtask nests inside the parent window', bars[1].endDate<=bars[0].endDate,
+       bars[1].endDate+' vs '+bars[0].endDate);
     stage2();
   },400);
 }

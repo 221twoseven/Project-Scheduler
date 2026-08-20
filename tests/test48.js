@@ -4,6 +4,9 @@ const {boot}=require('./harness');
 const fs=require('fs');
 const FILE=process.argv[2]||'Timeline_48.html';
 const src=fs.readFileSync(FILE,'utf8');
+/* REV56: a subtask created inside its parent's window is born named and half the
+   parent's length (see test56); older builds borrow the neighbours' average. */
+const R56=src.indexOf('npv-env')>=0;
 
 let pass=0,fail=0;
 const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
@@ -96,13 +99,14 @@ function stage1(){
     const nu=E("JSON.stringify(ST.tasks.filter(t=>t.department==='fab').slice(-1)[0])");
     const n=JSON.parse(nu);
     ok('it starts on the day that was clicked', n.startDate==='2026-08-20', n.startDate);
-    ok('it borrows the length of its neighbours', n.estimatedDays===12, n.estimatedDays+'');
+    if(R56)ok('a nested subtask is born half its parent\'s length', n.estimatedDays===6, n.estimatedDays+'');
+    else ok('it borrows the length of its neighbours', n.estimatedDays===12, n.estimatedDays+'');
     ok('it ends on a working day', E("isWorking(parseDate('"+n.endDate+"'))"));
     ok('it inherits the assignee', n.assignee==='Nick', String(n.assignee));
     ok('the department expanded to show it', E("NPV_OPEN.has('fab')"));
     ok('the new bar is selected', E('PP_SEL')===n.id, String(E('PP_SEL')));
     ok('the inspector shows its name field ready', !!doc.getElementById('ins-name')
-       && doc.getElementById('ins-name').value==='');
+       && doc.getElementById('ins-name').value===(R56?'Subtask 2':''));
     E('ppSelect(null);');
     stage2();
   },350);

@@ -2,7 +2,7 @@
 
 jsdom suites that boot a Timeline HTML build with MSAL and `fetch` stubbed, and assert
 behaviour on the actual outgoing Microsoft Graph requests rather than on internal state.
-**276 assertions across 6 suites.**
+**19 suites — `npm test` prints the live per-suite totals.**
 
 ## Run
 
@@ -29,6 +29,12 @@ non-zero on failure.
   `window.__spCalls`, so persistence is asserted on the actual outgoing body rather
   than on internal state.
 - `run.js` — runs all suites against one build and aggregates pass/fail.
+- `test56.js` — 44 assertions. Project-page subtask hierarchy (REV56): the department's
+  primary bar is the parent row (no synthetic summary bar, primary never re-listed as a
+  subtask), subtasks in a lighter shade of the parent hue, linked/unlinked parent drag,
+  parent resize independence, new subtasks born named/nested/half-length, the nested
+  min/max clamp on drag and resize, parallel-subtask freedom, marker rows, draft parity.
+  Skips on builds without the envelope track (the frozen reference).
 - `test49.js` — 78 assertions. The dashboard: inspector replacing the tabs, the meta
   strip, selection driving the pane, right-click on bars / summaries / gutters, undo
   toasts, the keyboard, Escape layering, the agenda.
@@ -52,8 +58,10 @@ non-zero on failure.
   page it was reported on (the new-project draft): meta entities, the departments panel,
   the hotkey focus rule, event default dates, yellow diamonds, marker drag and
   click-to-rename, draft subtasks, draft menus, menu overflow, and the end-to-end create.
-- `test47.js` — 38 assertions. Subtask hierarchy: row plan, expand/collapse, summary
-  span, linked parent drag, the Link toggle.
+- `test47.js` — 38 assertions. The pre-REV56 subtask hierarchy: row plan,
+  expand/collapse, summary span, linked parent drag, the Link toggle. Skips on REV56+
+  builds (the summary-bar model it asserts is retired there — see `test56.js`); it
+  keeps guarding the frozen reference.
 - `test46.js` — 38 assertions. The REV46 bug fixes plus the invariants the original
   suites guarded: geometry constants vs stylesheet, status migration, scheduler purity,
   PM in `NPV_ALL` not `NPV_TASKS`.

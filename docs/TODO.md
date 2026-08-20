@@ -94,15 +94,16 @@ Roughly in build order:
       Departments). Designed, not built. Needs the identity chain: signed-in email →
       `Staff.email`, fallback to display-name match, fallback to a remembered person
       picker. Depends on the ⚠ schema item in §5 — start that approval early.
-- [ ] **5. Project edit page — subtask/phase-bar behavior** (owner notes, 2026-08-19):
-      - Subtasks render in a **lighter shade of the parent bar's hue** (identity stays
-        with the project per Design-Language §2; only lightness separates child from
-        parent).
-      - Clicking a subtask must **not duplicate the primary phase bar as a subtask** in
-        the expanded view.
-      - Subtasks are **resizeable by edge click/drag** (same handles/snapping as E3).
-      - Subtask duration is **independent of the parent task**; the parent's start/end
-        act only as min/max constraints on the subtask.
+- [x] **5. Project edit page — subtask/phase-bar behavior — DONE 2026-08-20 (REV56).**
+      All four owner notes, delivered as one remodel: the synthetic summary bar is
+      retired and the **department's primary bar is the parent row** (never re-listed
+      as its own subtask); subtasks render in a lighter shade of the parent's hue;
+      everything resizes by edge drag; a nested subtask treats the parent's start/end
+      as min/max (subtasks outside the parent window stay free — parallel subtasks
+      are real data); new subtasks are born named, half the parent, never a clone.
+      Suite: `tests/test56.js` (44 assertions; `test47` now guards pre-REV56 builds).
+      Record: `docs/Milestones/2026-08-20-subtask-parent-hierarchy.md` — parent-role
+      heuristic and clamp ceilings noted there.
 - [ ] **Decide: dependencies between bars.** Nothing links a bar to its predecessor
       except the scheduler chain. Have real dependencies, or consciously don't —
       avoid half-having them.
