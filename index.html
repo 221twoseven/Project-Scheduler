@@ -1191,7 +1191,7 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_REV=62; // bump this ONE number on every release; used everywhere the rev shows up
+const APP_REV=63; // bump this ONE number on every release; used everywhere the rev shows up
 
 /* ===================== CONSTANTS ===================== */
 const SET_KEY ='shopTimelineSettings_v1';
@@ -1267,7 +1267,14 @@ const PCOLS=['#3B7FD6','#E27035','#2D9C56','#9050C3','#1AA59C','#C09018','#C0448
 /* Red is reserved exclusively for installations */
 const INSTALL_RED='#CE4242';
 function isInstall(t){return t.department==='install';}
-function crewOf(t){const a=t.assignee;if(Array.isArray(a))return a;if(typeof a==='string'&&a.trim().startsWith('['))return safeArr(a);return (a&&a!=='Installation')?[a]:[];}
+/* A bar's crew. Stored as an array (install), a JSON string (legacy install rows) or a
+   comma-joined name list — the same convention roles use, so the shared SharePoint
+   column stays readable in the colleague app. */
+function crewOf(t){const a=t.assignee;if(Array.isArray(a))return a;if(typeof a==='string'&&a.trim().startsWith('['))return safeArr(a);return String(a||'').split(',').map(x=>x.trim()).filter(x=>x&&x!=='Installation');}
+/* Who actually works a bar: its own crew if one is set, else the project's team for that
+   department's role — an unassigned phase umbrella is implicitly owned by the roster
+   picked in the project settings. */
+function barCrew(t){const c=crewOf(t);if(c.length)return c;const p=projById(t.projectId);return p?roleListFor(p,t.department):[];}
 /* A phase can carry its own name. Blank falls back to the department, so every existing
    row behaves exactly as before. */
 function phaseLabel(t){
@@ -1276,7 +1283,7 @@ function phaseLabel(t){
   if(d&&d.freeText)return t.assignee||'Other';
   return d?d.name:t.department;
 }
-function assigneeText(t){return isInstall(t)?(crewOf(t).join(', ')||'Crew TBD'):(t.assignee||'');}
+function assigneeText(t){return crewOf(t).join(', ')||(isInstall(t)?'Crew TBD':'');}
 /* Stable identity colors per department for "Team" color mode */
 const DEPT_COLORS={pm:'#567693',vinyl:'#E0518C',othunit7:'#8E9BB0',td:'#9050C3',othoffice:'#8A98AE',print:'#C04485',cnc:'#E27035',beamsaw:'#C09018','3dprint':'#2D9C56',laser:'#CE4242',other:'#7A8BA3',fab:'#3B7FD6',metal:'#8B5E3C',softgoods:'#C75D8A',electrical:'#D9A21B',othshop:'#93A08F',prefinish:'#3FA9BC',finish:'#1AA59C',othfinish:'#9AA6B5',install:'#5A5DEC'};
 const TN_TARGETS=['Client Approval','Shop Drawings',...DEPTS.filter(d=>d.id!=='pm').map(d=>d.name)];
@@ -1363,9 +1370,10 @@ function roleList(v){return String(v||'').split(',').map(s=>s.trim()).filter(Boo
 function roleField(deptId){return deptId==='pm'?'projectManager':deptId==='td'?'drafter':deptId==='fab'?'leadFab':null;}
 function roleListFor(p,deptId){const f=roleField(deptId);return f?roleList(p[f]):[];}
 function assigneeFor(p,deptId,otherLabels){
-  const f=roleField(deptId);
-  if(f){const l=roleList(p[f]);return l[0]||'—';}
   const d=deptById(deptId);
+  /* Roster departments get an unowned umbrella bar — ownership is implicit through the
+     project team (barCrew); crews are assigned per subtask, not per phase. */
+  if(d&&d.roster)return '';
   if(d&&d.freeText)return (otherLabels&&otherLabels[deptId])||'Other';
   return d.name;
 }
@@ -1377,12 +1385,9 @@ function generateSchedule(p,est,otherLabels){
     startDate:fmtDate(start),endDate:fmtDate(end),
     estimatedDays:est[deptId]||1,ticketNodes:[],notes:'',pinned:false
   });
-  /* Roster departments get one parallel bar per assigned person */
-  const mkDept=(deptId,start,end)=>{
-    const d=deptById(deptId);
-    if(d.roster){const ppl=roleListFor(p,deptId);(ppl.length?ppl:['—']).forEach(w=>mk(deptId,start,end,w));}
-    else mk(deptId,start,end);
-  };
+  /* Work-priority: one bar per department. The old roster fan-out (one bar per person)
+     is gone — people ride on bars via barCrew, and subtasks split the work. */
+  const mkDept=(deptId,start,end)=>mk(deptId,start,end);
   const active=id=>p.activeDepartments.includes(id);
   /* Phases chain backward from the deadline; departments inside a phase run in parallel */
   const PHASES=[
@@ -1406,8 +1411,7 @@ function generateSchedule(p,est,otherLabels){
   }
   if(active('pm')){
     const minStart=tasks.length?new Date(Math.min(...tasks.map(t=>parseDate(t.startDate).getTime()))):parseDate(p.deadline);
-    const ppl=roleListFor(p,'pm');
-    (ppl.length?ppl:['—']).forEach(w=>mk('pm',minStart,parseDate(p.deadline),w));
+    mk('pm',minStart,parseDate(p.deadline));
   }
   return tasks;
 }
@@ -1434,11 +1438,7 @@ function scheduleNewDepts(p,newDeptIds,est,otherLabels,existingTasks){
     startDate:fmtDate(start),endDate:fmtDate(end),
     estimatedDays:est[deptId]||deptById(deptId).est||1,ticketNodes:[],notes:'',pinned:false
   });
-  const mkDept=(deptId,start,end)=>{
-    const d=deptById(deptId);
-    if(d.roster){const ppl=roleListFor(p,deptId);(ppl.length?ppl:['—']).forEach(w=>added.push(mk(deptId,start,end,w)));}
-    else added.push(mk(deptId,start,end));
-  };
+  const mkDept=(deptId,start,end)=>added.push(mk(deptId,start,end));
   PHASES.forEach((members,i)=>{
     const newHere=newDeptIds.filter(id=>members.includes(id));
     if(!newHere.length)return;
@@ -1463,8 +1463,7 @@ function scheduleNewDepts(p,newDeptIds,est,otherLabels,existingTasks){
   if(newDeptIds.includes('pm')&&!existingTasks.some(t=>t.department==='pm')){
     const all=[...existingTasks,...added];
     const minStart=all.length?new Date(Math.min(...all.map(t=>parseDate(t.startDate).getTime()))):parseDate(p.deadline);
-    const ppl=roleListFor(p,'pm');
-    (ppl.length?ppl:['—']).forEach(w=>added.push(mk('pm',minStart,parseDate(p.deadline),w)));
+    added.push(mk('pm',minStart,parseDate(p.deadline)));
   }
   return added;
 }
@@ -1913,12 +1912,11 @@ let CONFLICTS=new Set();
 function computeConflicts(){
   CONFLICTS=new Set();
   const byName={};
-  for(const t of ST.tasks){
-    if(isInstall(t)){for(const n of crewOf(t))(byName[n]=byName[n]||[]).push(t);continue;}
-    const d=deptById(t.department);
-    if(!d||!d.roster)continue;
-    const n=(t.assignee||'').trim();
-    if(!n||n==='—')continue;
+  /* Every real person on a bar counts — explicit crews and the implicit project team on
+     unowned umbrellas. Non-person assignees (dept names, free-text processes) filter out
+     because they aren't on the staff list. */
+  for(const t of ST.tasks)for(const n of barCrew(t)){
+    if(!personByName(n))continue;
     (byName[n]=byName[n]||[]).push(t);
   }
   for(const n in byName){
@@ -1977,7 +1975,7 @@ function entityColor(t){
   const d=deptById(t.department);
   if(!d)return '#9CA3AF';
   if(d.freeText)return DEPT_COLORS[t.department]||hashColor(t.assignee||'Other');
-  if(LENS==='dept'&&d.roster)return personColor(d.roster,t.assignee);
+  if(LENS==='dept'&&d.roster)return personColor(d.roster,barCrew(t)[0]||'');
   return DEPT_COLORS[t.department]||'#9CA3AF';
 }
 function barColor(t){if(isInstall(t))return INSTALL_RED;return COLOR_MODE==='entity'?entityColor(t):projColor(t.projectId);}
@@ -2031,19 +2029,27 @@ function laneRowsForSection(sec){
     const la=laneAssign(tasks);
     out.push({kind:'deptLane',key:'L'+sec.id+'|'+dept+'|'+assignee,secId:sec.id,dept,assignee,label,tasks,laneMap:la.map,lanes:la.count});
   };
+  /* People lanes for a roster department. A crew bar shows in every member's lane —
+     the first member holds the real bar, the rest get ghost references (the install-
+     ghost pattern). Bars with no crew and no project team fall to the '—' lane. */
+  const rosterLanes=(did,rosterKey,dtasks)=>{
+    const names=new Set(STAFF[rosterKey]||[]);
+    const crews=new Map(dtasks.map(t=>[t.id,barCrew(t).filter(n=>n&&n!=='—')]));
+    dtasks.forEach(t=>{const c=crews.get(t.id);if(c.length)c.forEach(n=>names.add(n));else names.add('—');});
+    const ks=[...names];if(!ks.length)ks.push('—');
+    for(const k of ks){
+      const mine=dtasks.filter(t=>{const c=crews.get(t.id);return c.length?c.includes(k):k==='—';})
+        .map(t=>{const c=crews.get(t.id);return c.length&&c[0]!==k?{...t,__ghost:true}:t;});
+      const ghosts=k==='—'?[]:visTasks().filter(t2=>isInstall(t2)&&crewOf(t2).includes(k)).map(t2=>({...t2,__ghost:true}));
+      mkLane(did,k,k,[...mine,...ghosts]);
+    }
+  };
   if(sec.kind==='group'){
     for(const did of sec.depts){
       const d=deptById(did);
       const dtasks=visTasks().filter(t=>t.department===did);
       if(d.roster){
-        /* People lanes inside a group (e.g. Main Shop, Metal Shop) */
-        const names=new Set(STAFF[d.roster]||[]);
-        dtasks.forEach(t=>names.add(t.assignee||'—'));
-        const ks=[...names];if(!ks.length)ks.push('—');
-        for(const k of ks){
-          const ghosts=k==='—'?[]:visTasks().filter(t2=>isInstall(t2)&&crewOf(t2).includes(k)).map(t2=>({...t2,__ghost:true}));
-          mkLane(did,k,k,[...dtasks.filter(t=>(t.assignee||'—')===k),...ghosts]);
-        }
+        rosterLanes(did,d.roster,dtasks);
       } else if(d.freeText){
         const names=[...new Set(dtasks.map(t=>t.assignee||'Other'))];
         if(!names.length)names.push('Other');
@@ -2056,13 +2062,7 @@ function laneRowsForSection(sec){
     const d=deptById(sec.id);
     const dtasks=visTasks().filter(t=>t.department===sec.id);
     if(d.roster){
-      const names=new Set(STAFF[d.roster]||[]);
-      dtasks.forEach(t=>names.add(t.assignee||'—'));
-      const ks=[...names];if(!ks.length)ks.push('—');
-      for(const k of ks){
-        const ghosts=k==='—'?[]:visTasks().filter(t2=>isInstall(t2)&&crewOf(t2).includes(k)).map(t2=>({...t2,__ghost:true}));
-        mkLane(sec.id,k,k,[...dtasks.filter(t=>(t.assignee||'—')===k),...ghosts]);
-      }
+      rosterLanes(sec.id,d.roster,dtasks);
     } else {
       mkLane(sec.id,d.name,d.name,dtasks);
     }
@@ -2700,16 +2700,16 @@ function makeTaskBar(t,row,lane,labelMode){
   lbl.dataset.base=String(lblBase);lbl.dataset.min=String(LBL_MIN_TASK);
   lbl.style.left=labelLeftFor(x,w,lblBase,LBL_MIN_TASK)+'px';
   lbl.style.right=(t.pinned?18:7)+'px';
-  if(t.__ghost){bar.classList.add('is-ghost');lbl.textContent='Install · '+(p?p.name:'?');}
+  if(t.__ghost){bar.classList.add('is-ghost');lbl.textContent=(isInstall(t)?'Install':phaseLabel(t))+' · '+(p?p.name:'?');}
   else if(labelMode==='proj')lbl.textContent=p?p.name+(p.jobCode?' · '+p.jobCode:''):'?';
   else if(isInstall(t))lbl.textContent='Install — '+assigneeText(t);
   else lbl.textContent=phaseLabel(t);
   bar.appendChild(lbl);
   if(t.pinned){const pin=document.createElement('div');pin.className='bar-pin';pin.textContent='📌';bar.appendChild(pin);}
   if(CONFLICTS.has(t.id)){const wn=document.createElement('div');wn.className='bar-warn';wn.textContent='⚠';bar.appendChild(wn);}
-  /* Hatch the stretch of the bar where the assignee is out of office */
-  if(deptById(t.department)?.roster){
-    for(const o of oooOverlaps(t.assignee,t.startDate,t.endDate)){
+  /* Hatch the stretch of the bar where anyone on its crew is out of office */
+  for(const _n of barCrew(t)){
+    for(const o of oooOverlaps(_n,t.startDate,t.endDate)){
       const hs=parseDate(o.start<t.startDate?t.startDate:o.start);
       const he=parseDate(o.end>t.endDate?t.endDate:o.end);
       const hx=d2x(hs)-x;
@@ -2859,8 +2859,8 @@ function showTooltipTask(t,ev,hiNode){
     +'<div class="tt-dim">'+esc(assigneeText(t))+'</div>'
     +'<div class="tt-dim">'+fmtNice(t.startDate)+' → '+fmtNice(t.endDate)+' · '+days+'d</div>'
     +(t.notes?'<div class="tt-notes">'+esc(t.notes)+'</div>':'')
-    +(CONFLICTS.has(t.id)?'<div class="tt-warn">⚠ '+esc(assigneeText(t))+' is on another job during this window</div>':'')
-    +(deptById(t.department)?.roster?oooOverlaps(t.assignee,t.startDate,t.endDate).map(o=>'<div class="tt-warn">✈ '+esc(t.assignee||'')+' is out '+fmtNice(o.start)+' → '+fmtNice(o.end)+(o.note?' ('+esc(o.note)+')':'')+'</div>').join(''):'')
+    +(CONFLICTS.has(t.id)?'<div class="tt-warn">⚠ '+esc(barCrew(t).join(', ')||'Crew')+' is on another job during this window</div>':'')
+    +barCrew(t).map(n=>oooOverlaps(n,t.startDate,t.endDate).map(o=>'<div class="tt-warn">✈ '+esc(n)+' is out '+fmtNice(o.start)+' → '+fmtNice(o.end)+(o.note?' ('+esc(o.note)+')':'')+'</div>').join('')).join('')
     +tn
     +((t.updatedBy||t.updatedAt)?'<div class="tt-dim tt-upd">Updated by '+esc(t.updatedBy||'—')+(t.updatedAt?' · '+esc(timeAgo(t.updatedAt)):'')+'</div>':'')
     +'<div><span class="tt-badge">'+esc(STATUS_LBL[p?projectStatus(p):'estimating'])+'</span></div>';
@@ -2901,14 +2901,6 @@ function fillRoleChecks(elId,names,currentStr){
   }
 }
 function roleChecked(elId){return [...document.querySelectorAll('#'+elId+' input:checked')].map(c=>c.value).join(', ');}
-
-function fillSelect(sel,options,current){
-  sel.innerHTML='';
-  const blank=document.createElement('option');blank.value='';blank.textContent='—';sel.appendChild(blank);
-  for(const o of options){const op=document.createElement('option');op.value=o;op.textContent=o;sel.appendChild(op);}
-  if(current&&!options.includes(current)){const op=document.createElement('option');op.value=current;op.textContent=current;sel.appendChild(op);}
-  sel.value=current||'';
-}
 
 function buildDeptChecklist(p,boxId){
   const box=document.getElementById(boxId||'pm-depts');
@@ -2961,9 +2953,9 @@ function openProjModal(projId){
   goProject(projId||null);return;
 }
 /* ===================== TASK MODAL ===================== */
-function buildCrewList(checked){
+function buildCrewList(checked,pool){
   const box=document.getElementById('tm-crew');box.innerHTML='';
-  const names=[...new Set([...PEOPLE.map(p=>p.name),...checked])].sort((a,b)=>a.localeCompare(b));
+  const names=[...new Set([...((pool&&pool.length)?pool:PEOPLE.map(p=>p.name)),...checked])].sort((a,b)=>a.localeCompare(b));
   if(!names.length){box.innerHTML='<div class="tn-empty">No staff yet — add people in Settings.</div>';return;}
   for(const n of names){
     const l=document.createElement('label');
@@ -2977,34 +2969,33 @@ function tmAssigneeUI(deptId,current){
   const txt=document.getElementById('tm-assignee-txt');
   const lbl=document.getElementById('tm-assignee-lbl');
   const crew=document.getElementById('tm-crew');
+  if(d&&d.freeText){
+    crew.classList.add('hidden');sel.classList.add('hidden');txt.classList.remove('hidden');
+    txt.value=current||'';lbl.textContent='Process Name';
+    return;
+  }
+  /* Every department takes a crew of any size. Install picks from the whole staff;
+     everyone else culls to the selected project's team (falling back to the roster,
+     then the whole staff). */
+  sel.classList.add('hidden');txt.classList.add('hidden');crew.classList.remove('hidden');
+  const p=projById(document.getElementById('tm-project').value);
+  let checked=crewOf({assignee:current}).filter(n=>personByName(n));
   if(deptId==='install'){
-    sel.classList.add('hidden');txt.classList.add('hidden');crew.classList.remove('hidden');
     lbl.textContent='Install Crew — pick from full staff';
-    let checked=Array.isArray(current)?current:((current&&current!=='Installation')?[current]:[]);
-    if(!checked.length){
-      const p=projById(document.getElementById('tm-project').value);
-      if(p)checked=[p.projectManager,p.leadFab].filter(Boolean);
-    }
+    if(!checked.length&&p)checked=[...new Set([...roleList(p.projectManager),...roleList(p.leadFab)])];
     buildCrewList(checked);
     return;
   }
-  crew.classList.add('hidden');
-  if(d&&d.freeText){
-    sel.classList.add('hidden');txt.classList.remove('hidden');
-    txt.value=current||'';lbl.textContent='Process Name';
-  }else{
-    txt.classList.add('hidden');sel.classList.remove('hidden');
-    lbl.textContent='Assignee';
-    if(d&&d.roster)fillSelect(sel,STAFF[d.roster]||[],current);
-    else fillSelect(sel,d?[d.name]:[],current||(d?d.name:''));
-  }
+  lbl.textContent='Crew';
+  const team=p?projTeam(p):[];
+  buildCrewList(checked,team.length?team:(d&&d.roster?(STAFF[d.roster]||[]):null));
 }
 function tmAssigneeValue(){
   const dept=document.getElementById('tm-dept').value;
   const d=deptById(dept);
-  if(dept==='install')return [...document.querySelectorAll('#tm-crew input:checked')].map(c=>c.value);
   if(d&&d.freeText)return document.getElementById('tm-assignee-txt').value.trim()||'Other';
-  return document.getElementById('tm-assignee').value;
+  const names=[...document.querySelectorAll('#tm-crew input:checked')].map(c=>c.value);
+  return dept==='install'?names:names.join(', ');
 }
 function renderTnList(){
   const box=document.getElementById('tm-tnlist');
@@ -3048,7 +3039,8 @@ function openTaskModal(taskId,prefill){
   dsel.value=t?t.department:(prefill&&prefill.department)||'td';
   tmAssigneeUI(dsel.value,t?t.assignee:(prefill&&prefill.assignee)||'');
   dsel.onchange=()=>tmAssigneeUI(dsel.value,'');
-  psel.onchange=()=>{if(dsel.value==='install'&&!EDIT_TASK_ID)tmAssigneeUI('install','');};
+  /* The crew pool culls to the selected project's team, so a project change re-fills it. */
+  psel.onchange=()=>{if(!EDIT_TASK_ID)tmAssigneeUI(dsel.value,'');};
   const start=t?t.startDate:fmtDate(prefill&&prefill.start?prefill.start:today());
   document.getElementById('tm-start').value=start;
   document.getElementById('tm-end').value=t?t.endDate:fmtDate(addDays(parseDate(start),4));
@@ -3356,6 +3348,10 @@ const PP_ROLES=[['pp-r-pm','Project manager','projectManagers','projectManager']
                 ['pp-r-dr','Drafter','drafters','drafter'],
                 ['pp-r-lf','Lead fabricator','leadFabs','leadFab'],
                 ['pp-r-fb','Fabricators','leadFabs','fabricators']];
+/* The project's labor pool: everyone checked in any Team role, deduped. Crew pickers
+   cull to this — the pool moves fluidly between subtasks, but it's picked once, in the
+   project settings. */
+function projTeam(p){return [...new Set(PP_ROLES.flatMap(r=>roleList(p&&p[r[3]])))];}
 
 function ppColor(p){return p&&p.id?projColor(p.id):'#94A3B8';}
 
@@ -3556,17 +3552,8 @@ function renderPhaseRows(p){
     const d=deptById(t.department);
     const nm=phaseLabel(t);
     const col=DEPT_COLORS[t.department]||'#8A98AE';
-    const roster=d&&d.roster?(STAFF[d.roster]||[]):null;
-    let asHtml;
-    if(t.department==='install'){
-      asHtml='<input class="ph-as" data-f="assignee" value="'+esc(crewOf(t).join(', '))+'" placeholder="Crew">';
-    }else if(roster&&roster.length){
-      asHtml='<select class="ph-as" data-f="assignee"><option value="">&mdash;</option>'
-        +[...new Set([...roster,...(t.assignee?[t.assignee]:[])])].map(n=>'<option'+(n===t.assignee?' selected':'')+'>'+esc(n)+'</option>').join('')
-        +'</select>';
-    }else{
-      asHtml='<input class="ph-as" data-f="assignee" value="'+esc(t.assignee||'')+'" placeholder="&mdash;">';
-    }
+    /* One crew field for every row — comma-separated names, any number of people. */
+    const asHtml='<input class="ph-as" data-f="assignee" value="'+esc(crewOf(t).join(', '))+'" placeholder="'+(d&&d.roster?'Project team':'&mdash;')+'">';
     h+='<div class="ph-row" data-id="'+esc(t.id)+'">'
      + '<span class="ph-dept"><span class="ph-dot" style="background:'+col+'"></span>'+esc(nm)+'</span>'
      + asHtml
@@ -3790,18 +3777,20 @@ function ppInspector(){
     let f='<div class="ins-f"><label>Name</label>'
      + '<input id="ins-name" data-f="label" value="'+esc(sel.label||'')+'" placeholder="'+esc(d.name||sel.department)+'"></div>'
      + '<div class="ins-f"><label>Department</label><select data-f="department">'+deptOptions(sel.department)+'</select></div>';
-    /* Who sits on its own line above the dates. Always a picker off the people list —
-       install keeps multi-select (a crew), everyone else single. */
-    const who=Array.isArray(sel.assignee)?sel.assignee.join(', '):(sel.assignee||'');
-    if(sel.department==='install'){
-      const crew=Array.isArray(sel.assignee)?sel.assignee:String(sel.assignee||'').split(',').map(x=>x.trim()).filter(Boolean);
+    /* Crew sits on its own line above the dates. Every bar takes a crew of any size —
+       checkboxes culled to the project team (install pulls from the whole staff), plus
+       anyone already on the bar. Empty is fine: an unowned phase umbrella is implicitly
+       covered by the project team. */
+    if(!(d.freeText)){
+      const crew=crewOf(sel);
+      const pool=sel.department==='install'?allPeople():(projTeam(p).length?projTeam(p):allPeople());
       f+='<div class="ins-f"><label>Crew</label><div class="crew-list ins-crew" id="ins-crew">'
-       + [...new Set([...allPeople(),...crew])].map(n=>'<label><input type="checkbox" value="'+esc(n)+'"'
+       + [...new Set([...pool,...crew])].map(n=>'<label><input type="checkbox" value="'+esc(n)+'"'
          +(crew.indexOf(n)>=0?' checked':'')+'>'+esc(n)+'</label>').join('')
-       + '</div></div>';
-    }else
-      f+='<div class="ins-f"><label>Assigned</label><select data-f="assignee"><option value="">&mdash;</option>'
-       + allPeople().map(n=>'<option'+(n===who?' selected':'')+'>'+esc(n)+'</option>').join('')+'</select></div>';
+       + '</div>'
+       + (deptById(sel.department)?.roster?'<div class="ins-note">Leave empty to cover it with the project team.</div>':'')
+       + '</div>';
+    }
     f+='<div class="ins-row3">'
      + '<div class="ins-f"><label>Start</label><input type="date" data-f="startDate" value="'+esc(sel.startDate||'')+'"></div>'
      + '<div class="ins-f"><label>End</label><input type="date" data-f="endDate" value="'+esc(sel.endDate||'')+'"></div>'
@@ -3849,11 +3838,11 @@ function ppAgendaHTML(p,onlyDept){
   if(NPV_LIVE){
     for(const e of liveEvents(p))rows.push({k:'ev',id:e.id,nm:e.name,date:e.date,dept:e.dept});
     for(const t of liveTodos(p))rows.push({k:'tk',id:t.id,nm:t.title,date:t.due,dept:t.dept,
-      mt:(t.who&&t.who[0])||''});
+      mt:(t.who||[]).join(', ')});
   }else{
     for(const e of NPV_EVENTS)rows.push({k:'ev',id:e.id,nm:e.name,date:e.date,dept:e.dept});
     for(const t of NPV_TODOS)rows.push({k:'tk',id:t.id,nm:t.title,date:t.due,dept:t.dept,
-      mt:(t.who&&t.who[0])||''});
+      mt:(t.who||[]).join(', ')});
   }
   const shown=onlyDept?rows.filter(r=>r.dept===onlyDept):rows;
   shown.sort((a,b)=>{
@@ -4243,11 +4232,11 @@ function npvSyncOrder(tasks){
 function applyPhaseLines(tasks){
   const byDept={};
   for(const l of NPV_LINES){
-    /* A line renders if it has a name OR a person. Unnamed-but-assigned lines are the
-       roster fan-out (one bar per person) after ppSeedLines line-backed it — dropping
-       them here is what used to delete everyone else's bar on a rename. Blank
-       placeholder lines (no name, no who) still don't render. */
-    if(!l.dept||(!(l.name||'').trim()&&!(l.who||'').trim()))continue;
+    /* A line renders if it has a name, a crew, or was seeded off an existing bar
+       (seed:true — an unowned umbrella is blank on both counts but is still a real
+       bar; dropping it here swallowed the department's primary bar on the first
+       subtask). Blank placeholder lines typed into the panel still don't render. */
+    if(!l.dept||(!(l.name||'').trim()&&!(l.who||'').trim()&&!l.seed))continue;
     (byDept[l.dept]=byDept[l.dept]||[]).push(l);
   }
   if(!Object.keys(byDept).length)return tasks;
@@ -5104,7 +5093,7 @@ function liveAddTodo(p,dept,due,name){
 function liveCommitTodo(id,field,val){
   liveSave(null,(ST.todos||[]).map(t=>{
     if(t.id!==id)return t;
-    if(field==='who')return{...t,who:val?[val]:[]};
+    if(field==='who')return{...t,who:Array.isArray(val)?val:String(val||'').split(',').map(x=>x.trim()).filter(Boolean)};
     return{...t,[field]:val};
   }));
 }
@@ -5135,15 +5124,12 @@ function renderDraftLines(){
       +'into named pieces &mdash; "Madison Fa\u00e7ade | Initial Designs", "5th Ave Windows | Initial Designs".</div>';
     return;
   }
-  const ppl=allPeople();
-  let h='<div class="dr-hd ln"><span>Line</span><span>Department</span><span>Who</span><span></span></div>';
+  let h='<div class="dr-hd ln"><span>Line</span><span>Department</span><span>Crew</span><span></span></div>';
   for(const l of NPV_LINES){
     h+='<div class="dr-row ln" data-id="'+esc(l.id)+'">'
      + '<input data-f="name" value="'+esc(l.name||'')+'" placeholder="Madison Fa\u00e7ade | Initial Designs">'
      + '<select data-f="dept">'+activeDeptOptions(l.dept)+'</select>'
-     + '<select data-f="who"><option value="">&mdash;</option>'
-     +   ppl.map(n=>'<option'+(n===l.who?' selected':'')+'>'+esc(n)+'</option>').join('')
-     + '</select>'
+     + '<input data-f="who" value="'+esc(l.who||'')+'" placeholder="&mdash;" title="Comma-separated names \u2014 or click the bar for checkboxes">'
      + '<button class="dr-del" title="Remove">&times;</button></div>';
   }
   box.innerHTML=h;
@@ -5200,15 +5186,11 @@ function renderDraftTodos(){
   const p=NPV_LIVE?ppProject():null;
   const rows=p?liveTodos(p):NPV_TODOS;
   if(!rows.length){box.innerHTML='<div class="dr-none">No tasks yet. Drawings due, order acrylic, confirm dock time.</div>';return;}
-  const ppl=allPeople();
   let h='<div class="dr-hd tk"><span>Task</span><span>Assigned</span><span>Due</span><span>Priority</span><span></span></div>';
   for(const t of rows){
-    const who=(t.who&&t.who[0])||'';
     h+='<div class="dr-row tk" data-id="'+esc(t.id)+'">'
      + '<input data-f="title" value="'+esc(t.title||'')+'" placeholder="Drawings due">'
-     + '<select data-f="who"><option value="">&mdash;</option>'
-     +   ppl.map(n=>'<option'+(n===who?' selected':'')+'>'+esc(n)+'</option>').join('')
-     + '</select>'
+     + '<input data-f="who" value="'+esc((t.who||[]).join(', '))+'" placeholder="&mdash;" title="Comma-separated names">'
      + '<input data-f="due" type="date" value="'+esc(t.due||'')+'">'
      + '<select data-f="priority">'+PRIOS.map(x=>
          '<option value="'+x+'"'+(x===(t.priority||'medium')?' selected':'')+'>'+PRIO_LBL[x]+'</option>').join('')
@@ -5229,7 +5211,7 @@ function renderDraftTodos(){
     }
     const t=NPV_TODOS.find(x=>x.id===id);
     r.querySelectorAll('[data-f]').forEach(i=>i.addEventListener('change',()=>{
-      if(i.dataset.f==='who')t.who=i.value?[i.value]:[];
+      if(i.dataset.f==='who')t.who=i.value.split(',').map(x=>x.trim()).filter(Boolean);
       else t[i.dataset.f]=i.value;
       npvRender();
     }));
@@ -5254,7 +5236,7 @@ function renderSideList(){
           mt:e.dept?((deptById(e.dept)||{}).name||''):''});
       for(const t of liveTodos(pj0))
         rows.push({k:'tk',d:t.due,nm:t.title||'Untitled task',
-          mt:[(t.who&&t.who[0])||'',t.priority&&t.priority!=='medium'?PRIO_LBL[t.priority]:''].filter(Boolean).join(' \u00b7 ')});
+          mt:[(t.who||[]).join(', '),t.priority&&t.priority!=='medium'?PRIO_LBL[t.priority]:''].filter(Boolean).join(' \u00b7 ')});
     }
     rows.sort((a,b)=>String(a.d||'9999').localeCompare(String(b.d||'9999')));
     const hd0=document.getElementById('pp-side-hd');
@@ -5267,7 +5249,7 @@ function renderSideList(){
   for(const e of NPV_EVENTS)if(e.name||e.date)rows.push({k:'ev',d:e.date,nm:e.name||'Untitled event',
     mt:e.dept?(deptById(e.dept)||{}).name||'':''});
   for(const t of NPV_TODOS)if(t.title||t.due)rows.push({k:'tk',d:t.due,nm:t.title||'Untitled task',
-    mt:[(t.who&&t.who[0])||'',t.priority&&t.priority!=='medium'?PRIO_LBL[t.priority]:''].filter(Boolean).join(' · ')});
+    mt:[(t.who||[]).join(', '),t.priority&&t.priority!=='medium'?PRIO_LBL[t.priority]:''].filter(Boolean).join(' · ')});
   rows.sort((a,b)=>String(a.d||'9999').localeCompare(String(b.d||'9999')));
   const hd=document.getElementById('pp-side-hd')||document.getElementById('npv-side-hd');
   if(hd)hd.textContent='Events & tasks'+(rows.length?' ('+rows.length+')':'');
@@ -5567,14 +5549,15 @@ function ppOpenPopLegacy(idx,barEl){
   body.classList.add('picking');
   barEl.classList.add('sel');
 
-  const roster=d.roster?(STAFF[d.roster]||[]):null;
-  const who=Array.isArray(t.assignee)?t.assignee.join(', '):(t.assignee||'');
-  /* Who is always a picker — the roster when the department has one, the whole people
-     list otherwise. Free text is gone: names come from the Staff list, nowhere else. */
-  const pool=(roster&&roster.length)?roster:allPeople();
-  const whoField='<select id="bp-who"><option value="">&mdash;</option>'
-    + [...new Set([...pool,...(who?[who]:[])])].map(n=>'<option'+(n===who?' selected':'')+'>'+esc(n)+'</option>').join('')
-    + '</select>';
+  /* Crew checkboxes, any size — culled to the project team, plus anyone already on the
+     bar. Free text is gone: names come from the Staff list, nowhere else. */
+  const crew=crewOf(t).filter(n=>personByName(n));
+  const team=projTeam(ppProject());
+  const pool=team.length?team:allPeople();
+  const whoField='<div class="crew-list" id="bp-who" style="grid-template-columns:repeat(2,1fr);max-height:96px">'
+    + [...new Set([...pool,...crew])].map(n=>'<label><input type="checkbox" value="'+esc(n)+'"'
+      +(crew.indexOf(n)>=0?' checked':'')+'>'+esc(n)+'</label>').join('')
+    + '</div>';
 
   const el=document.createElement('div');
   el.className='bp';el.id='bar-pop';
@@ -5618,7 +5601,8 @@ function ppOpenPopLegacy(idx,barEl){
 
   const nameEl=document.getElementById('bp-name');
   nameEl.addEventListener('change',()=>ppPopName(t,nameEl.value.trim()));
-  document.getElementById('bp-who').addEventListener('change',e=>ppPopWho(t,e.target.value));
+  document.getElementById('bp-who').addEventListener('change',()=>
+    ppPopWho(t,[...document.querySelectorAll('#bp-who input:checked')].map(c=>c.value).join(', ')));
   document.getElementById('bp-d').addEventListener('change',e=>ppPopDays(t,e.target.value));
   document.getElementById('bp-s').addEventListener('change',e=>ppPopDate(t,'s',e.target.value));
   document.getElementById('bp-e').addEventListener('change',e=>ppPopDate(t,'e',e.target.value));
@@ -5644,7 +5628,7 @@ function ppOpenPopLegacy(idx,barEl){
 function ppSeedLines(dept){
   if(NPV_LINES.some(l=>l.dept===dept))return;
   for(const b of (NPV_ALL||[]).filter(t=>t.department===dept))
-    NPV_LINES.push({id:genId(),name:b.label||'',dept:dept,
+    NPV_LINES.push({id:genId(),name:b.label||'',dept:dept,seed:true,
       who:Array.isArray(b.assignee)?b.assignee.join(', '):(b.assignee||'')});
 }
 function ppDraftLineFor(t){
@@ -5655,7 +5639,7 @@ function ppDraftLineFor(t){
   let l=lid?NPV_LINES.find(x=>x.id===lid):null;
   if(!l)l=NPV_LINES.find(x=>x.dept===t.department&&(x.name||'').trim()===(t.label||'').trim()
         &&(!x.who||x.who===t.assignee));
-  if(!l){l={id:genId(),name:t.label||'',dept:t.department,
+  if(!l){l={id:genId(),name:t.label||'',dept:t.department,seed:true,
     who:Array.isArray(t.assignee)?t.assignee.join(', '):(t.assignee||'')};NPV_LINES.push(l);}
   return l;
 }
@@ -5673,7 +5657,8 @@ function ppPopName(t,v){
 function ppPopWho(t,v){
   if(NPV_LIVE){commitPhase(t.id,'assignee',v);npvRebuild();return;}
   ppDraftLineFor(t).who=v;
-  renderDraftLines();npvRebuild();ppClosePop();
+  /* Stays open — ticking a second crew member shouldn't cost a reopen. */
+  renderDraftLines();npvRebuild();
 }
 function ppPopDays(t,v){
   const n=Math.max(1,parseInt(v,10)||1);
@@ -6004,11 +5989,8 @@ function savePageProject(){
       if(t.projectId!==p.id)return t;
       const d=deptById(t.department);
       if(d&&d.freeText){const lbl=otherLabels[t.department];return lbl?{...t,assignee:lbl}:t;}
-      if(d&&d.roster){
-        const lst=roleListFor(p,t.department);
-        if(!lst.length||lst.includes(t.assignee))return t;
-        return{...t,assignee:lst[0]};
-      }
+      /* Roster bars keep their crews on a team change — unowned umbrellas follow the
+         team implicitly (barCrew), and explicit crews are deliberate per-subtask picks. */
       return t;
     });
     const haveDept=new Set(oldTasksForProj.map(t=>t.department));

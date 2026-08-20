@@ -1,22 +1,20 @@
-/* REV62: the roster fan-out and the named-lines system stop fighting on drafts.
-   Background: PM/TD/Fab draw one parallel bar per person named in the role (deliberate
-   since the beginning); draft bars regenerate per keystroke, so only NPV_LINES are
-   durable. Editing one bar created a line for it alone — and applyPhaseLines then
-   rebuilt the whole department from lines, silently deleting everyone else's bar
-   (rename "removed all subtasks"), while deleting one person's bar fell through to
-   unchecking the entire department.
-   Now: before a department's first line is touched, ALL of its bars are line-backed
-   (ppSeedLines), unnamed-but-assigned lines render, and deleting one of several bars
-   removes only that bar.
-   Skips entirely on builds that predate REV62.
+/* REV63: work priority over people priority (supersedes the REV62 fan-out fixes).
+   Background: PM/TD/Fab used to draw one parallel bar per person named in the role
+   (the roster fan-out). Now a bar is a piece of work: departments generate ONE umbrella
+   bar with no owner (ownership is implicit through the project team — barCrew), crews
+   of any size ride on bars as comma-joined names, and subtasks (lines) split the work.
+   This suite walks that lifecycle on the draft page: one bar per department, a crew
+   edit lands on one bar, renames and deletes touch only their bar, and a new subtask
+   arrives as its own line.
+   Skips entirely on builds that predate the work-priority change.
    Run: node test62.js index.html */
 const {boot}=require('./harness');
 const fs=require('fs');
 const FILE=process.argv[2]||'index.html';
 const src=fs.readFileSync(FILE,'utf8');
 
-if(!/ppSeedLines/.test(src)){
-  console.log('  SKIP  build predates REV62 (no fan-out line seeding) — nothing to assert');
+if(!/barCrew/.test(src)){
+  console.log('  SKIP  build predates work-priority crews (no barCrew) — nothing to assert');
   console.log('\n'+'-'.repeat(46));
   console.log('  0 passed, 0 failed   ['+FILE+']');
   process.exit(0);
@@ -36,57 +34,58 @@ setTimeout(()=>{
   E("PEOPLE=[{name:'Peter',depts:['td']},{name:'Chris',depts:['td']},{name:'Kate',depts:['td']},{name:'Stan',depts:['td']}];rebuildStaff();");
   route('#/project/new');
   setTimeout(()=>{
-    sec('Three drafters fan out to three parallel bars (deliberate)');
-    /* Check the real Team boxes — ppFormSync reads the DOM, so PP_FORM alone won't hold. */
+    sec('Three drafters make ONE unowned bar — work priority, not people priority');
     ['Peter','Chris','Kate'].forEach(n=>{
       const cb=[...doc.querySelectorAll('#pp-r-dr input')].find(i=>i.value===n);
       cb.checked=true;cb.dispatchEvent(new win.Event('change',{bubbles:true}));
     });
     setTimeout(()=>{
       let bars=tdBars();
-      ok('one bar per person',bars.length===3,JSON.stringify(bars));
-      ok('each carries its person',['Peter','Chris','Kate'].every(n=>bars.some(b=>b.who===n)));
-      /* Collapsed departments draw every bar on the parent row (the "overlaid bars"
-         look) — nested rows appear once the disclosure is open. */
-      E("NPV_OPEN.add('td');npvRender();");
-      ok('open, the chart shows a parent row with two nested subtask rows',
-         [...doc.querySelectorAll('#npv-body .npv-row.child')].length>=2);
+      ok('one bar for the department',bars.length===1,JSON.stringify(bars));
+      ok('the umbrella bar carries no owner',bars[0]&&!bars[0].who,JSON.stringify(bars));
 
-      sec('Renaming one bar keeps everyone else (was: deleted them all)');
-      E("var _t=NPV_TASKS.find(t=>t.department==='td'&&t.assignee==='Chris');ppPopName(_t,'Elevations');");
+      sec('A crew of any size rides on a bar as comma-joined names');
+      E("var _t=NPV_TASKS.find(t=>t.department==='td');ppPopWho(_t,'Peter, Chris');");
       setTimeout(()=>{
         bars=tdBars();
-        ok('still three bars',bars.length===3,JSON.stringify(bars));
-        ok('the renamed bar carries the new name and its person',
-           bars.some(b=>b.label==='Elevations'&&b.who==='Chris'));
-        ok('the other two are untouched',
-           bars.some(b=>b.who==='Peter'&&!b.label)&&bars.some(b=>b.who==='Kate'&&!b.label));
+        ok('still one bar after the crew edit',bars.length===1,JSON.stringify(bars));
+        ok('the bar carries both people',bars[0].who==='Peter, Chris',bars[0].who);
+        ok('crewOf splits the comma list',
+           E("JSON.stringify(crewOf(NPV_TASKS.find(t=>t.department==='td')))")==='["Peter","Chris"]');
 
-        sec('Changing who on one bar keeps the others');
-        E("var _t2=NPV_TASKS.find(t=>t.department==='td'&&t.assignee==='Kate');ppPopWho(_t2,'Stan');");
+        sec('Renaming the bar keeps its crew');
+        E("var _t2=NPV_TASKS.find(t=>t.department==='td');ppPopName(_t2,'Armature');");
         setTimeout(()=>{
           bars=tdBars();
-          ok('still three bars after a who edit',bars.length===3,JSON.stringify(bars));
-          ok('the edit landed on the one bar',bars.some(b=>b.who==='Stan')&&!bars.some(b=>b.who==='Kate'));
+          ok('still one bar',bars.length===1,JSON.stringify(bars));
+          ok('name and crew both held',bars[0].label==='Armature'&&bars[0].who==='Peter, Chris',
+             JSON.stringify(bars));
 
-          sec('Deleting one bar of several removes just that bar');
-          /* confirm() is stubbed true by the harness. */
-          E("var _t3=NPV_TASKS.find(t=>t.department==='td'&&t.assignee==='Stan');ppPopDelete(_t3);");
+          sec('A subtask splits the work; a crew edit lands on it alone');
+          E("npvCreateSubtask('td','');");
           setTimeout(()=>{
             bars=tdBars();
-            ok('two bars remain',bars.length===2,JSON.stringify(bars));
-            ok('the department is still active',E("PP_FORM.activeDepartments.includes('td')"));
-
-            sec('Adding a subtask keeps the fan-out (same root cause)');
-            E("npvCreateSubtask('td','');");
+            ok('two bars — the work split',bars.length===2,JSON.stringify(bars));
+            ok('the new subtask is born named',bars.some(b=>/^Subtask \d+$/.test(b.label)));
+            E("var _t3=NPV_TASKS.find(t=>t.department==='td'&&/^Subtask/.test(t.label||''));ppPopWho(_t3,'Kate');");
             setTimeout(()=>{
               bars=tdBars();
-              ok('the two people plus the new subtask',bars.length===3,JSON.stringify(bars));
-              ok('the new subtask is born named',bars.some(b=>/^Subtask \d+$/.test(b.label)));
-              sec('Draft-only system: the saved page never runs applyPhaseLines');
-              ok('NPV_LINES is a draft store (guard: saved rebuild reads ST directly)',
-                 /if\(NPV_LIVE\)\{[\s\S]{0,200}tasksOf/.test(src));
-              done();
+              ok('the crew edit landed on the subtask',bars.some(b=>b.who==='Kate'),JSON.stringify(bars));
+              ok('the Armature crew is untouched',
+                 bars.some(b=>b.label==='Armature'&&b.who==='Peter, Chris'),JSON.stringify(bars));
+
+              sec('Deleting one bar of several removes just that bar');
+              /* confirm() is stubbed true by the harness. */
+              E("var _t4=NPV_TASKS.find(t=>t.department==='td'&&t.assignee==='Kate');ppPopDelete(_t4);");
+              setTimeout(()=>{
+                bars=tdBars();
+                ok('one bar remains',bars.length===1,JSON.stringify(bars));
+                ok('the department is still active',E("PP_FORM.activeDepartments.includes('td')"));
+                sec('Draft-only system: the saved page never runs applyPhaseLines');
+                ok('NPV_LINES is a draft store (guard: saved rebuild reads ST directly)',
+                   /if\(NPV_LIVE\)\{[\s\S]{0,200}tasksOf/.test(src));
+                done();
+              },400);
             },400);
           },400);
         },400);

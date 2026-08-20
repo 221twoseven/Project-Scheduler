@@ -2,7 +2,8 @@
    - The +Subtask/+Event/+Task buttons leave both left-click surfaces (draft popover,
      saved-page inspector) — creation lives on right-click and the S/E/T keys.
    - "Who" moves to its own line above Start/End/Days, and is always a picker fed by
-     the people list (install keeps a multi-select crew; free text is gone).
+     the people list (free text is gone). Since the work-priority change, every
+     department takes a crew checkbox list of any size, culled to the project team.
    - Draft popover Start/End are editable — they commit like a drag (workday-snapped,
      into the manual overlay).
    - A scroll INSIDE the popover (an input scrolling its own overflowing text while
@@ -61,9 +62,10 @@ function draftStage(){
     ok('the add buttons are gone (right-click owns creation)',
        !doc.getElementById('bp-add-ph')&&!doc.getElementById('bp-add-ev')&&!doc.getElementById('bp-add-tk'));
     const whoEl=doc.getElementById('bp-who');
-    ok('Who is a picker, not free text',whoEl&&whoEl.tagName==='SELECT');
+    ok('Who is a crew checkbox list, not free text',
+       whoEl&&whoEl.classList.contains('crew-list')&&!!whoEl.querySelector('input[type="checkbox"]'));
     ok('the picker is fed by the people list',
-       whoEl&&[...whoEl.options].some(o=>o.value==='Alice A.'));
+       whoEl&&[...whoEl.querySelectorAll('input')].some(i=>i.value==='Alice A.'));
     ok('Who sits on its own line above the dates grid',
        whoEl&&!whoEl.closest('.bp-grid')&&!!doc.getElementById('bp-s').closest('.bp-grid'));
 
@@ -111,12 +113,26 @@ function savedStage(){
          !doc.getElementById('ins-sub')&&!doc.getElementById('ins-ev')&&!doc.getElementById('ins-tk'));
       ok('Duplicate and Delete remain',
          !!doc.getElementById('ins-dup')&&!!doc.getElementById('ins-del'));
-      const whoSel=q('#pp-insp select[data-f="assignee"]');
-      ok('Assigned is a picker off the people list',
-         whoSel&&[...whoSel.options].some(o=>o.textContent==='Alice A.'));
+      const whoTd=doc.getElementById('ins-crew');
+      ok('Crew is a checkbox list on a roster phase too',
+         !!whoTd&&!!whoTd.querySelector('input[type="checkbox"]'));
+      ok('the pool culls to the project team, not the whole staff',
+         !!whoTd&&[...whoTd.querySelectorAll('input')].some(i=>i.value==='Stan')
+         &&![...whoTd.querySelectorAll('input')].some(i=>i.value==='Alice A.'));
+      ok('the current crew is pre-checked',
+         !!whoTd&&[...whoTd.querySelectorAll('input:checked')].map(i=>i.value).join()==='Peter');
       const row3=q('#pp-insp .ins-row3');
       ok('Who renders above Start/End/Days',
-         whoSel&&row3&&(whoSel.compareDocumentPosition(row3)&win.Node.DOCUMENT_POSITION_FOLLOWING));
+         whoTd&&row3&&(whoTd.compareDocumentPosition(row3)&win.Node.DOCUMENT_POSITION_FOLLOWING));
+      const stan=[...whoTd.querySelectorAll('input')].find(i=>i.value==='Stan');
+      stan.checked=true;change(stan);
+      setTimeout(()=>{
+        const calls=win.__spCalls.filter(c=>c.method==='PATCH'&&c.body&&c.body.assignee);
+        const last=calls[calls.length-1];
+        ok('a second name saves as a plain comma list (colleague-app-readable)',
+           !!last&&!/[\[\]"]/.test(last.body.assignee)
+           &&/Peter/.test(last.body.assignee)&&/Stan/.test(last.body.assignee),
+           last&&last.body.assignee);
 
       sec('Install crew is a multi-select people picker that persists');
       E("ppSelect(ST.tasks.find(t=>t.department==='install').id);");
@@ -138,6 +154,7 @@ function savedStage(){
           done();
         },600);
       },400);
+      },600);
     },400);
   },800);
 }
