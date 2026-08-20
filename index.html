@@ -485,6 +485,9 @@ body.vivid .npv-we{background:#F1F5F9}
 .npv-foot{display:flex;align-items:center;gap:14px;padding:9px 12px;border-top:1px solid #E2E8F0;background:#FBFDFF;font-size:11px;color:#5B6B85;flex-wrap:wrap}
 .npv-foot b{font-weight:700;color:#16202E}
 .npv-foot .warn{color:#CE4242;font-weight:700}
+/* N4: the status pill sits static and right-justified in the footer, not absolute. */
+.npv-foot .sum-pill{position:static;transform:none;margin-left:auto;pointer-events:none;
+  border:1px solid #E2E8F0}
 .npv-empty{padding:36px 18px;text-align:center;font-size:12.5px;color:#94A3B8;font-style:italic}
 .npv-tip{font-size:11px;color:#94A3B8;margin-top:8px;line-height:1.5}
 
@@ -656,6 +659,10 @@ body.vivid .npv-we{background:#F1F5F9}
 .pg-name:focus{border-bottom-color:var(--acc)}
 .pg-name.err{border-bottom-color:#CE4242}
 .pg-code{font-size:12px;font-family:var(--mono);color:#94A3B8;flex-shrink:0}
+/* N1: breadcrumb tail after the project name while a phase is selected. */
+.pg-bc{background:none;border:none;font-family:inherit;font-size:13px;font-weight:700;
+  color:#475569;cursor:pointer;white-space:nowrap;flex-shrink:0;padding:2px 6px}
+.pg-bc:hover{color:var(--acc)}
 .pg-cols2{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:16px;align-items:start;margin-top:14px}
 .pg-panel{background:#fff;border:1px solid #E2E8F0;border-radius:0 9px 9px 9px;padding:14px;min-height:210px}
 .pg-panel .pg-sec:first-child{margin-top:0}
@@ -3328,8 +3335,8 @@ function renderProjectPage(){
    + '<button class="pg-back" id="pp-back" title="Go back to the timeline (Esc)"><i></i>&larr; Timeline <kbd>esc</kbd></button>'
    + '<span class="pg-dot" style="background:'+ppColor(p)+'"></span>'
    + '<input class="pg-name" id="pp-name" placeholder="Project name" value="'+esc(p.name||'')+'">'
-   + (isNew?'<span class="pg-code">New project</span>'
-          :'<span class="sum-pill" data-st="'+esc(st)+'">'+esc(STATUS_LBL[st]||st)+'</span>')
+   + '<button class="pg-bc hidden" id="pp-bc" title="Back to the project (Esc)">&lsaquo; <b></b></button>'
+   + (isNew?'<span class="pg-code">New project</span>':'')
    + '</div>';
 
   /* The numbers that answer "where is this job" without reading the chart. */
@@ -3402,6 +3409,9 @@ function renderProjectPage(){
     nm.classList.remove('err');
     if(!isNew)ppCommitField('name',nm.value.trim());
   });
+  nm.addEventListener('input',()=>{if(nm.style.maxWidth)nm.style.maxWidth=(nm.value.length+3)+'ch';});
+  const bc=document.getElementById('pp-bc');
+  if(bc)bc.addEventListener('click',()=>ppSelect(null));
 
   const rst=document.getElementById('npv-reset');
   if(rst)rst.addEventListener('click',()=>{NPV_MANUAL={};NPV_ORDER=[];NPV_ORDER_DIRTY=false;npvRebuild();});
@@ -3582,12 +3592,26 @@ function ppSelect(id,quiet){
     document.querySelectorAll('#npv-body .cal-band.ph[data-i="'+i+'"]').forEach(b=>b.classList.add('pick'));
   }
   ppInspector();
+  ppPaintCrumb();
   if(!quiet&&PP_SEL){
     const nm=document.getElementById('ins-name');
     if(nm&&!nm.value)nm.focus();
   }
 }
 function ppSelected(){return PP_SEL?taskById(PP_SEL):null;}
+
+/* N1: the page-level breadcrumb tail — Timeline ‹ project ‹ phase. The first two live
+   in the title row already (back button, name); this paints the phase segment when a
+   bar is selected. Clicking it unwinds one layer, exactly what Escape does. */
+function ppPaintCrumb(){
+  const bc=document.getElementById('pp-bc'),nm=document.getElementById('pp-name');
+  if(!bc)return;
+  const sel=NPV_LIVE?ppSelected():null;
+  bc.classList.toggle('hidden',!sel);
+  /* Cap the flexible name input while the tail shows, so the trail reads adjacently. */
+  if(nm)nm.style.maxWidth=sel?((nm.value.length+3)+'ch'):'';
+  if(sel)bc.querySelector('b').textContent=phaseLabel(sel);
+}
 
 /* REV50: the inspector builds its own department list. buildDeptChecklist stays as-is
    for the staff modal, whose wide grid it was designed for. Same data attributes
@@ -5208,7 +5232,15 @@ function npvPaintCalendar(lo,hi,dl){
 
 function npvPaintFooter(dl){
   const foot=document.getElementById('npv-foot');
-  if(!foot||!NPV_TASKS.length)return;
+  if(!foot)return;
+  /* N4: the status pill anchors here, right-justified with the schedule numbers,
+     instead of floating in the title row. Drafts have no status yet. */
+  const p=ppProject();
+  const pill=(!ROUTE.creating&&p&&p.id)
+    ? (()=>{const st=projectStatus(p);
+        return '<span class="sum-pill" data-st="'+esc(st)+'">'+esc(STATUS_LBL[st]||st)+'</span>';})()
+    : '';
+  if(!NPV_TASKS.length){foot.innerHTML=pill;return;}
   const starts=NPV_TASKS.map(t=>parseDate(t.startDate));
   const kick=new Date(Math.min(...starts.map(d2=>d2.getTime())));
   const lead=wdCount(kick,dl);
@@ -5217,7 +5249,8 @@ function npvPaintFooter(dl){
    + '<span>Lead time <b>'+lead+'</b> workdays</span>'
    + '<span class="'+(slack<0?'warn':'')+'">'+(slack<0
       ? 'Starts '+Math.abs(slack)+' workdays ago'
-      : 'Starts in <b>'+slack+'</b> workdays')+'</span>';
+      : 'Starts in <b>'+slack+'</b> workdays')+'</span>'
+   + pill;
 }
 
 function npvBindReorder(){
