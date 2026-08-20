@@ -408,9 +408,6 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 #page{position:fixed;top:50px;bottom:0;left:0;right:0;overflow:auto;background:var(--paper);z-index:9}
 .pg{max-width:1060px;margin:0 auto;padding:22px 26px 80px}
 .pg-top{display:flex;align-items:center;gap:12px;margin-bottom:14px}
-.pg-back{background:#fff;border:1px solid #CBD6E4;border-radius:6px;padding:5px 12px;font-size:12px;font-weight:600;color:#475569;cursor:pointer;font-family:inherit}
-.pg-back:hover{border-color:var(--acc);color:var(--acc)}
-.pg-crumb{flex:1;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#94A3B8;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 .pg-title{width:100%;border:none;border-bottom:2px solid transparent;background:transparent;font-family:inherit;font-size:27px;font-weight:700;color:#16202E;padding:2px 0 6px;outline:none;margin-bottom:16px}
 .pg-title:hover{border-bottom-color:#DCE5F0}
 .pg-title:focus{border-bottom-color:var(--acc)}
@@ -652,22 +649,17 @@ body.vivid .npv-we{background:#F1F5F9}
 .pg.split{max-width:none}
 .pg2{max-width:none;padding:16px 26px 90px}
 .pg-top{display:flex;align-items:center;gap:11px;margin-bottom:12px}
-.pg-back{background:var(--acc);border:none;color:#fff;border-radius:7px;padding:7px 14px;font-size:12.5px;
-  font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:7px;flex-shrink:0}
-.pg-back:hover{filter:brightness(1.1)}
-.pg-back kbd{font-family:var(--mono);font-size:var(--fs-fine);font-weight:700;border:1px solid rgba(255,255,255,.55);
-  border-radius:3px;padding:0 4px;opacity:.85}
-.pg-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
-.pg-name{border:none;border-bottom:2px solid transparent;background:transparent;font-family:inherit;
-  font-size:19px;font-weight:700;color:#16202E;padding:2px 0;outline:none;min-width:220px;flex:1}
-.pg-name:hover{border-bottom-color:#DCE5F0}
-.pg-name:focus{border-bottom-color:var(--acc)}
-.pg-name.err{border-bottom-color:#CE4242}
 .pg-code{font-size:12px;font-family:var(--mono);color:#94A3B8;flex-shrink:0}
-/* N1: breadcrumb tail after the project name while a phase is selected. */
-.pg-bc{background:none;border:none;font-family:inherit;font-size:13px;font-weight:700;
-  color:#475569;cursor:pointer;white-space:nowrap;flex-shrink:0;padding:2px 6px}
-.pg-bc:hover{color:var(--acc)}
+/* The breadcrumb trail: All Projects › project › phase. Links are muted, the current
+   (deepest) segment is dark; everything sits on one 14px text line. */
+.pg-trail{display:flex;align-items:center;gap:9px;min-width:0;flex:1}
+.pg-cr{background:none;border:none;font-family:inherit;font-size:14px;font-weight:600;
+  color:#5B6B84;cursor:pointer;white-space:nowrap;padding:3px 2px;min-width:0;
+  overflow:hidden;text-overflow:ellipsis}
+.pg-cr:hover{color:var(--acc)}
+.pg-cr.cur{color:#16202E;font-weight:700;cursor:default}
+.pg-cr.cur:hover{color:#16202E}
+.pg-sep{color:#B4C0D0;font-size:14px;font-weight:700;flex-shrink:0;user-select:none}
 .pg-cols2{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:16px;align-items:start;margin-top:14px}
 .pg-panel{background:#fff;border:1px solid #E2E8F0;border-radius:0 9px 9px 9px;padding:14px;min-height:210px}
 .pg-panel .pg-sec:first-child{margin-top:0}
@@ -811,6 +803,7 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
   box-sizing:border-box}
 .ins-f input:focus,.ins-f select:focus,.ins-f textarea:focus{border-color:var(--acc);
   box-shadow:0 0 0 3px rgba(59,127,214,.12)}
+.ins-f input.err{border-color:#CE4242}
 .ins-row{display:grid;grid-template-columns:1fr 1fr;gap:9px}
 .ins-row3{display:grid;grid-template-columns:1fr 1fr 64px;gap:9px}
 .ins-note{font-size:var(--fs-fine);color:#94A3B8;line-height:1.45;margin:-3px 0 10px}
@@ -3387,11 +3380,16 @@ function renderProjectPage(){
   /* REV49 — chart and inspector side by side, full height. */
   let h='<div class="pg dash">';
 
-  h+='<div class="dash-top">'
-   + '<button class="pg-back" id="pp-back" title="Go back to the timeline (Esc)"><i></i>&larr; Timeline <kbd>esc</kbd></button>'
-   + '<span class="pg-dot" style="background:'+ppColor(p)+'"></span>'
-   + '<input class="pg-name" id="pp-name" placeholder="Project name" value="'+esc(p.name||'')+'">'
-   + '<button class="pg-bc hidden" id="pp-bc" title="Back to the project (Esc)">&lsaquo; <b></b></button>'
+  /* One breadcrumb trail: All Projects › name › phase. The name is edited in the
+     Setup section below, not here — the trail is navigation, nothing else. */
+  h+='<div class="dash-top"><nav class="pg-trail">'
+   + '<button class="pg-cr" id="pp-back" title="Back to all projects (Esc)">All Projects</button>'
+   + '<span class="pg-sep">&rsaquo;</span>'
+   + '<button class="pg-cr cur" id="pp-title" title="Back to the project (Esc)">'
+   +   esc((isNew?(PP_FORM&&PP_FORM.name):p.name)||'New project')+'</button>'
+   + '<span class="pg-sep hidden" id="pp-bc-sep">&rsaquo;</span>'
+   + '<button class="pg-cr pg-bc cur hidden" id="pp-bc" title="Deselect the phase (Esc)"><b></b></button>'
+   + '</nav>'
    + (isNew?'<span class="pg-code">New project</span>':'')
    + '</div>';
 
@@ -3461,12 +3459,10 @@ function renderProjectPage(){
   if(kb)kb.addEventListener('click',()=>ks.classList.remove('hidden'));
   if(ks)ks.addEventListener('click',()=>ks.classList.add('hidden'));
 
-  const nm=document.getElementById('pp-name');
-  nm.addEventListener('change',()=>{
-    nm.classList.remove('err');
-    if(!isNew)ppCommitField('name',nm.value.trim());
-  });
-  nm.addEventListener('input',()=>{if(nm.style.maxWidth)nm.style.maxWidth=(nm.value.length+3)+'ch';});
+  /* Clicking the project crumb while a phase is selected unwinds to the project —
+     the same single layer Escape peels. The name itself is edited in Setup. */
+  const ttl=document.getElementById('pp-title');
+  if(ttl)ttl.addEventListener('click',()=>ppSelect(null));
   const bc=document.getElementById('pp-bc');
   if(bc)bc.addEventListener('click',()=>ppSelect(null));
 
@@ -3650,17 +3646,22 @@ function ppSelect(id,quiet){
 }
 function ppSelected(){return PP_SEL?taskById(PP_SEL):null;}
 
-/* N1: the page-level breadcrumb tail — Timeline ‹ project ‹ phase. The first two live
-   in the title row already (back button, name); this paints the phase segment when a
-   bar is selected. Clicking it unwinds one layer, exactly what Escape does. */
+/* N1: the page-level breadcrumb — All Projects › project › phase. The phase segment
+   shows while a bar is selected; the deepest segment is the current place (dark), the
+   ones before it are links. Clicking a link unwinds to it, exactly what Escape does. */
 function ppPaintCrumb(){
-  const bc=document.getElementById('pp-bc'),nm=document.getElementById('pp-name');
+  const bc=document.getElementById('pp-bc'),sep=document.getElementById('pp-bc-sep'),
+        ttl=document.getElementById('pp-title');
   if(!bc)return;
   const sel=NPV_LIVE?ppSelected():null;
   bc.classList.toggle('hidden',!sel);
-  /* Cap the flexible name input while the tail shows, so the trail reads adjacently. */
-  if(nm)nm.style.maxWidth=sel?((nm.value.length+3)+'ch'):'';
+  if(sep)sep.classList.toggle('hidden',!sel);
   if(sel)bc.querySelector('b').textContent=phaseLabel(sel);
+  if(ttl){
+    const p=ppProject();
+    ttl.textContent=(p&&p.name)||'New project';
+    ttl.classList.toggle('cur',!sel);
+  }
 }
 
 /* REV50: the inspector builds its own department list. buildDeptChecklist stays as-is
@@ -3810,7 +3811,9 @@ function ppInspector(){
     h+='<div class="ins-hd"><span class="dot" style="background:'+ppColor(p)+'"></span>'
      + '<span class="t">Project</span></div><div class="ins-body">';
     h+=ppSec('setup','Setup',
-        '<div class="ins-f"><label>Client</label><input id="pp-client" value="'+esc(p.client||'')+'" placeholder="Who it\'s for"></div>'
+        '<div class="ins-f"><label>Project name</label><input id="pp-name" value="'
+      +   esc((ROUTE.creating?(PP_FORM&&PP_FORM.name):p.name)||'')+'" placeholder="What the shop calls it"></div>'
+      + '<div class="ins-f"><label>Client</label><input id="pp-client" value="'+esc(p.client||'')+'" placeholder="Who it\'s for"></div>'
       + '<div class="ins-row">'
       + '<div class="ins-f"><label>Job code</label><input id="pp-code" value="'+esc(p.jobCode||'')+'" placeholder="H1-2049"></div>'
       + '<div class="ins-f"><label>Install date</label><input id="pp-deadline" type="date" value="'+esc(p.deadline||'')+'"></div>'
@@ -3905,13 +3908,14 @@ function ppBindInspector(p,sel){
       npvRebuild();ppSelect(sel.id,true);
     });
   }else{
-    ['pp-client','pp-code','pp-deadline','pp-status'].forEach(id=>{
+    ['pp-name','pp-client','pp-code','pp-deadline','pp-status'].forEach(id=>{
       const el=document.getElementById(id);
       if(!el)return;
-      const map={'pp-client':'client','pp-code':'jobCode','pp-deadline':'deadline','pp-status':'status'};
+      const map={'pp-name':'name','pp-client':'client','pp-code':'jobCode','pp-deadline':'deadline','pp-status':'status'};
       el.addEventListener('change',()=>{
-        if(ROUTE.creating){npvQueue();return;}
-        ppCommitField(map[id],el.value);ppInspector();
+        el.classList.remove('err');
+        if(ROUTE.creating){ppFormSync();npvQueue();ppPaintCrumb();return;}
+        ppCommitField(map[id],id==='pp-name'?el.value.trim():el.value);ppInspector();ppPaintCrumb();
       });
       if(ROUTE.creating)el.addEventListener('input',npvQueue);
     });
