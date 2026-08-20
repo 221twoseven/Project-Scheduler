@@ -3037,10 +3037,25 @@ function openTaskModal(taskId,prefill){
   renderTnList();
   document.getElementById('tm-del').classList.toggle('hidden',!t);
   document.getElementById('task-overlay').classList.remove('hidden');
+  TM_SNAP=tmSnap();
 }
-function closeTaskModal(){document.getElementById('task-overlay').classList.add('hidden');EDIT_TASK_ID=null;}
+/* N2: what the modal's form serializes to — compared on close to catch silent discards. */
+let TM_SNAP='';
+function tmSnap(){
+  const v=id=>{const e=document.getElementById(id);return e?e.value:'';};
+  return [v('tm-project'),v('tm-dept'),JSON.stringify(tmAssigneeValue()),
+    v('tm-start'),v('tm-end'),v('tm-est'),
+    document.getElementById('tm-pin').checked,v('tm-notes'),
+    JSON.stringify(TM_NODES)].join('|');
+}
+function closeTaskModal(force){
+  const ov=document.getElementById('task-overlay');
+  if(!force&&!ov.classList.contains('hidden')&&tmSnap()!==TM_SNAP
+     &&!confirm('Discard the changes to this phase?'))return;
+  ov.classList.add('hidden');EDIT_TASK_ID=null;
+}
 
-document.getElementById('tm-cancel').addEventListener('click',closeTaskModal);
+document.getElementById('tm-cancel').addEventListener('click',()=>closeTaskModal());
 document.getElementById('task-overlay').addEventListener('click',ev=>{if(ev.target.id==='task-overlay')closeTaskModal();});
 
 document.getElementById('tm-save').addEventListener('click',()=>{
@@ -3063,14 +3078,14 @@ document.getElementById('tm-save').addEventListener('click',()=>{
   }else{
     saveState({...ST,tasks:[...ST.tasks,{id:genId(),...data}]});
   }
-  closeTaskModal();
+  closeTaskModal(true);
 });
 
 document.getElementById('tm-del').addEventListener('click',()=>{
   if(!EDIT_TASK_ID)return;
   if(!confirm('Delete this phase?'))return;
   saveState({...ST,tasks:ST.tasks.filter(x=>x.id!==EDIT_TASK_ID)});
-  closeTaskModal();
+  closeTaskModal(true);
 });
 
 /* ===================== STAFF MODAL ===================== */
@@ -3270,6 +3285,12 @@ function goTimeline(){location.hash='#/';}
 
 function applyRoute(){
   const r=parseHash();
+  /* N2: every exit from an unsaved draft funnels through the hash — Esc, Cancel, the
+     back button, browser Back. One confirm here covers them all. Saved pages autosave. */
+  if(ROUTE.creating&&!(r.view==='project'&&r.creating)&&ppDraftDirty()
+     &&!confirm('Discard this unsaved project?')){
+    PP_KEEP=true;location.hash='#/project/new';return;
+  }
   const pg=document.getElementById('page'),mn=document.getElementById('main');
   const exists=r.creating||(r.id&&ST.projects.some(p=>p.id===r.id));
   if(r.view==='project'&&exists){
@@ -3286,6 +3307,10 @@ function applyRoute(){
   }
 }
 window.addEventListener('hashchange',applyRoute);
+/* N2: refresh/close with a dirty draft gets the browser's native are-you-sure. */
+window.addEventListener('beforeunload',ev=>{
+  if(ppDraftDirty()){ev.preventDefault();ev.returnValue='';}
+});
 
 function ppProject(){
   /* While creating, the project IS the draft — so every tab renders from the same place
@@ -3974,6 +3999,7 @@ let NPV_LIVE=false;      /* true when the chart mirrors a saved project instead 
 let TINT=false;              /* C2: quiet canvas is the default; true = the vivid MONTH_HSL look */
 let GROUP_BY=null;       /* 'client' | 'pm' | 'status' — drives the sidebar group headers */           /* month hue + week saturation behind the charts */
 let PP_FORM=null;        /* new-project values, kept out of the DOM so tabs can't lose them */
+let PP_SNAP='';          /* N2: what a clean draft form serializes to */
 let PP_KEEP=false;       /* set when a redraw must not wipe the draft */
 let NPV_ORDER_DIRTY=false;
 let NPV_OPEN=new Set();   /* departments expanded to show their subtasks */
@@ -3997,6 +4023,15 @@ function ppFormInit(){
   PP_FORM={name:'',client:'',jobCode:'',deadline:fmtDate(addDays(today(),42)),status:'auto',
     projectManager:'',drafter:'',leadFab:'',fabricators:'',
     activeDepartments:['pm','td','fab','finish','install'],est:{},otherLabels:{}};
+  PP_SNAP=JSON.stringify(PP_FORM);
+}
+/* N2: dirty = the form moved off its snapshot, or anything was drawn on the chart. */
+function ppDraftDirty(){
+  if(!ROUTE.creating||!PP_FORM)return false;
+  ppFormSync();
+  return JSON.stringify(PP_FORM)!==PP_SNAP
+    ||NPV_EVENTS.length>0||NPV_TODOS.length>0||NPV_LINES.length>0
+    ||NPV_ORDER_DIRTY||Object.keys(NPV_MANUAL).length>0;
 }
 /* Pull whatever is currently on screen into the draft. Only one tab is mounted at a time,
    so anything missing keeps its previous value rather than being wiped. */
@@ -5762,6 +5797,7 @@ function savePageProject(){
     toast('Created "'+p.name+'" with '+bits.join(', '));
     if(newTodos.length&&!TODOS_OK)
       toast('Tasks can\'t be saved to SharePoint yet, so they\'ll only last until you close this tab. Ask whoever maintains the app to set up the tasks list.','err',null,'The ShopTimeline_Tasks2 list was not found on the SharePoint site.');
+    PP_FORM=null; /* N2: the draft is filed — leaving is not discarding. */
     goProject(p.id);
     return;
   }
