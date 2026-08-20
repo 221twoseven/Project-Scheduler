@@ -71,8 +71,8 @@ The current infrastructure values (for reference — do not change without instr
 - **Preserve the existing test harness.** `harness.js` boots a Timeline HTML file in
   jsdom with MSAL and `fetch` stubbed, recording every Graph request so persistence is
   asserted on the actual outgoing request bodies.
-- **Run the tests after implementation changes.** `tests/run.js` aggregates all 19 suites
-  (behaviour suites `test46`–`test56`, `test-label`, plus the Phase 1–2 UX/design suites);
+- **Run the tests after implementation changes.** `tests/run.js` aggregates all 20 suites
+  (behaviour suites `test46`–`test57`, `test-label`, plus the Phase 1–2 UX/design suites);
   see `tests/README.md`. Validate company changes against `index.html`, and the frozen
   baseline with `test:ref`:
 

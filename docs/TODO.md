@@ -14,7 +14,8 @@ Sequencing decisions (2026-08-19):
 - `docs/UX-Audit-and-Strategy.md` is a **strategy summary, not a to-do list** — it stays
   as-is; this file is where actionable state lives.
 
-Last reviewed: 2026-08-20 (recovered 2026-08-17 field-notes handoff reconciled into §3a).
+Last reviewed: 2026-08-20 (§3a ungated items shipped as REV57; N6/N7, N3 and the N9
+decision remain open there).
 
 ---
 
@@ -130,44 +131,38 @@ meantime without the doc (the notes reached the team through the owner directly)
 - **N14 — coach marks + help button** → already tracked as Phase 4 (§6). Pull forward
   only if hallway round 2 shows testers stuck.
 
-Still open — this track was meant to run **before hallway test round 2** (testers will
-live on this page). Small copy/context wins first, per the recovered build order:
+The ungated items shipped 2026-08-20 as **REV57** — one batch so hallway round 2 lands
+on a finished page. Suite: `tests/test57.js`; record:
+`docs/Milestones/2026-08-20-project-page-refinement.md` (ceilings listed there).
 
-- [ ] **N5 — Drop "In" from status labels.** Pills read "Design" / "Fabrication".
-      Display-only (`STATUS_LBL`, ~line 1474); stored keys (`in-design`,
-      `in-fabrication`) unchanged — zero schema risk. Sweep pills, filters, group
-      headers, Meeting Sheet, legend.
-- [ ] **N15 — Mute the timeline toolbar on the project page.** Days/Weeks, COLOR,
-      search, status filter, Clear filters act on the main timeline and do nothing
-      here — grey out or hide while `ROUTE.view==='project'` (greyed-out must be
-      truly non-interactive, cf. N13's affordance rule). Restore on return.
-- [ ] **N4 — Anchor the status label** — right-justify it in the summary/footer bar
-      with Kickoff, Lead time, Starts-in (it currently floats with no visual anchor).
-- [ ] **N1 — Visible breadcrumb** (Timeline ‹ Project name ‹ selected phase) — the
-      visible equivalent of Escape's invisible unwind; extends the Design-Language
-      §7.5 dock breadcrumb to page level.
-- [ ] **N2 — Unsaved-changes warning.** Exit/Cancel/Esc on an unsaved draft
-      (`#/project/new`) or a dirty modal raises a confirm (keep editing / discard);
-      `beforeunload` guard on a dirty draft. Saved pages autosave — draft-only scope.
-- [ ] **N13 — Departments: manual Start/End date fields** beside the day-quantity
-      input, bidirectional (edit days → recompute end; edit dates → recompute days),
-      workday-snapped. Move the 'process name' field under the "Other" choice. Fix
-      the affordance rule: anything clickable must not render greyed.
-- [ ] **N11 — Left/right click mute each other on the project-page Gantt.** Left-click
-      edits/selects only; right-click add-new only; opening one closes the other. The
-      add-new context menu grows an **inline name field** (type name, Enter creates —
-      no second dialog). Note: REV53's calendar accepts left-click for the create menu
-      on empty cells — align both surfaces when this lands, and update
-      Design-Language §6.
+- [x] **N5 — Drop "In" from status labels** — display-only, stored keys untouched;
+      every surface renders through `STATUS_LBL`.
+- [x] **N15 — Mute the timeline toolbar on the project page** — the five main-timeline
+      controls (and their /, D, W keys) hide while `ROUTE.view==='project'`; hidden,
+      not greyed, per the affordance rule.
+- [x] **N4 — Anchor the status label** — the pill docks right-justified in the
+      schedule footer with Kickoff / Lead time / Starts-in.
+- [x] **N1 — Visible breadcrumb** — Timeline ‹ name ‹ phase; the tail appears on
+      selection and clicking it unwinds one layer (what Escape does).
+- [x] **N2 — Unsaved-changes warning** — one confirm in the router covers every exit
+      (all funnel through the hash) + `beforeunload`; the phase modal snapshots at
+      open. Draft-only, saved pages autosave.
+- [x] **N13 — Department manual Start/End date fields** — bidirectional,
+      workday-snapped, committing through the same paths a drag uses on both the
+      draft and saved pages; process-name moved under "Other".
 - [ ] **N6/N7 — Agenda inline editors.** Rename-in-place exists (`ppEditAgenda`,
       name-only). Events still need the caret-expand editor (Name, Date, Time, Notes,
       Phase dropdown incl. "None" — storage shipped in REV54); tasks the same pattern
-      plus due date. Gate polish on the N9 decision below.
-- [ ] **N8 — Rename the "Not on a phase" row to "Events"** (~line 4619). Rename can
-      ship on its own; the semantics already landed with REV54.
-- [ ] **N16 — Calendar density.** (a) Collapse roster fan-out to one row per phase
-      regardless of assignees (stack names in the label or +N chip) — render-side
-      only. (b) Filter to show only selected phases/events.
+      plus due date. Gate polish on the N9 decision below. **(Still open — gated.)**
+- [x] **N8 — "Not on a phase" row renamed to "Events".**
+- [x] **N11 — Left/right click muted on the project-page Gantt** — left selects/edits,
+      right-click menus are add-only with an inline name field (Enter creates);
+      rename/duplicate/delete moved to the inspector; the calendar aligned (supersedes
+      REV53's left-click create) and Design-Language §6 updated.
+- [x] **N16 — Calendar density** — roster fan-out collapses to one band per phase
+      (+N chip); a "Selected only" toggle filters bands to the selection.
+Still open in this track (gated on decisions or schema):
+
 - [ ] **N3 — Client list. ⚠** Client assignment becomes a dropdown fed by a shared
       list, with "Add new…" opening an edit modal (Name, Color, Notes); manageable
       from a home-page Settings entry like Staff; degrade to browser-local with one

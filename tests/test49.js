@@ -8,6 +8,9 @@ const E1=require('fs').readFileSync(FILE,'utf8').indexOf('pp-dock')>=0;
 /* REV56 replaced the synthetic summary bar with the primary bar as the parent row;
    the summary-bar assertions only apply to older builds (test56 owns the new model). */
 const SUMBAR=require('fs').readFileSync(FILE,'utf8').indexOf('npv-env')<0;
+/* REV57 / N11: right-click menus are add-only (rename/duplicate/delete live in the
+   inspector) and carry an inline name field. */
+const N11=/\.npv-menu \.mn/.test(require('fs').readFileSync(FILE,'utf8'));
 
 let pass=0,fail=0;
 const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
@@ -144,16 +147,28 @@ function stage3(){
   setTimeout(()=>{
     ok('the browser menu is suppressed', ev.defaultPrevented);
     ok('a menu opened', !!menu());
-    ok('it offers rename', !!byAct('ren'));
-    ok('it offers add subtask', !!byAct('sub'));
-    ok('it offers add event and add task', !!byAct('ev')&&!!byAct('tk'));
-    ok('it offers duplicate', !!byAct('dup'));
-    ok('it offers delete', !!byAct('del'));
+    if(N11){
+      ok('it offers only add-new (N11)', !!byAct('sub')&&!!byAct('ev')&&!!byAct('tk')
+         &&!byAct('ren')&&!byAct('dup')&&!byAct('del'), menu().textContent.slice(0,60));
+      ok('it carries the inline name field', !!menu().querySelector('.mn'));
+    }else{
+      ok('it offers rename', !!byAct('ren'));
+      ok('it offers add subtask', !!byAct('sub'));
+      ok('it offers add event and add task', !!byAct('ev')&&!!byAct('tk'));
+      ok('it offers duplicate', !!byAct('dup'));
+      ok('it offers delete', !!byAct('del'));
+      ok('delete sits below a separator', menu().innerHTML.indexOf('sep')<menu().innerHTML.indexOf('data-act="del"'));
+    }
     ok('it teaches the keyboard', /<span class="k">S<\/span>/.test(menu().innerHTML));
-    ok('delete sits below a separator', menu().innerHTML.indexOf('sep')<menu().innerHTML.indexOf('data-act="del"'));
 
     const n0=E('ST.tasks.length');
-    click(byAct('dup'));
+    if(N11){
+      /* Duplicate moved to the inspector — the left-click path. */
+      E('npvCloseMenu();ppSelect(NPV_TASKS[0].id);');
+      click(doc.getElementById('ins-dup'));
+    }else{
+      click(byAct('dup'));
+    }
     setTimeout(()=>{
       ok('duplicate adds a bar', E('ST.tasks.length')===n0+1);
       ok('the copy is selected', E('PP_SEL')!==null);

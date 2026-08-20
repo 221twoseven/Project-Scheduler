@@ -4,6 +4,8 @@ const {boot}=require('./harness');
 const fs=require('fs');
 const FILE=process.argv[2]||'reference/Timeline_50.html';
 const src=fs.readFileSync(FILE,'utf8');
+/* REV57 / N11: bar menus are add-only — rename lives in the inspector/popover. */
+const N11=/\.npv-menu \.mn/.test(src);
 
 let pass=0,fail=0;
 const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
@@ -171,7 +173,10 @@ function stage3(){
       setTimeout(()=>{
         const menu=doc.getElementById('npv-menu');
         ok('a menu opened', !!menu);
-        ok('it offers rename and the three creates',
+        if(N11)ok('it offers the three creates (add-only, N11)',
+           !!menu.querySelector('[data-act="sub"]')&&!!menu.querySelector('[data-act="ev"]')
+           &&!!menu.querySelector('[data-act="tk"]')&&!menu.querySelector('[data-act="ren"]'));
+        else ok('it offers rename and the three creates',
            !!menu.querySelector('[data-act="ren"]')&&!!menu.querySelector('[data-act="sub"]'));
         ok('duplicate and delete are absent on a draft (they need ST)',
            !menu.querySelector('[data-act="dup"]')&&!menu.querySelector('[data-act="del"]'));

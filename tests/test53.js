@@ -100,10 +100,13 @@ function stage2(){
   const ev=rclick(b);
   ok('the browser menu is suppressed', ev.defaultPrevented);
   ok('a menu opened on the band', !!menu());
-  ok('it offers rename, subtask and delete',
-     !!byAct('ren')&&!!byAct('sub')&&!!byAct('del'), items().join(' | '));
-  ok('right-clicking a band also selects its phase', E('PP_SEL')!==null);
-  ok('the selected phase wears the ring', !!doc.querySelector('#npv-body .cal-band.pick'));
+  /* N11 (REV57): the bar menu is add-only — rename/duplicate/delete live in the
+     inspector — and right-click never changes the selection. */
+  ok('it offers only add-new actions (N11)',
+     !!byAct('sub')&&!!byAct('ev')&&!!byAct('tk')&&!byAct('ren')&&!byAct('del'),
+     items().join(' | '));
+  ok('it carries the inline name field', !!menu().querySelector('.mn'));
+  ok('right-clicking a band does not change the selection', E('PP_SEL')===null);
 
   sec('creating a subtask from the band menu seeds the phase\'s date');
   const before=E("ST.tasks.filter(t=>t.department==='td').length");
@@ -132,17 +135,21 @@ function stage3(){
       ok('ArrowDown moves the selection', E('PP_SEL')!==was&&E('PP_SEL')!==null);
       ok('the ring followed onto a band', !!doc.querySelector('#npv-body .cal-band.pick'));
 
-      sec('left-click on an empty cell opens the menu; Escape closes one layer');
+      sec('left-click stays edit-only (N11); Escape closes one layer');
       E('ppSelect(null);');
       clickOn(cell('2026-08-26'));
       setTimeout(()=>{
-        ok('a menu opened on a plain left click', !!menu());
+        ok('no menu on a plain left click (N11)', !menu());
+        rclick(cell('2026-08-26'));
+        setTimeout(()=>{
+        ok('right-click opens it instead', !!menu());
         keyOn(doc.body,'Escape');
         setTimeout(()=>{
           ok('escape closes the menu', !menu());
           ok('escape did not also leave the page', E('ROUTE.view')==='project');
           stage4();
         },200);
+        },250);
       },250);
     },250);
   },250);
@@ -177,11 +184,13 @@ function stage4(){
             ok('nothing was selected — drafts have no ST record', E('PP_SEL')===null);
             E('ppClosePop();');
 
-            sec('a draft band\'s menu has no delete/duplicate');
+            sec('a draft band\'s menu is add-only too (N11)');
             rclick(doc.querySelector('#npv-body .cal-band.ph[data-i]'));
             setTimeout(()=>{
               ok('a menu opened', !!menu());
-              ok('it offers rename', !!byAct('ren'));
+              ok('it offers only add-new actions',
+                 !!byAct('sub')&&!!byAct('ev')&&!!byAct('tk')&&!byAct('ren'),
+                 items().join(' | '));
               ok('no delete or duplicate on a draft', !byAct('del')&&!byAct('dup'),
                  items().join(' | '));
               E('npvCloseMenu();');

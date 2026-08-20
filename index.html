@@ -915,6 +915,12 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
 .npv-menu button .k{font-size:var(--fs-fine);font-weight:600;color:#94A3B8;margin-left:auto;flex-shrink:0}
 .npv-menu button:hover .k{color:var(--acc)}
 .npv-menu .sep{height:1px;background:#EDF2F7;margin:4px 6px}
+/* N11: the inline name field under the menu header — Enter files the first action. */
+.npv-menu .mn{display:block;width:calc(100% - 12px);margin:2px 6px 5px;border:1px solid #DDE5EF;
+  border-radius:6px;padding:5px 8px;font-size:12px;font-family:inherit;color:#1E293B;
+  box-sizing:border-box;outline:none}
+.npv-menu .mn:focus{border-color:var(--acc)}
+.npv-menu .mn::placeholder{color:#B4C0D0}
 .npv-menu .mi{width:11px;height:11px;flex-shrink:0;border-radius:3px;display:block}
 .npv-menu .mi.ev{background:#F7C948;border:2px solid #16202E;box-sizing:border-box;
   transform:rotate(45deg);border-radius:1px;width:10px;height:10px}
@@ -3305,6 +3311,9 @@ function applyRoute(){
   const pg=document.getElementById('page'),mn=document.getElementById('main');
   const exists=r.creating||(r.id&&ST.projects.some(p=>p.id===r.id));
   if(r.view==='project'&&exists){
+    /* N2: a repeat render of the draft already on screen (declined exit, duplicate
+       hashchange) must never wipe it — only arriving fresh starts a clean form. */
+    if(r.creating&&ROUTE.creating)PP_KEEP=true;
     ROUTE=r;
     document.body.classList.add('pp-route');
     mn.classList.add('hidden');pg.classList.remove('hidden');
@@ -3383,7 +3392,8 @@ function renderProjectPage(){
    + '<div class="npv-hd"><span class="npv-ttl" id="npv-nums"></span>'
    + '<div class="npv-modes"><button id="npv-m-g" title="Show the schedule as a Gantt chart (G)">Gantt</button><button id="npv-m-c" title="Show the schedule as a month calendar (C)">Calendar</button></div>'
    + '<div class="npv-subs"><button id="npv-tint" title="Colour the calendar background vividly by month">Vivid months</button>'
-   + '<button id="npv-link" title="Dragging a department bar moves its subtasks with it">Link</button></div>'
+   + '<button id="npv-link" title="Dragging a department bar moves its subtasks with it">Link</button>'
+   + '<button id="npv-focus" class="hidden" title="Show only the selected phase\'s bands on the calendar">Selected only</button></div>'
    + '<button class="npv-btn" id="npv-reset" disabled title="Put the rows back in the schedule\'s own order">Reset</button></div>'
    + '<div class="npv-leg" id="npv-leg"></div>'
    + '<div class="npv-scroll" id="npv-scroll"><div class="npv-in">'
@@ -3460,6 +3470,8 @@ function renderProjectPage(){
   if(lk)lk.addEventListener('click',()=>{LINK_SUBS=!LINK_SUBS;saveUI();npvRender();
     toast(LINK_SUBS?'Subtasks move with their department'
                    :'Subtasks stay put — move them one at a time');});
+  const fk=document.getElementById('npv-focus');
+  if(fk)fk.addEventListener('click',()=>{NPV_CAL_FOCUS=!NPV_CAL_FOCUS;npvRender();});
   if(!NPV_RESIZE_BOUND){window.addEventListener('resize',()=>{if(ROUTE.view==='project')npvQueue();});NPV_RESIZE_BOUND=true;}
 
   npvRebuild();
@@ -3780,6 +3792,7 @@ function ppInspector(){
      + '<button class="ins-btn" id="ins-sub" title="Add another bar to this department (S)">+ Subtask <kbd>S</kbd></button>'
      + '<button class="ins-btn" id="ins-ev" title="Add a dated event marker (E)">+ Event <kbd>E</kbd></button>'
      + '<button class="ins-btn" id="ins-tk" title="Add a to-do task (T)">+ Task <kbd>T</kbd></button>'
+     + '<button class="ins-btn" id="ins-dup" title="Copy this phase as a new bar">Duplicate</button>'
      + '<button class="ins-btn dngr" id="ins-del" title="Delete this phase">Delete</button></div>';
     h+=ppSec('phase','This phase',f,null,true);
     h+=ppAgendaHTML(p,sel.department);
@@ -3875,6 +3888,7 @@ function ppBindInspector(p,sel){
     g('ins-sub',()=>npvCreateSubtask(sel.department,sel.startDate));
     g('ins-ev',()=>npvCreateEvent(sel.department,sel.startDate));
     g('ins-tk',()=>npvCreateTask(sel.department,sel.startDate));
+    g('ins-dup',()=>npvDuplicatePhase(sel)); /* N11: moved here from the bar menu */
     g('ins-del',()=>ppDeletePhase(sel.id));
   }else{
     ['pp-client','pp-code','pp-deadline','pp-status'].forEach(id=>{
@@ -4070,6 +4084,7 @@ let NPV_EVENTS=[];       /* draft events  {id,name,date,dept} */
 let NPV_TODOS=[];        /* draft tasks   {id,title,who,due,priority,dept} */
 let NPV_LINES=[];        /* named phase lines {id,name,dept,who} */
 let NPV_MODE='gantt';    /* 'gantt' | 'calendar' */
+let NPV_CAL_FOCUS=false; /* N16: calendar shows only the selected phase's bands */
 let NPV_LIVE=false;      /* true when the chart mirrors a saved project instead of a draft */
 let TINT=false;              /* C2: quiet canvas is the default; true = the vivid MONTH_HSL look */
 let GROUP_BY=null;       /* 'client' | 'pm' | 'status' — drives the sidebar group headers */           /* month hue + week saturation behind the charts */
@@ -4276,52 +4291,51 @@ function npvSpareDepts(){
 /* REV49 — menus for a specific thing. Verb first, likeliest at the top, destructive at
    the bottom, and every item shows its key so the menu teaches the keyboard. */
 function npvMenuShell(clientX,clientY,title,html,bind){
-  npvCloseMenu();
+  npvCloseMenu();ppClosePop(); /* N11: opening the right-click surface closes the left's */
   const el=document.createElement('div');
   el.className='npv-menu';el.id='npv-menu';
-  el.innerHTML='<div class="mh">'+title+'</div>'+html;
+  /* N11: every add menu carries an inline name field — type the name, Enter files it
+     under the first action; clicking any action uses it too. No second dialog. */
+  el.innerHTML='<div class="mh">'+title+'</div>'
+    +'<input class="mn" placeholder="Name (optional)" autocomplete="off" spellcheck="false">'
+    +html;
   const rows=(html.match(/<button/g)||[]).length;
-  const H=Math.min(340,44+rows*34), W=232;
+  const H=Math.min(374,78+rows*34), W=232;
   const vw=window.innerWidth||1200, vh=window.innerHeight||800;
   el.style.left=Math.round(Math.max(8,Math.min(clientX,vw-W-8)))+'px';
   el.style.top=Math.round(clientY+H>vh-8?Math.max(8,clientY-H):clientY)+'px';
   document.body.appendChild(el);
   el.addEventListener('mousedown',e=>e.stopPropagation());
   el.addEventListener('contextmenu',e=>{e.preventDefault();e.stopPropagation();});
+  const nameOf=()=>{const i=el.querySelector('.mn');return i?i.value.trim():'';};
   el.querySelectorAll('button').forEach(b=>b.addEventListener('click',e=>{
     e.preventDefault();e.stopPropagation();
-    const act=b.dataset.act;
+    const act=b.dataset.act,nm=nameOf();
     npvCloseMenu();
-    bind(act,b);
+    bind(act,b,nm);
   }));
+  const mn=el.querySelector('.mn');
+  if(mn)mn.addEventListener('keydown',e=>{
+    if(e.key!=='Enter')return;
+    e.preventDefault();
+    const first=el.querySelector('button[data-act]');
+    if(first)first.click();
+  });
   return el;
 }
+/* N11: right-click only adds. Rename, duplicate and delete live in the inspector
+   (left-click path) with R and Del as their keys — this menu is creation only. */
 function npvBarMenu(x,y,t){
   const d=deptById(t.department)||{};
   const col=DEPT_COLORS[t.department]||'#8A98AE';
-  const h='<button data-act="ren"><span class="mi" style="background:'+col+'"></span>'
-        +   'Rename<span class="k">R</span></button>'
-        + '<button data-act="sub"><span class="mi" style="background:'+col+'"></span>'
-        +   'Add subtask<span class="k">S</span></button>'
-        + '<button data-act="ev"><span class="mi ev"></span>Add event<span class="k">E</span></button>'
-        + '<button data-act="tk"><span class="mi tk"></span>Add task<span class="k">T</span></button>'
-        + (NPV_LIVE?'<div class="sep"></div>'
-        + '<button data-act="dup"><span class="mi dp"></span>Duplicate</button>'
-        + '<button data-act="del"><span class="mi dp"></span>Delete<span class="k">Del</span></button>':'');
-  return npvMenuShell(x,y,esc(phaseLabel(t))+' &middot; '+esc(d.name||t.department),h,act=>{
-    if(act==='ren'){
-      if(!NPV_LIVE){
-        const i=NPV_TASKS.findIndex(z=>z.id===t.id);
-        const el=document.querySelector('#npv-body .npv-bar[data-i="'+i+'"],#npv-body .cal-band.ph[data-i="'+i+'"]');
-        if(el){ppOpenPop(i,el);const bn=document.getElementById('bp-name');if(bn){bn.focus();bn.select();}}
-        return;
-      }
-      ppSelect(t.id);const n=document.getElementById('ins-name');if(n){n.focus();n.select();}}
-    else if(act==='sub')npvCreateSubtask(t.department,t.startDate);
-    else if(act==='ev')npvCreateEvent(t.department,t.startDate);
-    else if(act==='tk')npvCreateTask(t.department,t.startDate);
-    else if(act==='dup')npvDuplicatePhase(t);
-    else if(act==='del')ppDeletePhase(t.id);
+  const h='<button data-act="sub"><span class="mi" style="background:'+col+'"></span>'
+        +   'New subtask<span class="k">S</span></button>'
+        + '<button data-act="ev"><span class="mi ev"></span>New event<span class="k">E</span></button>'
+        + '<button data-act="tk"><span class="mi tk"></span>New task<span class="k">T</span></button>';
+  return npvMenuShell(x,y,esc(phaseLabel(t))+' &middot; '+esc(d.name||t.department),h,(act,b,nm)=>{
+    if(act==='sub')npvCreateSubtask(t.department,t.startDate,false,nm);
+    else if(act==='ev')npvCreateEvent(t.department,t.startDate,nm);
+    else if(act==='tk')npvCreateTask(t.department,t.startDate,nm);
   });
 }
 function npvDeptMenu(x,y,dept,hit){
@@ -4334,18 +4348,17 @@ function npvDeptMenu(x,y,dept,hit){
     h+='<button data-act="tog"><span class="mi" style="background:'+col+'"></span>'
      + (open?'Collapse':'Expand')+' subtasks</button>';
   h+='<button data-act="sub"><span class="mi" style="background:'+col+'"></span>'
-   +   'Add subtask<span class="k">S</span></button>'
-   + '<button data-act="ev"><span class="mi ev"></span>Add event<span class="k">E</span></button>'
-   + '<button data-act="tk"><span class="mi tk"></span>Add task<span class="k">T</span></button>'
-   + '<div class="sep"></div>'
-   + '<button data-act="rmv"><span class="mi dp"></span>Remove from job</button>';
-  return npvMenuShell(x,y,esc(d.name||dept)+' &middot; '+kids.length+' bar'+(kids.length===1?'':'s'),h,act=>{
+   +   'New subtask<span class="k">S</span></button>'
+   + '<button data-act="ev"><span class="mi ev"></span>New event<span class="k">E</span></button>'
+   + '<button data-act="tk"><span class="mi tk"></span>New task<span class="k">T</span></button>';
+  /* N11: "Remove from job" left with the other destructive actions — untick the
+     department in the inspector checklist instead. */
+  return npvMenuShell(x,y,esc(d.name||dept)+' &middot; '+kids.length+' bar'+(kids.length===1?'':'s'),h,(act,b,nm)=>{
     const day=(hit&&hit.date)||(kids[0]&&kids[0].startDate)||'';
     if(act==='tog')npvToggleDept(dept);
-    else if(act==='sub')npvCreateSubtask(dept,day);
-    else if(act==='ev')npvCreateEvent(dept,day);
-    else if(act==='tk')npvCreateTask(dept,day);
-    else if(act==='rmv')npvRemoveDept(dept);
+    else if(act==='sub')npvCreateSubtask(dept,day,false,nm);
+    else if(act==='ev')npvCreateEvent(dept,day,nm);
+    else if(act==='tk')npvCreateTask(dept,day,nm);
   });
 }
 function npvDuplicatePhase(t){
@@ -4403,25 +4416,35 @@ function npvOpenMenu(clientX,clientY,hit,page){
      + '<div class="sep"></div>'
      + '<button data-act="depts"><span class="mi dp"></span>Add a department<span class="k">&rsaquo;</span></button>';
   }
+  /* N11: the inline name field — Enter files the typed name under the first action. */
+  h=h.replace('</div>','</div><input class="mn" placeholder="Name (optional)" autocomplete="off" spellcheck="false">');
   el.innerHTML=h;
-  const W=224,H=Math.min(320,44+el.innerHTML.split('<button').length*34);
+  const W=224,H=Math.min(354,78+el.innerHTML.split('<button').length*34);
   const vw=window.innerWidth||1200, vh=window.innerHeight||800;
   el.style.left=Math.round(Math.max(8,Math.min(clientX,vw-W-8)))+'px';
   el.style.top=Math.round(clientY+H>vh-8?Math.max(8,clientY-H):clientY)+'px';
   document.body.appendChild(el);
   el.addEventListener('mousedown',e=>e.stopPropagation());
   el.addEventListener('contextmenu',e=>{e.preventDefault();e.stopPropagation();});
+  const nameOf=()=>{const i=el.querySelector('.mn');return i?i.value.trim():'';};
   el.querySelectorAll('button').forEach(b=>b.addEventListener('click',e=>{
     e.preventDefault();e.stopPropagation();
-    const act=b.dataset.act;
+    const act=b.dataset.act,nm=nameOf();
     if(act==='depts'){npvOpenMenu(clientX,clientY,hit,'depts');return;}
     npvCloseMenu();
     if(act==='tog')npvToggleDept(dept);
-    else if(act==='sub')npvCreateSubtask(dept,hit.date);
-    else if(act==='dept')npvCreateSubtask(b.dataset.dept,hit.date,true);
-    else if(act==='ev')npvCreateEvent(dept,hit.date);
-    else if(act==='tk')npvCreateTask(dept,hit.date);
+    else if(act==='sub')npvCreateSubtask(dept,hit.date,false,nm);
+    else if(act==='dept')npvCreateSubtask(b.dataset.dept,hit.date,true,nm);
+    else if(act==='ev')npvCreateEvent(dept,hit.date,nm);
+    else if(act==='tk')npvCreateTask(dept,hit.date,nm);
   }));
+  const mn=el.querySelector('.mn');
+  if(mn)mn.addEventListener('keydown',e=>{
+    if(e.key!=='Enter')return;
+    e.preventDefault();
+    const first=el.querySelector('button[data-act]');
+    if(first)first.click();
+  });
   return el;
 }
 /* A new bar starts on the day you clicked and runs as long as the rest of that
@@ -4436,7 +4459,7 @@ function npvEndAfter(start,days){
   while(n<days){c=addDays(c,1);if(isWorking(c))n++;}
   return fmtDate(c);
 }
-function npvCreateSubtask(dept,date,newDept){
+function npvCreateSubtask(dept,date,newDept,name){
   if(!dept)return;
   if(!NPV_LIVE){
     /* REV50: this used to push a nameless line and point at a tab that no longer
@@ -4449,7 +4472,8 @@ function npvCreateSubtask(dept,date,newDept){
         who:base?(Array.isArray(base.assignee)?'':base.assignee||''):''});
     }
     const n=NPV_LINES.filter(l=>l.dept===dept).length+1;
-    NPV_LINES.push({id:genId(),name:'Subtask '+n,dept:dept,who:''});
+    const nm=(name&&name.trim())||('Subtask '+n);
+    NPV_LINES.push({id:genId(),name:nm,dept:dept,who:''});
     /* REV56: same shape as a saved subtask — half the parent's window, filed as a
        manual placement so it survives the per-keystroke rebuild (REV55). Without
        this the new line spans the whole window: an exact copy of the parent bar,
@@ -4458,7 +4482,7 @@ function npvCreateSubtask(dept,date,newDept){
     if(w0){
       const half=Math.max(1,Math.round((w0.estimatedDays
         ||wdCount(parseDate(w0.startDate),parseDate(w0.endDate)))/2));
-      NPV_MANUAL[npvKey({department:dept,label:'Subtask '+n,assignee:''})]=
+      NPV_MANUAL[npvKey({department:dept,label:nm,assignee:''})]=
         {startDate:w0.startDate,endDate:npvEndAfter(w0.startDate,half),estimatedDays:half};
     }
     NPV_OPEN.add(dept);saveUI();
@@ -4481,7 +4505,7 @@ function npvCreateSubtask(dept,date,newDept){
     assignee:(dept==='install'?[]:(sib?sib.assignee:'')),
     startDate:date,endDate:end,estimatedDays:wdCount(parseDate(date),parseDate(end)),
     ticketNodes:[],notes:'',pinned:false,
-    label:kids.length?'Subtask '+(kids.length+1):''};
+    label:(name&&name.trim())||(kids.length?'Subtask '+(kids.length+1):'')};
   const projects=newDept
     ? ST.projects.map(x=>x.id===p.id
         ?{...x,activeDepartments:[...(x.activeDepartments||[]),dept]}:x)
@@ -4507,23 +4531,23 @@ function npvDefaultDay(){
   const p=ppProject();
   return (p&&p.deadline)||t;
 }
-function npvCreateEvent(dept,date){
+function npvCreateEvent(dept,date,name){
   date=date||npvDefaultDay();
   if(NPV_LIVE){
     const p=ppProject();if(!p)return;
-    liveAddEvent(p,dept,date);
-  }else NPV_EVENTS.push({id:genId(),name:'',date:date,dept:dept||''});
+    liveAddEvent(p,dept,date,name);
+  }else NPV_EVENTS.push({id:genId(),name:name||'',date:date,dept:dept||''});
   npvRebuild();ppInspector();
-  toastU('Event added'+(date?' on '+fmtNice(date):''));
+  toastU((name?'"'+name+'"':'Event')+' added'+(date?' on '+fmtNice(date):''));
 }
-function npvCreateTask(dept,date){
+function npvCreateTask(dept,date,name){
   date=date||npvDefaultDay();
   if(NPV_LIVE){
     const p=ppProject();if(!p)return;
-    liveAddTodo(p,dept,date);
-  }else NPV_TODOS.push({id:genId(),title:'',who:[],due:date,priority:'medium',dept:dept||''});
+    liveAddTodo(p,dept,date,name);
+  }else NPV_TODOS.push({id:genId(),title:name||'',who:[],due:date,priority:'medium',dept:dept||''});
   npvRebuild();ppInspector();
-  toastU('Task added'+(date?' due '+fmtNice(date):''));
+  toastU((name?'"'+name+'"':'Task')+' added'+(date?' due '+fmtNice(date):''));
 }
 
 function npvToggleDept(dept){
@@ -4626,6 +4650,9 @@ function npvRender(){
   if(tg2)tg2.classList.toggle('on',TINT);
   const lk2=document.getElementById('npv-link');
   if(lk2)lk2.classList.toggle('on',LINK_SUBS);
+  const fk2=document.getElementById('npv-focus');
+  if(fk2){fk2.classList.toggle('hidden',NPV_MODE!=='calendar');
+    fk2.classList.toggle('on',NPV_CAL_FOCUS);}
   renderSideList();
   npvRenderLegend();
   if(NPV_LINES.length)renderDraftLines();
@@ -4826,20 +4853,21 @@ function npvRender(){
      fresh listener on the same element on every render. */
   if(!host.dataset.bound){
     host.dataset.bound='1';
-    let dnX=0,dnY=0,dnBlank=false;
+    let dnX=0,dnY=0;
     const blank=tg=>!!tg&&!!tg.closest&&!tg.closest('.npv-bar')&&!tg.closest('.npv-gut')
       &&!tg.closest('.cal-band')&&!tg.closest('#bar-pop')&&!tg.closest('#npv-menu');
     host.addEventListener('mousedown',ev=>{
       npvBlur();
       dnX=ev.clientX;dnY=ev.clientY;
-      dnBlank=(ev.button===0)&&blank(ev.target)
-        &&!document.getElementById('bar-pop')&&!document.getElementById('npv-menu');
-      if(blank(ev.target)){ppClosePop();npvCloseMenu();
-        if(PP_SEL&&!document.getElementById('npv-menu'))ppSelect(null,true);}
+      /* N11: the two surfaces mute each other — any press on the chart closes an open
+         add menu (the menu stops propagation for presses inside itself). A press that
+         dismissed a menu keeps the selection, as before. */
+      const hadMenu=npvCloseMenu();
+      if(blank(ev.target)){ppClosePop();
+        if(PP_SEL&&!hadMenu)ppSelect(null,true);}
     });
-    /* Left-click on empty canvas opens the same menu, but only when nothing else is
-       open — otherwise clicking away from a popover would immediately open one — and
-       only when the mouse didn't travel, so a drag never triggers it. */
+    /* N11: left-click only selects and edits — empty canvas deselects (above) and no
+       longer opens the create menu; that lives on right-click alone, both modes. */
     host.addEventListener('click',ev=>{
       /* REV53: a calendar phase band behaves like a Gantt bar — click selects on a
          saved project, opens the draft popover on a new one (ppOpenPop branches). */
@@ -4847,10 +4875,6 @@ function npvRender(){
         const band=ev.target&&ev.target.closest?ev.target.closest('.cal-band.ph'):null;
         if(band){ppOpenPop(+band.dataset.i,band);return;}
       }
-      if(!dnBlank)return;
-      if(Math.abs(ev.clientX-dnX)>4||Math.abs(ev.clientY-dnY)>4)return;
-      const hit=NPV_MODE==='gantt'?npvHit(ev):npvCalHit(ev);
-      if(hit)npvOpenMenu(ev.clientX,ev.clientY,hit);
     });
     /* A faint column and a date chip under the cursor. Context menus are invisible until
        someone tries one, so the canvas has to look live before you click it. */
@@ -4884,7 +4908,8 @@ function npvRender(){
         if(band){
           ev.preventDefault();
           const bt=NPV_TASKS[+band.dataset.i];
-          if(bt){if(NPV_LIVE)ppSelect(bt.id,true);npvBarMenu(ev.clientX,ev.clientY,bt);}
+          /* N11: right-click never changes the selection — it only offers add-new. */
+          if(bt)npvBarMenu(ev.clientX,ev.clientY,bt);
           return;
         }
         if(!blank(ev.target))return;
@@ -4899,7 +4924,8 @@ function npvRender(){
       if(barEl){
         ev.preventDefault();
         const bt=NPV_TASKS[+barEl.dataset.i];
-        if(bt){if(NPV_LIVE)ppSelect(bt.id,true);npvBarMenu(ev.clientX,ev.clientY,bt);}
+        /* N11: right-click never changes the selection — it only offers add-new. */
+        if(bt)npvBarMenu(ev.clientX,ev.clientY,bt);
         return;
       }
       const gutEl=tg&&tg.closest?tg.closest('.npv-gut'):null;
@@ -4975,16 +5001,16 @@ function liveSave(tasks,todos,events){
                  events:events!==undefined?events:(ST.events||[])});}
   finally{PP_QUIET=false;}
 }
-function liveAddEvent(p,dept,date){
+function liveAddEvent(p,dept,date,name){
   if(EVENTS_OK){
     /* Standalone: an event is its own row, no host phase needed. */
     liveSave(undefined,undefined,[...(ST.events||[]),
-      {id:genId(),projectId:p.id,dept:dept||'',date:date||'',name:'',notes:''}]);
+      {id:genId(),projectId:p.id,dept:dept||'',date:date||'',name:name||'',notes:''}]);
     return;
   }
   const host=phaseHostFor(p,dept);
   if(!host){toast('Add a department first — an event still needs a phase to save on.','err');return;}
-  const node={id:genId(),date:date||host.endDate||host.startDate||'',target:'',notes:'',
+  const node={id:genId(),date:date||host.endDate||host.startDate||'',target:name||'',notes:'',
     dept:(dept!==undefined?dept:host.department)};
   liveSave(ST.tasks.map(t=>t.id===host.id
     ?{...t,ticketNodes:[...(t.ticketNodes||[]),node]}:t));
@@ -5010,10 +5036,10 @@ function liveDeleteEvent(evId){
     ?{...t,ticketNodes:t.ticketNodes.filter(n=>n.id!==evId)}:t));
 }
 let TODO_WARNED=false;
-function liveAddTodo(p,dept,due){
+function liveAddTodo(p,dept,due,name){
   if(!TODOS_OK&&!TODO_WARNED){TODO_WARNED=true;
     toast('Tasks can\'t be saved to SharePoint yet, so they\'ll only last until you close this tab. Ask whoever maintains the app to set up the tasks list.','err',null,'The ShopTimeline_Tasks2 list was not found on the SharePoint site.');}
-  const td={id:genId(),projectId:p.id,dept:dept||'',title:'',who:[],due:due||'',
+  const td={id:genId(),projectId:p.id,dept:dept||'',title:name||'',who:[],due:due||'',
     start:'',progress:'notstarted',priority:'medium',notes:'',createdBy:'',
     completedOn:'',completedBy:'',sortIndex:(ST.todos||[]).length};
   liveSave(null,[...(ST.todos||[]),td]);
@@ -5295,16 +5321,37 @@ function npvPaintCalendar(lo,hi,dl){
 
     /* Everything that touches this week, clipped to it. */
     const items=[];
+    /* N16: "Selected only" filters the bands to the selected phase (and its roster
+       twins); events and tasks stay for context. */
+    const calKey=t=>t.department+'|'+(t.label||'')+'|'+t.startDate+'|'+t.endDate;
+    const selBar=NPV_CAL_FOCUS&&PP_SEL?NPV_TASKS.find(z=>z.id===PP_SEL):null;
+    const selKey=selBar?calKey(selBar):null;
+    const seen={};
     NPV_TASKS.forEach((t,ti)=>{
       const a=parseDate(t.startDate),b=parseDate(t.endDate);
       if(b<c||a>wEnd)return;
+      if(selKey&&calKey(t)!==selKey)return;
       /* REV56: same hierarchy the Gantt shows — a department's first bar is the
          parent at full colour, its subtasks a lighter shade of the same hue. */
       const kid=NPV_TASKS.findIndex(z=>z.department===t.department)!==ti;
       const col0=DEPT_COLORS[t.department]||'#8A98AE';
-      items.push({s:Math.max(0,diffDays(c,a)),e:Math.min(6,diffDays(c,b)),
+      /* N16: roster fan-out collapses to one band per phase — same department, label
+         and window, different assignee — with a +N chip in the label.
+         ponytail: the band keeps the FIRST bar's index, so clicking a merged band
+         selects that bar; split per-person bands again if anyone needs to pick one. */
+      const key=calKey(t);
+      const prev=seen[key];
+      if(prev){
+        prev.n++;
+        prev.txt=prev.base+' +'+(prev.n-1);
+        prev.sel=prev.sel||t.id===PP_SEL;
+        return;
+      }
+      const it={s:Math.max(0,diffDays(c,a)),e:Math.min(6,diffDays(c,b)),
         txt:phaseLabel(t),col:kid?kidShade(col0):col0,kind:'ph',
-        ti:ti,sel:t.id===PP_SEL});
+        ti:ti,sel:t.id===PP_SEL,base:phaseLabel(t),n:1};
+      seen[key]=it;
+      items.push(it);
     });
     for(const mk of marks){
       const d=parseDate(mk.date);

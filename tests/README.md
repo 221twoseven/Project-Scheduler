@@ -2,7 +2,7 @@
 
 jsdom suites that boot a Timeline HTML build with MSAL and `fetch` stubbed, and assert
 behaviour on the actual outgoing Microsoft Graph requests rather than on internal state.
-**19 suites — `npm test` prints the live per-suite totals.**
+**20 suites — `npm test` prints the live per-suite totals.**
 
 ## Run
 
@@ -29,6 +29,14 @@ non-zero on failure.
   `window.__spCalls`, so persistence is asserted on the actual outgoing body rather
   than on internal state.
 - `run.js` — runs all suites against one build and aggregates pass/fail.
+- `test57.js` — 35 assertions. The project-page refinement batch (REV57, field notes
+  N1–N16): status labels lose the "In", the orphan row reads "Events", the toolbar
+  mutes on the project page, the status pill anchors in the schedule footer, the
+  breadcrumb tail follows selection and unwinds it, department Start/End date fields
+  commit bidirectionally with workday snap, right-click menus are add-only with an
+  inline name field (Enter creates), the calendar collapses roster fan-out and filters
+  to the selection, and a dirty unsaved draft asks before it is discarded.
+  Skips on builds without the add-menu name field (the frozen reference).
 - `test56.js` — 44 assertions. Project-page subtask hierarchy (REV56): the department's
   primary bar is the parent row (no synthetic summary bar, primary never re-listed as a
   subtask), subtasks in a lighter shade of the parent hue, linked/unlinked parent drag,
