@@ -70,6 +70,7 @@ body.pp-route .tb-timeline{display:none}
 }
 #t-search::placeholder{color:#5E7292}
 #t-search:focus{border-color:rgba(96,150,240,.7);background:rgba(255,255,255,.1)}
+#tb-rev{font-family:var(--mono);font-size:var(--fs-fine);letter-spacing:.04em;color:#5E7292;white-space:nowrap;user-select:none;margin-right:10px}
 #sync-pill{display:inline-flex;align-items:center;height:24px;font-family:var(--mono);font-size:var(--fs-fine);letter-spacing:.04em;padding:0 8px;border-radius:20px;white-space:nowrap;border:1px solid transparent;user-select:none}
 #sync-pill.ok{color:#7BD8A0;border-color:rgba(123,216,160,.3);background:rgba(50,160,95,.12)}
 #sync-pill.busy{color:#F7CE68;border-color:rgba(247,206,104,.3);background:rgba(240,168,20,.1)}
@@ -1016,6 +1017,7 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
       </div>
     </div>
     <span class="tb-spacer"></span>
+    <span id="tb-rev" title="App revision — the build this tab is running">REV</span>
     <span id="sync-pill" class="busy" title="Shows whether your changes are saved to SharePoint — click to retry after an error">● connecting…</span>
   </div>
   <div class="tb-row tb-timeline">
@@ -1187,7 +1189,7 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_REV=59; // bump this ONE number on every release; used everywhere the rev shows up
+const APP_REV=60; // bump this ONE number on every release; used everywhere the rev shows up
 
 /* ===================== CONSTANTS ===================== */
 const SET_KEY ='shopTimelineSettings_v1';
@@ -6367,6 +6369,7 @@ document.getElementById('meet-print').addEventListener('click',()=>{
 
 /* ===================== INIT ===================== */
 document.getElementById('tb-rev-num').textContent=APP_REV;
+document.getElementById('tb-rev').textContent='REV '+APP_REV;
 loadLocalPrefs();
 buildStatusMenu();updateFilterBadges();
 ST={projects:[],tasks:[],todos:[]};
