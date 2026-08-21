@@ -1039,7 +1039,11 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
       <button id="btn-status" class="t-btn" title="Choose which project statuses are shown">Status <svg class="ico-s" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 6 8 9.5 11.5 6"/></svg></button>
       <div id="status-menu" class="tb-menu hidden"></div>
     </div>
-    <button id="btn-reset" class="t-btn" title="Clear the spotlight, search and status filters"><svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1.5 3v4h4"/><path d="M2.3 10a6 6 0 1 0 1.5-6.3L1.5 7"/></svg> Clear filters</button>
+    <div class="sf-wrap">
+      <button id="btn-person" class="t-btn" title="Show only one person's work">Person <svg class="ico-s" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 6 8 9.5 11.5 6"/></svg></button>
+      <div id="person-menu" class="tb-menu hidden"></div>
+    </div>
+    <button id="btn-reset" class="t-btn" title="Clear the spotlight, search, status and person filters"><svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1.5 3v4h4"/><path d="M2.3 10a6 6 0 1 0 1.5-6.3L1.5 7"/></svg> Clear filters</button>
     <span class="tb-spacer"></span>
     <button id="t-tint" class="t-btn" title="Colour the calendar background vividly by month">Vivid months</button>
     <label class="lock-tog" title="Lock all bars so drags can't change dates">
@@ -1190,7 +1194,7 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_REV=64; // bump this ONE number on every release; used everywhere the rev shows up
+const APP_REV=65; // bump this ONE number on every release; used everywhere the rev shows up
 
 /* ===================== CONSTANTS ===================== */
 const SET_KEY ='shopTimelineSettings_v1';
@@ -1548,6 +1552,7 @@ function loadLocalPrefs(){
   rebuildStaff();
   try{const u=localStorage.getItem(UI_KEY);if(u){const ui=JSON.parse(u);COLLAPSED=new Set(ui.collapsedDepts||[]);
     if(Array.isArray(ui.showStatus)&&ui.showStatus.length)SHOW_STATUS=new Set(ui.showStatus.filter(x=>ALL_STATUSES.includes(x)));
+    if(typeof ui.person==='string'&&ui.person)PERSON=ui.person;
     if(ui.sideW)setSideW(ui.sideW);
     if(ui.npvGut)npvSetGut(ui.npvGut);
     if(ui.colorMode==='entity'){COLOR_MODE='entity';
@@ -1850,10 +1855,15 @@ function saveUI(){
   try{localStorage.setItem('shopTimelineTint',TINT?'1':'0');
     localStorage.setItem('shopTimelineLinkSubs',LINK_SUBS?'1':'0');
     localStorage.setItem('shopTimelineOpenDepts',JSON.stringify([...NPV_OPEN]));
-    localStorage.setItem('shopTimelineGroup',GROUP_BY||'');}catch(e){}localStorage.setItem(UI_KEY,JSON.stringify({collapsedDepts:[...COLLAPSED],colorMode:COLOR_MODE,sideW:SIDE_W,npvGut:NPV_GUT,showStatus:[...SHOW_STATUS]}));}
+    localStorage.setItem('shopTimelineGroup',GROUP_BY||'');}catch(e){}localStorage.setItem(UI_KEY,JSON.stringify({collapsedDepts:[...COLLAPSED],colorMode:COLOR_MODE,sideW:SIDE_W,npvGut:NPV_GUT,showStatus:[...SHOW_STATUS],person:PERSON||''}));}
 
 /* ===================== SEARCH FILTER ===================== */
 let FILTER='';
+/* REV65: person filter — limits both lenses to one person's work (rows removed, not
+   dimmed, so the result reads as "my plate"). null = everyone. */
+let PERSON=null;
+function personHit(t){return !PERSON||barCrew(t).includes(PERSON);}
+function projHasPerson(p){return !PERSON||tasksOf(p.id).some(personHit);}
 function projMatch(p){
   if(!FILTER)return true;
   return (p.name+' '+(p.client||'')+' '+(p.jobCode||'')+' '+(p.projectManager||'')+' '+(p.drafter||'')+' '+(p.leadFab||'')+' '+(p.fabricators||'')+' '+(p.metalFab||'')).toLowerCase().includes(FILTER);
@@ -2047,7 +2057,7 @@ function laneRowsForSection(sec){
   if(sec.kind==='group'){
     for(const did of sec.depts){
       const d=deptById(did);
-      const dtasks=visTasks().filter(t=>t.department===did);
+      const dtasks=visTasks().filter(t=>t.department===did&&personHit(t));
       if(d.roster){
         rosterLanes(did,d.roster,dtasks);
       } else if(d.freeText){
@@ -2060,7 +2070,7 @@ function laneRowsForSection(sec){
     }
   } else {
     const d=deptById(sec.id);
-    const dtasks=visTasks().filter(t=>t.department===sec.id);
+    const dtasks=visTasks().filter(t=>t.department===sec.id&&personHit(t));
     if(d.roster){
       rosterLanes(sec.id,d.roster,dtasks);
     } else {
@@ -2136,7 +2146,7 @@ function sortIndexForNew(deadline){
 function buildRows(){
   const rows=[];
   if(LENS==='project'){
-    const projs=currentProjOrder().filter(p=>SHOW_STATUS.has(projectStatus(p)));
+    const projs=currentProjOrder().filter(p=>SHOW_STATUS.has(projectStatus(p))&&projHasPerson(p));
     let lastKey=null;
     for(const p of projs){
       if(GROUP_BY){
@@ -2153,13 +2163,17 @@ function buildRows(){
       if(EXPANDED.has(p.id))
         /* Project Management spans the whole job, so a bar for it says nothing the summary
            row doesn't already. It stays out of this lens and lives in the Departments lens. */
-        for(const t of tasksOf(p.id).filter(t=>t.department!=='pm'))
+        for(const t of tasksOf(p.id).filter(t=>t.department!=='pm'&&personHit(t)))
           rows.push({kind:'projTask',key:'T'+t.id,projectId:p.id,taskId:t.id,dept:t.department,lanes:1});
     }
   } else {
     for(const sec of SECTIONS){
-      const lanes=laneRowsForSection(sec);
+      let lanes=laneRowsForSection(sec);
+      /* Person filter: keep the person's own lane plus non-person lanes (dept/process)
+         that still hold their bars; empty lanes and empty sections drop entirely. */
+      if(PERSON)lanes=lanes.filter(r=>r.tasks.length&&(r.assignee===PERSON||!personByName(r.assignee)));
       const count=lanes.reduce((a,r)=>a+r.tasks.length,0);
+      if(PERSON&&count===0)continue;
       rows.push({kind:'deptHead',key:'H'+sec.id,secId:sec.id,label:sec.kind==='group'?sec.label:deptById(sec.id).name,count});
       if(!COLLAPSED.has(sec.id))rows.push(...lanes);
     }
@@ -2207,6 +2221,9 @@ function renderEmptyState(){
   }else if(!ST.projects.some(p=>SHOW_STATUS.has(projectStatus(p)))){
     html='<div class="es-big">All projects are hidden</div>'
       +'<div class="es-sub">The status filter is hiding every project.<br>Click <b>Clear filters</b> in the toolbar to see them again.</div>';
+  }else if(PERSON&&!visTasks().some(personHit)){
+    html='<div class="es-big">Nothing scheduled for '+esc(PERSON)+'</div>'
+      +'<div class="es-sub">The person filter is on and no visible phase has '+esc(PERSON)+' on it.<br>Click <b>Clear filters</b> in the toolbar to see everyone.</div>';
   }else return;
   const sc=document.getElementById('gantt-scroll');
   const es=document.createElement('div');es.className='empty-state';es.id='empty-state';
@@ -2349,7 +2366,7 @@ function renderGantt(){
     const b=document.createElement('button');b.className='npv-btn';
     b.textContent=(SHOW_STATUS.size===0)?'Show all statuses':'Reset the view';
     b.addEventListener('click',()=>{
-      SHOW_STATUS=new Set(ALL_STATUSES);FILTER='';
+      SHOW_STATUS=new Set(ALL_STATUSES);FILTER='';PERSON=null;
       const sf=document.getElementById('t-search');if(sf)sf.value='';
       saveUI();buildStatusMenu();updateFilterBadges();render();
     });
@@ -6190,6 +6207,26 @@ function updateFilterBadges(){
   const b=document.getElementById('btn-status');
   b.classList.toggle('active',statusFilterDirty());
   b.innerHTML='Status ('+SHOW_STATUS.size+'/'+ALL_STATUSES.length+') '+ICO.caret;
+  const pb=document.getElementById('btn-person');
+  pb.classList.toggle('active',!!PERSON);
+  pb.innerHTML=(PERSON?'Person: '+esc(PERSON):'Person')+' '+ICO.caret;
+}
+/* REV65: person filter menu — one pick, or Everyone. Rebuilt on every open so it
+   always reflects the current People & Availability roster. */
+function buildPersonMenu(){
+  const m=document.getElementById('person-menu');
+  m.innerHTML='';
+  const mk=(label,val)=>{
+    const l=document.createElement('label');l.className='sm-item';
+    const c=document.createElement('input');c.type='radio';c.name='person-pick';c.checked=(PERSON===val);
+    c.addEventListener('change',()=>{PERSON=val;saveUI();closeMenus();updateFilterBadges();render();});
+    l.appendChild(c);l.appendChild(document.createTextNode(' '+label));
+    m.appendChild(l);
+  };
+  mk('Everyone',null);
+  const names=[...new Set(PEOPLE.map(p=>p.name))].sort((a,b)=>a.localeCompare(b));
+  for(const n of names)mk(n,n);
+  if(!names.length){const d=document.createElement('div');d.className='sm-item';d.textContent='No people yet — add them in Settings';m.appendChild(d);}
 }
 function buildStatusMenu(){
   const m=document.getElementById('status-menu');
@@ -6253,6 +6290,8 @@ function wireMenu(btnId,menuId){
   m.addEventListener('click',ev=>ev.stopPropagation());
 }
 wireMenu('btn-status','status-menu');
+document.getElementById('btn-person').addEventListener('click',buildPersonMenu);
+wireMenu('btn-person','person-menu');
 wireMenu('btn-print','print-menu');
 wireMenu('btn-settings','settings-menu');
 wireMenu('btn-legend','legend-menu');
@@ -6262,8 +6301,9 @@ document.getElementById('btn-reset').addEventListener('click',()=>{
   SPOT.clear();
   FILTER='';document.getElementById('t-search').value='';
   SHOW_STATUS=defaultShowStatus();
+  PERSON=null;
   saveUI();buildStatusMenu();updateFilterBadges();render();
-  toast('View reset — spotlight, search and status filter cleared');
+  toast('View reset — spotlight, search, status and person filters cleared');
 });
 
 /* ===================== REV31: MEETING MODE ===================== */

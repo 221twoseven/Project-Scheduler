@@ -100,8 +100,10 @@ Roughly in build order:
       direction, 2026-08-21). Correction: the old "per-person dashboard" was never
       actually designed, only named — earlier "designed, not built" claims were wrong.
       Not a separate dashboard; three smaller pieces on existing surfaces:
-      - **Person filter on the home page**, beside the Status filter: limits the
-        existing Gantt to one person, in both Projects and Departments views.
+      - [x] **Person filter on the home page** — DONE 2026-08-21 (REV65), beside the
+        Status filter: limits the existing Gantt to one person in both lenses;
+        the pick persists per browser. Suite: `tests/test65.js`. Record:
+        `docs/Milestones/2026-08-21-person-filter.md`.
       - **User identity** — the chain stands: signed-in email → `Staff.email`,
         fallback display-name match, fallback a remembered person picker. Used to
         float "me" to the top of the person filter and to make views sticky per
