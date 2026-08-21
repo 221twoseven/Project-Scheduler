@@ -28,6 +28,20 @@ Now the project page speaks the same language:
 - Clicking a diamond on the chart still jumps to its row — the cursor now lands directly
   in the always-present name field instead of spawning a temporary editor.
 
+Same-day follow-ups from first use:
+
+- **Tasks get their own gantt row.** Task circles no longer ride the row of whatever
+  phase they point at — they all share one "Tasks" row at the bottom of the project
+  chart (named tasks show a label chip, like checkpoints always did). The extra
+  "Checkpoints" row now only catches checkpoints pointing at a department the job
+  doesn't use.
+- **Every panel row carries a phase selector**, so a checkpoint or task added from the
+  buttons (not by right-clicking a phase row) can be pointed at its phase afterward.
+  Rows are two lines now: date | name | delete, then phase | notes (or who).
+- **Deleting is obvious and everywhere:** the row's × is always visible (it used to
+  appear only on hover), and right-clicking a diamond or circle on the chart deletes it
+  after a confirm.
+
 No schema change: checkpoints are the same events they always were (standalone rows in
 `ShopTimeline_Events`, or legacy `ticketNodes` on a host phase where that list is
 missing), and tasks are the same `ShopTimeline_Tasks2` rows. The colleague app is

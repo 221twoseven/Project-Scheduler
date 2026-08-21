@@ -858,18 +858,19 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
    modal's checkpoint editor — date | name | notes — so editing matches everywhere. --- */
 .ag-add{display:flex;gap:6px;padding:0 15px 12px}
 .ag{padding:0 15px 8px}
-.ag-i{display:grid;grid-template-columns:9px 96px 1fr 1fr 18px;gap:5px;align-items:center;
-  padding:3px 0}
+.ag-i{display:grid;grid-template-columns:9px 96px 1fr 18px;gap:4px 5px;align-items:center;
+  padding:3px 0;margin-bottom:5px}
 .ag-i .ic{width:9px;height:9px;flex-shrink:0}
 .ag-i .ic.ev{background:#F7C948;border:2px solid #16202E;box-sizing:border-box;transform:rotate(45deg)}
 .ag-i .ic.tk{border-radius:50%;border:2px solid #3B7FD6;box-sizing:border-box}
-.ag-i input{border:1px solid #E2E8F0;border-radius:5px;padding:4px 6px;font-size:11.5px;
-  font-family:inherit;width:100%;min-width:0;box-sizing:border-box;color:#1E293B;outline:none}
+.ag-i input,.ag-i select{border:1px solid #E2E8F0;border-radius:5px;padding:4px 6px;font-size:11.5px;
+  font-family:inherit;width:100%;min-width:0;box-sizing:border-box;color:#1E293B;outline:none;background:#fff}
+.ag-i select{grid-column:2}
+.ag-i .x3{grid-column:3/5}
 .ag-i input[type=date]{font-family:var(--mono);font-size:var(--fs-fine)}
-.ag-i input:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(59,127,214,.12)}
+.ag-i input:focus,.ag-i select:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(59,127,214,.12)}
 .ag-i .del{background:none;border:none;color:#CBD6E4;font-size:14px;line-height:1;cursor:pointer;
-  padding:0 2px;font-family:inherit;visibility:hidden}
-.ag-i:hover .del{visibility:visible}
+  padding:0 2px;font-family:inherit}
 .ag-i .del:hover{color:#CE4242}
 .ag-empty{padding:22px 15px;text-align:center;font-size:11.5px;color:#B4C0D0;line-height:1.6}
 
@@ -3899,8 +3900,9 @@ function ppAgendaHTML(p,onlyDept){
        + '<input type="date" data-f="'+(ev?'date':'due')+'" value="'+esc(r.date||'')+'" title="'+(ev?'Date':'Due')+'">'
        + '<input class="nm" data-f="'+(ev?'name':'title')+'" value="'+esc(r.nm||'')+'"'
        +   (ev?' list="ag-dl" placeholder="Client Approval"':' placeholder="Order acrylic"')+'>'
-       + '<input data-f="'+(ev?'notes':'who')+'" value="'+esc(r.x3||'')+'" placeholder="'+(ev?'notes':'who')+'">'
-       + '<button class="del" title="Remove">&times;</button></div>';
+       + '<button class="del" title="Remove">&times;</button>'
+       + '<select data-f="dept" title="The phase this rides on">'+deptOptions(r.dept)+'</select>'
+       + '<input class="x3" data-f="'+(ev?'notes':'who')+'" value="'+esc(r.x3||'')+'" placeholder="'+(ev?'notes':'who')+'"></div>';
     }
     body+='</div>';
   }
@@ -4840,32 +4842,39 @@ function npvRender(){
      + '</div>';
   }
 
-  /* Events and tasks ride the row of their phase. Anything pointing at a department that
-     isn't on this job gets one extra row at the bottom so it can never silently vanish. */
+  /* Checkpoints ride the row of their phase; one pointing at a department that isn't on
+     this job gets an extra row at the bottom so it can never silently vanish. Tasks all
+     share their own row — they're job to-dos, not phase geometry. */
   const marks=npvMarkers();
   /* Row positions come from the plan now — a collapsed department is one row, not one
      per subtask, and a marker pinned to a task index would drift down the chart. */
   const rowOf={};
   NPV_PLAN.forEach((r,i)=>{if(rowOf[r.dept]===undefined)rowOf[r.dept]=i;});
-  const orphans=marks.filter(mk=>rowOf[mk.dept]===undefined);
+  const orphans=marks.filter(mk=>mk.k==='ev'&&rowOf[mk.dept]===undefined);
+  const taskMarks=marks.filter(mk=>mk.k==='tk');
   if(orphans.length){
     h+='<div class="npv-row extra" style="width:'+innerW+'px">'
-     + '<div class="npv-gut" title="Checkpoints and tasks pointing at a department this job '
+     + '<div class="npv-gut" title="Checkpoints pointing at a department this job '
      + 'doesn\'t use">Checkpoints</div></div>';
   }
+  if(taskMarks.length){
+    h+='<div class="npv-row extra" style="width:'+innerW+'px">'
+     + '<div class="npv-gut" title="To-do tasks on this job — one row, whatever the phase">Tasks</div></div>';
+  }
   const orphanRow=NPV_PLAN.length;
+  const taskRow=NPV_PLAN.length+(orphans.length?1:0);
   for(const mk of marks){
     const d=parseDate(mk.date);
     if(d<lo||d>hi)continue;
-    const ri=(rowOf[mk.dept]===undefined)?orphanRow:rowOf[mk.dept];
+    const ri=mk.k==='tk'?taskRow:(rowOf[mk.dept]===undefined?orphanRow:rowOf[mk.dept]);
     const left=x(d)+Math.floor(dwv/2);
     const top=ri*NPV_ROWH+(mk.k==='ev'?9.5:9);
     const cls=mk.k==='ev'?'npv-ev':('npv-tk'+(mk.pr==='high'||mk.pr==='urgent'?' hi':''));
     const nm=mk.nm||(mk.k==='ev'?'Untitled checkpoint':'Untitled task');
     h+='<div class="'+cls+'" data-mk-id="'+esc(mk.id||'')+'" data-mk-k="'+mk.k+'" '
      + 'data-mk-date="'+esc(mk.date)+'" style="left:'+left+'px;top:'+top+'px" '
-     + 'title="'+esc(nm+' \u00b7 '+fmtNice(mk.date)+' \u2014 drag to move, click to rename')+'"></div>';
-    if(mk.k==='ev'&&mk.nm)
+     + 'title="'+esc(nm+' \u00b7 '+fmtNice(mk.date)+' \u2014 drag to move, click to rename, right-click to delete')+'"></div>';
+    if(mk.nm)
       h+='<div class="npv-evlbl" style="left:'+(left+10)+'px;top:'+(top-1)+'px">'+esc(mk.nm)+'</div>';
   }
   /* Weekend columns run the full height of the body so weeks read as blocks. */
@@ -5714,6 +5723,20 @@ function npvBindDrag(){
       };
       document.addEventListener('mousemove',mv);
       document.addEventListener('mouseup',up);
+    });
+    /* Right-click deletes — the other half of create-on-right-click. */
+    mk.addEventListener('contextmenu',ev=>{
+      ev.preventDefault();ev.stopPropagation();
+      const id=mk.dataset.mkId,k=mk.dataset.mkK;
+      if(!id)return;
+      if(!confirm('Delete this '+(k==='ev'?'checkpoint':'task')+'?'))return;
+      if(NPV_LIVE){if(k==='ev')liveDeleteEvent(id);else liveDeleteTodo(id);}
+      else{
+        if(k==='ev')NPV_EVENTS=NPV_EVENTS.filter(x=>x.id!==id);
+        else NPV_TODOS=NPV_TODOS.filter(x=>x.id!==id);
+      }
+      npvRebuild();ppInspector();
+      toast(k==='ev'?'Checkpoint deleted':'Task deleted');
     });
   });
   host.querySelectorAll('.npv-bar').forEach(bar=>{
