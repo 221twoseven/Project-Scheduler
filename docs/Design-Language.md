@@ -44,6 +44,13 @@ Consequences: forecast and on-hold bars keep their **project's hue** and signal 
 
 (01–07 are the current `PCOLS`, kept for continuity; 08–12 extend the cycle. None approach `#CE4242` red. `--p08` is the darkened pm blue from §2.3 — the original `#5B7C99` sits in the mid-luminance dead zone and fails 4.5:1 both ways.) Collision rule: if two *currently visible* projects hash to the same slot, the later-created one shifts to the nearest free slot for that render — identity stability beats palette purity only when both are on screen.
 
+**Clients carry no color (decided 2026-08-21, N3).** Identity color belongs to the
+*project*, full stop. The shop runs 3–4 big clients with many simultaneous job codes
+each — coloring by client would make concurrent same-client projects
+indistinguishable, and a client accent beside the project hue would add a second
+color language (against §2.1's one-job rule). `ShopTimeline_Clients` stores name and
+alias only; revisit only if the client mix changes fundamentally.
+
 ### 2.3 Department palette
 
 Keep the existing `DEPT_COLORS` map as-is (it's serviceable and staff know it), with these exceptions: raise `beamsaw` `#C09018` and `electrical` `#D9A21B` label contrast via §2.5; `pm` `#5B7C99` → `#567693` and `install` `#6366F1` → `#5A5DEC` (the originals sit in the mid-luminance dead zone where *neither* ink nor white reaches 4.5:1 — a small darkening keeps the hue and lets white pass); and ensure no department except `install`/`laser` sits within 15° of the reserved red.

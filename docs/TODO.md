@@ -85,8 +85,8 @@ Roughly in build order:
       rescues hosted events, project-delete cleans up, draft path files rows; without
       the list the app falls back to the legacy phase-hosted save. Suite:
       `tests/test54.js`. Record: `docs/Milestones/Phase 2.5/2026-08-19-standalone-events.md`.
-      **Owner to-do: create the list** (column recipe in `docs/SETUP.md`) — until then
-      the app keeps the old behaviour.
+      ~~Owner to-do: create the list~~ — **done 2026-08-21**; the real
+      `ShopTimeline_Events` path is now live.
 - [x] **3. Converge draft vs saved phase-splitting — DONE 2026-08-19 (REV55).** The real
       divergence was behavioural: a dragged draft subtask snapped back on the next
       rebuild (its manual-placement key could never match pre-split bars) and line
@@ -196,23 +196,21 @@ on a finished page. Suite: `tests/test57.js`; record:
       (+N chip); a "Selected only" toggle filters bands to the selection.
 Still open in this track (gated on decisions or schema):
 
-- [ ] **N3 — Client list. ⚠** Client assignment becomes a dropdown fed by a shared
-      list, with "Add new…" opening an edit modal (Name, Color, Notes); manageable
-      from a home-page Settings entry like Staff; degrade to browser-local with one
-      warning if the List is absent. **Provenance traced (owner, 2026-08-21):** the
-      canonical client roster is an **Excel workbook** (untethered from everything);
-      an adjacent SharePoint list re-enters clients manually to feed the native Teams
-      calendar (one-way, clunky, disliked). Plan: **duplicate the Excel master into
-      the new `ShopTimeline_Clients` list** (SharePoint "New list → From Excel", the
-      maintained tab only) so it can be culled and becomes the future canonical
-      store. Import only the real data columns — **Client** (name) + **Alias**
-      (job-code suffix) — and skip the derived ones (Next Project, Helper Column 2,
-      the approved/pending/rejected counters, last-enter date): those are facts about
-      projects, computed for free once projects live here. **Divergence rule until
+- [ ] **N3 — Client list.** Client assignment becomes a dropdown fed by
+      `ShopTimeline_Clients`, with "Add new…" opening an edit modal (Name, Alias);
+      manageable from a home-page Settings entry like Staff; degrade to browser-local
+      with one warning if the List is absent. **Unblocked 2026-08-21 — the list
+      exists:** owner imported the Excel client master (see provenance below) with
+      only the real data columns, **Client Name** + **Alias** (job-code suffix); the
+      derived counter columns were culled at import (project counts get solved from
+      the master list later). **Color: decided (c) — no client color** (owner,
+      2026-08-21): 3–4 big clients run many simultaneous job codes, so client-hued
+      projects would be indistinguishable; recorded in Design-Language §2.2.
+      **Provenance** (traced 2026-08-21): the canonical roster was an untethered
+      Excel workbook; an adjacent SharePoint list re-enters clients manually to feed
+      the native Teams calendar (one-way, clunky, disliked). **Divergence rule until
       cutover:** Excel stays master for job codes; the list is master for what the
-      scheduler shows; new clients get entered in both. **[decision]** Client Color's
-      job first: (a) becomes the project's hue (one identity system — recommended),
-      (b) accent only, or (c) drop the field. Record the choice in Design-Language §2.
+      scheduler shows; new clients get entered in both.
 
 **Decisions gating this track (owner):**
 
@@ -221,7 +219,8 @@ Still open in this track (gated on decisions or schema):
       have their own chart row. What's left is purely data-model — keep two stores
       (`ShopTimeline_Events` + `ShopTimeline_Tasks2`) or merge them. Decide with
       hallway round 2 data; no UI work is gated on it anymore.
-- [ ] **N3 schema + color** — see above; same sitting as the §5 ⚠ conversation.
+- [x] **N3 schema + color** — resolved 2026-08-21: list created, color dropped
+      (see N3 above).
 
 Keep the **"test both draft and saved paths"** rule for every feature here (the REV49
 lesson — `tests/README.md`).
@@ -245,17 +244,17 @@ In order:
 
 ## 5. Data / schema (⚠ all need approval — shared Lists)
 
-- [ ] **Add `email` and `role` columns to `ShopTimeline_Staff`** (needed for the
-      person filter's identity chain, §3 item 4). ⚠
+- [x] **Add `email` and `role` columns to `ShopTimeline_Staff`** — done 2026-08-21
+      (owner; both single-line text). Unblocks the person filter's identity chain
+      (§3 item 4).
 - [ ] **New Graph scope to read Team membership** (e.g. `TeamMember.Read.All`, for the
       People & Availability dropdown, §3 item 5b). ⚠ **Approved 2026-08-21** — owner
       is now an Entra admin and OK'd the scope. Still to do at build time: add the
       scope to the app registration + grant admin consent.
-- [ ] **New `ShopTimeline_Clients` List** (for §3a N3 — client dropdown + Settings
-      management). Additive only, colleague app never reads it — same shape as the
-      Events-list approval. ⚠ Bundle into one conversation with the Staff columns
-      above. Seeded by importing the Excel client master (see N3 for the column cull
-      and the Excel-stays-master-for-job-codes rule).
+- [x] **New `ShopTimeline_Clients` List** — created 2026-08-21 (owner) by importing
+      the Excel client master; columns **Client Name** + **Alias** only, derived
+      counters culled at import. See N3 for provenance and the
+      Excel-stays-master-for-job-codes divergence rule.
 - **North star (owner, 2026-08-21): SharePoint Lists become the database, period.**
   The Excel client master, the adjacent manual calendar-feeder list, and the native
   Teams calendar workflow all eventually collapse into this app's Lists. Sequenced
