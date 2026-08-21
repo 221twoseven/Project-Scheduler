@@ -127,11 +127,15 @@ function stage2(){
       mk2.dispatchEvent(new win.MouseEvent('mousedown',{bubbles:true,clientX:300,clientY:20,button:0}));
       doc.dispatchEvent(new win.MouseEvent('mouseup',{bubbles:true,clientX:300,clientY:20}));
       setTimeout(()=>{
-        const inp=q('#pp-insp .ag-i input');
+        /* The checkpoint-editor agenda (post-REV50) renders a permanent name input;
+           the reference build opens one on click. */
+        const NEWAG=/ag-dl/.test(src);
+        const inp=NEWAG?q('#pp-insp .ag-i input.nm'):q('#pp-insp .ag-i input');
         ok('the agenda opened with an inline editor', !!inp);
         if(inp){
           inp.value='Kickoff';
-          inp.dispatchEvent(new win.KeyboardEvent('keydown',{key:'Enter',bubbles:true}));
+          if(NEWAG)inp.dispatchEvent(new win.Event('change',{bubbles:true}));
+          else inp.dispatchEvent(new win.KeyboardEvent('keydown',{key:'Enter',bubbles:true}));
         }
         setTimeout(()=>{
           ok('the rename stuck', E("NPV_EVENTS.some(e=>e.name==='Kickoff')"));

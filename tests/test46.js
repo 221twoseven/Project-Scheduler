@@ -127,13 +127,17 @@ function stage3(){
     ok('the event appears in the agenda', doc.querySelectorAll('#pp-insp .ag-i').length===1);
     ok('draft array stays empty on a saved project', E('NPV_EVENTS.length')===0);
 
-    /* Renaming happens inline in the agenda row. */
+    /* Renaming happens inline in the agenda row. The checkpoint-editor agenda (post-REV50)
+       renders a permanent name input; the reference build opens one on click. */
+    const NEWAG=/ag-dl/.test(src);
     click(doc.querySelector('#pp-insp .ag-i .nm'));
     setTimeout(()=>{
-      const inp=doc.querySelector('#pp-insp .ag-i input');
-      ok('clicking a row opens an inline editor', !!inp);
+      const inp=NEWAG?doc.querySelector('#pp-insp .ag-i input.nm')
+                     :doc.querySelector('#pp-insp .ag-i input');
+      ok('the row edits its name inline', !!inp);
       inp.value='Client review';
-      inp.dispatchEvent(new win.KeyboardEvent('keydown',{key:'Enter',bubbles:true}));
+      if(NEWAG)inp.dispatchEvent(new win.Event('change',{bubbles:true}));
+      else inp.dispatchEvent(new win.KeyboardEvent('keydown',{key:'Enter',bubbles:true}));
       setTimeout(()=>{
         ok('editing an event name persists to ST',
           E("ST.tasks.some(t=>(t.ticketNodes||[]).some(n=>n.target==='Client review'))"));
@@ -148,12 +152,17 @@ function stage3(){
           const tkRow=rows.find(r=>r.dataset.agK==='tk');
           click(tkRow.querySelector('.nm'));
           setTimeout(()=>{
-            const i2=tkRow.querySelector('input');
+            const i2=NEWAG?tkRow.querySelector('input.nm'):tkRow.querySelector('input');
             i2.value='Order acrylic';
-            i2.dispatchEvent(new win.KeyboardEvent('keydown',{key:'Enter',bubbles:true}));
+            if(NEWAG)i2.dispatchEvent(new win.Event('change',{bubbles:true}));
+            else i2.dispatchEvent(new win.KeyboardEvent('keydown',{key:'Enter',bubbles:true}));
             setTimeout(()=>{
               ok('editing a task title persists to ST', E("ST.todos[0].title")==='Order acrylic');
-              const agenda=doc.getElementById('pp-insp').textContent;
+              /* Names live in input values on the checkpoint-editor agenda, in
+                 textContent on the reference build. */
+              const agenda=NEWAG
+                ? [...doc.querySelectorAll('#pp-insp .ag-i .nm')].map(i=>i.value).join(' | ')
+                : doc.getElementById('pp-insp').textContent;
               ok('the agenda shows both rows',
                  /Client review/.test(agenda)&&/Order acrylic/.test(agenda), agenda.slice(0,90));
 

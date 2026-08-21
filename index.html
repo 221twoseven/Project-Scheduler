@@ -793,6 +793,7 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
 .ins-sec:last-child{border-right:none}
 .ins-sec[data-sec="team"]{min-width:340px}
 .ins-sec[data-sec="depts"]{min-width:300px}
+.ins-sec[data-sec="agenda"]{min-width:340px}
 .ins-sec>h4{display:flex;align-items:center;gap:7px;margin:0;padding:10px 15px;flex-shrink:0;
   font-size:var(--fs-fine);font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#7488A3;
   user-select:none;border-bottom:1px solid #EDF2F7}
@@ -853,22 +854,19 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
   padding:2px 4px;font-size:11px;font-family:var(--mono);color:#33415A;box-sizing:border-box}
 .ins-depts .idr .ddates .da{flex-shrink:0;font-size:11px;color:#B4C0D0}
 
-/* --- agenda: the one list of everything dated on this job --- */
+/* --- agenda: the one list of everything dated on this job. Each row is the Home
+   modal's checkpoint editor — date | name | notes — so editing matches everywhere. --- */
 .ag-add{display:flex;gap:6px;padding:0 15px 12px}
-.ag{padding:0 0 8px}
-.ag-day{padding:9px 15px 3px;font-size:var(--fs-fine);font-weight:700;letter-spacing:.09em;
-  text-transform:uppercase;color:#A3B1C4}
-.ag-day.today{color:var(--acc)}
-.ag-i{display:flex;align-items:center;gap:9px;padding:6px 15px;cursor:pointer}
-.ag-i:hover{background:#F2F7FD}
+.ag{padding:0 15px 8px}
+.ag-i{display:grid;grid-template-columns:9px 96px 1fr 1fr 18px;gap:5px;align-items:center;
+  padding:3px 0}
 .ag-i .ic{width:9px;height:9px;flex-shrink:0}
 .ag-i .ic.ev{background:#F7C948;border:2px solid #16202E;box-sizing:border-box;transform:rotate(45deg)}
 .ag-i .ic.tk{border-radius:50%;border:2px solid #3B7FD6;box-sizing:border-box}
-.ag-i .ic.ph{border-radius:2px}
-.ag-i .nm{flex:1;font-size:12px;color:#1E293B;overflow:hidden;white-space:nowrap;
-  text-overflow:ellipsis;min-width:0}
-.ag-i .nm.un{color:#B4C0D0;font-style:italic}
-.ag-i .mt{font-size:var(--fs-fine);color:#94A3B8;white-space:nowrap}
+.ag-i input{border:1px solid #E2E8F0;border-radius:5px;padding:4px 6px;font-size:11.5px;
+  font-family:inherit;width:100%;min-width:0;box-sizing:border-box;color:#1E293B;outline:none}
+.ag-i input[type=date]{font-family:var(--mono);font-size:var(--fs-fine)}
+.ag-i input:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(59,127,214,.12)}
 .ag-i .del{background:none;border:none;color:#CBD6E4;font-size:14px;line-height:1;cursor:pointer;
   padding:0 2px;font-family:inherit;visibility:hidden}
 .ag-i:hover .del{visibility:visible}
@@ -1191,7 +1189,7 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_REV=63; // bump this ONE number on every release; used everywhere the rev shows up
+const APP_REV=64; // bump this ONE number on every release; used everywhere the rev shows up
 
 /* ===================== CONSTANTS ===================== */
 const SET_KEY ='shopTimelineSettings_v1';
@@ -3865,17 +3863,19 @@ function ppInspector(){
 }
 
 /* One agenda. Everything dated on the job in one chronological list, undated first so it
-   can't hide. This is the only list — the old page had two that disagreed. */
+   can't hide. This is the only list — the old page had two that disagreed. Rows are the
+   Home modal's checkpoint editor (date | name | notes) so the two surfaces speak the same
+   language; task rows take the same shape with who in the third slot. */
 function ppAgendaHTML(p,onlyDept){
   const rows=[];
   if(NPV_LIVE){
-    for(const e of liveEvents(p))rows.push({k:'ev',id:e.id,nm:e.name,date:e.date,dept:e.dept});
+    for(const e of liveEvents(p))rows.push({k:'ev',id:e.id,nm:e.name,date:e.date,dept:e.dept,x3:e.notes||''});
     for(const t of liveTodos(p))rows.push({k:'tk',id:t.id,nm:t.title,date:t.due,dept:t.dept,
-      mt:(t.who||[]).join(', ')});
+      x3:(t.who||[]).join(', ')});
   }else{
-    for(const e of NPV_EVENTS)rows.push({k:'ev',id:e.id,nm:e.name,date:e.date,dept:e.dept});
+    for(const e of NPV_EVENTS)rows.push({k:'ev',id:e.id,nm:e.name,date:e.date,dept:e.dept,x3:e.notes||''});
     for(const t of NPV_TODOS)rows.push({k:'tk',id:t.id,nm:t.title,date:t.due,dept:t.dept,
-      mt:(t.who||[]).join(', ')});
+      x3:(t.who||[]).join(', ')});
   }
   const shown=onlyDept?rows.filter(r=>r.dept===onlyDept):rows;
   shown.sort((a,b)=>{
@@ -3884,32 +3884,27 @@ function ppAgendaHTML(p,onlyDept){
     return String(a.date||'').localeCompare(String(b.date||''));
   });
   let body='<div class="ag-add">'
-   + '<button class="ins-btn" data-ag="ev" title="Add a dated event marker (E)">+ Event <kbd>E</kbd></button>'
-   + '<button class="ins-btn" data-ag="tk" title="Add a to-do task (T)">+ Task <kbd>T</kbd></button></div>';
+   + '<button class="ins-btn" data-ag="ev" title="Add a dated checkpoint - an approval, release, or hold (E)">+ Checkpoint <kbd>E</kbd></button>'
+   + '<button class="ins-btn" data-ag="tk" title="Add a to-do task (T)">+ Task <kbd>T</kbd></button></div>'
+   + '<datalist id="ag-dl">'+TN_TARGETS.map(t=>'<option value="'+esc(t)+'">').join('')+'</datalist>';
   if(!shown.length){
-    body+='<div class="ag-empty">Nothing scheduled yet.<br>Right-click the chart on the day '
+    body+='<div class="ag-empty">No checkpoints or tasks yet.<br>Right-click the chart on the day '
      + 'it happens, or use the buttons above.</div>';
   }else{
     body+='<div class="ag">';
-    let last='\u0000';
-    const today=fmtDate(new Date());
     for(const r of shown){
-      const key=r.date||'';
-      if(key!==last){
-        last=key;
-        body+='<div class="ag-day'+(key===today?' today':'')+'">'
-         + (key?esc(fmtNice(key))+(key===today?' &middot; today':''):'No date yet')+'</div>';
-      }
-      const dn=r.dept?((deptById(r.dept)||{}).name||r.dept):'';
+      const ev=r.k==='ev';
       body+='<div class="ag-i" data-ag-id="'+esc(r.id)+'" data-ag-k="'+r.k+'">'
        + '<span class="ic '+r.k+'"></span>'
-       + '<span class="nm'+(r.nm?'':' un')+'">'+esc(r.nm||(r.k==='ev'?'Untitled event':'Untitled task'))+'</span>'
-       + '<span class="mt">'+esc([r.mt,dn].filter(Boolean).join(' \u00b7 '))+'</span>'
+       + '<input type="date" data-f="'+(ev?'date':'due')+'" value="'+esc(r.date||'')+'" title="'+(ev?'Date':'Due')+'">'
+       + '<input class="nm" data-f="'+(ev?'name':'title')+'" value="'+esc(r.nm||'')+'"'
+       +   (ev?' list="ag-dl" placeholder="Client Approval"':' placeholder="Order acrylic"')+'>'
+       + '<input data-f="'+(ev?'notes':'who')+'" value="'+esc(r.x3||'')+'" placeholder="'+(ev?'notes':'who')+'">'
        + '<button class="del" title="Remove">&times;</button></div>';
     }
     body+='</div>';
   }
-  return ppSec('agenda',onlyDept?'On this phase':'Agenda',body,shown.length,true);
+  return ppSec('agenda',onlyDept?'On this phase':'Checkpoints & Tasks',body,shown.length,true);
 }
 
 function ppBindInspector(p,sel){
@@ -4001,47 +3996,27 @@ function ppBindInspector(p,sel){
         else NPV_TODOS=NPV_TODOS.filter(x=>x.id!==id);
       }
       npvRebuild();ppInspector();
-      toast(k==='ev'?'Event removed':'Task removed');
+      toast(k==='ev'?'Checkpoint removed':'Task removed');
     });
-    row.addEventListener('click',()=>ppEditAgenda(id,k));
+    /* Every field edits in place, exactly like the Home modal's checkpoint rows. */
+    row.querySelectorAll('[data-f]').forEach(i=>{
+      i.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Enter'){e.preventDefault();i.blur();}});
+      i.addEventListener('change',()=>{
+        const f=i.dataset.f;
+        if(NPV_LIVE){if(k==='ev')liveCommitEvent(id,f,i.value);else liveCommitTodo(id,f,i.value);}
+        else if(k==='ev'){const e=NPV_EVENTS.find(x=>x.id===id);if(e)e[f]=i.value;}
+        else{const t=NPV_TODOS.find(x=>x.id===id);
+          if(t){if(f==='who')t.who=i.value.split(',').map(x=>x.trim()).filter(Boolean);else t[f]=i.value;}}
+        npvRebuild();ppInspector();
+      });
+    });
   });
 }
 
-/* Clicking an agenda row turns it into its own tiny editor in place. Renaming a thing
-   shouldn't cost a modal. */
-function ppEditAgenda(id,k){
-  const row=document.querySelector('.ag-i[data-ag-id="'+id+'"]');
-  if(!row||row.dataset.editing)return;
-  row.dataset.editing='1';
-  const cur=NPV_LIVE
-    ?(k==='ev'?(liveEvents(ppProject()).find(e=>e.id===id)||{})
-              :((ST.todos||[]).find(t=>t.id===id)||{}))
-    :(k==='ev'?(NPV_EVENTS.find(e=>e.id===id)||{})
-              :(NPV_TODOS.find(t=>t.id===id)||{}));
-  const nm=row.querySelector('.nm');
-  const val=k==='ev'?(cur.name||''):(cur.title||'');
-  const date=k==='ev'?(cur.date||''):(cur.due||'');
-  nm.innerHTML='<input class="ag-ed" style="width:100%;border:1px solid var(--acc);border-radius:4px;'
-   + 'padding:2px 5px;font-size:12px;font-family:inherit;outline:none" value="'+esc(val)+'">';
-  const inp=nm.querySelector('input');
-  inp.focus();inp.select();
-  const commit=()=>{
-    if(NPV_LIVE){
-      if(k==='ev')liveCommitEvent(id,'name',inp.value);
-      else liveCommitTodo(id,'title',inp.value);
-    }else{
-      if(k==='ev'){const e=NPV_EVENTS.find(x=>x.id===id);if(e)e.name=inp.value;}
-      else{const t=NPV_TODOS.find(x=>x.id===id);if(t)t.title=inp.value;}
-    }
-    npvRebuild();ppInspector();
-  };
-  inp.addEventListener('keydown',e=>{
-    e.stopPropagation();
-    if(e.key==='Enter'){e.preventDefault();commit();}
-    if(e.key==='Escape'){e.preventDefault();ppInspector();}
-  });
-  inp.addEventListener('blur',commit);
-  inp.addEventListener('click',e=>e.stopPropagation());
+/* Clicking a chart marker lands the cursor in its agenda row — the row IS the editor. */
+function ppFocusAgenda(id){
+  const i=document.querySelector('.ag-i[data-ag-id="'+id+'"] .nm');
+  if(i){i.focus();i.select();}
 }
 
 function ppMovePhase(id,dept){
@@ -4098,7 +4073,7 @@ function ppPaintMeta(p){
   h+=cell('Shop starts',s?esc(fmtNice(s)):'&mdash;');
   h+=cell('Work ends',e?esc(fmtNice(e)):'&mdash;',late);
   h+=cell('Phases',ts.filter(t=>t.department!=='pm').length);
-  h+=cell('Agenda',evN+tkN);
+  h+=cell('Checkpoints & tasks',evN+tkN);
   if(late)h+='<div class="m"><span class="v warn">&#9888; Work runs past the install date</span></div>';
   box.innerHTML=h;
 }
@@ -4415,7 +4390,7 @@ function npvBarMenu(x,y,t){
   const col=DEPT_COLORS[t.department]||'#8A98AE';
   const h='<button data-act="sub"><span class="mi" style="background:'+col+'"></span>'
         +   'New subtask<span class="k">S</span></button>'
-        + '<button data-act="ev"><span class="mi ev"></span>New event<span class="k">E</span></button>'
+        + '<button data-act="ev"><span class="mi ev"></span>New checkpoint<span class="k">E</span></button>'
         + '<button data-act="tk"><span class="mi tk"></span>New task<span class="k">T</span></button>';
   return npvMenuShell(x,y,esc(phaseLabel(t))+' &middot; '+esc(d.name||t.department),h,(act,b,nm)=>{
     if(act==='sub')npvCreateSubtask(t.department,t.startDate,false,nm);
@@ -4434,7 +4409,7 @@ function npvDeptMenu(x,y,dept,hit){
      + (open?'Collapse':'Expand')+' subtasks</button>';
   h+='<button data-act="sub"><span class="mi" style="background:'+col+'"></span>'
    +   'New subtask<span class="k">S</span></button>'
-   + '<button data-act="ev"><span class="mi ev"></span>New event<span class="k">E</span></button>'
+   + '<button data-act="ev"><span class="mi ev"></span>New checkpoint<span class="k">E</span></button>'
    + '<button data-act="tk"><span class="mi tk"></span>New task<span class="k">T</span></button>';
   /* N11: "Remove from job" left with the other destructive actions — untick the
      department in the inspector checklist instead. */
@@ -4489,14 +4464,14 @@ function npvOpenMenu(clientX,clientY,hit,page){
     h+='<div class="mh">'+esc(dn)+' &middot; '+esc(dateTxt)+'</div>'
      + '<button data-act="sub"><span class="mi" style="background:'
      +   (DEPT_COLORS[dept]||'#8A98AE')+'"></span>New subtask here<span class="k">S</span></button>'
-     + '<button data-act="ev"><span class="mi ev"></span>New event<span class="k">E</span></button>'
+     + '<button data-act="ev"><span class="mi ev"></span>New checkpoint<span class="k">E</span></button>'
      + '<button data-act="tk"><span class="mi tk"></span>New task<span class="k">T</span></button>';
     if(hit.row.kind==='parent')
       h+='<div class="sep"></div><button data-act="tog"><span class="mi dp"></span>'
        + (hit.row.open?'Collapse ':'Expand ')+esc(dn)+'</button>';
   }else{
     h+='<div class="mh">'+esc(dateTxt)+'</div>'
-     + '<button data-act="ev"><span class="mi ev"></span>New event<span class="k">E</span></button>'
+     + '<button data-act="ev"><span class="mi ev"></span>New checkpoint<span class="k">E</span></button>'
      + '<button data-act="tk"><span class="mi tk"></span>New task<span class="k">T</span></button>'
      + '<div class="sep"></div>'
      + '<button data-act="depts"><span class="mi dp"></span>Add a department<span class="k">&rsaquo;</span></button>';
@@ -4620,7 +4595,7 @@ function npvCreateEvent(dept,date,name){
     liveAddEvent(p,dept,date,name);
   }else NPV_EVENTS.push({id:genId(),name:name||'',date:date,dept:dept||''});
   npvRebuild();ppInspector();
-  toastU((name?'"'+name+'"':'Event')+' added'+(date?' on '+fmtNice(date):''));
+  toastU((name?'"'+name+'"':'Checkpoint')+' added'+(date?' on '+fmtNice(date):''));
 }
 function npvCreateTask(dept,date,name){
   date=date||npvDefaultDay();
@@ -4875,8 +4850,8 @@ function npvRender(){
   const orphans=marks.filter(mk=>rowOf[mk.dept]===undefined);
   if(orphans.length){
     h+='<div class="npv-row extra" style="width:'+innerW+'px">'
-     + '<div class="npv-gut" title="Events and tasks pointing at a department this job '
-     + 'doesn\'t use">Events</div></div>';
+     + '<div class="npv-gut" title="Checkpoints and tasks pointing at a department this job '
+     + 'doesn\'t use">Checkpoints</div></div>';
   }
   const orphanRow=NPV_PLAN.length;
   for(const mk of marks){
@@ -4886,7 +4861,7 @@ function npvRender(){
     const left=x(d)+Math.floor(dwv/2);
     const top=ri*NPV_ROWH+(mk.k==='ev'?9.5:9);
     const cls=mk.k==='ev'?'npv-ev':('npv-tk'+(mk.pr==='high'||mk.pr==='urgent'?' hi':''));
-    const nm=mk.nm||(mk.k==='ev'?'Untitled event':'Untitled task');
+    const nm=mk.nm||(mk.k==='ev'?'Untitled checkpoint':'Untitled task');
     h+='<div class="'+cls+'" data-mk-id="'+esc(mk.id||'')+'" data-mk-k="'+mk.k+'" '
      + 'data-mk-date="'+esc(mk.date)+'" style="left:'+left+'px;top:'+top+'px" '
      + 'title="'+esc(nm+' \u00b7 '+fmtNice(mk.date)+' \u2014 drag to move, click to rename')+'"></div>';
@@ -5069,10 +5044,10 @@ function liveEvents(p){
   const out=[];
   for(const t of tasksOf(p.id).filter(t=>!t.__ghost))
     for(const n of (t.ticketNodes||[]))
-      out.push({id:n.id,name:n.target||'',date:n.date||'',
+      out.push({id:n.id,name:n.target||'',date:n.date||'',notes:n.notes||'',
         dept:(n.dept!==undefined?n.dept:t.department)});
   for(const e of (ST.events||[]))
-    if(e.projectId===p.id)out.push({id:e.id,name:e.name||'',date:e.date||'',dept:e.dept||''});
+    if(e.projectId===p.id)out.push({id:e.id,name:e.name||'',date:e.date||'',notes:e.notes||'',dept:e.dept||''});
   out.sort((a,b)=>String(a.date||'9999').localeCompare(String(b.date||'9999')));
   return out;
 }
@@ -5116,14 +5091,14 @@ function liveAddEvent(p,dept,date,name){
 }
 function liveCommitEvent(evId,field,val){
   if((ST.events||[]).some(e=>e.id===evId)){
-    const k=(field==='name')?'name':(field==='dept'?'dept':'date');
+    const k=(field==='name')?'name':(field==='dept'||field==='notes')?field:'date';
     liveSave(undefined,undefined,ST.events.map(e=>e.id===evId?{...e,[k]:val}:e));
     return;
   }
   const p=ppProject();if(!p)return;
   /* REV48: changing the department is a field on the node now, not a move between
      phases. Shuffling nodes between hosts rewrote two rows to change one label. */
-  const k=(field==='name')?'target':(field==='dept'?'dept':'date');
+  const k=(field==='name')?'target':(field==='dept'||field==='notes')?field:'date';
   liveSave(ST.tasks.map(t=>(t.ticketNodes||[]).some(n=>n.id===evId)
     ?{...t,ticketNodes:t.ticketNodes.map(n=>n.id===evId?{...n,[k]:val}:n)}:t));
 }
@@ -5197,83 +5172,6 @@ function renderDraftLines(){
   });
 }
 
-function renderDraftEvents(){
-  const box=document.getElementById('pp-events');
-  if(!box)return;
-  const p=NPV_LIVE?ppProject():null;
-  const rows=p?liveEvents(p):NPV_EVENTS;
-  if(!rows.length){box.innerHTML='<div class="dr-none">No events yet. Kickoffs, client reviews, sample approvals.</div>';return;}
-  let h='<div class="dr-hd ev"><span>Event</span><span>Date</span><span>Phase</span><span></span></div>';
-  for(const e of rows){
-    h+='<div class="dr-row ev" data-id="'+esc(e.id)+'">'
-     + '<input data-f="name" value="'+esc(e.name||'')+'" placeholder="Client review">'
-     + '<input data-f="date" type="date" value="'+esc(e.date||'')+'">'
-     + '<select data-f="dept">'+deptOptions(e.dept)+'</select>'
-     + '<button class="dr-del" title="Remove">&times;</button></div>';
-  }
-  box.innerHTML=h;
-  box.querySelectorAll('.dr-row').forEach(r=>{
-    const id=r.dataset.id;
-    if(p){
-      r.querySelectorAll('[data-f]').forEach(i=>i.addEventListener('change',()=>{
-        liveCommitEvent(id,i.dataset.f,i.value);renderDraftEvents();npvRebuild();
-      }));
-      r.querySelector('.dr-del').addEventListener('click',()=>{
-        liveDeleteEvent(id);renderDraftEvents();npvRebuild();
-      });
-      return;
-    }
-    const e=NPV_EVENTS.find(x=>x.id===id);
-    r.querySelectorAll('[data-f]').forEach(i=>i.addEventListener('change',()=>{
-      e[i.dataset.f]=i.value;npvRender();
-    }));
-    r.querySelector('.dr-del').addEventListener('click',()=>{
-      NPV_EVENTS=NPV_EVENTS.filter(x=>x.id!==e.id);renderDraftEvents();npvRender();
-    });
-  });
-}
-
-function renderDraftTodos(){
-  const box=document.getElementById('pp-todos');
-  if(!box)return;
-  const p=NPV_LIVE?ppProject():null;
-  const rows=p?liveTodos(p):NPV_TODOS;
-  if(!rows.length){box.innerHTML='<div class="dr-none">No tasks yet. Drawings due, order acrylic, confirm dock time.</div>';return;}
-  let h='<div class="dr-hd tk"><span>Task</span><span>Assigned</span><span>Due</span><span>Priority</span><span></span></div>';
-  for(const t of rows){
-    h+='<div class="dr-row tk" data-id="'+esc(t.id)+'">'
-     + '<input data-f="title" value="'+esc(t.title||'')+'" placeholder="Drawings due">'
-     + '<input data-f="who" value="'+esc((t.who||[]).join(', '))+'" placeholder="&mdash;" title="Comma-separated names">'
-     + '<input data-f="due" type="date" value="'+esc(t.due||'')+'">'
-     + '<select data-f="priority">'+PRIOS.map(x=>
-         '<option value="'+x+'"'+(x===(t.priority||'medium')?' selected':'')+'>'+PRIO_LBL[x]+'</option>').join('')
-     + '</select>'
-     + '<button class="dr-del" title="Remove">&times;</button></div>';
-  }
-  box.innerHTML=h;
-  box.querySelectorAll('.dr-row').forEach(r=>{
-    const id=r.dataset.id;
-    if(p){
-      r.querySelectorAll('[data-f]').forEach(i=>i.addEventListener('change',()=>{
-        liveCommitTodo(id,i.dataset.f,i.value);renderDraftTodos();npvRebuild();
-      }));
-      r.querySelector('.dr-del').addEventListener('click',()=>{
-        liveDeleteTodo(id);renderDraftTodos();npvRebuild();
-      });
-      return;
-    }
-    const t=NPV_TODOS.find(x=>x.id===id);
-    r.querySelectorAll('[data-f]').forEach(i=>i.addEventListener('change',()=>{
-      if(i.dataset.f==='who')t.who=i.value.split(',').map(x=>x.trim()).filter(Boolean);
-      else t[i.dataset.f]=i.value;
-      npvRender();
-    }));
-    r.querySelector('.dr-del').addEventListener('click',()=>{
-      NPV_TODOS=NPV_TODOS.filter(x=>x.id!==t.id);renderDraftTodos();npvRender();
-    });
-  });
-}
-
 /* ---------- the combined list under the preview ---------- */
 function renderSideList(){
   const box=document.getElementById('npv-side');
@@ -5285,7 +5183,7 @@ function renderSideList(){
     const pj0=ppProject();
     if(pj0){
       for(const e of liveEvents(pj0))
-        rows.push({k:'ev',d:e.date,nm:e.name||'Untitled event',
+        rows.push({k:'ev',d:e.date,nm:e.name||'Untitled checkpoint',
           mt:e.dept?((deptById(e.dept)||{}).name||''):''});
       for(const t of liveTodos(pj0))
         rows.push({k:'tk',d:t.due,nm:t.title||'Untitled task',
@@ -5293,19 +5191,19 @@ function renderSideList(){
     }
     rows.sort((a,b)=>String(a.d||'9999').localeCompare(String(b.d||'9999')));
     const hd0=document.getElementById('pp-side-hd');
-    if(hd0)hd0.textContent='Events & tasks'+(rows.length?' ('+rows.length+')':'');
+    if(hd0)hd0.textContent='Checkpoints & tasks'+(rows.length?' ('+rows.length+')':'');
     box.innerHTML=rows.length
       ? rows.map(r=>ppSideRow(r)).join('')
       : '<div class="npv-side-empty">Nothing on this job yet.</div>';
     return;
   }
-  for(const e of NPV_EVENTS)if(e.name||e.date)rows.push({k:'ev',d:e.date,nm:e.name||'Untitled event',
+  for(const e of NPV_EVENTS)if(e.name||e.date)rows.push({k:'ev',d:e.date,nm:e.name||'Untitled checkpoint',
     mt:e.dept?(deptById(e.dept)||{}).name||'':''});
   for(const t of NPV_TODOS)if(t.title||t.due)rows.push({k:'tk',d:t.due,nm:t.title||'Untitled task',
     mt:[(t.who||[]).join(', '),t.priority&&t.priority!=='medium'?PRIO_LBL[t.priority]:''].filter(Boolean).join(' · ')});
   rows.sort((a,b)=>String(a.d||'9999').localeCompare(String(b.d||'9999')));
   const hd=document.getElementById('pp-side-hd')||document.getElementById('npv-side-hd');
-  if(hd)hd.textContent='Events & tasks'+(rows.length?' ('+rows.length+')':'');
+  if(hd)hd.textContent='Checkpoints & tasks'+(rows.length?' ('+rows.length+')':'');
   if(!rows.length){box.innerHTML='<div class="npv-side-empty">Nothing added yet.</div>';return;}
   box.innerHTML=rows.map(r=>ppSideRow(r)).join('');
 }
@@ -5328,7 +5226,7 @@ function npvRenderLegend(){
   let h=seen.map(d=>'<span class="lg"><i style="background:'+(DEPT_COLORS[d]||'#8A98AE')+'"></i>'
     +esc((deptById(d)||{}).name||d)+'</span>').join('');
   const mks=npvMarkers();
-  if(mks.some(m=>m.k==='ev'))h+='<span class="lg"><i class="ev"></i>Event</span>';
+  if(mks.some(m=>m.k==='ev'))h+='<span class="lg"><i class="ev"></i>Checkpoint</span>';
   if(mks.some(m=>m.k==='tk'))h+='<span class="lg"><i class="tk"></i>Task</span>';
   box.innerHTML=h||'<span class="npv-leg-empty">Departments appear here once the schedule has some.</span>';
 }
@@ -5801,7 +5699,7 @@ function npvBindDrag(){
         if(!days){
           /* a click: open the agenda and rename it right there */
           ppInspector();
-          setTimeout(()=>ppEditAgenda(id,k),30);
+          setTimeout(()=>ppFocusAgenda(id),30);
           return;
         }
         const nd=fmtDate(addDays(parseDate(d0),days));
@@ -5812,7 +5710,7 @@ function npvBindDrag(){
           else{const t=NPV_TODOS.find(x=>x.id===id);if(t)t.due=nd;}
         }
         npvRebuild();ppInspector();
-        toastU((k==='ev'?'Event':'Task')+' moved to '+fmtNice(nd));
+        toastU((k==='ev'?'Checkpoint':'Task')+' moved to '+fmtNice(nd));
       };
       document.addEventListener('mousemove',mv);
       document.addEventListener('mouseup',up);
