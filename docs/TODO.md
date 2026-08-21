@@ -96,10 +96,34 @@ Roughly in build order:
       what the preview shows. `NPV_LINES` stays as the draft's durable store (rows can't
       survive the per-keystroke scheduler regeneration). Suite: `tests/test55.js`.
       Record: `docs/Milestones/Phase 2.5/2026-08-19-draft-saved-subtask-convergence.md`.
-- [ ] **4. Dash view** — the per-person dashboard (third lens beside Projects and
-      Departments). Designed, not built. Needs the identity chain: signed-in email →
-      `Staff.email`, fallback to display-name match, fallback to a remembered person
-      picker. Depends on the ⚠ schema item in §5 — start that approval early.
+- [ ] **4. Person filter + per-user identity** — supersedes "Dash view" (owner
+      direction, 2026-08-21). Correction: the old "per-person dashboard" was never
+      actually designed, only named — earlier "designed, not built" claims were wrong.
+      Not a separate dashboard; three smaller pieces on existing surfaces:
+      - **Person filter on the home page**, beside the Status filter: limits the
+        existing Gantt to one person, in both Projects and Departments views.
+      - **User identity** — the chain stands: signed-in email → `Staff.email`,
+        fallback display-name match, fallback a remembered person picker. Used to
+        float "me" to the top of the person filter and to make views sticky per
+        user (project-row sort/order, filter state) so each login lands where it
+        left off.
+      - **Person panel in Department view**: with the person filter active, the
+        real estate the project-edit form uses shows the person's info under the
+        Gantt — relevant dates, tasks, milestones, time off, department, title —
+        in sync with People & Availability (Settings).
+      - **The "dashboard" IS that composition** (owner, 2026-08-21): Department view
+        + person filter set to the logged-in user + person panel below. Reached by a
+        **single button**; a title bar / breadcrumb in the project-edit-page style
+        says where you are and links back to the home view (the unfiltered Gantt, in
+        whichever lens — Projects or Departments — was most recent).
+      Still gated on the ⚠ `Staff.email`/`role` columns (§5).
+- [ ] **5b. People & Availability fed from MS Teams. ⚠** The name field becomes a
+      dropdown of members of the existing Team in MS Teams; the Team has more members
+      than the scheduler needs, so people are selected into the app from that larger
+      list inside People & Availability. Reading team membership needs a **new Graph
+      scope** (e.g. `TeamMember.Read.All`) + admin consent — an Entra change, bundle
+      into the §5 conversation. **[decision]** keep People & Availability as a modal,
+      or promote it to its own page.
 - [x] **5. Project edit page — subtask/phase-bar behavior — DONE 2026-08-20 (REV56).**
       All four owner notes, delivered as one remodel: the synthetic summary bar is
       retired and the **department's primary bar is the parent row** (never re-listed
@@ -212,8 +236,12 @@ In order:
 
 ## 5. Data / schema (⚠ all need approval — shared Lists)
 
-- [ ] **Add `email` and `role` columns to `ShopTimeline_Staff`** (needed for Dash view's
-      identity chain, §3 item 4). ⚠
+- [ ] **Add `email` and `role` columns to `ShopTimeline_Staff`** (needed for the
+      person filter's identity chain, §3 item 4). ⚠
+- [ ] **New Graph scope to read Team membership** (e.g. `TeamMember.Read.All`, for the
+      People & Availability dropdown, §3 item 5b). ⚠ **Approved 2026-08-21** — owner
+      is now an Entra admin and OK'd the scope. Still to do at build time: add the
+      scope to the app registration + grant admin consent.
 - [ ] **New `ShopTimeline_Clients` List** (for §3a N3 — client dropdown + Settings
       management). Additive only, colleague app never reads it — same shape as the
       Events-list approval. ⚠ Bundle into one conversation with the Staff columns above.
@@ -230,8 +258,8 @@ as the strategy reference — not a to-do doc):
 
 - **Phase 3 — navigation at scale:** B3 zoom + jump-to-date, B5 compact density,
   B6 saved views. Per the Phase 2 brief: B3/B5 if PMs still report navigation pain
-  after the hallway test; B6 if they don't. (Dash view overlaps Phase 3 but is pulled
-  forward into §3 as feature work.)
+  after the hallway test; B6 if they don't. (The person filter — ex-"Dash view" —
+  overlaps Phase 3 but is pulled forward into §3 as feature work.)
 - **Phase 4 — learnability layer:** first-run hint bar, `?` shortcuts sheet,
   sample-project onboarding. Deliberately last.
 
