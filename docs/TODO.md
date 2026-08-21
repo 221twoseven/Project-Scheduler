@@ -112,10 +112,12 @@ Roughly in build order:
         lives). Per-user *row order* deliberately not done — sortIndex is shared
         shop data; a private shadow order needs its own decision. Suite:
         `tests/test66.js`. Record: `docs/Milestones/2026-08-21-identity-chain.md`.
-      - **Person panel in Department view**: with the person filter active, the
-        real estate the project-edit form uses shows the person's info under the
-        Gantt — relevant dates, tasks, milestones, time off, department, title —
-        in sync with People & Availability (Settings).
+      - [x] **Person panel in Department view** — DONE 2026-08-21 (REV67): with the
+        person filter active, a bottom dock (project-page inspector style) shows
+        Working on / Checkpoints / Tasks / Time off plus role, departments and
+        email, synced with People & Availability. Suite: `tests/test67.js`.
+        Record: `docs/Milestones/2026-08-21-person-panel.md` (ceilings: fixed
+        height, events-only checkpoints, rows not clickable).
       - **The "dashboard" IS that composition** (owner, 2026-08-21): Department view
         + person filter set to the logged-in user + person panel below. Reached by a
         **single button**; a title bar / breadcrumb in the project-edit-page style

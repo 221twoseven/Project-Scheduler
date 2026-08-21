@@ -86,6 +86,25 @@ body.pp-route .tb-timeline{display:none}
 
 /* ============ LAYOUT ============ */
 #main{position:fixed;top:92px;bottom:0;left:0;right:0;display:flex;overflow:hidden}
+/* REV67: person panel under the Departments lens (fixed height; resize later if asked) */
+#me-dock{display:none}
+body.me-dock-on #main{bottom:236px}
+body.me-dock-on #me-dock{display:flex;flex-direction:column;position:fixed;left:0;right:0;bottom:0;
+  height:236px;background:var(--paper);border-top:1.5px solid #E2E8F0;z-index:20}
+.md-hd{display:flex;align-items:center;gap:9px;padding:10px 16px;border-bottom:1px solid #E2E8F0;background:#fff;flex-shrink:0}
+.md-hd .dot{width:11px;height:11px;border-radius:3px;flex-shrink:0}
+.md-hd .t{font-size:13px;font-weight:700;color:#1E293B}
+.md-hd .sub{font-size:11.5px;color:#7488A3}
+.md-hd .x{margin-left:auto;background:none;border:none;color:#B4C0D0;font-size:17px;line-height:1;cursor:pointer;padding:0 2px;font-family:inherit}
+.md-hd .x:hover{color:var(--acc)}
+#me-dock .ins-body{background:var(--paper)}
+.md-row{display:flex;align-items:center;gap:7px;padding:4px 0;font-size:12px;color:#1E293B;min-width:0}
+.md-dot{width:9px;height:9px;border-radius:3px;flex-shrink:0}
+.md-main{flex:1;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.md-when{flex-shrink:0;font-size:11px;color:#7488A3}
+.md-tag{flex-shrink:0;font-size:11px;font-weight:700;letter-spacing:.06em;color:#1A7F4E;background:#DCF3E6;border-radius:6px;padding:0 5px}
+.md-empty{font-size:12px;color:#94A3B8;padding:6px 0}
+.md-more{font-size:11px;color:#94A3B8;padding:3px 0}
 @media (max-width:560px){.fg-2{grid-template-columns:1fr}.fg-3{grid-template-columns:1fr}}
 #sidebar{position:relative;width:300px;flex-shrink:0;display:flex;flex-direction:column;background:var(--side);border-right:1.5px solid var(--side-line);z-index:10}
 #sb-head{height:64px;flex-shrink:0;display:flex;align-items:center;gap:8px;padding:0 10px 0 14px;font-size:var(--fs-fine);font-weight:700;text-transform:uppercase;letter-spacing:.16em;color:var(--txt-micro);border-bottom:1px solid var(--side-line)}
@@ -1086,6 +1105,10 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
   </div>
 </div>
 
+<!-- REV67: person panel — docks under the Departments lens while the person filter is
+     on. Same title-block idea as the project page's bottom inspector. -->
+<div id="me-dock"></div>
+
 <!-- PROJECT PAGE -->
 <div id="page" class="hidden"></div>
 
@@ -1197,7 +1220,7 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_REV=66; // bump this ONE number on every release; used everywhere the rev shows up
+const APP_REV=67; // bump this ONE number on every release; used everywhere the rev shows up
 
 /* ===================== CONSTANTS ===================== */
 const SET_KEY ='shopTimelineSettings_v1';
@@ -1732,7 +1755,8 @@ function toast(msg,kind,undoable,details){
   const box=document.getElementById('toasts');
   /* D3: never cover the bottom inspector dock — when a project page's dock is open,
      the stack sits just above its top edge (recomputed per toast; toasts are short-lived). */
-  const dockRect=(d=>d&&d.getBoundingClientRect())(document.getElementById('pp-dock'));
+  const dockRect=(d=>d&&d.getBoundingClientRect())(document.getElementById('pp-dock')
+    ||(document.body.classList.contains('me-dock-on')?document.getElementById('me-dock'):null));
   box.style.bottom=(dockRect&&dockRect.height?window.innerHeight-dockRect.top+10:18)+'px';
   /* D3: an identical message right behind the last one bumps a ×N badge on it instead of
      stacking a copy. Undo toasts never collapse — each carries its own reverser. */
@@ -2213,7 +2237,7 @@ function computeRange(){
 }
 
 function render(){
-  if(typeof ROUTE!=='undefined'&&ROUTE&&ROUTE.view==='project'){if(!PP_QUIET)renderProjectPage();return;}
+  if(typeof ROUTE!=='undefined'&&ROUTE&&ROUTE.view==='project'){document.body.classList.remove('me-dock-on');if(!PP_QUIET)renderProjectPage();return;}
   const{s,e}=computeRange();TL_S=s;TL_E=e;
   {const td=today();TODAY_X=(td>=TL_S&&td<=TL_E)?d2x(td):null;}
   computeConflicts();
@@ -2221,6 +2245,61 @@ function render(){
   renderSidebar();renderGantt();
   applyFilter();
   renderEmptyState();
+  renderMeDock();
+}
+
+/* REV67: the person panel. Departments lens + person filter = the dashboard view:
+   the filtered Gantt above, this title block below — who they are, what they're on,
+   their checkpoints, their tasks, their time off. Data is read-only here; editing
+   stays in People & Availability and the Home modal. */
+function renderMeDock(){
+  const on=LENS==='dept'&&!!PERSON&&!(typeof ROUTE!=='undefined'&&ROUTE&&ROUTE.view==='project');
+  document.body.classList.toggle('me-dock-on',on);
+  const dk=document.getElementById('me-dock');
+  if(!on){dk.innerHTML='';return;}
+  const per=personByName(PERSON)||{name:PERSON,depts:[],ooo:[]};
+  const t0=fmtDate(today());
+  const CAP=8;
+  const mine=visTasks().filter(personHit).sort((a,b)=>String(a.startDate).localeCompare(String(b.startDate)));
+  const active=mine.filter(t=>t.startDate<=t0&&t0<=t.endDate);
+  const coming=mine.filter(t=>t.startDate>t0);
+  const myProj=new Set(mine.map(t=>t.projectId));
+  const checkpoints=(ST.events||[]).filter(e=>e.date&&e.date>=t0&&myProj.has(e.projectId))
+    .sort((a,b)=>a.date.localeCompare(b.date));
+  const tasks=(ST.todos||[]).filter(t=>!t.completedOn&&(t.who||[]).includes(PERSON))
+    .sort((a,b)=>String(a.due||'9999').localeCompare(String(b.due||'9999')));
+  const ooo=oooFor(PERSON).filter(o=>o.end&&o.end>=t0).sort((a,b)=>String(a.start).localeCompare(String(b.start)));
+  const pn=id=>{const p=projById(id);return p?p.name:'—';};
+  const cap=(arr,row)=>arr.slice(0,CAP).map(row).join('')
+    +(arr.length>CAP?'<div class="md-more">+'+(arr.length-CAP)+' more</div>':'')
+    ||'<div class="md-empty">Nothing here right now.</div>';
+  const barRow=t=>'<div class="md-row"><span class="md-dot" style="background:'+projColor(t.projectId)+'"></span>'
+    +'<span class="md-main">'+esc(phaseLabel(t))+' · '+esc(pn(t.projectId))+'</span>'
+    +(t.startDate<=t0&&t0<=t.endDate?'<span class="md-tag">NOW</span>':'')
+    +'<span class="md-when">'+fmtNice(t.startDate)+' → '+fmtNice(t.endDate)+'</span></div>';
+  const evRow=e=>'<div class="md-row"><span class="md-dot" style="background:'+projColor(e.projectId)+'"></span>'
+    +'<span class="md-main">'+esc(e.name)+' · '+esc(pn(e.projectId))+'</span>'
+    +'<span class="md-when">'+fmtNice(e.date)+'</span></div>';
+  const tkRow=t=>'<div class="md-row"><span class="md-main">'+esc(t.title)+(t.projectId?' · '+esc(pn(t.projectId)):'')+'</span>'
+    +'<span class="md-when">'+(t.due?fmtNice(t.due):'no date')+'</span></div>';
+  const ooRow=o=>'<div class="md-row"><span class="md-main">'+esc(o.note||'Out of office')+'</span>'
+    +'<span class="md-when">'+fmtNice(o.start)+' → '+fmtNice(o.end)+'</span></div>';
+  const deptLbl=(per.depts||[]).map(d=>{const m=SM_DEPTS.find(x=>x[0]===d);return m?m[1]:d;}).join(', ');
+  const sec2=(title,n,inner)=>'<div class="ins-sec"><h4>'+title+'<span class="n">'+n+'</span></h4><div class="in">'+inner+'</div></div>';
+  dk.innerHTML=
+    '<div class="md-hd"><span class="dot" style="background:'+hashColor(per.name)+'"></span>'
+    +'<span class="t">'+esc(per.name)+'</span>'
+    +'<span class="sub">'+esc([per.role,deptLbl,per.email].filter(Boolean).join(' · ')||'Not on the staff list')+'</span>'
+    +'<button class="x" id="md-close" title="Back to everyone">✕</button></div>'
+    +'<div class="ins-body">'
+    +sec2('Working on',active.length+coming.length,cap([...active,...coming],barRow))
+    +sec2('Checkpoints',checkpoints.length,cap(checkpoints,evRow))
+    +sec2('Tasks',tasks.length,cap(tasks,tkRow))
+    +sec2('Time off',ooo.length,cap(ooo,ooRow))
+    +'</div>';
+  document.getElementById('md-close').addEventListener('click',()=>{
+    PERSON=null;saveUI();updateFilterBadges();render();
+  });
 }
 
 /* Always shows a card when the canvas has no visible projects: signed out → the
