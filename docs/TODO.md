@@ -96,10 +96,11 @@ Roughly in build order:
       what the preview shows. `NPV_LINES` stays as the draft's durable store (rows can't
       survive the per-keystroke scheduler regeneration). Suite: `tests/test55.js`.
       Record: `docs/Milestones/Phase 2.5/2026-08-19-draft-saved-subtask-convergence.md`.
-- [ ] **4. Person filter + per-user identity** — supersedes "Dash view" (owner
-      direction, 2026-08-21). Correction: the old "per-person dashboard" was never
-      actually designed, only named — earlier "designed, not built" claims were wrong.
-      Not a separate dashboard; three smaller pieces on existing surfaces:
+- [x] **4. Person filter + per-user identity — DONE 2026-08-21 (REV65–68)** —
+      supersedes "Dash view" (owner direction, 2026-08-21). Correction: the old
+      "per-person dashboard" was never actually designed, only named — earlier
+      "designed, not built" claims were wrong. Not a separate dashboard; delivered
+      as four slices on existing surfaces:
       - [x] **Person filter on the home page** — DONE 2026-08-21 (REV65), beside the
         Status filter: limits the existing Gantt to one person in both lenses;
         the pick persists per browser. Suite: `tests/test65.js`. Record:
@@ -118,12 +119,13 @@ Roughly in build order:
         email, synced with People & Availability. Suite: `tests/test67.js`.
         Record: `docs/Milestones/2026-08-21-person-panel.md` (ceilings: fixed
         height, events-only checkpoints, rows not clickable).
-      - **The "dashboard" IS that composition** (owner, 2026-08-21): Department view
-        + person filter set to the logged-in user + person panel below. Reached by a
-        **single button**; a title bar / breadcrumb in the project-edit-page style
-        says where you are and links back to the home view (the unfiltered Gantt, in
-        whichever lens — Projects or Departments — was most recent).
-      Still gated on the ⚠ `Staff.email`/`role` columns (§5).
+      - [x] **The "dashboard" IS that composition** — DONE 2026-08-21 (REV68):
+        "My Dashboard" toolbar button enters it in one click ("me" via the identity
+        chain, with a remembered ask-once picker as the last fallback); the panel
+        header is a Timeline › name breadcrumb that unwinds to the home view in
+        whichever lens was most recent. Suite: `tests/test68.js`. Record:
+        `docs/Milestones/2026-08-21-dashboard-button.md`.
+      **Item 4 complete (REV65–68).**
 - [ ] **5b. People & Availability fed from MS Teams. ⚠** The name field becomes a
       dropdown of members of the existing Team in MS Teams; the Team has more members
       than the scheduler needs, so people are selected into the app from that larger

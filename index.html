@@ -1026,6 +1026,10 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
     </div>
     <button id="btn-new-proj" class="t-btn accent" title="Create a new project (N)">+ New Project</button>
     <div class="sf-wrap">
+      <button id="btn-dash" class="t-btn" title="Your dashboard — your schedule, checkpoints, tasks and time off"><svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="5" r="2.5"/><path d="M3 13.5c.6-3 2.5-4.5 5-4.5s4.4 1.5 5 4.5"/></svg> My Dashboard</button>
+      <div id="dash-menu" class="tb-menu hidden"></div>
+    </div>
+    <div class="sf-wrap">
       <button id="btn-print" class="t-btn" title="Print the timeline or a meeting sheet"><svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 5.5V2h7v3.5"/><path d="M4.5 11.5H2.75A1.25 1.25 0 0 1 1.5 10.25v-3.5A1.25 1.25 0 0 1 2.75 5.5h10.5a1.25 1.25 0 0 1 1.25 1.25v3.5a1.25 1.25 0 0 1-1.25 1.25H11.5"/><rect x="4.5" y="9.5" width="7" height="4.5" rx="1"/></svg> Print <svg class="ico-s" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 6 8 9.5 11.5 6"/></svg></button>
       <div id="print-menu" class="tb-menu hidden">
         <div class="sm-item" id="mi-print-timeline" title="Print the timeline as it looks on screen"><svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 5.5V2h7v3.5"/><path d="M4.5 11.5H2.75A1.25 1.25 0 0 1 1.5 10.25v-3.5A1.25 1.25 0 0 1 2.75 5.5h10.5a1.25 1.25 0 0 1 1.25 1.25v3.5a1.25 1.25 0 0 1-1.25 1.25H11.5"/><rect x="4.5" y="9.5" width="7" height="4.5" rx="1"/></svg> Print Timeline</div>
@@ -1220,7 +1224,7 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_REV=67; // bump this ONE number on every release; used everywhere the rev shows up
+const APP_REV=68; // bump this ONE number on every release; used everywhere the rev shows up
 
 /* ===================== CONSTANTS ===================== */
 const SET_KEY ='shopTimelineSettings_v1';
@@ -2255,6 +2259,7 @@ function render(){
 function renderMeDock(){
   const on=LENS==='dept'&&!!PERSON&&!(typeof ROUTE!=='undefined'&&ROUTE&&ROUTE.view==='project');
   document.body.classList.toggle('me-dock-on',on);
+  const db=document.getElementById('btn-dash');if(db)db.classList.toggle('active',on);
   const dk=document.getElementById('me-dock');
   if(!on){dk.innerHTML='';return;}
   const per=personByName(PERSON)||{name:PERSON,depts:[],ooo:[]};
@@ -2287,19 +2292,22 @@ function renderMeDock(){
   const deptLbl=(per.depts||[]).map(d=>{const m=SM_DEPTS.find(x=>x[0]===d);return m?m[1]:d;}).join(', ');
   const sec2=(title,n,inner)=>'<div class="ins-sec"><h4>'+title+'<span class="n">'+n+'</span></h4><div class="in">'+inner+'</div></div>';
   dk.innerHTML=
-    '<div class="md-hd"><span class="dot" style="background:'+hashColor(per.name)+'"></span>'
+    /* N1-style trail: Timeline › name. The current segment is dark; Timeline unwinds
+       to the home view — the unfiltered Gantt, in whichever lens was most recent. */
+    '<div class="md-hd"><button class="pg-cr" id="md-home" title="Back to the full timeline">Timeline</button>'
+    +'<span class="pg-sep">›</span>'
+    +'<span class="dot" style="background:'+hashColor(per.name)+'"></span>'
     +'<span class="t">'+esc(per.name)+'</span>'
     +'<span class="sub">'+esc([per.role,deptLbl,per.email].filter(Boolean).join(' · ')||'Not on the staff list')+'</span>'
-    +'<button class="x" id="md-close" title="Back to everyone">✕</button></div>'
+    +'<button class="x" id="md-close" title="Back to the full timeline">✕</button></div>'
     +'<div class="ins-body">'
     +sec2('Working on',active.length+coming.length,cap([...active,...coming],barRow))
     +sec2('Checkpoints',checkpoints.length,cap(checkpoints,evRow))
     +sec2('Tasks',tasks.length,cap(tasks,tkRow))
     +sec2('Time off',ooo.length,cap(ooo,ooRow))
     +'</div>';
-  document.getElementById('md-close').addEventListener('click',()=>{
-    PERSON=null;saveUI();updateFilterBadges();render();
-  });
+  document.getElementById('md-close').addEventListener('click',()=>exitDash());
+  document.getElementById('md-home').addEventListener('click',()=>exitDash());
 }
 
 /* Always shows a card when the canvas has no visible projects: signed out → the
@@ -6399,6 +6407,49 @@ function wireMenu(btnId,menuId){
 wireMenu('btn-status','status-menu');
 document.getElementById('btn-person').addEventListener('click',buildPersonMenu);
 wireMenu('btn-person','person-menu');
+
+/* REV68: the dashboard button — one click into "my plate" (Departments lens + person
+   filter + panel). Identity comes from meName(); unresolved falls back to a one-time
+   "who are you?" pick remembered on this device (the chain's last link). */
+let PREV_LENS=null; /* lens to return to when the breadcrumb unwinds; null = stay put */
+const ME_KEY='shopTimelineMe';
+function rememberedMe(){try{const n=localStorage.getItem(ME_KEY);return n&&PEOPLE.some(p=>p.name===n)?n:null;}catch(e){return null;}}
+function enterDash(name){
+  if(LENS!=='dept')PREV_LENS=LENS;
+  LENS='dept';PERSON=name;
+  document.getElementById('btn-lens-dept').classList.add('active');
+  document.getElementById('btn-lens-proj').classList.remove('active');
+  saveUI();updateFilterBadges();render();
+}
+function exitDash(){
+  PERSON=null;
+  if(PREV_LENS==='project'){LENS='project';
+    document.getElementById('btn-lens-proj').classList.add('active');
+    document.getElementById('btn-lens-dept').classList.remove('active');}
+  PREV_LENS=null;
+  saveUI();updateFilterBadges();render();
+}
+function buildDashMenu(){
+  const m=document.getElementById('dash-menu');m.innerHTML='';
+  const note=document.createElement('div');note.className='sm-note';
+  note.textContent='Who are you? Remembered on this device.';m.appendChild(note);
+  const names=[...new Set(PEOPLE.map(p=>p.name))].sort((a,b)=>a.localeCompare(b));
+  for(const n of names){
+    const it=document.createElement('div');it.className='sm-item';it.textContent=n;
+    it.addEventListener('click',()=>{try{localStorage.setItem(ME_KEY,n);}catch(e){}closeMenus();enterDash(n);});
+    m.appendChild(it);
+  }
+  if(!names.length){const d=document.createElement('div');d.className='sm-item';d.textContent='No people yet — add them in Settings';m.appendChild(d);}
+}
+document.getElementById('btn-dash').addEventListener('click',ev=>{
+  ev.stopPropagation();
+  const me=meName()||rememberedMe();
+  if(me){closeMenus();enterDash(me);return;}
+  buildDashMenu();
+  const m=document.getElementById('dash-menu');
+  const open=m.classList.contains('hidden');closeMenus();if(open)m.classList.remove('hidden');
+});
+document.getElementById('dash-menu').addEventListener('click',ev=>ev.stopPropagation());
 wireMenu('btn-print','print-menu');
 wireMenu('btn-settings','settings-menu');
 wireMenu('btn-legend','legend-menu');
