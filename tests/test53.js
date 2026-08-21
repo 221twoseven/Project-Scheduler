@@ -147,12 +147,36 @@ function stage3(){
         setTimeout(()=>{
           ok('escape closes the menu', !menu());
           ok('escape did not also leave the page', E('ROUTE.view')==='project');
-          stage4();
+          stage3b();
         },200);
         },250);
       },250);
     },250);
   },250);
+}
+
+/* REV64: the poll re-renders the whole page when remote changes land. The calendar
+   paint used to return before the bound-once click handlers, so a re-render that
+   happened while in calendar mode left every click dead until a manual refresh. */
+function stage3b(){
+  sec('a full page re-render in calendar mode keeps the surface live');
+  E('ppSelect(null);PP_KEEP=true;renderProjectPage();');
+  setTimeout(()=>{
+    ok('the calendar mode survived the re-render', E('NPV_MODE')==='calendar');
+    const b=bands()[0];
+    ok('bands were repainted', !!b);
+    clickOn(b);
+    setTimeout(()=>{
+      ok('a click still selects after the re-render',
+         E('PP_SEL')===E('NPV_TASKS['+b.dataset.i+'].id'), String(E('PP_SEL')));
+      const ev=rclick(bands()[0]);
+      setTimeout(()=>{
+        ok('right-click still opens the bar menu', !!menu()&&ev.defaultPrevented);
+        E('npvCloseMenu();ppSelect(null);');
+        stage4();
+      },250);
+    },250);
+  },400);
 }
 
 function stage4(){

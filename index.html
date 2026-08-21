@@ -4721,6 +4721,7 @@ function npvQueue(){if(NPV_RAF)return;NPV_RAF=requestAnimationFrame(()=>{NPV_RAF
 function npvRender(){
   const host=document.getElementById('npv-body');
   if(!host)return;
+  npvBindHost(host);
   const foot=document.getElementById('npv-foot');
   const rst=document.getElementById('npv-reset');
   if(rst)rst.disabled=!Object.keys(NPV_MANUAL).length&&!NPV_ORDER_DIRTY;
@@ -4937,8 +4938,13 @@ function npvRender(){
   }
   const mp=ppProject();
   if(mp)ppPaintMeta(mp);
-  /* REV48: bound once. npvRender only rewrites innerHTML, so re-binding here stacked a
-     fresh listener on the same element on every render. */
+}
+/* REV48: bound once — npvRender only rewrites innerHTML, so re-binding stacked a fresh
+   listener on the same element on every render. REV64: hoisted to the top of npvRender,
+   before the early returns — the calendar branch exits before the gantt paint, so a page
+   re-render (e.g. the poll) that landed in calendar mode rebuilt #npv-body without ever
+   binding these, leaving every click dead until a refresh. */
+function npvBindHost(host){
   if(!host.dataset.bound){
     host.dataset.bound='1';
     let dnX=0,dnY=0;
