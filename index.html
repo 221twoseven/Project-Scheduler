@@ -198,6 +198,9 @@ body:not(.vivid) .hdr-m-cell{text-shadow:none;border-right-color:rgba(13,19,29,.
 .st-top{display:flex;gap:8px;align-items:center;margin-bottom:7px}
 .st-name{flex:1;border:1.5px solid #E2E8F0;border-radius:6px;padding:6px 9px;font-size:13px;font-weight:600;font-family:inherit;outline:none;background:#fff}
 .st-name:focus{border-color:var(--acc)}
+.st-meta{display:flex;gap:8px;margin-bottom:7px}
+.st-meta input{flex:1;border:1.5px solid #E2E8F0;border-radius:6px;padding:5px 9px;font-size:12px;font-family:inherit;outline:none;background:#fff}
+.st-meta input:focus{border-color:var(--acc)}
 .st-depts{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:8px}
 .st-depts label{display:flex;align-items:center;gap:5px;font-size:11.5px;color:#33415A;cursor:pointer;user-select:none}
 .st-depts input{width:13px;height:13px;accent-color:var(--acc)}
@@ -1194,7 +1197,7 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_REV=65; // bump this ONE number on every release; used everywhere the rev shows up
+const APP_REV=66; // bump this ONE number on every release; used everywhere the rev shows up
 
 /* ===================== CONSTANTS ===================== */
 const SET_KEY ='shopTimelineSettings_v1';
@@ -1553,6 +1556,9 @@ function loadLocalPrefs(){
   try{const u=localStorage.getItem(UI_KEY);if(u){const ui=JSON.parse(u);COLLAPSED=new Set(ui.collapsedDepts||[]);
     if(Array.isArray(ui.showStatus)&&ui.showStatus.length)SHOW_STATUS=new Set(ui.showStatus.filter(x=>ALL_STATUSES.includes(x)));
     if(typeof ui.person==='string'&&ui.person)PERSON=ui.person;
+    if(ui.lens==='dept'||ui.lens==='project'){LENS=ui.lens;
+      document.getElementById('btn-lens-dept').classList.toggle('active',LENS==='dept');
+      document.getElementById('btn-lens-proj').classList.toggle('active',LENS==='project');}
     if(ui.sideW)setSideW(ui.sideW);
     if(ui.npvGut)npvSetGut(ui.npvGut);
     if(ui.colorMode==='entity'){COLOR_MODE='entity';
@@ -1641,8 +1647,8 @@ function projToFields(p){const f={Title:p.name||'',client:p.client||'',jobCode:p
 function fieldsToProj(f){return{id:f.appId,name:f.Title||'',client:f.client||'',jobCode:f.jobCode||'',deadline:isoDay(f.deadline),status:f.status||'auto',projectManager:f.projectManager||'',drafter:f.drafter||'',leadFab:f.leadFab||'',fabricators:f.fabricators||'',metalFab:f.metalFab||'',activeDepartments:safeArr(f.activeDepartments),sortIndex:f.sortIndex==null?null:Number(f.sortIndex),createdAt:isoDay(f.createdAt)};}
 function taskToFields(t){const d=deptById(t.department);return{Title:(d?d.name:t.department)||'Task',projectId:t.projectId,department:t.department,assignee:Array.isArray(t.assignee)?JSON.stringify(t.assignee):(t.assignee||''),startDate:t.startDate||null,endDate:t.endDate||null,estimatedDays:t.estimatedDays||1,ticketNodes:JSON.stringify(t.ticketNodes||[]),notes:t.notes||'',pinned:!!t.pinned,label:t.label||'',appId:t.id};}
 function fieldsToTask(f){const a=(f.department==='install'&&typeof f.assignee==='string'&&f.assignee.trim().startsWith('['))?safeArr(f.assignee):(f.assignee||'');return{id:f.appId,projectId:f.projectId,department:f.department,assignee:a,startDate:isoDay(f.startDate),endDate:isoDay(f.endDate),estimatedDays:Number(f.estimatedDays)||1,ticketNodes:safeArr(f.ticketNodes),notes:f.notes||'',pinned:!!f.pinned,label:f.label||''};}
-function personToFields(p){return{Title:p.name||'',depts:JSON.stringify(p.depts||[]),ooo:JSON.stringify(p.ooo||[]),appId:p.id};}
-function fieldsToPerson(f){return{id:f.appId,name:f.Title||'',depts:safeArr(f.depts),ooo:safeArr(f.ooo)};}
+function personToFields(p){return{Title:p.name||'',depts:JSON.stringify(p.depts||[]),ooo:JSON.stringify(p.ooo||[]),email:p.email||'',role:p.role||'',appId:p.id};}
+function fieldsToPerson(f){return{id:f.appId,name:f.Title||'',depts:safeArr(f.depts),ooo:safeArr(f.ooo),email:f.email||'',role:f.role||''};}
 
 async function spLoadStaff(){
   await spSite();
@@ -1855,7 +1861,7 @@ function saveUI(){
   try{localStorage.setItem('shopTimelineTint',TINT?'1':'0');
     localStorage.setItem('shopTimelineLinkSubs',LINK_SUBS?'1':'0');
     localStorage.setItem('shopTimelineOpenDepts',JSON.stringify([...NPV_OPEN]));
-    localStorage.setItem('shopTimelineGroup',GROUP_BY||'');}catch(e){}localStorage.setItem(UI_KEY,JSON.stringify({collapsedDepts:[...COLLAPSED],colorMode:COLOR_MODE,sideW:SIDE_W,npvGut:NPV_GUT,showStatus:[...SHOW_STATUS],person:PERSON||''}));}
+    localStorage.setItem('shopTimelineGroup',GROUP_BY||'');}catch(e){}localStorage.setItem(UI_KEY,JSON.stringify({collapsedDepts:[...COLLAPSED],colorMode:COLOR_MODE,sideW:SIDE_W,npvGut:NPV_GUT,showStatus:[...SHOW_STATUS],person:PERSON||'',lens:LENS}));}
 
 /* ===================== SEARCH FILTER ===================== */
 let FILTER='';
@@ -1864,6 +1870,17 @@ let FILTER='';
 let PERSON=null;
 function personHit(t){return !PERSON||barCrew(t).includes(PERSON);}
 function projHasPerson(p){return !PERSON||tasksOf(p.id).some(personHit);}
+/* REV66: identity chain — who is the signed-in user on the staff list? Login email
+   against Staff.email first, display name second. Null when unresolved (the
+   dashboard-button slice adds the remembered-picker fallback). */
+function meName(){
+  if(!ACCOUNT)return null;
+  const em=String(ACCOUNT.username||'').trim().toLowerCase();
+  let p=em?PEOPLE.find(x=>String(x.email||'').trim().toLowerCase()===em):null;
+  if(!p){const nm=String(ACCOUNT.name||'').trim().toLowerCase();
+    if(nm)p=PEOPLE.find(x=>x.name.trim().toLowerCase()===nm);}
+  return p?p.name:null;
+}
 function projMatch(p){
   if(!FILTER)return true;
   return (p.name+' '+(p.client||'')+' '+(p.jobCode||'')+' '+(p.projectManager||'')+' '+(p.drafter||'')+' '+(p.leadFab||'')+' '+(p.fabricators||'')+' '+(p.metalFab||'')).toLowerCase().includes(FILTER);
@@ -3136,6 +3153,15 @@ function smRender(){
     del.addEventListener('click',()=>{SM_PEOPLE.splice(i,1);smRender();});
     top.appendChild(del);
     card.appendChild(top);
+    /* REV66: work email drives the identity chain (Person filter "(me)", and the
+       coming dashboard button); role is a plain title shown on the person panel. */
+    const meta=document.createElement('div');meta.className='st-meta';
+    const em=document.createElement('input');em.type='email';em.placeholder='Work email (for "me" features)';em.value=per.email||'';
+    em.addEventListener('input',()=>{per.email=em.value;});
+    const ro=document.createElement('input');ro.type='text';ro.placeholder='Role / title';ro.value=per.role||'';
+    ro.addEventListener('input',()=>{per.role=ro.value;});
+    meta.appendChild(em);meta.appendChild(ro);
+    card.appendChild(meta);
     const dp=document.createElement('div');dp.className='st-depts';
     for(const[did,lbl]of SM_DEPTS){
       const lb=document.createElement('label');
@@ -3173,7 +3199,7 @@ document.getElementById('mi-people').addEventListener('click',()=>{
   document.getElementById('staff-overlay').classList.remove('hidden');
 });
 document.getElementById('st-add').addEventListener('click',()=>{
-  SM_PEOPLE.push({id:genId(),name:'',depts:[],ooo:[]});
+  SM_PEOPLE.push({id:genId(),name:'',depts:[],ooo:[],email:'',role:''});
   smRender();
   const names=document.querySelectorAll('#st-list .st-name');
   if(names.length)names[names.length-1].focus();
@@ -3181,7 +3207,7 @@ document.getElementById('st-add').addEventListener('click',()=>{
 document.getElementById('st-cancel').addEventListener('click',()=>document.getElementById('staff-overlay').classList.add('hidden'));
 document.getElementById('st-save').addEventListener('click',()=>{
   const clean=SM_PEOPLE
-    .map(p=>({...p,name:(p.name||'').trim(),depts:p.depts||[],ooo:(p.ooo||[]).filter(o=>o.start&&o.end).map(o=>o.end>=o.start?o:{...o,start:o.end,end:o.start})}))
+    .map(p=>({...p,name:(p.name||'').trim(),email:(p.email||'').trim(),role:(p.role||'').trim(),depts:p.depts||[],ooo:(p.ooo||[]).filter(o=>o.start&&o.end).map(o=>o.end>=o.start?o:{...o,start:o.end,end:o.start})}))
     .filter(p=>p.name);
   const seen=new Set();
   for(const p of clean){
@@ -6117,10 +6143,10 @@ document.getElementById('btn-weeks').addEventListener('click',()=>{if(VIEW==='we
   render();scrollToToday();});
 document.getElementById('btn-lens-proj').addEventListener('click',()=>{if(LENS==='project')return;LENS='project';
   document.getElementById('btn-lens-proj').classList.add('active');document.getElementById('btn-lens-dept').classList.remove('active');
-  render();});
+  saveUI();render();});
 document.getElementById('btn-lens-dept').addEventListener('click',()=>{if(LENS==='dept')return;LENS='dept';
   document.getElementById('btn-lens-dept').classList.add('active');document.getElementById('btn-lens-proj').classList.remove('active');
-  render();});
+  saveUI();render();});
 document.getElementById('btn-col-proj').addEventListener('click',()=>{if(COLOR_MODE==='project')return;COLOR_MODE='project';
   document.getElementById('btn-col-proj').classList.add('active');document.getElementById('btn-col-ent').classList.remove('active');
   saveUI();render();});
@@ -6224,7 +6250,9 @@ function buildPersonMenu(){
     m.appendChild(l);
   };
   mk('Everyone',null);
-  const names=[...new Set(PEOPLE.map(p=>p.name))].sort((a,b)=>a.localeCompare(b));
+  const me=meName();
+  if(me)mk(me+' (me)',me);
+  const names=[...new Set(PEOPLE.map(p=>p.name))].filter(n=>n!==me).sort((a,b)=>a.localeCompare(b));
   for(const n of names)mk(n,n);
   if(!names.length){const d=document.createElement('div');d.className='sm-item';d.textContent='No people yet — add them in Settings';m.appendChild(d);}
 }

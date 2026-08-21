@@ -104,11 +104,14 @@ Roughly in build order:
         Status filter: limits the existing Gantt to one person in both lenses;
         the pick persists per browser. Suite: `tests/test65.js`. Record:
         `docs/Milestones/2026-08-21-person-filter.md`.
-      - **User identity** — the chain stands: signed-in email → `Staff.email`,
-        fallback display-name match, fallback a remembered person picker. Used to
-        float "me" to the top of the person filter and to make views sticky per
-        user (project-row sort/order, filter state) so each login lands where it
-        left off.
+      - [x] **User identity** — DONE 2026-08-21 (REV66): signed-in email →
+        `Staff.email`, fallback display-name match ("me" floats to the top of the
+        person filter); People & Availability gained Email + Role fields; lens,
+        person pick and status filter all persist per browser. The remembered-picker
+        fallback is deferred to the dashboard button (that's where the explicit ask
+        lives). Per-user *row order* deliberately not done — sortIndex is shared
+        shop data; a private shadow order needs its own decision. Suite:
+        `tests/test66.js`. Record: `docs/Milestones/2026-08-21-identity-chain.md`.
       - **Person panel in Department view**: with the person filter active, the
         real estate the project-edit form uses shows the person's info under the
         Gantt — relevant dates, tasks, milestones, time off, department, title —
