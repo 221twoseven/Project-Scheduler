@@ -4,6 +4,8 @@ const {boot}=require('./harness');
 const fs=require('fs');
 const FILE=process.argv[2]||'reference/Timeline_50.html';
 const src=fs.readFileSync(FILE,'utf8');
+/* REV57 / N11: bar menus are add-only — rename lives in the inspector/popover. */
+const N11=/\.npv-menu \.mn/.test(src);
 
 let pass=0,fail=0;
 const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
@@ -125,11 +127,15 @@ function stage2(){
       mk2.dispatchEvent(new win.MouseEvent('mousedown',{bubbles:true,clientX:300,clientY:20,button:0}));
       doc.dispatchEvent(new win.MouseEvent('mouseup',{bubbles:true,clientX:300,clientY:20}));
       setTimeout(()=>{
-        const inp=q('#pp-insp .ag-i input');
+        /* The checkpoint-editor agenda (post-REV50) renders a permanent name input;
+           the reference build opens one on click. */
+        const NEWAG=/ag-dl/.test(src);
+        const inp=NEWAG?q('#pp-insp .ag-i input.nm'):q('#pp-insp .ag-i input');
         ok('the agenda opened with an inline editor', !!inp);
         if(inp){
           inp.value='Kickoff';
-          inp.dispatchEvent(new win.KeyboardEvent('keydown',{key:'Enter',bubbles:true}));
+          if(NEWAG)inp.dispatchEvent(new win.Event('change',{bubbles:true}));
+          else inp.dispatchEvent(new win.KeyboardEvent('keydown',{key:'Enter',bubbles:true}));
         }
         setTimeout(()=>{
           ok('the rename stuck', E("NPV_EVENTS.some(e=>e.name==='Kickoff')"));
@@ -160,8 +166,14 @@ function stage3(){
     setTimeout(()=>{
       ok('the bar editor opened', !!doc.getElementById('bar-pop'));
       ok('it has a name field', !!doc.getElementById('bp-name'));
-      ok('draft dates are read-only, as the note says',
-         (()=>{const s=doc.getElementById('bp-s');return s&&s.readOnly;})());
+      /* REV61 made draft popover dates editable (they commit like a drag would);
+         pre-REV61 builds keep the read-only assertion. */
+      if(/ppPopDate/.test(src))
+        ok('draft dates are editable (REV61)',
+           (()=>{const s=doc.getElementById('bp-s');return s&&!s.readOnly;})());
+      else
+        ok('draft dates are read-only, as the note says',
+           (()=>{const s=doc.getElementById('bp-s');return s&&s.readOnly;})());
       E('ppClosePop();');
 
       sec('right-click a draft bar');
@@ -171,7 +183,10 @@ function stage3(){
       setTimeout(()=>{
         const menu=doc.getElementById('npv-menu');
         ok('a menu opened', !!menu);
-        ok('it offers rename and the three creates',
+        if(N11)ok('it offers the three creates (add-only, N11)',
+           !!menu.querySelector('[data-act="sub"]')&&!!menu.querySelector('[data-act="ev"]')
+           &&!!menu.querySelector('[data-act="tk"]')&&!menu.querySelector('[data-act="ren"]'));
+        else ok('it offers rename and the three creates',
            !!menu.querySelector('[data-act="ren"]')&&!!menu.querySelector('[data-act="sub"]'));
         ok('duplicate and delete are absent on a draft (they need ST)',
            !menu.querySelector('[data-act="dup"]')&&!menu.querySelector('[data-act="del"]'));

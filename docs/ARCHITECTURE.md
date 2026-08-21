@@ -20,7 +20,8 @@ Microsoft Graph  v1.0  ──►  SharePoint site  /sites/TWOSEVENINC
                               ├─ ShopTimeline_Projects
                               ├─ ShopTimeline_Tasks      (Gantt phases)
                               ├─ ShopTimeline_Staff
-                              └─ ShopTimeline_Tasks2      (to-dos; optional)
+                              ├─ ShopTimeline_Tasks2      (to-dos; optional)
+                              └─ ShopTimeline_Events     (standalone events; optional)
 ```
 
 ## Authentication (index.html, "SHAREPOINT DATA LAYER" section)
@@ -45,11 +46,12 @@ Microsoft Graph  v1.0  ──►  SharePoint site  /sites/TWOSEVENINC
 - `spSite()` resolves the SharePoint site id once (`GET /sites/{host}:{path}`). Lists are
   then addressed by **name** under that site id — no List GUIDs are stored.
 - `spLoad()` reads Projects and Tasks (`?expand=fields&$top=2000`) in parallel, then
-  Tasks2 (to-dos) inside a try/catch. `spLoadStaff()` reads Staff separately so a missing
-  Staff List doesn't block the schedule.
+  Tasks2 (to-dos) and Events each inside a try/catch. `spLoadStaff()` reads Staff
+  separately so a missing Staff List doesn't block the schedule.
 - **Field mappers are the ground truth** for what the app reads and writes:
   `projToFields`/`fieldsToProj`, `taskToFields`/`fieldsToTask`,
-  `personToFields`/`fieldsToPerson`, `todoToFields`/`fieldsToTodo`.
+  `personToFields`/`fieldsToPerson`, `todoToFields`/`fieldsToTodo`,
+  `eventToFields`/`fieldsToEvent`.
 - `updatedBy`/`updatedAt` come from Graph's built-in `lastModifiedBy` /
   `lastModifiedDateTime` — no custom columns.
 
@@ -70,6 +72,9 @@ Microsoft Graph  v1.0  ──►  SharePoint site  /sites/TWOSEVENINC
 - `ShopTimeline_Tasks2` (to-dos) and `ShopTimeline_Staff` are optional. If absent, the app
   warns once and keeps that data local to the browser; when the List appears, persistence
   resumes with no code change. `TODOS_OK` / `STAFF_OK` track this at runtime.
+- `ShopTimeline_Events` is optional the same way (`EVENTS_OK`), with a different fallback:
+  without it, an event saves the legacy way — as a `ticketNodes` entry on a host phase —
+  so nothing is ever browser-local.
 
 ## Data model and vocabulary
 
@@ -78,11 +83,13 @@ Microsoft Graph  v1.0  ──►  SharePoint site  /sites/TWOSEVENINC
 | `ST.projects` | `ShopTimeline_Projects` | Projects (jobs) |
 | `ST.tasks` | `ShopTimeline_Tasks` | **Phases** — the Gantt bars |
 | `ST.todos` | `ShopTimeline_Tasks2` | **Tasks** — Planner-style to-dos |
+| `ST.events` | `ShopTimeline_Events` | **Events** — dated diamond markers |
 | `PEOPLE` / `STAFF` | `ShopTimeline_Staff` | Roster |
 
 - **Vocabulary trap:** a "task" in `ShopTimeline_Tasks` is a Gantt *bar* (a phase); a
-  "task" in the UI is a *to-do*. Events are dated markers stored as `ticketNodes` on a
-  phase.
+  "task" in the UI is a *to-do*. Events are rows in `ShopTimeline_Events` (REV54);
+  older events may still live as `ticketNodes` on a phase — both stores render, and a
+  phase deletion moves its hosted events into the Events list rather than losing them.
 - **Departments (8 groups):** Project Management, Technical Design, Digital Fabrication,
   Main Shop Fab, Metal Shop, Unit 7 (Soft Goods / Vinyl / Electrical / Other), Finishing,
   Installation.

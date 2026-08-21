@@ -70,7 +70,12 @@ Rules:
 - **Site:** `https://twosevennet.sharepoint.com/sites/TWOSEVENINC`
 - **Lists** (addressed by name; the site ID is resolved at runtime):
   `ShopTimeline_Projects`, `ShopTimeline_Tasks`, `ShopTimeline_Staff`,
-  `ShopTimeline_Tasks2`.
+  `ShopTimeline_Tasks2`, `ShopTimeline_Events`.
+- **Creating `ShopTimeline_Events`** (standalone events, REV54 — the app runs fine
+  without it, falling back to saving events on phases): a plain list with these columns,
+  all single-line text unless noted — `appId`, `projectId`, `department`,
+  `date` (Date only), `notes` (multi-line text). `Title` (built-in) carries the event
+  name. Only this app uses the list; the colleague app never reads it.
 
 ## How to confirm it all works
 

@@ -1,7 +1,7 @@
 # Project Scheduler (Shop Timeline) — UX Audit & Strategy
 
 **Prepared:** August 12, 2026 · **Build reviewed:** REV52 (`development` branch = `/preview/`)
-**Focus areas (per Robert):** first-run & learnability · timeline density & navigation · color & styles
+**Focus areas (per the owner):** first-run & learnability · timeline density & navigation · color & styles
 **Primary audiences:** PMs / schedulers · management & leadership
 
 ---
@@ -110,7 +110,7 @@ Unicode glyphs (⎙ ⚙ ⟲ ⇕ ●) render with different metrics and weights p
 **C7 (P3) — The dark toolbar is a strong brand move — commit to it.**
 The "drawing title block" concept (TWOSEVEN · SHOP TIMELINE, mono REV chip) is distinctive and fits a fabrication shop. Keep it; tighten spacing, align the two toolbar rows to a consistent rhythm, and let the Design Language doc's chrome palette formalize it.
 
-### Theme E — Directed changes (Robert, Aug 12, 2026)
+### Theme E — Directed changes (owner, Aug 12, 2026)
 
 These are decisions, not findings — requirements to build into the plan.
 
@@ -165,6 +165,15 @@ Goal: leadership-ready look. Driven by the **Design Language doc** (companion fi
 7. **Print/Meeting Sheet alignment** — same tokens, so the printout and the screen agree.
 
 Acceptance: a screenshot of the dense timeline can go in a client-facing deck without apology; deuteranopia simulation passes; all text ≥ 11px or decorative.
+
+### Phase 2.5 — feature interlude (happened 2026-08-19 → 21, REV53–64)
+
+Not part of this plan's briefs: between Phase 2's close and Phase 3's start, a run of
+higher-priority feature work and field-note fixes shipped (calendar parity, standalone
+events, the subtask/crew model, the checkpoint editor). Records:
+`docs/Milestones/Phase 2.5/`, index
+`docs/Milestones/2026-08-21-phase-2-5-feature-interlude.md`; actionable state stays in
+`docs/TODO.md`.
 
 ### Phase 3 — Navigation at scale (~2 weeks, after real feedback on 1–2)
 

@@ -4,6 +4,12 @@ const {boot}=require('./harness');
 const fs=require('fs');
 const FILE=process.argv[2]||'Timeline_48.html';
 const src=fs.readFileSync(FILE,'utf8');
+/* REV56: a subtask created inside its parent's window is born named and half the
+   parent's length (see test56); older builds borrow the neighbours' average. */
+const R56=src.indexOf('npv-env')>=0;
+/* REV57 / N11: right-click menus are add-only with an inline name field; left-click
+   never opens a create menu and right-click never changes the selection. */
+const N11=/\.npv-menu \.mn/.test(src);
 
 let pass=0,fail=0;
 const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
@@ -96,13 +102,14 @@ function stage1(){
     const nu=E("JSON.stringify(ST.tasks.filter(t=>t.department==='fab').slice(-1)[0])");
     const n=JSON.parse(nu);
     ok('it starts on the day that was clicked', n.startDate==='2026-08-20', n.startDate);
-    ok('it borrows the length of its neighbours', n.estimatedDays===12, n.estimatedDays+'');
+    if(R56)ok('a nested subtask is born half its parent\'s length', n.estimatedDays===6, n.estimatedDays+'');
+    else ok('it borrows the length of its neighbours', n.estimatedDays===12, n.estimatedDays+'');
     ok('it ends on a working day', E("isWorking(parseDate('"+n.endDate+"'))"));
     ok('it inherits the assignee', n.assignee==='Nick', String(n.assignee));
     ok('the department expanded to show it', E("NPV_OPEN.has('fab')"));
     ok('the new bar is selected', E('PP_SEL')===n.id, String(E('PP_SEL')));
     ok('the inspector shows its name field ready', !!doc.getElementById('ins-name')
-       && doc.getElementById('ins-name').value==='');
+       && doc.getElementById('ins-name').value===(R56?'Subtask 2':''));
     E('ppSelect(null);');
     stage2();
   },350);
@@ -118,18 +125,30 @@ function stage2(){
     setTimeout(()=>{
       ok('the browser menu is suppressed', ev.defaultPrevented);
       ok('a menu opened on the bar', !!menu());
-      ok('it offers rename, subtask and delete',
-         !!byAct('ren')&&!!byAct('sub')&&!!byAct('del'), items().join(' | '));
+      if(N11){
+        ok('it offers only add-new actions (N11)',
+           !!byAct('sub')&&!!byAct('ev')&&!!byAct('tk')&&!byAct('ren')&&!byAct('del'),
+           items().join(' | '));
+        ok('it carries the inline name field', !!menu().querySelector('.mn'));
+        ok('right-clicking a bar does not change the selection', E('PP_SEL')===null);
+      }else{
+        ok('it offers rename, subtask and delete',
+           !!byAct('ren')&&!!byAct('sub')&&!!byAct('del'), items().join(' | '));
+        ok('right-clicking a bar also selects it', E('PP_SEL')!==null);
+      }
       ok('it does not offer "new subtask here" as if on blank canvas',
          !/New subtask here/.test(menu().textContent));
-      ok('right-clicking a bar also selects it', E('PP_SEL')!==null);
       E('npvCloseMenu();ppSelect(null);');
 
-      sec('left-click on empty canvas opens the same menu');
+      sec(N11?'left-click stays edit-only; the menu lives on right-click (N11)'
+             :'left-click on empty canvas opens the same menu');
       const y=rowOfDept('td')*RH()+10, x=GUT()+colOf('2026-08-05')*DW()+2;
       leftClick(x,y);
       setTimeout(()=>{
-        ok('a menu opened on a plain left click', !!menu());
+        if(N11)ok('no menu on a plain left click', !menu());
+        else ok('a menu opened on a plain left click', !!menu());
+        rightClick(x,y);
+        setTimeout(()=>{
         ok('a parent row offers expand', !!byAct('tog'), items().join(' | '));
         ok('the expand item names the department', /Technical Design/.test(byAct('tog').textContent));
         click(byAct('tog'));
@@ -137,6 +156,7 @@ function stage2(){
           ok('it expanded the department', E("NPV_OPEN.has('td')"));
           ok('the menu closed after choosing', !menu());
           stage3();
+        },250);
         },250);
       },250);
     },250);
@@ -154,6 +174,7 @@ function stage3(){
     sec('a left click that only dismisses does not re-open');
     at(x,y,'mousedown',0);at(x,y,'click',0);
     setTimeout(()=>{
+      if(N11){ok('left clicks never open a menu (N11)', !menu());stage4();return;}
       ok('first click opens', !!menu());
       at(x,y,'mousedown',0);at(x,y,'click',0);
       setTimeout(()=>{
@@ -259,7 +280,8 @@ function stage6(){
         setTimeout(()=>{
           ok('the body carries a single bound flag', E("document.getElementById('npv-body').dataset.bound")==='1');
           const before=E("(ST.todos||[]).length");
-          leftClick(GUT()+colOf('2026-08-05')*DW()+2,rowOfDept('td')*RH()+10);
+          if(N11)rightClick(GUT()+colOf('2026-08-05')*DW()+2,rowOfDept('td')*RH()+10);
+          else leftClick(GUT()+colOf('2026-08-05')*DW()+2,rowOfDept('td')*RH()+10);
           setTimeout(()=>{
             ok('one click still produces exactly one menu',
                doc.querySelectorAll('.npv-menu').length===1,

@@ -12,7 +12,7 @@ function boot(file,opts){
   const dom=new JSDOM(html,{
     runScripts:'dangerously',
     pretendToBeVisual:true,
-    url:'https://peterskvarla-sys.github.io/shop-timeline/',
+    url:'https://example.github.io/shop-timeline/',
     beforeParse(win){
       const f=makeFetch(opts.data||{projects:[],tasks:[],todos:[]},opts);
       win.fetch=f;
@@ -31,9 +31,9 @@ function boot(file,opts){
 function msalStub(){
   return `window.msal={PublicClientApplication:function(cfg){
     this.cfg=cfg;
-    this.getAllAccounts=()=>[{username:'peter@twoseven.net',name:'Peter'}];
+    this.getAllAccounts=()=>[{username:'user@example.com',name:'Sam'}];
     this.setActiveAccount=()=>{};
-    this.loginPopup=async()=>({account:{username:'peter@twoseven.net'}});
+    this.loginPopup=async()=>({account:{username:'user@example.com'}});
     this.acquireTokenSilent=async()=>({accessToken:'tok'});
     this.acquireTokenPopup=async()=>({accessToken:'tok'});
   }};`;
@@ -42,7 +42,8 @@ function msalStub(){
 function makeFetch(data,opts){
   const calls=[];
   const listNames={projects:'ShopTimeline_Projects',tasks:'ShopTimeline_Tasks',
-                   staff:'ShopTimeline_Staff',todos:'ShopTimeline_Tasks2'};
+                   staff:'ShopTimeline_Staff',todos:'ShopTimeline_Tasks2',
+                   events:'ShopTimeline_Events'};
   const fn=async function(url,init){
     calls.push({url:String(url),init,
       body:(init&&init.body)?JSON.parse(init.body):null,
@@ -55,6 +56,10 @@ function makeFetch(data,opts){
       if(opts.todosList)return ok({value:(data.todos||[]).map(toItem)});
       return fail(404);
     }
+    if(u.includes(listNames.events)){
+      if(opts.eventsList)return ok({value:(data.events||[]).map(toItem)});
+      return fail(404);
+    }
     if(u.includes(listNames.staff))return ok({value:(data.staff||[]).map(toItem)});
     if(u.includes(listNames.projects))return ok({value:(data.projects||[]).map(toItem)});
     if(u.includes(listNames.tasks))return ok({value:(data.tasks||[]).map(toItem)});
@@ -63,7 +68,7 @@ function makeFetch(data,opts){
   fn.calls=calls;
   return fn;
   function toItem(f,i){return {id:'sp'+i,fields:f,
-    lastModifiedBy:{user:{displayName:'Peter'}},lastModifiedDateTime:'2026-07-30T12:00:00Z'};}
+    lastModifiedBy:{user:{displayName:'Sam'}},lastModifiedDateTime:'2026-07-30T12:00:00Z'};}
 }
 
 module.exports={boot};

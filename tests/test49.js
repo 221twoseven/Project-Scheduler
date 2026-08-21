@@ -2,6 +2,16 @@
 const {boot}=require('./harness');
 const FILE=process.argv[2]||'Timeline_49.html';
 
+/* The frozen REV50 reference predates E1 (bottom dock) — same convention as
+   test-b1.js: E1-only assertions are skipped on pre-E1 builds. */
+const E1=require('fs').readFileSync(FILE,'utf8').indexOf('pp-dock')>=0;
+/* REV56 replaced the synthetic summary bar with the primary bar as the parent row;
+   the summary-bar assertions only apply to older builds (test56 owns the new model). */
+const SUMBAR=require('fs').readFileSync(FILE,'utf8').indexOf('npv-env')<0;
+/* REV57 / N11: right-click menus are add-only (rename/duplicate/delete live in the
+   inspector) and carry an inline name field. */
+const N11=/\.npv-menu \.mn/.test(require('fs').readFileSync(FILE,'utf8'));
+
 let pass=0,fail=0;
 const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
@@ -67,17 +77,23 @@ function stage1(){
   ok('departments section exists', !!q('[data-sec="depts"]'));
   ok('agenda section exists', !!q('[data-sec="agenda"]'));
   ok('setup is open by default', q('[data-sec="setup"]').classList.contains('open'));
-  ok('team is folded by default', !q('[data-sec="team"]').classList.contains('open'));
+  if(E1){ /* pre-E1 builds default team/depts closed */
+    ok('team is open by default', q('[data-sec="team"]').classList.contains('open'));
+    ok('departments is open by default', q('[data-sec="depts"]').classList.contains('open'));
+  }
+  ok('agenda is open by default', q('[data-sec="agenda"]').classList.contains('open'));
 
-  sec('sections fold');
+  sec('sections no longer fold (E1: dock columns)');
   click(q('[data-sec="team"]>h4'));
   setTimeout(()=>{
-    ok('clicking a heading opens it', q('[data-sec="team"]').classList.contains('open'));
-    click(q('[data-sec="team"]>h4'));
-    setTimeout(()=>{
-      ok('clicking again closes it', !q('[data-sec="team"]').classList.contains('open'));
-      stage2();
-    },150);
+    ok('clicking a heading leaves it open', q('[data-sec="team"]').classList.contains('open'));
+    if(E1){
+      ok('the dock exists with a resize handle',
+         !!doc.getElementById('pp-dock')&&!!doc.getElementById('dock-resize'));
+      ok('the footer lives inside the dock',
+         !!q('#pp-dock .dash-foot'));
+    }
+    stage2();
   },150);
 }
 
@@ -131,16 +147,28 @@ function stage3(){
   setTimeout(()=>{
     ok('the browser menu is suppressed', ev.defaultPrevented);
     ok('a menu opened', !!menu());
-    ok('it offers rename', !!byAct('ren'));
-    ok('it offers add subtask', !!byAct('sub'));
-    ok('it offers add event and add task', !!byAct('ev')&&!!byAct('tk'));
-    ok('it offers duplicate', !!byAct('dup'));
-    ok('it offers delete', !!byAct('del'));
+    if(N11){
+      ok('it offers only add-new (N11)', !!byAct('sub')&&!!byAct('ev')&&!!byAct('tk')
+         &&!byAct('ren')&&!byAct('dup')&&!byAct('del'), menu().textContent.slice(0,60));
+      ok('it carries the inline name field', !!menu().querySelector('.mn'));
+    }else{
+      ok('it offers rename', !!byAct('ren'));
+      ok('it offers add subtask', !!byAct('sub'));
+      ok('it offers add event and add task', !!byAct('ev')&&!!byAct('tk'));
+      ok('it offers duplicate', !!byAct('dup'));
+      ok('it offers delete', !!byAct('del'));
+      ok('delete sits below a separator', menu().innerHTML.indexOf('sep')<menu().innerHTML.indexOf('data-act="del"'));
+    }
     ok('it teaches the keyboard', /<span class="k">S<\/span>/.test(menu().innerHTML));
-    ok('delete sits below a separator', menu().innerHTML.indexOf('sep')<menu().innerHTML.indexOf('data-act="del"'));
 
     const n0=E('ST.tasks.length');
-    click(byAct('dup'));
+    if(N11){
+      /* Duplicate moved to the inspector — the left-click path. */
+      E('npvCloseMenu();ppSelect(NPV_TASKS[0].id);');
+      click(doc.getElementById('ins-dup'));
+    }else{
+      click(byAct('dup'));
+    }
     setTimeout(()=>{
       ok('duplicate adds a bar', E('ST.tasks.length')===n0+1);
       ok('the copy is selected', E('PP_SEL')!==null);
@@ -164,6 +192,11 @@ function stage4(){
   sec('right-click a department summary');
   E("NPV_OPEN=new Set();npvRebuild();ppSelect(null,true);");
   setTimeout(()=>{
+    if(!SUMBAR){
+      console.log('  SKIP  REV56 has no summary bar — the parent row is the primary bar (test56)');
+      gutterSection();
+      return;
+    }
     const sum=q('#npv-body .npv-bar.sum');
     ok('there is a summary bar', !!sum);
     const ev=new win.MouseEvent('contextmenu',{bubbles:true,cancelable:true,clientX:200,clientY:20,button:2});
@@ -174,18 +207,23 @@ function stage4(){
       ok('it offers add subtask', !!byAct('sub'));
       ok('it offers removing the department from the job', !!byAct('rmv'));
       E('npvCloseMenu();');
-
-      sec('right-click a row gutter');
-      const gut=q('#npv-body .npv-gut');
-      const ev2=new win.MouseEvent('contextmenu',{bubbles:true,cancelable:true,clientX:40,clientY:20,button:2});
-      gut.dispatchEvent(ev2);
-      setTimeout(()=>{
-        ok('the gutter opens the department menu too', !!menu()&&!!byAct('sub'));
-        ok('the browser menu is suppressed there as well', ev2.defaultPrevented);
-        E('npvCloseMenu();');
-        stage5();
-      },250);
+      gutterSection();
     },300);
+  },300);
+}
+
+function gutterSection(){
+  setTimeout(()=>{
+    sec('right-click a row gutter');
+    const gut=q('#npv-body .npv-gut');
+    const ev2=new win.MouseEvent('contextmenu',{bubbles:true,cancelable:true,clientX:40,clientY:20,button:2});
+    gut.dispatchEvent(ev2);
+    setTimeout(()=>{
+      ok('the gutter opens the department menu too', !!menu()&&!!byAct('sub'));
+      ok('the browser menu is suppressed there as well', ev2.defaultPrevented);
+      E('npvCloseMenu();');
+      stage5();
+    },250);
   },300);
 }
 
