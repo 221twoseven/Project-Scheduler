@@ -14,10 +14,13 @@ Sequencing decisions (2026-08-19):
 - `docs/UX-Audit-and-Strategy.md` is a **strategy summary, not a to-do list** — it stays
   as-is; this file is where actionable state lives.
 
-Last reviewed: 2026-08-20 (§3a ungated items shipped as REV57; N6/N7, N3 and the N9
-decision remain open there. REV58 same day: new-project draft autosave — a slept/discarded
-browser tab no longer wipes an unsaved draft; see
-`docs/Milestones/2026-08-20-draft-autosave.md`).
+Last reviewed: 2026-08-21 — the REV53–64 run between UX Phases 2 and 3 is now
+categorized as **Phase 2.5** (index:
+`docs/Milestones/2026-08-21-phase-2-5-feature-interlude.md`; records:
+`docs/Milestones/Phase 2.5/`). This review reconciled every open item below against
+what Phase 2.5 actually shipped — N6/N7 closed by REV64, N8 re-renamed, N9 downgraded
+to a data-model decision, PR #15 now carries through REV64. The moves themselves are
+logged in §10.
 
 ---
 
@@ -74,14 +77,14 @@ Roughly in build order:
       empty cells, bar menu + selection on phase bands, keyboard carries over; both
       draft and saved paths. Hit-testing is target-based (`data-d` on cells), not
       coordinate math. Suite: `tests/test53.js` (38 assertions, skips on the reference).
-      Record: `docs/Milestones/2026-08-19-calendar-create-parity.md`. Ceilings noted
+      Record: `docs/Milestones/Phase 2.5/2026-08-19-calendar-create-parity.md`. Ceilings noted
       there: marker bands stay inert; 16px band hit-targets; no menu on the empty state.
 - [x] **2. Standalone events — DONE 2026-08-19 (REV54).** Events are rows in a new
       `ShopTimeline_Events` list (⚠ approved by the owner 2026-08-19 — additive only,
       colleague app unaffected). Hostless create, in-place edit/delete, phase-delete
       rescues hosted events, project-delete cleans up, draft path files rows; without
       the list the app falls back to the legacy phase-hosted save. Suite:
-      `tests/test54.js`. Record: `docs/Milestones/2026-08-19-standalone-events.md`.
+      `tests/test54.js`. Record: `docs/Milestones/Phase 2.5/2026-08-19-standalone-events.md`.
       **Owner to-do: create the list** (column recipe in `docs/SETUP.md`) — until then
       the app keeps the old behaviour.
 - [x] **3. Converge draft vs saved phase-splitting — DONE 2026-08-19 (REV55).** The real
@@ -92,7 +95,7 @@ Roughly in build order:
       placement with it — draft subtasks behave like saved rows, and Save files exactly
       what the preview shows. `NPV_LINES` stays as the draft's durable store (rows can't
       survive the per-keystroke scheduler regeneration). Suite: `tests/test55.js`.
-      Record: `docs/Milestones/2026-08-19-draft-saved-subtask-convergence.md`.
+      Record: `docs/Milestones/Phase 2.5/2026-08-19-draft-saved-subtask-convergence.md`.
 - [ ] **4. Dash view** — the per-person dashboard (third lens beside Projects and
       Departments). Designed, not built. Needs the identity chain: signed-in email →
       `Staff.email`, fallback to display-name match, fallback to a remembered person
@@ -105,7 +108,7 @@ Roughly in build order:
       as min/max (subtasks outside the parent window stay free — parallel subtasks
       are real data); new subtasks are born named, half the parent, never a clone.
       Suite: `tests/test56.js` (44 assertions; `test47` now guards pre-REV56 builds).
-      Record: `docs/Milestones/2026-08-20-subtask-parent-hierarchy.md` — parent-role
+      Record: `docs/Milestones/Phase 2.5/2026-08-20-subtask-parent-hierarchy.md` — parent-role
       heuristic and clamp ceilings noted there.
 - [ ] **Decide: dependencies between bars.** Nothing links a bar to its predecessor
       except the scheduler chain. Have real dependencies, or consciously don't —
@@ -135,7 +138,7 @@ meantime without the doc (the notes reached the team through the owner directly)
 
 The ungated items shipped 2026-08-20 as **REV57** — one batch so hallway round 2 lands
 on a finished page. Suite: `tests/test57.js`; record:
-`docs/Milestones/2026-08-20-project-page-refinement.md` (ceilings listed there).
+`docs/Milestones/Phase 2.5/2026-08-20-project-page-refinement.md` (ceilings listed there).
 
 - [x] **N5 — Drop "In" from status labels** — display-only, stored keys untouched;
       every surface renders through `STATUS_LBL`.
@@ -152,11 +155,15 @@ on a finished page. Suite: `tests/test57.js`; record:
 - [x] **N13 — Department manual Start/End date fields** — bidirectional,
       workday-snapped, committing through the same paths a drag uses on both the
       draft and saved pages; process-name moved under "Other".
-- [ ] **N6/N7 — Agenda inline editors.** Rename-in-place exists (`ppEditAgenda`,
-      name-only). Events still need the caret-expand editor (Name, Date, Time, Notes,
-      Phase dropdown incl. "None" — storage shipped in REV54); tasks the same pattern
-      plus due date. Gate polish on the N9 decision below. **(Still open — gated.)**
-- [x] **N8 — "Not on a phase" row renamed to "Events".**
+- [x] **N6/N7 — Agenda inline editors — DONE 2026-08-21 (REV64), without waiting on
+      N9.** The panel (now "Checkpoints & Tasks") is the Home modal's checkpoint editor:
+      every row edits Name, Date, Notes and a Phase dropdown (incl. "No phase") in
+      place; task rows the same shape with due date and who. Time-of-day was dropped —
+      events never stored one. Deletes work from the row (always-visible ×) and by
+      right-click on the chart marker. Record:
+      `docs/Milestones/Phase 2.5/2026-08-21-checkpoints-everywhere.md`.
+- [x] **N8 — "Not on a phase" row renamed to "Events"** — renamed again to
+      "Checkpoints" in REV64's language pass; tasks left it for their own "Tasks" row.
 - [x] **N11 — Left/right click muted on the project-page Gantt** — left selects/edits,
       right-click menus are add-only with an inline name field (Enter creates);
       rename/duplicate/delete moved to the inspector; the calendar aligned (supersedes
@@ -176,10 +183,11 @@ Still open in this track (gated on decisions or schema):
 
 **Decisions gating this track (owner):**
 
-- [ ] **N9 — Tasks vs events.** Different enough for two flows? An Event = dated
-      marker on the chart; a Task = checkable to-do in lists. Decide with hallway
-      round 2 data; if merged, one "agenda item" with optional date/checkbox
-      collapses N6/N7 into one editor.
+- [ ] **N9 — Tasks vs events (now "checkpoints vs tasks").** Still open, but REV64
+      shrank the stakes: both already share one editor shape and one panel, and tasks
+      have their own chart row. What's left is purely data-model — keep two stores
+      (`ShopTimeline_Events` + `ShopTimeline_Tasks2`) or merge them. Decide with
+      hallway round 2 data; no UI work is gated on it anymore.
 - [ ] **N3 schema + color** — see above; same sitting as the §5 ⚠ conversation.
 
 Keep the **"test both draft and saved paths"** rule for every feature here (the REV49
@@ -194,10 +202,11 @@ In order:
       §3 features exist so the test covers them. The refinement batch (REV57) is live on
       `/preview/` — the page is ready for testers.
 - [ ] **Promote `development` → `main`** — the PR is open:
-      [#15](https://github.com/221twoseven/Project-Scheduler/pull/15), carrying REV53–57,
-      evidence screenshots and the §9 checklist. **Merge is the owner's call** — after
-      hallway round 2, or sooner if production wants the fixes now; the ruleset and CI
-      gate it either way.
+      [#15](https://github.com/221twoseven/Project-Scheduler/pull/15). It tracks the
+      branch head, so it now carries **all of Phase 2.5 (REV53–64)**; its title still
+      says "REV53-62" and should be refreshed before merging. **Merge is the owner's
+      call** — after hallway round 2, or sooner if production wants the fixes now; the
+      ruleset and CI gate it either way.
 - [x] **Backfill the "PR link: pending" lines** — done 2026-08-20: all five Phase 2
       records and the five REV53–57 records now link PR #15.
 
@@ -213,8 +222,11 @@ In order:
 
 ## 6. ON HOLD — UX Phases 3 & 4
 
-On hold until the higher-priority edits in §3 ship. Scope lives in
-`docs/UX-Audit-and-Strategy.md` (kept as the strategy reference — not a to-do doc):
+On hold until the higher-priority edits in §3 ship. The gap between Phases 2 and 3 is
+now recorded as **Phase 2.5** (see §10). Phase 3 has only the strategy-doc summary so
+far — **it still needs task briefs from the owner** (the Phase 1/2 pattern:
+`docs/Phase-N-Task-Briefs.md`). Scope lives in `docs/UX-Audit-and-Strategy.md` (kept
+as the strategy reference — not a to-do doc):
 
 - **Phase 3 — navigation at scale:** B3 zoom + jump-to-date, B5 compact density,
   B6 saved views. Per the Phase 2 brief: B3/B5 if PMs still report navigation pain
@@ -269,6 +281,34 @@ the pill word separates them (U8).
 - [x] `tests/harness.js` jsdom stub tidied (2026-08-19): neutral example.com URL and
       account replace the old personal Pages URL and email.
 - [ ] Shared shop-terminal account — decide whether it needs a paid licence.
+
+## 10. Docs reorganization — Phase 2.5 (2026-08-21)
+
+The REVs shipped between UX Phase 2's close (2026-08-14) and the not-yet-briefed
+Phase 3 are categorized as **Phase 2.5**. Moves made:
+
+- **Created `docs/Milestones/Phase 2.5/`** and moved the twelve REV53–64 records into
+  it: calendar-create-parity, standalone-events, draft-saved-subtask-convergence
+  (08-19); breadcrumb-trail, draft-autosave, left-click-editor-cleanup,
+  project-page-refinement, roster-fanout-vs-lines, subtask-parent-hierarchy,
+  title-row-uncovered, work-priority-crews (08-20); checkpoints-everywhere (08-21).
+- **Consolidated screenshots into `Phase 2.5/screenshots/`** (matching the Phase 1/2
+  layout): the Milestones-root `screenshots/` folder (rev57-*, rev59-*,
+  subtask-hierarchy, checkpoints-editor PNGs) plus the two stray per-record folders
+  (`2026-08-20-breadcrumb-trail/`, `2026-08-20-work-priority-crews/`) — which also
+  fixed those two records' image links, broken since they referenced a `screenshots/`
+  folder that wasn't next to them.
+- **Added the index record** `docs/Milestones/2026-08-21-phase-2-5-feature-interlude.md`
+  (same pattern as the Phase 1/2 summary records).
+- **Left at the Milestones root:** the 08-12 infra/perf records, the Phase 1/2 summary
+  records, and `2026-08-19-pages-deploy-trim.md` (infrastructure, no app REV).
+- **Repointed every stale path** to the moved records (this file ×6,
+  `docs/Handoff-2026-08-20.md` ×1).
+- **Reconciled open items against Phase 2.5 decisions:** §3a N6/N7 closed (REV64
+  delivered the agenda editors), N8 annotated (row says "Checkpoints" now), N9
+  downgraded to a data-model-only decision, §4's PR #15 scope corrected to REV53–64.
+  Calendar parity, standalone events, and the subtask items were already ticked.
+- **Noted in §6:** Phase 3 still needs owner task briefs before work starts.
 
 ---
 

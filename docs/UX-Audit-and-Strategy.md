@@ -166,6 +166,15 @@ Goal: leadership-ready look. Driven by the **Design Language doc** (companion fi
 
 Acceptance: a screenshot of the dense timeline can go in a client-facing deck without apology; deuteranopia simulation passes; all text ≥ 11px or decorative.
 
+### Phase 2.5 — feature interlude (happened 2026-08-19 → 21, REV53–64)
+
+Not part of this plan's briefs: between Phase 2's close and Phase 3's start, a run of
+higher-priority feature work and field-note fixes shipped (calendar parity, standalone
+events, the subtask/crew model, the checkpoint editor). Records:
+`docs/Milestones/Phase 2.5/`, index
+`docs/Milestones/2026-08-21-phase-2-5-feature-interlude.md`; actionable state stays in
+`docs/TODO.md`.
+
 ### Phase 3 — Navigation at scale (~2 weeks, after real feedback on 1–2)
 
 1. **Zoom steps + jump-to-date** (B3).
