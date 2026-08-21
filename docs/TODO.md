@@ -199,11 +199,20 @@ Still open in this track (gated on decisions or schema):
 - [ ] **N3 — Client list. ⚠** Client assignment becomes a dropdown fed by a shared
       list, with "Add new…" opening an edit modal (Name, Color, Notes); manageable
       from a home-page Settings entry like Staff; degrade to browser-local with one
-      warning if the List is absent. Needs a new `ShopTimeline_Clients` List —
-      additive only, but ⚠ approval + colleague-app check first (bundle into the §5
-      conversation). **[decision]** Client Color's job first: (a) becomes the
-      project's hue (one identity system — recommended), (b) accent only, or
-      (c) drop the field. Record the choice in Design-Language §2.
+      warning if the List is absent. **Provenance traced (owner, 2026-08-21):** the
+      canonical client roster is an **Excel workbook** (untethered from everything);
+      an adjacent SharePoint list re-enters clients manually to feed the native Teams
+      calendar (one-way, clunky, disliked). Plan: **duplicate the Excel master into
+      the new `ShopTimeline_Clients` list** (SharePoint "New list → From Excel", the
+      maintained tab only) so it can be culled and becomes the future canonical
+      store. Import only the real data columns — **Client** (name) + **Alias**
+      (job-code suffix) — and skip the derived ones (Next Project, Helper Column 2,
+      the approved/pending/rejected counters, last-enter date): those are facts about
+      projects, computed for free once projects live here. **Divergence rule until
+      cutover:** Excel stays master for job codes; the list is master for what the
+      scheduler shows; new clients get entered in both. **[decision]** Client Color's
+      job first: (a) becomes the project's hue (one identity system — recommended),
+      (b) accent only, or (c) drop the field. Record the choice in Design-Language §2.
 
 **Decisions gating this track (owner):**
 
@@ -244,7 +253,14 @@ In order:
       scope to the app registration + grant admin consent.
 - [ ] **New `ShopTimeline_Clients` List** (for §3a N3 — client dropdown + Settings
       management). Additive only, colleague app never reads it — same shape as the
-      Events-list approval. ⚠ Bundle into one conversation with the Staff columns above.
+      Events-list approval. ⚠ Bundle into one conversation with the Staff columns
+      above. Seeded by importing the Excel client master (see N3 for the column cull
+      and the Excel-stays-master-for-job-codes rule).
+- **North star (owner, 2026-08-21): SharePoint Lists become the database, period.**
+  The Excel client master, the adjacent manual calendar-feeder list, and the native
+  Teams calendar workflow all eventually collapse into this app's Lists. Sequenced
+  deliberately — nothing live gets replaced until the list-side copy has proven
+  itself. (Job codes could then auto-assign: Alias + computed next number.)
 - [ ] Any schema change must be checked against the colleague app before shipping.
 - (`ShopTimeline_Tasks2` existence check lives in §1.)
 
