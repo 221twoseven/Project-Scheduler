@@ -1265,7 +1265,7 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_REV=72; // bump this ONE number on every release; used everywhere the rev shows up
+const APP_REV=73; // bump this ONE number on every release; used everywhere the rev shows up
 
 /* ===================== CONSTANTS ===================== */
 const SET_KEY ='shopTimelineSettings_v1';
@@ -2073,6 +2073,7 @@ function applyFilter(){
     }
     r.classList.toggle('dim',on&&!hit);
   });
+  renderEmptyState(); /* T7: typing in search updates the card without a full render */
 }
 
 /* ===================== OVERBOOKING (same person, overlapping bars) ===================== */
@@ -2360,8 +2361,7 @@ function render(){
   computeConflicts();
   const rm=buildRows();ROWS=rm.rows;TOTAL_H=rm.totalH;
   renderSidebar();renderGantt();
-  applyFilter();
-  renderEmptyState();
+  applyFilter(); /* renders the empty-state card too */
   renderMeDock();
 }
 
@@ -2441,6 +2441,13 @@ function renderEmptyState(){
   }else if(PERSON&&!visTasks().some(personHit)){
     html='<div class="es-big">Nothing scheduled for '+esc(PERSON)+'</div>'
       +'<div class="es-sub">The person filter is on and no visible phase has '+esc(PERSON)+' on it.<br>Click <b>Clear filters</b> in the toolbar to see everyone.</div>';
+  }else if((FILTER||SPOT.size)
+      &&!ST.projects.some(p=>(!FILTER||projMatch(p))&&(!SPOT.size||SPOT.has(p.id)))
+      &&!ST.tasks.some(t=>(!FILTER||taskMatch(t))&&(!SPOT.size||SPOT.has(t.projectId)))){
+    /* T7: search/spotlight dim rather than hide, but a zero-match combination reads
+       as a broken screen — say why, same as the status-filter card above. */
+    html='<div class="es-big">Nothing matches your search</div>'
+      +'<div class="es-sub">The search'+(SPOT.size?' and spotlight':'')+' filter matches no project or phase.<br>Click <b>Clear filters</b> in the toolbar to see everything again.</div>';
   }else return;
   const sc=document.getElementById('gantt-scroll');
   const es=document.createElement('div');es.className='empty-state';es.id='empty-state';
@@ -2965,6 +2972,8 @@ function makeTaskBar(t,row,lane,labelMode){
   if(!t.__ghost){
     const lh=document.createElement('div');lh.className='bar-handle bh-l';bar.appendChild(lh);
     const rh=document.createElement('div');rh.className='bar-handle bh-r';bar.appendChild(rh);
+    const hz=edgeZone(parseFloat(bar.style.width),9);
+    if(hz!==9){lh.style.width=hz+'px';rh.style.width=hz+'px';}
     bar.addEventListener('mousedown',ev=>{if(ev.button!==0)return;ev.stopPropagation();hideTooltip();startDrag(ev,t.id,bar,row);});
   }
   /* §6 click hierarchy — main timeline: a plain click (<3px pointer travel) opens the
@@ -2982,9 +2991,13 @@ function makeTaskBar(t,row,lane,labelMode){
 }
 
 /* ===================== DRAG ===================== */
+/* §6: edge grab zones are `base` px, growing to 12px on bars under 60px wide,
+   capped at the bar's outer thirds so a move zone always survives in the middle. */
+function edgeZone(w,base){return w&&w<60?Math.min(12,Math.round(w/3)):base;}
 function startDrag(ev,taskId,bar,row){
   const rect=bar.getBoundingClientRect(),relX=ev.clientX-rect.left,w=rect.width;
-  let type=relX<=9?'resize-l':relX>=w-9?'resize-r':'move';
+  const hz=edgeZone(w,9);
+  let type=relX<=hz?'resize-l':relX>=w-hz?'resize-r':'move';
   const t=taskById(taskId);
   const pinned=!!(t&&t.pinned);
   /* Protect dates / a pin blocks resizing, but the grab still registers as a move so
@@ -5120,8 +5133,8 @@ function npvRender(){
     return '<div class="npv-bar'+(t.__manual?' manual':'')+(cls?' '+cls:'')+'" data-i="'+i+'" '
      + 'style="left:'+bx+'px;width:'+bw+'px;background:'+col+';color:'+labelColor(col)+'" '
      + 'title="'+esc(nm+' · '+fmtNice(t.startDate)+' → '+fmtNice(t.endDate)+' · '+(t.estimatedDays||1)+'d')+'">'
-     + '<div class="npv-hdl" data-i="'+i+'"></div>'
-     + '<div class="npv-hdl r" data-i="'+i+'"></div>'
+     + '<div class="npv-hdl" data-i="'+i+'" style="width:'+edgeZone(bw,8)+'px"></div>'
+     + '<div class="npv-hdl r" data-i="'+i+'" style="width:'+edgeZone(bw,8)+'px"></div>'
      + '<span style="margin-left:5px">'+esc(nm)+'</span></div>';
   };
   for(const row of NPV_PLAN){
@@ -6378,8 +6391,15 @@ function npvBindDrag(){
               +(days>0?' later':' earlier'));
             return;
           }
-          NPV_MANUAL[npvKey(t)]={startDate:fmtDate(addDays(s0,days)),endDate:fmtDate(addDays(e0,days))};
+          /* Draft: same manual-placement pin as a resize, with the same undo toast. */
+          const k=npvKey(t),prev=NPV_MANUAL[k];
+          NPV_MANUAL[k]={startDate:fmtDate(addDays(s0,days)),endDate:fmtDate(addDays(e0,days))};
           npvRebuild();
+          toast('Moved '+phaseLabel(t)+' '+Math.abs(days)+' day'+(Math.abs(days)===1?'':'s')
+            +(days>0?' later':' earlier'),null,()=>{
+            if(prev)NPV_MANUAL[k]=prev;else delete NPV_MANUAL[k];
+            npvRebuild();
+          });
         }
       };
       document.addEventListener('mousemove',mv);

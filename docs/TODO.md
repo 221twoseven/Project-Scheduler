@@ -267,8 +267,8 @@ In order:
 - [ ] **Promote `development` → `main`** — the PR is open:
       [#15](https://github.com/221twoseven/Project-Scheduler/pull/15). It tracks the
       branch head, so it now carries **Phase 2.5 (REV53–64) plus the dashboard track,
-      client list, Teams picker and full calendar parity (REV65–72)**; title refreshed
-      2026-08-25 to match. **Merge is
+      client list, Teams picker, full calendar parity (REV65–72) and the deferred
+      polish pass (REV73)**; title refreshed 2026-08-25 to match. **Merge is
       the owner's call** — after hallway round 2, or sooner if production wants the
       fixes now; the ruleset and CI gate it either way.
 - [x] **Backfill the "PR link: pending" lines** — done 2026-08-20: all five Phase 2
@@ -313,14 +313,16 @@ as the strategy reference — not a to-do doc):
 ## 7. Deferred polish (ceilings from Phases 1–2 — batch into a later polish pass)
 
 None are bugs; none block users. Full context in `docs/Milestones/Phase 1/` and
-`Phase 2/` records.
+`Phase 2/` records. The four unconditional items shipped 2026-08-25 as **REV73**
+(`docs/Milestones/2026-08-25-deferred-polish-pass.md`); the rest keep their
+own "only if it proves needed" gates.
 
-- [ ] Resize handle zones widen to 12px on bars narrower than 60px (T3).
-- [ ] Draft-page *moves* show no undo toast (resizes have one — T3).
-- [ ] Two-chip rows (bars straddling both viewport edges) untested against dense real
-      data (T6).
-- [ ] The "all hidden" empty-state card only knows the status filter, not search/
-      spotlight (T7).
+- [x] Resize handle zones widen to 12px on bars narrower than 60px (T3) — REV73.
+- [x] Draft-page *moves* show no undo toast (resizes have one — T3) — REV73.
+- [x] Two-chip rows (bars straddling both viewport edges) untested against dense real
+      data (T6) — covered in `test-b1.js`, REV73.
+- [x] The "all hidden" empty-state card only knows the status filter, not search/
+      spotlight (T7) — REV73.
 - [ ] Native `title` tooltips — unstyled, invisible on touch; reconsider if touch use
       materializes (T8).
 - [ ] Toast dock offset computed at fire time, not on dock drag-resize; a live toast can

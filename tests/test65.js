@@ -101,6 +101,19 @@ setTimeout(()=>{
      E("(document.getElementById('empty-state')||{textContent:''}).textContent.includes('Stan')"),
      E("(document.getElementById('empty-state')||{textContent:'(no card)'}).textContent.slice(0,80)"));
 
+  sec('Empty state: search/spotlight that matches nothing (T7)');
+  E("PERSON=null;FILTER='zzz-no-such-thing';applyFilter();");
+  ok('a zero-match search shows the card',
+     E("(document.getElementById('empty-state')||{textContent:''}).textContent.includes('search')"),
+     E("(document.getElementById('empty-state')||{textContent:'(no card)'}).textContent.slice(0,80)"));
+  E("FILTER='hermes';applyFilter();");
+  ok('a matching search clears it',E("!document.getElementById('empty-state')"));
+  E("FILTER='';SPOT.add('p2');applyFilter();");
+  ok('spotlight alone (its project exists) shows no card',E("!document.getElementById('empty-state')"));
+  E("FILTER='hermes';applyFilter();"); /* search hits p1 only, spotlight holds p2 — empty intersection */
+  ok('search ∩ spotlight = nothing shows the card',E("!!document.getElementById('empty-state')"));
+  E("SPOT.clear();FILTER='';applyFilter();");
+
   console.log('\n'+'-'.repeat(46));
   console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
   process.exit(fail?1:0);
