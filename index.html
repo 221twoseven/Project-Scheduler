@@ -668,7 +668,10 @@ body.vivid .npv-we{background:#F1F5F9}
 /* REV53: the calendar is a live surface like the Gantt — phase bands click and
    right-click, and the selected phase carries the same ring (it can be several
    bands, one per week the phase crosses). */
-.cal-band.ph{cursor:pointer}
+.cal-band.ph{cursor:grab}
+.cal-band.ph.dragging{opacity:.65}
+#npv-body.cal-dragging{cursor:grabbing}
+#npv-body.cal-dragging .cal-band{pointer-events:none}
 .cal-band.pick{box-shadow:0 0 0 2px #fff,0 0 0 4px var(--acc);z-index:3}
 
 
@@ -1247,7 +1250,7 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_REV=70; // bump this ONE number on every release; used everywhere the rev shows up
+const APP_REV=71; // bump this ONE number on every release; used everywhere the rev shows up
 
 /* ===================== CONSTANTS ===================== */
 const SET_KEY ='shopTimelineSettings_v1';
@@ -4754,7 +4757,7 @@ function npvOpenMenu(clientX,clientY,hit,page){
   let h='';
   if(page==='depts'){
     const spare=npvSpareDepts();
-    h+='<div class="mh">Add a department</div>';
+    h+='<div class="mh">Add a phase</div>';
     h+=spare.length
       ? spare.map(d=>'<button data-act="dept" data-dept="'+esc(d.id)+'">'
           +'<span class="mi" style="background:'+(DEPT_COLORS[d.id]||'#8A98AE')+'"></span>'
@@ -4774,7 +4777,7 @@ function npvOpenMenu(clientX,clientY,hit,page){
      + '<button data-act="ev"><span class="mi ev"></span>New checkpoint<span class="k">E</span></button>'
      + '<button data-act="tk"><span class="mi tk"></span>New task<span class="k">T</span></button>'
      + '<div class="sep"></div>'
-     + '<button data-act="depts"><span class="mi dp"></span>Add a department<span class="k">&rsaquo;</span></button>';
+     + '<button data-act="depts"><span class="mi dp"></span>Add a phase<span class="k">&rsaquo;</span></button>';
   }
   /* N11: the inline name field — Enter files the typed name under the first action. */
   h=h.replace('</div>','</div><input class="mn" placeholder="Name (optional)" autocomplete="off" spellcheck="false">');
@@ -5252,6 +5255,82 @@ function npvBindHost(host){
         if(band){ppOpenPop(+band.dataset.i,band);return;}
       }
     });
+    /* REV71 — calendar drag-to-move. A phase band drags to a new day like a Gantt bar.
+       The calendar has no pixel axis to do arithmetic against, so the drag reads dates
+       straight from the day cells under the pointer: once real movement starts (≥3px,
+       the §6 disambiguator), bands stop catching the pointer (.cal-dragging) and every
+       mousemove lands on a [data-d] cell — the same target-based hit-testing as
+       npvCalHit, so the behaviour runs in jsdom. The first cell seen is the anchor;
+       days moved = current cell − anchor. Same rules as the Gantt's move: bands merged
+       by N16 (roster twins) move as one, a nested subtask stays inside its parent's
+       window, Link carries a parent's subtasks along. Edge-resize stays on the Gantt
+       and the inspector's date fields. */
+    host.addEventListener('mousedown',ev=>{
+      if(NPV_MODE!=='calendar'||ev.button!==0)return;
+      const band=ev.target&&ev.target.closest?ev.target.closest('.cal-band.ph'):null;
+      if(!band)return;
+      ev.preventDefault();
+      const i=+band.dataset.i,t=NPV_TASKS[i];
+      if(!t)return;
+      const s0=parseDate(t.startDate),e0=parseDate(t.endDate);
+      const twins=NPV_TASKS.filter(z=>z.department===t.department&&(z.label||'')===(t.label||'')
+        &&z.startDate===t.startDate&&z.endDate===t.endDate);
+      const pi=NPV_TASKS.findIndex(z=>z.department===t.department);
+      const isParent=pi===i;
+      let cLo=null,cHi=null;
+      if(!isParent){
+        const par=NPV_TASKS[pi],ps=parseDate(par.startDate),pe=parseDate(par.endDate);
+        /* REV56 nesting clamp — window fixed at drag start, same as the Gantt. */
+        if(s0>=ps&&e0<=pe){cLo=ps;cHi=pe;}
+      }
+      const x0=ev.clientX,y0=ev.clientY;
+      const tip=document.getElementById('tooltip');
+      let moved=false,anchor=null,days=0;
+      const mv=e2=>{
+        if(!moved){
+          if(Math.abs(e2.clientX-x0)<3&&Math.abs(e2.clientY-y0)<3)return;
+          moved=true;
+          host.classList.add('cal-dragging');band.classList.add('dragging');
+          document.body.style.userSelect='none';
+        }
+        const cel=e2.target&&e2.target.closest?e2.target.closest('[data-d]'):null;
+        if(!cel)return;
+        if(!anchor){anchor=cel.dataset.d;return;}
+        days=diffDays(parseDate(anchor),parseDate(cel.dataset.d));
+        if(cLo)days=Math.min(diffDays(e0,cHi),Math.max(diffDays(s0,cLo),days));
+        if(tip){
+          tip.innerHTML='<div class="tt-title">'+fmtNice(fmtDate(addDays(s0,days)))
+            +' → '+fmtNice(fmtDate(addDays(e0,days)))+'</div>';
+          tip.classList.remove('hidden');posTooltip(e2);
+        }
+      };
+      const up=()=>{
+        document.removeEventListener('mousemove',mv);
+        document.removeEventListener('mouseup',up);
+        host.classList.remove('cal-dragging');band.classList.remove('dragging');
+        document.body.style.userSelect='';hideTooltip();
+        /* No movement: the click handler selects/opens as before. A drag back to the
+           starting day is a no-op, like the Gantt's. */
+        if(!moved||!days)return;
+        const ns=fmtDate(addDays(s0,days)),ne=fmtDate(addDays(e0,days));
+        if(NPV_LIVE){
+          const ids=(isParent&&LINK_SUBS
+            ?NPV_TASKS.filter(z=>z.department===t.department):twins).map(z=>z.id);
+          if(ids.length>1)commitPhaseShift(ids,days); /* toasts itself */
+          else{
+            commitPhaseDates(t.id,ns,ne);
+            toastU('Moved '+phaseLabel(t)+' '+Math.abs(days)+' day'+(Math.abs(days)===1?'':'s')
+              +(days>0?' later':' earlier'));
+          }
+          npvRebuild();ppSelect(t.id,true);
+          return;
+        }
+        for(const z of twins)NPV_MANUAL[npvKey(z)]={startDate:ns,endDate:ne};
+        npvRebuild();
+      };
+      document.addEventListener('mousemove',mv);
+      document.addEventListener('mouseup',up);
+    });
     /* A faint column and a date chip under the cursor. Context menus are invisible until
        someone tries one, so the canvas has to look live before you click it. */
     host.addEventListener('mousemove',ev=>{
@@ -5390,7 +5469,7 @@ function liveAddEvent(p,dept,date,name){
     return;
   }
   const host=phaseHostFor(p,dept);
-  if(!host){toast('Add a department first — an event still needs a phase to save on.','err');return;}
+  if(!host){toast('Add a phase first — a checkpoint still needs one to save on.','err');return;}
   const node={id:genId(),date:date||host.endDate||host.startDate||'',target:name||'',notes:'',
     dept:(dept!==undefined?dept:host.department)};
   liveSave(ST.tasks.map(t=>t.id===host.id

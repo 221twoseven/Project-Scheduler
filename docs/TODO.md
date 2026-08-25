@@ -146,6 +146,15 @@ Roughly in build order:
       Suite: `tests/test56.js` (44 assertions; `test47` now guards pre-REV56 builds).
       Record: `docs/Milestones/Phase 2.5/2026-08-20-subtask-parent-hierarchy.md` — parent-role
       heuristic and clamp ceilings noted there.
+- [x] **6. Calendar drag-to-move + "Add a phase" wording — DONE 2026-08-25 (REV71).**
+      Phase bands drag to a new day on the calendar (saved and draft pages), with the
+      Gantt's move rules: merged "+N" bands move all roster twins, nested subtasks
+      clamp to the parent window, Link carries subtasks. The right-click menu's "Add a
+      department" is renamed "Add a phase" (owner direction — the action creates a
+      phase bar). Suite: `tests/test71.js`. Record:
+      `docs/Milestones/2026-08-25-calendar-drag-and-phase-wording.md`. Ceilings there:
+      no edge-resize on bands, checkpoint/task bands still inert, tooltip-only drag
+      preview.
 - [ ] **Decide: dependencies between bars.** Nothing links a bar to its predecessor
       except the scheduler chain. Have real dependencies, or consciously don't —
       avoid half-having them.
