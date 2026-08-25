@@ -162,12 +162,21 @@ Roughly in build order:
       `docs/Milestones/2026-08-25-calendar-full-parity.md` — also records what parity
       deliberately excludes (empty-state menu = a both-modes gap; "+N" click-picks
       first bar = the N16 density decision).
-- [ ] **Decide: dependencies between bars.** Nothing links a bar to its predecessor
-      except the scheduler chain. Have real dependencies, or consciously don't —
-      avoid half-having them.
-- [ ] **Decide: department overlap.** The scheduler chains strictly; overlap only happens
-      via hand-pinning (and a pinned bar stops tracking). Should overlap be a
-      per-department scheduler setting?
+- [x] **Decide: dependencies between bars — decided (owner, 2026-08-25): consciously
+      don't.** Half the jobs are multi-site rollouts where design/fab/finishing run in
+      tandem for months, handing off chunk by chunk; the overlap and dependency amount
+      is unpredictable and differs per job, so a rippling Gantt would fight the real
+      workflow. Bars stay free after birth; the scheduler is a one-time layout
+      assistant. Recorded in Design-Language §6. (Cheap future rung if hallway data
+      shows people getting burned: a passive out-of-order flag, display-only — same
+      pattern as the overbooking warning. Not planned.)
+- [x] **Decide: department overlap — decided (owner, 2026-08-25): no scheduler
+      setting.** Overlap is normal but not predictable upfront, so no per-department
+      or per-project knob; the strict chain is just the starting layout and PMs
+      sculpt bars into tandem by hand (drag, both-edge resize, N13 date fields —
+      placements survive rebuilds on both paths since REV55). Chunk/site pipelines
+      map onto the REV56 subtask model: parallel subtasks outside the parent window
+      are deliberately legal. Recorded in Design-Language §6.
 - [x] **Retire the phase modal?** Decided (E2, 2026-08-13): it stays — plain click on a
       main-timeline bar opens it (Design-Language §6); the project page keeps
       click-selects-into-inspector.
