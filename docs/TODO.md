@@ -152,9 +152,16 @@ Roughly in build order:
       clamp to the parent window, Link carries subtasks. The right-click menu's "Add a
       department" is renamed "Add a phase" (owner direction — the action creates a
       phase bar). Suite: `tests/test71.js`. Record:
-      `docs/Milestones/2026-08-25-calendar-drag-and-phase-wording.md`. Ceilings there:
-      no edge-resize on bands, checkpoint/task bands still inert, tooltip-only drag
-      preview.
+      `docs/Milestones/2026-08-25-calendar-drag-and-phase-wording.md`. Its ceilings
+      (no edge-resize, inert marker bands) were closed the same day by item 7.
+- [x] **7. Calendar FULL parity — DONE 2026-08-25 (REV72).** Checkpoint/task bands
+      got the Gantt diamonds' verbs (drag moves, click opens the agenda editor,
+      right-click deletes); phase bands resize from edge handles (true-edge only,
+      workday snap, Protect-dates/pin lock, nesting clamp, twins together); band hit
+      areas padded to the 24px line. Suite: `tests/test72.js`. Record:
+      `docs/Milestones/2026-08-25-calendar-full-parity.md` — also records what parity
+      deliberately excludes (empty-state menu = a both-modes gap; "+N" click-picks
+      first bar = the N16 density decision).
 - [ ] **Decide: dependencies between bars.** Nothing links a bar to its predecessor
       except the scheduler chain. Have real dependencies, or consciously don't —
       avoid half-having them.

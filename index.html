@@ -660,8 +660,14 @@ body.vivid .npv-we{background:#F1F5F9}
 .cal-col.tod{background:#FFF3F3;box-shadow:inset 0 0 0 1.5px #CE4242}
 .cal-dn{grid-row:1;font-family:var(--mono);font-size:var(--fs-fine);color:#64748B;padding:3px 0 3px 5px;z-index:1;min-height:17px}
 .cal-band{margin:1px 2px;border-radius:2px;font-size:var(--fs-fine);font-weight:700;text-transform:uppercase;
-  color:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden;white-space:nowrap;
-  z-index:2;padding:0 5px;letter-spacing:.03em;text-overflow:ellipsis}
+  color:#fff;display:flex;align-items:center;justify-content:center;white-space:nowrap;
+  z-index:2;padding:0 5px;letter-spacing:.03em;position:relative}
+/* REV72: text clips in its own span so the band can overflow visible — its ::after
+   pads the hit area to the 24px line (§9) and the resize handles overhang the edges.
+   ponytail: the ±4px pad bleeds into the neighbouring band row; later band wins the
+   sliver — shrink the pad if stacked bands misfire. */
+.cal-txt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+.cal-band::after{content:'';position:absolute;left:0;right:0;top:-4px;bottom:-4px}
 .cal-band.ev{background:#16324F!important;border-radius:0}
 .cal-band.tk{background:#fff!important;color:#1D4ED8;border:1.5px solid #3B7FD6}
 .cal-empty{padding:34px 18px;text-align:center;font-size:12.5px;color:#B4C0D0;font-style:italic}
@@ -669,9 +675,18 @@ body.vivid .npv-we{background:#F1F5F9}
    right-click, and the selected phase carries the same ring (it can be several
    bands, one per week the phase crosses). */
 .cal-band.ph{cursor:grab}
-.cal-band.ph.dragging{opacity:.65}
+.cal-band.ph.dragging,.cal-band.ev.dragging,.cal-band.tk.dragging{opacity:.65}
 #npv-body.cal-dragging{cursor:grabbing}
 #npv-body.cal-dragging .cal-band{pointer-events:none}
+/* REV72: markers drag/click like the Gantt's diamonds; phase bands resize from edge
+   handles — only the band segment holding the phase's true start/end gets one, so a
+   week-clipped edge can't be grabbed. Hover shows the §6 2px inset rule. */
+.cal-band.ev,.cal-band.tk{cursor:grab}
+.cal-hdl{position:absolute;top:-4px;bottom:-4px;width:8px;cursor:ew-resize;z-index:2}
+.cal-hdl.l{left:-2px}.cal-hdl.r{right:-2px}
+.cal-band.ph:hover .cal-hdl::before{content:'';position:absolute;top:5px;bottom:5px;width:2px;
+  background:rgba(255,255,255,.55);border-radius:1px}
+.cal-hdl.l::before{left:3px}.cal-hdl.r::before{right:3px}
 .cal-band.pick{box-shadow:0 0 0 2px #fff,0 0 0 4px var(--acc);z-index:3}
 
 
@@ -1250,7 +1265,7 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_REV=71; // bump this ONE number on every release; used everywhere the rev shows up
+const APP_REV=72; // bump this ONE number on every release; used everywhere the rev shows up
 
 /* ===================== CONSTANTS ===================== */
 const SET_KEY ='shopTimelineSettings_v1';
@@ -5267,11 +5282,70 @@ function npvBindHost(host){
        and the inspector's date fields. */
     host.addEventListener('mousedown',ev=>{
       if(NPV_MODE!=='calendar'||ev.button!==0)return;
-      const band=ev.target&&ev.target.closest?ev.target.closest('.cal-band.ph'):null;
+      if(!ev.target||!ev.target.closest)return;
+      /* REV72 — checkpoint/task bands get the Gantt diamonds' verbs: drag moves,
+         a plain click opens the agenda editor. Same cell-date machinery as bars. */
+      const mkEl=ev.target.closest('.cal-band.ev,.cal-band.tk');
+      if(mkEl){
+        ev.preventDefault();
+        const id=mkEl.dataset.mkId,k=mkEl.dataset.mkK,d0=mkEl.dataset.mkDate;
+        if(!id)return;
+        const x0=ev.clientX,y0=ev.clientY;
+        const tip=document.getElementById('tooltip');
+        let moved=false,anchor=null,days=0;
+        const mv=e2=>{
+          if(!moved){
+            if(Math.abs(e2.clientX-x0)<3&&Math.abs(e2.clientY-y0)<3)return;
+            moved=true;
+            host.classList.add('cal-dragging');mkEl.classList.add('dragging');
+            document.body.style.userSelect='none';
+          }
+          const cel=e2.target&&e2.target.closest?e2.target.closest('[data-d]'):null;
+          if(!cel)return;
+          if(!anchor){anchor=cel.dataset.d;return;}
+          days=diffDays(parseDate(anchor),parseDate(cel.dataset.d));
+          if(tip){
+            tip.innerHTML='<div class="tt-title">'+fmtNice(fmtDate(addDays(parseDate(d0),days)))+'</div>';
+            tip.classList.remove('hidden');posTooltip(e2);
+          }
+        };
+        const up=()=>{
+          document.removeEventListener('mousemove',mv);
+          document.removeEventListener('mouseup',up);
+          host.classList.remove('cal-dragging');mkEl.classList.remove('dragging');
+          document.body.style.userSelect='';hideTooltip();
+          if(!moved){
+            /* a click: open the agenda and rename it right there, like the Gantt */
+            ppInspector();
+            setTimeout(()=>ppFocusAgenda(id),30);
+            return;
+          }
+          if(!days)return;
+          const nd=fmtDate(addDays(parseDate(d0),days));
+          if(NPV_LIVE){
+            if(k==='ev')liveCommitEvent(id,'date',nd);else liveCommitTodo(id,'due',nd);
+          }else{
+            if(k==='ev'){const e=NPV_EVENTS.find(x=>x.id===id);if(e)e.date=nd;}
+            else{const t2=NPV_TODOS.find(x=>x.id===id);if(t2)t2.due=nd;}
+          }
+          npvRebuild();ppInspector();
+          toastU((k==='ev'?'Checkpoint':'Task')+' moved to '+fmtNice(nd));
+        };
+        document.addEventListener('mousemove',mv);
+        document.addEventListener('mouseup',up);
+        return;
+      }
+      const band=ev.target.closest('.cal-band.ph');
       if(!band)return;
       ev.preventDefault();
       const i=+band.dataset.i,t=NPV_TASKS[i];
       if(!t)return;
+      /* REV72 — the edge handles resize, same rules as the Gantt's: Protect dates or
+         a pin swallows the drag (a plain click still selects), the start snaps
+         forward to a workday and the end back, and the nesting clamp holds. */
+      const hdl=ev.target.closest('.cal-hdl');
+      const resize=hdl?(hdl.classList.contains('r')?'r':'l'):'';
+      const locked=!!resize&&(DATE_LOCK||!!t.pinned);
       const s0=parseDate(t.startDate),e0=parseDate(t.endDate);
       const twins=NPV_TASKS.filter(z=>z.department===t.department&&(z.label||'')===(t.label||'')
         &&z.startDate===t.startDate&&z.endDate===t.endDate);
@@ -5285,16 +5359,40 @@ function npvBindHost(host){
       }
       const x0=ev.clientX,y0=ev.clientY;
       const tip=document.getElementById('tooltip');
-      let moved=false,anchor=null,days=0;
+      /* A resized edge lands on a workday: the start snaps forward, the end back. */
+      const snap=(d,dir)=>{while(!isWorking(d))d=addDays(d,dir);return d;};
+      let moved=false,anchor=null,days=0,edgeD=null;
       const mv=e2=>{
         if(!moved){
           if(Math.abs(e2.clientX-x0)<3&&Math.abs(e2.clientY-y0)<3)return;
           moved=true;
-          host.classList.add('cal-dragging');band.classList.add('dragging');
-          document.body.style.userSelect='none';
+          if(!locked){
+            host.classList.add('cal-dragging');band.classList.add('dragging');
+            document.body.style.userSelect='none';
+            if(resize)document.body.style.cursor='ew-resize';
+          }
         }
+        if(locked)return;
         const cel=e2.target&&e2.target.closest?e2.target.closest('[data-d]'):null;
         if(!cel)return;
+        if(resize){
+          /* The cell under the pointer IS the new edge date — no delta needed. */
+          const d=parseDate(cel.dataset.d);
+          if(resize==='l'){
+            let ns=snap(d,1);
+            if(cLo&&ns<cLo)ns=new Date(cLo);
+            edgeD=ns>e0?new Date(e0):ns;
+          }else{
+            let ne=snap(d,-1);
+            if(cHi&&ne>cHi)ne=new Date(cHi);
+            edgeD=ne<s0?new Date(s0):ne;
+          }
+          if(tip){
+            tip.innerHTML='<div class="tt-title">'+fmtNice(fmtDate(edgeD))+'</div>';
+            tip.classList.remove('hidden');posTooltip(e2);
+          }
+          return;
+        }
         if(!anchor){anchor=cel.dataset.d;return;}
         days=diffDays(parseDate(anchor),parseDate(cel.dataset.d));
         if(cLo)days=Math.min(diffDays(e0,cHi),Math.max(diffDays(s0,cLo),days));
@@ -5308,10 +5406,34 @@ function npvBindHost(host){
         document.removeEventListener('mousemove',mv);
         document.removeEventListener('mouseup',up);
         host.classList.remove('cal-dragging');band.classList.remove('dragging');
-        document.body.style.userSelect='';hideTooltip();
+        document.body.style.userSelect='';document.body.style.cursor='';hideTooltip();
         /* No movement: the click handler selects/opens as before. A drag back to the
            starting day is a no-op, like the Gantt's. */
-        if(!moved||!days)return;
+        if(!moved)return;
+        if(resize){
+          if(locked||!edgeD)return;
+          const ns2=resize==='l'?edgeD:s0, ne2=resize==='r'?edgeD:e0;
+          /* Snapping can round a short drag back to where it started — nothing to file. */
+          if(fmtDate(ns2)===t.startDate&&fmtDate(ne2)===t.endDate)return;
+          const n=wdCount(ns2,ne2);
+          if(NPV_LIVE){
+            /* Roster twins are the same phase per person — resize them together. */
+            for(const z of twins)commitPhaseDates(z.id,fmtDate(ns2),fmtDate(ne2),n);
+            npvRebuild();ppSelect(t.id,true);
+            toastU('Resized '+phaseLabel(t)+' to '+n+'d');
+            return;
+          }
+          const prevs=twins.map(z=>({k:npvKey(z),p:NPV_MANUAL[npvKey(z)]}));
+          for(const z of twins)
+            NPV_MANUAL[npvKey(z)]={startDate:fmtDate(ns2),endDate:fmtDate(ne2),estimatedDays:n};
+          npvRebuild();
+          toast('Resized '+phaseLabel(t)+' to '+n+'d',null,()=>{
+            for(const q of prevs){if(q.p)NPV_MANUAL[q.k]=q.p;else delete NPV_MANUAL[q.k];}
+            npvRebuild();
+          });
+          return;
+        }
+        if(!days)return;
         const ns=fmtDate(addDays(s0,days)),ne=fmtDate(addDays(e0,days));
         if(NPV_LIVE){
           const ids=(isParent&&LINK_SUBS
@@ -5357,8 +5479,23 @@ function npvBindHost(host){
     host.addEventListener('contextmenu',ev=>{
       if(NPV_MODE==='calendar'){
         /* REV53: parity with the Gantt — a phase band gets the bar menu, empty space
-           gets the create menu seeded with the cell's date. Event/task bands are left
-           to the browser; the Gantt stays the surface that edits markers. */
+           gets the create menu seeded with the cell's date. REV72: marker bands
+           delete on right-click, the other half of create-on-right-click. */
+        const mkEl=ev.target&&ev.target.closest?ev.target.closest('.cal-band.ev,.cal-band.tk'):null;
+        if(mkEl){
+          ev.preventDefault();
+          const id=mkEl.dataset.mkId,k=mkEl.dataset.mkK;
+          if(!id)return;
+          if(!confirm('Delete this '+(k==='ev'?'checkpoint':'task')+'?'))return;
+          if(NPV_LIVE){if(k==='ev')liveDeleteEvent(id);else liveDeleteTodo(id);}
+          else{
+            if(k==='ev')NPV_EVENTS=NPV_EVENTS.filter(x=>x.id!==id);
+            else NPV_TODOS=NPV_TODOS.filter(x=>x.id!==id);
+          }
+          npvRebuild();ppInspector();
+          toast(k==='ev'?'Checkpoint deleted':'Task deleted');
+          return;
+        }
         const band=ev.target&&ev.target.closest?ev.target.closest('.cal-band.ph'):null;
         if(band){
           ev.preventDefault();
@@ -5723,9 +5860,12 @@ function npvPaintCalendar(lo,hi,dl){
         prev.sel=prev.sel||t.id===PP_SEL;
         return;
       }
+      /* REV72: a band segment only offers a resize handle on an edge that is the
+         phase's true start/end — a week-clipped edge continues into the next row
+         and must not be grabbable. */
       const it={s:Math.max(0,diffDays(c,a)),e:Math.min(6,diffDays(c,b)),
         txt:phaseLabel(t),col:kid?kidShade(col0):col0,kind:'ph',
-        ti:ti,sel:t.id===PP_SEL,base:phaseLabel(t),n:1};
+        ti:ti,sel:t.id===PP_SEL,base:phaseLabel(t),n:1,hl:a>=c,hr:b<=wEnd};
       seen[key]=it;
       items.push(it);
     });
@@ -5733,7 +5873,9 @@ function npvPaintCalendar(lo,hi,dl){
       const d=parseDate(mk.date);
       if(d<c||d>wEnd)continue;
       const i=diffDays(c,d);
-      items.push({s:i,e:i,txt:mk.nm,col:'',kind:mk.k});
+      /* REV72: markers carry their identity so they drag/click/delete like the
+         Gantt's diamonds. */
+      items.push({s:i,e:i,txt:mk.nm,col:'',kind:mk.k,id:mk.id,date:mk.date});
     }
 
     h+='<div class="cal-wk">';
@@ -5752,9 +5894,14 @@ function npvPaintCalendar(lo,hi,dl){
     }
     items.forEach((it,r)=>{
       h+='<div class="cal-band '+it.kind+(it.sel?' pick':'')+'"'
-        +(it.kind==='ph'?' data-i="'+it.ti+'"':'')
+        +(it.kind==='ph'?' data-i="'+it.ti+'"'
+          :' data-mk-id="'+esc(it.id)+'" data-mk-k="'+it.kind+'" data-mk-date="'+esc(it.date)+'"')
         +' title="'+esc(it.txt)+'" style="grid-column:'+(it.s+1)+'/'+(it.e+2)
-        +';grid-row:'+(r+2)+(it.col?';background:'+it.col+';color:'+labelColor(it.col):'')+'">'+esc(it.txt)+'</div>';
+        +';grid-row:'+(r+2)+(it.col?';background:'+it.col+';color:'+labelColor(it.col):'')+'">'
+        +(it.hl?'<span class="cal-hdl l"></span>':'')
+        +'<span class="cal-txt">'+esc(it.txt)+'</span>'
+        +(it.hr?'<span class="cal-hdl r"></span>':'')
+        +'</div>';
     });
     h+='</div>';
 
