@@ -1164,7 +1164,8 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
   <div class="modal" id="staff-modal">
     <h3>Staff</h3>
     <div class="modal-body">
-    <div class="hint">People are shared through SharePoint — every browser and teammate sees the same list. Check the departments each person works in, and add out-of-office ranges to flag their bars.</div>
+    <div class="hint">People are shared through SharePoint — every browser and teammate sees the same list. Names suggest from the company Team in Microsoft Teams; picking one fills the work email automatically. Check the departments each person works in, and add out-of-office ranges to flag their bars.</div>
+    <datalist id="tm-dl"></datalist>
     <div id="st-list"></div>
     <button id="st-add" class="tn-add">+ Add person</button>
     </div>
@@ -1246,7 +1247,7 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_REV=69; // bump this ONE number on every release; used everywhere the rev shows up
+const APP_REV=70; // bump this ONE number on every release; used everywhere the rev shows up
 
 /* ===================== CONSTANTS ===================== */
 const SET_KEY ='shopTimelineSettings_v1';
@@ -1676,6 +1677,36 @@ async function spSite(){
   SITE_ID=s.id;return SITE_ID;
 }
 function listUrl(l){return 'https://graph.microsoft.com/v1.0/sites/'+SITE_ID+'/lists/'+l;}
+
+/* ===== 5b: TEAMS MEMBERSHIP (People & Availability picker) =====
+   The staff editor suggests names from the members of the company Team; picking one
+   fills the email that drives the identity chain. The Team is the menu, the Staff
+   list stays the roster — membership is read, never synced.
+   Scope TeamMember.Read.All rides its OWN silent token request, so missing consent
+   degrades this feature alone (free-text entry, as before) and can't break sign-in. */
+const TEAM_GROUP_ID='e434fc35-f2be-4dde-a258-2c23d94b5f9e';
+let TM_MEMBERS=null;   /* null = not loaded yet (retry on next open) */
+async function loadTeamMembers(){
+  if(TM_MEMBERS!==null)return TM_MEMBERS;
+  const out=[];
+  try{
+    const t=(await PCA.acquireTokenSilent({scopes:['TeamMember.Read.All'],account:ACCOUNT})).accessToken;
+    let url='https://graph.microsoft.com/v1.0/teams/'+TEAM_GROUP_ID+'/members?$top=100';
+    while(url){
+      const r=await fetch(url,{headers:{Authorization:'Bearer '+t}});
+      if(!r.ok)throw new Error('Graph '+r.status);
+      const j=await r.json();
+      for(const m of (j.value||[]))if(m.displayName)out.push({name:m.displayName,email:String(m.email||'').toLowerCase(),userId:m.userId||''});
+      url=j['@odata.nextLink']||null;
+    }
+    out.sort((a,b)=>a.name.localeCompare(b.name));
+    TM_MEMBERS=out;
+  }catch(e){
+    console.log('Team membership not reachable — People & Availability stays free-text.',(e&&e.message)||'');
+    return [];
+  }
+  return TM_MEMBERS;
+}
 const isoDay=v=>v?String(v).slice(0,10):'';
 const PRIOS=['low','medium','high','urgent'];
 const PRIO_LBL={low:'Low',medium:'Medium',high:'High',urgent:'Urgent'};
@@ -3298,6 +3329,7 @@ function smRender(){
     const card=document.createElement('div');card.className='st-person';
     const top=document.createElement('div');top.className='st-top';
     const nm=document.createElement('input');nm.type='text';nm.className='st-name';nm.placeholder='Name';nm.value=per.name||'';
+    nm.setAttribute('list','tm-dl'); /* 5b: suggest from the company Team */
     nm.addEventListener('input',()=>{per.name=nm.value;});
     top.appendChild(nm);
     const del=document.createElement('button');del.className='tn-x';del.textContent='✕';del.title='Remove person';
@@ -3309,6 +3341,11 @@ function smRender(){
     const meta=document.createElement('div');meta.className='st-meta';
     const em=document.createElement('input');em.type='email';em.placeholder='Work email (for "me" features)';em.value=per.email||'';
     em.addEventListener('input',()=>{per.email=em.value;});
+    /* 5b: picking (or typing) an exact Team member fills their email if it's empty */
+    nm.addEventListener('input',()=>{
+      const m=(TM_MEMBERS||[]).find(x=>x.email&&x.name.toLowerCase()===nm.value.trim().toLowerCase());
+      if(m&&!per.email){per.email=m.email;em.value=m.email;}
+    });
     const ro=document.createElement('input');ro.type='text';ro.placeholder='Role / title';ro.value=per.role||'';
     ro.addEventListener('input',()=>{per.role=ro.value;});
     meta.appendChild(em);meta.appendChild(ro);
@@ -3343,11 +3380,28 @@ function smRender(){
     box.appendChild(card);
   });
 }
+/* 5b: fold the loaded Team roster into the open editor — fill the datalist, and
+   backfill emails where a no-email person's name matches exactly ONE member
+   (ambiguous names stay untouched; the pick is always visible before Save). */
+function smApplyTeam(ms){
+  if(!ms||!ms.length)return;
+  const dl=document.getElementById('tm-dl');
+  if(dl)dl.innerHTML=ms.map(m=>'<option value="'+esc(m.name)+'"'+(m.email?' label="'+esc(m.email)+'"':'')+'>').join('');
+  if(document.getElementById('staff-overlay').classList.contains('hidden'))return;
+  let changed=false;
+  for(const per of SM_PEOPLE){
+    if(per.email)continue;
+    const hits=ms.filter(m=>m.email&&m.name.toLowerCase()===String(per.name||'').trim().toLowerCase());
+    if(hits.length===1){per.email=hits[0].email;changed=true;}
+  }
+  if(changed)smRender();
+}
 document.getElementById('mi-people').addEventListener('click',()=>{
   closeMenus();
   SM_PEOPLE=JSON.parse(JSON.stringify(PEOPLE));
   smRender();
   document.getElementById('staff-overlay').classList.remove('hidden');
+  loadTeamMembers().then(smApplyTeam);
 });
 document.getElementById('st-add').addEventListener('click',()=>{
   SM_PEOPLE.push({id:genId(),name:'',depts:[],ooo:[],email:'',role:''});

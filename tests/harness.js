@@ -64,6 +64,11 @@ function makeFetch(data,opts){
       if(opts.clientsList)return ok({value:(data.clients||[]).map(toItem)});
       return fail(404);
     }
+    if(u.includes('/teams/')){
+      /* Team membership (5b). Raw Graph member objects, not list items. */
+      if(opts.teamMembers)return ok({value:data.teamMembers||[]});
+      return fail(403);
+    }
     if(u.includes(listNames.staff))return ok({value:(data.staff||[]).map(toItem)});
     if(u.includes(listNames.projects))return ok({value:(data.projects||[]).map(toItem)});
     if(u.includes(listNames.tasks))return ok({value:(data.tasks||[]).map(toItem)});

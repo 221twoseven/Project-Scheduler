@@ -126,13 +126,16 @@ Roughly in build order:
         whichever lens was most recent. Suite: `tests/test68.js`. Record:
         `docs/Milestones/2026-08-21-dashboard-button.md`.
       **Item 4 complete (REV65–68).**
-- [ ] **5b. People & Availability fed from MS Teams. ⚠** The name field becomes a
-      dropdown of members of the existing Team in MS Teams; the Team has more members
-      than the scheduler needs, so people are selected into the app from that larger
-      list inside People & Availability. Reading team membership needs a **new Graph
-      scope** (e.g. `TeamMember.Read.All`) + admin consent — an Entra change, bundle
-      into the §5 conversation. **[decision]** keep People & Availability as a modal,
-      or promote it to its own page.
+- [x] **5b. People & Availability fed from MS Teams — DONE 2026-08-25 (REV70).**
+      The Name field suggests from the company Team (group
+      `e434fc35-f2be-4dde-a258-2c23d94b5f9e`); picking a member auto-fills their
+      email, and opening the editor backfills unambiguous matches for the existing
+      roster. Membership is a menu, not a sync — only saved people join the app.
+      `TeamMember.Read.All` consented 2026-08-25; it rides its own token request so
+      failures degrade to free text. Suite: `tests/test70.js`. Record:
+      `docs/Milestones/2026-08-25-teams-picker.md`. **[decision, still open]** keep
+      People & Availability as a modal, or promote it to its own page — revisit if
+      the roster outgrows the modal.
 - [x] **5. Project edit page — subtask/phase-bar behavior — DONE 2026-08-20 (REV56).**
       All four owner notes, delivered as one remodel: the synthetic summary bar is
       retired and the **department's primary bar is the parent row** (never re-listed
@@ -259,10 +262,10 @@ In order:
 - [x] **Add `email` and `role` columns to `ShopTimeline_Staff`** — done 2026-08-21
       (owner; both single-line text). Unblocks the person filter's identity chain
       (§3 item 4).
-- [ ] **New Graph scope to read Team membership** (e.g. `TeamMember.Read.All`, for the
-      People & Availability dropdown, §3 item 5b). ⚠ **Approved 2026-08-21** — owner
-      is now an Entra admin and OK'd the scope. Still to do at build time: add the
-      scope to the app registration + grant admin consent.
+- [x] **New Graph scope to read Team membership** — done 2026-08-25:
+      `TeamMember.Read.All` (delegated) added to the app registration and
+      admin-consented (via the app-Owner + admin-consent route after the scoped-role
+      path hit the Premium wall). Used by §3 item 5b (REV70).
 - [x] **New `ShopTimeline_Clients` List** — created 2026-08-21 (owner) by importing
       the Excel client master; columns **Client Name** + **Alias** only, derived
       counters culled at import. See N3 for provenance and the
