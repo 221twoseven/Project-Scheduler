@@ -42,6 +42,7 @@ const SUITES = [
   'test-c1-color.js',
   'test-b1.js',
   'test-b3-zoom.js',
+  'test-goto.js',
   'test-quiet.js',
   'test-b4.js',
   'test-c3-status.js',

@@ -156,7 +156,8 @@ Inline SVG, 16×16 viewBox, 1.5px stroke, `currentColor` — pasted literally in
 - **Today** is the strongest line on the canvas. Deadline markers are per-project flags (▸ pennant at header + dotted drop-line at 60% opacity), visually distinct from Today and from install red.
 - **Weekends/holidays** never disappear at any zoom; they compress.
 - **Zoom** steps (shipped REV75, B3): **Day 40 / 2-Day 20 / Week 14 / Month 5 px per day** — Day and Week are the original Days/Weeks scales, unchanged, so those two steps render pixel-identical to pre-B3 builds. `D`/`W` jump straight to Day/Week, `+`/`−` step in and out, and the chosen step persists per user (in `UI_KEY`). All densities keep the bar-anatomy rules above; the axis header shows month names only at Month step, and day numbers on Mondays only at 2-Day.
-- **Legend:** a `?` popover (toolbar, right side) documents: status treatments, red = install, chip letters, marker shapes. One screen, no scrolling.
+- **Go to date** (shipped REV76, B3 navigation half): one small popover — a native date input plus quick picks (Today, +1 mo, +3 mo, Next install) — reached three ways per §6: the `G` key, a click on any month name in the axis header (pointer cursor + underline on hover), or the "Go to date…" entry in the `?` legend. Choosing a date centers it in the viewport, smooth unless `prefers-reduced-motion` (the T6 rule). The **Today button and `T` center today** the same way; only the startup position still parks today left-of-center to read forward. The popover rides the toolbar-menu machinery: one open at a time, Escape or outside click closes.
+- **Legend:** a `?` popover (toolbar, right side) documents: status treatments, red = install, chip letters, marker shapes — plus the Go to date entry above. One screen, no scrolling.
 
 ---
 
