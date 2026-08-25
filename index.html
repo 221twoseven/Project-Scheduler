@@ -220,6 +220,8 @@ body:not(.vivid) .hdr-m-cell{text-shadow:none;border-right-color:rgba(13,19,29,.
 .st-meta{display:flex;gap:8px;margin-bottom:7px}
 .st-meta input{flex:1;border:1.5px solid #E2E8F0;border-radius:6px;padding:5px 9px;font-size:12px;font-family:inherit;outline:none;background:#fff}
 .st-meta input:focus{border-color:var(--acc)}
+.cl-alias{width:84px;flex-shrink:0;border:1.5px solid #E2E8F0;border-radius:6px;padding:6px 9px;font-size:12px;font-family:var(--mono);text-transform:uppercase;outline:none;background:#fff}
+.cl-alias:focus{border-color:var(--acc)}
 .st-depts{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:8px}
 .st-depts label{display:flex;align-items:center;gap:5px;font-size:11.5px;color:#33415A;cursor:pointer;user-select:none}
 .st-depts input{width:13px;height:13px;accent-color:var(--acc)}
@@ -1040,6 +1042,7 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
       <button id="btn-settings" class="t-btn" title="App settings and the shared staff list"><svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 2.5V8M3.5 11v2.5M8 2.5v2M8 7.5v6M12.5 2.5V8M12.5 11v2.5M1.5 9.5h4M6 6h4M10.5 9.5h4"/></svg> Settings <svg class="ico-s" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 6 8 9.5 11.5 6"/></svg></button>
       <div id="settings-menu" class="tb-menu hidden">
         <div class="sm-item" id="mi-people" title="Edit staff names, departments and time off">People &amp; Availability</div>
+        <div class="sm-item" id="mi-clients" title="Edit the shared client list and job-code aliases">Clients</div>
         <div class="sm-note">Shop Timeline · REV <span id="tb-rev-num"></span></div>
       </div>
     </div>
@@ -1175,6 +1178,25 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
   </div>
 </div>
 
+<!-- CLIENTS MODAL (N3) -->
+<div id="clients-overlay" class="overlay hidden">
+  <div class="modal" id="clients-modal">
+    <h3>Clients</h3>
+    <div class="modal-body">
+    <div class="hint">Clients are shared through SharePoint — the Client field on every project suggests from this list. Alias is the 2–3 letter job-code prefix (job codes themselves are still assigned in the Excel master for now).<span id="cl-local-note" class="hidden"> <b>This browser can't reach the list — edits stay local until it's back.</b></span></div>
+    <div id="cl-list"></div>
+    <button id="cl-add" class="tn-add">+ Add client</button>
+    </div>
+    <div class="m-actions">
+      <span></span>
+      <div class="m-right">
+        <button id="cl-cancel" class="btn btn-ghost">Cancel</button>
+        <button id="cl-save" class="btn btn-primary">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- PRINT PREVIEW MODAL -->
 <div id="print-overlay" class="overlay hidden">
   <div class="modal">
@@ -1224,7 +1246,7 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_REV=68; // bump this ONE number on every release; used everywhere the rev shows up
+const APP_REV=69; // bump this ONE number on every release; used everywhere the rev shows up
 
 /* ===================== CONSTANTS ===================== */
 const SET_KEY ='shopTimelineSettings_v1';
@@ -1610,6 +1632,9 @@ const LIST_TODOS='ShopTimeline_Tasks2';
    Additive — the colleague app never reads it. Until the list exists on the site the app
    falls back to the legacy behaviour: an event saves as a ticketNode on a host phase. */
 const LIST_EVENTS='ShopTimeline_Events';
+/* N3: the client roster, imported from the Excel master. App-only — the colleague app
+   never reads it. Columns: Title = client name, field_2 = job-code alias. */
+const LIST_CLIENTS='ShopTimeline_Clients';
 const SCOPES=['User.Read','Sites.ReadWrite.All'];
 let PCA=null,ACCOUNT=null,SITE_ID=null;
 let SP_IDS={proj:{},task:{},staff:{},todo:{},event:{}};   /* our appId -> SharePoint item id */
@@ -1875,6 +1900,45 @@ function saveState(s){
   syncNow(old,ST);
 }
 /* Save people: instant locally, cached in this browser, synced to the ShopTimeline_Staff list */
+/* REV69 (N3): the shared client list. ShopTimeline_Clients was imported from the
+   Excel client master (owner, 2026-08-21) — its columns are Title (client name) and
+   field_2 (the 2–3 letter job-code alias), and rows carry no appId, so sync keys on
+   the SharePoint item id. Excel stays master for job codes until a deliberate cutover. */
+const CLIENTS_KEY='shopTimelineClients';
+let CLIENTS=[],CLIENTS_OK=false;
+function clientOptions(){return CLIENTS.map(c=>'<option value="'+esc(c.name)+'"'+(c.alias?' label="'+esc(c.alias)+'"':'')+'>').join('');}
+async function loadClients(){
+  try{
+    const r=await gfetch(listUrl(LIST_CLIENTS)+'/items?expand=fields&$top=500');
+    CLIENTS=r.value.map(it=>({spId:it.id,name:it.fields.Title||'',alias:it.fields.field_2||''})).filter(c=>c.name);
+    CLIENTS_OK=true;
+    try{localStorage.setItem(CLIENTS_KEY,JSON.stringify(CLIENTS));}catch(e){}
+  }catch(e){
+    CLIENTS_OK=false;
+    try{CLIENTS=JSON.parse(localStorage.getItem(CLIENTS_KEY)||'[]');}catch(e2){CLIENTS=[];}
+    console.log('ShopTimeline_Clients not reachable — clients stay local.');
+  }
+}
+function saveClients(nc){
+  const old=CLIENTS;CLIENTS=nc;
+  try{localStorage.setItem(CLIENTS_KEY,JSON.stringify(CLIENTS));}catch(e){}
+  if(!CLIENTS_OK){toast('Clients saved in this browser only — they won\'t sync to your teammates until the ShopTimeline_Clients list is reachable.','err');return;}
+  setSync('busy');
+  spSyncClients(old,CLIENTS)
+    .then(()=>setSync('ok','synced '+stamp()))
+    .catch(e=>{console.error(e);setSync('err','clients not saved');toast('Couldn\'t save the client list to SharePoint. Try saving again in a moment.','err',null,e.message);});
+}
+async function spSyncClients(o,n){
+  const om=new Map(o.filter(c=>c.spId).map(c=>[c.spId,c]));
+  for(const c of n){
+    const f={Title:c.name||'',field_2:c.alias||''};
+    if(!c.spId){const r=await gfetch(listUrl(LIST_CLIENTS)+'/items',{method:'POST',body:JSON.stringify({fields:f})});c.spId=r.id;}
+    else{const b=om.get(c.spId);if(!b||b.name!==c.name||b.alias!==c.alias)await gfetch(listUrl(LIST_CLIENTS)+'/items/'+c.spId+'/fields',{method:'PATCH',body:JSON.stringify(f)});}
+  }
+  const keep=new Set(n.map(c=>c.spId).filter(Boolean));
+  for(const c of o)if(c.spId&&!keep.has(c.spId))await gfetch(listUrl(LIST_CLIENTS)+'/items/'+c.spId,{method:'DELETE'});
+}
+
 function savePeople(np){
   const old=PEOPLE;PEOPLE=np;rebuildStaff();
   localStorage.setItem(PEOPLE_KEY,JSON.stringify(PEOPLE));
@@ -3307,6 +3371,53 @@ document.getElementById('st-save').addEventListener('click',()=>{
 });
 document.getElementById('staff-overlay').addEventListener('click',ev=>{if(ev.target.id==='staff-overlay')document.getElementById('staff-overlay').classList.add('hidden');});
 
+/* ===================== CLIENTS MODAL (N3) ===================== */
+let CM_CLIENTS=[];
+function cmRender(){
+  const box=document.getElementById('cl-list');box.innerHTML='';
+  if(!CM_CLIENTS.length){const e=document.createElement('div');e.className='tn-empty';e.style.marginBottom='8px';e.textContent='No clients yet.';box.appendChild(e);}
+  CM_CLIENTS.forEach((c,i)=>{
+    const row=document.createElement('div');row.className='st-person';
+    const top=document.createElement('div');top.className='st-top';
+    const nm=document.createElement('input');nm.type='text';nm.className='st-name';nm.placeholder='Client name';nm.value=c.name||'';
+    nm.addEventListener('input',()=>{c.name=nm.value;});
+    const al=document.createElement('input');al.type='text';al.className='cl-alias';al.placeholder='Alias';al.maxLength=6;al.value=c.alias||'';
+    al.addEventListener('input',()=>{c.alias=al.value;});
+    const del=document.createElement('button');del.className='tn-x';del.textContent='✕';del.title='Remove client';
+    del.addEventListener('click',()=>{CM_CLIENTS.splice(i,1);cmRender();});
+    top.appendChild(nm);top.appendChild(al);top.appendChild(del);
+    row.appendChild(top);box.appendChild(row);
+  });
+}
+document.getElementById('mi-clients').addEventListener('click',()=>{
+  closeMenus();
+  CM_CLIENTS=JSON.parse(JSON.stringify(CLIENTS));
+  document.getElementById('cl-local-note').classList.toggle('hidden',CLIENTS_OK);
+  cmRender();
+  document.getElementById('clients-overlay').classList.remove('hidden');
+});
+document.getElementById('cl-add').addEventListener('click',()=>{
+  CM_CLIENTS.push({name:'',alias:''});
+  cmRender();
+  const names=document.querySelectorAll('#cl-list .st-name');
+  if(names.length)names[names.length-1].focus();
+});
+document.getElementById('cl-cancel').addEventListener('click',()=>document.getElementById('clients-overlay').classList.add('hidden'));
+document.getElementById('cl-save').addEventListener('click',()=>{
+  const clean=CM_CLIENTS
+    .map(c=>({...c,name:(c.name||'').trim(),alias:(c.alias||'').trim().toUpperCase()}))
+    .filter(c=>c.name);
+  const seen=new Set();
+  for(const c of clean){
+    if(seen.has(c.name.toLowerCase())){toast('Two clients share the name "'+c.name+'" — please make names unique.','err');return;}
+    seen.add(c.name.toLowerCase());
+  }
+  saveClients(clean);
+  document.getElementById('clients-overlay').classList.add('hidden');
+  toast('Clients saved');
+});
+document.getElementById('clients-overlay').addEventListener('click',ev=>{if(ev.target.id==='clients-overlay')document.getElementById('clients-overlay').classList.add('hidden');});
+
 /* ===================== PRINT (preview + output) ===================== */
 function stripIds(node){
   node.removeAttribute&&node.removeAttribute('id');
@@ -3971,7 +4082,10 @@ function ppInspector(){
     h+=ppSec('setup','Setup',
         '<div class="ins-f"><label>Project name</label><input id="pp-name" value="'
       +   esc((ROUTE.creating?(PP_FORM&&PP_FORM.name):p.name)||'')+'" placeholder="What the shop calls it"></div>'
-      + '<div class="ins-f"><label>Client</label><input id="pp-client" value="'+esc(p.client||'')+'" placeholder="Who it\'s for"></div>'
+      /* N3: type-ahead fed by ShopTimeline_Clients (native datalist keeps free text
+         working, so projects whose client predates the list never break). The list
+         itself is managed under Settings → Clients. */
+      + '<div class="ins-f"><label>Client</label><input id="pp-client" list="cl-dl" value="'+esc(p.client||'')+'" placeholder="Who it\'s for"><datalist id="cl-dl">'+clientOptions()+'</datalist></div>'
       + '<div class="ins-row">'
       + '<div class="ins-f"><label>Job code</label><input id="pp-code" value="'+esc(p.jobCode||'')+'" placeholder="H1-2049"></div>'
       + '<div class="ins-f"><label>Install date</label><input id="pp-deadline" type="date" value="'+esc(p.deadline||'')+'"></div>'
@@ -6584,6 +6698,8 @@ async function boot(){
     toast('Couldn\'t load the staff list from SharePoint, so staff lives in this browser only for now.','err',null,e.message);
   }
   rebuildStaff();
+  /* N3: the client roster, same graceful-degrade idea (quiet at load, warn on save). */
+  if(ACCOUNT)await loadClients();
 }
 (async()=>{
   await boot();

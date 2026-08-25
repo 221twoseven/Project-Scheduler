@@ -205,10 +205,13 @@ on a finished page. Suite: `tests/test57.js`; record:
       (+N chip); a "Selected only" toggle filters bands to the selection.
 Still open in this track (gated on decisions or schema):
 
-- [ ] **N3 — Client list.** Client assignment becomes a dropdown fed by
-      `ShopTimeline_Clients`, with "Add new…" opening an edit modal (Name, Alias);
-      manageable from a home-page Settings entry like Staff; degrade to browser-local
-      with one warning if the List is absent. **Unblocked 2026-08-21 — the list
+- [x] **N3 — Client list — DONE 2026-08-25 (REV69).** The Client field is a native
+      type-ahead fed by `ShopTimeline_Clients` (columns `Title`/`field_2`, confirmed
+      by the owner) on both draft and saved pages — free text still works, so legacy
+      and one-off clients never break; the list is managed under **Settings →
+      Clients** (add/edit/remove, aliases uppercased, dupes rejected), and an absent
+      list degrades to browser-local with one warning on save. Suite:
+      `tests/test69.js`. Record: `docs/Milestones/2026-08-25-client-list.md`. **Unblocked 2026-08-21 — the list
       exists:** owner imported the Excel client master (see provenance below) with
       only the real data columns, **Client Name** + **Alias** (job-code suffix); the
       derived counter columns were culled at import (project counts get solved from

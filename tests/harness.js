@@ -43,7 +43,7 @@ function makeFetch(data,opts){
   const calls=[];
   const listNames={projects:'ShopTimeline_Projects',tasks:'ShopTimeline_Tasks',
                    staff:'ShopTimeline_Staff',todos:'ShopTimeline_Tasks2',
-                   events:'ShopTimeline_Events'};
+                   events:'ShopTimeline_Events',clients:'ShopTimeline_Clients'};
   const fn=async function(url,init){
     calls.push({url:String(url),init,
       body:(init&&init.body)?JSON.parse(init.body):null,
@@ -58,6 +58,10 @@ function makeFetch(data,opts){
     }
     if(u.includes(listNames.events)){
       if(opts.eventsList)return ok({value:(data.events||[]).map(toItem)});
+      return fail(404);
+    }
+    if(u.includes(listNames.clients)){
+      if(opts.clientsList)return ok({value:(data.clients||[]).map(toItem)});
       return fail(404);
     }
     if(u.includes(listNames.staff))return ok({value:(data.staff||[]).map(toItem)});
