@@ -271,8 +271,9 @@ In order:
 
 - [ ] **Hallway test round 2** — the five tasks from `docs/UX-Audit-and-Strategy.md` §6,
       with real people; compare assist counts to round 1. Deliberately deferred until the
-      §3 features exist so the test covers them. The refinement batch (REV57) is live on
-      `/preview/` — the page is ready for testers.
+      §3 features exist so the test covers them. **Ready to run: the full facilitator
+      script (tasks, scoring sheet, decision hooks) is `docs/Hallway-Test-Round-2.md`**;
+      `/preview/` carries everything through REV73.
 - [ ] **Promote `development` → `main`** — the PR is open:
       [#15](https://github.com/221twoseven/Project-Scheduler/pull/15). It tracks the
       branch head, so it now carries **Phase 2.5 (REV53–64) plus the dashboard track,
