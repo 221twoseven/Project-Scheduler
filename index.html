@@ -1088,8 +1088,10 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
   <div class="tb-row tb-timeline">
     <button id="btn-today" class="t-btn" title="Scroll the timeline to today (T)">Today</button>
     <div class="tog-grp" id="tg-scale">
-      <button id="btn-days" class="t-btn active" title="Show the timeline day by day (D)">Days</button>
-      <button id="btn-weeks" class="t-btn" title="Show the timeline week by week (W)">Weeks</button>
+      <button id="btn-days" class="t-btn active" title="Show the timeline day by day (D)">Day</button>
+      <button id="btn-day2" class="t-btn" title="Days at half width — about twice the range on screen (+ and − step the zoom)">2-Day</button>
+      <button id="btn-weeks" class="t-btn" title="Show the timeline week by week (W)">Week</button>
+      <button id="btn-month" class="t-btn" title="Whole months at a glance — a season fits on one screen (+ and − step the zoom)">Month</button>
     </div>
     <div class="t-sep"></div>
     <span class="t-mini">Color</span>
@@ -1241,7 +1243,7 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
     <div class="pp-controls">
       <div class="fg"><label>From</label><input id="pp-start" type="date"></div>
       <div class="fg"><label>To</label><input id="pp-end" type="date"></div>
-      <div class="pp-note">Prints the current lens exactly as arranged on screen — collapse projects or departments first to control what's included. Tip: Weeks view fits longer ranges on a page.</div>
+      <div class="pp-note">Prints the current lens exactly as arranged on screen — collapse projects or departments first to control what's included. Tip: the Week or Month zoom fits longer ranges on a page.</div>
     </div>
     <div id="pp-zoom"><div id="pp-zoom-inner"></div></div>
     </div>
@@ -1295,7 +1297,7 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_REV=74; // bump this ONE number on every release; used everywhere the rev shows up
+const APP_REV=75; // bump this ONE number on every release; used everywhere the rev shows up
 
 /* ===================== CONSTANTS ===================== */
 const SET_KEY ='shopTimelineSettings_v1';
@@ -1303,7 +1305,11 @@ const PEOPLE_KEY='shopTimelinePeople_v1';
 const UI_KEY  ='shopTimelineUI_v1';
 const BAR_H=32, BAR_PAD=12, LANE_G=6, HEAD_H=26, HDR_H=64;
 let SIDE_W=300;
-const DW={days:40,weeks:14};
+/* B3 / §7 zoom steps, detail → overview. days and weeks keep their original px-per-day
+   so those two steps render pixel-identical to every pre-B3 build. */
+const DW={days:40,day2:20,weeks:14,month:5};
+const ZOOM_STEPS=['days','day2','weeks','month'];
+const VIEW_BTN={days:'btn-days',day2:'btn-day2',weeks:'btn-weeks',month:'btn-month'};
 
 const DEPTS=[
   /* 1 · OFFICE */
@@ -1662,6 +1668,8 @@ function loadLocalPrefs(){
     if(ui.colorMode==='entity'){COLOR_MODE='entity';
       document.getElementById('btn-col-ent').classList.add('active');
       document.getElementById('btn-col-proj').classList.remove('active');}
+    if(DW[ui.view]&&ui.view!==VIEW){VIEW=ui.view;
+      for(const[k,id]of Object.entries(VIEW_BTN))document.getElementById(id).classList.toggle('active',k===VIEW);}
   }}catch(e){}
 }
 
@@ -2032,7 +2040,7 @@ function saveUI(){
   try{localStorage.setItem('shopTimelineTint',TINT?'1':'0');
     localStorage.setItem('shopTimelineLinkSubs',LINK_SUBS?'1':'0');
     localStorage.setItem('shopTimelineOpenDepts',JSON.stringify([...NPV_OPEN]));
-    localStorage.setItem('shopTimelineGroup',GROUP_BY||'');}catch(e){}localStorage.setItem(UI_KEY,JSON.stringify({collapsedDepts:[...COLLAPSED],colorMode:COLOR_MODE,sideW:SIDE_W,npvGut:NPV_GUT,showStatus:[...SHOW_STATUS],person:PERSON||'',lens:LENS}));}
+    localStorage.setItem('shopTimelineGroup',GROUP_BY||'');}catch(e){}localStorage.setItem(UI_KEY,JSON.stringify({collapsedDepts:[...COLLAPSED],colorMode:COLOR_MODE,view:VIEW,sideW:SIDE_W,npvGut:NPV_GUT,showStatus:[...SHOW_STATUS],person:PERSON||'',lens:LENS}));}
 
 /* ===================== SEARCH FILTER ===================== */
 let FILTER='';
@@ -2725,13 +2733,14 @@ function buildHeaderInto(hdr,DW_){
     mc.textContent=cellS.toLocaleString('default',{month:'long'})+' '+cellS.getFullYear();
     mRow.appendChild(mc);
   }
-  if(VIEW==='days'){
+  if(VIEW==='days'||VIEW==='day2'){
     cur=new Date(TL_S);const td=today();
     while(cur<=TL_E){
       const dc=document.createElement('div');dc.className='hdr-d-cell';
       dc.style.left=d2x(cur)+'px';dc.style.width=DW_+'px';
       dc.style.background=dayBg(cur.getMonth(),isoWeek(cur)%2);
-      dc.textContent=cur.getDate();
+      /* 2-Day cells are too narrow for a number each — Mondays only (§7) */
+      if(VIEW==='days'||cur.getDay()===1)dc.textContent=cur.getDate();
       if(cur.getTime()===td.getTime())dc.classList.add('is-today');
       if(!isWorking(cur))dc.classList.add('is-wknd');
       dRow.appendChild(dc);cur=addDays(cur,1);
@@ -2742,7 +2751,8 @@ function buildHeaderInto(hdr,DW_){
       const dc=document.createElement('div');dc.className='hdr-d-cell';
       dc.style.left=d2x(cur)+'px';dc.style.width=(7*DW_)+'px';
       dc.style.background=dayBg(cur.getMonth(),isoWeek(cur)%2);
-      dc.textContent=cur.getDate()+' '+cur.toLocaleString('default',{month:'short'});
+      /* Month step: the month row alone labels time — no day numbers (§7) */
+      if(VIEW==='weeks')dc.textContent=cur.getDate()+' '+cur.toLocaleString('default',{month:'short'});
       dRow.appendChild(dc);cur=addDays(cur,7);
     }
   }
@@ -2794,6 +2804,10 @@ function buildCanvasBgInto(canvas,totalW,DW_){
 let TODAY_X=null;
 const LBL_MIN=170;        /* project summary bars — long names, need more room */
 const LBL_MIN_TASK=130;   /* phase bars — department names are shorter */
+/* §7 bar anatomy — the label sheds pieces as the bar narrows: chips drop first, then
+   the job code, then everything but the status pill; under BAR_W_TICK no label renders
+   and the bar itself (min-width dw(), never under 4px) is the identity tick. */
+const BAR_W_CHIPS=300,BAR_W_CODE=190,BAR_W_PILL=96,BAR_W_TICK=34;
 
 /* base = the bar's natural left inset, which differs by status (the coloured edge strip
    on in-production bars takes a few px) and by whether a pin icon is present. */
@@ -2928,18 +2942,21 @@ function makeSummaryBar(p,s,e,row){
   if(st==='forecast')bar.style.outlineColor=sumCol;
   if(st==='estimating'){const ov=document.createElement('div');ov.className='bar-stripe';bar.appendChild(ov);}
   if(st==='in-production'||st==='installing'){const ed=document.createElement('div');ed.className='bar-edge';bar.appendChild(ed);}
-  const lbl=document.createElement('div');lbl.className='bar-lbl';
-  lbl.style.color=labelColor(sumCol);
-  lbl.dataset.base='10';lbl.dataset.min=String(LBL_MIN);
-  lbl.style.left=labelLeftFor(x,w,10,LBL_MIN)+'px';lbl.style.right='10px';
-  const who=[
-    p.projectManager&&('<span class="role-tag">PM</span>'+esc(p.projectManager)),
-    p.drafter&&('<span class="role-tag">D</span>'+esc(p.drafter)),
-    p.leadFab&&('<span class="role-tag">F</span>'+esc(p.leadFab))
-  ].filter(Boolean).join('');
-  lbl.innerHTML='<span class="sum-pill">'+esc(STATUS_LBL[st])+'</span>'
-    +esc(p.name)+(p.jobCode?' · '+esc(p.jobCode):'')+who;
-  bar.appendChild(lbl);
+  if(w>=BAR_W_TICK){
+    const lbl=document.createElement('div');lbl.className='bar-lbl';
+    lbl.style.color=labelColor(sumCol);
+    lbl.dataset.base='10';lbl.dataset.min=String(LBL_MIN);
+    lbl.style.left=labelLeftFor(x,w,10,LBL_MIN)+'px';lbl.style.right='10px';
+    let inner='<span class="sum-pill">'+esc(STATUS_LBL[st])+'</span>';
+    if(w>=BAR_W_PILL)inner+=esc(p.name)+(w>=BAR_W_CODE&&p.jobCode?' · '+esc(p.jobCode):'');
+    if(w>=BAR_W_CHIPS)inner+=[
+      p.projectManager&&('<span class="role-tag">PM</span>'+esc(p.projectManager)),
+      p.drafter&&('<span class="role-tag">D</span>'+esc(p.drafter)),
+      p.leadFab&&('<span class="role-tag">F</span>'+esc(p.leadFab))
+    ].filter(Boolean).join('');
+    lbl.innerHTML=inner;
+    bar.appendChild(lbl);
+  }
   bar.addEventListener('click',ev=>{ev.stopPropagation();if(!SUPPRESS_CLICK)openProjModal(p.id);});
   bar.addEventListener('mouseenter',ev=>{if(!DRAG)showTooltipProj(p,s,e,ev);});
   bar.addEventListener('mousemove',ev=>{if(!DRAG)posTooltip(ev);});
@@ -2965,17 +2982,20 @@ function makeTaskBar(t,row,lane,labelMode){
   if(t.pinned)bar.classList.add('is-pinned');
   if(st==='estimating'){const ov=document.createElement('div');ov.className='bar-stripe';bar.appendChild(ov);}
   if(st==='in-production'||st==='installing'){const ed=document.createElement('div');ed.className='bar-edge';bar.appendChild(ed);}
-  const lbl=document.createElement('div');lbl.className='bar-lbl';
-  lbl.style.color=labelColor(taskCol);
-  const lblBase=(st==='in-production'||st==='installing')?11:8;
-  lbl.dataset.base=String(lblBase);lbl.dataset.min=String(LBL_MIN_TASK);
-  lbl.style.left=labelLeftFor(x,w,lblBase,LBL_MIN_TASK)+'px';
-  lbl.style.right=(t.pinned?18:7)+'px';
-  if(t.__ghost){bar.classList.add('is-ghost');lbl.textContent=(isInstall(t)?'Install':phaseLabel(t))+' · '+(p?p.name:'?');}
-  else if(labelMode==='proj')lbl.textContent=p?p.name+(p.jobCode?' · '+p.jobCode:''):'?';
-  else if(isInstall(t))lbl.textContent='Install — '+assigneeText(t);
-  else lbl.textContent=phaseLabel(t);
-  bar.appendChild(lbl);
+  if(t.__ghost)bar.classList.add('is-ghost');
+  if(w>=BAR_W_TICK){ /* §7: below this the bar is a bare identity tick, no label */
+    const lbl=document.createElement('div');lbl.className='bar-lbl';
+    lbl.style.color=labelColor(taskCol);
+    const lblBase=(st==='in-production'||st==='installing')?11:8;
+    lbl.dataset.base=String(lblBase);lbl.dataset.min=String(LBL_MIN_TASK);
+    lbl.style.left=labelLeftFor(x,w,lblBase,LBL_MIN_TASK)+'px';
+    lbl.style.right=(t.pinned?18:7)+'px';
+    if(t.__ghost)lbl.textContent=(isInstall(t)?'Install':phaseLabel(t))+' · '+(p?p.name:'?');
+    else if(labelMode==='proj')lbl.textContent=p?p.name+(p.jobCode?' · '+p.jobCode:''):'?';
+    else if(isInstall(t))lbl.textContent='Install — '+assigneeText(t);
+    else lbl.textContent=phaseLabel(t);
+    bar.appendChild(lbl);
+  }
   if(t.pinned){const pin=document.createElement('div');pin.className='bar-pin';pin.textContent='📌';bar.appendChild(pin);}
   if(CONFLICTS.has(t.id)){const wn=document.createElement('div');wn.className='bar-warn';wn.textContent='⚠';bar.appendChild(wn);}
   /* Hatch the stretch of the bar where anyone on its crew is out of office */
@@ -6650,8 +6670,10 @@ document.addEventListener('keydown',ev=>{
   if(ROUTE.view==='project')return; /* N15: the keys below drive main-timeline controls hidden here */
   if(k==='/'){ev.preventDefault();document.getElementById('t-search').focus();}
   else if(k==='t')scrollToToday();
-  else if(k==='d')document.getElementById('btn-days').click();
-  else if(k==='w')document.getElementById('btn-weeks').click();
+  else if(k==='d')setView('days');
+  else if(k==='w')setView('weeks');
+  else if(k==='+'||k==='=')zoomStep(-1);
+  else if(k==='-'||k==='_')zoomStep(1);
 });
 
 /* ===================== TOOLBAR ===================== */
@@ -6673,12 +6695,15 @@ tintBtn.addEventListener('click',()=>{
   TINT=!TINT;tintBtn.classList.toggle('on',TINT);syncVivid();saveUI();
   if(ROUTE.view==='project')npvRender();else render();
 });
-document.getElementById('btn-days').addEventListener('click',()=>{if(VIEW==='days')return;VIEW='days';
-  document.getElementById('btn-days').classList.add('active');document.getElementById('btn-weeks').classList.remove('active');
-  render();scrollToToday();});
-document.getElementById('btn-weeks').addEventListener('click',()=>{if(VIEW==='weeks')return;VIEW='weeks';
-  document.getElementById('btn-weeks').classList.add('active');document.getElementById('btn-days').classList.remove('active');
-  render();scrollToToday();});
+/* B3: four zoom steps (§7). D/W jump straight to Day/Week; +/− walk ZOOM_STEPS. */
+function setView(v){
+  if(!DW[v]||v===VIEW)return;
+  VIEW=v;
+  for(const[k,id]of Object.entries(VIEW_BTN))document.getElementById(id).classList.toggle('active',k===v);
+  saveUI();render();scrollToToday();
+}
+function zoomStep(d){const v=ZOOM_STEPS[ZOOM_STEPS.indexOf(VIEW)+d];if(v)setView(v);}
+for(const[k,id]of Object.entries(VIEW_BTN))document.getElementById(id).addEventListener('click',()=>setView(k));
 document.getElementById('btn-lens-proj').addEventListener('click',()=>{if(LENS==='project')return;LENS='project';
   document.getElementById('btn-lens-proj').classList.add('active');document.getElementById('btn-lens-dept').classList.remove('active');
   saveUI();render();});

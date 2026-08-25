@@ -317,7 +317,10 @@ as the strategy reference — not a to-do doc):
 
 - **Phase 3 — navigation at scale:** B3 zoom + jump-to-date, B5 compact density,
   B6 saved views. Per the Phase 2 brief: B3/B5 if PMs still report navigation pain
-  after the hallway test; B6 if they don't. (The person filter — ex-"Dash view" —
+  after the hallway test; B6 if they don't. **B3's zoom half shipped 2026-08-25 as
+  REV75** (four steps Day 40 / 2-Day 20 / Week 14 / Month 5 px-per-day, `+`/`−`
+  keys, step persisted — see `docs/Milestones/Phase 3/2026-08-25-b3-zoom-steps.md`);
+  the jump-to-date half is still open. (The person filter — ex-"Dash view" —
   overlaps Phase 3 but is pulled forward into §3 as feature work.)
 - **Phase 4 — learnability layer:** first-run hint bar, `?` shortcuts sheet,
   sample-project onboarding. Deliberately last. **Coach marks (N14) pulled forward
