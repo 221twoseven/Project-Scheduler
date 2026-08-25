@@ -361,7 +361,9 @@ Phase 3 are categorized as **Phase 2.5**. Moves made:
 - **Left at the Milestones root:** the 08-12 infra/perf records, the Phase 1/2 summary
   records, and `2026-08-19-pages-deploy-trim.md` (infrastructure, no app REV).
 - **Repointed every stale path** to the moved records (this file ×6,
-  `docs/Handoff-2026-08-20.md` ×1).
+  `docs/Handoff-2026-08-20.md` ×1). (That handoff was retired 2026-08-25 — its
+  critical path completed as REV65–70 and its "traps" section moved to
+  `tests/README.md`; `git log` keeps the full text.)
 - **Reconciled open items against Phase 2.5 decisions:** §3a N6/N7 closed (REV64
   delivered the agenda editors), N8 annotated (row says "Checkpoints" now), N9
   downgraded to a data-model-only decision, §4's PR #15 scope corrected to REV53–64.

@@ -2,7 +2,33 @@
 
 jsdom suites that boot a Timeline HTML build with MSAL and `fetch` stubbed, and assert
 behaviour on the actual outgoing Microsoft Graph requests rather than on internal state.
-**20 suites — `npm test` prints the live per-suite totals.**
+**`npm test` prints the live per-suite totals** (`tests/run.js` holds the current list).
+
+## Traps for the next person
+
+Recovered from the 2026-08-20 handoff (since retired); still true unless struck through.
+
+- **The REV49 lesson rules everything:** every feature asserts on BOTH the new-project
+  draft page and the saved page (see below).
+- **The reference build is immutable** (`reference/Timeline_50.html`). When a new REV's
+  behavior change breaks an old assertion, gate it behind a feature sniff on the source
+  (the convention: `const N11=/\.npv-menu \.mn/.test(src)` — see test48/49/50); never
+  edit the reference. New suites skip themselves the same way (see any test65+ header).
+- **PowerShell 5.1 mangles git commit messages containing double quotes** (native-arg
+  quoting). Use Git Bash with `git commit -F -` and a heredoc for anything multiline.
+- **Duplicate DOM id `pp-cancel`** in `index.html` (print overlay's Close + project
+  page's Cancel). Works today only by DOM ordering. Rename one next time that area is
+  touched — don't add a third.
+- **jsdom double-fires `hashchange`** where a real browser fires once; `applyRoute`
+  guards re-entry into the draft route (`PP_KEEP` when `r.creating && ROUTE.creating`)
+  — keep that guard if the router changes.
+- **Screenshot evidence pipeline:** headless Chrome against a `file://` stubbed copy of
+  the app (a `make-preview.js` generator mirroring `harness.js`); PNGs live next to the
+  milestone records in `docs/Milestones/**/screenshots/`. Two Chrome gotchas: give
+  `--screenshot=` an absolute long-form path (relative or 8.3 paths error with "Access
+  is denied"), and inject `<style>*{transition:none!important}</style>` into the demo —
+  `--virtual-time-budget` freezes CSS transitions mid-swap, so class changes made after
+  load otherwise screenshot with their OLD colors.
 
 ## Run
 
