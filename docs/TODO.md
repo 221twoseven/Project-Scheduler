@@ -267,7 +267,7 @@ In order:
 - [ ] **Promote `development` → `main`** — the PR is open:
       [#15](https://github.com/221twoseven/Project-Scheduler/pull/15). It tracks the
       branch head, so it now carries **Phase 2.5 (REV53–64) plus the dashboard track,
-      client list, Teams picker and calendar drag (REV65–71)**; title refreshed
+      client list, Teams picker and full calendar parity (REV65–72)**; title refreshed
       2026-08-25 to match. **Merge is
       the owner's call** — after hallway round 2, or sooner if production wants the
       fixes now; the ruleset and CI gate it either way.
