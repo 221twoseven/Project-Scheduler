@@ -44,9 +44,21 @@ Consequences: forecast and on-hold bars keep their **project's hue** and signal 
 
 (01–07 are the current `PCOLS`, kept for continuity; 08–12 extend the cycle. None approach `#CE4242` red. `--p08` is the darkened pm blue from §2.3 — the original `#5B7C99` sits in the mid-luminance dead zone and fails 4.5:1 both ways.) Collision rule: if two *currently visible* projects hash to the same slot, the later-created one shifts to the nearest free slot for that render — identity stability beats palette purity only when both are on screen.
 
+**Clients carry no color (decided 2026-08-21, N3).** Identity color belongs to the
+*project*, full stop. The shop runs 3–4 big clients with many simultaneous job codes
+each — coloring by client would make concurrent same-client projects
+indistinguishable, and a client accent beside the project hue would add a second
+color language (against §2.1's one-job rule). `ShopTimeline_Clients` stores name and
+alias only; revisit only if the client mix changes fundamentally.
+
 ### 2.3 Department palette
 
 Keep the existing `DEPT_COLORS` map as-is (it's serviceable and staff know it), with these exceptions: raise `beamsaw` `#C09018` and `electrical` `#D9A21B` label contrast via §2.5; `pm` `#5B7C99` → `#567693` and `install` `#6366F1` → `#5A5DEC` (the originals sit in the mid-luminance dead zone where *neither* ink nor white reaches 4.5:1 — a small darkening keeps the hue and lets white pass); and ensure no department except `install`/`laser` sits within 15° of the reserved red.
+
+**Subtask shading (REV56):** on the project page, subtasks render as a **light shade of
+their parent bar's hue** — same hue, ~45% toward white (`kidShade()`); only lightness
+separates child from parent, on the Gantt and the calendar bands alike. Labels on shaded
+fills still route through `labelColor()` (§2.5).
 
 ### 2.4 Canvas (the quiet calendar)
 
@@ -118,7 +130,13 @@ Inline SVG, 16×16 viewBox, 1.5px stroke, `currentColor` — pasted literally in
 
 **Click hierarchy on the timeline.** Single **left-click on a bar opens its edit-details modal** — the primary read/edit path. Drag moves; edge-drag resizes; right-click opens the context menu. Disambiguation: the modal opens on mouse-up only if total pointer travel is under ~3px; any real drag suppresses it. Click on empty canvas deselects; double-click on empty canvas is reserved (no action yet — don't spend it casually).
 
+**Click hierarchy on the project page (N11).** The two buttons never overlap in meaning: **left-click only selects and edits** (a bar selects into the inspector — on a draft, opens its popover; empty canvas deselects), and **right-click only adds** — every context menu on the chart offers add-new actions (subtask, event, task) seeded with the clicked day, plus an **inline name field**: type the name and Enter files it under the menu's first action, no second dialog. Opening either surface closes the other, and right-click no longer changes the selection. Rename, duplicate and delete live in the inspector (with R and Del as the keyboard paths) — destructive and edit actions deliberately have **no context-menu path on this chart**; the right-click is reserved for creation. The calendar follows the same rule (this supersedes REV53's left-click create menu on empty cells). Calendar phase bands also **drag to move and resize from edge handles** (REV71/72) — same 3px click/drag disambiguation, workday snap and Protect-dates lock as the Gantt; merged "+N" bands move and resize as one, and a handle only exists on a band segment holding the phase's true start/end (a week-clipped edge is not grabbable). Checkpoint/task bands carry the Gantt diamonds' verbs: drag moves, click opens the agenda editor, right-click deletes.
+
+**REV61 amendment (owner decision, 2026-08-20):** the left-click editors carry **no add buttons** — the +Subtask/+Event/+Task buttons were removed from the phase inspector and the draft popover as duplicates of the context menu. Creation on the chart is context-menu + keyboard (S/E/T); the agenda section's own +Event/+Task buttons remain as the visible-pointer path for dated items. This is a deliberate exception to §6's three-path rule for subtask creation: two paths, not three. "Who" sits on its own line above Start/End/Days on both surfaces and is always a picker fed by the people list — never free text.
+
 **Bar resize works from both edges.** Each bar has a grab zone at its start *and* end: minimum 8px hit width (grows to 12px below 60px bar width, at which point the zones are the bar's outer thirds), `ew-resize` cursor, and a visible handle affordance on hover (2px inset rule at each edge in the label color at 40% opacity). Left edge edits the start date, right edge the end date; both snap to workdays, respect Protect dates, and show a live date tooltip while dragging. Undo toast on release, like every mutation.
+
+**Bars are free after birth (owner decision, 2026-08-25).** The scheduler chain exists only at project creation: `generateSchedule` lays phases back-to-back from the deadline, and from then on bars are independent — no stored dependencies, no ripple, no warning when phases overlap or invert. This is deliberate. Half the shop's jobs are multi-site rollouts where design, fabrication and finishing run in tandem for months on rolling chunk handoffs; the overlap amount is unpredictable and differs per job, so a dependency model would be wrong the day after it was drawn. Overlap therefore has **no scheduler setting**: the strict chain is a starting layout that PMs sculpt into tandem by hand (drag, both-edge resize, inspector date fields). Chunk/site pipelines are drawn with the subtask model — parallel subtasks outside the parent window are real data, not errors. Do not add rippling, dependency links, or overlap knobs without a new owner decision.
 
 **Feedback.** Every mutation: optimistic apply + toast with **Undo** (existing pattern — never ship a mutation without it). Sync state stays in the pill; error toasts dock bottom-right, collapse duplicates, and cap at 3 visible with a counter.
 

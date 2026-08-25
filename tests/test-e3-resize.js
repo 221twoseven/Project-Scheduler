@@ -59,6 +59,16 @@ function saved1(){
   ok('every drawn bar has both handles',
      qa('#npv-body .npv-bar:not(.sum)').every(b=>b.querySelector('.npv-hdl.r')));
 
+  sec('§6 — edge zones widen to 12px on bars under 60px (T3)');
+  ok('8px at 60px width and above',E('edgeZone(100,8)')===8&&E('edgeZone(60,8)')===8);
+  ok('12px below 60px',E('edgeZone(45,8)')===12&&E('edgeZone(59,8)')===12);
+  ok('capped at the bar\'s outer third',E('edgeZone(24,8)')===8&&E('edgeZone(15,8)')===5);
+  ok('every drawn handle matches its bar\'s width',
+     qa('#npv-body .npv-bar:not(.sum)').every(b=>{
+       const w=parseFloat(b.style.width);
+       return [...b.querySelectorAll('.npv-hdl')].every(h=>parseFloat(h.style.width)===E('edgeZone('+w+',8)'));
+     }));
+
   sec('saved page — right edge writes endDate');
   const b4=st('td');
   drag(bar.querySelector('.npv-hdl.r'),3); /* Fri Aug 14 +3 = Mon Aug 17 */
@@ -150,10 +160,35 @@ function draft1(){
         const z=JSON.parse(E('JSON.stringify(NPV_TASKS['+i+'])'));
         ok('Undo clears the manual entry', E('Object.keys(NPV_MANUAL).length')===0);
         ok('Undo restores the draft end date', z.endDate===b4.endDate, z.endDate);
-        done();
+        draft2();
       },300);
     },300);
   },600);
+}
+
+function draft2(){
+  sec('draft page — a move gets the same undo toast (T3)');
+  const bar=q('#npv-body .npv-bar:not(.sum)');
+  const i=+bar.dataset.i;
+  const b4=JSON.parse(E('JSON.stringify(NPV_TASKS['+i+'])'));
+  drag(bar,5); /* grab the bar body, not a handle — a move */
+  setTimeout(()=>{
+    const a=JSON.parse(E('JSON.stringify(NPV_TASKS['+i+'])'));
+    ok('the move landed in NPV_MANUAL', E('Object.keys(NPV_MANUAL).length')===1);
+    ok('the draft dates shifted', a.startDate!==b4.startDate, b4.startDate+' -> '+a.startDate);
+    const last=qa('#toasts .toast').pop();
+    ok('a Moved toast fired', !!last&&/Moved/.test(last.textContent),
+       last&&last.textContent.slice(0,40));
+    const u=last&&last.querySelector('.undo');
+    ok('it carries an Undo button', !!u);
+    click(u);
+    setTimeout(()=>{
+      const z=JSON.parse(E('JSON.stringify(NPV_TASKS['+i+'])'));
+      ok('Undo clears the manual placement', E('Object.keys(NPV_MANUAL).length')===0);
+      ok('Undo restores the draft dates', z.startDate===b4.startDate&&z.endDate===b4.endDate, z.startDate);
+      done();
+    },300);
+  },300);
 }
 
 function done(){

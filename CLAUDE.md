@@ -52,7 +52,8 @@ The current infrastructure values (for reference — do not change without instr
 
 - SharePoint site: `twosevennet.sharepoint.com/sites/TWOSEVENINC`
 - Lists: `ShopTimeline_Projects`, `ShopTimeline_Tasks`, `ShopTimeline_Staff`,
-  `ShopTimeline_Tasks2`
+  `ShopTimeline_Tasks2`, `ShopTimeline_Events` (Events is app-only — the colleague app
+  never reads it)
 - Entra (public SPA / PKCE, single-tenant): Client ID `5ba3aabe-81f7-41c9-92a4-83a45d5407ab`,
   Tenant ID `70aa5330-416f-48cb-a64f-1a89f0196577`
 - Graph scopes: `User.Read`, `Sites.ReadWrite.All`
@@ -70,13 +71,13 @@ The current infrastructure values (for reference — do not change without instr
 - **Preserve the existing test harness.** `harness.js` boots a Timeline HTML file in
   jsdom with MSAL and `fetch` stubbed, recording every Graph request so persistence is
   asserted on the actual outgoing request bodies.
-- **Run the relevant tests after implementation changes.** The suites are `test46.js`,
-  `test47.js`, `test48.js`, `test49.js`, `test50.js`, and `test-label.js` (276 assertions
-  total). Point them at `index.html` when validating company changes:
+- **Run the tests after implementation changes.** `tests/run.js` aggregates every suite
+  (behaviour suites `test46`–`test72`, `test-label`, plus the Phase 1–2 UX/design suites);
+  see `tests/README.md`. Validate company changes against `index.html`, and the frozen
+  baseline with `test:ref`:
 
   ```bash
-  npm install jsdom
-  for t in test46 test47 test48 test49 test50 test-label; do node $t.js ./index.html; done
+  npm install && npm test && npm run test:ref
   ```
 
   Every feature should be asserted on BOTH the new-project draft page and the saved
@@ -116,13 +117,14 @@ dashboard for projects, tasks, staff, and to-dos.
   app registration. Sign-in via `loginPopup`, tokens via `acquireTokenSilent`
   (fallback `acquireTokenPopup`), cached in `sessionStorage`.
 - **Backend is SharePoint — there is no server of our own.** Microsoft Graph v1.0 is the
-  API. The four SharePoint Lists on the `TWOSEVENINC` site are the database. The site ID
+  API. The five SharePoint Lists on the `TWOSEVENINC` site are the database. The site ID
   is resolved at runtime; Lists are addressed by name.
 - **Data flow:** load reads all Lists on startup, then a 45-second background poll picks
   up other users' edits (paused during drag/edit/open overlays). Writes are optimistic
   and state-diffed into per-record Graph `POST`/`PATCH`/`DELETE` calls, with a sync-status
   pill, one automatic retry, and undo toasts. Missing optional Lists (`ShopTimeline_Staff`,
-  `ShopTimeline_Tasks2`) degrade gracefully to browser-local storage.
+  `ShopTimeline_Tasks2`) degrade gracefully to browser-local storage; a missing
+  `ShopTimeline_Events` falls back to saving events on host phases (the pre-REV54 way).
 - **Hosting:** GitHub Pages serving the static `index.html`; `no-cache` meta tags force
   fresh loads.
 - **Testing:** a jsdom harness that stubs MSAL and `fetch` and records every Graph call,

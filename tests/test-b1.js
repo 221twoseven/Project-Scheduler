@@ -76,6 +76,23 @@ setTimeout(()=>{
   setTimeout(()=>{ /* rAF is stubbed to setTimeout in the harness */
     ok('chips re-pinned via the throttled scroll path',
        chip('Pp1')&&chip('Pp1').style.left==='794px',chip('Pp1')&&chip('Pp1').style.left);
+
+    sec('two-chip row — a dept lane straddling both viewport edges (T6)');
+    E("LENS='dept';render();");
+    const key=E("(ROWS.find(r=>r.kind==='deptLane'&&r._bars&&r._bars.length>1)||{}).key");
+    ok('one dept lane holds both bars',!!key,key);
+    const bs=JSON.parse(E("JSON.stringify(ROWS.find(r=>r.key==='"+key+"')._bars.map(b=>({x1:b.x1,x2:b.x2})))"))
+      .sort((a,b)=>a.x1-b.x1);
+    sc.scrollLeft=bs[0].x2+50;upd();
+    const two=chips().filter(c=>c.dataset.key===key);
+    ok('the row gets a chip at each edge',two.length===2,two.length+' chips');
+    ok('one left, one right',new Set(two.map(c=>c.dataset.side)).size===2);
+    const lc=two.find(c=>c.dataset.side==='l'),rc=two.find(c=>c.dataset.side==='r');
+    ok('left chip names the near bar\'s end',lc&&lc.textContent==='Aug 20',lc&&lc.textContent);
+    ok('right chip names the far bar\'s start',rc&&rc.textContent==='Dec 1',rc&&rc.textContent);
+    click(lc);
+    const cw=Math.max(0,(bs[0].x1+bs[0].x2)/2-400);
+    ok('clicking the left chip centres its own bar',Math.abs(sc.scrollLeft-cw)<1,sc.scrollLeft+' vs '+cw);
     done();
   },80);
 },1300);

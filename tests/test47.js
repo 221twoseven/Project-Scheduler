@@ -2,6 +2,16 @@
 const {boot}=require('./harness');
 const FILE=process.argv[2]||'Timeline_47.html';
 
+/* REV56 replaced this suite's model: the synthetic summary bar is gone and the
+   department's primary bar is the parent row. This suite keeps guarding the frozen
+   reference and other pre-REV56 builds; tests/test56.js owns the new hierarchy. */
+if(require('fs').readFileSync(FILE,'utf8').indexOf('npv-env')>=0){
+  console.log('  SKIP  REV56 parent-bar model — the summary-bar hierarchy this suite asserts is retired (see test56)');
+  console.log('\n'+'-'.repeat(46));
+  console.log('  0 passed, 0 failed   ['+FILE+']');
+  process.exit(0);
+}
+
 let pass=0,fail=0;
 const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
