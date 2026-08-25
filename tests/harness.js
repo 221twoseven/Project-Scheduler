@@ -23,6 +23,9 @@ function boot(file,opts){
       win.alert=()=>{};
       win.scrollTo=()=>{};
       win.getComputedStyle=win.getComputedStyle||(()=>({}));
+      /* REV74: the first-run coach-mark tour would otherwise auto-open inside every
+         suite and swallow keyboard events. Suites that test it pass coachFirstRun. */
+      if(!opts.coachFirstRun)win.localStorage.setItem('shopTimelineCoachSeen','1');
     }
   });
   return dom;

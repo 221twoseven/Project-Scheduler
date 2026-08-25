@@ -1019,12 +1019,28 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
 .lg-bar .sum-pill{position:static;transform:none}
 .lg-mk{position:relative;flex:0 0 128px;height:22px;pointer-events:none;overflow:hidden}
 
+/* ============ REV74: COACH MARKS (N14) ============ */
+/* One spotlight hole (the giant box-shadow is the scrim) + one card. Sits above the
+   toolbar (100) and menus (900) but below toasts (1000) so sync errors stay visible. */
+#coach{position:fixed;inset:0;z-index:950;overflow:hidden}
+#coach.hidden{display:none}
+#coach-hole{position:absolute;border-radius:10px;box-shadow:0 0 0 9999px rgba(13,19,29,.55);outline:2px solid var(--acc);outline-offset:2px;transition:left .18s ease-out,top .18s ease-out,width .18s ease-out,height .18s ease-out}
+#coach-card{position:absolute;width:300px;background:#fff;border:1.5px solid #CBD5E1;border-radius:var(--r-l);box-shadow:0 10px 30px rgba(15,23,42,.25);padding:14px 16px;cursor:default;transition:left .18s ease-out,top .18s ease-out}
+#coach-step{font-family:var(--mono);font-size:var(--fs-fine);font-weight:600;letter-spacing:.1em;color:#7488A3}
+#coach-title{font-size:var(--fs-title);font-weight:700;color:var(--ink);margin:4px 0 6px}
+#coach-body{font-size:var(--fs-body);line-height:1.4;color:#33415A}
+.coach-btns{display:flex;align-items:center;gap:8px;margin-top:12px}
+.coach-btns .t-btn{background:#EDF1F7;border:1px solid var(--side-line);color:#33415A}
+.coach-btns .t-btn:disabled{opacity:.4;cursor:default}
+.coach-btns .t-btn.accent{background:var(--acc);border-color:var(--acc-deep);color:#fff;margin-left:auto}
+#coach-skip{margin-right:auto}
+
 /* ============ PRINT ============ */
 @media print{
   @page{size:landscape;margin:7mm 9mm}
   *,*::before,*::after{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
   body{overflow:visible!important}
-  #toolbar,#main,#page,#tooltip,.overlay,#toasts{display:none!important}
+  #toolbar,#main,#page,#tooltip,.overlay,#toasts,#coach{display:none!important}
   #print-root{display:block!important}
   .p-sheet{box-shadow:none}
   .meet-sheet{box-shadow:none;width:100%}
@@ -1064,6 +1080,7 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
         <div class="sm-note">Shop Timeline · REV <span id="tb-rev-num"></span></div>
       </div>
     </div>
+    <button id="btn-help" class="t-btn" title="A quick tour of the app — where everything lives"><svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="8" r="6.5"/><path d="M6.2 6.2a1.8 1.8 0 1 1 2.6 1.7c-.5.3-.8.6-.8 1.2"/><path d="M8 11.3v.2"/></svg> Help</button>
     <span class="tb-spacer"></span>
     <span id="tb-rev" title="App revision — the build this tab is running">REV</span>
     <span id="sync-pill" class="busy" title="Shows whether your changes are saved to SharePoint — click to retry after an error">● connecting…</span>
@@ -1259,13 +1276,26 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
 </div>
 
 <div id="tooltip" class="hidden"></div>
+<div id="coach" class="hidden">
+  <div id="coach-hole"></div>
+  <div id="coach-card">
+    <div id="coach-step"></div>
+    <div id="coach-title"></div>
+    <div id="coach-body"></div>
+    <div class="coach-btns">
+      <button id="coach-skip" class="t-btn" title="End the tour — Help brings it back any time">Skip tour</button>
+      <button id="coach-back" class="t-btn" title="Previous step (←)">Back</button>
+      <button id="coach-next" class="t-btn accent" title="Next step (Enter or →)">Next</button>
+    </div>
+  </div>
+</div>
 <div id="toasts"></div>
 <div id="print-root"></div>
 
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_REV=73; // bump this ONE number on every release; used everywhere the rev shows up
+const APP_REV=74; // bump this ONE number on every release; used everywhere the rev shows up
 
 /* ===================== CONSTANTS ===================== */
 const SET_KEY ='shopTimelineSettings_v1';
@@ -6539,6 +6569,13 @@ syncVivid();
 
 /* ===================== KEYBOARD ===================== */
 document.addEventListener('keydown',ev=>{
+  /* REV74: while the tour is up it owns the keyboard — the app under it is blocked anyway */
+  if(COACH){
+    if(ev.key==='Escape'){coachEnd();ev.preventDefault();}
+    else if(ev.key==='Enter'||ev.key==='ArrowRight'){coachNext();ev.preventDefault();}
+    else if(ev.key==='ArrowLeft'){coachBack();ev.preventDefault();}
+    return;
+  }
   /* ev.target is the document for programmatic events, which has no matches(). */
   const typing=!!(ev.target&&ev.target.matches&&ev.target.matches('input,textarea,select'));
   if(ev.key==='Escape'){
@@ -6868,6 +6905,76 @@ wireMenu('btn-print','print-menu');
 wireMenu('btn-settings','settings-menu');
 wireMenu('btn-legend','legend-menu');
 buildLegend();
+
+/* ===================== REV74: COACH MARKS (N14) ===================== */
+/* A guided first-look: one spotlight hole + one card stepping through the surfaces a
+   new user needs. Runs once automatically on a browser that has never seen it
+   (COACH_KEY), and any time from the Help button. Steps whose target isn't in the
+   DOM are dropped, so older builds and partial views degrade to a shorter tour. */
+const COACH_KEY='shopTimelineCoachSeen';
+const COACH_STEPS=[
+  {sel:'#sidebar',t:'Every job, one list',
+   b:'Projects stack here with their job codes and deadlines. Click a row to open its phases, the eye spotlights one job, the pencil edits it — and the Departments lens regroups everything by crew.'},
+  {sel:'#gantt-scroll',t:'The timeline',
+   b:'Each bar is a phase of work. Click one for its details, drag it to move, grab an edge to resize, right-click for more. Red bars are installs — nothing else is ever red.'},
+  {sel:'#t-search',t:'Find things fast',
+   b:'Type here (or press /) to show only matching projects and phases. Status and Person narrow the view the same way — Clear filters brings everything back.'},
+  {sel:'#btn-dash',t:'Your plate',
+   b:'One click shows just your own work — your phases, checkpoints, tasks and time off.'},
+  {sel:'#btn-new-proj',t:'Start a project',
+   b:'Name it, pick its departments and set the install deadline — the schedule builds itself backward from that date. Nothing is saved until you press Create.'},
+  {sel:'#btn-legend',t:'When you forget',
+   b:'This ? explains the colors, patterns and markers. And this tour lives under Help — take it again any time.'}
+];
+let COACH=null; /* null = off; else {steps,i} */
+function coachEnd(){
+  COACH=null;document.getElementById('coach').classList.add('hidden');
+  try{localStorage.setItem(COACH_KEY,'1');}catch(e){}
+}
+function coachShow(){
+  const s=COACH.steps[COACH.i],r=document.querySelector(s.sel).getBoundingClientRect();
+  const hole=document.getElementById('coach-hole'),card=document.getElementById('coach-card');
+  const pad=6;
+  hole.style.left=(r.left-pad)+'px';hole.style.top=(r.top-pad)+'px';
+  hole.style.width=(r.width+pad*2)+'px';hole.style.height=(r.height+pad*2)+'px';
+  document.getElementById('coach-step').textContent='STEP '+(COACH.i+1)+' OF '+COACH.steps.length;
+  document.getElementById('coach-title').textContent=s.t;
+  document.getElementById('coach-body').textContent=s.b;
+  document.getElementById('coach-back').disabled=COACH.i===0;
+  document.getElementById('coach-next').textContent=COACH.i===COACH.steps.length-1?'Done':'Next';
+  /* card below the hole, else above, else beside it; a full-screen target holds it inside */
+  const vw=window.innerWidth,vh=window.innerHeight,cw=300,ch=card.offsetHeight||180;
+  const below=r.bottom+pad+12,above=r.top-pad-12-ch,beside=r.right+pad+12;
+  let cl=Math.max(12,Math.min(vw-cw-12,r.left)),ct;
+  if(below+ch<vh-12)ct=below;
+  else if(above>12)ct=above;
+  else if(beside+cw<vw-12){cl=beside;ct=Math.max(12,Math.min(vh-ch-12,r.top+pad));}
+  else ct=Math.max(12,r.top+pad+12);
+  card.style.left=cl+'px';card.style.top=ct+'px';
+}
+function coachStart(){
+  const steps=COACH_STEPS.filter(s=>document.querySelector(s.sel));
+  if(!steps.length)return;
+  try{localStorage.setItem(COACH_KEY,'1');}catch(e){} /* even an abandoned tour never nags twice */
+  COACH={steps,i:0};
+  closeMenus();
+  document.getElementById('coach').classList.remove('hidden');
+  coachShow();
+}
+function coachNext(){if(!COACH)return;if(COACH.i>=COACH.steps.length-1){coachEnd();return;}COACH.i++;coachShow();}
+function coachBack(){if(!COACH||!COACH.i)return;COACH.i--;coachShow();}
+document.getElementById('btn-help').addEventListener('click',ev=>{
+  ev.stopPropagation();
+  /* the tour's targets live on the home view — route there first if needed */
+  if(ROUTE.view==='project'){goTimeline();setTimeout(coachStart,150);return;}
+  coachStart();
+});
+document.getElementById('coach').addEventListener('click',coachNext);
+document.getElementById('coach-card').addEventListener('click',ev=>ev.stopPropagation());
+document.getElementById('coach-skip').addEventListener('click',coachEnd);
+document.getElementById('coach-back').addEventListener('click',coachBack);
+document.getElementById('coach-next').addEventListener('click',coachNext);
+window.addEventListener('resize',()=>{if(COACH)coachShow();});
 document.addEventListener('click',closeMenus);
 document.getElementById('btn-reset').addEventListener('click',()=>{
   SPOT.clear();
@@ -7006,6 +7113,10 @@ async function boot(){
   EXPANDED=new Set();   /* open collapsed — one tidy row per job */
   applyRoute();
   setTimeout(scrollTodayLeft,80);
+  /* REV74 (N14): a browser that has never seen the tour gets it once, after sign-in
+     has settled and the first render is on screen. Help replays it any time. */
+  let coachSeen='1';try{coachSeen=localStorage.getItem(COACH_KEY);}catch(e){}
+  if(ACCOUNT&&!coachSeen&&ROUTE.view!=='project')setTimeout(coachStart,700);
   /* Poll so other people's changes appear (skips while dragging, saving, or editing).
      POLL_MS is the freshness-vs-Graph-cost knob: bigger = fewer calls, staler view. */
   const POLL_MS=90000;
@@ -7013,6 +7124,7 @@ async function boot(){
   setInterval(async()=>{
     if(document.hidden)return;   /* a backgrounded tab shouldn't poll all day — biggest idle-traffic cut */
     if(DRAG||PENDING_SYNC||SYNCING)return;   /* SYNCING: never read half-committed rows mid-save */
+    if(COACH)return;   /* REV74: don't redraw bars under the tour's spotlight */
     if([...document.querySelectorAll('.overlay')].some(o=>!o.classList.contains('hidden')))return;
     if(document.activeElement&&document.activeElement.closest&&document.activeElement.closest('#page'))return;
     POLL_N++;

@@ -194,8 +194,10 @@ meantime without the doc (the notes reached the team through the owner directly)
 - **N12 — calendar click parity** → shipped as §3 item 1 (REV53).
 - **N6, storage half** — "Phase: None" needed standalone events ⚠ → shipped as §3
   item 2 (REV54); the schema conversation the notes flagged happened 2026-08-19.
-- **N14 — coach marks + help button** → already tracked as Phase 4 (§6). Pull forward
-  only if hallway round 2 shows testers stuck.
+- **N14 — coach marks + help button** → **DONE 2026-08-25 (REV74),** pulled forward by
+  owner decision when hallway round 2 was skipped: a Help button in the toolbar's top
+  row runs a six-step spotlight tour, auto-running once for first-time users. Suite:
+  `tests/test74.js`. Record: `docs/Milestones/2026-08-25-coach-marks.md`.
 
 The ungated items shipped 2026-08-20 as **REV57** — one batch so hallway round 2 lands
 on a finished page. Suite: `tests/test57.js`; record:
@@ -254,11 +256,10 @@ Still open in this track (gated on decisions or schema):
 
 **Decisions gating this track (owner):**
 
-- [ ] **N9 — Tasks vs events (now "checkpoints vs tasks").** Still open, but REV64
-      shrank the stakes: both already share one editor shape and one panel, and tasks
-      have their own chart row. What's left is purely data-model — keep two stores
-      (`ShopTimeline_Events` + `ShopTimeline_Tasks2`) or merge them. Decide with
-      hallway round 2 data; no UI work is gated on it anymore.
+- [x] **N9 — Tasks vs events — DECIDED (owner, 2026-08-25): checkpoints wins, keep
+      both.** The two stores stay (`ShopTimeline_Events` + `ShopTimeline_Tasks2`) and
+      both surfaces remain — an unused feature is acceptable. No migration, no merge,
+      no code change. Decided directly when hallway round 2 was skipped (§4).
 - [x] **N3 schema + color** — resolved 2026-08-21: list created, color dropped
       (see N3 above).
 
@@ -269,18 +270,19 @@ lesson — `tests/README.md`).
 
 In order:
 
-- [ ] **Hallway test round 2** — the five tasks from `docs/UX-Audit-and-Strategy.md` §6,
-      with real people; compare assist counts to round 1. Deliberately deferred until the
-      §3 features exist so the test covers them. **Ready to run: the full facilitator
-      script (tasks, scoring sheet, decision hooks) is `docs/Hallway-Test-Round-2.md`**;
-      `/preview/` carries everything through REV73.
-- [ ] **Promote `development` → `main`** — the PR is open:
-      [#15](https://github.com/221twoseven/Project-Scheduler/pull/15). It tracks the
-      branch head, so it now carries **Phase 2.5 (REV53–64) plus the dashboard track,
-      client list, Teams picker, full calendar parity (REV65–72) and the deferred
-      polish pass (REV73)**; title refreshed 2026-08-25 to match. **Merge is
-      the owner's call** — after hallway round 2, or sooner if production wants the
-      fixes now; the ruleset and CI gate it either way.
+- [x] **Hallway test round 2 — SKIPPED (owner, 2026-08-25),** not deferred: management
+      pushed toward a viable product and no team availability existed to run it. The
+      facilitator script (`docs/Hallway-Test-Round-2.md`) stays ready — it becomes the
+      round-3 baseline if a round ever runs. The three decisions it was meant to feed
+      were made directly by the owner instead: **N14 coach marks approved outright**
+      (shipped as REV74), **N9 decided** (checkpoints wins; keep both stores — an
+      unused feature is acceptable), and **promotion approved** (below). Phase 3's
+      zoom-vs-saved-views scope question is now undecided by data — it waits for the
+      owner's task briefs (§6).
+- [x] **Promote `development` → `main` — MERGED 2026-08-25:**
+      [#15](https://github.com/221twoseven/Project-Scheduler/pull/15) carried
+      **REV53–73** (Phase 2.5, the dashboard track, client list, Teams picker, full
+      calendar parity, deferred polish) to production. Owner merged via ruleset bypass.
 - [x] **Backfill the "PR link: pending" lines** — done 2026-08-20: all five Phase 2
       records and the five REV53–57 records now link PR #15.
 
@@ -318,7 +320,9 @@ as the strategy reference — not a to-do doc):
   after the hallway test; B6 if they don't. (The person filter — ex-"Dash view" —
   overlaps Phase 3 but is pulled forward into §3 as feature work.)
 - **Phase 4 — learnability layer:** first-run hint bar, `?` shortcuts sheet,
-  sample-project onboarding. Deliberately last.
+  sample-project onboarding. Deliberately last. **Coach marks (N14) pulled forward
+  and shipped 2026-08-25 as REV74** — the first-run hint bar is likely redundant now;
+  reassess the rest of Phase 4 against the tour before briefing it.
 
 ## 7. Deferred polish (ceilings from Phases 1–2 — batch into a later polish pass)
 
