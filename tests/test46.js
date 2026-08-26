@@ -49,6 +49,14 @@ function run(){
     ok('--row-h token is Comfortable 44px (Design-Language §4)', /--row-h:44px/.test(src));
     ok('no informational font-size below 11px (C5)', !/font-size:(10|[0-9])(\.[0-9]+)?px/.test(src));
   }
+  if(/applyDensity/.test(src)){ /* B5 density — skipped on pre-B5 builds */
+    ok('Compact override sets --row-h:32px', /body\.compact\{--row-h:32px\}/.test(src));
+    ok('JS lane math mirrors --row-h at Comfortable (44)', E('rowH(1)')===44, 'rowH(1)='+E('rowH(1)'));
+    E("applyDensity('compact')");
+    ok('JS lane math mirrors --row-h at Compact (32)', E('rowH(1)')===32, 'rowH(1)='+E('rowH(1)'));
+    ok('Compact bar keeps the ≥24px hit target (§4)', E('BAR_H')>=24, 'BAR_H='+E('BAR_H'));
+    E("applyDensity('comfortable')");
+  }
 
   sec('boot and status migration');
   ok('rev label rendered', doc.getElementById('tb-rev-num').textContent!=='');

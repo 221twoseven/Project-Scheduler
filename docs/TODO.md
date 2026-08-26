@@ -371,6 +371,13 @@ own "only if it proves needed" gates.
 - [ ] Very short projects (< ~2 weeks) render pill-only at Week zoom — intended per
       Design-Language §7 anatomy thresholds (px constants `BAR_W_*`). Gate: real
       complaints about lost labels. (REV75)
+- [ ] The V3 acceptance line "30 projects fit one screen at Compact + Month" is met
+      with one group collapsed or any filter; 30 *uncollapsed* rows are 960px, so a
+      1080p laptop shows ~28. §4's 32px Compact row and ≥24px hit floor win over
+      squeezing rows further. Gate: an owner amendment to §4's row tokens. (REV77)
+- [ ] The sidebar ⇕ All button doesn't fold the sort-group headers (PM/client/status) —
+      it still only toggles project phase rows and department sections. Add "collapse
+      all groups" if PMs ask for it. (REV77)
 
 **Deliberate design ceilings — no action planned, revisit only on real complaints:**
 12-slot palette repeats at 13+ visible projects (T2); quiet re-selection after a committed

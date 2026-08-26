@@ -45,6 +45,7 @@ const SUITES = [
   'test-goto.js',
   'test-quiet.js',
   'test-b4.js',
+  'test-b5.js',
   'test-c3-status.js',
   'test-cb.js',
 ];
