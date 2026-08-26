@@ -1,6 +1,7 @@
 # Calendar live resize + Phase 3.5 small closeouts (REV83) — 2026-08-26
 
-Three Phase 3.5 punch-list items in one small pass (`docs/TODO.md` §6). PR: pending.
+Three Phase 3.5 punch-list items in one small pass (`docs/TODO.md` §6). PR:
+[#27](https://github.com/221twoseven/Project-Scheduler/pull/27).
 
 **Calendar drag-resize live feedback.** Resizing a phase band from its edge handle
 used to give no visual response until the mouse was released — the full-day snap
