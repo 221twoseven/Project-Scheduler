@@ -380,6 +380,12 @@ own "only if it proves needed" gates.
 - [ ] The sidebar ⇕ All button doesn't fold the sort-group headers (PM/client/status) —
       it still only toggles project phase rows and department sections. Add "collapse
       all groups" if PMs ask for it. (REV77)
+- [ ] Saved views (V4) deliberately don't capture sidebar width, panel gutter, scroll
+      position, or the linked-subtasks toggle — workspace ergonomics, not "a view".
+      Gate: someone saves a view and misses one of them. (REV79)
+- [ ] A saved view recalls the grouping but not a per-person *ordering* — sort order is
+      the shared `sortIndex` in project data, one truth for every browser. Changing that
+      is a data-model decision, not a view feature. (REV79)
 
 **Deliberate design ceilings — no action planned, revisit only on real complaints:**
 12-slot palette repeats at 13+ visible projects (T2); quiet re-selection after a committed

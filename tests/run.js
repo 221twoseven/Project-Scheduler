@@ -46,6 +46,7 @@ const SUITES = [
   'test-quiet.js',
   'test-b4.js',
   'test-b5.js',
+  'test-v4-views.js',
   'test-c3-status.js',
   'test-cb.js',
 ];

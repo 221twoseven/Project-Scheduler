@@ -396,6 +396,12 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 .sm-all{margin-top:6px;border:none;background:#F1F5F9;border-radius:6px;padding:5px;font-size:11px;cursor:pointer;color:#334155}
 .sm-all:hover{background:#E2E8F0}
 .sm-note{font-family:var(--mono);font-size:var(--fs-fine);color:#8194ab;padding:6px 8px 2px;border-top:1px solid #E2E8F0;margin-top:4px;white-space:nowrap}
+/* V4/B6: saved-views menu rows — name applies, the small buttons manage */
+.vw-row{gap:4px}
+.vw-name{flex:1;min-width:110px;cursor:pointer}
+.vw-act{border:none;background:none;cursor:pointer;font-size:12px;line-height:1;color:#64748B;padding:3px 4px;border-radius:4px}
+.vw-act:hover{background:#E2E8F0;color:#0F172A}
+.vw-act.on{color:#B45309}
 /* B3: go-to-date popover — G, a month-name click, or the ? legend open it (§6 three paths) */
 #goto-menu{width:272px;padding:10px;gap:8px}
 .gp-row{display:flex;align-items:center;gap:8px}
@@ -1143,6 +1149,10 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
       <button id="btn-person" class="t-btn" title="Show only one person's work">Person <svg class="ico-s" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 6 8 9.5 11.5 6"/></svg></button>
       <div id="person-menu" class="tb-menu hidden"></div>
     </div>
+    <div class="sf-wrap">
+      <button id="btn-views" class="t-btn" title="Save the current filters, zoom and layout as a named view, and jump between views">Views <svg class="ico-s" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 6 8 9.5 11.5 6"/></svg></button>
+      <div id="views-menu" class="tb-menu hidden"></div>
+    </div>
     <button id="btn-reset" class="t-btn" title="Clear the spotlight, search, status and person filters"><svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1.5 3v4h4"/><path d="M2.3 10a6 6 0 1 0 1.5-6.3L1.5 7"/></svg> Clear filters</button>
     <span class="tb-spacer"></span>
     <button id="t-tint" class="t-btn" title="Colour the calendar background vividly by month">Vivid months</button>
@@ -1331,7 +1341,7 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_REV=78; // bump this ONE number on every release; used everywhere the rev shows up
+const APP_REV=79; // bump this ONE number on every release; used everywhere the rev shows up
 
 /* ===================== CONSTANTS ===================== */
 const SET_KEY ='shopTimelineSettings_v1';
@@ -1706,21 +1716,15 @@ function loadLocalPrefs(){
     else{const s=localStorage.getItem(SET_KEY);if(s)PEOPLE=rostersToPeople(JSON.parse(s));}
   }catch(e){PEOPLE=[];}
   rebuildStaff();
-  try{const u=localStorage.getItem(UI_KEY);if(u){const ui=JSON.parse(u);COLLAPSED=new Set(ui.collapsedDepts||[]);
-    if(ui.collapsedGroups)GRP_COLLAPSED=Object.fromEntries(Object.entries(ui.collapsedGroups).map(([m,a])=>[m,new Set(a)]));
-    applyDensity(ui.density);
-    if(Array.isArray(ui.showStatus)&&ui.showStatus.length)SHOW_STATUS=new Set(ui.showStatus.filter(x=>ALL_STATUSES.includes(x)));
-    if(typeof ui.person==='string'&&ui.person)PERSON=ui.person;
-    if(ui.lens==='dept'||ui.lens==='project'){LENS=ui.lens;
-      document.getElementById('btn-lens-dept').classList.toggle('active',LENS==='dept');
-      document.getElementById('btn-lens-proj').classList.toggle('active',LENS==='project');}
+  try{const u=localStorage.getItem(UI_KEY);if(u){const ui=JSON.parse(u);
+    /* V4/B6: restore through the same applier a saved view uses. No search/tint/group
+       here — search never persists between sessions, tint and group live in their own
+       loose keys loaded elsewhere; a partial snapshot leaves those untouched. */
+    applyViewState({lens:ui.lens,status:ui.showStatus,person:ui.person,color:ui.colorMode,
+      view:ui.view,density:ui.density===undefined?'comfortable':ui.density,
+      collapsedGroups:ui.collapsedGroups,collapsedDepts:ui.collapsedDepts||[]});
     if(ui.sideW)setSideW(ui.sideW);
     if(ui.npvGut)npvSetGut(ui.npvGut);
-    if(ui.colorMode==='entity'){COLOR_MODE='entity';
-      document.getElementById('btn-col-ent').classList.add('active');
-      document.getElementById('btn-col-proj').classList.remove('active');}
-    if(DW[ui.view]&&ui.view!==VIEW){VIEW=ui.view;
-      for(const[k,id]of Object.entries(VIEW_BTN))document.getElementById(id).classList.toggle('active',k===VIEW);}
   }}catch(e){}
 }
 
@@ -2087,13 +2091,45 @@ function savePeople(np){
     .then(()=>setSync('ok','synced '+stamp()))
     .catch(e=>{console.error(e);setSync('err','staff not saved');toast('Couldn\'t save the staff list to SharePoint. Try saving again in a moment.','err',null,e.message);});
 }
+/* V4/B6: the view snapshot — every piece of timeline state a saved view captures.
+   viewState() reads it, applyViewState() writes it (state + the matching controls).
+   The live session goes through the same pair: saveUI serializes viewState() and
+   loadLocalPrefs restores through applyViewState, so a saved view can never drift
+   from what the session itself remembers. Fields absent from a snapshot are left
+   untouched, which is what lets loadLocalPrefs pass a partial object. */
+function viewState(){return{
+  lens:LENS,group:GROUP_BY||'',status:[...SHOW_STATUS],person:PERSON||'',search:FILTER,
+  color:COLOR_MODE,view:VIEW,density:DENSITY,tint:TINT,
+  collapsedGroups:Object.fromEntries(Object.entries(GRP_COLLAPSED).map(([m,s])=>[m,[...s]])),
+  collapsedDepts:[...COLLAPSED]};}
+function applyViewState(s){
+  if(!s)return;
+  const tog=(id,on)=>{const b=document.getElementById(id);if(b)b.classList.toggle('active',on);};
+  if(s.lens==='dept'||s.lens==='project'){LENS=s.lens;
+    tog('btn-lens-dept',LENS==='dept');tog('btn-lens-proj',LENS==='project');}
+  if(s.group!==undefined)GROUP_BY=['client','pm','status'].includes(s.group)?s.group:null;
+  if(Array.isArray(s.status)&&s.status.length)SHOW_STATUS=new Set(s.status.filter(x=>ALL_STATUSES.includes(x)));
+  if(typeof s.person==='string')PERSON=s.person||null;
+  if(typeof s.search==='string'){FILTER=s.search.trim().toLowerCase();
+    const se=document.getElementById('t-search');if(se)se.value=s.search;}
+  if(s.color==='entity'||s.color==='project'){COLOR_MODE=s.color;
+    tog('btn-col-ent',COLOR_MODE==='entity');tog('btn-col-proj',COLOR_MODE==='project');}
+  if(DW[s.view]){VIEW=s.view;
+    for(const[k,id]of Object.entries(VIEW_BTN))tog(id,k===VIEW);}
+  if(s.density!==undefined)applyDensity(s.density);
+  if(typeof s.tint==='boolean'){TINT=s.tint;
+    const tb=document.getElementById('t-tint');if(tb)tb.classList.toggle('on',TINT);syncVivid();}
+  if(s.collapsedGroups)GRP_COLLAPSED=Object.fromEntries(Object.entries(s.collapsedGroups).map(([m,a])=>[m,new Set(a)]));
+  if(Array.isArray(s.collapsedDepts))COLLAPSED=new Set(s.collapsedDepts);
+}
 function saveUI(){
-  try{localStorage.setItem('shopTimelineTint',TINT?'1':'0');
+  const s=viewState();
+  try{localStorage.setItem('shopTimelineTint',s.tint?'1':'0');
     localStorage.setItem('shopTimelineLinkSubs',LINK_SUBS?'1':'0');
     localStorage.setItem('shopTimelineOpenDepts',JSON.stringify([...NPV_OPEN]));
-    localStorage.setItem('shopTimelineGroup',GROUP_BY||'');}catch(e){}localStorage.setItem(UI_KEY,JSON.stringify({collapsedDepts:[...COLLAPSED],
-    collapsedGroups:Object.fromEntries(Object.entries(GRP_COLLAPSED).map(([m,s])=>[m,[...s]])),
-    density:DENSITY,colorMode:COLOR_MODE,view:VIEW,sideW:SIDE_W,npvGut:NPV_GUT,showStatus:[...SHOW_STATUS],person:PERSON||'',lens:LENS}));}
+    localStorage.setItem('shopTimelineGroup',s.group);}catch(e){}localStorage.setItem(UI_KEY,JSON.stringify({collapsedDepts:s.collapsedDepts,
+    collapsedGroups:s.collapsedGroups,
+    density:s.density,colorMode:s.color,view:s.view,sideW:SIDE_W,npvGut:NPV_GUT,showStatus:s.status,person:s.person,lens:s.lens}));}
 
 /* ===================== SEARCH FILTER ===================== */
 let FILTER='';
@@ -6992,6 +7028,73 @@ wireMenu('btn-status','status-menu');
 document.getElementById('btn-person').addEventListener('click',buildPersonMenu);
 wireMenu('btn-person','person-menu');
 
+/* ===================== V4/B6: NAMED SAVED VIEWS ===================== */
+/* Snapshots of viewState() kept in this browser only — deliberately not SharePoint,
+   so one person's "Install crunch" never restyles a teammate's timeline. */
+const VIEWS_KEY='shopTimelineViews_v1';
+function loadViews(){try{const v=JSON.parse(localStorage.getItem(VIEWS_KEY));if(Array.isArray(v))return v;}catch(e){}return null;}
+function saveViews(v){try{localStorage.setItem(VIEWS_KEY,JSON.stringify(v));}catch(e){}}
+function defaultViewState(){return{lens:'project',group:'',status:[...ALL_STATUSES],person:'',search:'',
+  color:'project',view:'days',density:'comfortable',tint:false,collapsedGroups:{},collapsedDepts:[]};}
+/* First run seeds two starters. Seeding happens on first menu open, not at boot, so
+   the REV66 identity chain has had a chance to resolve who "me" is. */
+function seedViews(){
+  const v=[{name:'Everything',state:defaultViewState()}];
+  const me=meName()||rememberedMe();
+  if(me)v.push({name:'My work',state:{...defaultViewState(),person:me}});
+  saveViews(v);return v;
+}
+function applyView(v){
+  applyViewState(v.state);
+  saveUI();buildStatusMenu();updateFilterBadges();render();
+  toast('View: '+v.name);
+}
+function buildViewsMenu(){
+  const m=document.getElementById('views-menu');
+  m.innerHTML='';
+  const views=loadViews()||seedViews();
+  const mkAct=(txt,title,fn,on)=>{const b=document.createElement('button');
+    b.className='vw-act'+(on?' on':'');b.textContent=txt;b.title=title;
+    b.addEventListener('click',fn);return b;};
+  for(const v of views){
+    const row=document.createElement('div');row.className='sm-item vw-row';
+    const name=document.createElement('span');name.className='vw-name';
+    name.textContent=v.name;name.title='Apply this view';
+    name.addEventListener('click',()=>{closeMenus();applyView(v);});
+    row.appendChild(name);
+    row.appendChild(mkAct(v.launch?'★':'☆','Open this view at launch',()=>{
+      const was=!!v.launch;views.forEach(x=>delete x.launch);
+      if(!was)v.launch=true;
+      saveViews(views);buildViewsMenu();},!!v.launch));
+    row.appendChild(mkAct('🔗','Copy a link that opens this view',()=>{
+      const url=location.origin+location.pathname+'#view='+encodeURIComponent(JSON.stringify(v.state));
+      const done=()=>toast('Link copied — anyone opening it sees "'+v.name+'"');
+      if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(url).then(done,()=>prompt('Copy this link',url));
+      else prompt('Copy this link',url);}));
+    row.appendChild(mkAct('✎','Rename this view',()=>{
+      const n=prompt('Rename view',v.name);if(!n||!n.trim())return;
+      v.name=n.trim();saveViews(views);buildViewsMenu();}));
+    row.appendChild(mkAct('✕','Delete this view — the timeline itself is untouched',()=>{
+      if(!confirm('Delete view "'+v.name+'"?'))return;
+      saveViews(views.filter(x=>x!==v));buildViewsMenu();}));
+    m.appendChild(row);
+  }
+  const save=document.createElement('button');save.className='sm-all';
+  save.textContent='Save current view…';
+  save.title='Save the filters, zoom and layout as they are right now';
+  save.addEventListener('click',()=>{
+    const n=prompt('Name this view','');if(!n||!n.trim())return;
+    const nm=n.trim(),ex=views.find(x=>x.name===nm);
+    if(ex)ex.state=viewState();else views.push({name:nm,state:viewState()});
+    saveViews(views);buildViewsMenu();toast('View saved: '+nm);});
+  m.appendChild(save);
+  const note=document.createElement('div');note.className='sm-note';
+  note.textContent='Views live in this browser only';
+  m.appendChild(note);
+}
+document.getElementById('btn-views').addEventListener('click',buildViewsMenu);
+wireMenu('btn-views','views-menu');
+
 /* REV68: the dashboard button — one click into "my plate" (Departments lens + person
    filter + panel). Identity comes from meName(); unresolved falls back to a one-time
    "who are you?" pick remembered on this device (the chain's last link). */
@@ -7211,6 +7314,16 @@ document.getElementById('meet-print').addEventListener('click',()=>{
 document.getElementById('tb-rev-num').textContent=APP_REV;
 document.getElementById('tb-rev').textContent='REV '+APP_REV;
 loadLocalPrefs();
+/* V4/B6: the launch view overrides the remembered session; a #view= link (a teammate's
+   shared snapshot) overrides both. Read-on-load only — neither is auto-saved as a view. */
+try{
+  const lv=(loadViews()||[]).find(v=>v.launch);
+  if(lv)applyViewState(lv.state);
+  if(location.hash.indexOf('#view=')===0){
+    applyViewState(JSON.parse(decodeURIComponent(location.hash.slice(6))));
+    history.replaceState(null,'',location.pathname+location.search);
+  }
+}catch(e){}
 buildStatusMenu();updateFilterBadges();
 ST={projects:[],tasks:[],todos:[]};
 /* Sign in + load, callable again from the signed-out empty-state card's button. */
