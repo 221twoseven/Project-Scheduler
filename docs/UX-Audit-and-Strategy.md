@@ -175,16 +175,54 @@ events, the subtask/crew model, the checkpoint editor). Records:
 `docs/Milestones/2026-08-21-phase-2-5-feature-interlude.md`; actionable state stays in
 `docs/TODO.md`.
 
-### Phase 3 — Navigation at scale (~2 weeks, after real feedback on 1–2)
+### Phase 3 — Navigation at scale — COMPLETE 2026-08-26 (REV75–79)
 
-1. **Zoom steps + jump-to-date** (B3).
-2. **Compact density toggle** (B5).
-3. **Group-by-PM with collapse + named saved views** (B6, localStorage).
-4. Revisit **Dash view** from the existing backlog — it's the per-person answer to density and pairs naturally with saved views. (Needs the ⚠ Staff email/role columns — schedule the approval conversation early.)
+Delivered from the owner's task-brief pack (`Phase-3-Task-Briefs.md`, repo root, V1–V5).
+Phase record: `docs/Milestones/2026-08-26-phase-3-navigation-at-scale.md`; per-task
+records in `docs/Milestones/Phase 3/`.
 
-### Phase 4 — Learnability layer (~1 week, deliberately last)
+1. **Zoom steps + jump-to-date** (B3) — shipped as REV75 (four steps Day / 2-Day /
+   Week / Month, `+`/`−` keys) and REV76 (Go to date via `G` / month-name click /
+   `?` legend; the Today button now centers).
+2. **Compact density toggle** (B5) — shipped as REV77–78: three levels by owner
+   ruling (Comfortable 56 / Snug 44 / Compact 32 px rows), every hit target keeping
+   the 24px floor; plus collapse on the sort-group headers.
+3. **Group-by-PM with collapse + named saved views** (B6) — collapse in REV77; named
+   saved views in REV79 (a Views menu snapshotting lens, grouping, filters, search,
+   color, zoom, density, tint, and collapsed groups; launch view; shareable `#view=`
+   link) — localStorage only, as planned.
+4. The **Dash view** item was superseded before this phase started: the per-person
+   answer shipped in Phase 2.5 as four slices on existing surfaces — person filter,
+   identity chain, person panel, dashboard button (REV65–68). The ⚠ Staff email/role
+   columns it needed were approved and added 2026-08-21.
 
-First-run hint bar + `?` shortcuts sheet on the timeline (A2); sample-project onboarding (A5); optional 60-second "how scheduling works" explainer linked from the empty state. Last because Phases 1–3 remove most of what currently *needs* explaining.
+The feedback gate this phase was written to wait for (hallway round 2: "B3/B5 if PMs
+still report navigation pain, B6 if they don't") never ran — the round was skipped
+(owner, 2026-08-25) and the briefs shipped all three, cheapest wins first. The whole
+phase was per-browser localStorage: zero SharePoint schema or auth exposure. Deferrals
+are ledgered in `docs/TODO.md` §7.
+
+### Phase 4 — Learnability layer (rescoped 2026-08-26, deliberately last)
+
+As originally written: first-run hint bar + `?` shortcuts sheet on the timeline (A2);
+sample-project onboarding (A5); optional 60-second explainer. Reality overtook half of
+it — **coach marks shipped early** (N14, REV74, 2026-08-25): a Help button in the
+toolbar runs a six-step spotlight tour that auto-runs once for first-time users,
+advertising right-click, drag, and the keyboard. Rescoped against that:
+
+1. **First-run hint bar — recommend: drop.** The REV74 tour does the hint bar's whole
+   job, better; two competing first-run treatments would teach less than either.
+2. **`?` shortcuts sheet on the main timeline** (A2) — still wanted; the project page
+   has one, the main timeline still doesn't.
+3. **Sample-project onboarding** (A5) — one-click "Add a sample project" running the
+   existing `seed()` through the normal create path (localStorage-only, clearly
+   marked, deletable), and the empty-state card always rendering when nothing is
+   visible.
+4. **Hover affordances** — A2's remaining sliver: a faint context-menu cue on bars so
+   right-click is discoverable without the tour.
+
+Now small enough to be one session's work. Actionable state lives in
+`docs/TODO.md` §6; the optional explainer stays optional.
 
 ### The 2-week ship cut
 
@@ -217,7 +255,7 @@ No analytics backend exists and none should be added casually (privacy + shared 
 | C1 | P1 | Index-based colors reshuffle | id-hash palette slots | 1 |
 | A1 | P1 | Developer-speak errors | Plain-language + details | 1 |
 | B1 | P1 | Off-screen bars = fake-empty rows | Row-edge indicators | 1 |
-| A2 | P1 | Invisible right-click/keys | Hint bar, `?` sheet on timeline, hover affordance | 4 |
+| A2 | P1 | Invisible right-click/keys | Coach-mark tour (shipped REV74); `?` sheet + hover affordance remain | 4 |
 | B2 | P1→P2 | Sidebar truncates names | Two-line name-first rows | 1 |
 | C2 | P1→P2 | Loud month-tint canvas | Neutral canvas default | 2 |
 | C3 | P2 | Color role collision | Status = pill+pattern, legend | 2 |
