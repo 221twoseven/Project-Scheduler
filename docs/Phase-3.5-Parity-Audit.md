@@ -5,106 +5,119 @@
 list differences in display/render, layout, interactivity, click behavior."
 
 This is the **diff list** — the first deliverable of the Phase 3.5 parity item
-(`docs/TODO.md` §6). Convergence fixes follow from it once the owner picks what to keep.
-"Better side" says which behavior should win if we converge.
+(`docs/TODO.md` §6). No code has been changed yet; convergence fixes follow once the
+owner picks from this list.
 
-## How the two pages are wired (why some things can't drift)
+## How to read these tables
 
-Both pages are rendered by **one function**, `renderProjectPage()`, switched by a
-"creating" flag. Most of the page — the Gantt paint, the calendar, the axis, markers,
-footer, legend, right-click menus, the agenda editor, gutter reorder, dock resize,
-Esc layering, the shortcut sheet — is a **single shared code path**: parity by
-construction. The drift lives in ~30 places that branch on the draft/saved flag
+Each row is one difference. The **Recommendation** column says what should happen to
+that difference, in one of five forms:
+
+| Recommendation | Meaning |
+|---|---|
+| **Match the saved page** | The Project Edit page's behavior is the right one — give the New Project draft the same behavior. |
+| **Match the draft page** | The New Project draft does it right — bring the saved page up to it. |
+| **Keep — deliberate** | The difference is intentional (drafts and saved projects genuinely differ here). Don't converge; listed so it isn't mistaken for drift. |
+| **Fix (bug)** | Not drift — broken outright. Fix regardless of parity decisions. |
+| **New design needed** | Both pages are wrong or the affordance is missing on both; converging to either side wouldn't help. |
+
+Rows marked *(already identical)* were verified as shared code — included only to show
+they were checked.
+
+**Where the two pages come from:** both are rendered by **one function**
+(`renderProjectPage()`), switched by a "creating" flag. The chart, calendar, markers,
+menus, agenda editor, and shortcut sheet are one shared code path — those can't drift.
+The differences below live in the ~30 places that branch on the draft/saved flag
 (`NPV_LIVE` / `ROUTE.creating`).
 
 **The confirmed keeper (owner "keep pile"):** the hover tooltip on bars —
-`name · Mar 3 → Mar 7 · 5d` — is identical on both pages today. The owner's ask to
-**add the team member name** lands in one place (the bar `title` at `index.html`
-≈ line 5280); the gutter rows already show `name · who`, which is the model to copy.
+`name · Mar 3 → Mar 7 · 5d` — is already identical on both pages. The owner's ask to
+**add the team member name** is one change in one shared place (the bar `title`,
+`index.html` ≈ line 5280); the gutter rows already show `name · who`, the model to copy.
 
 ## 1. Display / render
 
-| # | Difference | Better side |
+| # | What differs | Recommendation |
 |---|---|---|
-| D1 | **The phase inspector ("This phase" panel) doesn't exist on the draft.** Selecting a bar on a saved project swaps the bottom dock to the phase's own editor (name, department, crew, dates, notes, Duplicate/Delete). A draft always shows the Project pane. | **Saved** |
-| D2 | **Draft phase editing is a floating popover instead** — different field set (no Department select, no Notes, no Duplicate), different labels ("Who" vs "Crew"), different visual language than the dock. | **Saved** |
-| D3 | **The breadcrumb's phase segment never appears on the draft**, even with a bar selected. | **Saved** |
-| D4 | **The dept-filtered "On this phase" agenda** view is saved-only; the draft always shows the full "Checkpoints & Tasks". | **Saved** |
-| D5 | "New project" mono chip in the top bar — draft only. | Deliberate |
-| D6 | "✓ Changes save automatically" pill — saved only (drafts don't autosave to SharePoint; that's N2). | Deliberate |
-| D7 | **Status pill in the chart footer** — suppressed on the draft, leaving the footer's right edge empty. Correct (drafts have no status) but visibly asymmetric. | Deliberate, cosmetic gap |
-| D8 | The Status select shows the **stored** value on a draft but the **computed** status on a saved project — same control, different semantics. | Flag for owner |
-| D9 | **Dead render paths on both pages** (`renderSideList`, `renderDraftLines`, `ppRefreshMetrics` target elements that no longer exist). Consequence: the draft has **no visible UI** for its subtask name/crew list (`NPV_LINES`), its only durable subtask store. | Delete the dead code; loss is draft-side |
-| D10 | The `.manual` "hand-placed" inset-outline treatment only ever renders on **draft** bars; saved bars have no equivalent affordance. | Draft |
+| D1 | Selecting a bar on the **saved** page swaps the bottom dock to a full phase editor ("This phase": name, department, crew, dates, notes, Duplicate/Delete). The **draft** has no phase inspector at all — its dock always shows the Project pane. | **Match the saved page** |
+| D2 | The draft edits phases in a **floating popover** instead — fewer fields (no Department, no Notes, no Duplicate), different labels ("Who" vs "Crew"), different look. | **Match the saved page** (retire the popover) |
+| D3 | The breadcrumb's third segment (the phase name) never appears on the draft, even with a bar selected. | **Match the saved page** |
+| D4 | The dept-filtered "On this phase" agenda view exists only on the saved page; the draft always shows the full "Checkpoints & Tasks". | **Match the saved page** |
+| D5 | "New project" mono chip in the top bar — draft only. | **Keep — deliberate** |
+| D6 | "✓ Changes save automatically" pill — saved only (drafts don't autosave to SharePoint; that's the N2 design). | **Keep — deliberate** |
+| D7 | The status pill in the chart footer is suppressed on the draft (drafts have no status), leaving that corner empty. | **Keep — deliberate** (cosmetic asymmetry; a placeholder could fill it) |
+| D8 | The Status dropdown shows the **stored** value on a draft but the **computed** status on a saved project — same control, two meanings. | Owner's call — flagging it |
+| D9 | Dead render code on both pages targets elements that no longer exist. Consequence: the draft has **no visible list** of its subtask names/crew (its only durable subtask store). | **Fix (bug)** — delete the dead code, decide if the draft needs that list back |
+| D10 | The "hand-placed" inset-outline treatment on manually dragged bars renders only on **draft** bars; saved bars never show it. | **Match the draft page** |
 
 ## 2. Layout
 
-| # | Difference | Better side |
+| # | What differs | Recommendation |
 |---|---|---|
-| L1 | **The bottom dock's information architecture forks**: saved selection swaps Setup/Team/Departments for "This phase" + "On this phase"; the draft dock is structurally frozen. | **Saved** |
-| L2 | Footer buttons: draft = Shortcuts · Cancel · **Create project**; saved = autosave pill · Shortcuts · Delete project · **Done**. | Deliberate |
-| L3 | **Phase editing lives in two different places** — saved: docked bottom panel (non-occluding); draft: absolute popover floated over the chart. Two spatial models for the same job. | **Saved** |
-| L4 | The toolbar row is identical on both — but two of its controls (Link, and effectively Reset) are **inert on the draft** (see I5, I13), so the draft advertises more than it can do. | Saved |
+| L1 | The bottom dock's structure forks: saved selection swaps Setup/Team/Departments for the phase editor; the draft dock never changes shape. | **Match the saved page** (falls out of D1) |
+| L2 | Footer buttons: draft = Shortcuts · Cancel · **Create project**; saved = autosave pill · Shortcuts · Delete project · **Done**. | **Keep — deliberate** |
+| L3 | Phase editing lives in two different places: saved = docked bottom panel (never covers the chart); draft = popover floating over the chart. | **Match the saved page** (same fix as D2) |
+| L4 | The toolbar row is identical on both pages, but two controls (Link; effectively Reset) **do nothing on the draft** — the draft advertises more than it can do. | **Match the saved page** (make them work — see I5) |
 
 ## 3. Interactivity
 
-| # | Difference | Better side |
+| # | What differs | Recommendation |
 |---|---|---|
-| I1 | **Selection is half-implemented on the draft**: ↑/↓ and clicks paint the selection ring and gutter highlight, but nothing else reacts (no inspector, no breadcrumb, no keys). Visible selection with no consequence — the single biggest drift. | **Saved** |
-| I2 | `Del`/`Backspace` deletes the selected phase on saved; does nothing on the draft. | **Saved** |
-| I3 | `R` (rename) does nothing on the draft unless the popover is already open. | **Saved** |
-| I4 | `Shift+←/→` (nudge a day) is saved-only, but the shortcut sheet advertises it on both. | **Saved** (or fix the sheet) |
-| I5 | **The Link toggle is inert on the draft** — it still toggles, persists, and toasts "Subtasks move with their department," which is false there. | **Saved** |
-| I6 | `S` (new subtask) ignores the highlighted bar on a draft and always targets the first department; `E`/`T` lose the selected phase's start date. | **Saved** |
-| I7 | Creating a subtask: saved = real row, selected, name focused, "Added" toast; draft = list entry + placement, nothing focused, "Split" toast. | **Saved** |
-| I8 | **Bug, not just drift:** the empty-canvas right-click **"Add a phase" is a silent no-op on the draft** — the department is never added, no bar appears, no error. The saved path works. | **Saved — fix** |
-| I9 | Duplicate phase is saved-only (its only entry point is the saved-only inspector). | **Saved** |
-| I10 | **Undo forks**: saved actions ride the global undo stack (⌘Z works); draft move/resize use per-toast undo only — ⌘Z on a draft does nothing, though the sheet advertises it. | **Saved** for consistency |
-| I11 | Department checklist commits differ: saved confirms before deleting phases and toasts; draft silently rebuilds the preview. | Deliberate (a draft has nothing to destroy) |
-| I12 | **Row reorder persists only on the draft.** On a saved project the drag-reorder is session-only, lost on reload — and the leftover order can leak into the next project opened. | **Draft** (saved needs a write-through) |
-| I13 | **Stale draft state leaks into saved pages** (manual placements, order, subtask lines are only cleared when a *fresh draft* starts). Symptoms: a Reset button that does nothing meaningful; a leftover draft subtask name can reorder saved subtasks. | Neither — clear on entry to both |
-| I14 | **Pin/Unpin has no working UI on either page** (the popover's Pin button is unreachable dead code), yet a bar pinned from the main timeline silently refuses to resize here with no explanation. | Neither — missing affordance |
-| I15 | Exit guards — `beforeunload`, hash-exit confirm, session draft stash — draft only. | **Deliberate (N2)** |
+| I1 | **Selection is half-implemented on the draft**: clicking or ↑/↓ shows the selection ring, but nothing reacts to it — no inspector, no breadcrumb, no keyboard verbs. Selection that visibly does nothing. This is the root of most rows below. | **Match the saved page** — the single biggest fix |
+| I2 | `Del`/`Backspace` deletes the selected phase on saved; does nothing on the draft. | **Match the saved page** (falls out of I1) |
+| I3 | `R` (rename) does nothing on the draft unless the popover happens to be open. | **Match the saved page** (falls out of I1) |
+| I4 | `Shift+←/→` (nudge a day) works only on saved — but the shortcut sheet advertises it on both. | **Match the saved page** (or correct the sheet) |
+| I5 | The **Link** toggle is inert on the draft — it still toggles and toasts "Subtasks move with their department," which is false there. | **Match the saved page** |
+| I6 | `S` (new subtask) ignores the highlighted bar on a draft and always targets the first department; `E`/`T` lose the selected phase's start date. | **Match the saved page** (falls out of I1) |
+| I7 | Creating a subtask: saved = real row, auto-selected, name field focused; draft = background list entry, nothing focused, different toast. | **Match the saved page** |
+| I8 | Right-click empty canvas → **"Add a phase" silently does nothing on the draft** — no department added, no bar, no error. Works on saved. | **Fix (bug)** |
+| I9 | Duplicate phase exists only on the saved page (its button lives in the saved-only inspector). | **Match the saved page** (falls out of D1) |
+| I10 | Undo forks: saved actions ride the global undo stack (⌘Z works); draft move/resize have per-toast undo only, and ⌘Z does nothing there — though the sheet advertises it. | **Match the saved page** |
+| I11 | Department checklist commits differ: saved confirms before deleting phases and toasts; the draft silently rebuilds its preview. | **Keep — deliberate** (a draft has nothing to destroy) |
+| I12 | **Drag-reordering rows persists only on the draft.** On a saved project the order is lost on reload — and can leak into the next project opened. | **Match the draft page** (persist it) + fix the leak |
+| I13 | Stale draft state (manual placements, row order, subtask names) is cleared only when a *fresh draft* starts — it can leak into saved pages: a Reset button that does nothing meaningful, a leftover draft name reordering saved subtasks. | **New design needed** — clear on entry to *both* pages |
+| I14 | Pin/Unpin has no working UI on either page (the only Pin button is unreachable dead code) — yet a bar pinned from the main timeline silently refuses to move/resize here, with no explanation. | **New design needed** |
+| I15 | Exit guards — the unsaved-changes confirm, the browser-close warning, the session draft stash — exist on the draft only. | **Keep — deliberate (N2)** — saved pages autosave instead |
 
-## 4. Click behavior (same target, different verb)
+## 4. Click behavior (same target, different response)
 
-| Target | Draft | Saved | Better |
+| Target | On the draft | On the saved page | Recommendation |
 |---|---|---|---|
-| Left-click a Gantt bar | Opens the floating popover | Selects → bottom inspector | **Saved** |
-| Left-click a calendar band | Same popover fork | Same inspector | **Saved** |
-| Left-click empty canvas | Deselect / close overlays | Identical | Parity |
-| Left-click a checkpoint/task | Focuses its agenda row — but the row may live in a different pane on each side | Scoped pane | Saved |
-| Breadcrumb project crumb | No-op | Unwinds phase → project | Saved |
-| Inspector header × | Never rendered | Deselects | Saved |
-| Right-click bar / gutter / marker | Menus and confirms | Identical | Parity |
-| Right-click empty canvas → Add a phase | **Silent no-op (I8)** | Adds dept + bar | **Saved** |
-| Drag a parent with Link on | Moves parent alone (Link inert) | Carries subtasks | **Saved** |
-| Double-click | Unbound | Unbound | Parity (candidate for "open editor"?) |
+| Left-click a Gantt bar | Opens the floating popover | Selects it → bottom inspector | **Match the saved page** |
+| Left-click a calendar phase band | Same popover | Same inspector | **Match the saved page** |
+| Left-click empty canvas | Deselect / close overlays | *(already identical)* | — |
+| Left-click a checkpoint/task marker | Focuses its agenda row — but the row can live in a different pane on each page | Focuses it in the scoped pane | **Match the saved page** |
+| Breadcrumb project crumb | Does nothing | Unwinds phase → project | **Match the saved page** |
+| × in the inspector header | Never rendered | Deselects | **Match the saved page** |
+| Right-click a bar / gutter row / marker | Menus and confirms | *(already identical)* | — |
+| Right-click empty canvas → Add a phase | **Silently does nothing** | Adds the department + bar | **Fix (bug)** — same as I8 |
+| Drag a parent bar with Link on | Moves the parent alone | Carries its subtasks | **Match the saved page** — same as I5 |
+| Double-click | Unbound | Unbound | Open question — candidate for "open editor" |
 
-## Deliberate differences — do not "converge" these
+## Deliberate differences — do not converge
 
-Draft Create/Cancel vs saved Done/Delete + autosave pill; the N2 exit guards
-(draft-only confirm + stash, saved pages autosave); draft writes go to the form model
-while saved writes commit per field; the per-keystroke schedule regeneration on drafts.
+Draft Create/Cancel vs saved Done/Delete + the autosave pill; the N2 exit guards
+(draft-only confirm + stash — saved pages autosave); draft edits go to the form model
+while saved edits commit per field; the per-keystroke schedule regeneration on drafts.
 That set is the *point* of having a draft page.
 
-## Found in passing (not parity, worth tickets)
+## Found in passing (not parity — worth their own tickets)
 
-- The saved-project branch of `savePageProject()` and its `#pp-regen` checkbox are
-  **unreachable** — the Save button only renders on drafts. Dead code.
+- The saved-project branch of the Save handler and its "regenerate" checkbox are
+  **unreachable** (the Save button only renders on drafts). Dead code.
 - `npvRemoveDept()` has no callers. Dead code.
 - A saved page's deadline marker is read out of the **draft form object** — works
   today by coincidence of ordering; fragile.
-- `ppSec()` is called with five arguments in three places but takes four — the
-  trailing `true` is silently ignored.
+- `ppSec()` is called with five arguments in three places but accepts four — the
+  extra argument is silently ignored.
 
-## Recommended convergence order (when the owner green-lights fixes)
+## Recommended order of work (when the owner green-lights fixes)
 
-1. **I8** — the Add-a-phase no-op is a straight bug; fix first.
-2. **I1 + D1/D2/L3** — make draft selection real and retire the popover in favor of
-   the shared bottom inspector; most of the other key gaps (I2–I7, I9, D3, D4) fall
-   out of that one convergence.
-3. **I13 + I12** — clear draft globals on entry to both pages; persist saved reorder.
+1. **I8** — the Add-a-phase silent no-op is a straight bug; fix first.
+2. **I1 (+ D1/D2/L3)** — make draft selection real and retire the popover in favor
+   of the shared bottom inspector. Most other rows (I2–I7, I9, D3, D4) fall out of
+   this one convergence.
+3. **I13 + I12** — clear draft state on entry to both pages; persist saved reorder.
 4. **Keep-pile enhancement** — add the team-member name to the shared bar tooltip
    (one line, benefits both pages equally).
-5. Delete the dead code (D9, savePageProject saved branch, npvRemoveDept).
+5. Delete the dead code (D9 and the "found in passing" items).
