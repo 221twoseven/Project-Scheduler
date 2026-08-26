@@ -396,10 +396,11 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 .sm-all{margin-top:6px;border:none;background:#F1F5F9;border-radius:6px;padding:5px;font-size:11px;cursor:pointer;color:#334155}
 .sm-all:hover{background:#E2E8F0}
 .sm-note{font-family:var(--mono);font-size:var(--fs-fine);color:#8194ab;padding:6px 8px 2px;border-top:1px solid #E2E8F0;margin-top:4px;white-space:nowrap}
-/* V4/B6: saved-views menu rows — name applies, the small buttons manage */
-.vw-row{gap:4px}
-.vw-name{flex:1;min-width:110px;cursor:pointer}
-.vw-act{border:none;background:none;cursor:pointer;font-size:12px;line-height:1;color:#64748B;padding:3px 4px;border-radius:4px}
+/* V4/B6: saved-views menu rows — name applies, the small buttons manage.
+   Everything is a real <button> so the menu walks on Tab (§9). */
+.vw-row{gap:4px;padding:2px 8px}
+.vw-name{flex:1;min-width:110px;min-height:24px;cursor:pointer;border:none;background:none;text-align:left;font:inherit;color:inherit;padding:0}
+.vw-act{border:none;background:none;cursor:pointer;font-size:12px;line-height:1;color:#64748B;min-width:24px;min-height:24px;padding:2px;border-radius:4px}
 .vw-act:hover{background:#E2E8F0;color:#0F172A}
 .vw-act.on{color:#B45309}
 /* B3: go-to-date popover — G, a month-name click, or the ? legend open it (§6 three paths) */
@@ -7058,7 +7059,7 @@ function buildViewsMenu(){
     b.addEventListener('click',fn);return b;};
   for(const v of views){
     const row=document.createElement('div');row.className='sm-item vw-row';
-    const name=document.createElement('span');name.className='vw-name';
+    const name=document.createElement('button');name.className='vw-name';
     name.textContent=v.name;name.title='Apply this view';
     name.addEventListener('click',()=>{closeMenus();applyView(v);});
     row.appendChild(name);
