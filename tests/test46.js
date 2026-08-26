@@ -46,14 +46,15 @@ function run(){
   ok('NPV_GUT matches .npv-gut width', String(E('NPV_GUT'))===gut, 'JS '+E('NPV_GUT')+' vs CSS '+gut);
   ok('NPV_ROWH matches last .npv-row height', String(E('NPV_ROWH'))===rowh[1], 'JS '+E('NPV_ROWH')+' vs CSS '+rowh[1]);
   if(/--fs-fine:/.test(src)){ /* C5 tokens — skipped on pre-C5 builds like the REV50 reference */
-    ok('--row-h token is Comfortable 44px (Design-Language §4)', /--row-h:44px/.test(src));
+    ok('--row-h token is Comfortable (Design-Language §4)',
+       /applyDensity/.test(src)?/--row-h:56px/.test(src):/--row-h:44px/.test(src));
     ok('no informational font-size below 11px (C5)', !/font-size:(10|[0-9])(\.[0-9]+)?px/.test(src));
   }
-  if(/applyDensity/.test(src)){ /* B5 density — skipped on pre-B5 builds */
-    ok('Compact override sets --row-h:32px', /body\.compact\{--row-h:32px\}/.test(src));
-    ok('JS lane math mirrors --row-h at Comfortable (44)', E('rowH(1)')===44, 'rowH(1)='+E('rowH(1)'));
+  if(/applyDensity/.test(src)){ /* B5 density (owner-adjusted 56/44) — skipped on pre-B5 builds */
+    ok('Compact override sets --row-h:44px', /body\.compact\{--row-h:44px\}/.test(src));
+    ok('JS lane math mirrors --row-h at Comfortable (56)', E('rowH(1)')===56, 'rowH(1)='+E('rowH(1)'));
     E("applyDensity('compact')");
-    ok('JS lane math mirrors --row-h at Compact (32)', E('rowH(1)')===32, 'rowH(1)='+E('rowH(1)'));
+    ok('JS lane math mirrors --row-h at Compact (44)', E('rowH(1)')===44, 'rowH(1)='+E('rowH(1)'));
     ok('Compact bar keeps the ≥24px hit target (§4)', E('BAR_H')>=24, 'BAR_H='+E('BAR_H'));
     E("applyDensity('comfortable')");
   }

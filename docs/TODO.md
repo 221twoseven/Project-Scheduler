@@ -371,10 +371,13 @@ own "only if it proves needed" gates.
 - [ ] Very short projects (< ~2 weeks) render pill-only at Week zoom — intended per
       Design-Language §7 anatomy thresholds (px constants `BAR_W_*`). Gate: real
       complaints about lost labels. (REV75)
-- [ ] The V3 acceptance line "30 projects fit one screen at Compact + Month" is met
-      with one group collapsed or any filter; 30 *uncollapsed* rows are 960px, so a
-      1080p laptop shows ~28. §4's 32px Compact row and ≥24px hit floor win over
-      squeezing rows further. Gate: an owner amendment to §4's row tokens. (REV77)
+- [ ] The V3 acceptance line "30 projects fit one screen at Compact + Month" —
+      SUPERSEDED (owner, 2026-08-26): the first cut shipped §4's written 44/32 tokens
+      (30×32 = 960px, borderline one screen); the owner ruled that too tight and reset
+      the densities to 56 (the pre-B5 default) / 44, amending §4. 30 uncollapsed
+      Compact rows are now 1320px — group collapse and filters are the levers for big
+      seasons, not row height. Revisit only if an even-denser third step is asked for.
+      (REV77)
 - [ ] The sidebar ⇕ All button doesn't fold the sort-group headers (PM/client/status) —
       it still only toggles project phase rows and department sections. Add "collapse
       all groups" if PMs ask for it. (REV77)

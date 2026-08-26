@@ -114,7 +114,7 @@ Rule: nothing informational below 11px. The current 8.5–10px toolbar/mini labe
 - **Spacing unit 4px.** Gaps and paddings are multiples: 4/8/12/16/24. (Most of the app is already close; drift no further.)
 - **Radii:** keep tokens `--r-s 5px` (chips, pills), `--r-m 8px` (buttons, inputs, bars), `--r-l 14px` (overlays, cards). Bars use `--r-m` ends.
 - **Hairlines** for structure (1px, `--side-line` on light / `--chrome-line` on dark); **shadows only for things that float** (menus, overlays, drag ghosts): `0 4px 18px rgba(13,19,29,.18)`. Nothing at rest casts a shadow except the toolbar.
-- **Row heights:** Comfortable 44px / Compact 32px (token `--row-h`), gutter 12px. All hit targets ≥ 24px even in Compact.
+- **Row heights:** Comfortable 56px / Compact 44px (token `--row-h`) — bars stay 32px tall at both, only the gutter tightens (24px → 12px). *Owner adjustment 2026-08-26 (REV77): the original 44/32 spec read too tight in practice — Comfortable keeps the pre-B5 default, Compact takes the old 44 value.* All hit targets ≥ 24px even in Compact.
 
 ---
 

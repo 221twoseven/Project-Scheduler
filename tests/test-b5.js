@@ -40,15 +40,15 @@ const E=s=>win.eval(s);
 const click=el=>el&&el.dispatchEvent(new win.MouseEvent('click',{bubbles:true}));
 
 setTimeout(()=>{
-  sec('density — Comfortable boot matches §4');
+  sec('density — Comfortable boot matches §4 (owner-adjusted 56/44)');
   ok('boot is Comfortable',E('DENSITY')==='comfortable');
-  ok('rowH(1) is 44 (the --row-h token)',E('rowH(1)')===44,'rowH(1)='+E('rowH(1)'));
+  ok('rowH(1) is 56 (the --row-h token, the pre-B5 default)',E('rowH(1)')===56,'rowH(1)='+E('rowH(1)'));
   ok('body has no compact class',!doc.body.classList.contains('compact'));
 
   sec('the Settings toggle switches to Compact');
   click(doc.getElementById('mi-density'));
   ok('DENSITY flips',E('DENSITY')==='compact');
-  ok('rowH(1) is 32',E('rowH(1)')===32,'rowH(1)='+E('rowH(1)'));
+  ok('rowH(1) is 44',E('rowH(1)')===44,'rowH(1)='+E('rowH(1)'));
   ok('body carries .compact (CSS --row-h override)',doc.body.classList.contains('compact'));
   ok('the menu item label follows',doc.getElementById('mi-density-v').textContent==='Compact');
   ok('bars keep a ≥24px hit target (§4)',E('BAR_H')>=24,'BAR_H='+E('BAR_H'));
@@ -56,13 +56,15 @@ setTimeout(()=>{
   ok('a drawn bar is BAR_H tall',bar&&bar.style.height===E('BAR_H')+'px',bar&&bar.style.height);
   ok('edge grab zones keep their §6 width',E('edgeZone(100,9)')===9&&E('edgeZone(40,9)')>=8);
   const sbRow=doc.querySelector('#side-rows .sb-row.proj-head');
-  ok('sidebar rows are 32px',sbRow&&sbRow.style.height==='32px',sbRow&&sbRow.style.height);
+  ok('sidebar rows are 44px',sbRow&&sbRow.style.height==='44px',sbRow&&sbRow.style.height);
   ok('the two-line row keeps name and code·date',
      sbRow&&!!sbRow.querySelector('.sb-name')&&!!sbRow.querySelector('.sb-sub'));
 
-  sec('acceptance — 30 projects fit one screen at Compact + Month');
+  sec('Compact fits more schedule — 30 projects at Month');
   E("setView('month')");
-  ok('30 rows total ≤960px',E('TOTAL_H')<=960,E('TOTAL_H')+'px');
+  /* Owner ruling 2026-08-26: densities are 56/44, so 30 uncollapsed rows are 1320px —
+     the brief's "one screen" line is superseded; group collapse is the big lever. */
+  ok('30 rows total 1320px (44px each, was 1680)',E('TOTAL_H')===1320,E('TOTAL_H')+'px');
 
   sec('density persists in UI_KEY');
   let ui=JSON.parse(win.localStorage.getItem('shopTimelineUI_v1')||'{}');

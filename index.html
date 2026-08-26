@@ -19,11 +19,11 @@
   --r-s:5px; --r-m:8px; --r-l:14px;
   /* type scale — Design-Language §3; --fs-micro is decorative eyebrows ONLY */
   --fs-title:15px; --fs-body:13px; --fs-label:11.5px; --fs-fine:11px; --fs-micro:9px;
-  --row-h:44px; /* Comfortable row height — §4 */
+  --row-h:56px; /* Comfortable row height — §4 (owner adjustment 2026-08-26: 56/44, not 44/32) */
 }
 /* B5 density: Compact rows (§4). The token drives real geometry — the JS lane math
    (rowH) mirrors it at both values; tests/test46.js asserts they stay in step. */
-body.compact{--row-h:32px}
+body.compact{--row-h:44px}
 /* ============ RESET ============ */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;overflow:hidden;font-family:var(--sans);font-size:var(--fs-body);color:var(--txt);background:var(--paper)}
@@ -159,11 +159,8 @@ body.me-dock-on #me-dock{display:flex;flex-direction:column;position:fixed;left:
 .sb-chip{font-family:var(--mono);font-size:var(--fs-fine);font-weight:600;letter-spacing:.03em;padding:1.5px 6px;border-radius:8px;flex-shrink:0;line-height:1.5}
 .sb-chip.late{background:#FDE2E2;color:#B91C1C}
 .sb-chip.soon{background:#FCEEC8;color:#8F5E08}
-/* B5 Compact: the T5 two-line row keeps both lines, each single-line, tighter leading */
+/* B5 Compact: the T5 two-line row keeps both lines, each single-line, tighter gap */
 body.compact .sb-2l{gap:0}
-body.compact .sb-2l .sb-name{font-size:12px;line-height:1.1}
-body.compact .sb-2l .sb-sub{line-height:1.1}
-body.compact .sb-chip{line-height:1.2;padding:.5px 6px}
 .sb-row.task-row{padding-left:32px;background:#F2F5FA}
 .sb-row.task-row .sb-name{font-weight:450;font-size:12px}
 .sb-row.dept-head{background:#D6DFEB;border-bottom:1px solid #C2CFDF;font-size:var(--fs-fine);font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#57687F;cursor:pointer}
@@ -1335,15 +1332,17 @@ const APP_REV=77; // bump this ONE number on every release; used everywhere the 
 const SET_KEY ='shopTimelineSettings_v1';
 const PEOPLE_KEY='shopTimelinePeople_v1';
 const UI_KEY  ='shopTimelineUI_v1';
-/* B5 density (§4): the JS lane math mirrors --row-h. rowH(1)=BAR_PAD*2+BAR_H must equal
-   the token at both densities — Comfortable 44 (bar 32, gutter 12), Compact 32 (bar 24,
-   gutter 8, still a ≥24px hit target). tests/test46.js guards the drift both ways. */
-let BAR_H=32, BAR_PAD=6, LANE_G=6, DENSITY='comfortable';
-const HEAD_H=26, HDR_H=64;
+/* B5 density (§4, owner-adjusted 2026-08-26): the JS lane math mirrors --row-h.
+   rowH(1)=BAR_PAD*2+BAR_H must equal the token at both densities — Comfortable 56
+   (the pre-B5 default: bar 32, gutter 24), Compact 44 (bar 32, gutter 12). The bar
+   itself never shrinks, so every hit target stays ≥24px for free.
+   tests/test46.js guards the drift both ways. */
+const BAR_H=32, LANE_G=6, HEAD_H=26, HDR_H=64;
+let BAR_PAD=12, DENSITY='comfortable';
 function applyDensity(d){
   DENSITY=d==='compact'?'compact':'comfortable';
   const c=DENSITY==='compact';
-  BAR_H=c?24:32;BAR_PAD=c?4:6;LANE_G=c?4:6;
+  BAR_PAD=c?6:12;
   document.body.classList.toggle('compact',c);
   const v=document.getElementById('mi-density-v');if(v)v.textContent=c?'Compact':'Comfortable';
 }
