@@ -176,7 +176,8 @@ body.me-dock-on #me-dock{display:flex;flex-direction:column;position:fixed;left:
 
 /* ============ HEADER CELLS ============ */
 .hdr-row{height:32px;position:relative;overflow:hidden}
-.hdr-m-cell{position:absolute;top:0;height:32px;display:flex;align-items:center;padding:0 9px;font-size:var(--fs-fine);font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.94);white-space:nowrap;overflow:hidden;border-right:1.5px solid rgba(255,255,255,.22);text-shadow:0 1px 2px rgba(0,0,0,.15)}
+.hdr-m-cell{position:absolute;top:0;height:32px;display:flex;align-items:center;padding:0 9px;font-size:var(--fs-fine);font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.94);white-space:nowrap;overflow:hidden;border-right:1.5px solid rgba(255,255,255,.22);text-shadow:0 1px 2px rgba(0,0,0,.15);cursor:pointer}
+.hdr-m-cell:hover{text-decoration:underline} /* B3: month names open the go-to-date popover */
 .hdr-d-cell{position:absolute;top:0;height:32px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:var(--fs-fine);color:rgba(10,25,50,.45);border-right:1px solid rgba(0,0,0,.06);overflow:hidden;user-select:none}
 .hdr-d-cell.is-today{font-weight:700;color:#C42B2B}
 .hdr-d-cell.is-wknd{color:rgba(0,0,0,.25);background-image:linear-gradient(rgba(148,163,184,.4),rgba(148,163,184,.4))!important}
@@ -383,6 +384,14 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 .sm-all{margin-top:6px;border:none;background:#F1F5F9;border-radius:6px;padding:5px;font-size:11px;cursor:pointer;color:#334155}
 .sm-all:hover{background:#E2E8F0}
 .sm-note{font-family:var(--mono);font-size:var(--fs-fine);color:#8194ab;padding:6px 8px 2px;border-top:1px solid #E2E8F0;margin-top:4px;white-space:nowrap}
+/* B3: go-to-date popover — G, a month-name click, or the ? legend open it (§6 three paths) */
+#goto-menu{width:272px;padding:10px;gap:8px}
+.gp-row{display:flex;align-items:center;gap:8px}
+#goto-date{flex:1;font-family:var(--mono);font-size:var(--fs-body);color:var(--ink);padding:4px 7px;border:1px solid var(--side-line);border-radius:var(--r-s)}
+.gp-key{font-family:var(--mono);font-size:var(--fs-fine);color:var(--txt-dim)}
+.gp-picks{display:flex;gap:6px}
+.gp-picks .sm-all{flex:1;margin-top:0;white-space:nowrap}
+#lg-goto{text-align:left;display:flex;justify-content:space-between;align-items:center}
 /* Tint — low-priority toggle parked at the right of the timeline row */
 #t-tint{background:transparent;border-color:transparent;color:rgba(255,255,255,.42);font-size:11px;padding:5px 9px}
 #t-tint:hover{background:rgba(255,255,255,.08);color:rgba(255,255,255,.8)}
@@ -1086,7 +1095,18 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
     <span id="sync-pill" class="busy" title="Shows whether your changes are saved to SharePoint — click to retry after an error">● connecting…</span>
   </div>
   <div class="tb-row tb-timeline">
-    <button id="btn-today" class="t-btn" title="Scroll the timeline to today (T)">Today</button>
+    <div class="sf-wrap">
+      <button id="btn-today" class="t-btn" title="Center the timeline on today (T)">Today</button>
+      <div id="goto-menu" class="tb-menu hidden">
+        <div class="gp-row"><input id="goto-date" type="date" title="Pick a date — Enter centers the timeline on it"><span class="gp-key">G</span></div>
+        <div class="gp-picks">
+          <button class="sm-all" data-goto="today" title="Center the timeline on today">Today</button>
+          <button class="sm-all" data-goto="m1" title="Center the timeline one month ahead">+1 mo</button>
+          <button class="sm-all" data-goto="m3" title="Center the timeline three months ahead">+3 mo</button>
+          <button class="sm-all" data-goto="install" title="Center on the next upcoming installation">Next install</button>
+        </div>
+      </div>
+    </div>
     <div class="tog-grp" id="tg-scale">
       <button id="btn-days" class="t-btn active" title="Show the timeline day by day (D)">Day</button>
       <button id="btn-day2" class="t-btn" title="Days at half width — about twice the range on screen (+ and − step the zoom)">2-Day</button>
@@ -1297,7 +1317,7 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_REV=75; // bump this ONE number on every release; used everywhere the rev shows up
+const APP_REV=76; // bump this ONE number on every release; used everywhere the rev shows up
 
 /* ===================== CONSTANTS ===================== */
 const SET_KEY ='shopTimelineSettings_v1';
@@ -2731,6 +2751,9 @@ function buildHeaderInto(hdr,DW_){
     mc.style.background=monthHdrBg(month);
     mc.style.color=monthHdrFg(month);
     mc.textContent=cellS.toLocaleString('default',{month:'long'})+' '+cellS.getFullYear();
+    mc.title='Jump to a date (G)';
+    const iso=fmtDate(cellS);
+    mc.addEventListener('click',ev=>{ev.stopPropagation();openGotoPop(iso,ev.clientX);});
     mRow.appendChild(mc);
   }
   if(VIEW==='days'||VIEW==='day2'){
@@ -2912,13 +2935,7 @@ function updateEdgeIndicators(){
       el.innerHTML=c.side==='l'?dt+edgeChevron('l',c.b.col):edgeChevron('r',c.b.col)+dt;
       el.title='This row’s bar is off-screen — click to scroll it into view';
       const cx=(c.b.x1+c.b.x2)/2;
-      el.addEventListener('click',ev=>{
-        ev.stopPropagation();
-        const left=Math.max(0,cx-sc.clientWidth/2);
-        const reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        if(!reduce&&sc.scrollTo){try{sc.scrollTo({left,behavior:'smooth'});return;}catch(e){}}
-        sc.scrollLeft=left;
-      });
+      el.addEventListener('click',ev=>{ev.stopPropagation();centerX(cx);});
       host.appendChild(el);
     }
   }
@@ -6674,21 +6691,68 @@ document.addEventListener('keydown',ev=>{
   else if(k==='w')setView('weeks');
   else if(k==='+'||k==='=')zoomStep(-1);
   else if(k==='-'||k==='_')zoomStep(1);
+  else if(k==='g'){ev.preventDefault();openGotoPop();}
 });
 
 /* ===================== TOOLBAR ===================== */
-function scrollToToday(){
+/* B3: one centering rule for every jump — smooth unless prefers-reduced-motion (T6). */
+function centerX(cx){
   const sc=document.getElementById('gantt-scroll');
-  sc.scrollLeft=Math.max(0,d2x(today())-sc.clientWidth/2+dw()/2);
+  if(!sc)return;
+  const left=Math.max(0,cx-sc.clientWidth/2);
+  const reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(!reduce&&sc.scrollTo){try{sc.scrollTo({left,behavior:'smooth'});return;}catch(e){}}
+  sc.scrollLeft=left;
 }
+function centerDate(d){centerX(d2x(d)+dw()/2);}
+function scrollToToday(){centerDate(today());}
 /* Park today just inside the left edge so the view reads forward into the work ahead
-   instead of centring on history. Roughly a day and a half of past is kept as context. */
+   instead of centring on history. Roughly a day and a half of past is kept as context.
+   Startup only — the Today button and T key center instead (B3). */
 function scrollTodayLeft(){
   const sc=document.getElementById('gantt-scroll');
   if(!sc)return;
   sc.scrollLeft=Math.max(0,d2x(today())-dw()*1.5);
 }
-document.getElementById('btn-today').addEventListener('click',scrollTodayLeft);
+document.getElementById('btn-today').addEventListener('click',scrollToToday);
+
+/* B3: Go to date — reached by G, a month-name click, or the ? legend (§6 three paths).
+   Reuses the .tb-menu machinery, so one-at-a-time, outside click and Escape all hold. */
+function gotoDate(iso){
+  if(!iso)return;
+  centerDate(parseDate(iso));
+  closeMenus();
+}
+function openGotoPop(iso,clientX){
+  closeMenus();
+  const m=document.getElementById('goto-menu');
+  let left=0;
+  if(clientX!=null){ /* month-name path: drop the popover under the click, clamped on-screen */
+    const w=m.parentElement.getBoundingClientRect();
+    left=Math.max(0,Math.min(clientX-w.left-136,document.documentElement.clientWidth-w.left-280));
+  }
+  m.style.left=left+'px';
+  const inp=document.getElementById('goto-date');
+  inp.value=iso||fmtDate(today());
+  m.classList.remove('hidden');
+  inp.focus();
+}
+document.getElementById('goto-menu').addEventListener('click',ev=>ev.stopPropagation());
+document.getElementById('goto-date').addEventListener('keydown',ev=>{
+  if(ev.key==='Enter'){ev.preventDefault();gotoDate(ev.target.value);}
+});
+for(const b of document.querySelectorAll('#goto-menu [data-goto]'))b.addEventListener('click',()=>{
+  const kind=b.dataset.goto,d=today();
+  if(kind==='install'){
+    const nx=visTasks().filter(t=>isInstall(t)&&parseDate(t.startDate)>=d)
+      .sort((a,c)=>a.startDate<c.startDate?-1:1)[0];
+    if(!nx){toast('No upcoming install on the timeline.','err');return;}
+    gotoDate(nx.startDate);return;
+  }
+  if(kind==='m1')d.setMonth(d.getMonth()+1);
+  else if(kind==='m3')d.setMonth(d.getMonth()+3);
+  gotoDate(fmtDate(d));
+});
 const tintBtn=document.getElementById('t-tint');
 tintBtn.classList.toggle('on',TINT);
 tintBtn.addEventListener('click',()=>{
@@ -6870,7 +6934,10 @@ function buildLegend(){
     +row('<span class="lg-mk"><span class="today-line" style="left:8px;width:56px;height:100%"><span class="today-tag">TODAY</span></span></span>',
       'Today — the strongest line on the canvas')
     +row('<span class="lg-mk"><span class="dl-flag" style="left:14px;height:100%;color:'+hue+'"></span></span>',
-      'Deadline — pennant and dotted drop-line');
+      'Deadline — pennant and dotted drop-line')
+    +'<div class="lg-sec">Navigate</div>'
+    +'<button id="lg-goto" class="sm-all" title="Jump the timeline to any date — also on G or a month-name click">Go to date… <span class="gp-key">G</span></button>';
+  document.getElementById('lg-goto').addEventListener('click',()=>openGotoPop());
 }
 
 /* Toolbar dropdowns — one open at a time, close on outside click or Esc */
