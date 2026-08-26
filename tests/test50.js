@@ -159,22 +159,32 @@ function stage3(){
     ok('the new bar is visibly named', /Subtask 2/.test(host.textContent));
     ok('its department expanded to show it', qa('#npv-body .npv-row.child').length>0);
 
-    sec('clicking a draft bar opens its editor (inspector cannot hold drafts)');
+    const CONV=/ppDraftResolve/.test(src); /* REV82: the popover retired — the inspector serves drafts */
+    sec(CONV?'clicking a draft bar selects into the shared inspector (REV82)'
+            :'clicking a draft bar opens its editor (inspector cannot hold drafts)');
     const kid=q('#npv-body .npv-bar.kid')||qa('#npv-body .npv-bar:not(.sum)')[0];
     kid.dispatchEvent(new win.MouseEvent('mousedown',{bubbles:true,clientX:300,clientY:20,button:0}));
     doc.dispatchEvent(new win.MouseEvent('mouseup',{bubbles:true,clientX:300,clientY:20}));
     setTimeout(()=>{
-      ok('the bar editor opened', !!doc.getElementById('bar-pop'));
-      ok('it has a name field', !!doc.getElementById('bp-name'));
-      /* REV61 made draft popover dates editable (they commit like a drag would);
-         pre-REV61 builds keep the read-only assertion. */
-      if(/ppPopDate/.test(src))
-        ok('draft dates are editable (REV61)',
-           (()=>{const s=doc.getElementById('bp-s');return s&&!s.readOnly;})());
-      else
-        ok('draft dates are read-only, as the note says',
-           (()=>{const s=doc.getElementById('bp-s');return s&&s.readOnly;})());
-      E('ppClosePop();');
+      if(CONV){
+        ok('the phase inspector opened', !!doc.getElementById('ins-name'));
+        ok('no popover — it was retired', !doc.getElementById('bar-pop'));
+        ok('draft dates are editable in the panel',
+           (()=>{const s=q('#pp-insp [data-f="startDate"]');return !!s&&!s.readOnly&&!s.disabled;})());
+        E('ppSelect(null,true);');
+      }else{
+        ok('the bar editor opened', !!doc.getElementById('bar-pop'));
+        ok('it has a name field', !!doc.getElementById('bp-name'));
+        /* REV61 made draft popover dates editable (they commit like a drag would);
+           pre-REV61 builds keep the read-only assertion. */
+        if(/ppPopDate/.test(src))
+          ok('draft dates are editable (REV61)',
+             (()=>{const s=doc.getElementById('bp-s');return s&&!s.readOnly;})());
+        else
+          ok('draft dates are read-only, as the note says',
+             (()=>{const s=doc.getElementById('bp-s');return s&&s.readOnly;})());
+        E('ppClosePop();');
+      }
 
       sec('right-click a draft bar');
       const bar=qa('#npv-body .npv-bar:not(.sum)')[0];

@@ -50,13 +50,43 @@ setTimeout(()=>{
   setTimeout(draftStage,900);
 },1300);
 
+const CONV=/ppDraftResolve/.test(src); /* REV82: the popover retired — the inspector serves drafts */
 function draftStage(){
-  sec('Draft popover (left-click on a draft bar)');
+  sec(CONV?'Draft left-click selects into the shared inspector (REV82)'
+          :'Draft popover (left-click on a draft bar)');
   const bar=qa('#npv-body .npv-bar:not(.sum)')[0];
   ok('a draft bar exists to click',!!bar);
   bar.dispatchEvent(new win.MouseEvent('mousedown',{bubbles:true,clientX:300,clientY:20,button:0}));
   doc.dispatchEvent(new win.MouseEvent('mouseup',{bubbles:true,clientX:300,clientY:20}));
   setTimeout(()=>{
+    if(CONV){
+      ok('the phase inspector opened',!!doc.getElementById('ins-name'));
+      ok('no popover — retired in the convergence',!doc.getElementById('bar-pop'));
+      const whoEl=doc.getElementById('ins-crew');
+      ok('Who is a crew checkbox list, not free text',
+         !!whoEl&&!!whoEl.querySelector('input[type="checkbox"]'));
+      ok('the picker is fed by the people list',
+         !!whoEl&&[...whoEl.querySelectorAll('input')].some(i=>i.value==='Alice A.'));
+      const row3=q('#pp-insp .ins-row3');
+      ok('Who sits on its own line above the dates row',
+         !!whoEl&&!!row3&&!!(whoEl.compareDocumentPosition(row3)&win.Node.DOCUMENT_POSITION_FOLLOWING));
+
+      sec('Draft dates are editable and commit like a drag');
+      const s=q('#pp-insp [data-f="startDate"]');
+      ok('Start is editable',!!s&&!s.readOnly&&!s.disabled);
+      const key=E('npvKey(ppSelected())');
+      s.value='2026-08-09'; /* a Sunday — must snap forward to Monday the 10th */
+      change(s);
+      setTimeout(()=>{
+        const m=E('NPV_MANUAL['+JSON.stringify(key)+']');
+        ok('the edit landed in the manual overlay',!!m,JSON.stringify(m));
+        ok('the date snapped to a workday',m&&m.startDate==='2026-08-10',m&&m.startDate);
+        ok('the bar stays selected after the commit (no popover to close)',
+           !!E('ppSelected()'));
+        savedStage(); /* the popover scroll rules died with the popover */
+      },400);
+      return;
+    }
     const pop=doc.getElementById('bar-pop');
     ok('the popover opened',!!pop);
     ok('the add buttons are gone (right-click owns creation)',

@@ -345,8 +345,12 @@ until this list is done (or the owner trims it). Grouped by surface;
       (`docs/Milestones/2026-08-26-parity-quick-wins.md`): I8 bug fixed, I13
       leak hygiene, I14 working Pin + refusal toasts, D7 Draft pill, D8
       Automatic-status option, D9 edit-debounced stash, tooltip crew name.
-      **Still open:** the inspector convergence (D1–D4, L1/L3/L4, I1–I7,
-      I9–I12 — one build), and the §4 click-behavior rows (owner: after).
+      **The inspector convergence shipped as REV82** the same day
+      (`docs/Milestones/2026-08-26-inspector-convergence.md`): draft selection
+      is real, the popover is retired, the shared bottom inspector serves both
+      pages, all selection verbs + Link + ⌘Z work on drafts, saved reorder
+      persists, and the saved page's silently-broken Notes field now saves.
+      **Still open:** the §4 click-behavior rows (owner: address after).
 
 **Global project view (main timeline):**
 
@@ -496,6 +500,14 @@ own "only if it proves needed" gates.
 - [ ] The phase-inspector Pin checkbox (REV81, I14) uses the unicode 📌 — same U6
       ceiling as the Pin-dates modal; swap together when that modal is next
       touched. (2026-08-26)
+- [ ] The Department dropdown is disabled on drafts (REV82) — moving a phase
+      between departments is a saved-page concept; on a draft, departments are the
+      checklist. Gate: someone actually wanting to re-department a draft subtask.
+      (2026-08-26)
+- [ ] A draft's selection key for an unsplit bar ("d:dept") falls back to the
+      department's first bar if an edit splits the department mid-selection —
+      benign today (it IS the same bar); revisit only if re-parenting ever lands.
+      (REV82)
 
 **Deliberate design ceilings — no action planned, revisit only on real complaints:**
 12-slot palette repeats at 13+ visible projects (T2); quiet re-selection after a committed

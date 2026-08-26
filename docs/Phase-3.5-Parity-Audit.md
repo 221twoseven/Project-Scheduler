@@ -31,8 +31,10 @@ owner picks from this list.
 
 **Shipped so far:** I8, I13, I14, D7+D9, D8, and the keep-pile tooltip crew name
 landed 2026-08-26 as **REV81** (`docs/Milestones/2026-08-26-parity-quick-wins.md`).
-The remaining accepted rows (D1–D4, L1/L3/L4, I1–I7, I9–I12) are the **inspector
-convergence** — one coherent build, next slice.
+**The inspector convergence (D1–D4, L1/L3/L4, I1–I7, I9–I12) shipped the same day as
+REV82** (`docs/Milestones/2026-08-26-inspector-convergence.md`) — draft selection is
+real, the popover is retired, the shared inspector serves both pages. Of the whole
+audit, only the **§4 click-behavior rows** remain (owner: address after).
 
 ## How to read these tables
 
