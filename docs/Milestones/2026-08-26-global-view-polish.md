@@ -5,7 +5,8 @@
 ([PR #23](https://github.com/221twoseven/Project-Scheduler/pull/23)). Four
 main-timeline items, plus the New Project ↔ Project Edit **parity audit** the same
 review asked for (`docs/Phase-3.5-Parity-Audit.md` — diff list delivered, fixes
-await the owner's picks). PR: pending.
+await the owner's picks). PR:
+[#24](https://github.com/221twoseven/Project-Scheduler/pull/24).
 
 **What changed (REV80):**
 
