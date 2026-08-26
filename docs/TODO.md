@@ -11,6 +11,7 @@ Sequencing decisions (2026-08-19):
   feature; the hallway test is more useful once it exists. (This supersedes the U8 record's
   "hallway test before promotion" ordering.)
 - **UX Phases 3 and 4 are ON HOLD** until the higher-priority items in §3 ship (see §6).
+  *(Hold lifted: Phase 3 shipped 2026-08-25/26 as REV75–79; Phase 4 rescoped in §6.)*
 - `docs/UX-Audit-and-Strategy.md` is a **strategy summary, not a to-do list** — it stays
   as-is; this file is where actionable state lives.
 
@@ -307,28 +308,28 @@ In order:
 - [ ] Any schema change must be checked against the colleague app before shipping.
 - (`ShopTimeline_Tasks2` existence check lives in §1.)
 
-## 6. ON HOLD — UX Phases 3 & 4
+## 6. UX Phase 4 — learnability layer (rescoped 2026-08-26)
 
-On hold until the higher-priority edits in §3 ship. The gap between Phases 2 and 3 is
-now recorded as **Phase 2.5** (see §10). Phase 3 has only the strategy-doc summary so
-far — **it still needs task briefs from the owner** (the Phase 1/2 pattern:
-`docs/Phase-N-Task-Briefs.md`). Scope lives in `docs/UX-Audit-and-Strategy.md` (kept
-as the strategy reference — not a to-do doc):
+**Phase 3 is COMPLETE** (2026-08-25/26, REV75–79, briefs V1–V4 of the owner's
+`Phase-3-Task-Briefs.md`): B3 zoom steps + jump-to-date, B5 three density levels +
+group collapse, B6 named saved views. Record:
+`docs/Milestones/2026-08-26-phase-3-navigation-at-scale.md`; deferrals in §7.
 
-- **Phase 3 — navigation at scale:** B3 zoom + jump-to-date, B5 compact density,
-  B6 saved views. Per the Phase 2 brief: B3/B5 if PMs still report navigation pain
-  after the hallway test; B6 if they don't. **B3's zoom half shipped 2026-08-25 as
-  REV75** (four steps Day 40 / 2-Day 20 / Week 14 / Month 5 px-per-day, `+`/`−`
-  keys, step persisted — see `docs/Milestones/Phase 3/2026-08-25-b3-zoom-steps.md`);
-  **the jump-to-date half shipped 2026-08-25 as REV76** (Go to date popover via `G` /
-  month-name click / `?` legend, Today button centers —
-  `docs/Milestones/Phase 3/2026-08-25-b3-jump-to-date.md`, PR #17 awaiting owner
-  merge). (The person filter — ex-"Dash view" — overlaps Phase 3 but is pulled
-  forward into §3 as feature work.)
-- **Phase 4 — learnability layer:** first-run hint bar, `?` shortcuts sheet,
-  sample-project onboarding. Deliberately last. **Coach marks (N14) pulled forward
-  and shipped 2026-08-25 as REV74** — the first-run hint bar is likely redundant now;
-  reassess the rest of Phase 4 against the tour before briefing it.
+**Phase 4 is what remains**, rescoped at the phase-3 close against the fact that
+**coach marks (N14) shipped early as REV74** (strategy doc §5 has the reasoning;
+this is the actionable list — small enough for one session, needs an owner brief
+or go-ahead):
+
+- [ ] **Drop the first-run hint bar** (recommend) — redundant with the REV74 tour;
+      decision is the owner's, no code either way until then.
+- [ ] **`?` shortcuts sheet on the main timeline** (A2) — the project page has one,
+      the main timeline doesn't.
+- [ ] **Sample-project onboarding** (A5) — one-click "Add a sample project" running
+      the existing `seed()` through the normal create path (localStorage-only,
+      clearly marked, deletable); empty-state card always renders when no projects
+      are visible.
+- [ ] **Hover affordances** — A2's remaining sliver: a faint context-menu cue on
+      bars so right-click is discoverable without the tour.
 
 ## 7. Deferred & skipped ledger (moves not made — rationale, blocker, later decision)
 
