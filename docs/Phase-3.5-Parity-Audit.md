@@ -8,6 +8,22 @@ This is the **diff list** — the first deliverable of the Phase 3.5 parity item
 (`docs/TODO.md` §6). No code has been changed yet; convergence fixes follow once the
 owner picks from this list.
 
+## Owner decisions — 2026-08-26
+
+- **Accepted as recommended:** D1–D6, L1–L4, I1–I7, I9–I12. **I8: fix the bug.**
+- **D7 — new direction:** use the empty footer status-pill slot on drafts to show
+  **"Draft"** — the wanted is-this-real indicator. Candidate wording folds in D9's
+  feedback ask: "Draft — kept in this tab."
+- **Explained, awaiting the owner's pick:** D8 (option: first dropdown entry becomes
+  "Automatic (currently: …)" so stored-vs-computed is visible), D9 (store exists and
+  is stashed; the gap is user feedback → D7, plus whether the stash should move to
+  localStorage on a keystroke debounce to survive crashes), D10 (the hand-placed
+  marker is draft-meaningful only — "keep deliberate" is defensible; the saved-page
+  counterpart worth having is a *pinned* marker, see I14), I13 (fix = clear draft
+  state on entry to any project page), I14 (fix shape: Pin checkbox in the phase
+  inspector + a "pinned — unpin to move" toast), I15 (keep — N2 design).
+- **Click behavior (§4): deferred** — to be addressed after the above.
+
 ## How to read these tables
 
 Each row is one difference. The **Recommendation** column says what should happen to
