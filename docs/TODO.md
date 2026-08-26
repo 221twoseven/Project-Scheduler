@@ -286,6 +286,10 @@ In order:
       calendar parity, deferred polish) to production. Owner merged via ruleset bypass.
 - [x] **Backfill the "PR link: pending" lines** — done 2026-08-20: all five Phase 2
       records and the five REV53–57 records now link PR #15.
+- [ ] **Promote `development` → `main` (Phase 3):**
+      [#23](https://github.com/221twoseven/Project-Scheduler/pull/23) carries
+      REV74–79 — open, awaiting owner merge. **Hold (2026-08-26): the owner's
+      review notes land first as Phase 3.5 (§6)** and ride the same PR.
 
 ## 5. Data / schema (⚠ all need approval — shared Lists)
 
@@ -308,14 +312,88 @@ In order:
 - [ ] Any schema change must be checked against the colleague app before shipping.
 - (`ShopTimeline_Tasks2` existence check lives in §1.)
 
-## 6. UX Phase 4 — learnability layer (rescoped 2026-08-26)
+## 6. UX Phase 3.5 & Phase 4
 
 **Phase 3 is COMPLETE** (2026-08-25/26, REV75–79, briefs V1–V4 of the owner's
 `Phase-3-Task-Briefs.md`): B3 zoom steps + jump-to-date, B5 three density levels +
 group collapse, B6 named saved views. Record:
 `docs/Milestones/2026-08-26-phase-3-navigation-at-scale.md`; deferrals in §7.
+Promotion to `main` is open as
+[PR #23](https://github.com/221twoseven/Project-Scheduler/pull/23) — **held for
+Phase 3.5 below** (see §4).
 
-**Phase 4 is what remains**, rescoped at the phase-3 close against the fact that
+### Phase 3.5 — owner review adjustments (2026-08-26, before the PR #23 merge)
+
+The owner's review of the REV79 build (2026-08-26) produced this punch list. It
+lands on `development` ahead of the promotion merge — new commits ride the same
+PR, so [#23](https://github.com/221twoseven/Project-Scheduler/pull/23) waits
+until this list is done (or the owner trims it). Grouped by surface;
+`[decision]` items need the owner's call before code.
+
+**New Project ↔ Project Edit parity:**
+
+- [ ] **Audit: the New Project window and Project Edit window should match.**
+      Find and list every difference in display/render, layout, interactivity,
+      and click behavior — the diff list is the first deliverable, convergence
+      fixes follow from it. Confirmed keeper (the "keep pile"): the hover
+      tooltip showing Phase + Subtask info — **add the team member name** to it.
+
+**Global project view (main timeline):**
+
+- [ ] **Scroll wheel over the project sidebar** — the wheel only scrolls with
+      the mouse over the Gantt; it should also work over the sidebar.
+- [ ] **Date bar drag-to-pan** — click-and-drag on the number-date row (below
+      the month bar) moves the timeline left/right.
+- [ ] **Today button padding** — add padding to its left; it currently sits
+      against the screen edge.
+- [ ] **White text on Gantt header bars** — black project text is difficult to
+      read on colored bars. Make all bar text white and adjust bar colors for
+      contrast as needed (supersedes the C4 luminance-computed label color on
+      these bars).
+- [ ] **Toolbar clarity** — two toolbars with competing/mixed function
+      categories: view styles (color: Project/Team · vertical scale:
+      Comfortable/Snug/Compact · horizontal scale: Day/2-Day/Week/Month), data
+      filters (search, status, person), and actions (Dashboard, Print, New
+      Project, Help, Today, and now saved Views). "There has to be a better way
+      of organizing and grouping these buttons and controls" — a grouping
+      design pass first, then implement.
+
+**Calendar view:**
+
+- [ ] **Default view collapses each phase** (subtasks hidden); left-click opens
+      the Phase Edit form at the bottom of the screen and brings the subtasks
+      into view.
+- [ ] **Drag-resize live feedback** — the full-day snap is intended and stays,
+      but the drag should visibly follow the mouse so the user can see that
+      resizing is working.
+
+**Project Edit / New Project pages:**
+
+- [ ] **Coach marks / help tour on Project Edit and New Project** — extend the
+      REV74 tour to these views. `[decision]` are they one view or two for
+      tour purposes? (Feeds the parity audit above.)
+- [ ] **Coach-mark copy: remove "Nothing else is red."** The red-means-install
+      rule stays, but other red graphic elements exist throughout the site, so
+      the claim invites confusion.
+- [ ] **Move the nav breadcrumb to its own bar**, separated from the project
+      summary bar (client, job, install, etc.).
+- [ ] `[decision]` **Fourth exit?** Current exits from project views: Esc,
+      Done, breadcrumb. Add an × in the top-right corner?
+
+**Completion flow:**
+
+- [ ] **Manual "complete" button in project edit** — clears the "late"
+      messages, greys out everything under that event, but leaves it on the
+      timeline. ⚠ check: a completed flag/status must persist — verify the
+      storage shape against the colleague app before shipping.
+- [ ] **PM late-project prompt** — when a PM opens the app (identity
+      authenticated), projects whose install dates have passed (reading
+      "late") with a Project Manager assignment matching the signed-in user
+      prompt that PM to confirm each project has ended or been extended.
+
+### Phase 4 — learnability layer (rescoped 2026-08-26)
+
+**Phase 4 is what remains after 3.5**, rescoped at the phase-3 close against the fact that
 **coach marks (N14) shipped early as REV74** (strategy doc §5 has the reasoning;
 this is the actionable list — small enough for one session, needs an owner brief
 or go-ahead):

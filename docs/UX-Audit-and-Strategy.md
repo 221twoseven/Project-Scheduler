@@ -202,6 +202,17 @@ still report navigation pain, B6 if they don't") never ran — the round was ski
 phase was per-browser localStorage: zero SharePoint schema or auth exposure. Deferrals
 are ledgered in `docs/TODO.md` §7.
 
+### Phase 3.5 — owner review adjustments (opened 2026-08-26)
+
+Not part of this plan's original phases: the owner's review of the REV79 build
+produced a punch list — New Project ↔ Project Edit window parity, sidebar scroll
+wheel, date-bar drag-to-pan, Today-button padding, a toolbar regrouping pass,
+calendar phase-collapse and resize feedback, coach-mark extension and copy fixes,
+breadcrumb placement, and a project-completion flow (manual "complete" button +
+a PM late-project prompt). Actionable state lives in `docs/TODO.md` §6
+(Phase 3.5); it ships on `development` ahead of the Phase 3 promotion merge
+(PR #23).
+
 ### Phase 4 — Learnability layer (rescoped 2026-08-26, deliberately last)
 
 As originally written: first-run hint bar + `?` shortcuts sheet on the timeline (A2);
