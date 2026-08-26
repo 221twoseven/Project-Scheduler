@@ -12,7 +12,7 @@ function boot(file,opts){
   const dom=new JSDOM(html,{
     runScripts:'dangerously',
     pretendToBeVisual:true,
-    url:'https://example.github.io/shop-timeline/',
+    url:opts.url||'https://example.github.io/shop-timeline/',
     beforeParse(win){
       const f=makeFetch(opts.data||{projects:[],tasks:[],todos:[]},opts);
       win.fetch=f;
@@ -26,6 +26,8 @@ function boot(file,opts){
       /* REV74: the first-run coach-mark tour would otherwise auto-open inside every
          suite and swallow keyboard events. Suites that test it pass coachFirstRun. */
       if(!opts.coachFirstRun)win.localStorage.setItem('shopTimelineCoachSeen','1');
+      /* V4: suites can pre-seed localStorage to test what a reload picks up */
+      if(opts.localStorage)for(const k in opts.localStorage)win.localStorage.setItem(k,opts.localStorage[k]);
     }
   });
   return dom;
