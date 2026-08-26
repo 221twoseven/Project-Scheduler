@@ -320,17 +320,27 @@ as the strategy reference — not a to-do doc):
   after the hallway test; B6 if they don't. **B3's zoom half shipped 2026-08-25 as
   REV75** (four steps Day 40 / 2-Day 20 / Week 14 / Month 5 px-per-day, `+`/`−`
   keys, step persisted — see `docs/Milestones/Phase 3/2026-08-25-b3-zoom-steps.md`);
-  the jump-to-date half is still open. (The person filter — ex-"Dash view" —
-  overlaps Phase 3 but is pulled forward into §3 as feature work.)
+  **the jump-to-date half shipped 2026-08-25 as REV76** (Go to date popover via `G` /
+  month-name click / `?` legend, Today button centers —
+  `docs/Milestones/Phase 3/2026-08-25-b3-jump-to-date.md`, PR #17 awaiting owner
+  merge). (The person filter — ex-"Dash view" — overlaps Phase 3 but is pulled
+  forward into §3 as feature work.)
 - **Phase 4 — learnability layer:** first-run hint bar, `?` shortcuts sheet,
   sample-project onboarding. Deliberately last. **Coach marks (N14) pulled forward
   and shipped 2026-08-25 as REV74** — the first-run hint bar is likely redundant now;
   reassess the rest of Phase 4 against the tour before briefing it.
 
-## 7. Deferred polish (ceilings from Phases 1–2 — batch into a later polish pass)
+## 7. Deferred & skipped ledger (moves not made — rationale, blocker, later decision)
 
-None are bugs; none block users. Full context in `docs/Milestones/Phase 1/` and
-`Phase 2/` records. The four unconditional items shipped 2026-08-25 as **REV73**
+The running record of moves deliberately skipped or deferred. Each entry keeps its
+**rationale** (why not now), its **blocker or gate** (what would change the answer),
+and — once one lands — the **later decision**, updated in place with a date/REV, never
+deleted (the `[x] … — REV73` entries below are the pattern). Per-change context lives
+in each `docs/Milestones/` record's "Known ceilings / follow-ups" section; this
+section is the aggregate. Process-level skips (e.g. hallway round 2) are recorded
+where they were decided (§4/§6). None of these are bugs; none block users.
+
+**Phases 1–2** — the four unconditional items shipped 2026-08-25 as **REV73**
 (`docs/Milestones/2026-08-25-deferred-polish-pass.md`); the rest keep their
 own "only if it proves needed" gates.
 
@@ -349,12 +359,26 @@ own "only if it proves needed" gates.
 - [ ] Persistent error banner with explicit close, if the ~5s toast auto-dismiss still
       proves too fleeting after U7's docking (carried from T7).
 
+**Phase 3:**
+
+- [ ] Jump memory — persisting the last-jumped date or a recent-dates list in the Go
+      to date popover. Skipped in REV76 (B3b): not in the brief, no observed need;
+      the quick picks cover the known destinations. Gate: PMs asking the timeline to
+      remember where they jump. (2026-08-25)
+- [ ] On very narrow windows the go-to-date popover, opened from a month-name click,
+      can sit left of the pointer (it clamps on-screen). Cosmetic; refine the anchor
+      math only if someone trips on it. (REV76)
+- [ ] Very short projects (< ~2 weeks) render pill-only at Week zoom — intended per
+      Design-Language §7 anatomy thresholds (px constants `BAR_W_*`). Gate: real
+      complaints about lost labels. (REV75)
+
 **Deliberate design ceilings — no action planned, revisit only on real complaints:**
 12-slot palette repeats at 13+ visible projects (T2); quiet re-selection after a committed
 project-page resize/move (T4); sidebar names >~26 chars truncate at default width (T5);
 off-screen edge chips don't dim with the search filter (T6); bottom-dock column minimum
 widths are fixed (U2/E1); In-Design and In-Fabrication bars both full-strength on purpose,
-the pill word separates them (U8).
+the pill word separates them (U8); startup parks today left-of-center so the first look
+reads forward into upcoming work — only the Today button and `T` center (B3b, REV76).
 
 ## 8. Documentation upkeep
 
