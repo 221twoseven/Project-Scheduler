@@ -33,8 +33,18 @@ owner picks from this list.
 landed 2026-08-26 as **REV81** (`docs/Milestones/2026-08-26-parity-quick-wins.md`).
 **The inspector convergence (D1–D4, L1/L3/L4, I1–I7, I9–I12) shipped the same day as
 REV82** (`docs/Milestones/2026-08-26-inspector-convergence.md`) — draft selection is
-real, the popover is retired, the shared inspector serves both pages. Of the whole
-audit, only the **§4 click-behavior rows** remain (owner: address after).
+real, the popover is retired, the shared inspector serves both pages.
+
+**§4 closeout (verified 2026-08-26, REV83):** every §4 row turned out to be already
+converged by REV81/82 — the rows were symptoms of the same roots the earlier fixes
+hit. Bar click and calendar-band click both route through `ppSelect` into the shared
+inspector (the band goes via the retired popover's shim); the breadcrumb crumb and
+the inspector × were always bound to `ppSelect(null)` and became real when draft
+selection did; the marker click's pane mismatch dissolved when D4 gave drafts the
+scoped "On this phase" pane; Add-a-phase was I8, the Link drag was I5. **The one
+open row is double-click** — unbound on both pages, still the audit's open question
+(candidate: "open editor"), an owner `[decision]`. This closes the audit: everything
+else is shipped, deliberate, or that one decision.
 
 ## How to read these tables
 
