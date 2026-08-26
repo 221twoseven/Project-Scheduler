@@ -21,6 +21,9 @@
   --fs-title:15px; --fs-body:13px; --fs-label:11.5px; --fs-fine:11px; --fs-micro:9px;
   --row-h:44px; /* Comfortable row height — §4 */
 }
+/* B5 density: Compact rows (§4). The token drives real geometry — the JS lane math
+   (rowH) mirrors it at both values; tests/test46.js asserts they stay in step. */
+body.compact{--row-h:32px}
 /* ============ RESET ============ */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;overflow:hidden;font-family:var(--sans);font-size:var(--fs-body);color:var(--txt);background:var(--paper)}
@@ -156,6 +159,11 @@ body.me-dock-on #me-dock{display:flex;flex-direction:column;position:fixed;left:
 .sb-chip{font-family:var(--mono);font-size:var(--fs-fine);font-weight:600;letter-spacing:.03em;padding:1.5px 6px;border-radius:8px;flex-shrink:0;line-height:1.5}
 .sb-chip.late{background:#FDE2E2;color:#B91C1C}
 .sb-chip.soon{background:#FCEEC8;color:#8F5E08}
+/* B5 Compact: the T5 two-line row keeps both lines, each single-line, tighter leading */
+body.compact .sb-2l{gap:0}
+body.compact .sb-2l .sb-name{font-size:12px;line-height:1.1}
+body.compact .sb-2l .sb-sub{line-height:1.1}
+body.compact .sb-chip{line-height:1.2;padding:.5px 6px}
 .sb-row.task-row{padding-left:32px;background:#F2F5FA}
 .sb-row.task-row .sb-name{font-weight:450;font-size:12px}
 .sb-row.dept-head{background:#D6DFEB;border-bottom:1px solid #C2CFDF;font-size:var(--fs-fine);font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#57687F;cursor:pointer}
@@ -170,6 +178,8 @@ body.me-dock-on #me-dock{display:flex;flex-direction:column;position:fixed;left:
 .sb-grip{flex-shrink:0;color:#A8B6C8;font-size:11px;cursor:grab;user-select:none;padding:0 1px}
 .sb-grip:hover{color:var(--acc)}
 .sb-chev,.sb-eye,.sb-edit,.sb-grip{display:inline-flex;align-items:center}
+/* §4: interactive targets never drop below 24px — at either density */
+.sb-eye,.sb-edit,.sb-grip{min-width:24px;min-height:24px;justify-content:center}
 .sb-row.drop-before{box-shadow:inset 0 3px 0 var(--acc)}
 #sb-resize{position:absolute;top:0;right:-3px;width:7px;bottom:0;cursor:col-resize;z-index:30}
 #sb-resize:hover{background:rgba(47,111,228,.3)}
@@ -793,7 +803,8 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
 
 /* ============ REV44: SORT GROUP HEADERS ============ */
 .sb-row.grp-head{background:#EDF2F7;border-bottom:1px solid #CBD6E4;border-top:1px solid #CBD6E4;
-  padding-left:12px;gap:8px;cursor:default}
+  padding-left:12px;gap:8px;cursor:pointer}
+.sb-row.grp-head:hover{background:#E4EBF3}
 .sb-row.grp-head .sb-name{font-size:11px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;color:#475569}
 .sb-row.grp-head .sb-count{color:#94A3B8}
 .grp-pill{position:static!important;transform:none!important;font-size:var(--fs-fine);padding:2px 9px}
@@ -1086,6 +1097,7 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
       <div id="settings-menu" class="tb-menu hidden">
         <div class="sm-item" id="mi-people" title="Edit staff names, departments and time off">People &amp; Availability</div>
         <div class="sm-item" id="mi-clients" title="Edit the shared client list and job-code aliases">Clients</div>
+        <div class="sm-item" id="mi-density" title="Row height — Compact fits more of the schedule on one screen">Density: <b id="mi-density-v">Comfortable</b></div>
         <div class="sm-note">Shop Timeline · REV <span id="tb-rev-num"></span></div>
       </div>
     </div>
@@ -1317,13 +1329,24 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_REV=76; // bump this ONE number on every release; used everywhere the rev shows up
+const APP_REV=77; // bump this ONE number on every release; used everywhere the rev shows up
 
 /* ===================== CONSTANTS ===================== */
 const SET_KEY ='shopTimelineSettings_v1';
 const PEOPLE_KEY='shopTimelinePeople_v1';
 const UI_KEY  ='shopTimelineUI_v1';
-const BAR_H=32, BAR_PAD=12, LANE_G=6, HEAD_H=26, HDR_H=64;
+/* B5 density (§4): the JS lane math mirrors --row-h. rowH(1)=BAR_PAD*2+BAR_H must equal
+   the token at both densities — Comfortable 44 (bar 32, gutter 12), Compact 32 (bar 24,
+   gutter 8, still a ≥24px hit target). tests/test46.js guards the drift both ways. */
+let BAR_H=32, BAR_PAD=6, LANE_G=6, DENSITY='comfortable';
+const HEAD_H=26, HDR_H=64;
+function applyDensity(d){
+  DENSITY=d==='compact'?'compact':'comfortable';
+  const c=DENSITY==='compact';
+  BAR_H=c?24:32;BAR_PAD=c?4:6;LANE_G=c?4:6;
+  document.body.classList.toggle('compact',c);
+  const v=document.getElementById('mi-density-v');if(v)v.textContent=c?'Compact':'Comfortable';
+}
 let SIDE_W=300;
 /* B3 / §7 zoom steps, detail → overview. days and weeks keep their original px-per-day
    so those two steps render pixel-identical to every pre-B3 build. */
@@ -1444,6 +1467,7 @@ let TL_S, TL_E;
 let ROWS=[], TOTAL_H=0;
 let EXPANDED=new Set();       // expanded projects (project lens)
 let COLLAPSED=new Set();      // collapsed sections (dept lens)
+let GRP_COLLAPSED={};         // collapsed group headers (project lens), keyed by group mode
 let DRAG=null, SUPPRESS_CLICK=false, DATE_LOCK=false;
 let EDIT_TASK_ID=null, TM_NODES=[];
 
@@ -1678,6 +1702,8 @@ function loadLocalPrefs(){
   }catch(e){PEOPLE=[];}
   rebuildStaff();
   try{const u=localStorage.getItem(UI_KEY);if(u){const ui=JSON.parse(u);COLLAPSED=new Set(ui.collapsedDepts||[]);
+    if(ui.collapsedGroups)GRP_COLLAPSED=Object.fromEntries(Object.entries(ui.collapsedGroups).map(([m,a])=>[m,new Set(a)]));
+    applyDensity(ui.density);
     if(Array.isArray(ui.showStatus)&&ui.showStatus.length)SHOW_STATUS=new Set(ui.showStatus.filter(x=>ALL_STATUSES.includes(x)));
     if(typeof ui.person==='string'&&ui.person)PERSON=ui.person;
     if(ui.lens==='dept'||ui.lens==='project'){LENS=ui.lens;
@@ -2060,7 +2086,9 @@ function saveUI(){
   try{localStorage.setItem('shopTimelineTint',TINT?'1':'0');
     localStorage.setItem('shopTimelineLinkSubs',LINK_SUBS?'1':'0');
     localStorage.setItem('shopTimelineOpenDepts',JSON.stringify([...NPV_OPEN]));
-    localStorage.setItem('shopTimelineGroup',GROUP_BY||'');}catch(e){}localStorage.setItem(UI_KEY,JSON.stringify({collapsedDepts:[...COLLAPSED],colorMode:COLOR_MODE,view:VIEW,sideW:SIDE_W,npvGut:NPV_GUT,showStatus:[...SHOW_STATUS],person:PERSON||'',lens:LENS}));}
+    localStorage.setItem('shopTimelineGroup',GROUP_BY||'');}catch(e){}localStorage.setItem(UI_KEY,JSON.stringify({collapsedDepts:[...COLLAPSED],
+    collapsedGroups:Object.fromEntries(Object.entries(GRP_COLLAPSED).map(([m,s])=>[m,[...s]])),
+    density:DENSITY,colorMode:COLOR_MODE,view:VIEW,sideW:SIDE_W,npvGut:NPV_GUT,showStatus:[...SHOW_STATUS],person:PERSON||'',lens:LENS}));}
 
 /* ===================== SEARCH FILTER ===================== */
 let FILTER='';
@@ -2327,6 +2355,8 @@ function groupLabelOf(k){
   if(GROUP_BY==='status')return STATUS_LBL[k]||k;
   return k;
 }
+/* B5: which group headers are collapsed under the current mode — each mode keeps its own set */
+function grpSet(){return GRP_COLLAPSED[GROUP_BY]||(GRP_COLLAPSED[GROUP_BY]=new Set());}
 document.getElementById('sort-deadline').addEventListener('click',()=>sortProjectsBy((a,b)=>String(a.deadline||'9999').localeCompare(String(b.deadline||'9999')),'due date',null));
 document.getElementById('sort-client').addEventListener('click',()=>sortProjectsBy((a,b)=>String(a.client||'').localeCompare(String(b.client||''))||String(a.deadline||'9999').localeCompare(String(b.deadline||'9999')),'client','client'));
 document.getElementById('sort-pm').addEventListener('click',()=>sortProjectsBy((a,b)=>String(roleList(a.projectManager)[0]||'').localeCompare(String(roleList(b.projectManager)[0]||''))||String(a.deadline||'9999').localeCompare(String(b.deadline||'9999')),'project manager','pm'));
@@ -2375,6 +2405,7 @@ function buildRows(){
             count:projs.filter(x=>groupKeyOf(x)===k).length,
             st:GROUP_BY==='status'?k:null});
         }
+        if(grpSet().has(k))continue; /* B5: collapsed group — header stays, rows drop */
       }
       rows.push({kind:'projHead',key:'P'+p.id,projectId:p.id,lanes:1});
       if(EXPANDED.has(p.id))
@@ -2575,10 +2606,15 @@ function renderSidebar(){
       }
     }else if(r.kind==='groupHead'){
       row.className='sb-row grp-head';
+      const ch=document.createElement('span');ch.className='sb-chev'+(grpSet().has(r.groupKey)?'':' open');ch.innerHTML=ICO.chev;row.appendChild(ch);
       if(r.st){const pl=document.createElement('span');pl.className='sum-pill grp-pill';
         pl.dataset.st=r.st;pl.textContent=r.label;row.appendChild(pl);}
       else{const nm=document.createElement('span');nm.className='sb-name';nm.textContent=r.label;row.appendChild(nm);}
       const ct=document.createElement('span');ct.className='sb-count';ct.textContent=r.count;row.appendChild(ct);
+      row.addEventListener('click',()=>{
+        const s=grpSet();if(s.has(r.groupKey))s.delete(r.groupKey);else s.add(r.groupKey);
+        saveUI();render();
+      });
     }else if(r.kind==='deptHead'){
       row.className='sb-row dept-head';
       const ch=document.createElement('span');ch.className='sb-chev'+(COLLAPSED.has(r.secId)?'':' open');ch.innerHTML=ICO.chev;row.appendChild(ch);
@@ -6995,6 +7031,11 @@ document.getElementById('btn-dash').addEventListener('click',ev=>{
 document.getElementById('dash-menu').addEventListener('click',ev=>ev.stopPropagation());
 wireMenu('btn-print','print-menu');
 wireMenu('btn-settings','settings-menu');
+/* B5: the density toggle — geometry follows --row-h, persisted like every other UI pref */
+document.getElementById('mi-density').addEventListener('click',()=>{
+  applyDensity(DENSITY==='compact'?'comfortable':'compact');
+  saveUI();render();
+});
 wireMenu('btn-legend','legend-menu');
 buildLegend();
 
