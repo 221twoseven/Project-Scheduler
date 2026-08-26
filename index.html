@@ -35,6 +35,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);font-size:var(--fs
 #toolbar{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;flex-direction:column;background:linear-gradient(180deg,var(--ink-2),var(--ink));border-bottom:1px solid #000;box-shadow:0 2px 12px rgba(4,10,20,.45)}
 .tb-row{display:flex;align-items:center;flex-wrap:wrap;gap:8px;row-gap:4px;padding:4px 12px 4px 0;min-height:46px}
 .tb-row>*{flex-shrink:0}
+.tb-row.tb-timeline{padding-left:12px} /* 3.5: Today shouldn't sit against the screen edge */
 .tb-global{border-bottom:1px solid var(--chrome-line)}
 .tb-spacer{flex:1 1 auto;min-width:0}
 .t-brand{display:flex;align-items:center;gap:9px;align-self:stretch;padding:0 16px;border-right:1px solid var(--chrome-line);margin-right:4px;user-select:none;min-height:40px}
@@ -138,7 +139,7 @@ body.me-dock-on #me-dock{display:flex;flex-direction:column;position:fixed;left:
 #side-rows{flex:1;overflow:hidden;min-height:0}
 #gantt-area{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
 #hdr-wrap{height:64px;overflow:hidden;flex-shrink:0;box-shadow:0 3px 8px rgba(15,30,55,.12);z-index:5}
-#gantt-hdr{height:64px;position:relative}
+#gantt-hdr{height:64px;position:relative;cursor:grab} /* 3.5: the date bar drags to pan */
 #gantt-scroll{flex:1;overflow:auto;min-height:0;scrollbar-width:thin;scrollbar-color:#B9C7D9 transparent}
 #gantt-scroll::-webkit-scrollbar{width:10px;height:10px}
 #gantt-scroll::-webkit-scrollbar-thumb{background:#B9C7D9;border-radius:6px;border:2px solid var(--paper)}
@@ -1342,7 +1343,7 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_REV=79; // bump this ONE number on every release; used everywhere the rev shows up
+const APP_REV=80; // bump this ONE number on every release; used everywhere the rev shows up
 
 /* ===================== CONSTANTS ===================== */
 const SET_KEY ='shopTimelineSettings_v1';
@@ -1428,11 +1429,13 @@ const SECTIONS=[
 ];
 
 const MONTH_HSL=[[214,40,57],[265,36,59],[145,40,46],[177,43,44],[25,66,54],[44,68,49],[11,60,57],[338,50,57],[79,36,43],[34,60,47],[208,26,51],[240,40,53]];
-/* Identity palette, Design-Language §2.2 — 12 slots, hues ≥25° apart, each passes
-   labelColor() at 4.5:1 (tests/test-contrast.js). Slot 08 is #567693, not the doc's
-   #5B7C99: that hex is the mid-luminance dead zone §2.3 itself corrects. */
-const PCOLS=['#3B7FD6','#E27035','#2D9C56','#9050C3','#1AA59C','#C09018','#C04485',
-             '#567693','#7A5AE0','#3D8FA8','#A8642C','#6B8F3C'];
+/* Identity palette, Design-Language §2.2 — 12 slots, hues ≥25° apart. Every slot sits
+   below the luminance where labelColor() would flip to ink, so bar text is always WHITE
+   at ≥4.5:1 (owner rule, Phase 3.5 — light slots darkened, hues kept; guarded by
+   tests/test-contrast.js). Slot 08 is #567693, not the doc's old #5B7C99: that hex is
+   the mid-luminance dead zone §2.3 itself corrects. */
+const PCOLS=['#2B73CF','#BE531B','#268449','#9050C3','#148079','#936E12','#C04485',
+             '#567693','#7A5AE0','#357C92','#A8642C','#5E7D34'];
 /* Red is reserved exclusively for installations */
 const INSTALL_RED='#CE4242';
 function isInstall(t){return t.department==='install';}
@@ -1454,7 +1457,7 @@ function phaseLabel(t){
 }
 function assigneeText(t){return crewOf(t).join(', ')||(isInstall(t)?'Crew TBD':'');}
 /* Stable identity colors per department for "Team" color mode */
-const DEPT_COLORS={pm:'#567693',vinyl:'#E0518C',othunit7:'#8E9BB0',td:'#9050C3',othoffice:'#8A98AE',print:'#C04485',cnc:'#E27035',beamsaw:'#C09018','3dprint':'#2D9C56',laser:'#CE4242',other:'#7A8BA3',fab:'#3B7FD6',metal:'#8B5E3C',softgoods:'#C75D8A',electrical:'#D9A21B',othshop:'#93A08F',prefinish:'#3FA9BC',finish:'#1AA59C',othfinish:'#9AA6B5',install:'#5A5DEC'};
+const DEPT_COLORS={pm:'#567693',vinyl:'#D92871',othunit7:'#647590',td:'#9050C3',othoffice:'#637590',print:'#C04485',cnc:'#BE531B',beamsaw:'#936E12','3dprint':'#268449',laser:'#CE4242',other:'#63758F',fab:'#2B73CF',metal:'#8B5E3C',softgoods:'#C0487B',electrical:'#876511',othshop:'#6A7866',prefinish:'#2F7E8C',finish:'#148079',othfinish:'#657589',install:'#5A5DEC'};
 const TN_TARGETS=['Client Approval','Shop Drawings',...DEPTS.filter(d=>d.id!=='pm').map(d=>d.name)];
 
 /* ===================== STATE ===================== */
@@ -2263,17 +2266,17 @@ function _projSlots(){
 function projColor(pid){
   const m=_projSlots();
   if(m.has(pid))return PCOLS[m.get(pid)];
-  return projById(pid)?PCOLS[hashSlot(pid)]:'#9CA3AF';
+  return projById(pid)?PCOLS[hashSlot(pid)]:'#6B7484';
 }
 function personColor(rosterKey,name){const arr=STAFF[rosterKey]||[];const i=arr.indexOf(name);return i<0?hashColor(name):PCOLS[i%PCOLS.length];}
 /* Color for a bar in "Team" mode: person color in roster lanes (dept lens),
    per-process color for Other, otherwise the department's identity color */
 function entityColor(t){
   const d=deptById(t.department);
-  if(!d)return '#9CA3AF';
+  if(!d)return '#6B7484';
   if(d.freeText)return DEPT_COLORS[t.department]||hashColor(t.assignee||'Other');
   if(LENS==='dept'&&d.roster)return personColor(d.roster,barCrew(t)[0]||'');
-  return DEPT_COLORS[t.department]||'#9CA3AF';
+  return DEPT_COLORS[t.department]||'#6B7484';
 }
 function barColor(t){if(isInstall(t))return INSTALL_RED;return COLOR_MODE==='entity'?entityColor(t):projColor(t.projectId);}
 /* Lane identity color for sidebar dots in the dept lens */
@@ -2281,7 +2284,7 @@ function laneColor(dept,assignee){
   const d=deptById(dept);
   if(d&&d.freeText)return DEPT_COLORS[dept]||hashColor(assignee||'Other');
   if(d&&d.roster)return personColor(d.roster,assignee);
-  return DEPT_COLORS[dept]||'#9CA3AF';
+  return DEPT_COLORS[dept]||'#6B7484';
 }
 function cellBg(m,par){const[h,s,l]=MONTH_HSL[m];const s2=Math.max(8,s*.5);return par===0?`hsl(${h},${Math.max(6,s2-5)}%,${l+21}%)`:`hsl(${h},${s2}%,${l+15}%)`;}
 /* C2 quiet canvas (Design-Language §2.4): workdays near-white, alternating months get a
@@ -6884,6 +6887,38 @@ const gScroll=document.getElementById('gantt-scroll');
 const hdrWrap=document.getElementById('hdr-wrap');
 const sideRows=document.getElementById('side-rows');
 gScroll.addEventListener('scroll',()=>{hdrWrap.scrollLeft=gScroll.scrollLeft;sideRows.scrollTop=gScroll.scrollTop;queueLabelReposition();});
+
+/* 3.5: the wheel works over the sidebar too — forward it to the Gantt scroller,
+   whose scroll event syncs the sidebar rows back. */
+document.getElementById('sidebar').addEventListener('wheel',ev=>{
+  ev.preventDefault();
+  gScroll.scrollTop+=ev.deltaY;gScroll.scrollLeft+=ev.deltaX;
+},{passive:false});
+
+/* 3.5: drag the date header to pan the timeline left/right. A 4px threshold keeps
+   month-name clicks (the go-to-date popover) working; a capture-phase click guard
+   swallows the click that follows a real drag. */
+(function(){
+  let pan=null,panned=false;
+  hdrWrap.addEventListener('mousedown',ev=>{
+    if(ev.button!==0)return;
+    pan={x:ev.clientX,sl:gScroll.scrollLeft};panned=false;ev.preventDefault();
+  });
+  document.addEventListener('mousemove',ev=>{
+    if(!pan)return;
+    const dx=ev.clientX-pan.x;
+    if(!panned&&Math.abs(dx)<4)return;
+    if(!panned){panned=true;document.body.style.cursor='grabbing';document.body.style.userSelect='none';}
+    gScroll.scrollLeft=pan.sl-dx;
+  });
+  document.addEventListener('mouseup',()=>{
+    if(!pan)return;pan=null;
+    if(panned){document.body.style.cursor='';document.body.style.userSelect='';}
+  });
+  hdrWrap.addEventListener('click',ev=>{
+    if(panned){panned=false;ev.stopPropagation();ev.preventDefault();}
+  },true);
+})();
 
 /* Sidebar resize */
 function setSideW(w){SIDE_W=Math.max(180,Math.min(480,Math.round(w)));document.getElementById('sidebar').style.width=SIDE_W+'px';}

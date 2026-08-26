@@ -337,19 +337,27 @@ until this list is done (or the owner trims it). Grouped by surface;
       and click behavior — the diff list is the first deliverable, convergence
       fixes follow from it. Confirmed keeper (the "keep pile"): the hover
       tooltip showing Phase + Subtask info — **add the team member name** to it.
+      **Diff list DELIVERED 2026-08-26: `docs/Phase-3.5-Parity-Audit.md`** —
+      ~30 differences in four categories, one confirmed bug (draft "Add a
+      phase" is a silent no-op), deliberate differences flagged, convergence
+      order recommended. Fixes await the owner's picks from that doc.
 
 **Global project view (main timeline):**
 
-- [ ] **Scroll wheel over the project sidebar** — the wheel only scrolls with
-      the mouse over the Gantt; it should also work over the sidebar.
-- [ ] **Date bar drag-to-pan** — click-and-drag on the number-date row (below
-      the month bar) moves the timeline left/right.
-- [ ] **Today button padding** — add padding to its left; it currently sits
-      against the screen edge.
-- [ ] **White text on Gantt header bars** — black project text is difficult to
-      read on colored bars. Make all bar text white and adjust bar colors for
-      contrast as needed (supersedes the C4 luminance-computed label color on
-      these bars).
+- [x] **Scroll wheel over the project sidebar** — DONE 2026-08-26 (REV80): the
+      sidebar forwards the wheel (both axes) to the Gantt scroller. Suite:
+      `tests/test80.js`. Record: `docs/Milestones/2026-08-26-global-view-polish.md`.
+- [x] **Date bar drag-to-pan** — DONE 2026-08-26 (REV80): the timeline header
+      drags to pan; a 4px threshold keeps month-name clicks (goto popover)
+      working. Suite/record: as above.
+- [x] **Today button padding** — DONE 2026-08-26 (REV80): the timeline toolbar
+      row gained left padding. Suite/record: as above.
+- [x] **White text on Gantt header bars** — DONE 2026-08-26 (REV80): the light
+      identity/department palette slots were darkened (same hues) so every bar
+      fill takes a white label at ≥4.5:1; `labelColor()` unchanged, the palette
+      now sits below its ink flip point everywhere. Design-Language
+      §2.2/§2.3/§2.5 updated. Suite/record: as above (+`test-contrast`,
+      `test-cb` still green).
 - [ ] **Toolbar clarity** — two toolbars with competing/mixed function
       categories: view styles (color: Project/Team · vertical scale:
       Comfortable/Snug/Compact · horizontal scale: Day/2-Day/Week/Month), data
@@ -465,6 +473,16 @@ own "only if it proves needed" gates.
 - [ ] A saved view recalls the grouping but not a per-person *ordering* — sort order is
       the shared `sortIndex` in project data, one truth for every browser. Changing that
       is a data-model decision, not a view feature. (REV79)
+
+**Phase 3.5:**
+
+- [ ] The white-bar-text rule (REV80) covers the bar palettes only; the project
+      page's light subtask shades (`kidShade()`) still use the computed label and
+      can pick ink. Extending white there means darkening the child shades and
+      losing the light-tint hierarchy. Gate: owner extending the rule. (2026-08-26)
+- [ ] Drag-to-pan (REV80) lives on the date header only — canvas drag still belongs
+      to bar move/resize. Gate: PMs asking to grab the canvas itself (needs a
+      modifier-key design). (2026-08-26)
 
 **Deliberate design ceilings — no action planned, revisit only on real complaints:**
 12-slot palette repeats at 13+ visible projects (T2); quiet re-selection after a committed
