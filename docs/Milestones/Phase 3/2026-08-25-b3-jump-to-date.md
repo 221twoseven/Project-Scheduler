@@ -44,3 +44,6 @@ With both, "show me late October" is one keypress and one click from anywhere.
   REV50 reference like the other post-REV50 suites.
 - Follow-up ceiling: the month-name click drops the popover under the pointer,
   clamped on-screen; on very narrow windows it may sit left of the click. Cosmetic.
+- Skipped: jump memory (persisting the last-jumped date / a recent-dates list) —
+  not in the brief, no observed need; add if PMs ask the timeline to remember
+  where they jump. Tracked in `docs/TODO.md` §7.
