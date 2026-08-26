@@ -39,7 +39,7 @@ const fills={
   PCOLS:E('PCOLS'),
   DEPT_COLORS:Object.values(E('DEPT_COLORS')),
   INSTALL_RED:[E('INSTALL_RED')],
-  fallbacks:['#9CA3AF','#8A98AE'],
+  fallbacks:['#6B7484'], /* the darkened missing-project/department grey (REV80) */
 };
 for(const[group,list]of Object.entries(fills)){
   for(const bg of list){

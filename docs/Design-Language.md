@@ -34,15 +34,15 @@ Consequences: forecast and on-hold bars keep their **project's hue** and signal 
 
 ### 2.2 Identity palette (projects)
 
-12 slots, assigned by **stable hash of project id** (never array index). Hues spaced ≥25° apart, all tuned so white or ink text passes 4.5:1 with the label-color function (§2.5).
+12 slots, assigned by **stable hash of project id** (never array index). Hues spaced ≥25° apart, and — **owner rule, Phase 3.5 (2026-08-26): bar text is always white.** Every slot sits below the luminance where `labelColor()` (§2.5) would flip to ink, so white passes 4.5:1 on all of them. The light slots of the original palette were darkened to comply — same hues, lower lightness (the pre-3.5 values are in git history).
 
 ```
---p01:#3B7FD6  --p02:#E27035  --p03:#2D9C56  --p04:#9050C3
---p05:#1AA59C  --p06:#C09018  --p07:#C04485  --p08:#567693
---p09:#7A5AE0  --p10:#3D8FA8  --p11:#A8642C  --p12:#6B8F3C
+--p01:#2B73CF  --p02:#BE531B  --p03:#268449  --p04:#9050C3
+--p05:#148079  --p06:#936E12  --p07:#C04485  --p08:#567693
+--p09:#7A5AE0  --p10:#357C92  --p11:#A8642C  --p12:#5E7D34
 ```
 
-(01–07 are the current `PCOLS`, kept for continuity; 08–12 extend the cycle. None approach `#CE4242` red. `--p08` is the darkened pm blue from §2.3 — the original `#5B7C99` sits in the mid-luminance dead zone and fails 4.5:1 both ways.) Collision rule: if two *currently visible* projects hash to the same slot, the later-created one shifts to the nearest free slot for that render — identity stability beats palette purity only when both are on screen.
+(01–07 keep the hues of the original `PCOLS` for continuity; 08–12 extend the cycle. None approach `#CE4242` red. `--p08` is the darkened pm blue from §2.3 — the original `#5B7C99` sits in the mid-luminance dead zone and fails 4.5:1 both ways.) Collision rule: if two *currently visible* projects hash to the same slot, the later-created one shifts to the nearest free slot for that render — identity stability beats palette purity only when both are on screen.
 
 **Clients carry no color (decided 2026-08-21, N3).** Identity color belongs to the
 *project*, full stop. The shop runs 3–4 big clients with many simultaneous job codes
@@ -53,7 +53,7 @@ alias only; revisit only if the client mix changes fundamentally.
 
 ### 2.3 Department palette
 
-Keep the existing `DEPT_COLORS` map as-is (it's serviceable and staff know it), with these exceptions: raise `beamsaw` `#C09018` and `electrical` `#D9A21B` label contrast via §2.5; `pm` `#5B7C99` → `#567693` and `install` `#6366F1` → `#5A5DEC` (the originals sit in the mid-luminance dead zone where *neither* ink nor white reaches 4.5:1 — a small darkening keeps the hue and lets white pass); and ensure no department except `install`/`laser` sits within 15° of the reserved red.
+Keep the `DEPT_COLORS` hues as-is (staff know them), but the Phase 3.5 white-text rule (§2.2) applies here too: every department color sits below the ink-flip luminance so labels are always white at 4.5:1. The light entries (the golds, pinks, teals and the grey "other" family) were darkened to comply, hues kept — `beamsaw` `#936E12` and `electrical` `#876511` stay a distinct pair; `pm` `#5B7C99` → `#567693` and `install` `#6366F1` → `#5A5DEC` (the originals sit in the mid-luminance dead zone where *neither* ink nor white reaches 4.5:1). No department except `install`/`laser` sits within 15° of the reserved red.
 
 **Subtask shading (REV56):** on the project page, subtasks render as a **light shade of
 their parent bar's hue** — same hue, ~45% toward white (`kidShade()`); only lightness
@@ -81,6 +81,11 @@ function labelColor(bg){ /* relative luminance per WCAG */
 ```
 
 (An earlier draft used a fixed `L > 0.44` threshold; that maps mid-luminance fills like `#D9A21B` to white at ~2.3:1, contradicting the 4.5:1 rule below, so the shipped function compares the two candidates' actual contrast instead. `L*L ≥ 1.05·(L_ink+0.05)` is the algebraic form of "ink's contrast ≥ white's contrast".)
+
+Since Phase 3.5 the identity and department palettes are constrained below the ink-flip
+luminance (§2.2), so on **bars** this function always lands on white — the function
+stays as the single adjudicator for everything else it already covers (white edge
+chips, pills, the project page's light subtask shades).
 
 No hand-picked per-bar text colors. Pills use the same rule. A jsdom test (`tests/test-contrast.js`) iterates every palette constant and asserts ≥4.5:1 — the palette can't regress.
 

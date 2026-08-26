@@ -66,3 +66,10 @@ the deferred ledger, `docs/TODO.md` §7 (jump memory, popover anchor math, the �
 button vs group headers, what a view deliberately doesn't capture). Phase 4 was
 **rescoped at this close** — coach marks (REV74) shipped ahead of it, so the first-run
 hint bar is recommended dropped; see the strategy doc §5 and `docs/TODO.md` §6.
+
+**Post-close review (2026-08-26).** The owner's review of the REV79 build added a
+**Phase 3.5** punch list (window parity, timeline navigation polish, toolbar
+regrouping, calendar feedback, coach-mark fixes, a completion flow) — see
+`docs/TODO.md` §6. It lands on `development` before the promotion PR
+([#23](https://github.com/221twoseven/Project-Scheduler/pull/23), REV74–79)
+merges, riding the same PR.
