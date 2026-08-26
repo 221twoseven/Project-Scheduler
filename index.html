@@ -1344,7 +1344,7 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_REV=81; // bump this ONE number on every release; used everywhere the rev shows up
+const APP_REV=82; // bump this ONE number on every release; used everywhere the rev shows up
 
 /* ===================== CONSTANTS ===================== */
 const SET_KEY ='shopTimelineSettings_v1';
@@ -3852,7 +3852,7 @@ function renderProjectPage(){
      marks a same-page repaint (autosave, poll, declined exit), which keeps state. */
   if(!PP_KEEP){
     NPV_MANUAL={};NPV_TASKS=[];NPV_ALL=[];NPV_ORDER=[];NPV_ORDER_DIRTY=false;
-    NPV_EVENTS=[];NPV_TODOS=[];NPV_LINES=[];
+    NPV_EVENTS=[];NPV_TODOS=[];NPV_LINES=[];NPV_UNDO=[];
     if(isNew){
       NPV_MODE='gantt';
       ppFormInit();
@@ -4107,13 +4107,15 @@ function commitPhase(id,field,val){
       n.estimatedDays=Math.max(1,parseInt(val,10)||1);
     }else if(field==='label'){
       n.label=String(val||'').trim();
+    }else if(field==='notes'){
+      /* 3.5 convergence pass: notes edits used to fall through unhandled — the
+         inspector's Notes field silently never saved. */
+      n.notes=String(val||'');
     }
     return n;
   });
   PP_QUIET=true;
   try{saveState({projects:ST.projects,tasks});}finally{PP_QUIET=false;}
-  const p=ppProject();
-  if(p)ppRefreshMetrics(p);
 }
 
 /* REV46: move or resize a saved phase straight into ST. The project page draws real
@@ -4128,21 +4130,39 @@ function commitPhaseDates(id,s,e,days){
   });
   PP_QUIET=true;
   try{saveState({projects:ST.projects,tasks});}finally{PP_QUIET=false;}
-  const p=ppProject();
-  if(p)ppRefreshMetrics(p);
 }
 
 /* ===================== REV49: SELECTION + INSPECTOR =====================
    One rule: what's selected decides what the inspector shows. Nothing selected is the
    project; a bar selected is that phase. No tabs to hunt through, and the chart never
    scrolls out of view while you edit. */
+/* 3.5 convergence (audit I1): selection works on BOTH pages. Saved bars select by
+   their ST id. Draft bars regenerate with fresh ids on every keystroke, so PP_SEL
+   stores what IS stable there: the department for an unsplit primary bar ("d:fab"),
+   the line id for a split bar ("l:<lineId>" — the line rides in the bar id as
+   baseId::lineId). ppSelect translates whatever id a caller hands it. */
+function ppDraftKeyFor(t){const lid=String(t.id).split('::')[1];return lid?'l:'+lid:'d:'+t.department;}
+function ppDraftResolve(key){
+  if(!key)return null;
+  if(key.startsWith('l:')){const lid=key.slice(2);return NPV_TASKS.find(t=>String(t.id).split('::')[1]===lid)||null;}
+  if(key.startsWith('d:')){const dp=key.slice(2);
+    /* an edit can seed the dept into lines mid-selection — fall back to its first bar */
+    return NPV_TASKS.find(t=>t.department===dp&&String(t.id).indexOf('::')<0)
+         ||NPV_TASKS.find(t=>t.department===dp)||null;}
+  return NPV_TASKS.find(t=>t.id===key)||null;
+}
 function ppSelect(id,quiet){
+  if(id&&!NPV_LIVE){
+    const t=NPV_TASKS.find(x=>x.id===id)||ppDraftResolve(id);
+    id=t?ppDraftKeyFor(t):null;
+  }
   PP_SEL=id||null;
   PP_INSP=PP_SEL?'phase':'project';
   document.querySelectorAll('#npv-body .npv-bar.pick,#npv-body .cal-band.pick').forEach(b=>b.classList.remove('pick'));
   document.querySelectorAll('#npv-body .npv-row.pickrow').forEach(r=>r.classList.remove('pickrow'));
   if(PP_SEL){
-    const i=NPV_TASKS.findIndex(t=>t.id===PP_SEL);
+    const selT=NPV_LIVE?NPV_TASKS.find(t=>t.id===PP_SEL):ppDraftResolve(PP_SEL);
+    const i=selT?NPV_TASKS.indexOf(selT):-1;
     const el=document.querySelector('#npv-body .npv-bar[data-i="'+i+'"]');
     if(el){el.classList.add('pick');
       const row=el.closest('.npv-row');if(row)row.classList.add('pickrow');}
@@ -4157,7 +4177,10 @@ function ppSelect(id,quiet){
     if(nm&&!nm.value)nm.focus();
   }
 }
-function ppSelected(){return PP_SEL?taskById(PP_SEL):null;}
+function ppSelected(){
+  if(!PP_SEL)return null;
+  return NPV_LIVE?taskById(PP_SEL):ppDraftResolve(PP_SEL);
+}
 
 /* N1: the page-level breadcrumb — All Projects › project › phase. The phase segment
    shows while a bar is selected; the deepest segment is the current place (dark), the
@@ -4166,7 +4189,7 @@ function ppPaintCrumb(){
   const bc=document.getElementById('pp-bc'),sep=document.getElementById('pp-bc-sep'),
         ttl=document.getElementById('pp-title');
   if(!bc)return;
-  const sel=NPV_LIVE?ppSelected():null;
+  const sel=ppSelected(); /* 3.5/D3: the phase crumb shows on drafts too */
   bc.classList.toggle('hidden',!sel);
   if(sep)sep.classList.toggle('hidden',!sel);
   if(sel)bc.querySelector('b').textContent=phaseLabel(sel);
@@ -4283,7 +4306,7 @@ function ppInspector(){
   if(!p){box.innerHTML='';return;}
   const sel=ppSelected();
   let h='';
-  if(sel&&NPV_LIVE){
+  if(sel){ /* 3.5/D1+L1: the phase panel serves BOTH pages — the draft popover is retired */
     const d=deptById(sel.department)||{};
     h+='<div class="ins-hd"><span class="dot" style="background:'+(DEPT_COLORS[sel.department]||'#8A98AE')+'"></span>'
      + '<span class="t">'+esc(phaseLabel(sel))+'</span>'
@@ -4291,7 +4314,9 @@ function ppInspector(){
     h+='<div class="ins-body">';
     let f='<div class="ins-f"><label>Name</label>'
      + '<input id="ins-name" data-f="label" value="'+esc(sel.label||'')+'" placeholder="'+esc(d.name||sel.department)+'"></div>'
-     + '<div class="ins-f"><label>Department</label><select data-f="department">'+deptOptions(sel.department)+'</select></div>';
+     + '<div class="ins-f"><label>Department</label><select data-f="department"'
+     + (NPV_LIVE?'':' disabled title="Until the project is created, departments are chosen in the checklist"')
+     + '>'+deptOptions(sel.department)+'</select></div>';
     /* Crew sits on its own line above the dates. Every bar takes a crew of any size —
        checkboxes culled to the project team (install pulls from the whole staff), plus
        anyone already on the bar. Empty is fine: an unowned phase umbrella is implicitly
@@ -4313,8 +4338,9 @@ function ppInspector(){
      + '</div>';
     f+='<div class="ins-f"><label>Notes</label><textarea rows="2" data-f="notes" placeholder="Anything the shop needs to know">'+esc(sel.notes||'')+'</textarea></div>';
     /* 3.5/I14: pin finally has a working control. Bars could be pinned from the main
-       timeline, then silently refused to resize here with no way to see or undo it. */
-    f+='<div class="ins-f"><label class="ins-pin"><input type="checkbox" id="ins-pin"'
+       timeline, then silently refused to resize here with no way to see or undo it.
+       (Saved bars only — a draft bar pins itself the moment you drag it.) */
+    if(NPV_LIVE)f+='<div class="ins-f"><label class="ins-pin"><input type="checkbox" id="ins-pin"'
      + (sel.pinned?' checked':'')+'> 📌 Pin dates — the bar refuses drags and resizes</label></div>';
     /* N11 said adds live on right-click; the +Subtask/+Event/+Task buttons duplicated
        that and are gone. Keyboard S/E/T still works. */
@@ -4413,16 +4439,38 @@ function ppBindInspector(p,sel){
   const x=document.getElementById('ins-x');
   if(x)x.addEventListener('click',()=>ppSelect(null));
 
-  if(sel&&NPV_LIVE){
+  if(sel){
+    /* 3.5 convergence: one binding layer, two backends. Saved fields commit to ST;
+       draft fields commit to the durable draft stores (lines + manual placements),
+       exactly the way the retired popover did. */
     box.querySelectorAll('[data-f]').forEach(i=>i.addEventListener('change',()=>{
       const f=i.dataset.f;
-      if(f==='department'){ppMovePhase(sel.id,i.value);return;}
-      commitPhase(sel.id,f,i.value);
-      npvRebuild();ppSelect(sel.id,true);
+      /* the rebuild inside the commit can drop PP_SEL when the bar is a hidden
+         (collapsed) child — re-select by the key captured up front, like the
+         pre-3.5 code re-selected by id */
+      const k0=PP_SEL;
+      if(f==='department'){if(NPV_LIVE)ppMovePhase(sel.id,i.value);return;}
+      if(f==='label'){ppPopName(sel,i.value.trim());}
+      else if(f==='startDate'){ppPopDate(sel,'s',i.value);}
+      else if(f==='endDate'){ppPopDate(sel,'e',i.value);}
+      else if(f==='estimatedDays'){
+        const n=Math.max(1,parseInt(i.value,10)||1);
+        if(NPV_LIVE)commitPhase(sel.id,'estimatedDays',n);
+        /* draft: same semantics as dragging the right edge — a manual placement */
+        else NPV_MANUAL[npvKey(sel)]={startDate:sel.startDate,
+          endDate:fmtDate(fwdN(parseDate(sel.startDate),n)),estimatedDays:n};
+        npvRebuild();
+      }
+      else if(f==='notes'){
+        if(NPV_LIVE)commitPhase(sel.id,'notes',i.value);
+        else ppDraftLineFor(sel).notes=i.value;
+        npvRebuild();
+      }
+      ppSelect(PP_SEL||k0,true);
     }));
     const g=(id,fn)=>{const b=document.getElementById(id);if(b)b.addEventListener('click',fn);};
     g('ins-dup',()=>npvDuplicatePhase(sel)); /* N11: moved here from the bar menu */
-    g('ins-del',()=>ppDeletePhase(sel.id));
+    g('ins-del',()=>NPV_LIVE?ppDeletePhase(sel.id):ppPopDelete(sel));
     /* 3.5/I14: pinned is a boolean on the task row — commit it directly. */
     const pn=document.getElementById('ins-pin');
     if(pn)pn.addEventListener('change',()=>{
@@ -4433,12 +4481,21 @@ function ppBindInspector(p,sel){
       toastU(pn.checked?'Pinned — '+phaseLabel(sel)+' keeps its dates':'Unpinned '+phaseLabel(sel));
     });
     /* Crew checkboxes commit the whole set — commitPhase splits the comma list back
-       into an array for install. */
+       into an array for install. On a draft the crew lives on the line, and the
+       manual-placement key contains the assignee, so the placement moves with it
+       (the old popover dropped the placement here — a bar crewed after a drag
+       snapped back to the scheduler dates). */
     const cw=document.getElementById('ins-crew');
     if(cw)cw.addEventListener('change',()=>{
+      const k0=PP_SEL;
       const names=[...cw.querySelectorAll('input:checked')].map(i=>i.value);
-      commitPhase(sel.id,'assignee',names.join(', '));
-      npvRebuild();ppSelect(sel.id,true);
+      if(NPV_LIVE)commitPhase(sel.id,'assignee',names.join(', '));
+      else{
+        const m=NPV_MANUAL[npvKey(sel)];
+        const l=ppDraftLineFor(sel);l.who=names.join(', ');
+        if(m){delete NPV_MANUAL[npvKey(sel)];NPV_MANUAL[npvKey({...sel,assignee:l.who})]=m;}
+      }
+      npvRebuild();ppSelect(PP_SEL||k0,true);
     });
   }else{
     ['pp-name','pp-client','pp-code','pp-deadline','pp-status'].forEach(id=>{
@@ -4587,17 +4644,6 @@ function ppPaintMeta(p){
   box.innerHTML=h;
 }
 
-function ppRefreshMetrics(p){
-  const met=document.querySelectorAll('#page .pg-met .mv');
-  if(met.length<4)return;
-  const wd=workdaysUntil(p.deadline);
-  met[0].innerHTML=p.deadline?esc(fmtNice(p.deadline)):'&mdash;';
-  met[1].textContent=(wd==null?'—':wd);
-  met[1].classList.toggle('warn',wd!=null&&wd<0);
-  met[2].textContent=tasksOf(p.id).filter(t=>!t.__ghost&&t.department!=='pm').length;
-  met[3].textContent=phaseNow(p);
-}
-
 
 /* ===================== REV37: LIVE SCHEDULE PREVIEW ===================== */
 /* The create page runs the real backward scheduler against whatever is currently typed
@@ -4623,6 +4669,14 @@ let GROUP_BY=null;       /* 'client' | 'pm' | 'status' — drives the sidebar gr
 let PP_FORM=null;        /* new-project values, kept out of the DOM so tabs can't lose them */
 let PP_SNAP='';          /* N2: what a clean draft form serializes to */
 let PP_KEEP=false;       /* set when a redraw must not wipe the draft */
+/* 3.5/I10: the draft's undo stack — reversers for mutations that live outside ST
+   (manual placements, lines). ⌘Z pops it while a draft is open; each undo toast's
+   button runs the same reverser and removes it from the stack. */
+let NPV_UNDO=[];
+function npvToastU(msg,cb){
+  NPV_UNDO.push(cb);if(NPV_UNDO.length>20)NPV_UNDO.shift();
+  toast(msg,null,()=>{const i=NPV_UNDO.indexOf(cb);if(i>=0)NPV_UNDO.splice(i,1);cb();});
+}
 let NPV_ORDER_DIRTY=false;
 let NPV_OPEN=new Set();   /* departments expanded to show their subtasks */
 let NPV_PLAN=[];          /* the row plan actually drawn: parent / child / leaf */
@@ -4773,7 +4827,8 @@ function applyPhaseLines(tasks){
     expanded[t.department]=true;
     for(const l of lines){
       out.push({...t,id:t.id+'::'+l.id,label:l.name.trim(),
-        assignee:l.who?l.who:(deptById(t.department)||{}).roster?t.assignee:''});
+        assignee:l.who?l.who:(deptById(t.department)||{}).roster?t.assignee:'',
+        notes:l.notes!==undefined?l.notes:t.notes}); /* 3.5: the inspector edits notes on the line */
     }
   }
   return out;
@@ -4931,26 +4986,30 @@ function npvDeptMenu(x,y,dept,hit){
   });
 }
 function npvDuplicatePhase(t){
-  if(!NPV_LIVE)return;
+  if(!NPV_LIVE){
+    /* 3.5/I9: duplicate works on drafts — a new line with the source's crew and a
+       manual placement copying its dates. */
+    const src=ppDraftLineFor(t);
+    const who=src.who||(Array.isArray(t.assignee)?t.assignee.join(', '):(t.assignee||''));
+    const l={id:genId(),name:(t.label||((deptById(t.department)||{}).name||t.department))+' copy',
+      dept:t.department,who:who,notes:src.notes||''};
+    NPV_LINES.push(l);
+    NPV_MANUAL[npvKey({department:t.department,label:l.name,assignee:who})]=
+      {startDate:t.startDate,endDate:t.endDate,estimatedDays:t.estimatedDays};
+    NPV_OPEN.add(t.department);saveUI();npvRebuild();
+    ppSelect('l:'+l.id,true);
+    npvToastU('Duplicated '+phaseLabel(t),()=>{
+      NPV_LINES=NPV_LINES.filter(x=>x.id!==l.id);
+      delete NPV_MANUAL[npvKey({department:t.department,label:l.name,assignee:who})];
+      ppSelect(null,true);npvRebuild();
+    });
+    return;
+  }
   const copy={...t,id:genId(),label:(t.label||'')+' copy',ticketNodes:[]};
   PP_QUIET=true;
   try{saveState({projects:ST.projects,tasks:[...ST.tasks,copy]});}finally{PP_QUIET=false;}
   NPV_OPEN.add(t.department);saveUI();npvRebuild();ppSelect(copy.id);
   toastU('Duplicated '+phaseLabel(t));
-}
-function npvRemoveDept(dept){
-  if(!NPV_LIVE)return;
-  const p=ppProject();if(!p)return;
-  const n=ST.tasks.filter(t=>t.projectId===p.id&&t.department===dept).length;
-  if(!confirm('Remove '+((deptById(dept)||{}).name||dept)+' and its '+n
-    +' bar'+(n===1?'':'s')+' from this job? This can be undone.'))return;
-  const projects=ST.projects.map(x=>x.id===p.id
-    ?{...x,activeDepartments:(x.activeDepartments||[]).filter(y=>y!==dept)}:x);
-  PP_QUIET=true;
-  try{saveState({projects,tasks:ST.tasks.filter(t=>!(t.projectId===p.id&&t.department===dept))});}
-  finally{PP_QUIET=false;}
-  ppSelect(null,true);npvRebuild();
-  toastU('Removed '+((deptById(dept)||{}).name||dept));
 }
 
 function npvOpenMenu(clientX,clientY,hit,page){
@@ -5066,7 +5125,15 @@ function npvCreateSubtask(dept,date,newDept,name){
     }
     NPV_OPEN.add(dept);saveUI();
     npvRebuild();
-    toastU('Split '+((deptById(dept)||{}).name||dept)+' — click the new bar to rename it');
+    /* 3.5/I7: same outcome as the saved page — the new bar is selected into the
+       inspector, and the undo rides the draft undo stack (⌘Z). */
+    const nl=NPV_LINES[NPV_LINES.length-1];
+    ppSelect('l:'+nl.id);
+    npvToastU('Added a '+((deptById(dept)||{}).name||dept)+' bar',()=>{
+      NPV_LINES=NPV_LINES.filter(x=>x.id!==nl.id);
+      delete NPV_MANUAL[npvKey({department:dept,label:nl.name,assignee:''})];
+      ppSelect(null,true);npvRebuild();
+    });
     return;
   }
   const p=ppProject();if(!p)return;
@@ -5143,7 +5210,7 @@ function commitPhaseShift(ids,days){
   PP_QUIET=true;
   try{saveState({projects:ST.projects,tasks});}finally{PP_QUIET=false;}
   const p=ppProject();
-  if(p){ppRefreshMetrics(p);ppPaintMeta(p);}
+  if(p)ppPaintMeta(p);
   toastU('Moved '+ids.length+' bar'+(ids.length===1?'':'s')+' by '+Math.abs(days)
     +' day'+(Math.abs(days)===1?'':'s'));
 }
@@ -5184,6 +5251,9 @@ function npvRebuild(){
     const live=tasksOf(pj.id).filter(t=>!t.__ghost);
     NPV_ALL=live;
     const shown=live.filter(t=>t.department!=='pm');
+    /* 3.5/I12: a fresh visit seeds the row order from the project itself, so a
+       reorder persisted into activeDepartments survives reloads and other browsers. */
+    if(!NPV_ORDER.length)NPV_ORDER=(pj.activeDepartments||[]).filter(d=>d!=='pm');
     npvSyncOrder(shown);
     NPV_TASKS=npvSortTasks(shown);
     npvRender();
@@ -5237,9 +5307,7 @@ function npvRender(){
   const fk2=document.getElementById('npv-focus');
   if(fk2){fk2.classList.toggle('hidden',NPV_MODE!=='calendar');
     fk2.classList.toggle('on',NPV_CAL_FOCUS);}
-  renderSideList();
   npvRenderLegend();
-  if(NPV_LINES.length)renderDraftLines();
 
   if(!NPV_TASKS.length){
     host.innerHTML='<div class="npv-empty">Pick an install date and tick a department to see the schedule.</div>';
@@ -5432,14 +5500,17 @@ function npvRender(){
   npvPaintFooter(dl);
   npvBindDrag();
   npvBindReorder();
-  /* Keep the selection ring on whichever bar is selected after a re-render. */
+  /* Keep the selection ring on whichever bar is selected after a re-render.
+     3.5/I1: resolve through the page-aware path — a draft's PP_SEL is a stable
+     key (d:dept / l:lineId), not a raw id, and must survive the rebuild. */
   if(PP_SEL){
+    const selT=NPV_LIVE?NPV_TASKS.find(t=>t.id===PP_SEL):ppDraftResolve(PP_SEL);
     if(NPV_MODE==='calendar'){
       /* REV53: the calendar paint stamps .pick on the selected phase's bands itself;
          only a selection that no longer exists gets dropped here. */
-      if(!NPV_TASKS.some(t=>t.id===PP_SEL))PP_SEL=null;
+      if(!selT)PP_SEL=null;
     }else{
-      const si=NPV_TASKS.findIndex(t=>t.id===PP_SEL);
+      const si=selT?NPV_TASKS.indexOf(selT):-1;
       const sb=host.querySelector('.npv-bar[data-i="'+si+'"]');
       if(sb){sb.classList.add('pick');
         const sr=sb.closest('.npv-row');if(sr)sr.classList.add('pickrow');}
@@ -5642,7 +5713,7 @@ function npvBindHost(host){
           for(const z of twins)
             NPV_MANUAL[npvKey(z)]={startDate:fmtDate(ns2),endDate:fmtDate(ne2),estimatedDays:n};
           npvRebuild();
-          toast('Resized '+phaseLabel(t)+' to '+n+'d',null,()=>{
+          npvToastU('Resized '+phaseLabel(t)+' to '+n+'d',()=>{
             for(const q of prevs){if(q.p)NPV_MANUAL[q.k]=q.p;else delete NPV_MANUAL[q.k];}
             npvRebuild();
           });
@@ -5662,8 +5733,19 @@ function npvBindHost(host){
           npvRebuild();ppSelect(t.id,true);
           return;
         }
-        for(const z of twins)NPV_MANUAL[npvKey(z)]={startDate:ns,endDate:ne};
+        /* 3.5/I5: Link carries subtasks on drafts too; the move joins the draft
+           undo stack like every other draft mutation (I10). */
+        const dlist=(isParent&&LINK_SUBS)?NPV_TASKS.filter(z=>z.department===t.department):twins;
+        const dprevs=dlist.map(z=>({k:npvKey(z),p:NPV_MANUAL[npvKey(z)]}));
+        for(const z of dlist)NPV_MANUAL[npvKey(z)]={
+          startDate:fmtDate(addDays(parseDate(z.startDate),days)),
+          endDate:fmtDate(addDays(parseDate(z.endDate),days))};
         npvRebuild();
+        npvToastU('Moved '+phaseLabel(t)+' '+Math.abs(days)+' day'+(Math.abs(days)===1?'':'s')
+          +(days>0?' later':' earlier'),()=>{
+          for(const q of dprevs){if(q.p)NPV_MANUAL[q.k]=q.p;else delete NPV_MANUAL[q.k];}
+          npvRebuild();
+        });
       };
       document.addEventListener('mousemove',mv);
       document.addEventListener('mouseup',up);
@@ -5874,86 +5956,9 @@ function deptOptions(sel){
 }
 function allPeople(){return PEOPLE.map(p=>p.name).sort((a,b)=>a.localeCompare(b));}
 
-/* Only departments actually on this job — a line pointing at an unticked department
-   would silently produce nothing. */
-function activeDeptOptions(sel){
-  const ids=NPV_ORDER.length?NPV_ORDER:DEPTS.map(d=>d.id);
-  return ids.map(id=>'<option value="'+id+'"'+(id===sel?' selected':'')+'>'
-    +esc((deptById(id)||{}).name||id)+'</option>').join('');
-}
-
-function renderDraftLines(){
-  const box=document.getElementById('pp-lines');
-  if(!box)return;
-  if(!NPV_LINES.length){
-    box.innerHTML='<div class="dr-none">One bar per department. Add lines to split a department '
-      +'into named pieces &mdash; "Madison Fa\u00e7ade | Initial Designs", "5th Ave Windows | Initial Designs".</div>';
-    return;
-  }
-  let h='<div class="dr-hd ln"><span>Line</span><span>Department</span><span>Crew</span><span></span></div>';
-  for(const l of NPV_LINES){
-    h+='<div class="dr-row ln" data-id="'+esc(l.id)+'">'
-     + '<input data-f="name" value="'+esc(l.name||'')+'" placeholder="Madison Fa\u00e7ade | Initial Designs">'
-     + '<select data-f="dept">'+activeDeptOptions(l.dept)+'</select>'
-     + '<input data-f="who" value="'+esc(l.who||'')+'" placeholder="&mdash;" title="Comma-separated names \u2014 or click the bar for checkboxes">'
-     + '<button class="dr-del" title="Remove">&times;</button></div>';
-  }
-  box.innerHTML=h;
-  box.querySelectorAll('.dr-row').forEach(r=>{
-    const l=NPV_LINES.find(x=>x.id===r.dataset.id);
-    r.querySelectorAll('[data-f]').forEach(i=>i.addEventListener('change',()=>{
-      l[i.dataset.f]=i.value;npvRebuild();
-    }));
-    r.querySelector('.dr-del').addEventListener('click',()=>{
-      NPV_LINES=NPV_LINES.filter(x=>x.id!==l.id);renderDraftLines();npvRebuild();
-    });
-  });
-}
-
-/* ---------- the combined list under the preview ---------- */
-function renderSideList(){
-  const box=document.getElementById('npv-side');
-  if(!box)return;
-  const rows=[];
-  if(NPV_LIVE){
-    /* REV46: list everything on the job, not just the dated rows npvMarkers() draws,
-       so a freshly added event or task is visible before it has a date. */
-    const pj0=ppProject();
-    if(pj0){
-      for(const e of liveEvents(pj0))
-        rows.push({k:'ev',d:e.date,nm:e.name||'Untitled checkpoint',
-          mt:e.dept?((deptById(e.dept)||{}).name||''):''});
-      for(const t of liveTodos(pj0))
-        rows.push({k:'tk',d:t.due,nm:t.title||'Untitled task',
-          mt:[(t.who||[]).join(', '),t.priority&&t.priority!=='medium'?PRIO_LBL[t.priority]:''].filter(Boolean).join(' \u00b7 ')});
-    }
-    rows.sort((a,b)=>String(a.d||'9999').localeCompare(String(b.d||'9999')));
-    const hd0=document.getElementById('pp-side-hd');
-    if(hd0)hd0.textContent='Checkpoints & tasks'+(rows.length?' ('+rows.length+')':'');
-    box.innerHTML=rows.length
-      ? rows.map(r=>ppSideRow(r)).join('')
-      : '<div class="npv-side-empty">Nothing on this job yet.</div>';
-    return;
-  }
-  for(const e of NPV_EVENTS)if(e.name||e.date)rows.push({k:'ev',d:e.date,nm:e.name||'Untitled checkpoint',
-    mt:e.dept?(deptById(e.dept)||{}).name||'':''});
-  for(const t of NPV_TODOS)if(t.title||t.due)rows.push({k:'tk',d:t.due,nm:t.title||'Untitled task',
-    mt:[(t.who||[]).join(', '),t.priority&&t.priority!=='medium'?PRIO_LBL[t.priority]:''].filter(Boolean).join(' · ')});
-  rows.sort((a,b)=>String(a.d||'9999').localeCompare(String(b.d||'9999')));
-  const hd=document.getElementById('pp-side-hd')||document.getElementById('npv-side-hd');
-  if(hd)hd.textContent='Checkpoints & tasks'+(rows.length?' ('+rows.length+')':'');
-  if(!rows.length){box.innerHTML='<div class="npv-side-empty">Nothing added yet.</div>';return;}
-  box.innerHTML=rows.map(r=>ppSideRow(r)).join('');
-}
-
-function ppSideRow(r){
-  const late=r.k==='tk'&&r.d&&parseDate(r.d)<today();
-  return '<div class="npv-item"><span class="ic '+r.k+(late?' late':'')+'"></span>'
-   + '<span class="nm">'+esc(r.nm)+'</span>'
-   + (r.mt?'<span class="mt">'+esc(r.mt)+'</span>':'')
-   + '<span class="dt'+(late?' late':'')+'">'+(r.d?esc(fmtNice(r.d)):'No date')+'</span></div>';
-}
-
+/* (renderDraftLines / renderSideList / ppSideRow / activeDeptOptions removed in the
+   3.5 convergence pass — they painted #pp-lines / #npv-side, panels that left the
+   page shell long ago. The inspector is the draft subtask UI now.) */
 /* ---------- markers on the gantt preview ---------- */
 /* One swatch per department actually on this job, plus the two marker shapes. */
 function npvRenderLegend(){
@@ -6052,7 +6057,11 @@ function npvPaintCalendar(lo,hi,dl){
     /* N16: "Selected only" filters the bands to the selected phase (and its roster
        twins); events and tasks stay for context. */
     const calKey=t=>t.department+'|'+(t.label||'')+'|'+t.startDate+'|'+t.endDate;
-    const selBar=NPV_CAL_FOCUS&&PP_SEL?NPV_TASKS.find(z=>z.id===PP_SEL):null;
+    /* 3.5/I1: resolve the selection page-aware — a draft's PP_SEL is a stable key,
+       so compare against the resolved bar's CURRENT id. */
+    const selT0=PP_SEL?(NPV_LIVE?NPV_TASKS.find(z=>z.id===PP_SEL):ppDraftResolve(PP_SEL)):null;
+    const selId=selT0?selT0.id:null;
+    const selBar=NPV_CAL_FOCUS?selT0:null;
     const selKey=selBar?calKey(selBar):null;
     const seen={};
     NPV_TASKS.forEach((t,ti)=>{
@@ -6072,7 +6081,7 @@ function npvPaintCalendar(lo,hi,dl){
       if(prev){
         prev.n++;
         prev.txt=prev.base+' +'+(prev.n-1);
-        prev.sel=prev.sel||t.id===PP_SEL;
+        prev.sel=prev.sel||t.id===selId;
         return;
       }
       /* REV72: a band segment only offers a resize handle on an edge that is the
@@ -6080,7 +6089,7 @@ function npvPaintCalendar(lo,hi,dl){
          and must not be grabbable. */
       const it={s:Math.max(0,diffDays(c,a)),e:Math.min(6,diffDays(c,b)),
         txt:phaseLabel(t),col:kid?kidShade(col0):col0,kind:'ph',
-        ti:ti,sel:t.id===PP_SEL,base:phaseLabel(t),n:1,hl:a>=c,hr:b<=wEnd};
+        ti:ti,sel:t.id===selId,base:phaseLabel(t),n:1,hl:a>=c,hr:b<=wEnd};
       seen[key]=it;
       items.push(it);
     });
@@ -6196,6 +6205,21 @@ function npvBindReorder(){
         if(target&&npvMoveDept(dept,target)){
           NPV_TASKS=npvSortTasks(NPV_TASKS);
           npvRender();
+          /* 3.5/I12: on a saved project the reorder now persists — written through to
+             activeDepartments (order only; membership untouched), which reseeds
+             NPV_ORDER on the next visit. Drafts already persist via Create. */
+          if(NPV_LIVE){
+            const pj=ppProject();
+            if(pj&&pj.id){
+              const act=pj.activeDepartments||[];
+              const ordered=[...act.filter(d2=>d2==='pm'),
+                             ...NPV_ORDER.filter(d2=>act.includes(d2)),
+                             ...act.filter(d2=>d2!=='pm'&&!NPV_ORDER.includes(d2))];
+              PP_QUIET=true;
+              try{saveState({projects:ST.projects.map(x=>x.id===pj.id?{...x,activeDepartments:ordered}:x),tasks:ST.tasks});}
+              finally{PP_QUIET=false;}
+            }
+          }
         }
       };
       document.addEventListener('mousemove',mv);
@@ -6231,94 +6255,11 @@ function ppClosePop(){
    the chart instead of on top of it. Kept only for new-project draft bars, which have no
    ST record yet for the inspector to select (both callers below are in the !NPV_LIVE branch). */
 function ppOpenPop(idx,barEl){
-  /* Saved project: selection + inspector. New project: the popover — its bars aren't in
-     ST yet, so the inspector has nothing to select. The popover already knows drafts:
-     readonly dates, a note that the scheduler owns them. */
-  if(document.getElementById('pp-insp')&&NPV_LIVE){
-    const t=NPV_TASKS[idx];
-    if(t){ppSelect(t.id);return null;}
-  }
-  return ppOpenPopLegacy(idx,barEl);
-}
-function ppOpenPopLegacy(idx,barEl){
-  ppClosePop();
+  /* 3.5/D2+L3: the floating popover is retired — selection + the bottom inspector
+     serve BOTH pages now (ppSelect stores a rebuild-stable key on drafts). */
   const t=NPV_TASKS[idx];
-  if(!t)return;
-  BP_ID=t.id;
-  const live=NPV_LIVE;
-  const d=deptById(t.department)||{};
-  const body=document.getElementById('npv-body');
-  body.classList.add('picking');
-  barEl.classList.add('sel');
-
-  /* Crew checkboxes, any size — culled to the project team, plus anyone already on the
-     bar. Free text is gone: names come from the Staff list, nowhere else. */
-  const crew=crewOf(t).filter(n=>personByName(n));
-  const team=projTeam(ppProject());
-  const pool=team.length?team:allPeople();
-  const whoField='<div class="crew-list" id="bp-who" style="max-height:96px">'
-    + [...new Set([...pool,...crew])].map(n=>'<label><input type="checkbox" value="'+esc(n)+'"'
-      +(crew.indexOf(n)>=0?' checked':'')+'>'+esc(n)+'</label>').join('')
-    + '</div>';
-
-  const el=document.createElement('div');
-  el.className='bp';el.id='bar-pop';
-  el.innerHTML='<div class="bp-hd"><span class="bp-dot" style="background:'+(DEPT_COLORS[t.department]||'#8A98AE')+'"></span>'
-   + '<span class="bp-dept">'+esc(d.name||t.department)+'</span>'
-   + '<button class="bp-x" id="bp-x" title="Close">&times;</button></div>'
-   + '<div class="bp-f"><label>Name</label><input id="bp-name" value="'+esc(t.label||'')+'" placeholder="'+esc(d.name||t.department)+'"></div>'
-   + '<div class="bp-f"><label>Who</label>'+whoField+'</div>'
-   + '<div class="bp-grid">'
-   +   '<div class="bp-f"><label>Start</label><input id="bp-s" type="date" value="'+esc(t.startDate||'')+'"></div>'
-   +   '<div class="bp-f"><label>End</label><input id="bp-e" type="date" value="'+esc(t.endDate||'')+'"></div>'
-   +   '<div class="bp-f"><label>Days</label><input id="bp-d" type="number" min="1" value="'+(t.estimatedDays||1)+'"></div>'
-   + '</div>'
-   + '<div class="bp-acts">'
-   +   (live?'<button class="bp-btn" id="bp-pin" title="'+(t.pinned?'Let dragging change this bar\'s dates again':'Pin this bar so dragging can\'t change its dates')+'">'+(t.pinned?'Unpin':'Pin')+'</button>':'')
-   +   '<span style="flex:1"></span>'
-   +   '<button class="bp-btn dngr" id="bp-del" title="Delete this phase">Delete</button>'
-   + '</div>';
-
-  /* Mounted on the page, not inside the scrolling chart, so it can overhang the edges
-     instead of being clipped by them. Positioned from the bar's on-screen box. */
-  const r=barEl.getBoundingClientRect();
-  const vw=window.innerWidth||1200, vh=window.innerHeight||800;
-  const W=390, H=300;
-  let left=r.left, top=r.bottom+8;
-  if(left+W>vw-12)left=Math.max(12,vw-W-12);
-  if(left<12)left=12;
-  if(top+H>vh-12)top=r.top-H-8;
-  if(top<12)top=12;
-  el.style.left=Math.round(left)+'px';
-  el.style.top=Math.round(top)+'px';
-  document.body.appendChild(el);
-
-  document.getElementById('bp-x').addEventListener('click',ppClosePop);
-  el.addEventListener('mousedown',ev=>ev.stopPropagation());
-  /* Page scrolling would leave it stranded away from its bar — but a scroll INSIDE the
-     popover must not close it: an input scrolls itself when typing or selecting past
-     its visible edge, and that capture-phase event used to slam the popover shut
-     mid-keystroke. */
-  window.addEventListener('scroll',bpScrollAway,true);
-
-  const nameEl=document.getElementById('bp-name');
-  nameEl.addEventListener('change',()=>ppPopName(t,nameEl.value.trim()));
-  document.getElementById('bp-who').addEventListener('change',()=>
-    ppPopWho(t,[...document.querySelectorAll('#bp-who input:checked')].map(c=>c.value).join(', ')));
-  document.getElementById('bp-d').addEventListener('change',e=>ppPopDays(t,e.target.value));
-  document.getElementById('bp-s').addEventListener('change',e=>ppPopDate(t,'s',e.target.value));
-  document.getElementById('bp-e').addEventListener('change',e=>ppPopDate(t,'e',e.target.value));
-  if(live){
-    const pn=document.getElementById('bp-pin');
-    if(pn)pn.addEventListener('click',()=>{
-      PP_QUIET=true;
-      try{saveState({projects:ST.projects,tasks:ST.tasks.map(x=>x.id===t.id?{...x,pinned:!x.pinned}:x)});}
-      finally{PP_QUIET=false;}
-      ppClosePop();npvRebuild();
-    });
-  }
-  document.getElementById('bp-del').addEventListener('click',()=>ppPopDelete(t));
-  setTimeout(()=>nameEl.focus(),30);
+  if(t)ppSelect(t.id);
+  return null;
 }
 
 /* On a saved project the popover writes to state. On a new one it writes to the draft,
@@ -6330,7 +6271,7 @@ function ppOpenPopLegacy(idx,barEl){
 function ppSeedLines(dept){
   if(NPV_LINES.some(l=>l.dept===dept))return;
   for(const b of (NPV_ALL||[]).filter(t=>t.department===dept))
-    NPV_LINES.push({id:genId(),name:b.label||'',dept:dept,seed:true,
+    NPV_LINES.push({id:genId(),name:b.label||'',dept:dept,seed:true,notes:b.notes||'',
       who:Array.isArray(b.assignee)?b.assignee.join(', '):(b.assignee||'')});
 }
 function ppDraftLineFor(t){
@@ -6341,7 +6282,7 @@ function ppDraftLineFor(t){
   let l=lid?NPV_LINES.find(x=>x.id===lid):null;
   if(!l)l=NPV_LINES.find(x=>x.dept===t.department&&(x.name||'').trim()===(t.label||'').trim()
         &&(!x.who||x.who===t.assignee));
-  if(!l){l={id:genId(),name:t.label||'',dept:t.department,seed:true,
+  if(!l){l={id:genId(),name:t.label||'',dept:t.department,seed:true,notes:t.notes||'',
     who:Array.isArray(t.assignee)?t.assignee.join(', '):(t.assignee||'')};NPV_LINES.push(l);}
   return l;
 }
@@ -6354,22 +6295,7 @@ function ppPopName(t,v){
   const m=NPV_MANUAL[npvKey(t)];
   if(m){delete NPV_MANUAL[npvKey(t)];NPV_MANUAL[npvKey({...t,label:v})]=m;}
   ppDraftLineFor(t).name=v;
-  renderDraftLines();npvRebuild();ppClosePop();
-}
-function ppPopWho(t,v){
-  if(NPV_LIVE){commitPhase(t.id,'assignee',v);npvRebuild();return;}
-  ppDraftLineFor(t).who=v;
-  /* Stays open — ticking a second crew member shouldn't cost a reopen. */
-  renderDraftLines();npvRebuild();
-}
-function ppPopDays(t,v){
-  const n=Math.max(1,parseInt(v,10)||1);
-  if(NPV_LIVE){commitPhase(t.id,'estimatedDays',n);npvRebuild();return;}
-  const ck=document.querySelector('#pp-depts input[data-dept="'+t.department+'"]');
-  const dd=ck?ck.parentElement.querySelector('.ddays'):null;
-  if(dd){dd.value=n;ppFormSync();}
-  else if(PP_FORM){PP_FORM.est[t.department]=n;}
-  npvRebuild();ppClosePop();
+  npvRebuild();
 }
 /* A date edit in the popover moves the bar the same way a drag would: snapped to a
    workday, days recounted, into ST on a saved page and the manual overlay on a draft
@@ -6380,9 +6306,9 @@ function ppPopDate(t,which,val){
   if(which==='s')s=wdSnap(val);else e=wdSnap(val);
   if(parseDate(e)<parseDate(s)){if(which==='s')e=s;else s=e;}
   const days=wdCount(parseDate(s),parseDate(e));
-  if(NPV_LIVE){commitPhaseDates(t.id,s,e,days);npvRebuild();ppClosePop();return;}
+  if(NPV_LIVE){commitPhaseDates(t.id,s,e,days);npvRebuild();return;}
   NPV_MANUAL[npvKey(t)]={startDate:s,endDate:e,estimatedDays:days};
-  npvRebuild();ppClosePop();
+  npvRebuild();
 }
 function ppPopDelete(t){
   const nm=phaseLabel(t);
@@ -6390,7 +6316,7 @@ function ppPopDelete(t){
   if(NPV_LIVE){
     PP_QUIET=true;
     try{saveState({projects:ST.projects,tasks:ST.tasks.filter(x=>x.id!==t.id)});}finally{PP_QUIET=false;}
-    ppClosePop();npvRebuild();return;
+    ppSelect(null,true);npvRebuild();return;
   }
   /* Deleting one bar of several removes just that bar (its line); deleting a
      department's only bar unchecks the department. The roster fan-out used to fall
@@ -6398,14 +6324,14 @@ function ppPopDelete(t){
   const sibs=(NPV_ALL||[]).filter(x=>x.department===t.department);
   if(sibs.length>1){
     const l=ppDraftLineFor(t);
-    NPV_LINES=NPV_LINES.filter(x=>x.id!==l.id);renderDraftLines();
+    NPV_LINES=NPV_LINES.filter(x=>x.id!==l.id);
   }else{
     const ck=document.querySelector('#pp-depts input[data-dept="'+t.department+'"]');
     if(ck){ck.checked=false;ppFormSync();}
     else if(PP_FORM)PP_FORM.activeDepartments=PP_FORM.activeDepartments.filter(d=>d!==t.department);
     NPV_LINES=NPV_LINES.filter(x=>x.dept!==t.department);
   }
-  ppClosePop();npvRebuild();
+  ppSelect(null,true);npvRebuild();
 }
 /* REV49: the tabs are gone; E1: every section is always visible, so a "tab switch" is
    just a repaint. */
@@ -6505,7 +6431,7 @@ function npvBindDrag(){
          would freeze legacy layouts). ponytail: window fixed at drag start. */
       const prow=NPV_PLAN.find(r=>r.kind==='parent'&&r.dept===t.department);
       const isParent=!!prow&&prow.i===i;
-      const linked=isParent&&!resize&&LINK_SUBS&&NPV_LIVE;
+      const linked=isParent&&!resize&&LINK_SUBS; /* 3.5/I5: Link works on drafts too */
       const kidEls=linked?[...host.querySelectorAll('.npv-bar.kid')].filter(b=>{
         const k=NPV_TASKS[+b.dataset.i];return k&&k.department===t.department;}):[];
       const kidLefts=kidEls.map(b=>parseFloat(b.style.left)||0);
@@ -6559,9 +6485,7 @@ function npvBindDrag(){
              draft the click opens the bar's popover editor, because draft bars aren't in
              ST for the inspector to find. */
           npvRender();
-          if(NPV_LIVE){ppSelect(t.id);return;}
-          const again=document.querySelector('#npv-body .npv-bar[data-i="'+i+'"]');
-          if(again)ppOpenPop(i,again);
+          ppSelect(t.id); /* 3.5: one click verb on both pages — select into the inspector */
           return;
         }
         /* A real drag that was locked, or rounded back to zero days: reset, no select. */
@@ -6581,15 +6505,15 @@ function npvBindDrag(){
             ppSelect(t.id,true);toastU('Resized '+phaseLabel(t)+' to '+n+'d');return;}
           /* Draft: pin the dragged dates as a manual placement — the preview honors it
              through rebuilds and Save files exactly what's shown; nothing touches ST. */
-          const k=npvKey(t),prev=NPV_MANUAL[k];
+          const k=npvKey(t),prev=NPV_MANUAL[k],k0=PP_SEL;
           NPV_MANUAL[k]={startDate:fmtDate(ns),endDate:fmtDate(ne),estimatedDays:n};
-          npvRebuild();
-          toast('Resized '+phaseLabel(t)+' to '+n+'d',null,()=>{
+          npvRebuild();ppSelect(PP_SEL||k0,true);
+          npvToastU('Resized '+phaseLabel(t)+' to '+n+'d',()=>{
             if(prev)NPV_MANUAL[k]=prev;else delete NPV_MANUAL[k];
             npvRebuild();
           });
         }else{
-          if(linked){
+          if(linked&&NPV_LIVE){ /* 3.5: drafts handle Link below, in the placement store */
             /* One save for the whole department — the parent bar carries its subtasks. */
             commitPhaseShift(prow.kids.map(k=>k.t.id),days);
             npvRebuild();ppSelect(t.id,true);
@@ -6602,13 +6526,18 @@ function npvBindDrag(){
               +(days>0?' later':' earlier'));
             return;
           }
-          /* Draft: same manual-placement pin as a resize, with the same undo toast. */
-          const k=npvKey(t),prev=NPV_MANUAL[k];
-          NPV_MANUAL[k]={startDate:fmtDate(addDays(s0,days)),endDate:fmtDate(addDays(e0,days))};
-          npvRebuild();
-          toast('Moved '+phaseLabel(t)+' '+Math.abs(days)+' day'+(Math.abs(days)===1?'':'s')
-            +(days>0?' later':' earlier'),null,()=>{
-            if(prev)NPV_MANUAL[k]=prev;else delete NPV_MANUAL[k];
+          /* Draft: same manual-placement pin as a resize. 3.5/I5: Link carries the
+             department's subtasks; I10: the reverser joins the draft undo stack. */
+          const dlist=linked?NPV_TASKS.filter(z=>z.department===t.department):[t];
+          const dprevs=dlist.map(z=>({k:npvKey(z),p:NPV_MANUAL[npvKey(z)]}));
+          const k0=PP_SEL;
+          for(const z of dlist)NPV_MANUAL[npvKey(z)]={
+            startDate:fmtDate(addDays(parseDate(z.startDate),days)),
+            endDate:fmtDate(addDays(parseDate(z.endDate),days))};
+          npvRebuild();ppSelect(PP_SEL||k0,true);
+          npvToastU('Moved '+phaseLabel(t)+' '+Math.abs(days)+' day'+(Math.abs(days)===1?'':'s')
+            +(days>0?' later':' earlier'),()=>{
+            for(const q of dprevs){if(q.p)NPV_MANUAL[q.k]=q.p;else delete NPV_MANUAL[q.k];}
             npvRebuild();
           });
         }
@@ -6780,7 +6709,13 @@ document.addEventListener('keydown',ev=>{
     closeMenus();
     return;
   }
-  if((ev.ctrlKey||ev.metaKey)&&ev.key.toLowerCase()==='z'&&!typing){ev.preventDefault();undo();return;}
+  if((ev.ctrlKey||ev.metaKey)&&ev.key.toLowerCase()==='z'&&!typing){
+    ev.preventDefault();
+    /* 3.5/I10: on a draft, ⌘Z walks the draft's own reversers (its mutations never
+       reach ST); everywhere else it pops the ST snapshot stack as before. */
+    if(ROUTE.creating&&NPV_UNDO.length){NPV_UNDO.pop()();return;}
+    undo();return;
+  }
 
   /* REV49 — the dashboard keyboard. Every one of these is also a menu item or a button,
      so nothing lives only here. Single letters act on whatever is selected. */
@@ -6799,13 +6734,14 @@ document.addEventListener('keydown',ev=>{
       if(sel){
         const n=document.getElementById('ins-name');
         if(n){n.focus();n.select();}
-        ev.preventDefault();return;
+        ev.preventDefault();
       }
-      const bp=document.getElementById('bp-name');
-      if(bp){bp.focus();bp.select();ev.preventDefault();return;}
       return;
     }
-    if((k==='Delete'||k==='Backspace')&&sel){ppDeletePhase(sel.id);ev.preventDefault();return;}
+    if((k==='Delete'||k==='Backspace')&&sel){
+      if(NPV_LIVE)ppDeletePhase(sel.id);else ppPopDelete(sel); /* 3.5/I2: drafts too */
+      ev.preventDefault();return;
+    }
     if((k==='ArrowDown'||k==='ArrowUp')&&NPV_TASKS.length){
       const i=sel?NPV_TASKS.findIndex(t=>t.id===sel.id):-1;
       const n=k==='ArrowDown'
@@ -6814,12 +6750,19 @@ document.addEventListener('keydown',ev=>{
       ppSelect(NPV_TASKS[n].id,true);
       ev.preventDefault();return;
     }
-    if(ev.shiftKey&&(k==='ArrowLeft'||k==='ArrowRight')&&sel&&NPV_LIVE){
-      const d=k==='ArrowRight'?1:-1;
-      commitPhaseDates(sel.id,
-        fmtDate(addDays(parseDate(sel.startDate),d)),
-        fmtDate(addDays(parseDate(sel.endDate),d)));
-      npvRebuild();ppSelect(sel.id,true);
+    if(ev.shiftKey&&(k==='ArrowLeft'||k==='ArrowRight')&&sel){
+      const d=k==='ArrowRight'?1:-1,k0=PP_SEL;
+      if(NPV_LIVE){
+        commitPhaseDates(sel.id,
+          fmtDate(addDays(parseDate(sel.startDate),d)),
+          fmtDate(addDays(parseDate(sel.endDate),d)));
+      }else{ /* 3.5/I4: the nudge works on drafts — a manual placement, like a drag */
+        NPV_MANUAL[npvKey(sel)]={
+          startDate:fmtDate(addDays(parseDate(sel.startDate),d)),
+          endDate:fmtDate(addDays(parseDate(sel.endDate),d)),
+          estimatedDays:sel.estimatedDays};
+      }
+      npvRebuild();ppSelect(PP_SEL||k0,true);
       ev.preventDefault();return;
     }
   }

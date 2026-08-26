@@ -259,7 +259,7 @@ function stage5(){
               setTimeout(()=>{
                 const after=E("ST.tasks.find(t=>t.id==='"+sel+"').startDate");
                 ok('shift+right nudges the bar a day', before!==after, before+' -> '+after);
-                ok('it stays selected while nudging', E('PP_SEL')===sel);
+                ok('it stays selected while nudging', E('PP_SEL')===sel, E('PP_SEL')+' vs '+sel);
 
                 key('?');
                 setTimeout(()=>{

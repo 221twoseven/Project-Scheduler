@@ -199,14 +199,23 @@ function stage4(){
           ok('it carries the clicked date',
              E("NPV_EVENTS.slice(-1)[0].date")===iso, E("NPV_EVENTS.slice(-1)[0].date")+' vs '+iso);
 
-          sec('a draft band opens the legacy popover, not the inspector');
+          const CONV=/ppDraftResolve/.test(src); /* REV82: popover retired */
+          sec(CONV?'a draft band selects into the shared inspector (REV82)'
+                  :'a draft band opens the legacy popover, not the inspector');
           const b=doc.querySelector('#npv-body .cal-band.ph[data-i]');
           ok('the draft calendar draws phase bands', !!b);
           clickOn(b);
           setTimeout(()=>{
-            ok('the popover opened', !!doc.getElementById('bar-pop'));
-            ok('nothing was selected — drafts have no ST record', E('PP_SEL')===null);
-            E('ppClosePop();');
+            if(CONV){
+              ok('the phase inspector opened', !!doc.getElementById('ins-name'));
+              ok('the selection is a rebuild-stable draft key, not an ST id',
+                 /^(l:|d:)/.test(String(E('PP_SEL'))), E('PP_SEL'));
+              E('ppSelect(null,true);');
+            }else{
+              ok('the popover opened', !!doc.getElementById('bar-pop'));
+              ok('nothing was selected — drafts have no ST record', E('PP_SEL')===null);
+              E('ppClosePop();');
+            }
 
             sec('a draft band\'s menu is add-only too (N11)');
             rclick(doc.querySelector('#npv-body .cal-band.ph[data-i]'));
