@@ -718,6 +718,11 @@ body.vivid .npv-we{background:#F1F5F9}
   background:rgba(255,255,255,.55);border-radius:1px}
 .cal-hdl.l::before{left:3px}.cal-hdl.r::before{right:3px}
 .cal-band.pick{box-shadow:0 0 0 2px #fff,0 0 0 4px var(--acc);z-index:3}
+/* 3.5: while an edge drags, the day columns the band will span after the snap tint
+   live, so the resize visibly follows the mouse (the full-day snap stays). An ::after
+   overlay, not box-shadow/background: the cells carry an inline background shorthand
+   and a blend mode that swallow both. */
+.cal-col.rz::after{content:'';position:absolute;inset:0;background:rgba(47,111,228,.16)}
 
 
 .dr-row.ln,.dr-hd.ln{grid-template-columns:minmax(0,1fr) 128px 108px 24px}
@@ -1344,7 +1349,7 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_REV=82; // bump this ONE number on every release; used everywhere the rev shows up
+const APP_REV=83; // bump this ONE number on every release; used everywhere the rev shows up
 
 /* ===================== CONSTANTS ===================== */
 const SET_KEY ='shopTimelineSettings_v1';
@@ -5672,6 +5677,10 @@ function npvBindHost(host){
             tip.innerHTML='<div class="tt-title">'+fmtNice(fmtDate(edgeD))+'</div>';
             tip.classList.remove('hidden');posTooltip(e2);
           }
+          /* 3.5: the snap-resolved span tints live under the drag. */
+          const ra=fmtDate(resize==='l'?edgeD:s0),rb=fmtDate(resize==='r'?edgeD:e0);
+          host.querySelectorAll('.cal-col[data-d]').forEach(cc=>
+            cc.classList.toggle('rz',cc.dataset.d>=ra&&cc.dataset.d<=rb));
           return;
         }
         if(!anchor){anchor=cel.dataset.d;return;}
@@ -5688,6 +5697,7 @@ function npvBindHost(host){
         document.removeEventListener('mouseup',up);
         host.classList.remove('cal-dragging');band.classList.remove('dragging');
         document.body.style.userSelect='';document.body.style.cursor='';hideTooltip();
+        host.querySelectorAll('.cal-col.rz').forEach(cc=>cc.classList.remove('rz'));
         /* No movement: the click handler selects/opens as before. A drag back to the
            starting day is a no-op, like the Gantt's. */
         if(!moved)return;
@@ -7045,7 +7055,7 @@ function buildLegend(){
     }).join('')
     +'<div class="lg-sec">Installation</div>'
     +row('<span class="job-bar lg-bar" style="background-color:'+INSTALL_RED+';color:'+labelColor(INSTALL_RED)+'"></span>',
-      'Red bars are installs — nothing else is ever red')
+      'Red bars are installs — no other bar is ever red')
     +'<div class="lg-sec">People chips</div>'
     +row(bar('','<span class="role-tag">PM</span><span class="role-tag">D</span><span class="role-tag">F</span>'),
       'Project manager · Drafter · Lead fabricator')
@@ -7201,7 +7211,7 @@ const COACH_STEPS=[
   {sel:'#sidebar',t:'Every job, one list',
    b:'Projects stack here with their job codes and deadlines. Click a row to open its phases, the eye spotlights one job, the pencil edits it — and the Departments lens regroups everything by crew.'},
   {sel:'#gantt-scroll',t:'The timeline',
-   b:'Each bar is a phase of work. Click one for its details, drag it to move, grab an edge to resize, right-click for more. Red bars are installs — nothing else is ever red.'},
+   b:'Each bar is a phase of work. Click one for its details, drag it to move, grab an edge to resize, right-click for more. Red bars are installs.'},
   {sel:'#t-search',t:'Find things fast',
    b:'Type here (or press /) to show only matching projects and phases. Status and Person narrow the view the same way — Clear filters brings everything back.'},
   {sel:'#btn-dash',t:'Your plate',

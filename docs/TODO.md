@@ -350,7 +350,12 @@ until this list is done (or the owner trims it). Grouped by surface;
       is real, the popover is retired, the shared bottom inspector serves both
       pages, all selection verbs + Link + ⌘Z work on drafts, saved reorder
       persists, and the saved page's silently-broken Notes field now saves.
-      **Still open:** the §4 click-behavior rows (owner: address after).
+      **§4 click-behavior rows CLOSED 2026-08-26 (verified, REV83):** every row
+      was already converged by REV81/82 — the crumb/× handlers were only no-ops
+      because `ppSelect` was, and the calendar band click routes through the
+      same selection path. The one survivor is the **double-click** row:
+      unbound on both pages, `[decision]` candidate for "open editor" (see the
+      audit doc).
 
 **Global project view (main timeline):**
 
@@ -381,18 +386,21 @@ until this list is done (or the owner trims it). Grouped by surface;
 - [ ] **Default view collapses each phase** (subtasks hidden); left-click opens
       the Phase Edit form at the bottom of the screen and brings the subtasks
       into view.
-- [ ] **Drag-resize live feedback** — the full-day snap is intended and stays,
-      but the drag should visibly follow the mouse so the user can see that
-      resizing is working.
+- [x] **Drag-resize live feedback — DONE 2026-08-26 (REV83).** While an edge
+      handle drags, the day columns the band will span after the workday snap
+      tint live and clear on release; the snap itself is unchanged. Suite:
+      `tests/test83.js`. Record:
+      `docs/Milestones/2026-08-26-calendar-live-resize.md`.
 
 **Project Edit / New Project pages:**
 
 - [ ] **Coach marks / help tour on Project Edit and New Project** — extend the
       REV74 tour to these views. `[decision]` are they one view or two for
       tour purposes? (Feeds the parity audit above.)
-- [ ] **Coach-mark copy: remove "Nothing else is red."** The red-means-install
-      rule stays, but other red graphic elements exist throughout the site, so
-      the claim invites confusion.
+- [x] **Coach-mark copy: remove "Nothing else is red." — DONE 2026-08-26
+      (REV83).** The tour step now ends at "Red bars are installs."; the legend
+      screen's matching line was scoped to bars ("no other bar is ever red") —
+      the rule stays, the site-wide claim is gone.
 - [ ] **Move the nav breadcrumb to its own bar**, separated from the project
       summary bar (client, job, install, etc.).
 - [ ] `[decision]` **Fourth exit?** Current exits from project views: Esc,
@@ -508,6 +516,9 @@ own "only if it proves needed" gates.
       department's first bar if an edit splits the department mid-selection —
       benign today (it IS the same bar); revisit only if re-parenting ever lands.
       (REV82)
+- [ ] The calendar's live resize tint (REV83) covers edge-resize only —
+      drag-to-move keeps its tooltip-only feedback; the owner's note named
+      resize specifically. Gate: the same complaint about moves. (2026-08-26)
 
 **Deliberate design ceilings — no action planned, revisit only on real complaints:**
 12-slot palette repeats at 13+ visible projects (T2); quiet re-selection after a committed
