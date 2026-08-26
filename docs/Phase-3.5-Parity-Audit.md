@@ -8,21 +8,31 @@ This is the **diff list** — the first deliverable of the Phase 3.5 parity item
 (`docs/TODO.md` §6). No code has been changed yet; convergence fixes follow once the
 owner picks from this list.
 
-## Owner decisions — 2026-08-26
+## Owner decisions — 2026-08-26 (final for rounds 1–3)
 
 - **Accepted as recommended:** D1–D6, L1–L4, I1–I7, I9–I12. **I8: fix the bug.**
-- **D7 — new direction:** use the empty footer status-pill slot on drafts to show
-  **"Draft"** — the wanted is-this-real indicator. Candidate wording folds in D9's
-  feedback ask: "Draft — kept in this tab."
-- **Explained, awaiting the owner's pick:** D8 (option: first dropdown entry becomes
-  "Automatic (currently: …)" so stored-vs-computed is visible), D9 (store exists and
-  is stashed; the gap is user feedback → D7, plus whether the stash should move to
-  localStorage on a keystroke debounce to survive crashes), D10 (the hand-placed
-  marker is draft-meaningful only — "keep deliberate" is defensible; the saved-page
-  counterpart worth having is a *pinned* marker, see I14), I13 (fix = clear draft
-  state on entry to any project page), I14 (fix shape: Pin checkbox in the phase
-  inspector + a "pinned — unpin to move" toast), I15 (keep — N2 design).
+- **D7 — new direction:** the empty footer status slot on drafts shows a **"Draft"**
+  pill; its tooltip carries D9's feedback ask ("kept in this tab…").
+- **D8 — accepted** ("Automatic is the failsafe from a human forgetting to update
+  status, with a manual override" — owner). First dropdown option is now
+  "Automatic (currently: …)" and the control shows the stored truth.
+- **D9 — aligned:** the store exists and is stashed; the gap was feedback (→ D7)
+  plus a debounced stash after edits so a crash-restored tab recovers the draft.
+- **D10 — keep, draft-only (recommendation updated).** The marker means "this bar
+  is hand-placed; the draft's layout assistant will no longer move it." The
+  scheduler only exists while composing a draft — it never moves a saved bar, so
+  the app never overrides a PM's dates and the marker has nothing to mean on saved
+  pages. The saved-page affordance that *was* missing is the pin (I14).
+- **I13 — approved** ("pre-approved hygiene"): draft state clears on entry to any
+  project page.
+- **I14 — approved:** Pin checkbox in the phase inspector + refusal toasts.
+- **I15 — keep as is** (N2 design).
 - **Click behavior (§4): deferred** — to be addressed after the above.
+
+**Shipped so far:** I8, I13, I14, D7+D9, D8, and the keep-pile tooltip crew name
+landed 2026-08-26 as **REV81** (`docs/Milestones/2026-08-26-parity-quick-wins.md`).
+The remaining accepted rows (D1–D4, L1/L3/L4, I1–I7, I9–I12) are the **inspector
+convergence** — one coherent build, next slice.
 
 ## How to read these tables
 

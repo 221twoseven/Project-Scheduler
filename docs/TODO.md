@@ -340,7 +340,13 @@ until this list is done (or the owner trims it). Grouped by surface;
       **Diff list DELIVERED 2026-08-26: `docs/Phase-3.5-Parity-Audit.md`** —
       ~30 differences in four categories, one confirmed bug (draft "Add a
       phase" is a silent no-op), deliberate differences flagged, convergence
-      order recommended. Fixes await the owner's picks from that doc.
+      order recommended. **Owner decided rows 1–3 the same day** (decisions
+      recorded in that doc); the quick wins shipped as **REV81**
+      (`docs/Milestones/2026-08-26-parity-quick-wins.md`): I8 bug fixed, I13
+      leak hygiene, I14 working Pin + refusal toasts, D7 Draft pill, D8
+      Automatic-status option, D9 edit-debounced stash, tooltip crew name.
+      **Still open:** the inspector convergence (D1–D4, L1/L3/L4, I1–I7,
+      I9–I12 — one build), and the §4 click-behavior rows (owner: after).
 
 **Global project view (main timeline):**
 
@@ -483,6 +489,13 @@ own "only if it proves needed" gates.
 - [ ] Drag-to-pan (REV80) lives on the date header only — canvas drag still belongs
       to bar move/resize. Gate: PMs asking to grab the canvas itself (needs a
       modifier-key design). (2026-08-26)
+- [ ] The draft's "Add a phase" (REV81, I8) ignores the menu's optional name field —
+      the new bar is the department's primary and takes the department's name (the
+      saved path names the bar). Gate: someone typing a name there and missing it.
+      (2026-08-26)
+- [ ] The phase-inspector Pin checkbox (REV81, I14) uses the unicode 📌 — same U6
+      ceiling as the Pin-dates modal; swap together when that modal is next
+      touched. (2026-08-26)
 
 **Deliberate design ceilings — no action planned, revisit only on real complaints:**
 12-slot palette repeats at 13+ visible projects (T2); quiet re-selection after a committed

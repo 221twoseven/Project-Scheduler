@@ -424,6 +424,7 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 /* ============ REV31: ON HOLD / CALLED OFF BAR TREATMENT ============ */
 .job-bar[data-st="on-hold"]{opacity:.55;background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.45) 0 5px,transparent 5px 11px)}
 .job-bar[data-st="complete"] .sum-pill{background:#F1F5F9;color:#475569}
+.sum-pill[data-st="draft"]{background:#EEF2F7;color:#33415A;outline:1.5px dashed #94A3B8;outline-offset:-1.5px} /* 3.5/D7 */
 .job-bar[data-st="on-hold"] .sum-pill{background:#FFEDD5;color:#9A3412}
 .job-bar[data-st="in-design"] .sum-pill{background:#EDE9FE;color:#5B21B6}
 .job-bar[data-st="in-fabrication"] .sum-pill{background:#E1F5EE;color:#0F6E56}
@@ -1343,7 +1344,7 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_REV=80; // bump this ONE number on every release; used everywhere the rev shows up
+const APP_REV=81; // bump this ONE number on every release; used everywhere the rev shows up
 
 /* ===================== CONSTANTS ===================== */
 const SET_KEY ='shopTimelineSettings_v1';
@@ -2489,7 +2490,7 @@ function computeRange(){
 }
 
 function render(){
-  if(typeof ROUTE!=='undefined'&&ROUTE&&ROUTE.view==='project'){document.body.classList.remove('me-dock-on');if(!PP_QUIET)renderProjectPage();return;}
+  if(typeof ROUTE!=='undefined'&&ROUTE&&ROUTE.view==='project'){document.body.classList.remove('me-dock-on');if(!PP_QUIET){PP_KEEP=true;renderProjectPage();}return;} /* 3.5/I13: a data repaint of the page on screen keeps its working state */
   const{s,e}=computeRange();TL_S=s;TL_E=e;
   {const td=today();TODAY_X=(td>=TL_S&&td<=TL_E)?d2x(td):null;}
   computeConflicts();
@@ -3788,8 +3789,10 @@ function applyRoute(){
   const exists=r.creating||(r.id&&ST.projects.some(p=>p.id===r.id));
   if(r.view==='project'&&exists){
     /* N2: a repeat render of the draft already on screen (declined exit, duplicate
-       hashchange) must never wipe it — only arriving fresh starts a clean form. */
+       hashchange) must never wipe it — only arriving fresh starts a clean form.
+       3.5/I13: same rule for a saved page repainting itself. */
     if(r.creating&&ROUTE.creating)PP_KEEP=true;
+    if(!r.creating&&!ROUTE.creating&&ROUTE.view==='project'&&r.id===ROUTE.id)PP_KEEP=true;
     ROUTE=r;
     document.body.classList.add('pp-route');
     mn.classList.add('hidden');pg.classList.remove('hidden');
@@ -3841,15 +3844,23 @@ function ppSyncPane(){
 }
 function renderProjectPage(){
   const isNew=ROUTE.creating;
-  /* Clear the draft BEFORE anything reads it, or a second new project inherits the first. */
-  if(isNew&&!PP_KEEP){
+  /* Clear the draft BEFORE anything reads it, or a second new project inherits the
+     first. 3.5/I13: the same working state must not leak into a SAVED page either —
+     a leftover manual placement, row order or subtask line from a cancelled draft
+     could silently reorder a saved project's subtasks (and left Reset armed with
+     nothing real to reset). So the clear runs on entry to ANY project page; PP_KEEP
+     marks a same-page repaint (autosave, poll, declined exit), which keeps state. */
+  if(!PP_KEEP){
     NPV_MANUAL={};NPV_TASKS=[];NPV_ALL=[];NPV_ORDER=[];NPV_ORDER_DIRTY=false;
-    NPV_EVENTS=[];NPV_TODOS=[];NPV_LINES=[];NPV_MODE='gantt';
-    ppFormInit();
-    /* A tab the browser put to sleep reloads right here with everything the user typed
-       gone from memory — pick the autosaved draft back up. PP_SNAP stays at the clean
-       defaults from ppFormInit, so the restored draft still counts as dirty. */
-    ppDraftUnstash();
+    NPV_EVENTS=[];NPV_TODOS=[];NPV_LINES=[];
+    if(isNew){
+      NPV_MODE='gantt';
+      ppFormInit();
+      /* A tab the browser put to sleep reloads right here with everything the user typed
+         gone from memory — pick the autosaved draft back up. PP_SNAP stays at the clean
+         defaults from ppFormInit, so the restored draft still counts as dirty. */
+      ppDraftUnstash();
+    }
   }
   PP_KEEP=false;
   const p=ppProject();
@@ -4301,6 +4312,10 @@ function ppInspector(){
      + '<div class="ins-f"><label>Days</label><input type="number" min="1" data-f="estimatedDays" value="'+(sel.estimatedDays||1)+'"></div>'
      + '</div>';
     f+='<div class="ins-f"><label>Notes</label><textarea rows="2" data-f="notes" placeholder="Anything the shop needs to know">'+esc(sel.notes||'')+'</textarea></div>';
+    /* 3.5/I14: pin finally has a working control. Bars could be pinned from the main
+       timeline, then silently refused to resize here with no way to see or undo it. */
+    f+='<div class="ins-f"><label class="ins-pin"><input type="checkbox" id="ins-pin"'
+     + (sel.pinned?' checked':'')+'> 📌 Pin dates — the bar refuses drags and resizes</label></div>';
     /* N11 said adds live on right-click; the +Subtask/+Event/+Task buttons duplicated
        that and are gone. Keyboard S/E/T still works. */
     f+='<div class="ins-acts">'
@@ -4324,7 +4339,13 @@ function ppInspector(){
       + '<div class="ins-f"><label>Install date</label><input id="pp-deadline" type="date" value="'+esc(p.deadline||'')+'"></div>'
       + '</div>'
       + '<div class="ins-f"><label>Status</label><select id="pp-status">'
-      + Object.keys(STATUS_LBL).map(s=>'<option value="'+s+'"'+((ROUTE.creating?(PP_FORM&&PP_FORM.status):projectStatus(p))===s?' selected':'')+'>'+esc(STATUS_LBL[s])+'</option>').join('')
+      /* 3.5/D8: the dropdown shows the STORED truth. "Automatic" is the failsafe —
+         status derives from the schedule until a human pins one; the option's text
+         carries the derived result so both layers are visible at once. */
+      + (()=>{const stored=(ROUTE.creating?(PP_FORM&&PP_FORM.status):p.status)||'auto';
+          const cur=ROUTE.creating?'estimating':projectStatus(p);
+          return '<option value="auto"'+(stored==='auto'?' selected':'')+'>Automatic (currently: '+esc(STATUS_LBL[cur]||cur)+')</option>'
+           + Object.keys(STATUS_LBL).map(s=>'<option value="'+s+'"'+(stored===s?' selected':'')+'>'+esc(STATUS_LBL[s])+'</option>').join('');})()
       + '</select></div>',null,true);
     h+=ppSec('team','Team',
       '<div class="pg-roles">'+PP_ROLES.map(r=>'<div><span class="rl">'+esc(r[1])+'</span>'
@@ -4402,6 +4423,15 @@ function ppBindInspector(p,sel){
     const g=(id,fn)=>{const b=document.getElementById(id);if(b)b.addEventListener('click',fn);};
     g('ins-dup',()=>npvDuplicatePhase(sel)); /* N11: moved here from the bar menu */
     g('ins-del',()=>ppDeletePhase(sel.id));
+    /* 3.5/I14: pinned is a boolean on the task row — commit it directly. */
+    const pn=document.getElementById('ins-pin');
+    if(pn)pn.addEventListener('change',()=>{
+      PP_QUIET=true;
+      try{saveState({projects:ST.projects,tasks:ST.tasks.map(x=>x.id===sel.id?{...x,pinned:pn.checked}:x)});}
+      finally{PP_QUIET=false;}
+      npvRebuild();ppSelect(sel.id,true);
+      toastU(pn.checked?'Pinned — '+phaseLabel(sel)+' keeps its dates':'Unpinned '+phaseLabel(sel));
+    });
     /* Crew checkboxes commit the whole set — commitPhase splits the comma list back
        into an array for install. */
     const cw=document.getElementById('ins-crew');
@@ -5001,6 +5031,19 @@ function npvEndAfter(start,days){
 function npvCreateSubtask(dept,date,newDept,name){
   if(!dept)return;
   if(!NPV_LIVE){
+    /* 3.5/I8: "Add a phase" must actually add the department on a draft — this used
+       to fall through to the subtask path and silently do nothing (the dept was
+       never in activeDepartments, so the scheduler emitted no bar to split). Tick
+       the checklist row and rebuild; the scheduler emits the new primary bar. */
+    if(newDept){
+      const ck=document.querySelector('#pp-depts input[data-dept="'+dept+'"]');
+      if(ck&&!ck.checked){ck.checked=true;ck.dispatchEvent(new Event('change',{bubbles:true}));}
+      else if(PP_FORM&&!PP_FORM.activeDepartments.includes(dept))PP_FORM.activeDepartments.push(dept);
+      ppFormSync();npvRebuild();
+      NPV_OPEN.add(dept);saveUI();
+      toastU('Added '+((deptById(dept)||{}).name||dept));
+      return;
+    }
     /* REV50: this used to push a nameless line and point at a tab that no longer
        exists — a silent no-op. Named lines split the bar immediately, so the subtask
        appears the moment it's asked for, and the bar's editor renames it. */
@@ -5170,7 +5213,11 @@ function npvRebuild(){
   npvRender();
   npvSyncDeptDates();
 }
-function npvQueue(){if(NPV_RAF)return;NPV_RAF=requestAnimationFrame(()=>{NPV_RAF=null;npvRebuild();});}
+let NPV_STASH_T=null;
+function npvQueue(){if(NPV_RAF)return;NPV_RAF=requestAnimationFrame(()=>{NPV_RAF=null;npvRebuild();
+  /* 3.5/D9: the visibility stash misses a hard crash — also stash shortly after
+     edits settle. sessionStorage comes back with a crash-restored tab. */
+  if(ROUTE.creating){clearTimeout(NPV_STASH_T);NPV_STASH_T=setTimeout(ppDraftStash,1500);}});}
 
 function npvRender(){
   const host=document.getElementById('npv-body');
@@ -5276,11 +5323,13 @@ function npvRender(){
     const nm=phaseLabel(t);
     const a=parseDate(t.startDate),b=parseDate(t.endDate);
     const bx=x(a)+NPV_PADL,bw=Math.max(dwv,(diffDays(a,b)+1)*dwv-NPV_PADR);
-    const col0=DEPT_COLORS[t.department]||'#8A98AE';
+    const col0=DEPT_COLORS[t.department]||'#6B7484';
     const col=cls==='kid'?kidShade(col0):col0;
+    /* 3.5 keep-pile: the hover tooltip carries the crew too (same source the gutter shows). */
+    const who=Array.isArray(t.assignee)?t.assignee.join(', '):(t.assignee||'');
     return '<div class="npv-bar'+(t.__manual?' manual':'')+(cls?' '+cls:'')+'" data-i="'+i+'" '
      + 'style="left:'+bx+'px;width:'+bw+'px;background:'+col+';color:'+labelColor(col)+'" '
-     + 'title="'+esc(nm+' · '+fmtNice(t.startDate)+' → '+fmtNice(t.endDate)+' · '+(t.estimatedDays||1)+'d')+'">'
+     + 'title="'+esc(nm+(who?' · '+who:'')+' · '+fmtNice(t.startDate)+' → '+fmtNice(t.endDate)+' · '+(t.estimatedDays||1)+'d')+'">'
      + '<div class="npv-hdl" data-i="'+i+'" style="width:'+edgeZone(bw,8)+'px"></div>'
      + '<div class="npv-hdl r" data-i="'+i+'" style="width:'+edgeZone(bw,8)+'px"></div>'
      + '<span style="margin-left:5px">'+esc(nm)+'</span></div>';
@@ -5288,7 +5337,7 @@ function npvRender(){
   for(const row of NPV_PLAN){
     if(row.kind==='parent'){
       const d=deptById(row.dept)||{};
-      const col=DEPT_COLORS[row.dept]||'#8A98AE';
+      const col=DEPT_COLORS[row.dept]||'#6B7484';
       const a=parseDate(row.s),b=parseDate(row.e);
       const ex=x(a)+NPV_PADL,ew=Math.max(dwv,(diffDays(a,b)+1)*dwv-NPV_PADR);
       const nm=d.name||row.dept;
@@ -5572,7 +5621,12 @@ function npvBindHost(host){
            starting day is a no-op, like the Gantt's. */
         if(!moved)return;
         if(resize){
-          if(locked||!edgeD)return;
+          if(locked||!edgeD){
+            /* 3.5/I14: same courtesy as the Gantt — a refused resize says why. */
+            if(locked)toast(t.pinned?'📌 Pinned — untick Pin in the phase panel to resize it'
+                                    :'Protect dates is on — unlock it to resize');
+            return;
+          }
           const ns2=resize==='l'?edgeD:s0, ne2=resize==='r'?edgeD:e0;
           /* Snapping can round a short drag back to where it started — nothing to file. */
           if(fmtDate(ns2)===t.startDate&&fmtDate(ne2)===t.endDate)return;
@@ -6079,10 +6133,13 @@ function npvPaintFooter(dl){
   /* N4: the status pill anchors here, right-justified with the schedule numbers,
      instead of floating in the title row. Drafts have no status yet. */
   const p=ppProject();
+  /* 3.5/D7+D9: a draft announces itself in the slot where status usually sits, and
+     the tooltip answers the "what happens on refresh" question the saved page's
+     autosave pill answers. */
   const pill=(!ROUTE.creating&&p&&p.id)
     ? (()=>{const st=projectStatus(p);
         return '<span class="sum-pill" data-st="'+esc(st)+'">'+esc(STATUS_LBL[st]||st)+'</span>';})()
-    : '';
+    : '<span class="sum-pill" data-st="draft" title="A draft — kept in this tab, so it survives a refresh or the tab sleeping. Create project files it to SharePoint.">Draft</span>';
   if(!NPV_TASKS.length){foot.innerHTML=pill;return;}
   const starts=NPV_TASKS.map(t=>parseDate(t.startDate));
   const kick=new Date(Math.min(...starts.map(d2=>d2.getTime())));
@@ -6508,7 +6565,13 @@ function npvBindDrag(){
           return;
         }
         /* A real drag that was locked, or rounded back to zero days: reset, no select. */
-        if(locked||!days){npvRender();return;}
+        if(locked||!days){
+          npvRender();
+          /* 3.5/I14: a refused resize says WHY instead of silently snapping back. */
+          if(locked)toast(t.pinned?'📌 Pinned — untick Pin in the phase panel to resize it'
+                                  :'Protect dates is on — unlock it to resize');
+          return;
+        }
         if(resize){
           const ns=resize==='l'?edge(e2):s0, ne=resize==='r'?edge(e2):e0;
           /* Snapping can round a short drag back to where it started — nothing to file. */
