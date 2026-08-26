@@ -19,10 +19,11 @@
   --r-s:5px; --r-m:8px; --r-l:14px;
   /* type scale — Design-Language §3; --fs-micro is decorative eyebrows ONLY */
   --fs-title:15px; --fs-body:13px; --fs-label:11.5px; --fs-fine:11px; --fs-micro:9px;
-  --row-h:44px; /* Comfortable row height — §4 */
+  --row-h:56px; /* Comfortable row height — §4 (three densities: 56/44/32, owner 2026-08-26) */
 }
-/* B5 density: Compact rows (§4). The token drives real geometry — the JS lane math
-   (rowH) mirrors it at both values; tests/test46.js asserts they stay in step. */
+/* B5 density: Snug and Compact rows (§4). The token drives real geometry — the JS lane
+   math (rowH) mirrors it at every level; tests/test46.js asserts they stay in step. */
+body.snug{--row-h:44px}
 body.compact{--row-h:32px}
 /* ============ RESET ============ */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -159,8 +160,9 @@ body.me-dock-on #me-dock{display:flex;flex-direction:column;position:fixed;left:
 .sb-chip{font-family:var(--mono);font-size:var(--fs-fine);font-weight:600;letter-spacing:.03em;padding:1.5px 6px;border-radius:8px;flex-shrink:0;line-height:1.5}
 .sb-chip.late{background:#FDE2E2;color:#B91C1C}
 .sb-chip.soon{background:#FCEEC8;color:#8F5E08}
-/* B5 Compact: the T5 two-line row keeps both lines, each single-line, tighter leading */
-body.compact .sb-2l{gap:0}
+/* B5 Snug/Compact: the T5 two-line row keeps both lines, each single-line; Compact's
+   32px rows also need tighter leading (nothing informational drops below 11px) */
+body.snug .sb-2l,body.compact .sb-2l{gap:0}
 body.compact .sb-2l .sb-name{font-size:12px;line-height:1.1}
 body.compact .sb-2l .sb-sub{line-height:1.1}
 body.compact .sb-chip{line-height:1.2;padding:.5px 6px}
@@ -1097,7 +1099,7 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
       <div id="settings-menu" class="tb-menu hidden">
         <div class="sm-item" id="mi-people" title="Edit staff names, departments and time off">People &amp; Availability</div>
         <div class="sm-item" id="mi-clients" title="Edit the shared client list and job-code aliases">Clients</div>
-        <div class="sm-item" id="mi-density" title="Row height — Compact fits more of the schedule on one screen">Density: <b id="mi-density-v">Comfortable</b></div>
+        <div class="sm-item" id="mi-density" title="Row height — click to cycle Comfortable → Snug → Compact">Density: <b id="mi-density-v">Comfortable</b></div>
         <div class="sm-note">Shop Timeline · REV <span id="tb-rev-num"></span></div>
       </div>
     </div>
@@ -1329,23 +1331,26 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_REV=77; // bump this ONE number on every release; used everywhere the rev shows up
+const APP_REV=78; // bump this ONE number on every release; used everywhere the rev shows up
 
 /* ===================== CONSTANTS ===================== */
 const SET_KEY ='shopTimelineSettings_v1';
 const PEOPLE_KEY='shopTimelinePeople_v1';
 const UI_KEY  ='shopTimelineUI_v1';
-/* B5 density (§4): the JS lane math mirrors --row-h. rowH(1)=BAR_PAD*2+BAR_H must equal
-   the token at both densities — Comfortable 44 (bar 32, gutter 12), Compact 32 (bar 24,
-   gutter 8, still a ≥24px hit target). tests/test46.js guards the drift both ways. */
-let BAR_H=32, BAR_PAD=6, LANE_G=6, DENSITY='comfortable';
+/* B5 density (§4, owner 2026-08-26): three levels. rowH(1)=BAR_PAD*2+BAR_H must equal
+   --row-h at every level — Comfortable 56 (the pre-B5 default: bar 32, gutter 24),
+   Snug 44 (bar 32, gutter 12), Compact 32 (bar 24, gutter 8 — still a ≥24px hit
+   target). tests/test46.js guards the drift at all three. */
+const DENSITIES={comfortable:{bar:32,pad:12,gap:6},snug:{bar:32,pad:6,gap:6},compact:{bar:24,pad:4,gap:4}};
 const HEAD_H=26, HDR_H=64;
+let BAR_H=32, BAR_PAD=12, LANE_G=6, DENSITY='comfortable';
 function applyDensity(d){
-  DENSITY=d==='compact'?'compact':'comfortable';
-  const c=DENSITY==='compact';
-  BAR_H=c?24:32;BAR_PAD=c?4:6;LANE_G=c?4:6;
-  document.body.classList.toggle('compact',c);
-  const v=document.getElementById('mi-density-v');if(v)v.textContent=c?'Compact':'Comfortable';
+  DENSITY=DENSITIES[d]?d:'comfortable';
+  const g=DENSITIES[DENSITY];
+  BAR_H=g.bar;BAR_PAD=g.pad;LANE_G=g.gap;
+  document.body.classList.toggle('snug',DENSITY==='snug');
+  document.body.classList.toggle('compact',DENSITY==='compact');
+  const v=document.getElementById('mi-density-v');if(v)v.textContent=DENSITY[0].toUpperCase()+DENSITY.slice(1);
 }
 let SIDE_W=300;
 /* B3 / §7 zoom steps, detail → overview. days and weeks keep their original px-per-day
@@ -7031,9 +7036,11 @@ document.getElementById('btn-dash').addEventListener('click',ev=>{
 document.getElementById('dash-menu').addEventListener('click',ev=>ev.stopPropagation());
 wireMenu('btn-print','print-menu');
 wireMenu('btn-settings','settings-menu');
-/* B5: the density toggle — geometry follows --row-h, persisted like every other UI pref */
+/* B5: the density toggle cycles the three levels — geometry follows --row-h,
+   persisted like every other UI pref */
 document.getElementById('mi-density').addEventListener('click',()=>{
-  applyDensity(DENSITY==='compact'?'comfortable':'compact');
+  const order=Object.keys(DENSITIES);
+  applyDensity(order[(order.indexOf(DENSITY)+1)%order.length]);
   saveUI();render();
 });
 wireMenu('btn-legend','legend-menu');
