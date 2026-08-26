@@ -2,7 +2,8 @@
 
 **What this is.** The owner went through the parity audit
 (`docs/Phase-3.5-Parity-Audit.md`) row by row; this REV ships everything decided
-that didn't need the big inspector convergence. PR: pending.
+that didn't need the big inspector convergence. PR:
+[#25](https://github.com/221twoseven/Project-Scheduler/pull/25).
 
 **What changed (REV81):**
 
