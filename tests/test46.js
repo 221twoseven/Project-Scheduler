@@ -50,11 +50,14 @@ function run(){
        /applyDensity/.test(src)?/--row-h:56px/.test(src):/--row-h:44px/.test(src));
     ok('no informational font-size below 11px (C5)', !/font-size:(10|[0-9])(\.[0-9]+)?px/.test(src));
   }
-  if(/applyDensity/.test(src)){ /* B5 density (owner-adjusted 56/44) — skipped on pre-B5 builds */
-    ok('Compact override sets --row-h:44px', /body\.compact\{--row-h:44px\}/.test(src));
+  if(/applyDensity/.test(src)){ /* B5 density (three levels, owner 2026-08-26) — skipped on pre-B5 builds */
+    ok('Snug override sets --row-h:44px', /body\.snug\{--row-h:44px\}/.test(src));
+    ok('Compact override sets --row-h:32px', /body\.compact\{--row-h:32px\}/.test(src));
     ok('JS lane math mirrors --row-h at Comfortable (56)', E('rowH(1)')===56, 'rowH(1)='+E('rowH(1)'));
+    E("applyDensity('snug')");
+    ok('JS lane math mirrors --row-h at Snug (44)', E('rowH(1)')===44, 'rowH(1)='+E('rowH(1)'));
     E("applyDensity('compact')");
-    ok('JS lane math mirrors --row-h at Compact (44)', E('rowH(1)')===44, 'rowH(1)='+E('rowH(1)'));
+    ok('JS lane math mirrors --row-h at Compact (32)', E('rowH(1)')===32, 'rowH(1)='+E('rowH(1)'));
     ok('Compact bar keeps the ≥24px hit target (§4)', E('BAR_H')>=24, 'BAR_H='+E('BAR_H'));
     E("applyDensity('comfortable')");
   }

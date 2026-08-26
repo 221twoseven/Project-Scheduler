@@ -1,6 +1,6 @@
-/* B5 / Design-Language §4: Compact density + group collapse.
-   - Density toggle (Settings menu) switches --row-h 44 ↔ 32; the JS lane math follows;
-     every hit target stays ≥24px; the choice persists in UI_KEY.
+/* B5 / Design-Language §4: density levels + group collapse.
+   - The Settings toggle cycles Comfortable 56 → Snug 44 → Compact 32 (--row-h); the
+     JS lane math follows; every hit target stays ≥24px; the choice persists in UI_KEY.
    - 30 projects fit one screen at Compact (the acceptance bar).
    - Clicking a grp-head collapses its group; collapsed sets persist in UI_KEY keyed
      by group mode and survive a reload.
@@ -40,31 +40,34 @@ const E=s=>win.eval(s);
 const click=el=>el&&el.dispatchEvent(new win.MouseEvent('click',{bubbles:true}));
 
 setTimeout(()=>{
-  sec('density — Comfortable boot matches §4 (owner-adjusted 56/44)');
+  sec('density — Comfortable boot is the pre-B5 default');
   ok('boot is Comfortable',E('DENSITY')==='comfortable');
-  ok('rowH(1) is 56 (the --row-h token, the pre-B5 default)',E('rowH(1)')===56,'rowH(1)='+E('rowH(1)'));
-  ok('body has no compact class',!doc.body.classList.contains('compact'));
+  ok('rowH(1) is 56 (the --row-h token)',E('rowH(1)')===56,'rowH(1)='+E('rowH(1)'));
+  ok('body has no density class',!doc.body.classList.contains('compact')&&!doc.body.classList.contains('snug'));
 
-  sec('the Settings toggle switches to Compact');
+  sec('the Settings toggle cycles Comfortable → Snug → Compact');
   click(doc.getElementById('mi-density'));
-  ok('DENSITY flips',E('DENSITY')==='compact');
+  ok('first click lands on Snug',E('DENSITY')==='snug');
   ok('rowH(1) is 44',E('rowH(1)')===44,'rowH(1)='+E('rowH(1)'));
-  ok('body carries .compact (CSS --row-h override)',doc.body.classList.contains('compact'));
+  ok('body carries .snug (CSS --row-h override)',doc.body.classList.contains('snug')&&!doc.body.classList.contains('compact'));
+  ok('Snug bars stay 32px',E('BAR_H')===32,'BAR_H='+E('BAR_H'));
+  click(doc.getElementById('mi-density'));
+  ok('second click lands on Compact',E('DENSITY')==='compact');
+  ok('rowH(1) is 32',E('rowH(1)')===32,'rowH(1)='+E('rowH(1)'));
+  ok('body swaps .snug for .compact',doc.body.classList.contains('compact')&&!doc.body.classList.contains('snug'));
   ok('the menu item label follows',doc.getElementById('mi-density-v').textContent==='Compact');
   ok('bars keep a ≥24px hit target (§4)',E('BAR_H')>=24,'BAR_H='+E('BAR_H'));
   const bar=doc.querySelector('.job-bar.summary');
   ok('a drawn bar is BAR_H tall',bar&&bar.style.height===E('BAR_H')+'px',bar&&bar.style.height);
   ok('edge grab zones keep their §6 width',E('edgeZone(100,9)')===9&&E('edgeZone(40,9)')>=8);
   const sbRow=doc.querySelector('#side-rows .sb-row.proj-head');
-  ok('sidebar rows are 44px',sbRow&&sbRow.style.height==='44px',sbRow&&sbRow.style.height);
+  ok('sidebar rows are 32px',sbRow&&sbRow.style.height==='32px',sbRow&&sbRow.style.height);
   ok('the two-line row keeps name and code·date',
      sbRow&&!!sbRow.querySelector('.sb-name')&&!!sbRow.querySelector('.sb-sub'));
 
-  sec('Compact fits more schedule — 30 projects at Month');
+  sec('acceptance — 30 projects fit one screen at Compact + Month');
   E("setView('month')");
-  /* Owner ruling 2026-08-26: densities are 56/44, so 30 uncollapsed rows are 1320px —
-     the brief's "one screen" line is superseded; group collapse is the big lever. */
-  ok('30 rows total 1320px (44px each, was 1680)',E('TOTAL_H')===1320,E('TOTAL_H')+'px');
+  ok('30 rows total ≤960px',E('TOTAL_H')<=960,E('TOTAL_H')+'px');
 
   sec('density persists in UI_KEY');
   let ui=JSON.parse(win.localStorage.getItem('shopTimelineUI_v1')||'{}');
