@@ -1,6 +1,6 @@
 # Native toolbar direction — Phase 4 (REV95)
 
-**Date:** 2026-08-27 · **REV:** 95–96 · **Initiative:** Native software toolbar
+**Date:** 2026-08-27 · **REV:** 95–97 · **Initiative:** Native software toolbar
 direction · **Branch:** development (pending promotion to main) · **Final phase**
 
 ## What changed
@@ -60,6 +60,9 @@ Project), **navigation** (My Dashboard), **commands** (Print), **resources**
   unchanged, both green.
 - `test66` / `test69` / `test70` (which click `mi-people` / `mi-clients`) pass
   unchanged — the ids moved menus but kept their names.
+- REV97 follow-up: removing `#btn-legend` orphaned the first-run tour's 6th step
+  (it targeted that button); it now points at `#btn-help`. `test74` caught it —
+  full suite 49/49.
 
 ## Native direction — complete
 
