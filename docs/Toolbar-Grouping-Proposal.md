@@ -4,6 +4,10 @@
 The complaint: two toolbars with competing/mixed categories — view styles, data
 filters, and actions interleaved.*
 
+**DECIDED 2026-08-27: the owner picked Option A** — shipped the same day as
+REV88 (`docs/Milestones/2026-08-27-toolbar-regroup.md`); the grouping rule is
+now codified in Design-Language §2.6.
+
 ## What's there today
 
 **Row 1 (dark, global):** brand · **+ New Project** · My Dashboard · Print ▾ ·
