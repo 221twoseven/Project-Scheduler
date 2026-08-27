@@ -43,7 +43,7 @@ setTimeout(()=>{
 
 function savedPage(){
   sec('saved page · Help starts the project tour in place');
-  click(doc.getElementById('btn-help'));
+  click(doc.getElementById('mi-tour'));
   setTimeout(()=>{
     ok('the tour opened', coachOn());
     ok('it stayed on the project page', E("ROUTE.view")==='project', E("ROUTE.view"));
@@ -65,7 +65,7 @@ function draftPage(){
   win.dispatchEvent(new win.Event('hashchange'));
   setTimeout(()=>{
     sec('draft page · same tour, the branch flips');
-    click(doc.getElementById('btn-help'));
+    click(doc.getElementById('mi-tour'));
     setTimeout(()=>{
       ok('the tour opened on the draft', coachOn());
       const t=targets();
@@ -81,7 +81,7 @@ function timelinePage(){
   E('goTimeline();');
   setTimeout(()=>{
     sec('timeline · the original tour is untouched');
-    click(doc.getElementById('btn-help'));
+    click(doc.getElementById('mi-tour'));
     setTimeout(()=>{
       ok('the tour opened', coachOn());
       const t=targets();

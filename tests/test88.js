@@ -84,6 +84,13 @@ setTimeout(()=>{
      !!doc.getElementById('status-menu')&&!!doc.getElementById('client-menu')&&!!doc.getElementById('person-menu'));
   ok('Clear filters is hidden until something is active',doc.getElementById('btn-reset').classList.contains('hidden'));
 
+  sec('6 · Phase 4 — application bar: Resources ▾ + Help ▾, Settings retired');
+  ok('the Settings button is gone (People/Clients moved to Resources)',!doc.getElementById('btn-settings'));
+  ok('a Resources menu holds People & Clients',
+     !!doc.getElementById('btn-resources')&&!!doc.getElementById('mi-people')&&!!doc.getElementById('mi-clients'));
+  ok('Help is a menu with a tour and keyboard shortcuts',
+     !!doc.getElementById('btn-help')&&!!doc.getElementById('mi-tour')&&!!doc.getElementById('mi-shortcuts'));
+
   console.log('\n'+'-'.repeat(46));
   console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
   process.exit(fail?1:0);

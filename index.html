@@ -980,14 +980,20 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
       </div>
     </div>
     <div class="sf-wrap">
-      <button id="btn-settings" class="t-btn" title="App settings and the shared staff list"><svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 2.5V8M3.5 11v2.5M8 2.5v2M8 7.5v6M12.5 2.5V8M12.5 11v2.5M1.5 9.5h4M6 6h4M10.5 9.5h4"/></svg> Settings <svg class="ico-s" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 6 8 9.5 11.5 6"/></svg></button>
-      <div id="settings-menu" class="tb-menu hidden">
+      <button id="btn-resources" class="t-btn" title="People, clients and other shared shop data"><svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2.5" width="5" height="5" rx="1"/><rect x="9" y="2.5" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/><rect x="9" y="9" width="5" height="5" rx="1"/></svg> Resources <svg class="ico-s" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 6 8 9.5 11.5 6"/></svg></button>
+      <div id="resources-menu" class="tb-menu hidden">
         <div class="sm-item" id="mi-people" title="Edit staff names, departments and time off">People &amp; Availability</div>
         <div class="sm-item" id="mi-clients" title="Edit the shared client list and job-code aliases">Clients</div>
+      </div>
+    </div>
+    <div class="sf-wrap">
+      <button id="btn-help" class="t-btn" title="Tour, keyboard shortcuts and version"><svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="8" r="6.5"/><path d="M6.2 6.2a1.8 1.8 0 1 1 2.6 1.7c-.5.3-.8.6-.8 1.2"/><path d="M8 11.3v.2"/></svg> Help <svg class="ico-s" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 6 8 9.5 11.5 6"/></svg></button>
+      <div id="help-menu" class="tb-menu hidden">
+        <div class="sm-item" id="mi-tour" title="A guided tour of the page you're on">Take a tour</div>
+        <div class="sm-item" id="mi-shortcuts" title="Every keyboard shortcut on this view">Keyboard shortcuts</div>
         <div class="sm-note">Shop Timeline · REV <span id="tb-rev-num"></span></div>
       </div>
     </div>
-    <button id="btn-help" class="t-btn" title="A quick tour of the app — where everything lives"><svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="8" r="6.5"/><path d="M6.2 6.2a1.8 1.8 0 1 1 2.6 1.7c-.5.3-.8.6-.8 1.2"/><path d="M8 11.3v.2"/></svg> Help</button>
     <span class="tb-spacer"></span>
     <span id="tb-rev" title="App revision — the build this tab is running">REV</span>
     <span id="sync-pill" class="busy" title="Shows whether your changes are saved to SharePoint — click to retry after an error">● connecting…</span>
@@ -1259,7 +1265,7 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_REV=94; // bump this ONE number on every release; used everywhere the rev shows up
+const APP_REV=95; // bump this ONE number on every release; used everywhere the rev shows up
 
 /* ===================== CONSTANTS ===================== */
 const SET_KEY ='shopTimelineSettings_v1';
@@ -7167,7 +7173,7 @@ document.getElementById('btn-dash').addEventListener('click',ev=>{
 });
 document.getElementById('dash-menu').addEventListener('click',ev=>ev.stopPropagation());
 wireMenu('btn-print','print-menu');
-wireMenu('btn-settings','settings-menu');
+wireMenu('btn-resources','resources-menu');
 wireMenu('btn-legend','legend-menu');
 buildLegend();
 
@@ -7242,7 +7248,7 @@ const COACH_STEPS=[
   {sel:'#gantt-scroll',t:'The timeline',
    b:'Each bar is a phase of work. Click one for its details, drag it to move, grab an edge to resize, right-click for more. Red bars are installs.'},
   {sel:'#t-search',t:'Find things fast',
-   b:'Type here (or press /) to show only matching projects and phases. Status and Person narrow the view the same way — Clear filters brings everything back.'},
+   b:'Type here (or press /) to show only matching projects and phases. Filters narrows the view by status, client or person — Clear filters brings everything back.'},
   {sel:'#btn-dash',t:'Your plate',
    b:'One click shows just your own work — your phases, checkpoints, tasks and time off.'},
   {sel:'#btn-new-proj',t:'Start a project',
@@ -7308,13 +7314,16 @@ function coachStart(stepList){
 }
 function coachNext(){if(!COACH)return;if(COACH.i>=COACH.steps.length-1){coachEnd();return;}COACH.i++;coachShow();}
 function coachBack(){if(!COACH||!COACH.i)return;COACH.i--;coachShow();}
-document.getElementById('btn-help').addEventListener('click',ev=>{
-  ev.stopPropagation();
-  /* REV86: Help teaches the page you are on — the project pages get their own
-     shared tour in place (it used to bounce home first). */
+/* Phase 4: Help is a menu now. "Take a tour" keeps the route-aware behaviour —
+   project pages get their own shared tour in place (REV86). */
+document.getElementById('mi-tour').addEventListener('click',()=>{
   if(ROUTE.view==='project'){coachStart(COACH_PP_STEPS);return;}
   coachStart();
 });
+document.getElementById('mi-shortcuts').addEventListener('click',()=>{
+  closeMenus();document.getElementById('tl-ks').classList.remove('hidden');
+});
+wireMenu('btn-help','help-menu');
 document.getElementById('coach').addEventListener('click',coachNext);
 document.getElementById('coach-card').addEventListener('click',ev=>ev.stopPropagation());
 document.getElementById('coach-skip').addEventListener('click',coachEnd);
