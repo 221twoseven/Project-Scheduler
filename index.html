@@ -991,8 +991,10 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
       <div id="help-menu" class="tb-menu hidden">
         <div class="sm-item" id="mi-tour" title="A guided tour of the page you're on">Take a tour</div>
         <div class="sm-item" id="mi-shortcuts" title="Every keyboard shortcut on this view">Keyboard shortcuts</div>
+        <div class="sm-item" id="mi-legend" title="What the colors, patterns and markers mean">Legend</div>
         <div class="sm-note">Shop Timeline · REV <span id="tb-rev-num"></span></div>
       </div>
+      <div id="legend-menu" class="tb-menu hidden"></div>
     </div>
     <span class="tb-spacer"></span>
     <span id="tb-rev" title="App revision — the build this tab is running">REV</span>
@@ -1051,10 +1053,6 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
       <span class="lock-track"><span class="lock-thumb"></span></span>
       <span class="lock-txt">Lock dates</span>
     </label>
-    <div class="sf-wrap">
-      <button id="btn-legend" class="t-btn" title="What the colors, patterns and markers mean">?</button>
-      <div id="legend-menu" class="tb-menu hidden"></div>
-    </div>
   </div>
 </div>
 
@@ -1265,7 +1263,7 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_REV=95; // bump this ONE number on every release; used everywhere the rev shows up
+const APP_REV=96; // bump this ONE number on every release; used everywhere the rev shows up
 
 /* ===================== CONSTANTS ===================== */
 const SET_KEY ='shopTimelineSettings_v1';
@@ -7174,7 +7172,6 @@ document.getElementById('btn-dash').addEventListener('click',ev=>{
 document.getElementById('dash-menu').addEventListener('click',ev=>ev.stopPropagation());
 wireMenu('btn-print','print-menu');
 wireMenu('btn-resources','resources-menu');
-wireMenu('btn-legend','legend-menu');
 buildLegend();
 
 /* ===================== REV87: PM LATE-PROJECT PROMPT ===================== */
@@ -7324,6 +7321,10 @@ document.getElementById('mi-shortcuts').addEventListener('click',()=>{
   closeMenus();document.getElementById('tl-ks').classList.remove('hidden');
 });
 wireMenu('btn-help','help-menu');
+/* The ? legend folds into Help — "Legend" opens the same swatch popover (built at
+   init by buildLegend), anchored under the Help button. */
+document.getElementById('mi-legend').addEventListener('click',()=>{closeMenus();document.getElementById('legend-menu').classList.remove('hidden');});
+document.getElementById('legend-menu').addEventListener('click',ev=>ev.stopPropagation());
 document.getElementById('coach').addEventListener('click',coachNext);
 document.getElementById('coach-card').addEventListener('click',ev=>ev.stopPropagation());
 document.getElementById('coach-skip').addEventListener('click',coachEnd);

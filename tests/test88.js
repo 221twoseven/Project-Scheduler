@@ -31,7 +31,7 @@ setTimeout(()=>{
   const all=[...row.querySelectorAll('*')];
   const at=id=>all.indexOf(doc.getElementById(id));
   const seq=['btn-today','btn-days','btn-colorby','btn-view',
-             't-search','btn-filters','btn-reset','btn-views','lock-ck','btn-legend'];
+             't-search','btn-filters','btn-reset','btn-views','lock-ck'];
   let ordered=true,brk='';
   for(let i=1;i<seq.length;i++)if(at(seq[i])<at(seq[i-1])){ordered=false;brk=seq[i-1]+' → '+seq[i];}
   ok('the row controls sit in cluster order',ordered,brk);

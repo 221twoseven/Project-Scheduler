@@ -1,6 +1,6 @@
 # Native toolbar direction — Phase 4 (REV95)
 
-**Date:** 2026-08-27 · **REV:** 95 · **Initiative:** Native software toolbar
+**Date:** 2026-08-27 · **REV:** 95–96 · **Initiative:** Native software toolbar
 direction · **Branch:** development (pending promotion to main) · **Final phase**
 
 ## What changed
@@ -15,9 +15,10 @@ last planned step.
   the only thing left to fix.)
 - **Help is a menu.** The single Help button became **Help ▾** — *Take a tour*
   (the old click behaviour, still route-aware: project pages get their shared
-  tour in place), *Keyboard shortcuts* (opens the shortcut sheet), and an
-  **About** line carrying the version (`Shop Timeline · REV N`, which used to sit
-  in the Settings menu).
+  tour in place), *Keyboard shortcuts* (opens the shortcut sheet), *Legend* (the
+  colour/marker swatch popover, folded in from the timeline toolbar's `?` in
+  REV96), and an **About** line carrying the version (`Shop Timeline · REV N`,
+  which used to sit in the Settings menu).
 - The `id`s `mi-people` / `mi-clients` are unchanged, so their editors and the
   suites that drive them keep working; only the container moved.
 
@@ -28,10 +29,10 @@ last planned step.
   second view, and its enter/exit is tied to the Projects/Departments lens. A
   separate "Timeline" nav button would duplicate that and fight the lens model,
   so it was not added.
-- **The `?` legend stays on the timeline toolbar.** It explains the timeline's
-  own colours and markers, so it belongs inline with the timeline (the
-  "toolbar = speed" half of the governing principle); Help ▾ carries the global
-  tour/shortcuts/version instead.
+- **The `?` legend folded into Help ▾ (REV96).** It was first kept inline, then
+  folded into Help at the owner's request: the **Legend** item opens the same
+  swatch popover (now anchored under Help), and the standalone `?` button left
+  the timeline toolbar. The `?` *key* still opens the keyboard-shortcut sheet.
 
 Also refreshed the first-run tour's search step, which still said "Status and
 Person" — it now reads "Filters narrows the view by status, client or person".
@@ -48,6 +49,7 @@ Project), **navigation** (My Dashboard), **commands** (Print), **resources**
 
 ![after — app bar with Help menu](Native-Toolbar/screenshots/after-native-phase4-help.png)
 ![after — app bar](Native-Toolbar/screenshots/after-native-phase4-appbar.png)
+![after — Legend folded into Help ▾ (REV96)](Native-Toolbar/screenshots/after-native-phase4-legend.png)
 
 ## Tests
 

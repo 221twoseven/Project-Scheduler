@@ -8,8 +8,8 @@ const FILE=process.argv[2]||'index.html';
 const src=fs.readFileSync(FILE,'utf8');
 
 /* The frozen REV50 reference predates C3 — same convention as test-b1.js. */
-if(!/btn-legend/.test(src)){
-  console.log('test-c3-status: skipped — no legend button in '+FILE+' (pre-C3 build)');
+if(!/legend-menu/.test(src)){
+  console.log('test-c3-status: skipped — no legend in '+FILE+' (pre-C3 build)');
   process.exit(0);
 }
 
@@ -76,12 +76,12 @@ setTimeout(()=>{
      hb&&hb.style.backgroundImage==='',hb&&hb.style.backgroundImage);
 
   sec('legend popover — the five encodings on one screen');
-  const btn=doc.getElementById('btn-legend'),menu=doc.getElementById('legend-menu');
-  ok('? button sits on the toolbar',!!btn&&btn.closest('#toolbar')!==null);
-  /* one overlay at a time: open the status menu first, the legend must close it */
+  const openLegend=doc.getElementById('mi-legend'),menu=doc.getElementById('legend-menu');
+  ok('Legend lives in the Help menu',!!openLegend&&openLegend.closest('#help-menu')!==null);
+  /* one overlay at a time: open the filters menu first, the legend must close it */
   doc.getElementById('btn-filters').click();
   ok('filters menu opens',!doc.getElementById('filters-menu').classList.contains('hidden'));
-  btn.click();
+  openLegend.click();
   ok('opening the legend closes the other menu (§6 one overlay)',
      doc.getElementById('filters-menu').classList.contains('hidden')
      &&!menu.classList.contains('hidden'));
