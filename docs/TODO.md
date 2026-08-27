@@ -15,7 +15,10 @@ Sequencing decisions (2026-08-19):
 - `docs/UX-Audit-and-Strategy.md` is a **strategy summary, not a to-do list** — it stays
   as-is; this file is where actionable state lives.
 
-Last reviewed: 2026-08-21 — the REV53–64 run between UX Phases 2 and 3 is now
+Last reviewed: 2026-08-27 — wrap-up pass: Phase 3.5 closed (toolbar Option A shipped
+as REV88), Phase 4 shipped whole (REV89), and every §8/§9 loose end decided or done
+(the shop-terminal licence question is the one item left open — a business call, not
+a code task). Earlier review note (2026-08-21): the REV53–64 run between UX Phases 2 and 3 is
 categorized as **Phase 2.5** (index:
 `docs/Milestones/2026-08-21-phase-2-5-feature-interlude.md`; records:
 `docs/Milestones/Phase 2.5/`). This review reconciled every open item below against
@@ -286,10 +289,11 @@ In order:
       calendar parity, deferred polish) to production. Owner merged via ruleset bypass.
 - [x] **Backfill the "PR link: pending" lines** — done 2026-08-20: all five Phase 2
       records and the five REV53–57 records now link PR #15.
-- [ ] **Promote `development` → `main` (Phase 3):**
-      [#23](https://github.com/221twoseven/Project-Scheduler/pull/23) carries
-      REV74–79 — open, awaiting owner merge. **Hold (2026-08-26): the owner's
-      review notes land first as Phase 3.5 (§6)** and ride the same PR.
+- [ ] **Promote `development` → `main` (Phase 3 + 3.5 + 4):**
+      [#23](https://github.com/221twoseven/Project-Scheduler/pull/23) now carries
+      REV74–89 (Phase 3, all of Phase 3.5, and Phase 4). The 3.5 hold is lifted —
+      the punch list below is done. Owner approved the merge 2026-08-27; it lands
+      once CI is green on the REV88/89 promotion.
 
 ## 5. Data / schema (⚠ all need approval — shared Lists)
 
@@ -309,7 +313,8 @@ In order:
   Teams calendar workflow all eventually collapse into this app's Lists. Sequenced
   deliberately — nothing live gets replaced until the list-side copy has proven
   itself. (Job codes could then auto-assign: Alias + computed next number.)
-- [ ] Any schema change must be checked against the colleague app before shipping.
+- **Standing rule (not a task):** any schema change must be checked against the
+  colleague app before shipping.
 - (`ShopTimeline_Tasks2` existence check lives in §1.)
 
 ## 6. UX Phase 3.5 & Phase 4
@@ -318,9 +323,9 @@ In order:
 `Phase-3-Task-Briefs.md`): B3 zoom steps + jump-to-date, B5 three density levels +
 group collapse, B6 named saved views. Record:
 `docs/Milestones/2026-08-26-phase-3-navigation-at-scale.md`; deferrals in §7.
-Promotion to `main` is open as
-[PR #23](https://github.com/221twoseven/Project-Scheduler/pull/23) — **held for
-Phase 3.5 below** (see §4).
+**Phase 3.5 is COMPLETE** (2026-08-27, REV80–88) and **Phase 4 is COMPLETE**
+(2026-08-27, REV89) — the promotion hold is lifted; everything rides
+[PR #23](https://github.com/221twoseven/Project-Scheduler/pull/23) (see §4).
 
 ### Phase 3.5 — owner review adjustments (2026-08-26, before the PR #23 merge)
 
@@ -332,7 +337,7 @@ until this list is done (or the owner trims it). Grouped by surface;
 
 **New Project ↔ Project Edit parity:**
 
-- [ ] **Audit: the New Project window and Project Edit window should match.**
+- [x] **Audit: the New Project window and Project Edit window should match.**
       Find and list every difference in display/render, layout, interactivity,
       and click behavior — the diff list is the first deliverable, convergence
       fixes follow from it. Confirmed keeper (the "keep pile"): the hover
@@ -375,7 +380,7 @@ until this list is done (or the owner trims it). Grouped by surface;
       now sits below its ink flip point everywhere. Design-Language
       §2.2/§2.3/§2.5 updated. Suite/record: as above (+`test-contrast`,
       `test-cb` still green).
-- [ ] **Toolbar clarity** — two toolbars with competing/mixed function
+- [x] **Toolbar clarity** — two toolbars with competing/mixed function
       categories: view styles (color: Project/Team · vertical scale:
       Comfortable/Snug/Compact · horizontal scale: Day/2-Day/Week/Month), data
       filters (search, status, person), and actions (Dashboard, Print, New
@@ -385,8 +390,14 @@ until this list is done (or the owner trims it). Grouped by surface;
       **Design pass DELIVERED 2026-08-27:** `docs/Toolbar-Grouping-Proposal.md`
       — three options (recluster-in-place / one View menu / single row) with a
       recommendation (A: recluster row 2 into Where / How-drawn / What-shown,
-      surface Density out of Settings, Views to the row's edge). Awaiting the
-      owner's pick; implementation is one REV after that.
+      surface Density out of Settings, Views to the row's edge).
+      **DECIDED 2026-08-27: the owner picked Option A — shipped the same day as
+      REV88** (`docs/Milestones/2026-08-27-toolbar-regroup.md`): Where / Style /
+      Filter clusters with eyebrow labels, Density surfaced as a one-click cycle
+      button (the Settings item stays as an alias for a release, ledgered in
+      §7), Views · Protect dates · ? at the right edge. The grouping rule is
+      codified in Design-Language §2.6. Suite: `tests/test88.js`.
+      **Phase 3.5 is COMPLETE** — this was its last open row.
 
 **Calendar view:**
 
@@ -463,20 +474,27 @@ until this list is done (or the owner trims it). Grouped by surface;
 ### Phase 4 — learnability layer (rescoped 2026-08-26)
 
 **Phase 4 is what remains after 3.5**, rescoped at the phase-3 close against the fact that
-**coach marks (N14) shipped early as REV74** (strategy doc §5 has the reasoning;
-this is the actionable list — small enough for one session, needs an owner brief
-or go-ahead):
+**coach marks (N14) shipped early as REV74**. **Owner go-ahead 2026-08-27 — all
+four SHIPPED the same day as REV89**
+(`docs/Milestones/2026-08-27-phase-4-learnability.md`, suite `tests/test89.js`).
+**Phase 4 is COMPLETE**; only the strategy doc's optional 60-second explainer
+remains unbuilt, and stays optional.
 
-- [ ] **Drop the first-run hint bar** (recommend) — redundant with the REV74 tour;
-      decision is the owner's, no code either way until then.
-- [ ] **`?` shortcuts sheet on the main timeline** (A2) — the project page has one,
-      the main timeline doesn't.
-- [ ] **Sample-project onboarding** (A5) — one-click "Add a sample project" running
-      the existing `seed()` through the normal create path (localStorage-only,
-      clearly marked, deletable); empty-state card always renders when no projects
-      are visible.
-- [ ] **Hover affordances** — A2's remaining sliver: a faint context-menu cue on
-      bars so right-click is discoverable without the tour.
+- [x] **Drop the first-run hint bar** — DECIDED 2026-08-27 (owner): dropped, as
+      recommended. It was never built; the REV74 tour does its whole job. No code.
+- [x] **`?` shortcuts sheet on the main timeline** (A2) — REV89: same overlay as
+      the project page's, with the timeline's own keys; opens on `?` or the new
+      "Keyboard shortcuts…" legend entry, closes on Esc or any click.
+- [x] **Sample-project onboarding** (A5) — REV89: "Add a sample project" on the
+      empty-state card runs `seed()` through the normal create path; the records
+      are flagged + name-marked "Sample · " and live in this browser only
+      (`spSync` strips them, the slice stashes to localStorage, load/poll
+      re-attach it, delete clears it; the shared staff roster is snapshotted
+      around `seed()`). The card's "always renders" half shipped earlier
+      (REV73/T7). Also fixed in passing: `undo()` dropped `ST.events` — a latent
+      delete-all-events data-loss bug since REV54.
+- [x] **Hover affordances** — REV89: a faint ⋯ at a hovered bar's right end
+      advertises the context menu; label-colored, `pointer-events:none`.
 
 ## 7. Deferred & skipped ledger (moves not made — rationale, blocker, later decision)
 
@@ -587,6 +605,26 @@ own "only if it proves needed" gates.
       the project tour too would surprise every existing user on their next
       project open (and needs a second seen-key the preview/test stubs would
       have to seed). Gate: owner wanting auto-run for new hires. (2026-08-27)
+- [ ] The Settings → Density menu item stays as an alias of the new toolbar
+      density button for one release (REV88), then retires. Gate: the next
+      release after REV88 ships to `main`. (2026-08-27)
+- [ ] The toolbar's Where/Style/Filter eyebrow labels hide below 1400px width
+      (the existing `t-mini` media rule) — separators still mark the clusters.
+      Gate: small-screen users missing the grouping. (REV88)
+
+**Phase 4:**
+
+- [ ] The ⋯ hover cue (REV89) covers main-timeline bars only — the project
+      page keeps its richer hover tooltip and the REV86 tour instead. Gate:
+      the same discoverability complaint there. (2026-08-27)
+- [ ] A stashed sample project re-attaches only after a successful load — a
+      browser that boots offline shows the sign-in card, not the sample, until
+      sign-in works. Gate: someone using the sample as an offline demo. (REV89)
+- [ ] If `ShopTimeline_Tasks2` were missing AND the sample carried to-dos, the
+      poll's local-todos guard would skip and other session-local todos could
+      drop — Tasks2 exists in production; noted in the code. (REV89)
+- [ ] The optional 60-second explainer video/page (strategy doc Phase 4) —
+      never scoped, stays optional. Gate: an owner brief. (2026-08-27)
 
 **Deliberate design ceilings — no action planned, revisit only on real complaints:**
 12-slot palette repeats at 13+ visible projects (T2); quiet re-selection after a committed
@@ -598,20 +636,24 @@ reads forward into upcoming work — only the Today button and `T` center (B3b, 
 
 ## 8. Documentation upkeep
 
-- [ ] Keep `docs/ARCHITECTURE.md` and `CLAUDE.md` in sync as the app evolves.
-- [ ] Confirm whether the manager-facing PDF in `docs/` should stay, be regenerated from
-      the markdown, or be retired (kept as-is for now).
+- **Standing rule (not a task):** keep `docs/ARCHITECTURE.md` and `CLAUDE.md` in
+  sync as the app evolves. (Last checked 2026-08-27: CLAUDE.md's suite range
+  updated to test89; REV88/89 changed no architecture.)
+- [x] **Manager-facing PDF — resolved 2026-08-27: it no longer exists.** No .pdf
+      file anywhere in the repo (removed by the earlier doc scrub / deploy trim);
+      nothing to retire or regenerate.
 - Standing rule: **re-verify the handoff doc's world-state claims before quoting them** —
   it's history + rationale; `docs/ARCHITECTURE.md` and `docs/SETUP.md` are current state.
 
 ## 9. Housekeeping (optional, cosmetic)
 
-- [ ] Decide the fate of the remote `benchmarks---DO-NOT-MERGE` branch (old builds
-      Timeline 34–44). Archive or remove.
-- [ ] Commit history is noisy (`test`, `Add files via upload`). Leave it, or clean
-      deliberately (history rewrite — only on agreement, never on shared branches).
-- [ ] Consider a lightweight lint/format pass for the single HTML file (optional; don't
-      let it cause churn on working code).
+- [x] **Benchmarks branch — archived 2026-08-27 (owner call):** its tip is kept as
+      tag `archive/benchmarks-timeline-34-44` (old builds Timeline 34–44 stay
+      reachable), and the remote `benchmarks---DO-NOT-MERGE` branch is deleted.
+- [x] **Commit history — decided 2026-08-27 (owner): leave as-is.** The noisy early
+      messages stay; no history rewrite, ever, on shared branches.
+- [x] **Lint/format pass — decided 2026-08-27 (owner): won't do.** No churn on the
+      single working HTML file; reviewers read diffs, not formatters.
 - [x] `tests/harness.js` jsdom stub tidied (2026-08-19): neutral example.com URL and
       account replace the old personal Pages URL and email.
 - [ ] Shared shop-terminal account — decide whether it needs a paid licence.
