@@ -41,7 +41,6 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);font-size:var(--fs
 .t-brand{display:flex;align-items:center;gap:9px;align-self:stretch;padding:0 16px;border-right:1px solid var(--chrome-line);margin-right:4px;user-select:none;min-height:40px}
 .tb-co{font-size:13px;font-weight:800;letter-spacing:.24em;color:#fff}
 .tb-app{font-size:var(--fs-fine);font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:#5E7292}
-.tb-rev{font-family:var(--mono);font-size:var(--fs-micro);letter-spacing:.08em;color:var(--warn);border:1px solid rgba(240,168,20,.45);border-radius:3px;padding:1.5px 6px;line-height:1}
 .t-btn{display:inline-flex;align-items:center;justify-content:center;gap:4px;height:28px;background:rgba(255,255,255,.06);color:rgba(255,255,255,.82);border:1px solid rgba(255,255,255,.13);border-radius:6px;padding:0 12px;font-size:var(--fs-label);font-weight:500;cursor:pointer;font-family:inherit;transition:background .12s,color .12s;white-space:nowrap}
 .ico{width:16px;height:16px;flex:none;vertical-align:-3px}
 .ico-s{width:12px;height:12px;flex:none;vertical-align:-2px}
@@ -71,7 +70,6 @@ body.pp-route .tb-timeline{display:none}
 }
 @media (max-width:1100px){
   .t-sep{display:none}
-  .tb-rev{display:none}
 }
 #t-search::placeholder{color:#5E7292}
 #t-search:focus{border-color:rgba(96,150,240,.7);background:rgba(255,255,255,.1)}
@@ -120,11 +118,10 @@ body.me-dock-on #me-dock{display:flex;flex-direction:column;position:fixed;left:
 .bar-lbl .sum-pill{position:static;transform:none;margin-right:8px}
 .crew-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(108px,1fr));gap:4px 10px;max-height:180px;overflow-y:auto;background:#F7FAFD;border:1px solid #D8E2EF;border-radius:8px;padding:10px}
 .crew-list label{display:flex;gap:6px;align-items:center;font-size:12px;color:#33415A;cursor:pointer;user-select:none;min-width:0;white-space:nowrap;overflow:hidden}
-/* [type=checkbox] outguns the width:100% that .fg/.bp-f/.ins-f later put on their
+/* [type=checkbox] outguns the width:100% that .fg/.ins-f later put on their
    inputs — without it every checkbox stretches to a full row and the list shreds. */
 .crew-list input[type=checkbox]{width:13px;height:13px;padding:0;margin:0;accent-color:#3B7FD6;flex-shrink:0}
 .ins-crew{max-height:120px}
-.job-bar.is-ghost{outline:1.5px dashed rgba(255,255,255,.6);outline-offset:-3px;cursor:pointer}
 #sb-foot{flex-shrink:0;display:flex;align-items:center;gap:6px;padding:8px 10px;border-top:1px solid var(--side-line);background:var(--side);flex-wrap:wrap;}
 .sbf-lbl{font-size:var(--fs-micro);font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--txt-micro)}
 .sbf-btn{flex:1;background:#fff;border:1px solid var(--side-line);border-radius:6px;padding:5px 0;font-size:11px;font-weight:600;color:#475569;cursor:pointer;font-family:inherit}
@@ -268,7 +265,6 @@ kbd{font-family:var(--mono);font-size:var(--fs-fine);background:#EDF1F7;border:1
 .job-bar[data-st="complete"]{opacity:.6}
 .job-bar[data-st="complete"] .sum-pill::before,.sum-pill[data-st="complete"]::before,.mr-pill[data-st="complete"]::before{content:'✓ '}
 .bar-stripe{position:absolute;inset:0;border-radius:inherit;background:repeating-linear-gradient(45deg,transparent,transparent 5px,rgba(255,255,255,.22) 5px,rgba(255,255,255,.22) 10px);pointer-events:none}
-.bar-edge{position:absolute;left:0;top:0;bottom:0;width:4px;background:rgba(255,255,255,.65);border-radius:6px 0 0 6px;pointer-events:none}
 .bar-lbl{position:absolute;top:50%;transform:translateY(-50%);font-size:var(--fs-label);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none;text-shadow:0 1px 3px rgba(0,0,0,.3)}
 .bar-pin{position:absolute;top:3px;right:5px;font-size:var(--fs-fine);pointer-events:none;opacity:.75}
 .bar-warn{position:absolute;top:1px;left:3px;font-size:var(--fs-fine);pointer-events:none;filter:drop-shadow(0 1px 1px rgba(0,0,0,.4))}
@@ -292,7 +288,6 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 #tooltip.hidden{display:none}
 .tt-title{font-size:13px;font-weight:700;margin-bottom:3px}
 .tt-dim{color:rgba(255,255,255,.5);font-size:11px}
-.tt-dim .mono,.tt-mono{font-family:var(--mono);font-size:var(--fs-fine)}
 .tt-badge{display:inline-block;margin-top:5px;background:rgba(255,255,255,.1);border-radius:3px;padding:1px 7px;font-size:var(--fs-fine);text-transform:capitalize}
 .tt-upd{margin-top:4px;padding-top:4px;border-top:1px solid rgba(255,255,255,.1);font-size:var(--fs-fine);opacity:.85}
 .tt-warn{color:#FFCE6B;font-size:11px;margin-top:5px}
@@ -325,24 +320,11 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 .fg input,.fg select,.fg textarea{width:100%;border:1.5px solid #E2E8F0;border-radius:7px;padding:7px 9px;font-size:13px;color:#101A29;background:#FAFBFC;outline:none;font-family:inherit;resize:vertical;transition:border-color .14s}
 .fg input[type=date],.fg input[type=number]{font-family:var(--mono);font-size:12px}
 .fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(47,111,228,.13);background:#fff}
-.fg input.err{border-color:#F87171}
 .fg-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .fg-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
 .role-list{border:1.5px solid #E2E8F0;border-radius:7px;background:#FAFBFC;max-height:100px;overflow:auto;padding:5px 9px}
 .role-list label{display:flex;align-items:center;gap:7px;font-size:12.5px;color:#101A29;padding:2px 0;cursor:pointer;user-select:none}
 .role-list input[type=checkbox]{width:13px;height:13px;flex-shrink:0;accent-color:var(--acc)}
-.dept-list{border:1.5px solid #E2E8F0;border-radius:8px;overflow:hidden;margin-bottom:11px;display:grid;grid-template-columns:1fr 1fr}
-.dept-item{display:flex;align-items:center;gap:9px;padding:6px 10px;border-bottom:1px solid #F1F5F9;font-size:12.5px}
-.dept-item:last-child{border-bottom:none}
-.dept-item.grp-lbl{background:#F4F7FB;font-size:var(--fs-fine);font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:#7A8BA3;padding:4px 10px;grid-column:1/-1}
-.dept-item.indent{padding-left:24px}
-.dept-item.dept-full{grid-column:1/-1}
-.dept-item input[type=checkbox]{width:14px;height:14px;flex-shrink:0;accent-color:var(--acc)}
-.dept-item .dname{flex:1}
-.dept-item .ddays{width:58px;border:1px solid #E2E8F0;border-radius:5px;padding:3px 6px;font-size:12px;text-align:center;font-family:var(--mono)}
-.dept-item .dother{width:130px;border:1px solid #E2E8F0;border-radius:5px;padding:3px 6px;font-size:11.5px;font-family:inherit}
-.dept-item .ddays:disabled,.dept-item .dother:disabled{opacity:.3}
-.dept-item .dlbl{font-size:var(--fs-fine);color:#94A3B8}
 .pin-row{display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;margin-bottom:11px;padding:7px 10px;border-radius:7px;border:1.5px solid #E2E8F0;background:#FAFBFC}
 .pin-row input{display:none}
 .pin-track{width:26px;height:14px;background:#E2E8F0;border-radius:7px;position:relative;flex-shrink:0;transition:background .16s}
@@ -465,22 +447,6 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 /* ============ REV35: PROJECT PAGE ============ */
 #page{position:fixed;top:50px;bottom:0;left:0;right:0;overflow:auto;background:var(--paper);z-index:9}
 .pg{max-width:1060px;margin:0 auto;padding:22px 26px 80px}
-.pg-top{display:flex;align-items:center;gap:12px;margin-bottom:14px}
-.pg-title{width:100%;border:none;border-bottom:2px solid transparent;background:transparent;font-family:inherit;font-size:27px;font-weight:700;color:#16202E;padding:2px 0 6px;outline:none;margin-bottom:16px}
-.pg-title:hover{border-bottom-color:#DCE5F0}
-.pg-title:focus{border-bottom-color:var(--acc)}
-.pg-title.err{border-bottom-color:#CE4242}
-.pg-sec{font-size:var(--fs-fine);font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#94A3B8;margin:26px 0 10px;padding-bottom:6px;border-bottom:1px solid #E2E8F0}
-.pg-f4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-.pg-f4 label{display:flex;flex-direction:column;gap:4px;font-size:var(--fs-fine);font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#7488A3}
-.pg-f4 input,.pg-f4 select{border:1.5px solid #E2E8F0;border-radius:6px;padding:7px 9px;font-size:13px;font-family:inherit;background:#fff;color:#1E293B;outline:none}
-.pg-f4 input:focus,.pg-f4 select:focus{border-color:var(--acc)}
-.pg-f4 input.err{border-color:#CE4242}
-.pg-met{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:18px}
-.pg-met div{background:#fff;border:1px solid #E2E8F0;border-radius:9px;padding:12px 14px}
-.pg-met .mk{font-size:var(--fs-fine);font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#94A3B8}
-.pg-met .mv{font-size:22px;font-weight:700;color:#16202E;margin-top:3px;line-height:1.15}
-.pg-met .mv.warn{color:#CE4242}
 .pg-roles{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
 .pg-roles>div{display:flex;flex-direction:column;gap:5px}
 .pg-roles .rl{font-size:var(--fs-fine);font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#7488A3}
@@ -488,28 +454,10 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 .pg-rbox label{display:flex;gap:6px;align-items:center;font-size:12px;color:#33415A;cursor:pointer;user-select:none;padding:1.5px 0}
 .pg-rbox input{width:13px;height:13px;flex-shrink:0;accent-color:#3B7FD6}
 .pg-depts{background:#F7FAFD;border:1px solid #D8E2EF;border-radius:8px;padding:10px 12px;column-count:2;column-gap:26px}
-.ph-hd,.ph-row{display:grid;grid-template-columns:1fr 150px 132px 132px 62px 30px;gap:9px;align-items:center}
-.ph-hd{font-size:var(--fs-fine);font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#94A3B8;padding:0 4px 7px}
-.ph-row{padding:5px 4px;border-bottom:1px solid #EDF2F7}
-.ph-row:hover{background:#F7FAFD}
-.ph-dept{font-size:12.5px;font-weight:600;color:#1E293B;display:flex;align-items:center;gap:7px;overflow:hidden}
-.ph-dot{width:9px;height:9px;border-radius:2px;flex-shrink:0}
-.ph-row input,.ph-row select{border:1px solid transparent;border-radius:5px;padding:5px 7px;font-size:12px;font-family:inherit;background:transparent;color:#33415A;outline:none;width:100%}
-.ph-row input:hover,.ph-row select:hover{border-color:#DCE5F0;background:#fff}
-.ph-row input:focus,.ph-row select:focus{border-color:var(--acc);background:#fff}
-.ph-del{background:none;border:none;color:#B4C0D0;font-size:16px;line-height:1;cursor:pointer;padding:2px 4px}
-.ph-del:hover{color:#CE4242}
-.pg-empty{font-size:12.5px;color:#94A3B8;padding:16px 4px;font-style:italic}
-.pg-foot{display:flex;align-items:center;gap:10px;margin-top:30px;padding-top:18px;border-top:1px solid #E2E8F0}
-.pg-foot .sp{flex:1}
-.pg-regen{display:flex;align-items:center;gap:6px;font-size:12px;color:#5B6B85;cursor:pointer;user-select:none}
-.pg-hint{font-size:11.5px;color:#94A3B8;margin-top:9px;line-height:1.5}
-@media(max-width:820px){.pg-f4,.pg-met,.pg-roles{grid-template-columns:repeat(2,1fr)}.pg-depts{column-count:1}
-  .ph-hd,.ph-row{grid-template-columns:1fr 116px 116px 54px 26px}.ph-hd span:nth-child(4),.ph-row .ph-e{display:none}}
+@media(max-width:820px){.pg-roles{grid-template-columns:repeat(2,1fr)}.pg-depts{column-count:1}}
 
 
 /* ============ REV37: SPLIT CREATE PAGE + LIVE SCHEDULE PREVIEW ============ */
-.pg.split{max-width:1420px}
 .npv{background:#fff;border:1px solid #E2E8F0;border-radius:11px;overflow:hidden}
 .npv-hd{display:flex;align-items:center;gap:9px;padding:9px 12px;border-bottom:1px solid #E2E8F0;background:#F7FAFD}
 .npv-ttl{flex:1;font-size:var(--fs-micro);font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:#7488A3}
@@ -530,11 +478,11 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 .npv-we{position:absolute;top:0;bottom:0;background:#EEF1F5;pointer-events:none}
 body.vivid .npv-we{background:#F1F5F9}
 .npv-body{position:relative}
-.npv-row{position:relative;height:25px}
+.npv-row{position:relative;height:34px}  /* NPV_ROWH in the script must match */
 .npv-row:nth-child(odd){background:#FCFDFE}
 .npv-gut{position:sticky;left:0;z-index:3;width:var(--npv-gut,150px);height:100%;display:flex;align-items:center;padding:0 8px;font-size:var(--fs-fine);font-weight:600;color:#475569;background:#fff;border-right:1px solid #EDF2F7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .npv-row:nth-child(odd) .npv-gut{background:#FCFDFE}
-.npv-bar{position:absolute;height:17px;top:4px;border-radius:4px;cursor:grab;display:flex;align-items:center;padding:0 6px;font-size:var(--fs-fine);font-weight:600;white-space:nowrap;overflow:hidden;z-index:2;user-select:none}
+.npv-bar{position:absolute;height:24px;top:5px;border-radius:4px;cursor:grab;display:flex;align-items:center;padding:0 6px;font-size:var(--fs-fine);font-weight:600;white-space:nowrap;overflow:hidden;z-index:2;user-select:none}
 .npv-bar.dragging{cursor:grabbing;opacity:.85;z-index:6}
 .npv-bar.manual{box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.85)}
 .npv-hdl{position:absolute;left:0;top:0;bottom:0;width:8px;cursor:ew-resize}
@@ -555,7 +503,6 @@ body.vivid .npv-we{background:#F1F5F9}
 .npv-foot .sum-pill{position:static;transform:none;margin-left:auto;pointer-events:none;
   border:1px solid #E2E8F0}
 .npv-empty{padding:36px 18px;text-align:center;font-size:12.5px;color:#94A3B8;font-style:italic}
-.npv-tip{font-size:11px;color:#94A3B8;margin-top:8px;line-height:1.5}
 
 
 /* ============ REV38: DEPARTMENT REORDERING ============ */
@@ -582,9 +529,7 @@ body.vivid .npv-we{background:#F1F5F9}
 .pg.split .pg-roles{grid-template-columns:repeat(2,1fr);gap:14px}
 
 /* --- preview: bigger, wider gutter --- */
-.npv-row{height:28px}
 .npv-gut{font-size:11px}
-.npv-bar{height:19px;top:4.5px;font-size:var(--fs-fine)}
 .npv-axis{height:36px}
 .npv-body{min-height:56px}
 .npv-modes{display:flex;border:1px solid #CBD6E4;border-radius:6px;overflow:hidden}
@@ -608,61 +553,9 @@ body.vivid .npv-we{background:#F1F5F9}
 .npv-tk{cursor:grab}
 .npv-tk{width:10px;height:10px;top:9px;margin-left:-5px;border-radius:50%;background:#fff;border:2px solid #3B7FD6;box-sizing:border-box}
 .npv-tk.hi{border-color:#CE4242}
-.npv-tk.done{background:#3B7FD6}
 .npv-row.extra .npv-gut{color:#94A3B8;font-style:italic}
 
-.npv-cal{padding:11px 13px}
-.npv-mblk{margin-bottom:15px}
-.npv-mblk:last-child{margin-bottom:0}
-.npv-mttl{font-size:var(--fs-fine);font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:#7488A3;margin-bottom:6px}
-.npv-cgrid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px}
-.npv-cdow{font-size:var(--fs-fine);font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#B4C0D0;text-align:center;padding-bottom:2px}
-.npv-cell{min-height:56px;border:1px solid #EDF2F7;border-radius:5px;padding:3px 4px;background:#fff;overflow:hidden}
-.npv-cell.out{background:#FBFDFE;opacity:.4}
-.npv-cell.we{background:#F7FAFD}
-.npv-cell.tod{border-color:#CE4242;background:#FFFBFB}
-.npv-cell.dl{border-color:#E8A8A8;background:#FFF6F6}
-.npv-cn{font-size:var(--fs-fine);font-weight:600;color:#94A3B8;line-height:1.25}
-.npv-cell.tod .npv-cn{color:#CE4242}
-.npv-cell.dl .npv-cn{color:#CE4242}
-.npv-chip{height:3.5px;border-radius:2px;margin-top:2.5px}
-.npv-cmk{display:flex;gap:3px;margin-top:3px;flex-wrap:wrap}
-.npv-cmk i{display:block;width:7px;height:7px;flex-shrink:0}
-.npv-cmk i.ev{background:#3F4E66;transform:rotate(45deg)}
-.npv-cmk i.tk{border-radius:50%;border:1.5px solid #3B7FD6}
-.npv-more{font-size:var(--fs-fine);color:#B4C0D0;margin-top:1px}
-
-.dr-add{background:#fff;border:1px dashed #CBD6E4;border-radius:7px;padding:7px 11px;font-size:12px;font-weight:600;color:#5B6B85;cursor:pointer;font-family:inherit;width:100%;text-align:left;margin-top:8px}
-.dr-add:hover{border-color:var(--acc);color:var(--acc)}
-.dr-row,.dr-hd{display:grid;gap:7px;align-items:center}
-.dr-row{padding:5px 4px;border-bottom:1px solid #EDF2F7}
-.dr-row.ev,.dr-hd.ev{grid-template-columns:minmax(0,1fr) 122px 120px 24px}
-.dr-row.tk,.dr-hd.tk{grid-template-columns:minmax(0,1fr) 108px 122px 78px 24px}
-.dr-hd{font-size:var(--fs-fine);font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#94A3B8;padding:0 4px 5px}
-.dr-row input,.dr-row select{border:1px solid #E2E8F0;border-radius:5px;padding:5px 6px;font-size:11.5px;font-family:inherit;background:#fff;color:#33415A;outline:none;width:100%;min-width:0}
-.dr-row input:focus,.dr-row select:focus{border-color:var(--acc)}
-.dr-row input.err{border-color:#CE4242}
-.dr-del{background:none;border:none;color:#B4C0D0;font-size:15px;cursor:pointer;padding:0}
-.dr-del:hover{color:#CE4242}
-.dr-none{font-size:12px;color:#B4C0D0;font-style:italic;padding:8px 4px}
-
-.npv-side{margin-top:13px;background:#fff;border:1px solid #E2E8F0;border-radius:11px;overflow:hidden}
-.npv-side-hd{padding:9px 12px;border-bottom:1px solid #E2E8F0;background:#F7FAFD;font-size:var(--fs-fine);font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:#7488A3}
-.npv-side-body{max-height:300px;overflow-y:auto}
-.npv-item{display:flex;align-items:center;gap:9px;padding:7px 12px;border-bottom:1px solid #F1F5F9;font-size:12px}
-.npv-item:last-child{border-bottom:none}
-.npv-item .ic{width:9px;height:9px;flex-shrink:0}
-.npv-item .ic.ev{background:#F7C948;border:2px solid #16202E;box-sizing:border-box;transform:rotate(45deg)}
-.npv-item .ic.tk{border-radius:50%;border:2px solid #3B7FD6;box-sizing:border-box}
-.npv-item .nm{flex:1;color:#1E293B;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
-.npv-item .mt{font-size:var(--fs-fine);color:#94A3B8;white-space:nowrap}
-.npv-item .dt{font-size:var(--fs-fine);color:#33415A;white-space:nowrap;font-weight:700}
-.npv-side-empty{padding:20px 14px;text-align:center;font-size:12px;color:#B4C0D0;font-style:italic}
-
-
 /* ============ REV41 ============ */
-.npv-row{height:34px}
-.npv-bar{height:24px;top:5px;font-size:var(--fs-fine)}
 .npv-ev{top:12px}
 .npv-tk{top:11.5px}
 .npv-web{position:absolute;top:0;bottom:0;background:rgba(100,116,139,.10);z-index:1;pointer-events:none}
@@ -673,11 +566,6 @@ body.vivid .npv-we{background:#F1F5F9}
   transform:rotate(45deg);border-radius:1px;width:10px;height:10px}
 .npv-leg .lg i.tk{background:#fff;border:2px solid #3B7FD6;border-radius:50%;box-sizing:border-box}
 .npv-leg-empty{font-size:11px;color:#B4C0D0;font-style:italic}
-/* the footer follows you down the form instead of hiding at the bottom of it */
-.pg-foot{position:sticky;bottom:0;z-index:20;background:var(--paper);
-  margin:30px -30px 0;padding:14px 30px;border-top:1px solid #CBD6E4;
-  box-shadow:0 -6px 14px -8px rgba(15,23,42,.22)}
-.pg:not(.split) .pg-foot{margin-left:-26px;margin-right:-26px;padding-left:26px;padding-right:26px}
 
 
 /* ============ REV41: CALENDAR IN THE IN-HOUSE FORMAT ============ */
@@ -686,13 +574,13 @@ body.vivid .npv-we{background:#F1F5F9}
 .cal-dow{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));background:#EDF2F7;border-bottom:1px solid #16202E}
 .cal-dow span{font-size:var(--fs-fine);font-weight:700;letter-spacing:.09em;text-align:center;padding:3px 0;color:#475569;border-right:1px solid #CBD6E4}
 .cal-dow span:last-child{border-right:none}
-.cal-wk{position:relative;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));grid-auto-rows:17px;
-  border-bottom:1px solid #16202E;position:relative;padding-bottom:4px}
+.cal-wk{position:relative;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));grid-auto-rows:auto;
+  border-bottom:1px solid #16202E;padding-bottom:5px;align-content:start;min-height:var(--calh,90px)}
 .cal-col{position:absolute;top:0;bottom:0;width:calc(100%/7);border-right:1px solid #D8E2EF;z-index:0;box-sizing:border-box}
 .cal-col:first-of-type{border-left:1px solid #D8E2EF}
 .cal-col.we{background-color:#EEF1F5;background-image:repeating-linear-gradient(45deg,rgba(100,116,139,.044) 0 4px,transparent 4px 8px)}
 .cal-col.tod{background:#FFF3F3;box-shadow:inset 0 0 0 1.5px #CE4242}
-.cal-dn{grid-row:1;font-family:var(--mono);font-size:var(--fs-fine);color:#64748B;padding:3px 0 3px 5px;z-index:1;min-height:17px}
+.cal-dn{grid-row:1;font-family:var(--mono);font-size:var(--fs-fine);color:#64748B;padding:4px 0 3px 6px;z-index:2;position:relative;min-height:17px}
 .cal-band{margin:1px 2px;border-radius:2px;font-size:var(--fs-fine);font-weight:700;text-transform:uppercase;
   color:#fff;display:flex;align-items:center;justify-content:center;white-space:nowrap;
   z-index:2;padding:0 5px;letter-spacing:.03em;position:relative}
@@ -740,13 +628,10 @@ body.vivid .npv-we{background:#F1F5F9}
 .pml-row .btn{flex-shrink:0}
 
 
-.dr-row.ln,.dr-hd.ln{grid-template-columns:minmax(0,1fr) 128px 108px 24px}
 
 
 /* ============ REV42: PROJECT PAGE REBUILD ============ */
-.pg.split{max-width:none}
 .pg2{max-width:none;padding:16px 26px 90px}
-.pg-top{display:flex;align-items:center;gap:11px;margin-bottom:12px}
 .pg-code{font-size:12px;font-family:var(--mono);color:#94A3B8;flex-shrink:0}
 /* The breadcrumb trail: All Projects › project › phase. Links are muted, the current
    (deepest) segment is dark; everything sits on one 14px text line. */
@@ -763,66 +648,23 @@ body.vivid .npv-we{background:#F1F5F9}
 .pg-x{margin-left:auto;background:none;border:none;color:#94A3B8;font-size:18px;
   line-height:1;cursor:pointer;padding:4px 8px;font-family:inherit;flex-shrink:0}
 .pg-x:hover{color:#CE4242}
-.pg-cols2{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:16px;align-items:start;margin-top:14px}
-.pg-panel{background:#fff;border:1px solid #E2E8F0;border-radius:0 9px 9px 9px;padding:14px;min-height:210px}
-.pg-panel .pg-sec:first-child{margin-top:0}
-.pg-side{background:#fff;border:1px solid #E2E8F0;border-radius:9px;overflow:hidden}
-.pg-side-hd{display:flex;align-items:center;gap:8px;padding:9px 12px;border-bottom:1px solid #E2E8F0;background:#F7FAFD}
-.pg-side-hd .t{flex:1;font-size:var(--fs-fine);font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:#7488A3}
-.pg-side-hd .a{font-size:11px;font-weight:700;color:var(--acc);cursor:pointer;background:none;border:none;font-family:inherit}
-.pg-side-body{max-height:340px;overflow-y:auto}
-.pg-2col{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
-.pg-4col{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
 .pg.split .pg-roles{grid-template-columns:repeat(2,minmax(0,1fr))}
 .pg-depts{column-count:4;column-gap:20px}
-@media(max-width:1250px){.pg-depts{column-count:3}.pg-cols2{grid-template-columns:1fr}}
-@media(max-width:900px){.pg-depts{column-count:2}.pg-4col{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:1250px){.pg-depts{column-count:3}}
+@media(max-width:900px){.pg-depts{column-count:2}}
 .npv-full{margin:0}
-.pg-hint{font-size:11.5px;color:#94A3B8;margin-top:10px;line-height:1.5}
 .pg-auto{font-size:11px;color:#94A3B8;display:flex;align-items:center;gap:5px}
 .pg-auto b{color:#1AA59C;font-weight:700}
 
 
-/* ---- bar options popover ---- */
-.bp{position:absolute;z-index:40;width:390px;max-width:calc(100vw - 40px);background:#fff;
-  border:1px solid #CBD6E4;border-radius:9px;box-shadow:0 10px 30px -8px rgba(15,23,42,.3);padding:12px}
-.bp-hd{display:flex;align-items:center;gap:8px;margin-bottom:10px}
-.bp-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
-.bp-dept{flex:1;font-size:var(--fs-fine);font-weight:700;letter-spacing:.11em;text-transform:uppercase;color:#7488A3;
-  overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
-.bp-x{background:none;border:none;color:#B4C0D0;font-size:16px;line-height:1;cursor:pointer;padding:0 2px}
-.bp-x:hover{color:#CE4242}
-.bp-f{margin-bottom:9px}
-.bp-f label{display:block;font-size:var(--fs-fine);font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#94A3B8;margin-bottom:4px}
-.bp-f input,.bp-f select{width:100%;border:1px solid #E2E8F0;border-radius:5px;padding:6px 8px;
-  font-size:12px;font-family:inherit;background:#fff;color:#1E293B;outline:none;box-sizing:border-box}
-.bp-f input:focus,.bp-f select:focus{border-color:var(--acc)}
-.bp-f input[readonly]{background:#F7FAFD;color:#7488A3}
-.bp-grid{display:grid;grid-template-columns:1fr 1fr 58px;gap:7px}
-.bp-acts{display:flex;gap:6px;flex-wrap:wrap;border-top:1px solid #EDF2F7;padding-top:10px;margin-top:2px}
-.bp-btn{background:#fff;border:1px solid #CBD6E4;border-radius:6px;padding:5px 10px;font-size:11px;
-  font-weight:600;color:#33415A;cursor:pointer;font-family:inherit}
-.bp-btn:hover{border-color:var(--acc);color:var(--acc)}
-.bp-btn.dngr{color:#CE4242;border-color:#EBC4C4}
-.bp-btn.dngr:hover{background:#FCEBEB;border-color:#CE4242}
-.bp-note{font-size:var(--fs-fine);color:#94A3B8;margin-top:8px;line-height:1.45}
-.npv-bar.sel{box-shadow:0 0 0 2px #16202E,0 0 0 4px rgba(255,255,255,.9)}
-.npv-body.picking .npv-bar:not(.sel){opacity:.4}
-
-
 /* ============ REV43 ============ */
 .npv-web.off{background:none}
-
-/* the popover escapes the chart now, so it is positioned from the page */
-.bp{position:fixed}
 
 /* chart takes a share of the window rather than a fixed strip */
 #npv-scroll{max-height:calc(100vh - 300px);overflow-y:auto}
 .npv-in{min-height:100%}
 
 /* calendar: roughly square cells, Google-ish */
-.cal-wk{grid-auto-rows:auto;padding-bottom:5px;align-content:start}
-.cal-dn{grid-row:1;font-family:var(--mono);font-size:var(--fs-fine);color:#64748B;padding:4px 0 3px 6px;z-index:2;position:relative}
 .cal-band{margin:1px 3px;height:16px;font-size:var(--fs-fine)}
 .cal-col.we{background-color:#EEF1F5;background-image:repeating-linear-gradient(45deg,rgba(100,116,139,.04) 0 4px,transparent 4px 8px)}
 body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,139,.10) 0 4px,transparent 4px 8px)}
@@ -832,7 +674,6 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
 .npv-subs button.on{background:#5B6B85;color:#fff}
 
 
-.cal-wk{min-height:var(--calh,90px)}
 .cal-dow{position:sticky;top:0;z-index:5}
 .cal-mon{position:sticky;top:0;z-index:6}
 
@@ -1408,7 +1249,7 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_REV=90; // bump this ONE number on every release; used everywhere the rev shows up
+const APP_REV=91; // bump this ONE number on every release; used everywhere the rev shows up
 
 /* ===================== CONSTANTS ===================== */
 const SET_KEY ='shopTimelineSettings_v1';
@@ -1419,7 +1260,7 @@ const UI_KEY  ='shopTimelineUI_v1';
    Snug 44 (bar 32, gutter 12), Compact 32 (bar 24, gutter 8 — still a ≥24px hit
    target). tests/test46.js guards the drift at all three. */
 const DENSITIES={comfortable:{bar:32,pad:12,gap:6},snug:{bar:32,pad:6,gap:6},compact:{bar:24,pad:4,gap:4}};
-const HEAD_H=26, HDR_H=64;
+const HEAD_H=26;
 let BAR_H=32, BAR_PAD=12, LANE_G=6, DENSITY='comfortable';
 function applyDensity(d){
   DENSITY=DENSITIES[d]?d:'comfortable';
@@ -1481,7 +1322,8 @@ const GROUPS=[
   {id:'install',   label:'Installation'},
 ];
 const grpDepts=g=>DEPTS.filter(d=>d.grp===g).map(d=>d.id);
-const PROD_IDS=grpDepts('dfab');
+/* Departments a brand-new project starts with, before anyone edits the checklist. */
+const DEFAULT_DEPTS=['pm','td','fab','finish','install'];
 
 /* Department-lens sections mirror the groups.
    REV90: Unit 7 is one section covering its whole group — softgoods, vinyl and
@@ -1566,10 +1408,9 @@ function parseDate(s){if(!s)return today();const[y,m,d]=s.split('-').map(Number)
 function fmtDate(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function addDays(d,n){const r=new Date(d);r.setDate(r.getDate()+n);return r;}
 function diffDays(a,b){return Math.round((b-a)/86400000);}
-function isoWeek(d){const t=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));t.setUTCDate(t.getUTCDate()+4-(t.getUTCDay()||7));const y0=new Date(Date.UTC(t.getUTCFullYear(),0,1));return Math.ceil(((t-y0)/86400000+1)/7);}
-/* REV90: week-stripe parity. isoWeek(d)%2 breaks in 53-week years (week 53 and week 1
-   are both odd, so two adjacent weeks render the same shade) — count whole weeks from a
-   fixed Monday instead. diffDays' Math.round absorbs DST offsets. */
+/* REV90: week-stripe parity. The old isoWeek(d)%2 broke in 53-week years (week 53 and
+   week 1 are both odd, so two adjacent weeks rendered the same shade) — count whole
+   weeks from a fixed Monday instead. diffDays' Math.round absorbs DST offsets. */
 function wkPar(d){const w=d.getDay();const m=addDays(d,-(w===0?6:w-1));return Math.abs(Math.floor(diffDays(new Date(2001,0,1),m)/7))%2;}
 function dw(){return DW[VIEW];}
 function d2x(d){return diffDays(TL_S,d)*dw();}
@@ -1629,6 +1470,15 @@ function assigneeFor(p,deptId,otherLabels){
   if(d&&d.freeText)return (otherLabels&&otherLabels[deptId])||'Other';
   return d.name;
 }
+/* Phases chain backward from the deadline; departments inside a phase run in parallel.
+   Shared by generateSchedule and scheduleNewDepts — one list, so they cannot drift. */
+const SCHED_PHASES=[
+  ['install'],
+  grpDepts('finish'),
+  [...grpDepts('shop'),...grpDepts('metal'),...grpDepts('unit7')],
+  grpDepts('dfab'),
+  grpDepts('tdg'),
+];
 function generateSchedule(p,est,otherLabels){
   const tasks=[];
   const mk=(deptId,start,end,who)=>tasks.push({
@@ -1641,16 +1491,8 @@ function generateSchedule(p,est,otherLabels){
      is gone — people ride on bars via barCrew, and subtasks split the work. */
   const mkDept=(deptId,start,end)=>mk(deptId,start,end);
   const active=id=>p.activeDepartments.includes(id);
-  /* Phases chain backward from the deadline; departments inside a phase run in parallel */
-  const PHASES=[
-    ['install'],
-    grpDepts('finish'),
-    [...grpDepts('shop'),...grpDepts('metal'),...grpDepts('unit7')],
-    grpDepts('dfab'),
-    grpDepts('tdg'),
-  ];
   let chainEnd=parseDate(p.deadline);
-  for(const phase of PHASES){
+  for(const phase of SCHED_PHASES){
     const members=phase.filter(active);
     if(!members.length)continue;
     const end=chainEnd;let minStart=null;
@@ -1671,18 +1513,11 @@ function generateSchedule(p,est,otherLabels){
 /* Add tasks for newly-checked departments only, without touching any existing task's dates.
    Mirrors generateSchedule's phase-chain (same phase = same shared end date), but anchors each
    phase's end to whatever is already on the schedule (sibling tasks in that phase, or the
-   nearest later phase) instead of recalculating backward from the deadline. Keep this PHASES
-   list in sync with the one inside generateSchedule if that ever changes. */
+   nearest later phase) instead of recalculating backward from the deadline. Both read the
+   shared SCHED_PHASES list, so the chains cannot drift apart. */
 function scheduleNewDepts(p,newDeptIds,est,otherLabels,existingTasks){
   if(!newDeptIds.length)return [];
-  const PHASES=[
-    ['install'],
-    grpDepts('finish'),
-    [...grpDepts('shop'),...grpDepts('metal'),...grpDepts('unit7')],
-    grpDepts('dfab'),
-    grpDepts('tdg'),
-  ];
-  const byPhase=PHASES.map(members=>existingTasks.filter(t=>members.includes(t.department)));
+  const byPhase=SCHED_PHASES.map(members=>existingTasks.filter(t=>members.includes(t.department)));
   const added=[];
   const mk=(deptId,start,end,who)=>({
     id:genId(),projectId:p.id,department:deptId,
@@ -1691,7 +1526,7 @@ function scheduleNewDepts(p,newDeptIds,est,otherLabels,existingTasks){
     estimatedDays:est[deptId]||deptById(deptId).est||1,ticketNodes:[],notes:'',pinned:false
   });
   const mkDept=(deptId,start,end)=>added.push(mk(deptId,start,end));
-  PHASES.forEach((members,i)=>{
+  SCHED_PHASES.forEach((members,i)=>{
     const newHere=newDeptIds.filter(id=>members.includes(id));
     if(!newHere.length)return;
     let end=null;
@@ -1834,6 +1669,8 @@ const SCOPES=['User.Read','Sites.ReadWrite.All'];
 let PCA=null,ACCOUNT=null,SITE_ID=null;
 let SP_IDS={proj:{},task:{},staff:{},todo:{},event:{}};   /* our appId -> SharePoint item id */
 let TODOS_OK=false;          /* true once the ShopTimeline_Tasks2 list loads */
+const TODOS_MSG='Tasks can\'t be saved to SharePoint yet, so they\'ll only last until you close this tab. Ask whoever maintains the app to set up the tasks list.';
+const TODOS_MSG_DETAIL='The ShopTimeline_Tasks2 list was not found on the SharePoint site.';
 let EVENTS_OK=false;         /* true once the ShopTimeline_Events list loads */
 
 async function spInit(){
@@ -1909,8 +1746,6 @@ async function loadTeamMembers(){
   return TM_MEMBERS;
 }
 const isoDay=v=>v?String(v).slice(0,10):'';
-const PRIOS=['low','medium','high','urgent'];
-const PRIO_LBL={low:'Low',medium:'Medium',high:'High',urgent:'Urgent'};
 function todoToFields(t){return{Title:t.title||'Task',appId:t.id,projectId:t.projectId||'',
   department:t.dept||'',assignees:JSON.stringify(t.who||[]),dueDate:t.due||null,
   startDate:t.start||null,progress:t.progress||'notstarted',priority:t.priority||'medium',
@@ -2117,7 +1952,7 @@ function stamp(){return new Date().toLocaleTimeString([],{hour:'numeric',minute:
 const UNDO_STACK=[];
 function pushUndo(s){UNDO_STACK.push(s);if(UNDO_STACK.length>20)UNDO_STACK.shift();}
 /* Stamp whoever's signed in + right now onto anything new or changed, so the tooltip is
-   accurate immediately rather than waiting on the next 45s poll. SharePoint's own real
+   accurate immediately rather than waiting on the next background poll (POLL_MS). SharePoint's own real
    value (from graphWho/graphWhen above) overwrites this the next time spLoad() runs. */
 function stampUpdated(newList,oldList){
   const om=new Map(oldList.map(x=>[x.id,x]));
@@ -3127,7 +2962,6 @@ function repositionBarLabels(){
     lbl.style.left=lx+'px';
   }
 }
-function repositionSummaryLabels(){repositionBarLabels();}
 
 let LBL_RAF=null;
 function queueLabelReposition(){
@@ -3209,7 +3043,6 @@ function makeSummaryBar(p,s,e,row){
   bar.style.backgroundColor=sumCol;
   if(st==='forecast')bar.style.outlineColor=sumCol;
   if(st==='estimating'){const ov=document.createElement('div');ov.className='bar-stripe';bar.appendChild(ov);}
-  if(st==='in-production'||st==='installing'){const ed=document.createElement('div');ed.className='bar-edge';bar.appendChild(ed);}
   if(w>=BAR_W_TICK){
     const lbl=document.createElement('div');lbl.className='bar-lbl';
     lbl.style.color=labelColor(sumCol);
@@ -3249,12 +3082,11 @@ function makeTaskBar(t,row,lane,labelMode){
   if(st==='forecast')bar.style.outlineColor=taskCol;
   if(t.pinned)bar.classList.add('is-pinned');
   if(st==='estimating'){const ov=document.createElement('div');ov.className='bar-stripe';bar.appendChild(ov);}
-  if(st==='in-production'||st==='installing'){const ed=document.createElement('div');ed.className='bar-edge';bar.appendChild(ed);}
   if(t.__ghost)bar.classList.add('is-ghost');
   if(w>=BAR_W_TICK){ /* §7: below this the bar is a bare identity tick, no label */
     const lbl=document.createElement('div');lbl.className='bar-lbl';
     lbl.style.color=labelColor(taskCol);
-    const lblBase=(st==='in-production'||st==='installing')?11:8;
+    const lblBase=8;
     lbl.dataset.base=String(lblBase);lbl.dataset.min=String(LBL_MIN_TASK);
     lbl.style.left=labelLeftFor(x,w,lblBase,LBL_MIN_TASK)+'px';
     lbl.style.right=(t.pinned?18:7)+'px';
@@ -3466,53 +3298,6 @@ function fillRoleChecks(elId,names,currentStr){
   }
 }
 function roleChecked(elId){return [...document.querySelectorAll('#'+elId+' input:checked')].map(c=>c.value).join(', ');}
-
-function buildDeptChecklist(p,boxId){
-  const box=document.getElementById(boxId||'pm-depts');
-  box.innerHTML='';
-  const addItem=(d,indent,full)=>{
-    const item=document.createElement('div');item.className='dept-item'+(indent?' indent':'')+(full?' dept-full':'');
-    const ck=document.createElement('input');ck.type='checkbox';ck.dataset.dept=d.id;
-    const D=(!p&&PP_FORM)?PP_FORM:null;
-    const active=p?(p.activeDepartments||[]).includes(d.id)
-                 :(D?D.activeDepartments.includes(d.id)
-                    :['pm','td','fab','finish','install'].includes(d.id));
-    ck.checked=active;
-    if(d.id==='pm'){ck.checked=true;ck.disabled=true;}
-    const nm=document.createElement('span');nm.className='dname';nm.textContent=d.freeText?'Other':d.name;
-    item.appendChild(ck);item.appendChild(nm);
-    if(d.freeText){
-      const txt=document.createElement('input');txt.type='text';txt.className='dother';txt.dataset.dept=d.id;
-      txt.placeholder='process name';
-      const existing=p?ST.tasks.find(t=>t.projectId===p.id&&t.department===d.id):null;
-      txt.value=existing?(existing.assignee||''):((D&&D.otherLabels[d.id])||'');
-      txt.disabled=!ck.checked;
-      item.appendChild(txt);
-    }
-    if(d.id!=='pm'){
-      const days=document.createElement('input');days.type='number';days.className='ddays';days.min='1';
-      const existing=p?ST.tasks.find(t=>t.projectId===p.id&&t.department===d.id):null;
-      days.value=existing?(existing.estimatedDays||d.est||1)
-                        :((D&&D.est[d.id])||d.est||1);
-      days.disabled=!ck.checked;
-      const lbl=document.createElement('span');lbl.className='dlbl';lbl.textContent='days';
-      ck.addEventListener('change',()=>{
-        days.disabled=!ck.checked;
-        const o=item.querySelector('.dother');if(o)o.disabled=!ck.checked;
-      });
-      item.appendChild(days);item.appendChild(lbl);
-    }else{
-      const lbl=document.createElement('span');lbl.className='dlbl';lbl.textContent='auto-spans project';
-      item.appendChild(lbl);
-    }
-    box.appendChild(item);
-  };
-  GROUPS.forEach((g,gi)=>{
-    const grp=document.createElement('div');grp.className='dept-item grp-lbl';grp.textContent=(gi+1)+' · '+g.label;box.appendChild(grp);
-    const ids=grpDepts(g.id);
-    for(const id of ids){const d=deptById(id);addItem(d,true,ids.length===1||!!d.freeText);}
-  });
-}
 
 function openProjModal(projId){
   goProject(projId||null);return;
@@ -4006,15 +3791,6 @@ function projTeam(p){return [...new Set(PP_ROLES.flatMap(r=>roleList(p&&p[r[3]])
 function ppColor(p){return p&&p.id?projColor(p.id):'#94A3B8';}
 
 
-/* npvRebuild can fire from a poll or an undo, not just from the page. Keep the pane in
-   step without re-rendering the whole page, which would drop an unsaved draft. */
-function ppSyncPane(){
-  if(ROUTE.view!=='project')return;
-  if(!document.getElementById('pp-insp'))return;
-  const p=ppProject();
-  if(!p)return;
-  ppPaintMeta(p);
-}
 function renderProjectPage(){
   const isNew=ROUTE.creating;
   /* Clear the draft BEFORE anything reads it, or a second new project inherits the
@@ -4243,45 +4019,6 @@ function ppCommitDepts(){
 }
 
 
-function renderPhaseRows(p){
-  const box=document.getElementById('pp-phases');
-  if(!box)return;
-  const ts=tasksOf(p.id).filter(t=>!t.__ghost);
-  if(!ts.length){box.innerHTML='<div class="pg-empty">No phases yet &mdash; tick departments above and save.</div>';return;}
-  let h='';
-  for(const t of ts){
-    const d=deptById(t.department);
-    const nm=phaseLabel(t);
-    const col=DEPT_COLORS[t.department]||'#8A98AE';
-    /* One crew field for every row — comma-separated names, any number of people. */
-    const asHtml='<input class="ph-as" data-f="assignee" value="'+esc(crewOf(t).join(', '))+'" placeholder="'+(d&&d.roster?'Project team':'&mdash;')+'">';
-    h+='<div class="ph-row" data-id="'+esc(t.id)+'">'
-     + '<span class="ph-dept"><span class="ph-dot" style="background:'+col+'"></span>'+esc(nm)+'</span>'
-     + asHtml
-     + '<input type="date" class="ph-s" data-f="startDate" value="'+esc(t.startDate||'')+'">'
-     + '<input type="date" class="ph-e" data-f="endDate" value="'+esc(t.endDate||'')+'">'
-     + '<input type="number" min="1" class="ph-d" data-f="estimatedDays" value="'+(t.estimatedDays||1)+'">'
-     + '<button class="ph-del" title="Delete phase">&times;</button>'
-     + '</div>';
-  }
-  box.innerHTML=h;
-  box.querySelectorAll('.ph-row').forEach(row=>{
-    const id=row.dataset.id;
-    row.querySelectorAll('[data-f]').forEach(inp=>{
-      inp.addEventListener('change',()=>commitPhase(id,inp.dataset.f,inp.value));
-    });
-    row.querySelector('.ph-del').addEventListener('click',()=>{
-      const t=taskById(id);
-      if(!t)return;
-      const d=deptById(t.department);
-      if(!confirm('Delete the '+((d?d.name:t.department))+' phase?'))return;
-      const proj=ppProject();
-      saveState({projects:ST.projects,tasks:ST.tasks.filter(x=>x.id!==id)});
-      if(proj)renderPhaseRows(proj);
-    });
-  });
-}
-
 function commitPhase(id,field,val){
   const tasks=ST.tasks.map(t=>{
     if(t.id!==id)return t;
@@ -4394,8 +4131,7 @@ function ppPaintCrumb(){
   }
 }
 
-/* REV50: the inspector builds its own department list. buildDeptChecklist stays as-is
-   for the staff modal, whose wide grid it was designed for. Same data attributes
+/* REV50: the inspector builds its own department list. Same data attributes
    (data-dept, .ddays, .dother), so ppCommitDepts and readPageDraft read it unchanged. */
 function insDeptList(p,boxId){
   const box=document.getElementById(boxId);
@@ -4409,7 +4145,7 @@ function insDeptList(p,boxId){
       const d=deptById(id);
       const active=p?(p.activeDepartments||[]).includes(id)
                    :(D?D.activeDepartments.includes(id)
-                      :['pm','td','fab','finish','install'].includes(id));
+                      :DEFAULT_DEPTS.includes(id));
       const ex=p?ST.tasks.find(t=>t.projectId===p.id&&t.department===id):null;
       const days=ex?(ex.estimatedDays||d.est||1):((D&&D.est[id])||d.est||1);
       const other=d.freeText?(ex?(ex.assignee||''):((D&&D.otherLabels[id])||'')):null;
@@ -4459,6 +4195,8 @@ function wdSnap(iso){
 }
 /* Forward twin of backN: the end of a bar that starts here and runs n workdays. */
 function fwdN(start,n){let e=new Date(start);for(let i=1;i<n;i++){e=addDays(e,1);while(!isWorking(e))e=addDays(e,1);}return e;}
+/* A resized edge lands on a workday: the start snaps forward (dir=1), the end back (dir=-1). */
+const snap=(d,dir)=>{while(!isWorking(d))d=addDays(d,dir);return d;};
 function ppDeptDates(dept,which,val){
   const bar=(NPV_ALL||[]).find(t=>t.department===dept);
   if(!bar||!val)return;
@@ -4822,8 +4560,8 @@ function ppPaintMeta(p){
     if(t.endDate&&(!e||e<t.endDate))e=t.endDate;
   }
   const dl=p.deadline||'';
-  const today=fmtDate(new Date());
-  const left=dl?Math.round((parseDate(dl)-parseDate(today))/86400000):null;
+  const todayIso=fmtDate(new Date()); /* not "today" — that shadows the global today() */
+  const left=dl?diffDays(parseDate(todayIso),parseDate(dl)):null;
   const late=!!(dl&&e&&e>dl);
   const evN=NPV_LIVE?liveEvents(p).length:NPV_EVENTS.length;
   const tkN=NPV_LIVE?liveTodos(p).length:NPV_TODOS.length;
@@ -4895,7 +4633,6 @@ let PP_SEL=null;          /* REV49: selected phase id. Selection drives the insp
 let PP_INSP='project';    /* which pane: 'project' or 'phase' */
 let DOCK_H=280;           /* E1: bottom-dock height, persisted like the sidebar width */
 try{const v=parseInt(localStorage.getItem('shopTimelineDockH'),10);if(v>0)DOCK_H=v;}catch(e){}
-let PP_HELP=false;
 const NPV_ROWH=34;      /* must match .npv-row height in the stylesheet */
 let NPV_GEO=null;
 let NPV_RAF=null;
@@ -4914,7 +4651,7 @@ function wdCount(a,b){let n=0,c=new Date(a);while(c<=b){if(isWorking(c))n++;c=ad
 function ppFormInit(){
   PP_FORM={name:'',client:'',jobCode:'',deadline:fmtDate(addDays(today(),42)),status:'auto',
     projectManager:'',drafter:'',leadFab:'',fabricators:'',
-    activeDepartments:['pm','td','fab','finish','install'],est:{},otherLabels:{}};
+    activeDepartments:DEFAULT_DEPTS.slice(),est:{},otherLabels:{}};
   PP_SNAP=JSON.stringify(PP_FORM);
 }
 /* N2: dirty = the form moved off its snapshot, or anything was drawn on the chart. */
@@ -5125,7 +4862,7 @@ function npvSpareDepts(){
 /* REV49 — menus for a specific thing. Verb first, likeliest at the top, destructive at
    the bottom, and every item shows its key so the menu teaches the keyboard. */
 function npvMenuShell(clientX,clientY,title,html,bind){
-  npvCloseMenu();ppClosePop(); /* N11: opening the right-click surface closes the left's */
+  npvCloseMenu(); /* N11: only one menu at a time */
   const el=document.createElement('div');
   el.className='npv-menu';el.id='npv-menu';
   /* N11: every add menu carries an inline name field — type the name, Enter files it
@@ -5223,7 +4960,7 @@ function npvDuplicatePhase(t){
 }
 
 function npvOpenMenu(clientX,clientY,hit,page){
-  npvCloseMenu();ppClosePop();
+  npvCloseMenu();
   const dept=hit.row?hit.row.dept:'';
   const dn=dept?((deptById(dept)||{}).name||dept):'';
   const el=document.createElement('div');
@@ -5293,9 +5030,7 @@ function npvDefaultDays(dept){
   return Math.max(1,Math.round(sib.reduce((n,t)=>n+(t.estimatedDays||1),0)/sib.length));
 }
 function npvEndAfter(start,days){
-  let c=parseDate(start),n=1;
-  while(n<days){c=addDays(c,1);if(isWorking(c))n++;}
-  return fmtDate(c);
+  return fmtDate(fwdN(parseDate(start),days));
 }
 function npvCreateSubtask(dept,date,newDept,name){
   if(!dept)return;
@@ -5696,7 +5431,7 @@ function npvRender(){
     let c3=new Date(lo);
     while(c3<=hi){
       tl+='<div class="'+(TINT?'npv-tintcol':'npv-qcol')+'" style="left:'+x(c3)+'px;width:'+dwv+'px;background:'
-        +dayBg(c3.getMonth(),isoWeek(c3)%2)+'"></div>';
+        +dayBg(c3.getMonth(),wkPar(c3))+'"></div>';
       if(!TINT&&c3.getDate()===1&&c3.getTime()!==lo.getTime())
         tl+='<div class="mon-line" style="left:'+x(c3)+'px"></div>';
       c3=addDays(c3,1);
@@ -5740,7 +5475,7 @@ function npvBindHost(host){
     host.dataset.bound='1';
     let dnX=0,dnY=0;
     const blank=tg=>!!tg&&!!tg.closest&&!tg.closest('.npv-bar')&&!tg.closest('.npv-gut')
-      &&!tg.closest('.cal-band')&&!tg.closest('#bar-pop')&&!tg.closest('#npv-menu');
+      &&!tg.closest('.cal-band')&&!tg.closest('#npv-menu');
     host.addEventListener('mousedown',ev=>{
       npvBlur();
       dnX=ev.clientX;dnY=ev.clientY;
@@ -5748,17 +5483,16 @@ function npvBindHost(host){
          add menu (the menu stops propagation for presses inside itself). A press that
          dismissed a menu keeps the selection, as before. */
       const hadMenu=npvCloseMenu();
-      if(blank(ev.target)){ppClosePop();
-        if(PP_SEL&&!hadMenu)ppSelect(null,true);}
+      if(blank(ev.target)&&PP_SEL&&!hadMenu)ppSelect(null,true);
     });
     /* N11: left-click only selects and edits — empty canvas deselects (above) and no
        longer opens the create menu; that lives on right-click alone, both modes. */
     host.addEventListener('click',ev=>{
-      /* REV53: a calendar phase band behaves like a Gantt bar — click selects on a
-         saved project, opens the draft popover on a new one (ppOpenPop branches). */
+      /* REV53: a calendar phase band behaves like a Gantt bar — click selects it
+         (ppSelect stores a rebuild-stable key on drafts). */
       if(NPV_MODE==='calendar'&&Math.abs(ev.clientX-dnX)<=4&&Math.abs(ev.clientY-dnY)<=4){
         const band=ev.target&&ev.target.closest?ev.target.closest('.cal-band.ph'):null;
-        if(band){ppOpenPop(+band.dataset.i,band);return;}
+        if(band){const t=NPV_TASKS[+band.dataset.i];if(t)ppSelect(t.id);return;}
       }
     });
     /* REV71 — calendar drag-to-move. A phase band drags to a new day like a Gantt bar.
@@ -5850,8 +5584,6 @@ function npvBindHost(host){
       }
       const x0=ev.clientX,y0=ev.clientY;
       const tip=document.getElementById('tooltip');
-      /* A resized edge lands on a workday: the start snaps forward, the end back. */
-      const snap=(d,dir)=>{while(!isWorking(d))d=addDays(d,dir);return d;};
       let moved=false,anchor=null,days=0,edgeD=null;
       const mv=e2=>{
         if(!moved){
@@ -6054,9 +5786,6 @@ function npvBindHost(host){
          open — and a click meant to dismiss would open a fresh one. */
       if(tg.closest('#npv-body')||tg.closest('#npv-menu'))return;
       npvCloseMenu();
-      if(!document.getElementById('bar-pop'))return;
-      if(tg.closest('#bar-pop'))return;
-      ppClosePop();
     },true);
     /* Same trap as the popover: the menu's inline name field scrolls itself when a
        typed name outgrows it — that must not dismiss the menu mid-word. */
@@ -6147,7 +5876,7 @@ function liveDeleteEvent(evId){
 let TODO_WARNED=false;
 function liveAddTodo(p,dept,due,name){
   if(!TODOS_OK&&!TODO_WARNED){TODO_WARNED=true;
-    toast('Tasks can\'t be saved to SharePoint yet, so they\'ll only last until you close this tab. Ask whoever maintains the app to set up the tasks list.','err',null,'The ShopTimeline_Tasks2 list was not found on the SharePoint site.');}
+    toast(TODOS_MSG,'err',null,TODOS_MSG_DETAIL);}
   const td={id:genId(),projectId:p.id,dept:dept||'',title:name||'',who:[],due:due||'',
     start:'',progress:'notstarted',priority:'medium',notes:'',createdBy:'',
     completedOn:'',completedBy:'',sortIndex:(ST.todos||[]).length};
@@ -6329,7 +6058,7 @@ function npvPaintCalendar(lo,hi,dl){
       const cls=['cal-col'];
       if(!isWorking(d))cls.push('we');
       if(d.getTime()===td.getTime())cls.push('tod');
-      const tintBg=isWorking(d)?';background:'+dayBg(d.getMonth(),isoWeek(d)%2):'';
+      const tintBg=isWorking(d)?';background:'+dayBg(d.getMonth(),wkPar(d)):'';
       /* REV53: each cell carries its date so npvCalHit needs no coordinate arithmetic. */
       h+='<div class="'+cls.join(' ')+'" data-d="'+fmtDate(d)+'" style="left:calc('+i+'*100%/7)'+tintBg+'"></div>';
     }
@@ -6450,38 +6179,7 @@ function npvBindReorder(){
 }
 
 
-/* ===================== REV42: BAR OPTIONS POPOVER ===================== */
-let BP_ID=null;
 let BP_DOC_BOUND=false;
-
-/* Close on page scroll, but never on a scroll that originates inside the popover —
-   an input scrolling its own overflowing text is a scroll event too. */
-function bpScrollAway(ev){
-  if(ev&&ev.target&&ev.target.closest&&ev.target.closest('#bar-pop'))return;
-  ppClosePop();
-}
-function ppClosePop(){
-  const el=document.getElementById('bar-pop');
-  if(!el)return false;
-  el.remove();
-  window.removeEventListener('scroll',bpScrollAway,true);
-  BP_ID=null;
-  const body=document.getElementById('npv-body');
-  if(body){body.classList.remove('picking');
-    body.querySelectorAll('.npv-bar.sel').forEach(b=>b.classList.remove('sel'));}
-  return true;
-}
-
-/* REV49: the popover is retired on the dashboard — the inspector says all of it, next to
-   the chart instead of on top of it. Kept only for new-project draft bars, which have no
-   ST record yet for the inspector to select (both callers below are in the !NPV_LIVE branch). */
-function ppOpenPop(idx,barEl){
-  /* 3.5/D2+L3: the floating popover is retired — selection + the bottom inspector
-     serve BOTH pages now (ppSelect stores a rebuild-stable key on drafts). */
-  const t=NPV_TASKS[idx];
-  if(t)ppSelect(t.id);
-  return null;
-}
 
 /* On a saved project the popover writes to state. On a new one it writes to the draft,
    because NPV_TASKS is regenerated from the scheduler on every keystroke. */
@@ -6553,11 +6251,6 @@ function ppPopDelete(t){
     NPV_LINES=NPV_LINES.filter(x=>x.dept!==t.department);
   }
   ppSelect(null,true);npvRebuild();
-}
-/* REV49: the tabs are gone; E1: every section is always visible, so a "tab switch" is
-   just a repaint. */
-function ppGoTab(tab){
-  if(document.getElementById('pp-insp'))ppInspector();
 }
 
 function npvBindDrag(){
@@ -6661,8 +6354,6 @@ function npvBindDrag(){
         const ps=parseDate(prow.t.startDate),pe=parseDate(prow.t.endDate);
         if(s0>=ps&&e0<=pe){cLo=ps;cHi=pe;}
       }
-      /* A resized edge lands on a workday: the start snaps forward, the end back. */
-      const snap=(d,dir)=>{while(!isWorking(d))d=addDays(d,dir);return d;};
       const edge=e2=>{
         const dd=Math.round((e2.clientX-x0)/dwv);
         if(resize==='l'){let ns=snap(addDays(s0,dd),1);if(cLo&&ns<cLo)ns=new Date(cLo);
@@ -6779,7 +6470,7 @@ function savePageProject(){
   if(!name||!deadline){
     if(!name&&nameEl){nameEl.classList.add('err');nameEl.focus();}
     if(!deadline){
-      ppGoTab('setup');
+      ppInspector();
       const dl2=document.getElementById('pp-deadline');
       if(dl2){dl2.classList.add('err');dl2.focus();}
     }
@@ -6848,7 +6539,7 @@ function savePageProject(){
     if(newTodos.length)bits.push(newTodos.length+' task'+(newTodos.length>1?'s':''));
     toast('Created "'+p.name+'" with '+bits.join(', '));
     if(newTodos.length&&!TODOS_OK)
-      toast('Tasks can\'t be saved to SharePoint yet, so they\'ll only last until you close this tab. Ask whoever maintains the app to set up the tasks list.','err',null,'The ShopTimeline_Tasks2 list was not found on the SharePoint site.');
+      toast(TODOS_MSG,'err',null,TODOS_MSG_DETAIL);
     PP_FORM=null; /* N2: the draft is filed — leaving is not discarding. */
     goProject(p.id);
     return;
@@ -6857,34 +6548,27 @@ function savePageProject(){
   const cur=projById(ROUTE.id);
   if(!cur){goTimeline();return;}
   const p={...cur,...base};
-  const regenEl=document.getElementById('pp-regen');
-  const regen=regenEl&&regenEl.checked;
   const oldTasksForProj=ST.tasks.filter(t=>t.projectId===p.id);
-  let tasks=ST.tasks;
-  if(regen){
-    tasks=tasks.filter(t=>t.projectId!==p.id).concat(generateSchedule(p,est,otherLabels));
-  }else{
-    tasks=tasks.map(t=>{
-      if(t.projectId!==p.id)return t;
-      const d=deptById(t.department);
-      if(d&&d.freeText){const lbl=otherLabels[t.department];return lbl?{...t,assignee:lbl}:t;}
-      /* Roster bars keep their crews on a team change — unowned umbrellas follow the
-         team implicitly (barCrew), and explicit crews are deliberate per-subtask picks. */
-      return t;
-    });
-    const haveDept=new Set(oldTasksForProj.map(t=>t.department));
-    const newDeptIds=activeDepartments.filter(id=>!haveDept.has(id));
-    if(newDeptIds.length){
-      const added=scheduleNewDepts(p,newDeptIds,est,otherLabels,oldTasksForProj);
-      tasks=tasks.concat(added);
-      if(added.length)toast('Added '+added.length+' phase'+(added.length>1?'s':'')+' — other dates unchanged');
-    }
-    const dropped=oldTasksForProj.filter(t=>!activeDepartments.includes(t.department));
-    if(dropped.length){
-      if(confirm('Remove '+dropped.length+' phase'+(dropped.length>1?'s':'')+' for the departments you unticked?')){
-        const kill=new Set(dropped.map(t=>t.id));
-        tasks=tasks.filter(t=>!kill.has(t.id));
-      }
+  let tasks=ST.tasks.map(t=>{
+    if(t.projectId!==p.id)return t;
+    const d=deptById(t.department);
+    if(d&&d.freeText){const lbl=otherLabels[t.department];return lbl?{...t,assignee:lbl}:t;}
+    /* Roster bars keep their crews on a team change — unowned umbrellas follow the
+       team implicitly (barCrew), and explicit crews are deliberate per-subtask picks. */
+    return t;
+  });
+  const haveDept=new Set(oldTasksForProj.map(t=>t.department));
+  const newDeptIds=activeDepartments.filter(id=>!haveDept.has(id));
+  if(newDeptIds.length){
+    const added=scheduleNewDepts(p,newDeptIds,est,otherLabels,oldTasksForProj);
+    tasks=tasks.concat(added);
+    if(added.length)toast('Added '+added.length+' phase'+(added.length>1?'s':'')+' — other dates unchanged');
+  }
+  const dropped=oldTasksForProj.filter(t=>!activeDepartments.includes(t.department));
+  if(dropped.length){
+    if(confirm('Remove '+dropped.length+' phase'+(dropped.length>1?'s':'')+' for the departments you unticked?')){
+      const kill=new Set(dropped.map(t=>t.id));
+      tasks=tasks.filter(t=>!kill.has(t.id));
     }
   }
   saveState({projects:ST.projects.map(x=>x.id===p.id?p:x),tasks});
@@ -6918,7 +6602,6 @@ document.addEventListener('keydown',ev=>{
       const ksx=document.getElementById('pp-ks');
       if(ksx&&!ksx.classList.contains('hidden')){ksx.classList.add('hidden');ev.preventDefault();return;}
       if(npvCloseMenu()){ev.preventDefault();return;}
-      if(ppClosePop()){ev.preventDefault();return;}
       if(typing){ev.target.blur();return;}
       if(PP_SEL){ppSelect(null);ev.preventDefault();return;}
       ev.preventDefault();goTimeline();return;
@@ -7684,7 +7367,7 @@ try{
   }
 }catch(e){}
 buildStatusMenu();updateFilterBadges();
-ST={projects:[],tasks:[],todos:[]};
+ST={projects:[],tasks:[],todos:[],events:[]};
 /* Sign in + load, callable again from the signed-out empty-state card's button. */
 async function boot(){
   try{
