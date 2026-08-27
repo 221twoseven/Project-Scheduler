@@ -830,8 +830,10 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
    four tabs, so every edit was a round trip down and back up. Nothing here scrolls the
    chart out of view. */
 .dash{display:flex;flex-direction:column;height:calc(100vh - 52px);max-width:none;padding:0}
-.dash-top{display:flex;align-items:center;gap:11px;padding:12px 22px 0}
-.dash-meta{display:flex;align-items:center;gap:0;padding:7px 22px 11px;flex-wrap:wrap}
+/* REV84: the breadcrumb sits on its own bar, a hairline above the summary strip —
+   navigation and at-a-glance numbers no longer read as one blob. */
+.dash-top{display:flex;align-items:center;gap:11px;padding:8px 22px;border-bottom:1px solid #E2E8F0}
+.dash-meta{display:flex;align-items:center;gap:0;padding:8px 22px;flex-wrap:wrap}
 .dash-meta .m{display:flex;align-items:baseline;gap:6px;padding:0 14px;border-right:1px solid #E2E8F0}
 .dash-meta .m:first-child{padding-left:0}
 .dash-meta .m:last-child{border-right:none}
@@ -1349,7 +1351,7 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_REV=83; // bump this ONE number on every release; used everywhere the rev shows up
+const APP_REV=84; // bump this ONE number on every release; used everywhere the rev shows up
 
 /* ===================== CONSTANTS ===================== */
 const SET_KEY ='shopTimelineSettings_v1';
@@ -4175,6 +4177,9 @@ function ppSelect(id,quiet){
        several bands — ring them all. */
     document.querySelectorAll('#npv-body .cal-band.ph[data-i="'+i+'"]').forEach(b=>b.classList.add('pick'));
   }
+  /* REV84: the calendar hides subtask bands until their phase is selected, so a
+     selection change repaints the calendar rather than just restyling it. */
+  if(NPV_MODE==='calendar')npvRender();
   ppInspector();
   ppPaintCrumb();
   if(!quiet&&PP_SEL){
@@ -6080,7 +6085,13 @@ function npvPaintCalendar(lo,hi,dl){
       if(selKey&&calKey(t)!==selKey)return;
       /* REV56: same hierarchy the Gantt shows — a department's first bar is the
          parent at full colour, its subtasks a lighter shade of the same hue. */
-      const kid=NPV_TASKS.findIndex(z=>z.department===t.department)!==ti;
+      const pi=NPV_TASKS.findIndex(z=>z.department===t.department);
+      const kid=pi!==ti;
+      /* REV84: phases collapse by default — a subtask band (a kid whose label/window
+         differs from the parent's, i.e. not an N16 roster twin) only paints while its
+         phase is selected. Clicking a phase band selects it (ppSelect), which opens
+         the bottom phase editor AND repaints with the subtasks in view. */
+      if(kid&&calKey(t)!==calKey(NPV_TASKS[pi])&&(!selT0||selT0.department!==t.department))return;
       const col0=DEPT_COLORS[t.department]||'#8A98AE';
       /* N16: roster fan-out collapses to one band per phase — same department, label
          and window, different assignee — with a +N chip in the label.

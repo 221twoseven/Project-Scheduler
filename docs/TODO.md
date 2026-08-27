@@ -383,9 +383,13 @@ until this list is done (or the owner trims it). Grouped by surface;
 
 **Calendar view:**
 
-- [ ] **Default view collapses each phase** (subtasks hidden); left-click opens
+- [x] **Default view collapses each phase** (subtasks hidden); left-click opens
       the Phase Edit form at the bottom of the screen and brings the subtasks
-      into view.
+      into view. DONE 2026-08-27 (REV84): the calendar paints one band per phase
+      (the +N roster merge intact); selection expands the phase's subtasks, and
+      the click already opened the bottom editor (REV53/82). Suite:
+      `tests/test84.js`. Record:
+      `docs/Milestones/2026-08-27-calendar-collapse-breadcrumb-bar.md`.
 - [x] **Drag-resize live feedback — DONE 2026-08-26 (REV83).** While an edge
       handle drags, the day columns the band will span after the workday snap
       tint live and clear on release; the snap itself is unchanged. Suite:
@@ -401,8 +405,10 @@ until this list is done (or the owner trims it). Grouped by surface;
       (REV83).** The tour step now ends at "Red bars are installs."; the legend
       screen's matching line was scoped to bars ("no other bar is ever red") —
       the rule stays, the site-wide claim is gone.
-- [ ] **Move the nav breadcrumb to its own bar**, separated from the project
-      summary bar (client, job, install, etc.).
+- [x] **Move the nav breadcrumb to its own bar**, separated from the project
+      summary bar (client, job, install, etc.). DONE 2026-08-27 (REV84): the
+      trail bar gained a hairline below it, the summary strip sits beneath as
+      its own band — CSS only. Record: as above.
 - [ ] `[decision]` **Fourth exit?** Current exits from project views: Esc,
       Done, breadcrumb. Add an × in the top-right corner?
 
@@ -412,6 +418,15 @@ until this list is done (or the owner trims it). Grouped by surface;
       messages, greys out everything under that event, but leaves it on the
       timeline. ⚠ check: a completed flag/status must persist — verify the
       storage shape against the colleague app before shipping.
+      **Storage shape VERIFIED 2026-08-27:** both apps share the stored
+      `status` column on `ShopTimeline_Projects`, and `complete` is already a
+      first-class value in the colleague app (its own status dropdown offers
+      it, its `STATUS_MIGRATE` maps legacy values onto it, and it renders it
+      dimmed with a grey pill). The button writes `status='complete'` — an
+      existing column, an existing value, **no schema change and no cross-app
+      risk**. Both apps' deadline/"late" logic already skips
+      `projectStatus(p)==='complete'`, so the late messages clear for free.
+      Code can start whenever the owner green-lights the flow.
 - [ ] **PM late-project prompt** — when a PM opens the app (identity
       authenticated), projects whose install dates have passed (reading
       "late") with a Project Manager assignment matching the signed-in user
@@ -519,6 +534,22 @@ own "only if it proves needed" gates.
 - [ ] The calendar's live resize tint (REV83) covers edge-resize only —
       drag-to-move keeps its tooltip-only feedback; the owner's note named
       resize specifically. Gate: the same complaint about moves. (2026-08-26)
+- [ ] A collapsed calendar phase (REV84) spans only the parent bar's window — a
+      subtask deliberately scheduled outside it (the chunk-pipeline case, legal
+      per Design-Language §6) is invisible until the phase is clicked. Fix, if
+      needed: stretch the collapsed band to the department's min/max extent the
+      way the Gantt's collapsed row does. Gate: a PM missing an out-of-window
+      subtask. (2026-08-27)
+- [ ] The calendar's collapse follows the selection only — it deliberately
+      ignores the Gantt's ▸ expand state (`NPV_OPEN`), matching the owner's
+      wording ("default view collapses each phase"). Gate: someone expecting
+      the two surfaces to share expansion. (REV84)
+- [ ] The positional parent model shows through the collapse: resize/move a
+      phase so it starts after one of its subtasks and the subtask becomes the
+      department's first bar — the collapsed calendar then shows *its* band as
+      the phase (the Gantt's parent row flips identically, so the surfaces
+      agree). No stored parent flag exists by design (REV56 ponytail note).
+      Gate: a PM confused by the swap. (REV84)
 
 **Deliberate design ceilings — no action planned, revisit only on real complaints:**
 12-slot palette repeats at 13+ visible projects (T2); quiet re-selection after a committed

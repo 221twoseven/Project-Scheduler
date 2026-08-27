@@ -97,10 +97,14 @@ function draftPage(){
 
   sec('I9 · duplicate works on the draft');
   const nBars=E('NPV_TASKS.length');
+  /* Compare against the source bar's ACTUAL date, not rel(2) — when today+2 lands
+     on a weekend the date commit snaps it, and the old constant went stale. */
+  const srcStart=E('ppSelected().startDate');
   doc.getElementById('ins-dup').click();
   ok('a new bar exists',E('NPV_TASKS.length')===nBars+1,E('NPV_TASKS.length'));
   ok('the copy is selected',/ copy$/.test(E('ppSelected()?ppSelected().label:""')),E('ppSelected()&&ppSelected().label'));
-  ok('the copy kept the source dates',E('ppSelected().startDate')===rel(2));
+  ok('the copy kept the source dates',E('ppSelected().startDate')===srcStart,
+     E('ppSelected().startDate')+' vs '+srcStart);
 
   sec('I10 · ⌘Z walks the draft undo stack');
   const afterDup=E('NPV_TASKS.length');

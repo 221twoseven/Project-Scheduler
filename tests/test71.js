@@ -89,8 +89,11 @@ function stage1(){
        t.startDate+'..'+t.endDate);
     ok('the drag selected the moved phase (like the Gantt)', E('PP_SEL')==='td1', String(E('PP_SEL')));
     ok('the nested subtask did not move (Link off)', dates('td2').startDate==='2026-08-04');
-    E('ppSelect(null,true);');
-    stage2();
+    /* REV84: the move put td1's start past Trim's, flipping the positional parent —
+       the collapsed calendar would hide 'Exterior Windows' once deselected. Put the
+       kid back inside the moved window (stage3 needs it there anyway) first. */
+    E("commitPhaseDates('td2','2026-08-06','2026-08-07');npvRebuild();");
+    setTimeout(()=>{E('ppSelect(null,true);');stage2();},250);
   },350);
 }
 
@@ -115,6 +118,8 @@ function stage3(){
   /* Parent td1 is now 08-05..08-09; kid td2 (08-04..08-05) sits outside it after the
      stage1 move — put the kid back inside first so the clamp is in play. */
   E("commitPhaseDates('td2','2026-08-06','2026-08-07');npvRebuild();");
+  /* REV84: kid bands only paint while their phase is selected. */
+  E("ppSelect('td1',true);");
   setTimeout(()=>{
     const b=bandByText('Trim');
     ok('the kid band is drawn', !!b);
