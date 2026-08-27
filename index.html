@@ -743,6 +743,11 @@ body.vivid .npv-we{background:#F1F5F9}
 .pg-cr.cur{color:#16202E;font-weight:700;cursor:default}
 .pg-cr.cur:hover{color:#16202E}
 .pg-sep{color:#B4C0D0;font-size:14px;font-weight:700;flex-shrink:0;user-select:none}
+/* REV85: the fourth exit — × at the right edge of the breadcrumb bar (same hover
+   pattern as the other close buttons). */
+.pg-x{margin-left:auto;background:none;border:none;color:#94A3B8;font-size:18px;
+  line-height:1;cursor:pointer;padding:4px 8px;font-family:inherit;flex-shrink:0}
+.pg-x:hover{color:#CE4242}
 .pg-cols2{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:16px;align-items:start;margin-top:14px}
 .pg-panel{background:#fff;border:1px solid #E2E8F0;border-radius:0 9px 9px 9px;padding:14px;min-height:210px}
 .pg-panel .pg-sec:first-child{margin-top:0}
@@ -1351,7 +1356,7 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_REV=84; // bump this ONE number on every release; used everywhere the rev shows up
+const APP_REV=85; // bump this ONE number on every release; used everywhere the rev shows up
 
 /* ===================== CONSTANTS ===================== */
 const SET_KEY ='shopTimelineSettings_v1';
@@ -3889,6 +3894,9 @@ function renderProjectPage(){
    + '<button class="pg-cr pg-bc cur hidden" id="pp-bc" title="Deselect the phase (Esc)"><b></b></button>'
    + '</nav>'
    + (isNew?'<span class="pg-code">New project</span>':'')
+   /* REV85: the fourth exit (owner decision 2026-08-27) — an × on the breadcrumb
+      bar, same action as Done/Esc: back to all projects. */
+   + '<button class="pg-x" id="pp-x" title="'+(isNew?'Leave without creating the project':'Close — back to all projects (Esc)')+'">&times;</button>'
    + '</div>';
 
   /* The numbers that answer "where is this job" without reading the chart. */
@@ -3945,6 +3953,7 @@ function renderProjectPage(){
 
   document.getElementById('pp-back').addEventListener('click',goTimeline);
   document.getElementById('pp-cancel').addEventListener('click',goTimeline);
+  document.getElementById('pp-x').addEventListener('click',goTimeline);
   const sv=document.getElementById('pp-save');
   if(sv)sv.addEventListener('click',savePageProject);
   const del=document.getElementById('pp-del');

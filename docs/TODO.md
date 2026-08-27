@@ -355,7 +355,9 @@ until this list is done (or the owner trims it). Grouped by surface;
       because `ppSelect` was, and the calendar band click routes through the
       same selection path. The one survivor is the **double-click** row:
       unbound on both pages, `[decision]` candidate for "open editor" (see the
-      audit doc).
+      audit doc). **DECIDED 2026-08-27: stays unbound** — single-click already
+      opens the editor, and Design-Language §6 reserves unspent verbs. The
+      audit is fully dispositioned; row closed in the audit doc.
 
 **Global project view (main timeline):**
 
@@ -401,6 +403,9 @@ until this list is done (or the owner trims it). Grouped by surface;
 - [ ] **Coach marks / help tour on Project Edit and New Project** — extend the
       REV74 tour to these views. `[decision]` are they one view or two for
       tour purposes? (Feeds the parity audit above.)
+      **DECIDED 2026-08-27: ONE shared tour** — the REV82 convergence made the
+      pages near-identical; a one-step branch covers the draft's Create
+      button. Implementation next.
 - [x] **Coach-mark copy: remove "Nothing else is red." — DONE 2026-08-26
       (REV83).** The tour step now ends at "Red bars are installs."; the legend
       screen's matching line was scoped to bars ("no other bar is ever red") —
@@ -409,8 +414,12 @@ until this list is done (or the owner trims it). Grouped by surface;
       summary bar (client, job, install, etc.). DONE 2026-08-27 (REV84): the
       trail bar gained a hairline below it, the summary strip sits beneath as
       its own band — CSS only. Record: as above.
-- [ ] `[decision]` **Fourth exit?** Current exits from project views: Esc,
+- [x] `[decision]` **Fourth exit?** Current exits from project views: Esc,
       Done, breadcrumb. Add an × in the top-right corner?
+      **DECIDED 2026-08-27: add it — shipped as REV85** the same day: an × at
+      the right edge of the breadcrumb bar (both pages), same action as
+      Done/Esc. Suite: `tests/test85.js`. Record:
+      `docs/Milestones/2026-08-27-decisions-and-x-exit.md`.
 
 **Completion flow:**
 
@@ -427,6 +436,7 @@ until this list is done (or the owner trims it). Grouped by surface;
       risk**. Both apps' deadline/"late" logic already skips
       `projectStatus(p)==='complete'`, so the late messages clear for free.
       Code can start whenever the owner green-lights the flow.
+      **GREEN-LIT 2026-08-27: build both** (the button and the PM prompt).
 - [ ] **PM late-project prompt** — when a PM opens the app (identity
       authenticated), projects whose install dates have passed (reading
       "late") with a Project Manager assignment matching the signed-in user
