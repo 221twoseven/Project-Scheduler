@@ -1141,6 +1141,7 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
     <span id="sync-pill" class="busy" title="Shows whether your changes are saved to SharePoint — click to retry after an error">● connecting…</span>
   </div>
   <div class="tb-row tb-timeline">
+    <span class="t-mini">Where</span>
     <div class="sf-wrap">
       <button id="btn-today" class="t-btn" title="Center the timeline on today (T)">Today</button>
       <div id="goto-menu" class="tb-menu hidden">
@@ -1153,19 +1154,22 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
         </div>
       </div>
     </div>
+    <div class="t-sep"></div>
+    <span class="t-mini">Style</span>
     <div class="tog-grp" id="tg-scale">
       <button id="btn-days" class="t-btn active" title="Show the timeline day by day (D)">Day</button>
       <button id="btn-day2" class="t-btn" title="Days at half width — about twice the range on screen (+ and − step the zoom)">2-Day</button>
       <button id="btn-weeks" class="t-btn" title="Show the timeline week by week (W)">Week</button>
       <button id="btn-month" class="t-btn" title="Whole months at a glance — a season fits on one screen (+ and − step the zoom)">Month</button>
     </div>
-    <div class="t-sep"></div>
-    <span class="t-mini">Color</span>
     <div class="tog-grp" id="tg-color">
       <button id="btn-col-proj" class="t-btn active" title="Color every bar by its project">Project</button>
       <button id="btn-col-ent" class="t-btn" title="Color every bar by its department team">Team</button>
     </div>
+    <button id="btn-density" class="t-btn" title="Row height — click to cycle Comfortable → Snug → Compact">Comfortable</button>
+    <button id="t-tint" class="t-btn" title="Colour the calendar background vividly by month">Vivid months</button>
     <div class="t-sep"></div>
+    <span class="t-mini">Filter</span>
     <input id="t-search" type="text" placeholder="Search  /" autocomplete="off" spellcheck="false" title="Type to show only matching projects and phases (/)">
     <div class="sf-wrap">
       <button id="btn-status" class="t-btn" title="Choose which project statuses are shown">Status <svg class="ico-s" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 6 8 9.5 11.5 6"/></svg></button>
@@ -1175,13 +1179,12 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
       <button id="btn-person" class="t-btn" title="Show only one person's work">Person <svg class="ico-s" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 6 8 9.5 11.5 6"/></svg></button>
       <div id="person-menu" class="tb-menu hidden"></div>
     </div>
+    <button id="btn-reset" class="t-btn" title="Clear the spotlight, search, status and person filters"><svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1.5 3v4h4"/><path d="M2.3 10a6 6 0 1 0 1.5-6.3L1.5 7"/></svg> Clear filters</button>
+    <span class="tb-spacer"></span>
     <div class="sf-wrap">
       <button id="btn-views" class="t-btn" title="Save the current filters, zoom and layout as a named view, and jump between views">Views <svg class="ico-s" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 6 8 9.5 11.5 6"/></svg></button>
       <div id="views-menu" class="tb-menu hidden"></div>
     </div>
-    <button id="btn-reset" class="t-btn" title="Clear the spotlight, search, status and person filters"><svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1.5 3v4h4"/><path d="M2.3 10a6 6 0 1 0 1.5-6.3L1.5 7"/></svg> Clear filters</button>
-    <span class="tb-spacer"></span>
-    <button id="t-tint" class="t-btn" title="Colour the calendar background vividly by month">Vivid months</button>
     <label class="lock-tog" title="Lock all bars so drags can't change dates">
       <input type="checkbox" id="lock-ck">
       <span class="lock-track"><span class="lock-thumb"></span></span>
@@ -1384,7 +1387,7 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_REV=87; // bump this ONE number on every release; used everywhere the rev shows up
+const APP_REV=88; // bump this ONE number on every release; used everywhere the rev shows up
 
 /* ===================== CONSTANTS ===================== */
 const SET_KEY ='shopTimelineSettings_v1';
@@ -1403,7 +1406,9 @@ function applyDensity(d){
   BAR_H=g.bar;BAR_PAD=g.pad;LANE_G=g.gap;
   document.body.classList.toggle('snug',DENSITY==='snug');
   document.body.classList.toggle('compact',DENSITY==='compact');
-  const v=document.getElementById('mi-density-v');if(v)v.textContent=DENSITY[0].toUpperCase()+DENSITY.slice(1);
+  const lbl=DENSITY[0].toUpperCase()+DENSITY.slice(1);
+  const v=document.getElementById('mi-density-v');if(v)v.textContent=lbl;
+  const tb=document.getElementById('btn-density');if(tb)tb.textContent=lbl;
 }
 let SIDE_W=300;
 /* B3 / §7 zoom steps, detail → overview. days and weeks keep their original px-per-day
@@ -7266,12 +7271,15 @@ document.getElementById('dash-menu').addEventListener('click',ev=>ev.stopPropaga
 wireMenu('btn-print','print-menu');
 wireMenu('btn-settings','settings-menu');
 /* B5: the density toggle cycles the three levels — geometry follows --row-h,
-   persisted like every other UI pref */
-document.getElementById('mi-density').addEventListener('click',()=>{
+   persisted like every other UI pref. REV88 surfaced it into the timeline row's
+   style cluster; the Settings item stays as an alias for a release. */
+function cycleDensity(){
   const order=Object.keys(DENSITIES);
   applyDensity(order[(order.indexOf(DENSITY)+1)%order.length]);
   saveUI();render();
-});
+}
+document.getElementById('mi-density').addEventListener('click',cycleDensity);
+document.getElementById('btn-density').addEventListener('click',cycleDensity);
 wireMenu('btn-legend','legend-menu');
 buildLegend();
 
