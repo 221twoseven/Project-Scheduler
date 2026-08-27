@@ -94,14 +94,20 @@ No hand-picked per-bar text colors. Pills use the same rule. A jsdom test (`test
 Existing tokens are good — codify them as the only chrome colors:
 `--ink #0D131D`, `--ink-2 #141C29`, `--chrome-line #232F42`, accent `--acc #2F6FE4` / `--acc-deep #1D5AC9`, warn `--warn #F0A814`, danger `--late #DC2626`, sidebar `--side #EDF1F7` / `--side-line #C9D4E3`, paper `--paper #F5F7FA`. New UI must draw from these; no ad-hoc hex in new code (a grep-able rule a reviewer can enforce).
 
-**Toolbar grouping rule (REV88, Option A of the toolbar proposal):** every row-2
-control sits with the question it answers, in reading order — **Where** (Today /
-go to date) · **Style** (zoom scale, color lens, density, vivid) · **Filter**
-(search, status, person, clear) — with micro-eyebrow labels naming the clusters
-and separators between clusters only. **Views** is the named bundle of the whole
-row, so it sits at the right edge (the row's summary), beside Protect dates (an
-editing guard, not a view) and the `?` legend. A new control joins the cluster
-whose question it answers; a control that answers none of them goes to the edge.
+**Toolbar grouping rule (native direction — supersedes the REV88 eyebrow model;
+see `Toolbar-Native-Direction.md`):** every row-2 control sits with the question
+it answers, in reading order — position (Today / go to date) · view (zoom scale,
+color lens, density, vivid) · filter (search, status, person, clear).
+**Separators and spacing carry the grouping — no eyebrow labels** (the category
+names are for maintainers, not printed in the UI; the shell relies on familiar
+controls rather than teaching users the app's taxonomy). **Views** is the named
+bundle of the whole row, so it sits at the right edge, beside **Lock dates** (an
+editing guard, not a view) and the `?` legend. Weight is reserved: **New
+Project** is the one accent; standalone toolbar buttons sit flat (transparent at
+rest, lit on hover); the segmented groups (scale, color) keep a frame; an active
+view/nav state stays lit. A new control joins the cluster whose question it
+answers; a control that answers none goes to the edge. Low-frequency view
+controls migrate into menus in the native direction's later phases.
 
 ---
 

@@ -1,8 +1,12 @@
 /* Phase 3.5 (REV88) — toolbar regroup, Option A of docs/Toolbar-Grouping-Proposal.md.
-   Row 2 reclusters into Where (Today/goto) · Style (scale, color, density, vivid) ·
-   Filter (search, status, person, clear), with Views · Protect dates · ? at the right
+   Row 2 clusters position (Today/goto) · view (scale, color, density, vivid) ·
+   filter (search, status, person, clear), with Views · Lock dates · ? at the right
    edge. Density surfaces out of Settings as a cycle button; the Settings item stays
    as an alias. No control changes behavior — only position and the new button.
+
+   Native direction, Phase 1 (docs/Toolbar-Native-Direction.md): the Where/Style/Filter
+   eyebrow labels are removed (separators now carry the grouping) and "Protect dates"
+   is relabelled "Lock dates". §2 below asserts that de-taxonomised state.
    Run: node tests/test88.js index.html */
 const {boot}=require('./harness');
 const fs=require('fs');
@@ -26,7 +30,7 @@ const click=el=>el.dispatchEvent(new win.MouseEvent('click',{bubbles:true,cancel
 setTimeout(()=>{
   const row=doc.querySelector('.tb-row.tb-timeline');
 
-  sec('1 · reading order: Where · Style · Filter · — · Views/lock/?');
+  sec('1 · reading order: position · view · filter · — · Views/lock/?');
   const all=[...row.querySelectorAll('*')];
   const at=id=>all.indexOf(doc.getElementById(id));
   const seq=['btn-today','btn-days','btn-col-proj','btn-density','t-tint',
@@ -39,10 +43,12 @@ setTimeout(()=>{
   ok('Clear filters closes the filter cluster, left of the spacer',at('btn-reset')<spacer);
   ok('Vivid months moved into the style cluster',at('t-tint')<at('t-search'));
 
-  sec('2 · the eyebrow labels name the clusters');
-  const minis=[...row.querySelectorAll('.t-mini')].map(e=>e.textContent.trim());
-  ok('Where / Style / Filter labels present',['Where','Style','Filter'].every(l=>minis.includes(l)),minis.join(','));
-  ok('the old lone "Color" label is gone',!minis.includes('Color'));
+  sec('2 · Phase 1 — the taxonomy eyebrows are gone, separators carry the grouping');
+  const minis=[...row.querySelectorAll('.t-mini')];
+  ok('no eyebrow labels remain on the timeline row',minis.length===0,minis.map(e=>e.textContent.trim()).join(','));
+  ok('the cluster separators remain (grouping without labels)',row.querySelectorAll('.t-sep').length>=2,'seps='+row.querySelectorAll('.t-sep').length);
+  const locktxt=doc.querySelector('.lock-txt').textContent.trim();
+  ok('the lock toggle reads "Lock dates" (relabelled from "Protect dates")',locktxt==='Lock dates',locktxt);
 
   sec('3 · density cycles from the toolbar button');
   const btn=doc.getElementById('btn-density'),miv=doc.getElementById('mi-density-v');

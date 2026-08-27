@@ -48,6 +48,14 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);font-size:var(--fs
 .t-btn.active{background:rgba(47,111,228,.32);border-color:rgba(96,150,240,.65);color:#fff}
 .t-btn.accent{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:600}
 .t-btn.accent:hover{background:var(--acc-deep)}
+/* Native shell (Phase 1): standalone toolbar buttons sit flat — only New Project
+   (accent) and an active view/nav state carry weight; the segmented .tog-grp groups
+   and the self-styled #t-tint keep their own frames. Scoped to .tb-row so overlay
+   and sidebar .t-btn are untouched. */
+.tb-row>.t-btn:not(.accent):not(.active),
+.tb-row .sf-wrap>.t-btn:not(.active){background:transparent;border-color:transparent}
+.tb-row>.t-btn:not(.accent):not(.active):hover,
+.tb-row .sf-wrap>.t-btn:not(.active):hover{background:rgba(255,255,255,.12);color:#fff}
 .t-sep{width:1px;height:24px;background:var(--chrome-line);flex-shrink:0}
 /* N15: on the project page every control in the timeline toolbar row acts on a chart
    that isn't visible — hide the whole row rather than grey it out, so nothing renders
@@ -56,7 +64,6 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);font-size:var(--fs
    only), so a visible .tb-timeline row sat on top of the page's title bar — the
    ← Timeline button and the N1 breadcrumb were painted but never visible. */
 body.pp-route .tb-timeline{display:none}
-.t-mini{font-size:var(--fs-micro);font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:#5E7292;white-space:nowrap}
 .tog-grp{display:flex;border:1px solid rgba(255,255,255,.13);border-radius:6px;overflow:hidden}
 .tog-grp .t-btn{border:none;border-right:1px solid rgba(255,255,255,.1);border-radius:0;height:26px;padding:0 12px}
 .tog-grp .t-btn:last-child{border-right:none}
@@ -64,7 +71,6 @@ body.pp-route .tb-timeline{display:none}
 @media (max-width:1400px){
   .t-btn{padding:0 8px;font-size:var(--fs-fine)}
   .tog-grp .t-btn{padding:0 8px}
-  .t-mini{display:none}
   .tb-app{display:none}
   .t-brand{padding:0 12px}
 }
@@ -986,7 +992,6 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
     <span id="sync-pill" class="busy" title="Shows whether your changes are saved to SharePoint — click to retry after an error">● connecting…</span>
   </div>
   <div class="tb-row tb-timeline">
-    <span class="t-mini">Where</span>
     <div class="sf-wrap">
       <button id="btn-today" class="t-btn" title="Center the timeline on today (T)">Today</button>
       <div id="goto-menu" class="tb-menu hidden">
@@ -1000,7 +1005,6 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
       </div>
     </div>
     <div class="t-sep"></div>
-    <span class="t-mini">Style</span>
     <div class="tog-grp" id="tg-scale">
       <button id="btn-days" class="t-btn active" title="Show the timeline day by day (D)">Day</button>
       <button id="btn-day2" class="t-btn" title="Days at half width — about twice the range on screen (+ and − step the zoom)">2-Day</button>
@@ -1014,7 +1018,6 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
     <button id="btn-density" class="t-btn" title="Row height — click to cycle Comfortable → Snug → Compact">Comfortable</button>
     <button id="t-tint" class="t-btn" title="Colour the calendar background vividly by month">Vivid months</button>
     <div class="t-sep"></div>
-    <span class="t-mini">Filter</span>
     <input id="t-search" type="text" placeholder="Search  /" autocomplete="off" spellcheck="false" title="Type to show only matching projects and phases (/)">
     <div class="sf-wrap">
       <button id="btn-status" class="t-btn" title="Choose which project statuses are shown">Status <svg class="ico-s" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 6 8 9.5 11.5 6"/></svg></button>
@@ -1033,7 +1036,7 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
     <label class="lock-tog" title="Lock all bars so drags can't change dates">
       <input type="checkbox" id="lock-ck">
       <span class="lock-track"><span class="lock-thumb"></span></span>
-      <span class="lock-txt">Protect dates</span>
+      <span class="lock-txt">Lock dates</span>
     </label>
     <div class="sf-wrap">
       <button id="btn-legend" class="t-btn" title="What the colors, patterns and markers mean">?</button>
@@ -1249,7 +1252,7 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_REV=91; // bump this ONE number on every release; used everywhere the rev shows up
+const APP_REV=92; // bump this ONE number on every release; used everywhere the rev shows up
 
 /* ===================== CONSTANTS ===================== */
 const SET_KEY ='shopTimelineSettings_v1';
@@ -5642,7 +5645,7 @@ function npvBindHost(host){
           if(locked||!edgeD){
             /* 3.5/I14: same courtesy as the Gantt — a refused resize says why. */
             if(locked)toast(t.pinned?'📌 Pinned — untick Pin in the phase panel to resize it'
-                                    :'Protect dates is on — unlock it to resize');
+                                    :'Lock dates is on — unlock it to resize');
             return;
           }
           const ns2=resize==='l'?edgeD:s0, ne2=resize==='r'?edgeD:e0;
@@ -6405,7 +6408,7 @@ function npvBindDrag(){
           npvRender();
           /* 3.5/I14: a refused resize says WHY instead of silently snapping back. */
           if(locked)toast(t.pinned?'📌 Pinned — untick Pin in the phase panel to resize it'
-                                  :'Protect dates is on — unlock it to resize');
+                                  :'Lock dates is on — unlock it to resize');
           return;
         }
         if(resize){
