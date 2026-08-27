@@ -235,6 +235,12 @@ advertising right-click, drag, and the keyboard. Rescoped against that:
 Now small enough to be one session's work. Actionable state lives in
 `docs/TODO.md` §6; the optional explainer stays optional.
 
+**Phase 4 SHIPPED 2026-08-27 (REV89,
+`docs/Milestones/2026-08-27-phase-4-learnability.md`):** the hint bar dropped
+(owner call, as recommended), the timeline `?` sheet, the sample project
+(browser-local, never synced), and the ⋯ hover cue. The optional 60-second
+explainer remains the only unbuilt idea, and stays optional.
+
 ### The 2-week ship cut
 
 The phase ranges above are paced for review-gated, part-time work. If the commitment is **a shippable app in 2 calendar weeks**, ship this cut: **Week 1 = all of Phase 1** (including E2/E3). **Week 2 = Phase 2's visible core** — E1 inspector relocation, quiet canvas (C2), status treatment (C3), type tokens (C5), marker redesign (B4) — and a hallway test on Thursday. Ship Friday from `main`. Phases 3–4 become post-ship iterations on `/preview/`; nothing in them blocks "shippable." The long pole in each week is human review and decision latency, not build time — see the working-agreement notes accompanying this doc.

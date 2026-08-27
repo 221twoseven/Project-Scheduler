@@ -252,6 +252,10 @@ kbd{font-family:var(--mono);font-size:var(--fs-fine);background:#EDF1F7;border:1
 
 /* ============ BARS ============ */
 .job-bar{position:absolute;border-radius:6px;overflow:hidden;z-index:10;cursor:grab;user-select:none;box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 1px 4px rgba(10,25,50,.18),0 0 0 1px rgba(0,0,0,.07);transition:box-shadow .15s,opacity .18s,filter .18s}
+/* Phase 4 (A2): right-click is the primary verb but nothing advertised it — a faint ⋯
+   at the hovered bar's right end hints there's a menu. Inherits the label color
+   (white everywhere since REV80); pointer-events:none keeps drag/resize untouched. */
+.job-bar:not(.lg-bar):hover::after{content:'⋯';position:absolute;right:5px;top:50%;transform:translateY(-50%);font-weight:800;font-size:12px;opacity:.5;pointer-events:none}
 .job-bar:hover{box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 4px 12px rgba(10,25,50,.26),0 0 0 1px rgba(0,0,0,.1);z-index:11}
 .job-bar.summary{cursor:pointer;border-radius:8px}
 .job-bar.is-ghost{pointer-events:none;z-index:50;opacity:.65;box-shadow:0 8px 24px rgba(0,0,0,.28);outline:2px solid rgba(255,255,255,.5);outline-offset:1px}
@@ -1197,6 +1201,23 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
   </div>
 </div>
 
+<!-- Phase 4 (A2): the main timeline's shortcut sheet — the project page had one, this
+     view didn't. Same .ks overlay; ? toggles it, Esc or a click closes it. -->
+<div class="ks hidden" id="tl-ks"><div class="ks-in">
+  <h3>Keyboard</h3><div class="ks-g">
+    <div><kbd>N</kbd>New project</div>
+    <div><kbd>/</kbd>Search</div>
+    <div><kbd>T</kbd>Center on today</div>
+    <div><kbd>G</kbd>Go to date</div>
+    <div><kbd>D</kbd>Day scale</div>
+    <div><kbd>W</kbd>Week scale</div>
+    <div><kbd>+ −</kbd>Step the zoom</div>
+    <div><kbd>⌘ Z</kbd>Undo</div>
+    <div><kbd>Esc</kbd>Close / clear</div>
+    <div><kbd>?</kbd>This sheet</div>
+  </div>
+</div></div>
+
 <div id="main">
   <div id="sidebar">
     <div id="sb-head">
@@ -1387,7 +1408,7 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_REV=88; // bump this ONE number on every release; used everywhere the rev shows up
+const APP_REV=89; // bump this ONE number on every release; used everywhere the rev shows up
 
 /* ===================== CONSTANTS ===================== */
 const SET_KEY ='shopTimelineSettings_v1';
@@ -1945,9 +1966,50 @@ async function spLoad(){
   return migrate({projects,tasks,todos,events});
 }
 
+/* Phase 4 (A5): the sample projects — seeded so a new user can safely poke at a
+   populated timeline. They live in this browser only: records belonging to a
+   sample project (flagged p.sample, name-prefixed "Sample · ") are stripped from
+   every spSync diff, stashed to localStorage on each save, and re-attached after
+   every load/poll. Deleting the sample through the normal delete flow clears the
+   stash. */
+const SAMPLE_KEY='shopTimelineSample';
+const sampleProjIds=st=>new Set((st.projects||[]).filter(p=>p.sample).map(p=>p.id));
+function sampleSlice(st){
+  const ids=sampleProjIds(st);
+  if(!ids.size)return null;
+  return{projects:st.projects.filter(p=>p.sample),
+    tasks:(st.tasks||[]).filter(t=>ids.has(t.projectId)),
+    todos:(st.todos||[]).filter(t=>ids.has(t.projectId)),
+    events:(st.events||[]).filter(e=>ids.has(e.projectId))};
+}
+function stashSample(){
+  try{const s=sampleSlice(ST);
+    if(s)localStorage.setItem(SAMPLE_KEY,JSON.stringify(s));
+    else localStorage.removeItem(SAMPLE_KEY);
+  }catch(e){}
+}
+function mergeSample(st){
+  let s=null;try{s=JSON.parse(localStorage.getItem(SAMPLE_KEY)||'null');}catch(e){}
+  if(!s||!s.projects||!s.projects.length)return st;
+  st.projects.push(...s.projects);st.tasks.push(...(s.tasks||[]));
+  st.todos=(st.todos||[]).concat(s.todos||[]);st.events=(st.events||[]).concat(s.events||[]);
+  return st;
+}
+function stripSample(st){
+  const ids=sampleProjIds(st);
+  if(!ids.size)return st;
+  return{projects:st.projects.filter(p=>!p.sample),
+    tasks:(st.tasks||[]).filter(t=>!ids.has(t.projectId)),
+    todos:(st.todos||[]).filter(t=>!ids.has(t.projectId)),
+    events:(st.events||[]).filter(e=>!ids.has(e.projectId))};
+}
+
 /* Diff old vs new state -> per-record create/update/delete on SharePoint */
 async function spSync(oldST,newST){
   await spSite();
+  /* anything on a sample project stays out of SharePoint — including subtasks,
+     tasks and events a user adds to it later (membership is by projectId) */
+  oldST=stripSample(oldST);newST=stripSample(newST);
   const jobs=[];
   const plan=(kind,list,toFields,olds,news)=>{
     const om=new Map(olds.map(x=>[x.id,x])),nm=new Map(news.map(x=>[x.id,x]));
@@ -2053,7 +2115,10 @@ function undo(){
   const prev=UNDO_STACK.pop();
   const old=ST;
   ST={projects:stampUpdated(prev.projects,old.projects),tasks:stampUpdated(prev.tasks,old.tasks),
-      todos:prev.todos!==undefined?prev.todos:(old.todos||[])};
+      todos:prev.todos!==undefined?prev.todos:(old.todos||[]),
+      /* REV89 fix: events was dropped here, so any undo diffed events → undefined and
+         deleted every row from ShopTimeline_Events. Restore from the snapshot. */
+      events:prev.events!==undefined?prev.events:(old.events||[])};
   render();
   syncNow(old,ST);
   toast('Undone');
@@ -2062,6 +2127,7 @@ function undo(){
 /* Push a diff to SharePoint with status pill + one retry */
 let SYNCING=false;   /* true while a save is in flight — the poll must not read half-committed rows */
 function syncNow(oldST,newST){
+  stashSample(); /* A5: every ST mutation routes through here — keep the local slice current */
   setSync('busy');
   SYNCING=true;
   const done=()=>{SYNCING=false;setSync('ok','synced '+stamp());};
@@ -2614,7 +2680,8 @@ function renderEmptyState(){
       +'<button class="btn btn-primary" id="es-signin" style="margin-top:14px">Sign in with Microsoft</button>';
   }else if(!ST.projects.length){
     html='<div class="es-big">Nothing scheduled yet</div>'
-      +'<div class="es-sub">Create your first project and the schedule builds itself<br>backward from the deadline. Press <kbd>N</kbd> or use <b>+ New Project</b>.</div>';
+      +'<div class="es-sub">Create your first project and the schedule builds itself<br>backward from the deadline. Press <kbd>N</kbd> or use <b>+ New Project</b>.</div>'
+      +'<button class="btn" id="es-sample" style="margin-top:14px" title="Two practice projects, in this browser only — drag them around, then delete them from their project pages">Add a sample project</button>';
   }else if(!ST.projects.some(p=>SHOW_STATUS.has(projectStatus(p)))){
     html='<div class="es-big">All projects are hidden</div>'
       +'<div class="es-sub">The status filter is hiding every project.<br>Click <b>Clear filters</b> in the toolbar to see them again.</div>';
@@ -2642,6 +2709,17 @@ function renderEmptyState(){
     await boot();
     render();
     setTimeout(scrollTodayLeft,80);
+  });
+  /* Phase 4 (A5): seed() through the normal create path. The records are flagged
+     sample (and name-prefixed) BEFORE saveState, so spSync never sees them. */
+  const sm=es.querySelector('#es-sample');
+  if(sm)sm.addEventListener('click',()=>{
+    const keep=PEOPLE;          /* seed() would overwrite the shared staff roster */
+    const s=seed();
+    PEOPLE=keep;rebuildStaff();
+    s.projects.forEach(p=>{p.sample=true;p.name='Sample · '+p.name;});
+    saveState({projects:[...ST.projects,...s.projects],tasks:[...ST.tasks,...s.tasks]});
+    toastU('Sample projects added — they live in this browser only. Delete them from their project pages when you’re done.');
   });
 }
 
@@ -6790,6 +6868,8 @@ document.addEventListener('keydown',ev=>{
       if(PP_SEL){ppSelect(null);ev.preventDefault();return;}
       ev.preventDefault();goTimeline();return;
     }
+    const tks=document.getElementById('tl-ks');
+    if(tks&&!tks.classList.contains('hidden')){tks.classList.add('hidden');ev.preventDefault();return;}
     closeTaskModal();
     document.getElementById('staff-overlay').classList.add('hidden');
     document.getElementById('print-overlay').classList.add('hidden');
@@ -6868,7 +6948,9 @@ document.addEventListener('keydown',ev=>{
   else if(k==='+'||k==='=')zoomStep(-1);
   else if(k==='-'||k==='_')zoomStep(1);
   else if(k==='g'){ev.preventDefault();openGotoPop();}
+  else if(ev.key==='?'){ev.preventDefault();document.getElementById('tl-ks').classList.toggle('hidden');}
 });
+document.getElementById('tl-ks').addEventListener('click',()=>document.getElementById('tl-ks').classList.add('hidden'));
 
 /* ===================== TOOLBAR ===================== */
 /* B3: one centering rule for every jump — smooth unless prefers-reduced-motion (T6). */
@@ -7144,8 +7226,10 @@ function buildLegend(){
     +row('<span class="lg-mk"><span class="dl-flag" style="left:14px;height:100%;color:'+hue+'"></span></span>',
       'Deadline — pennant and dotted drop-line')
     +'<div class="lg-sec">Navigate</div>'
-    +'<button id="lg-goto" class="sm-all" title="Jump the timeline to any date — also on G or a month-name click">Go to date… <span class="gp-key">G</span></button>';
+    +'<button id="lg-goto" class="sm-all" title="Jump the timeline to any date — also on G or a month-name click">Go to date… <span class="gp-key">G</span></button>'
+    +'<button id="lg-keys" class="sm-all" title="Every keyboard shortcut on this view — also on ?">Keyboard shortcuts… <span class="gp-key">?</span></button>';
   document.getElementById('lg-goto').addEventListener('click',()=>openGotoPop());
+  document.getElementById('lg-keys').addEventListener('click',()=>{closeMenus();document.getElementById('tl-ks').classList.remove('hidden');});
 }
 
 /* Toolbar dropdowns — one open at a time, close on outside click or Esc */
@@ -7545,7 +7629,7 @@ async function boot(){
     setSync('busy','signing in…');
     await spInit();          /* Microsoft sign-in */
     setSync('busy','loading…');
-    ST=await spLoad();       /* pull projects + tasks from SharePoint */
+    ST=mergeSample(await spLoad());   /* pull projects + tasks from SharePoint (+ the local sample, if any) */
     setSync('ok','synced '+stamp());
   }catch(e){
     console.error(e);
@@ -7599,7 +7683,11 @@ async function boot(){
     if(document.activeElement&&document.activeElement.closest&&document.activeElement.closest('#page'))return;
     POLL_N++;
     try{
-      const fresh=await spLoad();
+      /* A5: re-attach the sample before comparing, or every tick would wipe it.
+         ponytail: if Tasks2 is missing AND the sample carries todos, the guard
+         below skips and session-local todos drop on poll — Tasks2 exists in
+         production; revisit only if that pairing ever occurs. */
+      const fresh=mergeSample(await spLoad());
       let dirty=false;
       /* REV46: todos has to be in the comparison. Without it the two strings never
          matched, so every tick replaced ST wholesale and re-rendered — and, with
