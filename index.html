@@ -1356,7 +1356,7 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_REV=85; // bump this ONE number on every release; used everywhere the rev shows up
+const APP_REV=86; // bump this ONE number on every release; used everywhere the rev shows up
 
 /* ===================== CONSTANTS ===================== */
 const SET_KEY ='shopTimelineSettings_v1';
@@ -7241,6 +7241,27 @@ const COACH_STEPS=[
   {sel:'#btn-legend',t:'When you forget',
    b:'This ? explains the colors, patterns and markers. And this tour lives under Help — take it again any time.'}
 ];
+/* REV86: ONE shared tour for the project pages (owner decision 2026-08-27) — the
+   REV82 convergence made New Project and Project Edit near-identical, so one step
+   list serves both. The branch costs nothing: coachStart already drops steps whose
+   target isn't in the DOM, so the draft sees the Create step (#pp-save) and the
+   saved page sees the autosave step (.pg-auto). */
+const COACH_PP_STEPS=[
+  {sel:'.pg-trail',t:'Where you are',
+   b:'All Projects, this job, and the phase when one is selected. Click a crumb to step back out — Esc, Done and the × do the same.'},
+  {sel:'#pp-meta',t:'The job at a glance',
+   b:'Client, job code, install date and days out. These update as you edit — the warning appears if work runs past the install.'},
+  {sel:'.npv-swrap',t:'The schedule',
+   b:'Every bar is a phase of work. Click one to edit it below, drag to move, grab an edge to resize, right-click to add a subtask, checkpoint or task. The calendar shows one band per phase — click a band to open it and see its subtasks.'},
+  {sel:'.npv-modes',t:'Two views of the same dates',
+   b:'Gantt for the whole job at once, Calendar for week-by-week. G and C switch from the keyboard.'},
+  {sel:'#pp-insp',t:'The editor',
+   b:'With nothing selected you edit the project here — Setup, Team, Departments, Agenda. Select a phase and this becomes that phase’s form.'},
+  {sel:'#pp-save',t:'Nothing is real yet',
+   b:'This page is a draft kept in this tab — it survives a refresh. Create project files it to SharePoint; Cancel or the × walks away clean.'},
+  {sel:'.pg-auto',t:'Everything saves itself',
+   b:'Edits file to SharePoint as you make them — the pill in the toolbar shows sync. Done just takes you back to the timeline.'}
+];
 let COACH=null; /* null = off; else {steps,i} */
 function coachEnd(){
   COACH=null;document.getElementById('coach').classList.add('hidden');
@@ -7267,8 +7288,8 @@ function coachShow(){
   else ct=Math.max(12,r.top+pad+12);
   card.style.left=cl+'px';card.style.top=ct+'px';
 }
-function coachStart(){
-  const steps=COACH_STEPS.filter(s=>document.querySelector(s.sel));
+function coachStart(stepList){
+  const steps=(stepList||COACH_STEPS).filter(s=>document.querySelector(s.sel));
   if(!steps.length)return;
   try{localStorage.setItem(COACH_KEY,'1');}catch(e){} /* even an abandoned tour never nags twice */
   COACH={steps,i:0};
@@ -7280,8 +7301,9 @@ function coachNext(){if(!COACH)return;if(COACH.i>=COACH.steps.length-1){coachEnd
 function coachBack(){if(!COACH||!COACH.i)return;COACH.i--;coachShow();}
 document.getElementById('btn-help').addEventListener('click',ev=>{
   ev.stopPropagation();
-  /* the tour's targets live on the home view — route there first if needed */
-  if(ROUTE.view==='project'){goTimeline();setTimeout(coachStart,150);return;}
+  /* REV86: Help teaches the page you are on — the project pages get their own
+     shared tour in place (it used to bounce home first). */
+  if(ROUTE.view==='project'){coachStart(COACH_PP_STEPS);return;}
   coachStart();
 });
 document.getElementById('coach').addEventListener('click',coachNext);

@@ -382,6 +382,11 @@ until this list is done (or the owner trims it). Grouped by surface;
       Project, Help, Today, and now saved Views). "There has to be a better way
       of organizing and grouping these buttons and controls" — a grouping
       design pass first, then implement.
+      **Design pass DELIVERED 2026-08-27:** `docs/Toolbar-Grouping-Proposal.md`
+      — three options (recluster-in-place / one View menu / single row) with a
+      recommendation (A: recluster row 2 into Where / How-drawn / What-shown,
+      surface Density out of Settings, Views to the row's edge). Awaiting the
+      owner's pick; implementation is one REV after that.
 
 **Calendar view:**
 
@@ -400,12 +405,17 @@ until this list is done (or the owner trims it). Grouped by surface;
 
 **Project Edit / New Project pages:**
 
-- [ ] **Coach marks / help tour on Project Edit and New Project** — extend the
+- [x] **Coach marks / help tour on Project Edit and New Project** — extend the
       REV74 tour to these views. `[decision]` are they one view or two for
       tour purposes? (Feeds the parity audit above.)
       **DECIDED 2026-08-27: ONE shared tour** — the REV82 convergence made the
       pages near-identical; a one-step branch covers the draft's Create
-      button. Implementation next.
+      button. **Shipped same day as REV86:** Help starts the project tour in
+      place (no more bounce to the timeline); the existing missing-target
+      filter supplies the branch (draft → Create step, saved → autosave step).
+      Help-only, no first-visit auto-run (ledgered in §7). Suite:
+      `tests/test86.js`. Record:
+      `docs/Milestones/2026-08-27-project-page-tour.md`.
 - [x] **Coach-mark copy: remove "Nothing else is red." — DONE 2026-08-26
       (REV83).** The tour step now ends at "Red bars are installs."; the legend
       screen's matching line was scoped to bars ("no other bar is ever red") —
@@ -560,6 +570,11 @@ own "only if it proves needed" gates.
       the phase (the Gantt's parent row flips identically, so the surfaces
       agree). No stored parent flag exists by design (REV56 ponytail note).
       Gate: a PM confused by the swap. (REV84)
+- [ ] The project-page tour (REV86) is Help-only — no first-visit auto-run.
+      The REV74 timeline tour auto-runs once on a fresh browser; auto-running
+      the project tour too would surprise every existing user on their next
+      project open (and needs a second seen-key the preview/test stubs would
+      have to seed). Gate: owner wanting auto-run for new hires. (2026-08-27)
 
 **Deliberate design ceilings — no action planned, revisit only on real complaints:**
 12-slot palette repeats at 13+ visible projects (T2); quiet re-selection after a committed
