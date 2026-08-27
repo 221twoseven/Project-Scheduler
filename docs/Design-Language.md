@@ -97,7 +97,12 @@ Existing tokens are good — codify them as the only chrome colors:
 **Toolbar grouping rule (native direction — supersedes the REV88 eyebrow model;
 see `Toolbar-Native-Direction.md`):** every row-2 control sits with the question
 it answers, in reading order — position (Today / go to date) · view (zoom scale ·
-**Color by ▾** · **View ▾**) · filter (search, status, person, clear).
+**Color by ▾** · **View ▾**) · filter (search · **Filters ▾** · active chips · Clear).
+Status, client and person share one **Filters ▾** menu; each active constraint
+shows as a removable chip beside the button, the button carries a count
+(`Filters (2)`), and **Clear** appears only while a filter is on. The client
+picker lists only clients that have a project on the board, never the whole
+Clients master.
 **Separators and spacing carry the grouping — no eyebrow labels** (the category
 names are for maintainers, not printed in the UI; the shell relies on familiar
 controls rather than teaching users the app's taxonomy). **Views** is the named

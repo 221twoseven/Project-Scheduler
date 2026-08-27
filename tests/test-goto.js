@@ -75,11 +75,11 @@ setTimeout(()=>{
   ok('prefilled with that month\'s first visible day',inp.value===E('fmtDate(TL_S)'),inp.value);
 
   sec('one overlay at a time (§6)');
-  click(doc.getElementById('btn-status'));
-  ok('the status menu is open',!doc.getElementById('status-menu').classList.contains('hidden'));
+  click(doc.getElementById('btn-filters'));
+  ok('the filters menu is open',!doc.getElementById('filters-menu').classList.contains('hidden'));
   press('g');
   ok('G swaps it for the go-to-date popover',
-     open()&&doc.getElementById('status-menu').classList.contains('hidden'));
+     open()&&doc.getElementById('filters-menu').classList.contains('hidden'));
 
   sec('quick picks');
   menu.querySelector('[data-goto="m3"]').dispatchEvent(new win.MouseEvent('click',{bubbles:true}));

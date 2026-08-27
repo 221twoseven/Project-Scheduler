@@ -390,6 +390,11 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 .sm-all:hover{background:#E2E8F0}
 .sm-note{font-family:var(--mono);font-size:var(--fs-fine);color:#8194ab;padding:6px 8px 2px;border-top:1px solid #E2E8F0;margin-top:4px;white-space:nowrap}
 .sm-sec{font-size:var(--fs-micro);font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#94A3B8;padding:6px 8px 2px}
+#filters-menu{max-height:70vh;overflow:auto}
+.f-chips{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap}
+.f-chip{display:inline-flex;align-items:center;gap:2px;height:22px;padding:0 3px 0 9px;background:rgba(47,111,228,.2);border:1px solid rgba(96,150,240,.45);border-radius:11px;color:#DCE8FF;font-size:11px;white-space:nowrap}
+.f-x{border:none;background:none;color:#AFC6EF;cursor:pointer;font-size:14px;line-height:1;padding:0 4px;border-radius:50%}
+.f-x:hover{background:rgba(255,255,255,.16);color:#fff}
 /* V4/B6: saved-views menu rows — name applies, the small buttons manage.
    Everything is a real <button> so the menu walks on Tab (§9). */
 .vw-row{gap:4px;padding:2px 8px}
@@ -1018,14 +1023,18 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
     <div class="t-sep"></div>
     <input id="t-search" type="text" placeholder="Search  /" autocomplete="off" spellcheck="false" title="Type to show only matching projects and phases (/)">
     <div class="sf-wrap">
-      <button id="btn-status" class="t-btn" title="Choose which project statuses are shown">Status <svg class="ico-s" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 6 8 9.5 11.5 6"/></svg></button>
-      <div id="status-menu" class="tb-menu hidden"></div>
+      <button id="btn-filters" class="t-btn" title="Filter the board by status, client or person">Filters <svg class="ico-s" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 6 8 9.5 11.5 6"/></svg></button>
+      <div id="filters-menu" class="tb-menu hidden">
+        <div class="sm-sec">Status</div>
+        <div id="status-menu"></div>
+        <div class="sm-sec">Client</div>
+        <div id="client-menu"></div>
+        <div class="sm-sec">Person</div>
+        <div id="person-menu"></div>
+      </div>
     </div>
-    <div class="sf-wrap">
-      <button id="btn-person" class="t-btn" title="Show only one person's work">Person <svg class="ico-s" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 6 8 9.5 11.5 6"/></svg></button>
-      <div id="person-menu" class="tb-menu hidden"></div>
-    </div>
-    <button id="btn-reset" class="t-btn" title="Clear the spotlight, search, status and person filters"><svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1.5 3v4h4"/><path d="M2.3 10a6 6 0 1 0 1.5-6.3L1.5 7"/></svg> Clear filters</button>
+    <span id="filter-chips" class="f-chips"></span>
+    <button id="btn-reset" class="t-btn hidden" title="Clear the spotlight, search, and all filters"><svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1.5 3v4h4"/><path d="M2.3 10a6 6 0 1 0 1.5-6.3L1.5 7"/></svg> Clear filters</button>
     <span class="tb-spacer"></span>
     <div class="sf-wrap">
       <button id="btn-views" class="t-btn" title="Save the current filters, zoom and layout as a named view, and jump between views">Views <svg class="ico-s" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 6 8 9.5 11.5 6"/></svg></button>
@@ -1250,7 +1259,7 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_REV=93; // bump this ONE number on every release; used everywhere the rev shows up
+const APP_REV=94; // bump this ONE number on every release; used everywhere the rev shows up
 
 /* ===================== CONSTANTS ===================== */
 const SET_KEY ='shopTimelineSettings_v1';
@@ -1636,7 +1645,7 @@ function loadLocalPrefs(){
     /* V4/B6: restore through the same applier a saved view uses. No search/tint/group
        here — search never persists between sessions, tint and group live in their own
        loose keys loaded elsewhere; a partial snapshot leaves those untouched. */
-    applyViewState({lens:ui.lens,status:ui.showStatus,person:ui.person,color:ui.colorMode,
+    applyViewState({lens:ui.lens,status:ui.showStatus,person:ui.person,client:ui.clients,color:ui.colorMode,
       view:ui.view,density:ui.density===undefined?'comfortable':ui.density,
       collapsedGroups:ui.collapsedGroups,collapsedDepts:ui.collapsedDepts||[]});
     if(ui.sideW)setSideW(ui.sideW);
@@ -2081,6 +2090,7 @@ function savePeople(np){
    untouched, which is what lets loadLocalPrefs pass a partial object. */
 function viewState(){return{
   lens:LENS,group:GROUP_BY||'',status:[...SHOW_STATUS],person:PERSON||'',search:FILTER,
+  client:[...CLIENT_FILTER],
   color:COLOR_MODE,view:VIEW,density:DENSITY,tint:TINT,
   collapsedGroups:Object.fromEntries(Object.entries(GRP_COLLAPSED).map(([m,s])=>[m,[...s]])),
   collapsedDepts:[...COLLAPSED]};}
@@ -2093,6 +2103,7 @@ function applyViewState(s){
   /* REV90: an explicitly-empty status set restores too (the empty-state card offers the
      way back); only an ABSENT field is left untouched, for partial snapshots. */
   if(Array.isArray(s.status))SHOW_STATUS=new Set(s.status.filter(x=>ALL_STATUSES.includes(x)));
+  if(Array.isArray(s.client))CLIENT_FILTER=new Set(s.client.map(x=>String(x).trim()).filter(Boolean));
   if(typeof s.person==='string')PERSON=s.person||null;
   if(typeof s.search==='string'){FILTER=s.search.trim().toLowerCase();
     const se=document.getElementById('t-search');if(se)se.value=s.search;}
@@ -2112,7 +2123,7 @@ function saveUI(){
     localStorage.setItem('shopTimelineGroup',s.group);
     localStorage.setItem(UI_KEY,JSON.stringify({collapsedDepts:s.collapsedDepts,
     collapsedGroups:s.collapsedGroups,
-    density:s.density,colorMode:s.color,view:s.view,sideW:SIDE_W,npvGut:NPV_GUT,showStatus:s.status,person:s.person,lens:s.lens}));}catch(e){}}
+    density:s.density,colorMode:s.color,view:s.view,sideW:SIDE_W,npvGut:NPV_GUT,showStatus:s.status,clients:s.client,person:s.person,lens:s.lens}));}catch(e){}}
 
 /* ===================== SEARCH FILTER ===================== */
 let FILTER='';
@@ -2121,6 +2132,12 @@ let FILTER='';
 let PERSON=null;
 function personHit(t){return !PERSON||barCrew(t).includes(PERSON);}
 function projHasPerson(p){return !PERSON||tasksOf(p.id).some(personHit);}
+/* Phase 3 (native direction): client filter — narrow the board to selected clients
+   (rows removed, like status/person). Empty set = every client. The picker lists only
+   clients that actually have a project on the board, not the whole Clients master. */
+let CLIENT_FILTER=new Set();
+function clientHit(p){return CLIENT_FILTER.size===0||CLIENT_FILTER.has((p.client||'').trim());}
+function boardClients(){return [...new Set((ST&&ST.projects||[]).map(p=>(p.client||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b));}
 /* REV66: identity chain — who is the signed-in user on the staff list? Login email
    against Staff.email first, display name second. Null when unresolved (the
    dashboard-button slice adds the remembered-picker fallback). */
@@ -2150,10 +2167,10 @@ function defaultShowStatus(){return new Set(ALL_STATUSES);}
 let SHOW_STATUS=defaultShowStatus();
 function visTasks(){
   _ensureCache();
-  const key=[...SHOW_STATUS].join(',');
+  const key=[...SHOW_STATUS].join(',')+'|'+[...CLIENT_FILTER].join(',');
   if(_visCache&&_visKey===key)return _visCache;
   _visKey=key;
-  _visCache=ST.tasks.filter(t=>{const p=_projById.get(t.projectId);return !p||SHOW_STATUS.has(projectStatus(p));});
+  _visCache=ST.tasks.filter(t=>{const p=_projById.get(t.projectId);return !p||(SHOW_STATUS.has(projectStatus(p))&&clientHit(p));});
   return _visCache;
 }
 function applyFilter(){
@@ -2419,7 +2436,7 @@ function sortIndexForNew(deadline){
 function buildRows(){
   const rows=[];
   if(LENS==='project'){
-    const projs=currentProjOrder().filter(p=>SHOW_STATUS.has(projectStatus(p))&&projHasPerson(p));
+    const projs=currentProjOrder().filter(p=>SHOW_STATUS.has(projectStatus(p))&&clientHit(p)&&projHasPerson(p));
     const pushProj=p=>{
       rows.push({kind:'projHead',key:'P'+p.id,projectId:p.id,lanes:1});
       if(EXPANDED.has(p.id))
@@ -2730,9 +2747,9 @@ function renderGantt(){
     const b=document.createElement('button');b.className='npv-btn';
     b.textContent=(SHOW_STATUS.size===0)?'Show all statuses':'Reset the view';
     b.addEventListener('click',()=>{
-      SHOW_STATUS=new Set(ALL_STATUSES);FILTER='';PERSON=null;
+      SHOW_STATUS=new Set(ALL_STATUSES);FILTER='';PERSON=null;CLIENT_FILTER.clear();
       const sf=document.getElementById('t-search');if(sf)sf.value='';
-      saveUI();buildStatusMenu();updateFilterBadges();render();
+      saveUI();buildFiltersMenu();updateFilterBadges();render();
     });
     em.appendChild(b);canvas.appendChild(em);
   }
@@ -6873,13 +6890,31 @@ window.addEventListener('resize',render);
 
 /* ===================== REV31: STATUS FILTER & RESET VIEW ===================== */
 function statusFilterDirty(){const d=defaultShowStatus();if(SHOW_STATUS.size!==d.size)return true;for(const x of SHOW_STATUS)if(!d.has(x))return true;return false;}
+function activeFilterCount(){return (statusFilterDirty()?1:0)+(PERSON?1:0)+CLIENT_FILTER.size;}
 function updateFilterBadges(){
-  const b=document.getElementById('btn-status');
-  b.classList.toggle('active',statusFilterDirty());
-  b.innerHTML='Status ('+SHOW_STATUS.size+'/'+ALL_STATUSES.length+') '+ICO.caret;
-  const pb=document.getElementById('btn-person');
-  pb.classList.toggle('active',!!PERSON);
-  pb.innerHTML=(PERSON?'Person: '+esc(PERSON):'Person')+' '+ICO.caret;
+  const n=activeFilterCount();
+  const fb=document.getElementById('btn-filters');
+  if(fb){fb.classList.toggle('active',n>0);fb.innerHTML='Filters'+(n?' ('+n+')':'')+' '+ICO.caret;}
+  const cw=document.getElementById('filter-chips');
+  if(cw){
+    cw.innerHTML='';
+    const chip=(label,onX)=>{
+      const s=document.createElement('span');s.className='f-chip';
+      s.appendChild(document.createTextNode(label));
+      const x=document.createElement('button');x.type='button';x.className='f-x';x.textContent='×';
+      x.title='Remove — '+label;x.setAttribute('aria-label','Remove '+label);
+      x.addEventListener('click',ev=>{ev.stopPropagation();onX();});
+      s.appendChild(x);cw.appendChild(s);
+    };
+    if(statusFilterDirty())chip('Status ('+SHOW_STATUS.size+'/'+ALL_STATUSES.length+')',
+      ()=>{SHOW_STATUS=defaultShowStatus();saveUI();buildFiltersMenu();updateFilterBadges();render();});
+    for(const c of CLIENT_FILTER)chip('Client: '+c,
+      ()=>{CLIENT_FILTER.delete(c);saveUI();buildFiltersMenu();updateFilterBadges();render();});
+    if(PERSON)chip('Person: '+PERSON,
+      ()=>{PERSON=null;saveUI();buildFiltersMenu();updateFilterBadges();render();});
+  }
+  const rb=document.getElementById('btn-reset');
+  if(rb)rb.classList.toggle('hidden',n===0&&!FILTER&&SPOT.size===0);
 }
 /* REV65: person filter menu — one pick, or Everyone. Rebuilt on every open so it
    always reflects the current People & Availability roster. */
@@ -6900,6 +6935,23 @@ function buildPersonMenu(){
   for(const n of names)mk(n,n);
   if(!names.length){const d=document.createElement('div');d.className='sm-item';d.textContent='No people yet — add them in Settings';m.appendChild(d);}
 }
+/* Phase 3: client filter section — checkboxes for every client with a project on the
+   board (not the whole Clients master). Multi-select; empty = all clients. */
+function buildClientMenu(){
+  const m=document.getElementById('client-menu');if(!m)return;m.innerHTML='';
+  const clients=boardClients();
+  if(!clients.length){const d=document.createElement('div');d.className='sm-item';d.textContent='No clients on the board yet';m.appendChild(d);return;}
+  for(const name of clients){
+    const l=document.createElement('label');l.className='sm-item';
+    const c=document.createElement('input');c.type='checkbox';c.checked=CLIENT_FILTER.has(name);
+    c.addEventListener('change',()=>{if(c.checked)CLIENT_FILTER.add(name);else CLIENT_FILTER.delete(name);
+      saveUI();updateFilterBadges();render();});
+    l.appendChild(c);l.appendChild(document.createTextNode(' '+name));m.appendChild(l);
+  }
+}
+/* One consolidated Filters ▾ dropdown (native direction, Phase 3) — status, client and
+   person share one menu; each section builds into its own container div. */
+function buildFiltersMenu(){buildStatusMenu();buildClientMenu();buildPersonMenu();}
 function buildStatusMenu(){
   const m=document.getElementById('status-menu');
   m.innerHTML='';
@@ -6998,9 +7050,8 @@ function wireMenu(btnId,menuId){
   b.addEventListener('click',ev=>{ev.stopPropagation();const open=m.classList.contains('hidden');closeMenus();if(open)m.classList.remove('hidden');});
   m.addEventListener('click',ev=>ev.stopPropagation());
 }
-wireMenu('btn-status','status-menu');
-document.getElementById('btn-person').addEventListener('click',buildPersonMenu);
-wireMenu('btn-person','person-menu');
+document.getElementById('btn-filters').addEventListener('click',buildFiltersMenu);
+wireMenu('btn-filters','filters-menu');
 document.getElementById('btn-colorby').addEventListener('click',buildColorbyMenu);
 wireMenu('btn-colorby','colorby-menu');
 document.getElementById('btn-view').addEventListener('click',buildViewMenu);
@@ -7024,7 +7075,7 @@ function seedViews(){
 }
 function applyView(v){
   applyViewState(v.state);
-  saveUI();buildStatusMenu();updateFilterBadges();render();
+  saveUI();buildFiltersMenu();updateFilterBadges();render();
   toast('View: '+v.name);
 }
 function buildViewsMenu(){
@@ -7275,9 +7326,9 @@ document.getElementById('btn-reset').addEventListener('click',()=>{
   SPOT.clear();
   FILTER='';document.getElementById('t-search').value='';
   SHOW_STATUS=defaultShowStatus();
-  PERSON=null;
-  saveUI();buildStatusMenu();updateFilterBadges();render();
-  toast('View reset — spotlight, search, status and person filters cleared');
+  PERSON=null;CLIENT_FILTER.clear();
+  saveUI();buildFiltersMenu();updateFilterBadges();render();
+  toast('View reset — spotlight, search and filters cleared');
 });
 
 /* ===================== REV31: MEETING MODE ===================== */

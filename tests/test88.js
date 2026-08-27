@@ -31,7 +31,7 @@ setTimeout(()=>{
   const all=[...row.querySelectorAll('*')];
   const at=id=>all.indexOf(doc.getElementById(id));
   const seq=['btn-today','btn-days','btn-colorby','btn-view',
-             't-search','btn-status','btn-person','btn-reset','btn-views','lock-ck','btn-legend'];
+             't-search','btn-filters','btn-reset','btn-views','lock-ck','btn-legend'];
   let ordered=true,brk='';
   for(let i=1;i<seq.length;i++)if(at(seq[i])<at(seq[i-1])){ordered=false;brk=seq[i-1]+' → '+seq[i];}
   ok('the row controls sit in cluster order',ordered,brk);
@@ -75,6 +75,14 @@ setTimeout(()=>{
   pickColor('entity');
   ok('picking Team → COLOR_MODE entity',E('COLOR_MODE')==='entity');
   ok('the dropdown label follows',doc.getElementById('colorby-v').textContent==='Team');
+
+  sec('5 · Phase 3 — Status + Person consolidated into one Filters ▾ (with Client)');
+  ok('the separate Status/Person buttons are gone',!doc.getElementById('btn-status')&&!doc.getElementById('btn-person'));
+  ok('a single Filters button is present',!!doc.getElementById('btn-filters'));
+  E('buildFiltersMenu()');
+  ok('the Filters menu holds Status, Client and Person sections',
+     !!doc.getElementById('status-menu')&&!!doc.getElementById('client-menu')&&!!doc.getElementById('person-menu'));
+  ok('Clear filters is hidden until something is active',doc.getElementById('btn-reset').classList.contains('hidden'));
 
   console.log('\n'+'-'.repeat(46));
   console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');

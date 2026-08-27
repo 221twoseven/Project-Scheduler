@@ -79,11 +79,11 @@ setTimeout(()=>{
   const btn=doc.getElementById('btn-legend'),menu=doc.getElementById('legend-menu');
   ok('? button sits on the toolbar',!!btn&&btn.closest('#toolbar')!==null);
   /* one overlay at a time: open the status menu first, the legend must close it */
-  doc.getElementById('btn-status').click();
-  ok('status menu opens',!doc.getElementById('status-menu').classList.contains('hidden'));
+  doc.getElementById('btn-filters').click();
+  ok('filters menu opens',!doc.getElementById('filters-menu').classList.contains('hidden'));
   btn.click();
   ok('opening the legend closes the other menu (§6 one overlay)',
-     doc.getElementById('status-menu').classList.contains('hidden')
+     doc.getElementById('filters-menu').classList.contains('hidden')
      &&!menu.classList.contains('hidden'));
   const sw=[...menu.querySelectorAll('.job-bar[data-st]')];
   ok('every status has a live swatch',sw.length===E('ALL_STATUSES').length,sw.length+' swatches');

@@ -59,6 +59,7 @@ const SUITES = [
   'test-b5.js',
   'test-v4-views.js',
   'test-c3-status.js',
+  'test-client-filter.js',
   'test-cb.js',
 ];
 

@@ -13,8 +13,8 @@ const fs=require('fs');
 const FILE=process.argv[2]||'index.html';
 const src=fs.readFileSync(FILE,'utf8');
 
-if(!/btn-person/.test(src)){
-  console.log('  SKIP  build predates the person filter (no btn-person) — nothing to assert');
+if(!/btn-filters/.test(src)){
+  console.log('  SKIP  build predates the consolidated Filters menu (no btn-filters) — nothing to assert');
   console.log('\n'+'-'.repeat(46));
   console.log('  0 passed, 0 failed   ['+FILE+']');
   process.exit(0);
@@ -49,15 +49,15 @@ const E=s=>win.eval(s);
 setTimeout(()=>{
   E("PEOPLE=[{name:'Stan',depts:['pm']},{name:'Caroline',depts:['pm']},{name:'Peter',depts:['td']},{name:'Chris',depts:['td']},{name:'Nick',depts:['fab']},{name:'Kate',depts:['fab']}];rebuildStaff();render();");
 
-  sec('Toolbar: the Person menu');
-  ok('Person button exists',E("!!document.getElementById('btn-person')"));
-  E('buildPersonMenu()');
-  ok('menu lists Everyone + the six people',
+  sec('Toolbar: the Person section of Filters ▾');
+  ok('Filters button exists',E("!!document.getElementById('btn-filters')"));
+  E('buildFiltersMenu()');
+  ok('the Person section lists Everyone + the six people',
      E("document.querySelectorAll('#person-menu .sm-item').length")===7,
      E("document.querySelectorAll('#person-menu .sm-item').length"));
   E("PERSON='Peter';updateFilterBadges();");
-  ok('badge shows the pick and lights up',
-     E("document.getElementById('btn-person').textContent.includes('Person: Peter')&&document.getElementById('btn-person').classList.contains('active')"));
+  ok('a Person chip appears and Filters lights up',
+     E("document.getElementById('filter-chips').textContent.includes('Person: Peter')&&document.getElementById('btn-filters').classList.contains('active')"));
 
   sec('Project lens: only the person’s projects and bars');
   E("PERSON='Peter';render();");
