@@ -433,7 +433,7 @@ until this list is done (or the owner trims it). Grouped by surface;
 
 **Completion flow:**
 
-- [ ] **Manual "complete" button in project edit** — clears the "late"
+- [x] **Manual "complete" button in project edit** — clears the "late"
       messages, greys out everything under that event, but leaves it on the
       timeline. ⚠ check: a completed flag/status must persist — verify the
       storage shape against the colleague app before shipping.
@@ -447,10 +447,18 @@ until this list is done (or the owner trims it). Grouped by surface;
       `projectStatus(p)==='complete'`, so the late messages clear for free.
       Code can start whenever the owner green-lights the flow.
       **GREEN-LIT 2026-08-27: build both** (the button and the PM prompt).
-- [ ] **PM late-project prompt** — when a PM opens the app (identity
+      **SHIPPED same day as REV87:** footer Mark complete (undoable; disabled
+      "✓ Complete" after; reopen via the Setup status dropdown) + the meta
+      strip's overdue cell and late warning now respect a complete status.
+      Suite: `tests/test87.js`. Record:
+      `docs/Milestones/2026-08-27-completion-flow.md`.
+- [x] **PM late-project prompt** — when a PM opens the app (identity
       authenticated), projects whose install dates have passed (reading
       "late") with a Project Manager assignment matching the signed-in user
       prompt that PM to confirm each project has ended or been extended.
+      **SHIPPED 2026-08-27 (REV87):** once-a-day overlay after load (never over
+      the tour or another overlay); rows carry Open and Mark complete, Later
+      dismisses until tomorrow. Suite/record: as above.
 
 ### Phase 4 — learnability layer (rescoped 2026-08-26)
 
@@ -570,6 +578,10 @@ own "only if it proves needed" gates.
       the phase (the Gantt's parent row flips identically, so the surfaces
       agree). No stored parent flag exists by design (REV56 ponytail note).
       Gate: a PM confused by the swap. (REV84)
+- [ ] The PM prompt's once-a-day key (REV87) is per-browser, not per-user — on
+      a shared machine one PM's "Later" swallows another PM's daily ask until
+      the next day. Fix if shared stations complain: key it by account
+      username. (2026-08-27)
 - [ ] The project-page tour (REV86) is Help-only — no first-visit auto-run.
       The REV74 timeline tour auto-runs once on a fresh browser; auto-running
       the project tour too would surprise every existing user on their next
