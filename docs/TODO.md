@@ -289,11 +289,13 @@ In order:
       calendar parity, deferred polish) to production. Owner merged via ruleset bypass.
 - [x] **Backfill the "PR link: pending" lines** — done 2026-08-20: all five Phase 2
       records and the five REV53–57 records now link PR #15.
-- [ ] **Promote `development` → `main` (Phase 3 + 3.5 + 4):**
+- [ ] **Promote `development` → `main` (Phase 3 + 3.5 + 4 + audit pass):**
       [#23](https://github.com/221twoseven/Project-Scheduler/pull/23) now carries
-      REV74–89 (Phase 3, all of Phase 3.5, and Phase 4). The 3.5 hold is lifted —
-      the punch list below is done. Owner approved the merge 2026-08-27; it lands
-      once CI is green on the REV88/89 promotion.
+      REV74–89 (Phase 3, all of Phase 3.5, and Phase 4) **plus the 2026-08-27
+      pre-merge audit pass (REV90 fixes + REV91 dead-code cleanup — see
+      `docs/Milestones/2026-08-27-pre-merge-audit-pass.md`)**. The 3.5 hold is
+      lifted — the punch list below is done. Owner approved the merge 2026-08-27;
+      it lands once CI is green.
 
 ## 5. Data / schema (⚠ all need approval — shared Lists)
 
@@ -625,6 +627,30 @@ own "only if it proves needed" gates.
       drop — Tasks2 exists in production; noted in the code. (REV89)
 - [ ] The optional 60-second explainer video/page (strategy doc Phase 4) —
       never scoped, stays optional. Gate: an owner brief. (2026-08-27)
+
+**Pre-merge audit pass (2026-08-27, REV90/91):**
+
+- [ ] The Staff and Clients modals still discard in-progress edits on Escape /
+      backdrop-click with no confirm (the task modal snapshot-compares; these
+      don't). Escape now at least closes Clients like every other overlay (REV90).
+      Gate: someone losing edits to a stray Escape. (2026-08-27)
+- [ ] The calendar marker drag/click/delete block is still a near-clone of the
+      Gantt marker handlers — the audit's dedup pass deliberately skipped it as
+      too risky right before a promotion. Gate: the next time either handler is
+      touched, merge them. (2026-08-27)
+- [ ] `ROSTER_DEPTS` and `SM_DEPTS` carry the same three roster dept ids as two
+      lists (one maps SharePoint keys, one labels) — a rename touches both.
+      Gate: the next roster-department change. (2026-08-27)
+- [ ] The `#tm-dl` datalist serves the STAFF modal but keeps its task-modal
+      `tm-` prefix. Cosmetic naming drift. Gate: next staff-modal edit. (2026-08-27)
+- [ ] `tests/run.js` counts a suite that skips itself (feature-sniff, exit 0) as
+      "passed" — a typo'd sniff would silently disable a suite forever. All
+      current sniffs verified correct 2026-08-27. Gate: next runner change adds
+      a SKIP line to the summary. (2026-08-27)
+- [ ] `metalFab` stays a write-only legacy field and `todoToFields` still writes
+      `labels`/`checklist` nothing reads back — both are shared-List schema, so
+      the serialization is deliberate; dropping them is a schema decision (§5
+      approval rule). (2026-08-27)
 
 **Deliberate design ceilings — no action planned, revisit only on real complaints:**
 12-slot palette repeats at 13+ visible projects (T2); quiet re-selection after a committed

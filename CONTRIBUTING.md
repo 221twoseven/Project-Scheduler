@@ -56,7 +56,7 @@ git clone https://github.com/221twoseven/Project-Scheduler.git
 cd Project-Scheduler
 git checkout development
 npm install        # installs jsdom
-npm test           # 276 assertions against index.html — should be all green
+npm test           # every regression suite against index.html — should be all green
 ```
 
 To view the app: open `index.html` in a browser, or `npx serve .` and browse to it.

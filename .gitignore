@@ -1,6 +1,6 @@
-# Dependencies
+# Dependencies (package-lock.json IS committed — CI installs from it with npm ci,
+# so test runs pin the exact jsdom version instead of floating ^24)
 node_modules/
-package-lock.json
 
 # Secrets — never commit these (see CLAUDE.md). Auth uses runtime MSAL tokens only.
 .env
