@@ -1,7 +1,8 @@
 # Calendar collapses phases + the breadcrumb gets its own bar (REV84) — 2026-08-27
 
 Two Phase 3.5 punch-list items (`docs/TODO.md` §6), both code-ready with no owner
-decision pending. PR: _added on open_.
+decision pending. PR:
+[#28](https://github.com/221twoseven/Project-Scheduler/pull/28).
 
 **The calendar collapses each phase by default.** Subtask bands used to always
 paint, so a job with chunked departments turned the month view into a wall of
