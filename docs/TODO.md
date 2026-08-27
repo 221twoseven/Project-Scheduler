@@ -355,7 +355,9 @@ until this list is done (or the owner trims it). Grouped by surface;
       because `ppSelect` was, and the calendar band click routes through the
       same selection path. The one survivor is the **double-click** row:
       unbound on both pages, `[decision]` candidate for "open editor" (see the
-      audit doc).
+      audit doc). **DECIDED 2026-08-27: stays unbound** — single-click already
+      opens the editor, and Design-Language §6 reserves unspent verbs. The
+      audit is fully dispositioned; row closed in the audit doc.
 
 **Global project view (main timeline):**
 
@@ -380,12 +382,21 @@ until this list is done (or the owner trims it). Grouped by surface;
       Project, Help, Today, and now saved Views). "There has to be a better way
       of organizing and grouping these buttons and controls" — a grouping
       design pass first, then implement.
+      **Design pass DELIVERED 2026-08-27:** `docs/Toolbar-Grouping-Proposal.md`
+      — three options (recluster-in-place / one View menu / single row) with a
+      recommendation (A: recluster row 2 into Where / How-drawn / What-shown,
+      surface Density out of Settings, Views to the row's edge). Awaiting the
+      owner's pick; implementation is one REV after that.
 
 **Calendar view:**
 
-- [ ] **Default view collapses each phase** (subtasks hidden); left-click opens
+- [x] **Default view collapses each phase** (subtasks hidden); left-click opens
       the Phase Edit form at the bottom of the screen and brings the subtasks
-      into view.
+      into view. DONE 2026-08-27 (REV84): the calendar paints one band per phase
+      (the +N roster merge intact); selection expands the phase's subtasks, and
+      the click already opened the bottom editor (REV53/82). Suite:
+      `tests/test84.js`. Record:
+      `docs/Milestones/2026-08-27-calendar-collapse-breadcrumb-bar.md`.
 - [x] **Drag-resize live feedback — DONE 2026-08-26 (REV83).** While an edge
       handle drags, the day columns the band will span after the workday snap
       tint live and clear on release; the snap itself is unchanged. Suite:
@@ -394,28 +405,60 @@ until this list is done (or the owner trims it). Grouped by surface;
 
 **Project Edit / New Project pages:**
 
-- [ ] **Coach marks / help tour on Project Edit and New Project** — extend the
+- [x] **Coach marks / help tour on Project Edit and New Project** — extend the
       REV74 tour to these views. `[decision]` are they one view or two for
       tour purposes? (Feeds the parity audit above.)
+      **DECIDED 2026-08-27: ONE shared tour** — the REV82 convergence made the
+      pages near-identical; a one-step branch covers the draft's Create
+      button. **Shipped same day as REV86:** Help starts the project tour in
+      place (no more bounce to the timeline); the existing missing-target
+      filter supplies the branch (draft → Create step, saved → autosave step).
+      Help-only, no first-visit auto-run (ledgered in §7). Suite:
+      `tests/test86.js`. Record:
+      `docs/Milestones/2026-08-27-project-page-tour.md`.
 - [x] **Coach-mark copy: remove "Nothing else is red." — DONE 2026-08-26
       (REV83).** The tour step now ends at "Red bars are installs."; the legend
       screen's matching line was scoped to bars ("no other bar is ever red") —
       the rule stays, the site-wide claim is gone.
-- [ ] **Move the nav breadcrumb to its own bar**, separated from the project
-      summary bar (client, job, install, etc.).
-- [ ] `[decision]` **Fourth exit?** Current exits from project views: Esc,
+- [x] **Move the nav breadcrumb to its own bar**, separated from the project
+      summary bar (client, job, install, etc.). DONE 2026-08-27 (REV84): the
+      trail bar gained a hairline below it, the summary strip sits beneath as
+      its own band — CSS only. Record: as above.
+- [x] `[decision]` **Fourth exit?** Current exits from project views: Esc,
       Done, breadcrumb. Add an × in the top-right corner?
+      **DECIDED 2026-08-27: add it — shipped as REV85** the same day: an × at
+      the right edge of the breadcrumb bar (both pages), same action as
+      Done/Esc. Suite: `tests/test85.js`. Record:
+      `docs/Milestones/2026-08-27-decisions-and-x-exit.md`.
 
 **Completion flow:**
 
-- [ ] **Manual "complete" button in project edit** — clears the "late"
+- [x] **Manual "complete" button in project edit** — clears the "late"
       messages, greys out everything under that event, but leaves it on the
       timeline. ⚠ check: a completed flag/status must persist — verify the
       storage shape against the colleague app before shipping.
-- [ ] **PM late-project prompt** — when a PM opens the app (identity
+      **Storage shape VERIFIED 2026-08-27:** both apps share the stored
+      `status` column on `ShopTimeline_Projects`, and `complete` is already a
+      first-class value in the colleague app (its own status dropdown offers
+      it, its `STATUS_MIGRATE` maps legacy values onto it, and it renders it
+      dimmed with a grey pill). The button writes `status='complete'` — an
+      existing column, an existing value, **no schema change and no cross-app
+      risk**. Both apps' deadline/"late" logic already skips
+      `projectStatus(p)==='complete'`, so the late messages clear for free.
+      Code can start whenever the owner green-lights the flow.
+      **GREEN-LIT 2026-08-27: build both** (the button and the PM prompt).
+      **SHIPPED same day as REV87:** footer Mark complete (undoable; disabled
+      "✓ Complete" after; reopen via the Setup status dropdown) + the meta
+      strip's overdue cell and late warning now respect a complete status.
+      Suite: `tests/test87.js`. Record:
+      `docs/Milestones/2026-08-27-completion-flow.md`.
+- [x] **PM late-project prompt** — when a PM opens the app (identity
       authenticated), projects whose install dates have passed (reading
       "late") with a Project Manager assignment matching the signed-in user
       prompt that PM to confirm each project has ended or been extended.
+      **SHIPPED 2026-08-27 (REV87):** once-a-day overlay after load (never over
+      the tour or another overlay); rows carry Open and Mark complete, Later
+      dismisses until tomorrow. Suite/record: as above.
 
 ### Phase 4 — learnability layer (rescoped 2026-08-26)
 
@@ -519,6 +562,31 @@ own "only if it proves needed" gates.
 - [ ] The calendar's live resize tint (REV83) covers edge-resize only —
       drag-to-move keeps its tooltip-only feedback; the owner's note named
       resize specifically. Gate: the same complaint about moves. (2026-08-26)
+- [ ] A collapsed calendar phase (REV84) spans only the parent bar's window — a
+      subtask deliberately scheduled outside it (the chunk-pipeline case, legal
+      per Design-Language §6) is invisible until the phase is clicked. Fix, if
+      needed: stretch the collapsed band to the department's min/max extent the
+      way the Gantt's collapsed row does. Gate: a PM missing an out-of-window
+      subtask. (2026-08-27)
+- [ ] The calendar's collapse follows the selection only — it deliberately
+      ignores the Gantt's ▸ expand state (`NPV_OPEN`), matching the owner's
+      wording ("default view collapses each phase"). Gate: someone expecting
+      the two surfaces to share expansion. (REV84)
+- [ ] The positional parent model shows through the collapse: resize/move a
+      phase so it starts after one of its subtasks and the subtask becomes the
+      department's first bar — the collapsed calendar then shows *its* band as
+      the phase (the Gantt's parent row flips identically, so the surfaces
+      agree). No stored parent flag exists by design (REV56 ponytail note).
+      Gate: a PM confused by the swap. (REV84)
+- [ ] The PM prompt's once-a-day key (REV87) is per-browser, not per-user — on
+      a shared machine one PM's "Later" swallows another PM's daily ask until
+      the next day. Fix if shared stations complain: key it by account
+      username. (2026-08-27)
+- [ ] The project-page tour (REV86) is Help-only — no first-visit auto-run.
+      The REV74 timeline tour auto-runs once on a fresh browser; auto-running
+      the project tour too would surprise every existing user on their next
+      project open (and needs a second seen-key the preview/test stubs would
+      have to seed). Gate: owner wanting auto-run for new hires. (2026-08-27)
 
 **Deliberate design ceilings — no action planned, revisit only on real complaints:**
 12-slot palette repeats at 13+ visible projects (T2); quiet re-selection after a committed

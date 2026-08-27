@@ -45,6 +45,9 @@ scoped "On this phase" pane; Add-a-phase was I8, the Link drag was I5. **The one
 open row is double-click** — unbound on both pages, still the audit's open question
 (candidate: "open editor"), an owner `[decision]`. This closes the audit: everything
 else is shipped, deliberate, or that one decision.
+**Double-click DECIDED 2026-08-27: stays unbound** — single-click already opens the
+editor (REV82/84), so binding it would spend a reserved verb on a duplicate
+(Design-Language §6). The audit is now fully dispositioned with nothing open.
 
 ## How to read these tables
 
@@ -130,7 +133,7 @@ The differences below live in the ~30 places that branch on the draft/saved flag
 | Right-click a bar / gutter row / marker | Menus and confirms | *(already identical)* | — |
 | Right-click empty canvas → Add a phase | **Silently does nothing** | Adds the department + bar | **Fix (bug)** — same as I8 |
 | Drag a parent bar with Link on | Moves the parent alone | Carries its subtasks | **Match the saved page** — same as I5 |
-| Double-click | Unbound | Unbound | Open question — candidate for "open editor" |
+| Double-click | Unbound | Unbound | **Decided 2026-08-27: stays unbound** — single-click already opens the editor; the verb stays reserved (§6) |
 
 ## Deliberate differences — do not converge
 

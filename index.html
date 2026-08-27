@@ -724,6 +724,17 @@ body.vivid .npv-we{background:#F1F5F9}
    and a blend mode that swallow both. */
 .cal-col.rz::after{content:'';position:absolute;inset:0;background:rgba(47,111,228,.16)}
 
+/* REV87: the PM late-project prompt rows. The modal widens past the 470px
+   default — a row is name + code + lateness + two buttons, and the name (the
+   only shrinkable item) must never collapse to nothing. */
+#pmlate-modal{width:680px}
+.pml-row{display:flex;align-items:center;gap:10px;padding:9px 2px;border-bottom:1px solid #EDF2F7}
+.pml-row:last-child{border-bottom:none}
+.pml-name{flex:1;min-width:90px;font-weight:700;color:#16202E;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pml-code{font-family:var(--mono);font-size:12px;color:#94A3B8;flex-shrink:0}
+.pml-late{font-size:12px;font-weight:700;color:#CE4242;flex-shrink:0;margin-left:auto}
+.pml-row .btn{flex-shrink:0}
+
 
 .dr-row.ln,.dr-hd.ln{grid-template-columns:minmax(0,1fr) 128px 108px 24px}
 
@@ -743,6 +754,11 @@ body.vivid .npv-we{background:#F1F5F9}
 .pg-cr.cur{color:#16202E;font-weight:700;cursor:default}
 .pg-cr.cur:hover{color:#16202E}
 .pg-sep{color:#B4C0D0;font-size:14px;font-weight:700;flex-shrink:0;user-select:none}
+/* REV85: the fourth exit — × at the right edge of the breadcrumb bar (same hover
+   pattern as the other close buttons). */
+.pg-x{margin-left:auto;background:none;border:none;color:#94A3B8;font-size:18px;
+  line-height:1;cursor:pointer;padding:4px 8px;font-family:inherit;flex-shrink:0}
+.pg-x:hover{color:#CE4242}
 .pg-cols2{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:16px;align-items:start;margin-top:14px}
 .pg-panel{background:#fff;border:1px solid #E2E8F0;border-radius:0 9px 9px 9px;padding:14px;min-height:210px}
 .pg-panel .pg-sec:first-child{margin-top:0}
@@ -830,8 +846,10 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
    four tabs, so every edit was a round trip down and back up. Nothing here scrolls the
    chart out of view. */
 .dash{display:flex;flex-direction:column;height:calc(100vh - 52px);max-width:none;padding:0}
-.dash-top{display:flex;align-items:center;gap:11px;padding:12px 22px 0}
-.dash-meta{display:flex;align-items:center;gap:0;padding:7px 22px 11px;flex-wrap:wrap}
+/* REV84: the breadcrumb sits on its own bar, a hairline above the summary strip —
+   navigation and at-a-glance numbers no longer read as one blob. */
+.dash-top{display:flex;align-items:center;gap:11px;padding:8px 22px;border-bottom:1px solid #E2E8F0}
+.dash-meta{display:flex;align-items:center;gap:0;padding:8px 22px;flex-wrap:wrap}
 .dash-meta .m{display:flex;align-items:baseline;gap:6px;padding:0 14px;border-right:1px solid #E2E8F0}
 .dash-meta .m:first-child{padding-left:0}
 .dash-meta .m:last-child{border-right:none}
@@ -1287,6 +1305,23 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
   </div>
 </div>
 
+<!-- REV87: PM LATE-PROJECT PROMPT -->
+<div id="pmlate-overlay" class="overlay hidden">
+  <div class="modal" id="pmlate-modal">
+    <h3>Your projects past their install date</h3>
+    <div class="modal-body">
+      <div class="hint">These projects list you as Project Manager and their install dates have passed. Confirm each one: mark it complete if the job has ended, or open it to extend the schedule.</div>
+      <div id="pmlate-list"></div>
+    </div>
+    <div class="m-actions">
+      <span></span>
+      <div class="m-right">
+        <button id="pmlate-later" class="btn btn-ghost" title="Close — this asks again tomorrow">Later</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- PRINT PREVIEW MODAL -->
 <div id="print-overlay" class="overlay hidden">
   <div class="modal">
@@ -1349,7 +1384,7 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_REV=83; // bump this ONE number on every release; used everywhere the rev shows up
+const APP_REV=87; // bump this ONE number on every release; used everywhere the rev shows up
 
 /* ===================== CONSTANTS ===================== */
 const SET_KEY ='shopTimelineSettings_v1';
@@ -3887,6 +3922,9 @@ function renderProjectPage(){
    + '<button class="pg-cr pg-bc cur hidden" id="pp-bc" title="Deselect the phase (Esc)"><b></b></button>'
    + '</nav>'
    + (isNew?'<span class="pg-code">New project</span>':'')
+   /* REV85: the fourth exit (owner decision 2026-08-27) — an × on the breadcrumb
+      bar, same action as Done/Esc: back to all projects. */
+   + '<button class="pg-x" id="pp-x" title="'+(isNew?'Leave without creating the project':'Close — back to all projects (Esc)')+'">&times;</button>'
    + '</div>';
 
   /* The numbers that answer "where is this job" without reading the chart. */
@@ -3918,6 +3956,10 @@ function renderProjectPage(){
    + (isNew?'':'<span class="pg-auto"><b>&#10003;</b> Changes save automatically</span>')
    + '<span class="sp"></span>'
    + '<button class="ins-btn" id="pp-keys" title="Show the keyboard shortcuts (?)">Shortcuts <kbd>?</kbd></button>'
+   /* REV87: manual complete (owner green-light 2026-08-27). Writing the shared
+      status column's existing 'complete' value is the whole feature — the late
+      reads and the grey treatment already key off it in both apps. */
+   + (isNew?'':'<button class="btn" id="pp-complete"></button>')
    + (isNew?'':'<button class="btn btn-danger" id="pp-del" title="Delete this project and everything on it">Delete project</button>')
    + '<button class="btn btn-ghost" id="pp-cancel" title="'+(isNew?'Leave without creating the project':'Go back to the timeline — changes are already saved')+'">'+(isNew?'Cancel':'Done')+'</button>'
    + (isNew?'<button class="btn btn-primary" id="pp-save" title="Create the project with the schedule shown">Create project</button>':'')
@@ -3943,6 +3985,7 @@ function renderProjectPage(){
 
   document.getElementById('pp-back').addEventListener('click',goTimeline);
   document.getElementById('pp-cancel').addEventListener('click',goTimeline);
+  document.getElementById('pp-x').addEventListener('click',goTimeline);
   const sv=document.getElementById('pp-save');
   if(sv)sv.addEventListener('click',savePageProject);
   const del=document.getElementById('pp-del');
@@ -3957,6 +4000,16 @@ function renderProjectPage(){
   const ks=document.getElementById('pp-ks'),kb=document.getElementById('pp-keys');
   if(kb)kb.addEventListener('click',()=>ks.classList.remove('hidden'));
   if(ks)ks.addEventListener('click',()=>ks.classList.add('hidden'));
+  /* REV87: the label/disabled state lives in ppPaintMeta so a Setup-dropdown
+     status change repaints it too. */
+  const cmp=document.getElementById('pp-complete');
+  if(cmp)cmp.addEventListener('click',()=>{
+    const q=ppProject();
+    if(!q||projectStatus(q)==='complete')return;
+    ppCommitField('status','complete');
+    toastU('Marked “'+(q.name||'')+'” complete');
+    ppInspector(); /* the Setup dropdown now shows the stored Complete */
+  });
 
   /* Clicking the project crumb while a phase is selected unwinds to the project —
      the same single layer Escape peels. The name itself is edited in Setup. */
@@ -4175,6 +4228,9 @@ function ppSelect(id,quiet){
        several bands — ring them all. */
     document.querySelectorAll('#npv-body .cal-band.ph[data-i="'+i+'"]').forEach(b=>b.classList.add('pick'));
   }
+  /* REV84: the calendar hides subtask bands until their phase is selected, so a
+     selection change repaints the calendar rather than just restyling it. */
+  if(NPV_MODE==='calendar')npvRender();
   ppInspector();
   ppPaintCrumb();
   if(!quiet&&PP_SEL){
@@ -4635,18 +4691,29 @@ function ppPaintMeta(p){
   const tkN=NPV_LIVE?liveTodos(p).length:NPV_TODOS.length;
   const cell=(k,v,warn)=>'<div class="m"><span class="k">'+k+'</span>'
     + '<span class="v'+(warn?' warn':'')+'">'+v+'</span></div>';
+  /* REV87: a completed project stops shouting \u2014 the overdue cell and the late
+     warning clear (the data stays; only the alarm goes). */
+  const done=NPV_LIVE&&!ROUTE.creating&&!!p.id&&projectStatus(p)==='complete';
   let h='';
   /* esc() was escaping the entity, so the strip literally said "&mdash;". */
   h+=cell('Client',p.client?esc(p.client):'\u2014');
   h+=cell('Job',p.jobCode?esc(p.jobCode):'\u2014');
   h+=cell('Installs',dl?esc(fmtNice(dl)):'&mdash;');
-  if(left!==null)h+=cell(left<0?'Overdue by':'Days out',Math.abs(left)+'d',left<0);
+  if(left!==null&&!done)h+=cell(left<0?'Overdue by':'Days out',Math.abs(left)+'d',left<0);
   h+=cell('Shop starts',s?esc(fmtNice(s)):'&mdash;');
-  h+=cell('Work ends',e?esc(fmtNice(e)):'&mdash;',late);
+  h+=cell('Work ends',e?esc(fmtNice(e)):'&mdash;',late&&!done);
   h+=cell('Phases',ts.filter(t=>t.department!=='pm').length);
   h+=cell('Checkpoints & tasks',evN+tkN);
-  if(late)h+='<div class="m"><span class="v warn">&#9888; Work runs past the install date</span></div>';
+  if(late&&!done)h+='<div class="m"><span class="v warn">&#9888; Work runs past the install date</span></div>';
   box.innerHTML=h;
+  /* REV87: the footer's complete button mirrors the stored status */
+  const cmp=document.getElementById('pp-complete');
+  if(cmp){
+    cmp.textContent=done?'\u2713 Complete':'Mark complete';
+    cmp.disabled=done;
+    cmp.title=done?'Already complete \u2014 set Status in Setup to reopen'
+      :'Mark the whole project complete \u2014 late warnings clear and its bars grey out; it stays on the timeline';
+  }
 }
 
 
@@ -6080,7 +6147,13 @@ function npvPaintCalendar(lo,hi,dl){
       if(selKey&&calKey(t)!==selKey)return;
       /* REV56: same hierarchy the Gantt shows — a department's first bar is the
          parent at full colour, its subtasks a lighter shade of the same hue. */
-      const kid=NPV_TASKS.findIndex(z=>z.department===t.department)!==ti;
+      const pi=NPV_TASKS.findIndex(z=>z.department===t.department);
+      const kid=pi!==ti;
+      /* REV84: phases collapse by default — a subtask band (a kid whose label/window
+         differs from the parent's, i.e. not an N16 roster twin) only paints while its
+         phase is selected. Clicking a phase band selects it (ppSelect), which opens
+         the bottom phase editor AND repaints with the subtasks in view. */
+      if(kid&&calKey(t)!==calKey(NPV_TASKS[pi])&&(!selT0||selT0.department!==t.department))return;
       const col0=DEPT_COLORS[t.department]||'#8A98AE';
       /* N16: roster fan-out collapses to one band per phase — same department, label
          and window, different assignee — with a +N chip in the label.
@@ -6716,6 +6789,7 @@ document.addEventListener('keydown',ev=>{
     document.getElementById('staff-overlay').classList.add('hidden');
     document.getElementById('print-overlay').classList.add('hidden');
     document.getElementById('meet-overlay').classList.add('hidden');
+    document.getElementById('pmlate-overlay').classList.add('hidden');
     closeMenus();
     return;
   }
@@ -7201,6 +7275,63 @@ document.getElementById('mi-density').addEventListener('click',()=>{
 wireMenu('btn-legend','legend-menu');
 buildLegend();
 
+/* ===================== REV87: PM LATE-PROJECT PROMPT ===================== */
+/* When the signed-in user is a project's PM and its install date has passed
+   without the project being complete, ask (once a day, on the main view) whether
+   each such job has ended or needs its schedule extended.
+   ponytail: the once-a-day key is per-browser, not per-user; revisit only if
+   shared machines make it nag the wrong PM. */
+const PMLATE_KEY='shopTimelinePmLateDay';
+function pmLateList(){
+  const me=meName();
+  if(!me)return[];
+  const td=fmtDate(today());
+  return ST.projects.filter(p=>p.projectManager===me&&p.deadline&&p.deadline<td
+    &&projectStatus(p)!=='complete');
+}
+function pmLatePaint(){
+  const late=pmLateList();
+  const ov=document.getElementById('pmlate-overlay');
+  if(!late.length){ov.classList.add('hidden');return;}
+  document.getElementById('pmlate-list').innerHTML=late.map(p=>{
+    const over=diffDays(parseDate(p.deadline),today());
+    return '<div class="pml-row" data-id="'+esc(p.id)+'">'
+      +'<span class="pml-name">'+esc(p.name||'')+'</span>'
+      +'<span class="pml-code">'+esc(p.jobCode||'')+'</span>'
+      +'<span class="pml-late">installed '+esc(fmtNice(p.deadline))+' · '+over+'d ago</span>'
+      +'<button class="btn btn-ghost" data-act="open" data-id="'+esc(p.id)+'" title="Open the project to extend its schedule">Open</button>'
+      +'<button class="btn" data-act="done" data-id="'+esc(p.id)+'" title="The job has ended — mark it complete">Mark complete</button>'
+      +'</div>';
+  }).join('');
+}
+function pmLateShow(){
+  const td=fmtDate(today());
+  try{if(localStorage.getItem(PMLATE_KEY)===td)return;}catch(e){}
+  if(!pmLateList().length)return;
+  /* one overlay at a time (§6) — and never over the tour */
+  if([...document.querySelectorAll('.overlay')].some(o=>!o.classList.contains('hidden')))return;
+  if(!document.getElementById('coach').classList.contains('hidden'))return;
+  try{localStorage.setItem(PMLATE_KEY,td);}catch(e){}
+  pmLatePaint();
+  document.getElementById('pmlate-overlay').classList.remove('hidden');
+}
+document.getElementById('pmlate-list').addEventListener('click',ev=>{
+  const b=ev.target.closest('button[data-act]');
+  if(!b)return;
+  const p=projById(b.dataset.id);
+  if(!p)return;
+  if(b.dataset.act==='done'){
+    saveState({projects:ST.projects.map(x=>x.id===p.id?{...x,status:'complete'}:x),tasks:ST.tasks});
+    toastU('Marked “'+(p.name||'')+'” complete');
+    pmLatePaint(); /* the row leaves; an empty list closes the prompt */
+  }else{
+    document.getElementById('pmlate-overlay').classList.add('hidden');
+    location.hash='#/project/'+p.id;
+  }
+});
+document.getElementById('pmlate-later').addEventListener('click',
+  ()=>document.getElementById('pmlate-overlay').classList.add('hidden'));
+
 /* ===================== REV74: COACH MARKS (N14) ===================== */
 /* A guided first-look: one spotlight hole + one card stepping through the surfaces a
    new user needs. Runs once automatically on a browser that has never seen it
@@ -7220,6 +7351,27 @@ const COACH_STEPS=[
    b:'Name it, pick its departments and set the install deadline — the schedule builds itself backward from that date. Nothing is saved until you press Create.'},
   {sel:'#btn-legend',t:'When you forget',
    b:'This ? explains the colors, patterns and markers. And this tour lives under Help — take it again any time.'}
+];
+/* REV86: ONE shared tour for the project pages (owner decision 2026-08-27) — the
+   REV82 convergence made New Project and Project Edit near-identical, so one step
+   list serves both. The branch costs nothing: coachStart already drops steps whose
+   target isn't in the DOM, so the draft sees the Create step (#pp-save) and the
+   saved page sees the autosave step (.pg-auto). */
+const COACH_PP_STEPS=[
+  {sel:'.pg-trail',t:'Where you are',
+   b:'All Projects, this job, and the phase when one is selected. Click a crumb to step back out — Esc, Done and the × do the same.'},
+  {sel:'#pp-meta',t:'The job at a glance',
+   b:'Client, job code, install date and days out. These update as you edit — the warning appears if work runs past the install.'},
+  {sel:'.npv-swrap',t:'The schedule',
+   b:'Every bar is a phase of work. Click one to edit it below, drag to move, grab an edge to resize, right-click to add a subtask, checkpoint or task. The calendar shows one band per phase — click a band to open it and see its subtasks.'},
+  {sel:'.npv-modes',t:'Two views of the same dates',
+   b:'Gantt for the whole job at once, Calendar for week-by-week. G and C switch from the keyboard.'},
+  {sel:'#pp-insp',t:'The editor',
+   b:'With nothing selected you edit the project here — Setup, Team, Departments, Agenda. Select a phase and this becomes that phase’s form.'},
+  {sel:'#pp-save',t:'Nothing is real yet',
+   b:'This page is a draft kept in this tab — it survives a refresh. Create project files it to SharePoint; Cancel or the × walks away clean.'},
+  {sel:'.pg-auto',t:'Everything saves itself',
+   b:'Edits file to SharePoint as you make them — the pill in the toolbar shows sync. Done just takes you back to the timeline.'}
 ];
 let COACH=null; /* null = off; else {steps,i} */
 function coachEnd(){
@@ -7247,8 +7399,8 @@ function coachShow(){
   else ct=Math.max(12,r.top+pad+12);
   card.style.left=cl+'px';card.style.top=ct+'px';
 }
-function coachStart(){
-  const steps=COACH_STEPS.filter(s=>document.querySelector(s.sel));
+function coachStart(stepList){
+  const steps=(stepList||COACH_STEPS).filter(s=>document.querySelector(s.sel));
   if(!steps.length)return;
   try{localStorage.setItem(COACH_KEY,'1');}catch(e){} /* even an abandoned tour never nags twice */
   COACH={steps,i:0};
@@ -7260,8 +7412,9 @@ function coachNext(){if(!COACH)return;if(COACH.i>=COACH.steps.length-1){coachEnd
 function coachBack(){if(!COACH||!COACH.i)return;COACH.i--;coachShow();}
 document.getElementById('btn-help').addEventListener('click',ev=>{
   ev.stopPropagation();
-  /* the tour's targets live on the home view — route there first if needed */
-  if(ROUTE.view==='project'){goTimeline();setTimeout(coachStart,150);return;}
+  /* REV86: Help teaches the page you are on — the project pages get their own
+     shared tour in place (it used to bounce home first). */
+  if(ROUTE.view==='project'){coachStart(COACH_PP_STEPS);return;}
   coachStart();
 });
 document.getElementById('coach').addEventListener('click',coachNext);
@@ -7422,6 +7575,10 @@ async function boot(){
      has settled and the first render is on screen. Help replays it any time. */
   let coachSeen='1';try{coachSeen=localStorage.getItem(COACH_KEY);}catch(e){}
   if(ACCOUNT&&!coachSeen&&ROUTE.view!=='project')setTimeout(coachStart,700);
+  /* REV87: the PM late prompt — after the first render settles. pmLateShow
+     itself declines to stack on the tour or another overlay, and asks at most
+     once a day; a suppressed ask (tour up, project view) just tries next load. */
+  if(ACCOUNT&&ROUTE.view!=='project')setTimeout(pmLateShow,1200);
   /* Poll so other people's changes appear (skips while dragging, saving, or editing).
      POLL_MS is the freshness-vs-Graph-cost knob: bigger = fewer calls, staler view. */
   const POLL_MS=90000;
