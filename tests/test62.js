@@ -45,7 +45,10 @@ setTimeout(()=>{
       ok('the umbrella bar carries no owner',bars[0]&&!bars[0].who,JSON.stringify(bars));
 
       sec('A crew of any size rides on a bar as comma-joined names');
-      E("var _t=NPV_TASKS.find(t=>t.department==='td');ppPopWho(_t,'Peter, Chris');");
+      /* REV82 retired ppPopWho with the popover — the crew now commits to the line */
+      E("var _t=NPV_TASKS.find(t=>t.department==='td');"
+        +(/function ppPopWho/.test(src)?"ppPopWho(_t,'Peter, Chris');"
+          :"ppDraftLineFor(_t).who='Peter, Chris';npvRebuild();"));
       setTimeout(()=>{
         bars=tdBars();
         ok('still one bar after the crew edit',bars.length===1,JSON.stringify(bars));
@@ -67,7 +70,9 @@ setTimeout(()=>{
             bars=tdBars();
             ok('two bars — the work split',bars.length===2,JSON.stringify(bars));
             ok('the new subtask is born named',bars.some(b=>/^Subtask \d+$/.test(b.label)));
-            E("var _t3=NPV_TASKS.find(t=>t.department==='td'&&/^Subtask/.test(t.label||''));ppPopWho(_t3,'Kate');");
+            E("var _t3=NPV_TASKS.find(t=>t.department==='td'&&/^Subtask/.test(t.label||''));"
+              +(/function ppPopWho/.test(src)?"ppPopWho(_t3,'Kate');"
+                :"ppDraftLineFor(_t3).who='Kate';npvRebuild();"));
             setTimeout(()=>{
               bars=tdBars();
               ok('the crew edit landed on the subtask',bars.some(b=>b.who==='Kate'),JSON.stringify(bars));
@@ -99,3 +104,4 @@ function done(){
   console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
   process.exit(fail?1:0);
 }
+setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},20000);

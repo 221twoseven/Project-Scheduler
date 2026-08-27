@@ -7,7 +7,8 @@
 > understand how the app works under the hood.
 
 Timeline is a **single-file, client-only single-page app**. `index.html` contains all
-HTML, CSS, and vanilla JavaScript (~5,900 lines) — no framework, no build step. The only
+HTML, CSS, and vanilla JavaScript (thousands of lines, one file) — no framework, no
+build step. The only
 runtime dependency is `msal-browser.min.js`, vendored beside it. There is no server we
 own; the backend is SharePoint, reached through Microsoft Graph.
 
@@ -57,10 +58,10 @@ Microsoft Graph  v1.0  ──►  SharePoint site  /sites/TWOSEVENINC
 
 ### Reads / writes
 
-- **Reads (GET):** on startup and again on every 45-second poll (`setInterval` in the
+- **Reads (GET):** on startup and again on every 90-second poll (`setInterval` in the
   init block). The poll is skipped while dragging, while a sync is pending, while an
-  overlay is open, or while a field inside `#page` has focus — so it never clobbers an
-  in-progress edit.
+  overlay is open, or while a field inside `#page` has focus — and re-checks those
+  guards after the fetch returns (REV90) — so it never clobbers an in-progress edit.
 - **Writes:** `spSync(old, new)` diffs old vs new state per record and issues
   `POST /items` (create), `PATCH /items/{id}/fields` (update), or `DELETE /items/{id}`
   (delete). `spSyncStaff` does the same for the roster. Writes are **optimistic**: the UI

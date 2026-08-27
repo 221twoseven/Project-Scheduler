@@ -11,8 +11,8 @@
 > Actionable open items and operational-security follow-ups live in **[TODO.md](TODO.md)**.
 > For the current architecture from a fresh inspection, see **[ARCHITECTURE.md](ARCHITECTURE.md)**.
 >
-> The live app is `index.html` (REV50); `reference/Timeline_50.html` is the frozen REV50
-> baseline it began as.
+> The live app is `index.html` (see the `APP_REV` constant for the current build);
+> `reference/Timeline_50.html` is the frozen REV50 baseline it began as.
 
 ---
 

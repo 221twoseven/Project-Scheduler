@@ -101,3 +101,4 @@ ok('MEET_FILL keys match ALL_STATUSES',JSON.stringify([...mf].sort())===JSON.str
 
 console.log('\ncb: '+pass+' passed, '+fail+' failed');
 process.exit(fail?1:0);
+setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},20000);

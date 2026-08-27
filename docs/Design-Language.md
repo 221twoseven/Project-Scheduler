@@ -34,15 +34,15 @@ Consequences: forecast and on-hold bars keep their **project's hue** and signal 
 
 ### 2.2 Identity palette (projects)
 
-12 slots, assigned by **stable hash of project id** (never array index). Hues spaced ≥25° apart, all tuned so white or ink text passes 4.5:1 with the label-color function (§2.5).
+12 slots, assigned by **stable hash of project id** (never array index). Hues spaced ≥25° apart, and — **owner rule, Phase 3.5 (2026-08-26): bar text is always white.** Every slot sits below the luminance where `labelColor()` (§2.5) would flip to ink, so white passes 4.5:1 on all of them. The light slots of the original palette were darkened to comply — same hues, lower lightness (the pre-3.5 values are in git history).
 
 ```
---p01:#3B7FD6  --p02:#E27035  --p03:#2D9C56  --p04:#9050C3
---p05:#1AA59C  --p06:#C09018  --p07:#C04485  --p08:#567693
---p09:#7A5AE0  --p10:#3D8FA8  --p11:#A8642C  --p12:#6B8F3C
+--p01:#2B73CF  --p02:#BE531B  --p03:#268449  --p04:#9050C3
+--p05:#148079  --p06:#936E12  --p07:#C04485  --p08:#567693
+--p09:#7A5AE0  --p10:#357C92  --p11:#A8642C  --p12:#5E7D34
 ```
 
-(01–07 are the current `PCOLS`, kept for continuity; 08–12 extend the cycle. None approach `#CE4242` red. `--p08` is the darkened pm blue from §2.3 — the original `#5B7C99` sits in the mid-luminance dead zone and fails 4.5:1 both ways.) Collision rule: if two *currently visible* projects hash to the same slot, the later-created one shifts to the nearest free slot for that render — identity stability beats palette purity only when both are on screen.
+(01–07 keep the hues of the original `PCOLS` for continuity; 08–12 extend the cycle. None approach `#CE4242` red. `--p08` is the darkened pm blue from §2.3 — the original `#5B7C99` sits in the mid-luminance dead zone and fails 4.5:1 both ways.) Collision rule: if two *currently visible* projects hash to the same slot, the later-created one shifts to the nearest free slot for that render — identity stability beats palette purity only when both are on screen.
 
 **Clients carry no color (decided 2026-08-21, N3).** Identity color belongs to the
 *project*, full stop. The shop runs 3–4 big clients with many simultaneous job codes
@@ -53,7 +53,7 @@ alias only; revisit only if the client mix changes fundamentally.
 
 ### 2.3 Department palette
 
-Keep the existing `DEPT_COLORS` map as-is (it's serviceable and staff know it), with these exceptions: raise `beamsaw` `#C09018` and `electrical` `#D9A21B` label contrast via §2.5; `pm` `#5B7C99` → `#567693` and `install` `#6366F1` → `#5A5DEC` (the originals sit in the mid-luminance dead zone where *neither* ink nor white reaches 4.5:1 — a small darkening keeps the hue and lets white pass); and ensure no department except `install`/`laser` sits within 15° of the reserved red.
+Keep the `DEPT_COLORS` hues as-is (staff know them), but the Phase 3.5 white-text rule (§2.2) applies here too: every department color sits below the ink-flip luminance so labels are always white at 4.5:1. The light entries (the golds, pinks, teals and the grey "other" family) were darkened to comply, hues kept — `beamsaw` `#936E12` and `electrical` `#876511` stay a distinct pair; `pm` `#5B7C99` → `#567693` and `install` `#6366F1` → `#5A5DEC` (the originals sit in the mid-luminance dead zone where *neither* ink nor white reaches 4.5:1). No department except `install`/`laser` sits within 15° of the reserved red.
 
 **Subtask shading (REV56):** on the project page, subtasks render as a **light shade of
 their parent bar's hue** — same hue, ~45% toward white (`kidShade()`); only lightness
@@ -82,12 +82,26 @@ function labelColor(bg){ /* relative luminance per WCAG */
 
 (An earlier draft used a fixed `L > 0.44` threshold; that maps mid-luminance fills like `#D9A21B` to white at ~2.3:1, contradicting the 4.5:1 rule below, so the shipped function compares the two candidates' actual contrast instead. `L*L ≥ 1.05·(L_ink+0.05)` is the algebraic form of "ink's contrast ≥ white's contrast".)
 
+Since Phase 3.5 the identity and department palettes are constrained below the ink-flip
+luminance (§2.2), so on **bars** this function always lands on white — the function
+stays as the single adjudicator for everything else it already covers (white edge
+chips, pills, the project page's light subtask shades).
+
 No hand-picked per-bar text colors. Pills use the same rule. A jsdom test (`tests/test-contrast.js`) iterates every palette constant and asserts ≥4.5:1 — the palette can't regress.
 
 ### 2.6 Chrome (toolbar & sidebar)
 
 Existing tokens are good — codify them as the only chrome colors:
 `--ink #0D131D`, `--ink-2 #141C29`, `--chrome-line #232F42`, accent `--acc #2F6FE4` / `--acc-deep #1D5AC9`, warn `--warn #F0A814`, danger `--late #DC2626`, sidebar `--side #EDF1F7` / `--side-line #C9D4E3`, paper `--paper #F5F7FA`. New UI must draw from these; no ad-hoc hex in new code (a grep-able rule a reviewer can enforce).
+
+**Toolbar grouping rule (REV88, Option A of the toolbar proposal):** every row-2
+control sits with the question it answers, in reading order — **Where** (Today /
+go to date) · **Style** (zoom scale, color lens, density, vivid) · **Filter**
+(search, status, person, clear) — with micro-eyebrow labels naming the clusters
+and separators between clusters only. **Views** is the named bundle of the whole
+row, so it sits at the right edge (the row's summary), beside Protect dates (an
+editing guard, not a view) and the `?` legend. A new control joins the cluster
+whose question it answers; a control that answers none of them goes to the edge.
 
 ---
 
@@ -114,7 +128,7 @@ Rule: nothing informational below 11px. The current 8.5–10px toolbar/mini labe
 - **Spacing unit 4px.** Gaps and paddings are multiples: 4/8/12/16/24. (Most of the app is already close; drift no further.)
 - **Radii:** keep tokens `--r-s 5px` (chips, pills), `--r-m 8px` (buttons, inputs, bars), `--r-l 14px` (overlays, cards). Bars use `--r-m` ends.
 - **Hairlines** for structure (1px, `--side-line` on light / `--chrome-line` on dark); **shadows only for things that float** (menus, overlays, drag ghosts): `0 4px 18px rgba(13,19,29,.18)`. Nothing at rest casts a shadow except the toolbar.
-- **Row heights:** Comfortable 44px / Compact 32px (token `--row-h`), gutter 12px. All hit targets ≥ 24px even in Compact.
+- **Row heights:** three densities — **Comfortable 56px / Snug 44px / Compact 32px** (token `--row-h`). Bars stay 32px tall at Comfortable and Snug (only the gutter tightens, 24px → 12px); Compact drops the bar to 24px (gutter 8px). *Owner ruling 2026-08-26 (REV78, superseding both the original 44/32 spec and the interim 56/44): Comfortable keeps the pre-B5 default, the old spec values become Snug and Compact.* All hit targets ≥ 24px even in Compact.
 
 ---
 
@@ -128,9 +142,9 @@ Inline SVG, 16×16 viewBox, 1.5px stroke, `currentColor` — pasted literally in
 
 **The three-path rule.** Every action is reachable three ways: pointer (visible button/menu), context menu (right-click), keyboard (shortcut shown in the menu). The project page already lives by this; it becomes app-wide law. Anything drag-only (bar move/resize, OOO ranges) gets a click-editable equivalent (inspector fields or popover with date inputs).
 
-**Click hierarchy on the timeline.** Single **left-click on a bar opens its edit-details modal** — the primary read/edit path. Drag moves; edge-drag resizes; right-click opens the context menu. Disambiguation: the modal opens on mouse-up only if total pointer travel is under ~3px; any real drag suppresses it. Click on empty canvas deselects; double-click on empty canvas is reserved (no action yet — don't spend it casually).
+**Click hierarchy on the timeline.** Single **left-click on a bar opens its edit-details modal** — the primary read/edit path. Drag moves; edge-drag resizes; right-click opens the context menu. Disambiguation: the modal opens on mouse-up only if total pointer travel is under ~3px; any real drag suppresses it. Click on empty canvas deselects; double-click on empty canvas is reserved (no action yet — don't spend it casually). Double-click on a phase is likewise deliberately unbound on both project pages (owner ruling 2026-08-27): single-click already opens the editor, and the verb stays reserved.
 
-**Click hierarchy on the project page (N11).** The two buttons never overlap in meaning: **left-click only selects and edits** (a bar selects into the inspector — on a draft, opens its popover; empty canvas deselects), and **right-click only adds** — every context menu on the chart offers add-new actions (subtask, event, task) seeded with the clicked day, plus an **inline name field**: type the name and Enter files it under the menu's first action, no second dialog. Opening either surface closes the other, and right-click no longer changes the selection. Rename, duplicate and delete live in the inspector (with R and Del as the keyboard paths) — destructive and edit actions deliberately have **no context-menu path on this chart**; the right-click is reserved for creation. The calendar follows the same rule (this supersedes REV53's left-click create menu on empty cells). Calendar phase bands also **drag to move and resize from edge handles** (REV71/72) — same 3px click/drag disambiguation, workday snap and Protect-dates lock as the Gantt; merged "+N" bands move and resize as one, and a handle only exists on a band segment holding the phase's true start/end (a week-clipped edge is not grabbable). Checkpoint/task bands carry the Gantt diamonds' verbs: drag moves, click opens the agenda editor, right-click deletes.
+**Click hierarchy on the project page (N11).** The two buttons never overlap in meaning: **left-click only selects and edits** (a bar selects into the inspector — on a draft, opens its popover; empty canvas deselects), and **right-click only adds** — every context menu on the chart offers add-new actions (subtask, event, task) seeded with the clicked day, plus an **inline name field**: type the name and Enter files it under the menu's first action, no second dialog. Opening either surface closes the other, and right-click no longer changes the selection. Rename, duplicate and delete live in the inspector (with R and Del as the keyboard paths) — destructive and edit actions deliberately have **no context-menu path on this chart**; the right-click is reserved for creation. The calendar follows the same rule (this supersedes REV53's left-click create menu on empty cells). Calendar phase bands also **drag to move and resize from edge handles** (REV71/72) — same 3px click/drag disambiguation, workday snap and Protect-dates lock as the Gantt; merged "+N" bands move and resize as one, and a handle only exists on a band segment holding the phase's true start/end (a week-clipped edge is not grabbable). Checkpoint/task bands carry the Gantt diamonds' verbs: drag moves, click opens the agenda editor, right-click deletes. **The calendar collapses each phase by default (REV84):** one band per phase (the +N roster merge intact); left-clicking a phase band selects it — opening the bottom phase editor — and brings that phase's subtask bands into view; deselecting collapses them again. This expansion follows the selection only and is independent of the Gantt's ▸ expand state.
 
 **REV61 amendment (owner decision, 2026-08-20):** the left-click editors carry **no add buttons** — the +Subtask/+Event/+Task buttons were removed from the phase inspector and the draft popover as duplicates of the context menu. Creation on the chart is context-menu + keyboard (S/E/T); the agenda section's own +Event/+Task buttons remain as the visible-pointer path for dated items. This is a deliberate exception to §6's three-path rule for subtask creation: two paths, not three. "Who" sits on its own line above Start/End/Days on both surfaces and is always a picker fed by the people list — never free text.
 
@@ -155,8 +169,9 @@ Inline SVG, 16×16 viewBox, 1.5px stroke, `currentColor` — pasted literally in
 - **Bar anatomy:** [status pill][name · code][chips PM/D/F] left-aligned, ellipsis in that reverse order (chips drop first, then code, pill and name survive longest). Min renderable width shows pill only; below that, a 4px identity-colored tick.
 - **Today** is the strongest line on the canvas. Deadline markers are per-project flags (▸ pennant at header + dotted drop-line at 60% opacity), visually distinct from Today and from install red.
 - **Weekends/holidays** never disappear at any zoom; they compress.
-- **Zoom** steps (Phase 3): Day 34px / 2-Day 20px / Week 9px / Month 3px per day — all densities keep the bar-anatomy rules above.
-- **Legend:** a `?` popover (toolbar, right side) documents: status treatments, red = install, chip letters, marker shapes. One screen, no scrolling.
+- **Zoom** steps (shipped REV75, B3): **Day 40 / 2-Day 20 / Week 14 / Month 5 px per day** — Day and Week are the original Days/Weeks scales, unchanged, so those two steps render pixel-identical to pre-B3 builds. `D`/`W` jump straight to Day/Week, `+`/`−` step in and out, and the chosen step persists per user (in `UI_KEY`). All densities keep the bar-anatomy rules above; the axis header shows month names only at Month step, and day numbers on Mondays only at 2-Day.
+- **Go to date** (shipped REV76, B3 navigation half): one small popover — a native date input plus quick picks (Today, +1 mo, +3 mo, Next install) — reached three ways per §6: the `G` key, a click on any month name in the axis header (pointer cursor + underline on hover), or the "Go to date…" entry in the `?` legend. Choosing a date centers it in the viewport, smooth unless `prefers-reduced-motion` (the T6 rule). The **Today button and `T` center today** the same way; only the startup position still parks today left-of-center to read forward. The popover rides the toolbar-menu machinery: one open at a time, Escape or outside click closes.
+- **Legend:** a `?` popover (toolbar, right side) documents: status treatments, red = install, chip letters, marker shapes — plus the Go to date entry above. One screen, no scrolling.
 
 ---
 
@@ -167,7 +182,7 @@ The Setup / Team / Departments / Agenda inspector is **not a sidebar**. It rende
 - **Layout:** chart takes the full window width and the majority of the height; the inspector panel sits below it as a fixed-height dock (target ~260–300px Comfortable, user-draggable divider, height persisted in localStorage like the old sidebar width was).
 - **Inside the panel,** sections run **side by side as columns** — Setup | Team | Departments | Agenda — instead of stacked accordions. At full width all four are open at once; below ~1200px, Agenda wraps or the panel becomes horizontally scrollable with sticky section headers. No accordion collapse in the default state: the narrow rail forced that; the dock doesn't have to.
 - **Selection still drives content:** nothing selected → project sections; a bar selected → that phase's fields occupy the panel (with a breadcrumb back to the project). Same rule as before, better stage for it.
-- **The meta strip** (client · job · installs · days out · phases · agenda count) stays at the top of the page; the panel is for editing, the strip is for glancing.
+- **The meta strip** (client · job · installs · days out · phases · agenda count) stays at the top of the page; the panel is for editing, the strip is for glancing. The breadcrumb trail sits on **its own bar above the strip**, separated by a hairline (owner request, REV84) — navigation and glance-numbers never share a bar. The bar's right edge carries an **× exit** (owner decision 2026-08-27, REV85), the fourth exit alongside Esc, Done, and the breadcrumb — same action as Done.
 - **Footer actions** (Shortcuts, Delete project / Cancel, Done / Create) sit in the panel's bottom edge, keeping destructive actions physically far from the chart.
 - The edit-details modal (§6) and this panel share field components and layout rules — the modal is the timeline's portable version of the same inspector.
 

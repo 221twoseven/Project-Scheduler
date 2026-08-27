@@ -69,3 +69,4 @@ setTimeout(()=>{
     process.exit(fail?1:0);
   },500);
 },1500);
+setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},20000);

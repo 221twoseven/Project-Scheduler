@@ -112,6 +112,9 @@ function stage3(){
 
 function stage4(){
   sec('a nested subtask\'s resize clamps to the parent window');
+  /* REV84: the calendar collapses phases — subtask bands only paint while their
+     phase is selected, so select the parent before grabbing the kid. */
+  E("ppSelect('td1',true);");
   const b=phBands('Trim')[0];
   ok('the kid band is drawn', !!b);
   const hr=b.querySelector('.cal-hdl.r');
@@ -151,6 +154,11 @@ function stage5(){
 function stage6(){
   sec('Protect dates swallows a resize, like the Gantt');
   E('DATE_LOCK=true;');
+  /* REV84: stage5's resize moved td1's start past Trim's, so Trim is now the
+     department's first bar — the collapsed parent (positional model, same as the
+     Gantt's parent-row flip). Select the phase so its band paints before grabbing
+     the handle. */
+  E("ppSelect('td1',true);");
   const before=task('td1');
   const b=phBands('Exterior Windows')[0];
   drag(b.querySelector('.cal-hdl.r'),[cell('2026-08-12'),cell('2026-08-14')]);

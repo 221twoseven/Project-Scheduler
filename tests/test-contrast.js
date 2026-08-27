@@ -39,7 +39,7 @@ const fills={
   PCOLS:E('PCOLS'),
   DEPT_COLORS:Object.values(E('DEPT_COLORS')),
   INSTALL_RED:[E('INSTALL_RED')],
-  fallbacks:['#9CA3AF','#8A98AE'],
+  fallbacks:['#6B7484'], /* the darkened missing-project/department grey (REV80) */
 };
 for(const[group,list]of Object.entries(fills)){
   for(const bg of list){
@@ -66,3 +66,4 @@ ok('pill rules were actually found in the CSS',found>=8,found+' found');
 
 console.log('\ncontrast: '+pass+' passed, '+fail+' failed');
 process.exit(fail?1:0);
+setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},20000);
