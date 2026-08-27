@@ -39,6 +39,11 @@ const click=el=>el&&el.dispatchEvent(new win.MouseEvent('click',{bubbles:true}))
 /* jsdom normalises colour strings; run every expectation through the same parser. */
 const probe=()=>doc.createElement('div');
 const norm=v=>{const p=probe();p.style.background=v;return p.style.background;};
+/* Phase 2: Vivid months moved from a standing toolbar button into the View ▾ menu.
+   Rebuild the menu (its checkbox reflects TINT) and flip it via a change event. */
+const toggleVivid=()=>{E('buildViewMenu()');
+  const cb=doc.querySelector('#view-menu input[type=checkbox]');
+  cb.checked=!cb.checked;cb.dispatchEvent(new win.Event('change',{bubbles:true}));};
 
 setTimeout(run,1300);
 
@@ -69,13 +74,14 @@ function run(){
   ok('month header text is hsl(h,35%,30%)', hdrFgSet.has(mc.style.color), mc.style.color);
 
   sec('Vivid months toggle restores the old look');
-  ok('toolbar button is relabelled', doc.getElementById('t-tint').textContent==='Vivid months');
+  ok('the View ▾ menu carries a Vivid months toggle',
+     (function(){E('buildViewMenu()');return [...doc.querySelectorAll('#view-menu .sm-item')].some(l=>l.textContent.trim()==='Vivid months');})());
   ok('cellBg formula is byte-identical to the REV50 reference', (function(){
     const ref=fs.readFileSync(path.join(__dirname,'..','reference','Timeline_50.html'),'utf8');
     const g=s=>(s.match(/function cellBg\([^\n]*/)||[''])[0].replace(/\r$/,'');
     return g(ref)!==''&&g(ref)===g(src);
   })());
-  click(doc.getElementById('t-tint'));
+  toggleVivid();
   setTimeout(()=>{
     const vividSet=new Set();
     for(let m=0;m<12;m++){vividSet.add(norm(E('cellBg('+m+',0)')));vividSet.add(norm(E('cellBg('+m+',1)')));}
@@ -85,7 +91,7 @@ function run(){
     ok('vivid drops the hairlines', doc.querySelectorAll('#gantt-canvas .mon-line').length===0);
     ok('body carries .vivid', doc.body.classList.contains('vivid'));
     ok('localStorage key is unchanged (continuity)', E("localStorage.getItem('shopTimelineTint')")==='1');
-    click(doc.getElementById('t-tint'));
+    toggleVivid();
     setTimeout(stage2,300);
   },300);
 }

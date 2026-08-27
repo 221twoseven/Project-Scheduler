@@ -96,18 +96,21 @@ Existing tokens are good — codify them as the only chrome colors:
 
 **Toolbar grouping rule (native direction — supersedes the REV88 eyebrow model;
 see `Toolbar-Native-Direction.md`):** every row-2 control sits with the question
-it answers, in reading order — position (Today / go to date) · view (zoom scale,
-color lens, density, vivid) · filter (search, status, person, clear).
+it answers, in reading order — position (Today / go to date) · view (zoom scale ·
+**Color by ▾** · **View ▾**) · filter (search, status, person, clear).
 **Separators and spacing carry the grouping — no eyebrow labels** (the category
 names are for maintainers, not printed in the UI; the shell relies on familiar
 controls rather than teaching users the app's taxonomy). **Views** is the named
 bundle of the whole row, so it sits at the right edge, beside **Lock dates** (an
 editing guard, not a view) and the `?` legend. Weight is reserved: **New
 Project** is the one accent; standalone toolbar buttons sit flat (transparent at
-rest, lit on hover); the segmented groups (scale, color) keep a frame; an active
-view/nav state stays lit. A new control joins the cluster whose question it
-answers; a control that answers none goes to the edge. Low-frequency view
-controls migrate into menus in the native direction's later phases.
+rest, lit on hover); the segmented scale group keeps a frame; an active view/nav
+state stays lit. A new control joins the cluster whose question it answers; a
+control that answers none goes to the edge. Single-choice and low-frequency view
+controls belong in menus, not standing buttons: **row height** (density) and
+**month shading** (Vivid) live in the **View ▾** menu, and the colour lens is a
+**Color by: X ▾** dropdown — only the mutually-exclusive zoom scale stays a
+visible segmented control (it is the most-touched, with D/W/+/− keys).
 
 ---
 

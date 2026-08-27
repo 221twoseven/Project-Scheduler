@@ -389,6 +389,7 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 .sm-all{margin-top:6px;border:none;background:#F1F5F9;border-radius:6px;padding:5px;font-size:11px;cursor:pointer;color:#334155}
 .sm-all:hover{background:#E2E8F0}
 .sm-note{font-family:var(--mono);font-size:var(--fs-fine);color:#8194ab;padding:6px 8px 2px;border-top:1px solid #E2E8F0;margin-top:4px;white-space:nowrap}
+.sm-sec{font-size:var(--fs-micro);font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#94A3B8;padding:6px 8px 2px}
 /* V4/B6: saved-views menu rows — name applies, the small buttons manage.
    Everything is a real <button> so the menu walks on Tab (§9). */
 .vw-row{gap:4px;padding:2px 8px}
@@ -404,10 +405,6 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 .gp-picks{display:flex;gap:6px}
 .gp-picks .sm-all{flex:1;margin-top:0;white-space:nowrap}
 #lg-goto{text-align:left;display:flex;justify-content:space-between;align-items:center}
-/* Tint — low-priority toggle parked at the right of the timeline row */
-#t-tint{background:transparent;border-color:transparent;color:rgba(255,255,255,.42);font-size:11px;padding:5px 9px}
-#t-tint:hover{background:rgba(255,255,255,.08);color:rgba(255,255,255,.8)}
-#t-tint.on{background:rgba(47,111,228,.22);border-color:rgba(96,150,240,.5);color:#fff}
 
 /* ============ REV31: SPOTLIGHT FIX — dimmed rows keep clickable eyes ============ */
 .sb-row.dim{opacity:1;filter:none}
@@ -982,7 +979,6 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
       <div id="settings-menu" class="tb-menu hidden">
         <div class="sm-item" id="mi-people" title="Edit staff names, departments and time off">People &amp; Availability</div>
         <div class="sm-item" id="mi-clients" title="Edit the shared client list and job-code aliases">Clients</div>
-        <div class="sm-item" id="mi-density" title="Row height — click to cycle Comfortable → Snug → Compact">Density: <b id="mi-density-v">Comfortable</b></div>
         <div class="sm-note">Shop Timeline · REV <span id="tb-rev-num"></span></div>
       </div>
     </div>
@@ -1011,12 +1007,14 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
       <button id="btn-weeks" class="t-btn" title="Show the timeline week by week (W)">Week</button>
       <button id="btn-month" class="t-btn" title="Whole months at a glance — a season fits on one screen (+ and − step the zoom)">Month</button>
     </div>
-    <div class="tog-grp" id="tg-color">
-      <button id="btn-col-proj" class="t-btn active" title="Color every bar by its project">Project</button>
-      <button id="btn-col-ent" class="t-btn" title="Color every bar by its department team">Team</button>
+    <div class="sf-wrap">
+      <button id="btn-colorby" class="t-btn" title="Choose what the bar colors mean">Color by: <b id="colorby-v">Project</b> <svg class="ico-s" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 6 8 9.5 11.5 6"/></svg></button>
+      <div id="colorby-menu" class="tb-menu hidden"></div>
     </div>
-    <button id="btn-density" class="t-btn" title="Row height — click to cycle Comfortable → Snug → Compact">Comfortable</button>
-    <button id="t-tint" class="t-btn" title="Colour the calendar background vividly by month">Vivid months</button>
+    <div class="sf-wrap">
+      <button id="btn-view" class="t-btn" title="Row height and calendar shading">View <svg class="ico-s" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 6 8 9.5 11.5 6"/></svg></button>
+      <div id="view-menu" class="tb-menu hidden"></div>
+    </div>
     <div class="t-sep"></div>
     <input id="t-search" type="text" placeholder="Search  /" autocomplete="off" spellcheck="false" title="Type to show only matching projects and phases (/)">
     <div class="sf-wrap">
@@ -1252,7 +1250,7 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_REV=92; // bump this ONE number on every release; used everywhere the rev shows up
+const APP_REV=93; // bump this ONE number on every release; used everywhere the rev shows up
 
 /* ===================== CONSTANTS ===================== */
 const SET_KEY ='shopTimelineSettings_v1';
@@ -1271,9 +1269,6 @@ function applyDensity(d){
   BAR_H=g.bar;BAR_PAD=g.pad;LANE_G=g.gap;
   document.body.classList.toggle('snug',DENSITY==='snug');
   document.body.classList.toggle('compact',DENSITY==='compact');
-  const lbl=DENSITY[0].toUpperCase()+DENSITY.slice(1);
-  const v=document.getElementById('mi-density-v');if(v)v.textContent=lbl;
-  const tb=document.getElementById('btn-density');if(tb)tb.textContent=lbl;
 }
 let SIDE_W=300;
 /* B3 / §7 zoom steps, detail → overview. days and weeks keep their original px-per-day
@@ -2101,13 +2096,11 @@ function applyViewState(s){
   if(typeof s.person==='string')PERSON=s.person||null;
   if(typeof s.search==='string'){FILTER=s.search.trim().toLowerCase();
     const se=document.getElementById('t-search');if(se)se.value=s.search;}
-  if(s.color==='entity'||s.color==='project'){COLOR_MODE=s.color;
-    tog('btn-col-ent',COLOR_MODE==='entity');tog('btn-col-proj',COLOR_MODE==='project');}
+  if(s.color==='entity'||s.color==='project'){COLOR_MODE=s.color;syncColorby();}
   if(DW[s.view]){VIEW=s.view;
     for(const[k,id]of Object.entries(VIEW_BTN))tog(id,k===VIEW);}
   if(s.density!==undefined)applyDensity(s.density);
-  if(typeof s.tint==='boolean'){TINT=s.tint;
-    const tb=document.getElementById('t-tint');if(tb)tb.classList.toggle('on',TINT);syncVivid();}
+  if(typeof s.tint==='boolean'){TINT=s.tint;syncVivid();}
   if(s.collapsedGroups)GRP_COLLAPSED=Object.fromEntries(Object.entries(s.collapsedGroups).map(([m,a])=>[m,new Set(a)]));
   if(Array.isArray(s.collapsedDepts))COLLAPSED=new Set(s.collapsedDepts);
 }
@@ -6583,7 +6576,7 @@ try{const tv=localStorage.getItem('shopTimelineTint');if(tv!==null)TINT=(tv==='1
   const ov=localStorage.getItem('shopTimelineOpenDepts');
   if(ov)NPV_OPEN=new Set(JSON.parse(ov)||[]);
   const gv=localStorage.getItem('shopTimelineGroup');if(gv)GROUP_BY=gv;}catch(e){}
-syncVivid();
+syncVivid();syncColorby();
 
 /* ===================== KEYBOARD ===================== */
 document.addEventListener('keydown',ev=>{
@@ -6757,12 +6750,6 @@ for(const b of document.querySelectorAll('#goto-menu [data-goto]'))b.addEventLis
   else if(kind==='m3')d.setMonth(d.getMonth()+3);
   gotoDate(fmtDate(d));
 });
-const tintBtn=document.getElementById('t-tint');
-tintBtn.classList.toggle('on',TINT);
-tintBtn.addEventListener('click',()=>{
-  TINT=!TINT;tintBtn.classList.toggle('on',TINT);syncVivid();saveUI();
-  if(ROUTE.view==='project')npvRender();else render();
-});
 /* B3: four zoom steps (§7). D/W jump straight to Day/Week; +/− walk ZOOM_STEPS. */
 function setView(v){
   if(!DW[v]||v===VIEW)return;
@@ -6777,12 +6764,6 @@ document.getElementById('btn-lens-proj').addEventListener('click',()=>{if(LENS==
   saveUI();render();});
 document.getElementById('btn-lens-dept').addEventListener('click',()=>{if(LENS==='dept')return;LENS='dept';
   document.getElementById('btn-lens-dept').classList.add('active');document.getElementById('btn-lens-proj').classList.remove('active');
-  saveUI();render();});
-document.getElementById('btn-col-proj').addEventListener('click',()=>{if(COLOR_MODE==='project')return;COLOR_MODE='project';
-  document.getElementById('btn-col-proj').classList.add('active');document.getElementById('btn-col-ent').classList.remove('active');
-  saveUI();render();});
-document.getElementById('btn-col-ent').addEventListener('click',()=>{if(COLOR_MODE==='entity')return;COLOR_MODE='entity';
-  document.getElementById('btn-col-ent').classList.add('active');document.getElementById('btn-col-proj').classList.remove('active');
   saveUI();render();});
 document.getElementById('btn-new-proj').addEventListener('click',()=>openProjModal(null));
 document.getElementById('lock-ck').addEventListener('change',ev=>{DATE_LOCK=ev.target.checked;document.body.classList.toggle('dates-locked',DATE_LOCK);});
@@ -6940,6 +6921,38 @@ function buildStatusMenu(){
   row.appendChild(all);row.appendChild(none);
   m.appendChild(row);
 }
+/* Phase 2 (native direction) — Color by ▾ dropdown, was the Project/Team segmented toggle */
+function syncColorby(){const b=document.getElementById('colorby-v');if(b)b.textContent=COLOR_MODE==='entity'?'Team':'Project';}
+function setColorMode(v){if((v!=='project'&&v!=='entity')||COLOR_MODE===v)return;COLOR_MODE=v;syncColorby();saveUI();render();}
+function buildColorbyMenu(){
+  const m=document.getElementById('colorby-menu');m.innerHTML='';
+  const mk=(label,val)=>{
+    const l=document.createElement('label');l.className='sm-item';
+    const c=document.createElement('input');c.type='radio';c.name='colorby-pick';c.checked=(COLOR_MODE===val);
+    c.addEventListener('change',()=>{setColorMode(val);closeMenus();});
+    l.appendChild(c);l.appendChild(document.createTextNode(' '+label));m.appendChild(l);
+  };
+  mk('Project','project');mk('Team','entity');
+}
+/* Phase 2 — View ▾ holds the low-frequency display prefs, was three standing toolbar buttons.
+   Row height (density) and month shading (Vivid) keep their behaviour; only the control moved. */
+function buildViewMenu(){
+  const m=document.getElementById('view-menu');m.innerHTML='';
+  const sec=t=>{const d=document.createElement('div');d.className='sm-sec';d.textContent=t;m.appendChild(d);};
+  sec('Row height');
+  const dmk=(label,val)=>{
+    const l=document.createElement('label');l.className='sm-item';
+    const c=document.createElement('input');c.type='radio';c.name='density-pick';c.checked=(DENSITY===val);
+    c.addEventListener('change',()=>{applyDensity(val);saveUI();render();});
+    l.appendChild(c);l.appendChild(document.createTextNode(' '+label));m.appendChild(l);
+  };
+  dmk('Comfortable','comfortable');dmk('Snug','snug');dmk('Compact','compact');
+  sec('Month shading');
+  const l=document.createElement('label');l.className='sm-item';
+  const c=document.createElement('input');c.type='checkbox';c.checked=TINT;
+  c.addEventListener('change',()=>{TINT=c.checked;syncVivid();saveUI();if(ROUTE.view==='project')npvRender();else render();});
+  l.appendChild(c);l.appendChild(document.createTextNode(' Vivid months'));m.appendChild(l);
+}
 /* ===================== C3: LEGEND ===================== */
 /* One screen explaining the five encodings: status treatments, red = install,
    PM/D/F chips, Today, deadline. Swatches are real .job-bar/.sum-pill/.dl-flag
@@ -6988,6 +7001,10 @@ function wireMenu(btnId,menuId){
 wireMenu('btn-status','status-menu');
 document.getElementById('btn-person').addEventListener('click',buildPersonMenu);
 wireMenu('btn-person','person-menu');
+document.getElementById('btn-colorby').addEventListener('click',buildColorbyMenu);
+wireMenu('btn-colorby','colorby-menu');
+document.getElementById('btn-view').addEventListener('click',buildViewMenu);
+wireMenu('btn-view','view-menu');
 
 /* ===================== V4/B6: NAMED SAVED VIEWS ===================== */
 /* Snapshots of viewState() kept in this browser only — deliberately not SharePoint,
@@ -7100,16 +7117,6 @@ document.getElementById('btn-dash').addEventListener('click',ev=>{
 document.getElementById('dash-menu').addEventListener('click',ev=>ev.stopPropagation());
 wireMenu('btn-print','print-menu');
 wireMenu('btn-settings','settings-menu');
-/* B5: the density toggle cycles the three levels — geometry follows --row-h,
-   persisted like every other UI pref. REV88 surfaced it into the timeline row's
-   style cluster; the Settings item stays as an alias for a release. */
-function cycleDensity(){
-  const order=Object.keys(DENSITIES);
-  applyDensity(order[(order.indexOf(DENSITY)+1)%order.length]);
-  saveUI();render();
-}
-document.getElementById('mi-density').addEventListener('click',cycleDensity);
-document.getElementById('btn-density').addEventListener('click',cycleDensity);
 wireMenu('btn-legend','legend-menu');
 buildLegend();
 
