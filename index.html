@@ -1408,7 +1408,7 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_REV=89; // bump this ONE number on every release; used everywhere the rev shows up
+const APP_REV=90; // bump this ONE number on every release; used everywhere the rev shows up
 
 /* ===================== CONSTANTS ===================== */
 const SET_KEY ='shopTimelineSettings_v1';
@@ -1483,14 +1483,17 @@ const GROUPS=[
 const grpDepts=g=>DEPTS.filter(d=>d.grp===g).map(d=>d.id);
 const PROD_IDS=grpDepts('dfab');
 
-/* Department-lens sections mirror the five groups */
+/* Department-lens sections mirror the groups.
+   REV90: Unit 7 is one section covering its whole group — softgoods, vinyl and
+   othunit7 previously had no lane here at all (only electrical had a row), so
+   their bars were invisible in this lens. */
 const SECTIONS=[
   {kind:'dept', id:'pm'},
   {kind:'group',id:'tdsec',  label:'Technical Design',    depts:grpDepts('tdg')},
   {kind:'group',id:'dfab',   label:'Digital Fabrication', depts:grpDepts('dfab')},
   {kind:'group',id:'shop',   label:'Main Shop Fab',       depts:grpDepts('shop')},
   {kind:'dept', id:'metal'},
-  {kind:'dept', id:'electrical'},
+  {kind:'group',id:'unit7',  label:'Unit 7',              depts:grpDepts('unit7')},
   {kind:'group',id:'finishing',label:'Finishing',         depts:grpDepts('finish')},
   {kind:'dept', id:'install'},
 ];
@@ -1564,6 +1567,10 @@ function fmtDate(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2
 function addDays(d,n){const r=new Date(d);r.setDate(r.getDate()+n);return r;}
 function diffDays(a,b){return Math.round((b-a)/86400000);}
 function isoWeek(d){const t=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));t.setUTCDate(t.getUTCDate()+4-(t.getUTCDay()||7));const y0=new Date(Date.UTC(t.getUTCFullYear(),0,1));return Math.ceil(((t-y0)/86400000+1)/7);}
+/* REV90: week-stripe parity. isoWeek(d)%2 breaks in 53-week years (week 53 and week 1
+   are both odd, so two adjacent weeks render the same shade) — count whole weeks from a
+   fixed Monday instead. diffDays' Math.round absorbs DST offsets. */
+function wkPar(d){const w=d.getDay();const m=addDays(d,-(w===0?6:w-1));return Math.abs(Math.floor(diffDays(new Date(2001,0,1),m)/7))%2;}
 function dw(){return DW[VIEW];}
 function d2x(d){return diffDays(TL_S,d)*dw();}
 function x2d(x){return addDays(TL_S,Math.round(x/dw()));}
@@ -1591,7 +1598,12 @@ function lastDow(y,m,dow){const d=new Date(y,m+1,0);while(d.getDay()!==dow)d.set
 function holidaysFor(y){
   if(HOL_CACHE[y])return HOL_CACHE[y];
   const s=new Set();
-  s.add(fmtDate(observed(new Date(y,0,1))));
+  /* REV90: observed New Year can land in the neighbouring year (Jan 1 on a Saturday
+     observes Fri Dec 31 of y-1; on a Sunday, Mon Jan 2). isWorking(d) looks up
+     d's OWN year, so each year's set must carry only dates inside that year —
+     including next year's New Year when it observes back into this December. */
+  const d1=observed(new Date(y,0,1));if(d1.getFullYear()===y)s.add(fmtDate(d1));
+  const d2=observed(new Date(y+1,0,1));if(d2.getFullYear()===y)s.add(fmtDate(d2));
   s.add(fmtDate(lastDow(y,4,1)));
   s.add(fmtDate(observed(new Date(y,6,4))));
   s.add(fmtDate(nthDow(y,8,1,1)));
@@ -1853,6 +1865,13 @@ async function gfetch(url,opts){
   if(!r.ok){const txt=await r.text();throw new Error('SharePoint '+r.status+': '+txt.slice(0,180));}
   return r.status===204?null:r.json();
 }
+/* REV90: follow @odata.nextLink — $top is a page size, not a limit. Without this,
+   rows past the first page silently vanished from every load and poll. */
+async function gpageAll(url){
+  let r=await gfetch(url),v=r.value||[];
+  while(r['@odata.nextLink']){r=await gfetch(r['@odata.nextLink']);v=v.concat(r.value||[]);}
+  return v;
+}
 async function spSite(){
   if(SITE_ID)return SITE_ID;
   const s=await gfetch('https://graph.microsoft.com/v1.0/sites/'+SITE_HOST+':'+SITE_PATH);
@@ -1917,10 +1936,10 @@ function fieldsToPerson(f){return{id:f.appId,name:f.Title||'',depts:safeArr(f.de
 
 async function spLoadStaff(){
   await spSite();
-  const r=await gfetch(listUrl(LIST_STAFF)+'/items?expand=fields&$top=500');
+  const r=await gpageAll(listUrl(LIST_STAFF)+'/items?expand=fields&$top=500');
   SP_IDS.staff={};
   const people=[];
-  for(const it of r.value){if(!it.fields.appId)continue;SP_IDS.staff[it.fields.appId]=it.id;people.push(fieldsToPerson(it.fields));}
+  for(const it of r){if(!it.fields.appId)continue;SP_IDS.staff[it.fields.appId]=it.id;people.push(fieldsToPerson(it.fields));}
   return people;
 }
 async function spSyncStaff(olds,news){
@@ -1937,29 +1956,29 @@ async function spSyncStaff(olds,news){
 async function spLoad(){
   await spSite();
   const[pr,tr]=await Promise.all([
-    gfetch(listUrl(LIST_PROJECTS)+'/items?expand=fields&$top=2000'),
-    gfetch(listUrl(LIST_TASKS)+'/items?expand=fields&$top=2000')
+    gpageAll(listUrl(LIST_PROJECTS)+'/items?expand=fields&$top=2000'),
+    gpageAll(listUrl(LIST_TASKS)+'/items?expand=fields&$top=2000')
   ]);
   SP_IDS.proj={};SP_IDS.task={};
   const projects=[],tasks=[];
   /* SharePoint/Graph tracks this on every item automatically — no custom column required */
   const graphWho=it=>it.lastModifiedBy&&it.lastModifiedBy.user?(it.lastModifiedBy.user.displayName||it.lastModifiedBy.user.email||''):'';
   const graphWhen=it=>it.lastModifiedDateTime||'';
-  for(const it of pr.value){if(!it.fields.appId)continue;SP_IDS.proj[it.fields.appId]=it.id;const pr2=fieldsToProj(it.fields);pr2.updatedBy=graphWho(it);pr2.updatedAt=graphWhen(it);projects.push(pr2);}
-  for(const it of tr.value){if(!it.fields.appId)continue;SP_IDS.task[it.fields.appId]=it.id;const tk=fieldsToTask(it.fields);tk.updatedBy=graphWho(it);tk.updatedAt=graphWhen(it);tasks.push(tk);}
+  for(const it of pr){if(!it.fields.appId)continue;SP_IDS.proj[it.fields.appId]=it.id;const pr2=fieldsToProj(it.fields);pr2.updatedBy=graphWho(it);pr2.updatedAt=graphWhen(it);projects.push(pr2);}
+  for(const it of tr){if(!it.fields.appId)continue;SP_IDS.task[it.fields.appId]=it.id;const tk=fieldsToTask(it.fields);tk.updatedBy=graphWho(it);tk.updatedAt=graphWhen(it);tasks.push(tk);}
   /* Tasks are optional: the list may not have been created yet. */
   const todos=[];SP_IDS.todo={};
   try{
-    const dr=await gfetch(listUrl(LIST_TODOS)+'/items?expand=fields&$top=2000');
-    for(const it of dr.value){if(!it.fields.appId)continue;SP_IDS.todo[it.fields.appId]=it.id;
+    const dr=await gpageAll(listUrl(LIST_TODOS)+'/items?expand=fields&$top=2000');
+    for(const it of dr){if(!it.fields.appId)continue;SP_IDS.todo[it.fields.appId]=it.id;
       const td=fieldsToTodo(it.fields);td.updatedBy=graphWho(it);td.updatedAt=graphWhen(it);todos.push(td);}
     TODOS_OK=true;
   }catch(e){TODOS_OK=false;console.warn('ShopTimeline_Tasks2 not reachable — tasks stay local.');}
   /* Events are optional the same way. */
   const events=[];SP_IDS.event={};
   try{
-    const er=await gfetch(listUrl(LIST_EVENTS)+'/items?expand=fields&$top=2000');
-    for(const it of er.value){if(!it.fields.appId)continue;SP_IDS.event[it.fields.appId]=it.id;
+    const er=await gpageAll(listUrl(LIST_EVENTS)+'/items?expand=fields&$top=2000');
+    for(const it of er){if(!it.fields.appId)continue;SP_IDS.event[it.fields.appId]=it.id;
       events.push(fieldsToEvent(it.fields));}
     EVENTS_OK=true;
   }catch(e){EVENTS_OK=false;console.warn('ShopTimeline_Events not reachable — events save on host phases (legacy).');}
@@ -2112,6 +2131,7 @@ function stampUpdated(newList,oldList){
 }
 function undo(){
   if(!UNDO_STACK.length){toast('Nothing to undo');return;}
+  ST_GEN++;
   const prev=UNDO_STACK.pop();
   const old=ST;
   ST={projects:stampUpdated(prev.projects,old.projects),tasks:stampUpdated(prev.tasks,old.tasks),
@@ -2124,24 +2144,34 @@ function undo(){
   toast('Undone');
 }
 
-/* Push a diff to SharePoint with status pill + one retry */
-let SYNCING=false;   /* true while a save is in flight — the poll must not read half-committed rows */
+/* Push a diff to SharePoint with status pill + one retry.
+   REV90: saves are serialized on one promise chain — two quick edits used to run two
+   Graph flights in parallel, and a throttled (Retry-After) older PATCH could land after
+   a newer one, persisting stale data. The chain also guarantees a POST resolves its
+   SP_IDS entry before a follow-up edit PATCHes the same record. */
+let SYNCING=0;   /* count of queued/in-flight saves — the poll must not read half-committed rows */
+let SYNC_CHAIN=Promise.resolve();
 function syncNow(oldST,newST){
   stashSample(); /* A5: every ST mutation routes through here — keep the local slice current */
   setSync('busy');
-  SYNCING=true;
-  const done=()=>{SYNCING=false;setSync('ok','synced '+stamp());};
-  spSync(oldST,newST)
-    .then(done)
-    .catch(()=>spSync(oldST,newST)
-      .then(done)
-      .catch(e=>{
-        SYNCING=false;
-        console.error(e);
-        setSync('err','not saved — click to retry');
-        toast('Couldn\'t save to SharePoint. Your change is still on screen — click "not saved" at the top right to retry.','err',null,e.message);
-        PENDING_SYNC={oldST,newST};
-      }));
+  SYNCING++;
+  SYNC_CHAIN=SYNC_CHAIN
+    .then(()=>spSync(oldST,newST).catch(()=>spSync(oldST,newST)))
+    .then(()=>{
+      SYNCING--;
+      /* REV90: a later success must not mask an earlier failure — the pill stays on
+         "retry" until the pending diff is replayed. */
+      if(!PENDING_SYNC)setSync('ok','synced '+stamp());
+    })
+    .catch(e=>{
+      SYNCING--;
+      console.error(e);
+      setSync('err','not saved — click to retry');
+      toast('Couldn\'t save to SharePoint. Your change is still on screen — click "not saved" at the top right to retry.','err',null,e.message);
+      /* REV90: merge consecutive failures instead of clobbering — retry replays the
+         span from the FIRST failed snapshot to the latest state, so no edit is lost. */
+      PENDING_SYNC=PENDING_SYNC?{oldST:PENDING_SYNC.oldST,newST}:{oldST,newST};
+    });
 }
 let PENDING_SYNC=null;
 document.getElementById('sync-pill').addEventListener('click',()=>{
@@ -2149,7 +2179,9 @@ document.getElementById('sync-pill').addEventListener('click',()=>{
 });
 
 /* Optimistic save: update screen instantly, sync to SharePoint in background */
+let ST_GEN=0;   /* REV90: bumped on every local ST mutation — the poll aborts if it moved mid-fetch */
 function saveState(s){
+  ST_GEN++;
   const old=ST;pushUndo(old);
   ST={projects:stampUpdated(s.projects,old.projects),tasks:stampUpdated(s.tasks,old.tasks),
       todos:s.todos!==undefined?s.todos:(old.todos||[]),
@@ -2167,8 +2199,8 @@ let CLIENTS=[],CLIENTS_OK=false;
 function clientOptions(){return CLIENTS.map(c=>'<option value="'+esc(c.name)+'"'+(c.alias?' label="'+esc(c.alias)+'"':'')+'>').join('');}
 async function loadClients(){
   try{
-    const r=await gfetch(listUrl(LIST_CLIENTS)+'/items?expand=fields&$top=500');
-    CLIENTS=r.value.map(it=>({spId:it.id,name:it.fields.Title||'',alias:it.fields.field_2||''})).filter(c=>c.name);
+    const r=await gpageAll(listUrl(LIST_CLIENTS)+'/items?expand=fields&$top=500');
+    CLIENTS=r.map(it=>({spId:it.id,name:it.fields.Title||'',alias:it.fields.field_2||''})).filter(c=>c.name);
     CLIENTS_OK=true;
     try{localStorage.setItem(CLIENTS_KEY,JSON.stringify(CLIENTS));}catch(e){}
   }catch(e){
@@ -2199,7 +2231,8 @@ async function spSyncClients(o,n){
 
 function savePeople(np){
   const old=PEOPLE;PEOPLE=np;rebuildStaff();
-  localStorage.setItem(PEOPLE_KEY,JSON.stringify(PEOPLE));
+  /* REV90: guarded — a quota/private-mode throw here used to abort before spSyncStaff */
+  try{localStorage.setItem(PEOPLE_KEY,JSON.stringify(PEOPLE));}catch(e){}
   render();
   if(!STAFF_OK){toast('Staff saved in this browser only — it won\'t sync to your teammates until SharePoint is reachable again.','err');return;}
   setSync('busy');
@@ -2224,7 +2257,9 @@ function applyViewState(s){
   if(s.lens==='dept'||s.lens==='project'){LENS=s.lens;
     tog('btn-lens-dept',LENS==='dept');tog('btn-lens-proj',LENS==='project');}
   if(s.group!==undefined)GROUP_BY=['client','pm','status'].includes(s.group)?s.group:null;
-  if(Array.isArray(s.status)&&s.status.length)SHOW_STATUS=new Set(s.status.filter(x=>ALL_STATUSES.includes(x)));
+  /* REV90: an explicitly-empty status set restores too (the empty-state card offers the
+     way back); only an ABSENT field is left untouched, for partial snapshots. */
+  if(Array.isArray(s.status))SHOW_STATUS=new Set(s.status.filter(x=>ALL_STATUSES.includes(x)));
   if(typeof s.person==='string')PERSON=s.person||null;
   if(typeof s.search==='string'){FILTER=s.search.trim().toLowerCase();
     const se=document.getElementById('t-search');if(se)se.value=s.search;}
@@ -2243,9 +2278,10 @@ function saveUI(){
   try{localStorage.setItem('shopTimelineTint',s.tint?'1':'0');
     localStorage.setItem('shopTimelineLinkSubs',LINK_SUBS?'1':'0');
     localStorage.setItem('shopTimelineOpenDepts',JSON.stringify([...NPV_OPEN]));
-    localStorage.setItem('shopTimelineGroup',s.group);}catch(e){}localStorage.setItem(UI_KEY,JSON.stringify({collapsedDepts:s.collapsedDepts,
+    localStorage.setItem('shopTimelineGroup',s.group);
+    localStorage.setItem(UI_KEY,JSON.stringify({collapsedDepts:s.collapsedDepts,
     collapsedGroups:s.collapsedGroups,
-    density:s.density,colorMode:s.color,view:s.view,sideW:SIDE_W,npvGut:NPV_GUT,showStatus:s.status,person:s.person,lens:s.lens}));}
+    density:s.density,colorMode:s.color,view:s.view,sideW:SIDE_W,npvGut:NPV_GUT,showStatus:s.status,person:s.person,lens:s.lens}));}catch(e){}}
 
 /* ===================== SEARCH FILTER ===================== */
 let FILTER='';
@@ -2413,7 +2449,9 @@ function laneAssign(tasks){
   const sorted=[...tasks].sort((a,b)=>parseDate(a.startDate)-parseDate(b.startDate));
   for(const t of sorted){
     const s=parseDate(t.startDate),e=parseDate(t.endDate);
-    let lane=ends.findIndex(x=>s>=x);
+    /* REV90: bars render inclusive of their end day — a lane frees the day AFTER its
+       last bar ends, so same-day start/end must not share a lane (they'd overlap). */
+    let lane=ends.findIndex(x=>s>x);
     if(lane<0){lane=ends.length;ends.push(e);}else ends[lane]=e;
     map.set(t.id,lane);
   }
@@ -2551,25 +2589,29 @@ function buildRows(){
   const rows=[];
   if(LENS==='project'){
     const projs=currentProjOrder().filter(p=>SHOW_STATUS.has(projectStatus(p))&&projHasPerson(p));
-    let lastKey=null;
-    for(const p of projs){
-      if(GROUP_BY){
-        const k=groupKeyOf(p);
-        if(k!==lastKey){
-          lastKey=k;
-          rows.push({kind:'groupHead',key:'G'+GROUP_BY+k,groupKey:k,
-            label:groupLabelOf(k),
-            count:projs.filter(x=>groupKeyOf(x)===k).length,
-            st:GROUP_BY==='status'?k:null});
-        }
-        if(grpSet().has(k))continue; /* B5: collapsed group — header stays, rows drop */
-      }
+    const pushProj=p=>{
       rows.push({kind:'projHead',key:'P'+p.id,projectId:p.id,lanes:1});
       if(EXPANDED.has(p.id))
         /* Project Management spans the whole job, so a bar for it says nothing the summary
            row doesn't already. It stays out of this lens and lives in the Departments lens. */
         for(const t of tasksOf(p.id).filter(t=>t.department!=='pm'&&personHit(t)))
           rows.push({kind:'projTask',key:'T'+t.id,projectId:p.id,taskId:t.id,dept:t.department,lanes:1});
+    };
+    if(GROUP_BY){
+      /* REV90: cluster by key (first-seen order) instead of emitting a header on every
+         key CHANGE — a new project slotted by deadline into another group's block used
+         to produce duplicate headers, each claiming the group's full count. */
+      const keys=[],byKey=new Map();
+      for(const p of projs){const k=groupKeyOf(p);if(!byKey.has(k)){byKey.set(k,[]);keys.push(k);}byKey.get(k).push(p);}
+      for(const k of keys){
+        rows.push({kind:'groupHead',key:'G'+GROUP_BY+k,groupKey:k,
+          label:groupLabelOf(k),count:byKey.get(k).length,
+          st:GROUP_BY==='status'?k:null});
+        if(grpSet().has(k))continue; /* B5: collapsed group — header stays, rows drop */
+        for(const p of byKey.get(k))pushProj(p);
+      }
+    }else{
+      for(const p of projs)pushProj(p);
     }
   } else {
     for(const sec of SECTIONS){
@@ -2832,11 +2874,15 @@ function renderGantt(){
       rd.addEventListener('click',ev=>{
         if(SUPPRESS_CLICK||ev.target!==rd)return;
         const cx=ev.clientX-canvas.getBoundingClientRect().left;
+        /* REV90: same half-cell offset as the hover guide below — clicking the right
+           half of a day used to pre-fill the modal with the NEXT day while the hover
+           tag showed this one. */
+        const cd=x2d(cx-DW_/2);
         if(r.kind==='projTask'){
           const t=taskById(r.taskId);
-          openTaskModal(null,{projectId:r.projectId,department:t.department,assignee:t.assignee,start:x2d(cx)});
+          openTaskModal(null,{projectId:r.projectId,department:t.department,assignee:t.assignee,start:cd});
         }else{
-          openTaskModal(null,{department:r.dept,assignee:r.assignee,start:x2d(cx)});
+          openTaskModal(null,{department:r.dept,assignee:r.assignee,start:cd});
         }
       });
     }
@@ -2966,7 +3012,7 @@ function buildHeaderInto(hdr,DW_){
     while(cur<=TL_E){
       const dc=document.createElement('div');dc.className='hdr-d-cell';
       dc.style.left=d2x(cur)+'px';dc.style.width=DW_+'px';
-      dc.style.background=dayBg(cur.getMonth(),isoWeek(cur)%2);
+      dc.style.background=dayBg(cur.getMonth(),wkPar(cur));
       /* 2-Day cells are too narrow for a number each — Mondays only (§7) */
       if(VIEW==='days'||cur.getDay()===1)dc.textContent=cur.getDate();
       if(cur.getTime()===td.getTime())dc.classList.add('is-today');
@@ -2978,7 +3024,7 @@ function buildHeaderInto(hdr,DW_){
     while(cur<=TL_E){
       const dc=document.createElement('div');dc.className='hdr-d-cell';
       dc.style.left=d2x(cur)+'px';dc.style.width=(7*DW_)+'px';
-      dc.style.background=dayBg(cur.getMonth(),isoWeek(cur)%2);
+      dc.style.background=dayBg(cur.getMonth(),wkPar(cur));
       /* Month step: the month row alone labels time — no day numbers (§7) */
       if(VIEW==='weeks')dc.textContent=cur.getDate()+' '+cur.toLocaleString('default',{month:'short'});
       dRow.appendChild(dc);cur=addDays(cur,7);
@@ -2993,7 +3039,7 @@ function buildCanvasBgInto(canvas,totalW,DW_){
     const x=Math.max(0,d2x(wk)),ex=Math.min(totalW,d2x(wk)+7*DW_);
     if(ex>x){const bg=document.createElement('div');bg.className='bg-col';
       bg.style.left=x+'px';bg.style.width=(ex-x)+'px';bg.style.height=TOTAL_H+'px';
-      bg.style.background=dayBg(wk.getMonth(),isoWeek(wk)%2);bgFrag.appendChild(bg);}
+      bg.style.background=dayBg(wk.getMonth(),wkPar(wk));bgFrag.appendChild(bg);}
     wk=addDays(wk,7);
   }
   /* Quiet canvas: months separate with a hairline, not a colour band. */
@@ -3886,7 +3932,9 @@ let PP_QUIET=false;
 function parseHash(){
   const h=String(location.hash||'').replace(/^#\/?/,'');
   if(h.indexOf('project/')===0){
-    const id=decodeURIComponent(h.slice(8));
+    /* REV90: a malformed hand-typed hash (#/project/%zz) must not throw out of the
+       hashchange handler — fall back to the raw string, which simply won't match. */
+    let id;try{id=decodeURIComponent(h.slice(8));}catch(e){id=h.slice(8);}
     if(id==='new')return{view:'project',id:null,creating:true};
     return{view:'project',id:id,creating:false};
   }
@@ -3929,9 +3977,11 @@ function applyRoute(){
   }
 }
 window.addEventListener('hashchange',applyRoute);
-/* N2: refresh/close with a dirty draft gets the browser's native are-you-sure. */
+/* N2: refresh/close with a dirty draft gets the browser's native are-you-sure.
+   REV90: same warning while a save is in flight or failed — the optimistic UI already
+   said "done", so closing the tab would lose the change silently. */
 window.addEventListener('beforeunload',ev=>{
-  if(ppDraftDirty()){ev.preventDefault();ev.returnValue='';}
+  if(ppDraftDirty()||SYNCING||PENDING_SYNC){ev.preventDefault();ev.returnValue='';}
 });
 
 function ppProject(){
@@ -4043,7 +4093,7 @@ function renderProjectPage(){
       status column's existing 'complete' value is the whole feature — the late
       reads and the grey treatment already key off it in both apps. */
    + (isNew?'':'<button class="btn" id="pp-complete"></button>')
-   + (isNew?'':'<button class="btn btn-danger" id="pp-del" title="Delete this project and everything on it">Delete project</button>')
+   + (isNew?'':'<button class="btn btn-del" id="pp-del" title="Delete this project and everything on it">Delete project</button>')
    + '<button class="btn btn-ghost" id="pp-cancel" title="'+(isNew?'Leave without creating the project':'Go back to the timeline — changes are already saved')+'">'+(isNew?'Cancel':'Done')+'</button>'
    + (isNew?'<button class="btn btn-primary" id="pp-save" title="Create the project with the schedule shown">Create project</button>':'')
    + '</div></div></div></div>';
@@ -4656,6 +4706,10 @@ function ppBindInspector(p,sel){
     for(const r of PP_ROLES)
       fillRoleChecks(r[0],STAFF[r[2]]||[],(ROUTE.creating&&PP_FORM?PP_FORM[r[3]]:p[r[3]])||'');
     insDeptList(ROUTE.creating?null:p,'pp-depts');
+    /* REV90: bind once per page build — #pp-insp persists across ppInspector() repaints
+       (only its innerHTML is replaced), so re-adding stacked N delegated listeners and
+       one checkbox change committed N times, flooding the undo stack. */
+    if(!box.dataset.bound){box.dataset.bound='1';
     box.addEventListener('change',ev=>{
       const t=ev.target;
       if(!t||!t.closest)return;
@@ -4689,6 +4743,7 @@ function ppBindInspector(p,sel){
         ppCommitDepts();npvRebuild();ppInspector();
       }
     });
+    }
   }
 
   box.querySelectorAll('[data-ag]').forEach(b=>b.addEventListener('click',()=>{
@@ -5514,7 +5569,7 @@ function npvRender(){
   let cur=new Date(lo);
   while(cur<=hi){
     ax+='<div class="'+(TINT?'npv-tintcol':'npv-qcol')+'" style="left:'+x(cur)+'px;width:'+dwv+'px;background:'
-      +dayBg(cur.getMonth(),isoWeek(cur)%2)+'"></div>';
+      +dayBg(cur.getMonth(),wkPar(cur))+'"></div>';
     if(!TINT&&cur.getDate()===1&&cur.getTime()!==lo.getTime())
       ax+='<div class="mon-line" style="left:'+x(cur)+'px"></div>';
     if(!isWorking(cur))ax+='<div class="npv-we" style="left:'+x(cur)+'px;width:'+dwv+'px"></div>';
@@ -6872,6 +6927,7 @@ document.addEventListener('keydown',ev=>{
     if(tks&&!tks.classList.contains('hidden')){tks.classList.add('hidden');ev.preventDefault();return;}
     closeTaskModal();
     document.getElementById('staff-overlay').classList.add('hidden');
+    document.getElementById('clients-overlay').classList.add('hidden');
     document.getElementById('print-overlay').classList.add('hidden');
     document.getElementById('meet-overlay').classList.add('hidden');
     document.getElementById('pmlate-overlay').classList.add('hidden');
@@ -6926,10 +6982,14 @@ document.addEventListener('keydown',ev=>{
           fmtDate(addDays(parseDate(sel.startDate),d)),
           fmtDate(addDays(parseDate(sel.endDate),d)));
       }else{ /* 3.5/I4: the nudge works on drafts — a manual placement, like a drag */
-        NPV_MANUAL[npvKey(sel)]={
+        const mk=npvKey(sel),prevM=NPV_MANUAL[mk];
+        NPV_MANUAL[mk]={
           startDate:fmtDate(addDays(parseDate(sel.startDate),d)),
           endDate:fmtDate(addDays(parseDate(sel.endDate),d)),
           estimatedDays:sel.estimatedDays};
+        /* REV90: a reverser like the drag path pushes — ⌘Z undoes keyboard nudges too */
+        NPV_UNDO.push(()=>{if(prevM===undefined)delete NPV_MANUAL[mk];else NPV_MANUAL[mk]=prevM;npvRebuild();});
+        if(NPV_UNDO.length>20)NPV_UNDO.shift();
       }
       npvRebuild();ppSelect(PP_SEL||k0,true);
       ev.preventDefault();return;
@@ -7378,7 +7438,9 @@ function pmLateList(){
   const me=meName();
   if(!me)return[];
   const td=fmtDate(today());
-  return ST.projects.filter(p=>p.projectManager===me&&p.deadline&&p.deadline<td
+  /* REV90: PM is a comma list ("Stan, Caroline") — match through roleList like every
+     other reader, or multi-PM projects prompt nobody. */
+  return ST.projects.filter(p=>roleList(p.projectManager).includes(me)&&p.deadline&&p.deadline<td
     &&projectStatus(p)!=='complete');
 }
 function pmLatePaint(){
@@ -7687,14 +7749,21 @@ async function boot(){
          ponytail: if Tasks2 is missing AND the sample carries todos, the guard
          below skips and session-local todos drop on poll — Tasks2 exists in
          production; revisit only if that pairing ever occurs. */
+      const gen=ST_GEN;
       const fresh=mergeSample(await spLoad());
+      /* REV90: the guards above were checked BEFORE the fetch — re-check after the
+         await, or an edit/drag started mid-fetch gets overwritten by a pre-edit
+         server snapshot. gen catches a save that completed during the fetch. */
+      if(gen!==ST_GEN||DRAG||PENDING_SYNC||SYNCING)return;
       let dirty=false;
       /* REV46: todos has to be in the comparison. Without it the two strings never
          matched, so every tick replaced ST wholesale and re-rendered — and, with
          ShopTimeline_Tasks2 missing, wiped every session-only task. */
       if(!TODOS_OK&&(ST.todos||[]).length&&!(fresh.todos||[]).length)fresh.todos=ST.todos;
       if(!EVENTS_OK&&(ST.events||[]).length&&!(fresh.events||[]).length)fresh.events=ST.events;
-      if(JSON.stringify(fresh)!==JSON.stringify({projects:ST.projects,tasks:ST.tasks,todos:ST.todos||[],events:ST.events||[]})){ST=fresh;dirty=true;}
+      /* REV90: a remote refresh invalidates every local snapshot — ⌘Z across it would
+         diff against teammates' rows and physically DELETE them from SharePoint. */
+      if(JSON.stringify(fresh)!==JSON.stringify({projects:ST.projects,tasks:ST.tasks,todos:ST.todos||[],events:ST.events||[]})){ST=fresh;dirty=true;UNDO_STACK.length=0;}
       /* Staff changes rarely — poll it every other tick to halve that list's Graph calls. */
       if(STAFF_OK&&POLL_N%2===0){
         const fp=await spLoadStaff();
