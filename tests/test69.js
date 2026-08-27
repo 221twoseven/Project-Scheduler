@@ -90,3 +90,4 @@ setTimeout(()=>{
     },300);
   },300);
 },1500);
+setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},20000);

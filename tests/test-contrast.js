@@ -66,3 +66,4 @@ ok('pill rules were actually found in the CSS',found>=8,found+' found');
 
 console.log('\ncontrast: '+pass+' passed, '+fail+' failed');
 process.exit(fail?1:0);
+setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},20000);

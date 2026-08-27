@@ -118,3 +118,4 @@ setTimeout(()=>{
   console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
   process.exit(fail?1:0);
 },1500);
+setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},20000);
