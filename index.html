@@ -728,7 +728,9 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
 .dash-insp.collapsed{height:auto!important}
 .dash-insp.collapsed #pp-insp,.dash-insp.collapsed #dock-resize{display:none}
 .dash-insp.collapsed .dash-foot{border-top:none}
-#pp-dock-toggle{padding:6px 8px;line-height:0}
+/* margin-left:auto pins the toggle to the footer's far-right margin (its 22px padding),
+   leaving the Shortcuts/Delete/Done cluster where it is. */
+#pp-dock-toggle{margin-left:auto;padding:6px 8px;line-height:0}
 #pp-dock-toggle svg{width:15px;height:15px;display:block;color:#5B6B85;transition:transform .12s}
 #pp-dock-toggle:hover svg{color:var(--acc)}
 .dash-insp.collapsed #pp-dock-toggle svg{transform:rotate(180deg)}
