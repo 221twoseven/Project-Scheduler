@@ -723,6 +723,15 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
 .dash .npv-scroll{flex:1;min-height:0}
 .dash-foot{display:flex;align-items:center;gap:9px;padding:9px 22px;border-top:1px solid #E2E8F0;
   background:var(--paper)}
+/* Collapse the edit form to give the chart the whole window — the footer bar (with the
+   toggle) stays. State is persisted, so it holds across sessions. */
+.dash-insp.collapsed{height:auto!important}
+.dash-insp.collapsed #pp-insp,.dash-insp.collapsed #dock-resize{display:none}
+.dash-insp.collapsed .dash-foot{border-top:none}
+#pp-dock-toggle{padding:6px 8px;line-height:0}
+#pp-dock-toggle svg{width:15px;height:15px;display:block;color:#5B6B85;transition:transform .12s}
+#pp-dock-toggle:hover svg{color:var(--acc)}
+.dash-insp.collapsed #pp-dock-toggle svg{transform:rotate(180deg)}
 
 /* --- inspector --- */
 .ins-hd{display:flex;align-items:center;gap:8px;padding:12px 15px;border-bottom:1px solid #E2E8F0;
@@ -1287,7 +1296,7 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_REV=98; // bump this ONE number on every release; used everywhere the rev shows up
+const APP_REV=99; // bump this ONE number on every release; used everywhere the rev shows up
 
 /* ===================== CONSTANTS ===================== */
 const SET_KEY ='shopTimelineSettings_v1';
@@ -3913,6 +3922,7 @@ function renderProjectPage(){
    + (isNew?'':'<button class="btn btn-del" id="pp-del" title="Delete this project and everything on it">Delete project</button>')
    + '<button class="btn btn-ghost" id="pp-cancel" title="'+(isNew?'Leave without creating the project':'Go back to the timeline — changes are already saved')+'">'+(isNew?'Cancel':'Done')+'</button>'
    + (isNew?'<button class="btn btn-primary" id="pp-save" title="Create the project with the schedule shown">Create project</button>':'')
+   + '<button class="ins-btn" id="pp-dock-toggle" title="Collapse the panel" aria-label="Collapse the panel" aria-expanded="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg></button>'
    + '</div></div></div></div>';
   h+='<div class="ks hidden" id="pp-ks"><div class="ks-in">'
    + '<h3>Keyboard</h3><div class="ks-g">'
@@ -4001,6 +4011,10 @@ function renderProjectPage(){
       const g2=document.getElementById('npv-gutrs');if(g2)g2.classList.remove('on');
     });
   }
+
+  const dtog=document.getElementById('pp-dock-toggle');
+  if(dtog)dtog.addEventListener('click',()=>setDockCollapsed(!DOCK_COLLAPSED));
+  setDockCollapsed(DOCK_COLLAPSED,false); /* apply the persisted state; npvRebuild below paints it */
 
   npvRebuild();
   if(isNew)setTimeout(()=>{const n=document.getElementById('pp-name');if(n)n.focus();},40);
@@ -4642,6 +4656,9 @@ let PP_SEL=null;          /* REV49: selected phase id. Selection drives the insp
 let PP_INSP='project';    /* which pane: 'project' or 'phase' */
 let DOCK_H=280;           /* E1: bottom-dock height, persisted like the sidebar width */
 try{const v=parseInt(localStorage.getItem('shopTimelineDockH'),10);if(v>0)DOCK_H=v;}catch(e){}
+/* Bottom-dock collapse — form hidden, footer stays. Persisted per user across sessions. */
+let DOCK_COLLAPSED=false;
+try{DOCK_COLLAPSED=localStorage.getItem('shopTimelineDockCollapsed')==='1';}catch(e){}
 const NPV_ROWH=34;      /* must match .npv-row height in the stylesheet */
 let NPV_GEO=null;
 let NPV_RAF=null;
@@ -7067,6 +7084,18 @@ function setSideW(w){SIDE_W=Math.max(180,Math.min(480,Math.round(w)));document.g
    listeners live on document and key off the id. */
 function setDockH(h){DOCK_H=Math.max(140,Math.min(Math.round(h),window.innerHeight-220));
   const d=document.getElementById('pp-dock');if(d)d.style.height=DOCK_H+'px';}
+/* Collapse/expand the edit form. The class hides #pp-insp and the resize grip (the footer
+   bar stays), the chart's flex:1 reclaims the space; state persists across sessions. */
+function setDockCollapsed(collapsed,repaint){
+  DOCK_COLLAPSED=!!collapsed;
+  const d=document.getElementById('pp-dock');
+  if(d)d.classList.toggle('collapsed',DOCK_COLLAPSED);
+  const b=document.getElementById('pp-dock-toggle');
+  if(b){b.title=DOCK_COLLAPSED?'Expand the panel':'Collapse the panel';
+    b.setAttribute('aria-label',b.title);b.setAttribute('aria-expanded',String(!DOCK_COLLAPSED));}
+  try{localStorage.setItem('shopTimelineDockCollapsed',DOCK_COLLAPSED?'1':'0');}catch(e){}
+  if(repaint!==false)npvRender(); /* the chart grew/shrank — recompute its geometry */
+}
 (function(){
   let rs=null;
   document.addEventListener('mousedown',ev=>{
