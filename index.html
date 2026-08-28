@@ -1304,7 +1304,7 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_REV=100; // bump this ONE number on every release; used everywhere the rev shows up
+const APP_REV=101; // bump this ONE number on every release; used everywhere the rev shows up
 
 /* ===================== CONSTANTS ===================== */
 const SET_KEY ='shopTimelineSettings_v1';
@@ -3817,6 +3817,10 @@ function applyRoute(){
     ROUTE={view:'timeline',id:null,creating:false};
     pg.classList.add('hidden');pg.innerHTML='';mn.classList.remove('hidden');
     render();
+    /* Arriving at the timeline — first load, or back from a project via Done / the
+       breadcrumb / Back — parks today left-of-center, the same default view as startup,
+       rather than the far-left earliest date the fresh render lands on. */
+    setTimeout(scrollTodayLeft,80);
   }
 }
 window.addEventListener('hashchange',applyRoute);
@@ -7720,8 +7724,7 @@ async function boot(){
 (async()=>{
   await boot();
   EXPANDED=new Set();   /* open collapsed — one tidy row per job */
-  applyRoute();
-  setTimeout(scrollTodayLeft,80);
+  applyRoute();   /* parks today itself when it lands on the timeline */
   /* REV74 (N14): a browser that has never seen the tour gets it once, after sign-in
      has settled and the first render is on screen. Help replays it any time. */
   let coachSeen='1';try{coachSeen=localStorage.getItem(COACH_KEY);}catch(e){}

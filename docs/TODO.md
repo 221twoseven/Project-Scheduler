@@ -668,8 +668,9 @@ own "only if it proves needed" gates.
 project-page resize/move (T4); sidebar names >~26 chars truncate at default width (T5);
 off-screen edge chips don't dim with the search filter (T6); bottom-dock column minimum
 widths are fixed (U2/E1); In-Design and In-Fabrication bars both full-strength on purpose,
-the pill word separates them (U8); startup parks today left-of-center so the first look
-reads forward into upcoming work — only the Today button and `T` center (B3b, REV76).
+the pill word separates them (U8); the default view parks today left-of-center so the look
+reads forward into upcoming work — on first load and on every arrival at the timeline via
+routing (Done/breadcrumb/Back, REV101) — while only the Today button and `T` center (B3b, REV76).
 
 ## 8. Documentation upkeep
 
