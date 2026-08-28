@@ -101,11 +101,11 @@ function stage2(){
   ok('the browser menu is suppressed', ev.defaultPrevented);
   ok('a menu opened on the band', !!menu());
   /* N11 (REV57): the bar menu is add-only — rename/duplicate/delete live in the
-     inspector — and right-click never changes the selection. */
+     inspector/popover — and right-click never changes the selection. */
   ok('it offers only add-new actions (N11)',
      !!byAct('sub')&&!!byAct('ev')&&!!byAct('tk')&&!byAct('ren')&&!byAct('del'),
      items().join(' | '));
-  ok('it carries the inline name field', !!menu().querySelector('.mn'));
+  ok('the menu no longer carries an inline name field', !menu().querySelector('.mn'));
   ok('right-clicking a band does not change the selection', E('PP_SEL')===null);
 
   sec('creating a subtask from the band menu seeds the phase\'s date');

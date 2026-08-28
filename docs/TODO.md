@@ -652,6 +652,17 @@ own "only if it proves needed" gates.
       the serialization is deliberate; dropping them is a schema decision (§5
       approval rule). (2026-08-27)
 
+**Edit-in-place popover (REV98,** `docs/Milestones/Edit-Popover/2026-08-27-edit-in-place-popover.md`**):**
+
+- [ ] The popover carries the data fields + Delete only; **Duplicate and Pin stay
+      inspector-only** to keep it compact. Gate: shop use asking for them on the
+      popover. (2026-08-27)
+- [ ] A background poll that lands while the popover (or an add menu) is open is
+      **deferred until it closes** — same as the pre-existing menu case — so a very
+      long edit session won't see a teammate's change until dismissed; the dock still
+      shows it on the next interaction. Gate: a real "why didn't I see their edit"
+      report. (2026-08-27)
+
 **Deliberate design ceilings — no action planned, revisit only on real complaints:**
 12-slot palette repeats at 13+ visible projects (T2); quiet re-selection after a committed
 project-page resize/move (T4); sidebar names >~26 chars truncate at default width (T5);

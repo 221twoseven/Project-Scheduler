@@ -879,6 +879,25 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
 .npv-menu .mi.tk{background:#fff;border:2px solid #3B7FD6;border-radius:50%;box-sizing:border-box}
 .npv-menu .mi.dp{background:#CBD6E4}
 .npv-menu .none{padding:9px;font-size:11px;color:#B4C0D0;font-style:italic;text-align:center}
+/* Edit-in-place popover — left-click any item, or right-click → New X. Reuses the
+   inspector's field classes (.ins-f/.ins-row3/.crew-list/.ins-btn) so the two editors
+   read identically; only the frame and the vertical body are its own. */
+/* Above the top toolbar (z-100): a tall popover anchored near the top of the viewport
+   clamps upward, and its own header/close must not slide behind the toolbar. Still below
+   modal overlays (200), the tooltip (999) and toasts (1000). */
+.npv-pop{position:fixed;z-index:120;width:274px;max-height:82vh;overflow-y:auto;background:#fff;
+  border:1px solid #CBD6E4;border-radius:10px;box-shadow:0 12px 34px -8px rgba(15,23,42,.34);
+  font-family:inherit}
+.npv-pop .ins-hd{position:sticky;top:0;z-index:1;border-radius:10px 10px 0 0}
+.npv-pop .pop-body{padding:12px 14px}
+.npv-pop .ins-f{margin-bottom:9px}
+.npv-pop .ins-acts{margin-top:4px}
+.npv-pop .dot.ev{background:#F7C948;border:2px solid #16202E;box-sizing:border-box;
+  transform:rotate(45deg);border-radius:1px;width:9px;height:9px}
+.npv-pop .dot.tk{background:#fff;border:2px solid #3B7FD6;border-radius:50%;box-sizing:border-box}
+/* Explorer-style rename box that replaces a title on double-click. */
+.npv-rename{width:100%;box-sizing:border-box;font:inherit;color:#1E293B;border:1px solid var(--acc);
+  border-radius:4px;padding:0 4px;outline:none;background:#fff}
 .npv-body{cursor:default}
 
 /* ============ REV47: SUBTASKS ============ */
@@ -1263,7 +1282,7 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_REV=97; // bump this ONE number on every release; used everywhere the rev shows up
+const APP_REV=98; // bump this ONE number on every release; used everywhere the rev shows up
 
 /* ===================== CONSTANTS ===================== */
 const SET_KEY ='shopTimelineSettings_v1';
@@ -4120,6 +4139,9 @@ function ppSelect(id,quiet){
   if(NPV_MODE==='calendar')npvRender();
   ppInspector();
   ppPaintCrumb();
+  /* An open phase popover tracks the selection: repaint it on the new target, or close
+     it when the selection clears. (Checkpoint/task popovers own their own refresh.) */
+  if(NPV_POP&&NPV_POP.kind==='phase'){if(ppSelected())npvPopRender();else npvPopClose();}
   if(!quiet&&PP_SEL){
     const nm=document.getElementById('ins-name');
     if(nm&&!nm.value)nm.focus();
@@ -4392,30 +4414,10 @@ function ppBindInspector(p,sel){
     /* 3.5 convergence: one binding layer, two backends. Saved fields commit to ST;
        draft fields commit to the durable draft stores (lines + manual placements),
        exactly the way the retired popover did. */
+    /* One commit path shared with the in-place popover (ppCommitPhaseField), so a field
+       edited in either surface reads back the same in both. */
     box.querySelectorAll('[data-f]').forEach(i=>i.addEventListener('change',()=>{
-      const f=i.dataset.f;
-      /* the rebuild inside the commit can drop PP_SEL when the bar is a hidden
-         (collapsed) child — re-select by the key captured up front, like the
-         pre-3.5 code re-selected by id */
-      const k0=PP_SEL;
-      if(f==='department'){if(NPV_LIVE)ppMovePhase(sel.id,i.value);return;}
-      if(f==='label'){ppPopName(sel,i.value.trim());}
-      else if(f==='startDate'){ppPopDate(sel,'s',i.value);}
-      else if(f==='endDate'){ppPopDate(sel,'e',i.value);}
-      else if(f==='estimatedDays'){
-        const n=Math.max(1,parseInt(i.value,10)||1);
-        if(NPV_LIVE)commitPhase(sel.id,'estimatedDays',n);
-        /* draft: same semantics as dragging the right edge — a manual placement */
-        else NPV_MANUAL[npvKey(sel)]={startDate:sel.startDate,
-          endDate:fmtDate(fwdN(parseDate(sel.startDate),n)),estimatedDays:n};
-        npvRebuild();
-      }
-      else if(f==='notes'){
-        if(NPV_LIVE)commitPhase(sel.id,'notes',i.value);
-        else ppDraftLineFor(sel).notes=i.value;
-        npvRebuild();
-      }
-      ppSelect(PP_SEL||k0,true);
+      ppCommitPhaseField(sel,i.dataset.f,i.value);
     }));
     const g=(id,fn)=>{const b=document.getElementById(id);if(b)b.addEventListener('click',fn);};
     g('ins-dup',()=>npvDuplicatePhase(sel)); /* N11: moved here from the bar menu */
@@ -4435,17 +4437,8 @@ function ppBindInspector(p,sel){
        (the old popover dropped the placement here — a bar crewed after a drag
        snapped back to the scheduler dates). */
     const cw=document.getElementById('ins-crew');
-    if(cw)cw.addEventListener('change',()=>{
-      const k0=PP_SEL;
-      const names=[...cw.querySelectorAll('input:checked')].map(i=>i.value);
-      if(NPV_LIVE)commitPhase(sel.id,'assignee',names.join(', '));
-      else{
-        const m=NPV_MANUAL[npvKey(sel)];
-        const l=ppDraftLineFor(sel);l.who=names.join(', ');
-        if(m){delete NPV_MANUAL[npvKey(sel)];NPV_MANUAL[npvKey({...sel,assignee:l.who})]=m;}
-      }
-      npvRebuild();ppSelect(PP_SEL||k0,true);
-    });
+    if(cw)cw.addEventListener('change',()=>ppCommitCrew(sel,
+      [...cw.querySelectorAll('input:checked')].map(i=>i.value)));
   }else{
     ['pp-name','pp-client','pp-code','pp-deadline','pp-status'].forEach(id=>{
       const el=document.getElementById(id);
@@ -4531,12 +4524,6 @@ function ppBindInspector(p,sel){
       });
     });
   });
-}
-
-/* Clicking a chart marker lands the cursor in its agenda row — the row IS the editor. */
-function ppFocusAgenda(id){
-  const i=document.querySelector('.ag-i[data-ag-id="'+id+'"] .nm');
-  if(i){i.focus();i.select();}
 }
 
 function ppMovePhase(id,dept){
@@ -4879,36 +4866,27 @@ function npvSpareDepts(){
 /* REV49 — menus for a specific thing. Verb first, likeliest at the top, destructive at
    the bottom, and every item shows its key so the menu teaches the keyboard. */
 function npvMenuShell(clientX,clientY,title,html,bind){
-  npvCloseMenu(); /* N11: only one menu at a time */
+  npvCloseMenu(); /* only one menu at a time */
   const el=document.createElement('div');
   el.className='npv-menu';el.id='npv-menu';
-  /* N11: every add menu carries an inline name field — type the name, Enter files it
-     under the first action; clicking any action uses it too. No second dialog. */
-  el.innerHTML='<div class="mh">'+title+'</div>'
-    +'<input class="mn" placeholder="Name (optional)" autocomplete="off" spellcheck="false">'
-    +html;
+  /* The menu is add-only: pick an action and its editor opens on the fresh item, where
+     the name is typed. (The old inline "Name" field lived here — it was overwritten by
+     the next menu press; the popover replaced it.) */
+  el.innerHTML='<div class="mh">'+title+'</div>'+html;
   const rows=(html.match(/<button/g)||[]).length;
-  const H=Math.min(374,78+rows*34), W=232;
+  const H=Math.min(374,52+rows*34), W=232;
   const vw=window.innerWidth||1200, vh=window.innerHeight||800;
   el.style.left=Math.round(Math.max(8,Math.min(clientX,vw-W-8)))+'px';
   el.style.top=Math.round(clientY+H>vh-8?Math.max(8,clientY-H):clientY)+'px';
   document.body.appendChild(el);
   el.addEventListener('mousedown',e=>e.stopPropagation());
   el.addEventListener('contextmenu',e=>{e.preventDefault();e.stopPropagation();});
-  const nameOf=()=>{const i=el.querySelector('.mn');return i?i.value.trim():'';};
   el.querySelectorAll('button').forEach(b=>b.addEventListener('click',e=>{
     e.preventDefault();e.stopPropagation();
-    const act=b.dataset.act,nm=nameOf();
+    const act=b.dataset.act;
     npvCloseMenu();
-    bind(act,b,nm);
+    bind(act,b);
   }));
-  const mn=el.querySelector('.mn');
-  if(mn)mn.addEventListener('keydown',e=>{
-    if(e.key!=='Enter')return;
-    e.preventDefault();
-    const first=el.querySelector('button[data-act]');
-    if(first)first.click();
-  });
   return el;
 }
 /* N11: right-click only adds. Rename, duplicate and delete live in the inspector
@@ -4920,10 +4898,8 @@ function npvBarMenu(x,y,t){
         +   'New subtask<span class="k">S</span></button>'
         + '<button data-act="ev"><span class="mi ev"></span>New checkpoint<span class="k">E</span></button>'
         + '<button data-act="tk"><span class="mi tk"></span>New task<span class="k">T</span></button>';
-  return npvMenuShell(x,y,esc(phaseLabel(t))+' &middot; '+esc(d.name||t.department),h,(act,b,nm)=>{
-    if(act==='sub')npvCreateSubtask(t.department,t.startDate,false,nm);
-    else if(act==='ev')npvCreateEvent(t.department,t.startDate,nm);
-    else if(act==='tk')npvCreateTask(t.department,t.startDate,nm);
+  return npvMenuShell(x,y,esc(phaseLabel(t))+' &middot; '+esc(d.name||t.department),h,(act)=>{
+    npvAddThenEdit(act,t.department,t.startDate,x,y);
   });
 }
 function npvDeptMenu(x,y,dept,hit){
@@ -4941,12 +4917,10 @@ function npvDeptMenu(x,y,dept,hit){
    + '<button data-act="tk"><span class="mi tk"></span>New task<span class="k">T</span></button>';
   /* N11: "Remove from job" left with the other destructive actions — untick the
      department in the inspector checklist instead. */
-  return npvMenuShell(x,y,esc(d.name||dept)+' &middot; '+kids.length+' bar'+(kids.length===1?'':'s'),h,(act,b,nm)=>{
+  return npvMenuShell(x,y,esc(d.name||dept)+' &middot; '+kids.length+' bar'+(kids.length===1?'':'s'),h,(act)=>{
     const day=(hit&&hit.date)||(kids[0]&&kids[0].startDate)||'';
     if(act==='tog')npvToggleDept(dept);
-    else if(act==='sub')npvCreateSubtask(dept,day,false,nm);
-    else if(act==='ev')npvCreateEvent(dept,day,nm);
-    else if(act==='tk')npvCreateTask(dept,day,nm);
+    else npvAddThenEdit(act,dept,day,x,y);
   });
 }
 function npvDuplicatePhase(t){
@@ -5008,35 +4982,23 @@ function npvOpenMenu(clientX,clientY,hit,page){
      + '<div class="sep"></div>'
      + '<button data-act="depts"><span class="mi dp"></span>Add a phase<span class="k">&rsaquo;</span></button>';
   }
-  /* N11: the inline name field — Enter files the typed name under the first action. */
-  h=h.replace('</div>','</div><input class="mn" placeholder="Name (optional)" autocomplete="off" spellcheck="false">');
   el.innerHTML=h;
-  const W=224,H=Math.min(354,78+el.innerHTML.split('<button').length*34);
+  const W=224,H=Math.min(354,52+el.innerHTML.split('<button').length*34);
   const vw=window.innerWidth||1200, vh=window.innerHeight||800;
   el.style.left=Math.round(Math.max(8,Math.min(clientX,vw-W-8)))+'px';
   el.style.top=Math.round(clientY+H>vh-8?Math.max(8,clientY-H):clientY)+'px';
   document.body.appendChild(el);
   el.addEventListener('mousedown',e=>e.stopPropagation());
   el.addEventListener('contextmenu',e=>{e.preventDefault();e.stopPropagation();});
-  const nameOf=()=>{const i=el.querySelector('.mn');return i?i.value.trim():'';};
   el.querySelectorAll('button').forEach(b=>b.addEventListener('click',e=>{
     e.preventDefault();e.stopPropagation();
-    const act=b.dataset.act,nm=nameOf();
+    const act=b.dataset.act;
     if(act==='depts'){npvOpenMenu(clientX,clientY,hit,'depts');return;}
     npvCloseMenu();
     if(act==='tog')npvToggleDept(dept);
-    else if(act==='sub')npvCreateSubtask(dept,hit.date,false,nm);
-    else if(act==='dept')npvCreateSubtask(b.dataset.dept,hit.date,true,nm);
-    else if(act==='ev')npvCreateEvent(dept,hit.date,nm);
-    else if(act==='tk')npvCreateTask(dept,hit.date,nm);
+    else if(act==='dept')npvAddThenEdit('dept',b.dataset.dept,hit.date,clientX,clientY);
+    else npvAddThenEdit(act,dept,hit.date,clientX,clientY);
   }));
-  const mn=el.querySelector('.mn');
-  if(mn)mn.addEventListener('keydown',e=>{
-    if(e.key!=='Enter')return;
-    e.preventDefault();
-    const first=el.querySelector('button[data-act]');
-    if(first)first.click();
-  });
   return el;
 }
 /* A new bar starts on the day you clicked and runs as long as the rest of that
@@ -5509,8 +5471,25 @@ function npvBindHost(host){
          (ppSelect stores a rebuild-stable key on drafts). */
       if(NPV_MODE==='calendar'&&Math.abs(ev.clientX-dnX)<=4&&Math.abs(ev.clientY-dnY)<=4){
         const band=ev.target&&ev.target.closest?ev.target.closest('.cal-band.ph'):null;
-        if(band){const t=NPV_TASKS[+band.dataset.i];if(t)ppSelect(t.id);return;}
+        if(band){const t=NPV_TASKS[+band.dataset.i];
+          if(t){ppSelect(t.id);npvEditPop('phase',ppSelected(),ev.clientX,ev.clientY);}return;}
       }
+    });
+    /* Double-click a title to rename it in place, like a folder in Explorer. Delegated
+       on the host so it survives every re-render (bands/gutters are rewritten each paint). */
+    host.addEventListener('dblclick',ev=>{
+      const tg=ev.target;if(!tg||!tg.closest)return;
+      /* Double-click is a rename intent; close the popover the paired single-clicks opened
+         (calendar bands select-and-open on click) so the rename box stands alone. */
+      if(NPV_MODE==='calendar'){
+        const band=tg.closest('.cal-band.ph');
+        if(band){ev.preventDefault();npvPopClose();const t=NPV_TASKS[+band.dataset.i];
+          if(t)npvInlineRename(t,band.querySelector('.cal-txt')||band);}
+        return;
+      }
+      const gut=tg.closest('.npv-gut');
+      if(gut){const bar=gut.parentElement&&gut.parentElement.querySelector('.npv-bar');
+        if(bar){ev.preventDefault();npvPopClose();const t=NPV_TASKS[+bar.dataset.i];if(t)npvInlineRename(t,gut);}}
     });
     /* REV71 — calendar drag-to-move. A phase band drags to a new day like a Gantt bar.
        The calendar has no pixel axis to do arithmetic against, so the drag reads dates
@@ -5557,9 +5536,9 @@ function npvBindHost(host){
           host.classList.remove('cal-dragging');mkEl.classList.remove('dragging');
           document.body.style.userSelect='';hideTooltip();
           if(!moved){
-            /* a click: open the agenda and rename it right there, like the Gantt */
+            /* a click: open the in-place editor on this checkpoint/task */
             ppInspector();
-            setTimeout(()=>ppFocusAgenda(id),30);
+            npvEditPop(k,id,x0,y0);
             return;
           }
           if(!days)return;
@@ -5798,17 +5777,22 @@ function npvBindHost(host){
     document.addEventListener('mousedown',ev=>{
       const tg=ev.target;
       if(!tg||!tg.closest)return;
+      /* A press inside the edit popover keeps it; any other press closes it (a press on
+         another bar then reopens it). */
+      if(tg.closest('#npv-pop'))return;
+      npvPopClose();
       /* The chart closes its own layers. This handler runs first, in capture, so
          doing it here too would clear the menu before the chart could see it was
          open — and a click meant to dismiss would open a fresh one. */
       if(tg.closest('#npv-body')||tg.closest('#npv-menu'))return;
       npvCloseMenu();
     },true);
-    /* Same trap as the popover: the menu's inline name field scrolls itself when a
-       typed name outgrows it — that must not dismiss the menu mid-word. */
+    /* Scrolling detaches the menu/popover from its anchor, so it closes — unless the
+       scroll is the layer's own (a long crew list or a menu scrolling its own body). */
     window.addEventListener('scroll',ev=>{
-      if(ev&&ev.target&&ev.target.closest&&ev.target.closest('#npv-menu'))return;
-      npvCloseMenu();
+      const t=ev&&ev.target&&ev.target.closest?ev.target:null;
+      if(t&&t.closest&&(t.closest('#npv-menu')||t.closest('#npv-pop')))return;
+      npvCloseMenu();npvPopClose();
     },true);
     BP_DOC_BOUND=true;
   }
@@ -6270,6 +6254,233 @@ function ppPopDelete(t){
   ppSelect(null,true);npvRebuild();
 }
 
+/* ============ Edit-in-place popover ============
+   One floating editor for all four item types (phase, subtask, checkpoint, task), on
+   both the Gantt and the calendar. It writes through the very same commit helpers the
+   bottom inspector uses, so the two surfaces stay in lockstep — edit in either place and
+   see it in both. A phase target is whatever is selected (PP_SEL); a checkpoint/task
+   target is its id. */
+let NPV_POP=null;
+
+/* Extracted from ppBindInspector so the dock and the popover share ONE commit path. */
+function ppCommitPhaseField(sel,f,value){
+  const k0=PP_SEL;
+  if(f==='department'){if(NPV_LIVE)ppMovePhase(sel.id,value);return;}
+  if(f==='label'){ppPopName(sel,String(value).trim());}
+  else if(f==='startDate'){ppPopDate(sel,'s',value);}
+  else if(f==='endDate'){ppPopDate(sel,'e',value);}
+  else if(f==='estimatedDays'){
+    const n=Math.max(1,parseInt(value,10)||1);
+    if(NPV_LIVE)commitPhase(sel.id,'estimatedDays',n);
+    /* draft: same semantics as dragging the right edge — a manual placement */
+    else NPV_MANUAL[npvKey(sel)]={startDate:sel.startDate,
+      endDate:fmtDate(fwdN(parseDate(sel.startDate),n)),estimatedDays:n};
+    npvRebuild();
+  }
+  else if(f==='notes'){
+    if(NPV_LIVE)commitPhase(sel.id,'notes',value);
+    else ppDraftLineFor(sel).notes=value;
+    npvRebuild();
+  }
+  ppSelect(PP_SEL||k0,true);
+}
+function ppCommitCrew(sel,names){
+  const k0=PP_SEL;
+  if(NPV_LIVE)commitPhase(sel.id,'assignee',names.join(', '));
+  else{
+    const m=NPV_MANUAL[npvKey(sel)];
+    const l=ppDraftLineFor(sel);l.who=names.join(', ');
+    if(m){delete NPV_MANUAL[npvKey(sel)];NPV_MANUAL[npvKey({...sel,assignee:l.who})]=m;}
+  }
+  npvRebuild();ppSelect(PP_SEL||k0,true);
+}
+
+function npvPopClose(){
+  const el=document.getElementById('npv-pop');
+  NPV_POP=null;
+  if(!el)return false;
+  el.remove();return true;
+}
+/* kind: 'phase' edits ppSelected(); 'ev'/'tk' edit the marker whose id===target. */
+function npvEditPop(kind,target,x,y,focusName){
+  if(!target){npvPopClose();return;}
+  npvCloseMenu();
+  NPV_POP={kind,id:(kind==='phase'?null:target),x:x||0,y:y||0,_new:!!focusName};
+  npvPopRender();
+}
+function npvPopPosition(el,x,y){
+  const W=el.offsetWidth||274,H=el.offsetHeight||300;
+  const vw=window.innerWidth||1200,vh=window.innerHeight||800;
+  el.style.left=Math.round(Math.max(8,Math.min(x,vw-W-8)))+'px';
+  el.style.top=Math.round(y+H>vh-8?Math.max(8,y-H):y)+'px';
+}
+function npvPopRender(){
+  if(!NPV_POP)return;
+  let el=document.getElementById('npv-pop');
+  if(!el){
+    el=document.createElement('div');el.id='npv-pop';el.className='npv-pop';
+    document.body.appendChild(el);
+    el.addEventListener('mousedown',e=>e.stopPropagation());
+    el.addEventListener('contextmenu',e=>{e.preventDefault();e.stopPropagation();});
+  }
+  if(NPV_POP.kind==='phase'){
+    const sel=ppSelected();
+    if(!sel){npvPopClose();return;}
+    el.innerHTML=npvPopPhaseHTML(sel);
+    npvPopPosition(el,NPV_POP.x,NPV_POP.y);
+    npvPopBindPhase(el);
+  }else{
+    const it=npvPopMarkFind(NPV_POP.kind,NPV_POP.id);
+    if(!it){npvPopClose();return;}
+    el.innerHTML=npvPopMarkHTML(NPV_POP.kind,it);
+    npvPopPosition(el,NPV_POP.x,NPV_POP.y);
+    npvPopBindMark(el,NPV_POP.kind,NPV_POP.id);
+  }
+  if(NPV_POP._new){
+    NPV_POP._new=false;
+    const n=el.querySelector('[data-f="label"],[data-f="name"],[data-f="title"]');
+    if(n){n.focus();if(n.select)n.select();}
+  }
+}
+function npvPopPhaseHTML(sel){
+  const d=deptById(sel.department)||{};
+  const p=ppProject();
+  let h='<div class="ins-hd"><span class="dot" style="background:'+(DEPT_COLORS[sel.department]||'#8A98AE')+'"></span>'
+   +'<span class="t">'+esc(phaseLabel(sel))+'</span>'
+   +'<button class="x" data-pop-x title="Close (Esc)">&times;</button></div><div class="pop-body">';
+  h+='<div class="ins-f"><label>Name</label><input data-f="label" value="'+esc(sel.label||'')+'" placeholder="'+esc(d.name||sel.department)+'"></div>';
+  h+='<div class="ins-f"><label>Department</label><select data-f="department"'
+   +(NPV_LIVE?'':' disabled title="Until the project is created, departments are chosen in the checklist"')
+   +'>'+deptOptions(sel.department)+'</select></div>';
+  if(!d.freeText){
+    const crew=crewOf(sel);
+    const pool=sel.department==='install'?allPeople():(projTeam(p).length?projTeam(p):allPeople());
+    h+='<div class="ins-f"><label>Crew</label><div class="crew-list ins-crew" data-pop-crew>'
+     +[...new Set([...pool,...crew])].map(n=>'<label><input type="checkbox" value="'+esc(n)+'"'
+       +(crew.indexOf(n)>=0?' checked':'')+'>'+esc(n)+'</label>').join('')
+     +'</div></div>';
+  }
+  h+='<div class="ins-row3">'
+   +'<div class="ins-f"><label>Start</label><input type="date" data-f="startDate" value="'+esc(sel.startDate||'')+'"></div>'
+   +'<div class="ins-f"><label>End</label><input type="date" data-f="endDate" value="'+esc(sel.endDate||'')+'"></div>'
+   +'<div class="ins-f"><label>Days</label><input type="number" min="1" data-f="estimatedDays" value="'+(sel.estimatedDays||1)+'"></div>'
+   +'</div>';
+  h+='<div class="ins-f"><label>Notes</label><textarea rows="2" data-f="notes" placeholder="Anything the shop needs to know">'+esc(sel.notes||'')+'</textarea></div>';
+  h+='<div class="ins-acts"><button class="ins-btn dngr" data-pop-del title="Delete this phase">Delete</button></div>';
+  h+='</div>';
+  return h;
+}
+function npvPopBindPhase(el){
+  el.querySelectorAll('[data-f]').forEach(i=>{
+    i.addEventListener('keydown',e=>{e.stopPropagation();
+      if(e.key==='Escape'){e.preventDefault();npvPopClose();}
+      else if(e.key==='Enter'&&i.tagName!=='TEXTAREA'){e.preventDefault();i.blur();}});
+    i.addEventListener('change',()=>{const cur=ppSelected();if(!cur)return;
+      ppCommitPhaseField(cur,i.dataset.f,i.value);});
+  });
+  const cw=el.querySelector('[data-pop-crew]');
+  if(cw)cw.addEventListener('change',()=>{const cur=ppSelected();if(!cur)return;
+    ppCommitCrew(cur,[...cw.querySelectorAll('input:checked')].map(x=>x.value));});
+  const x=el.querySelector('[data-pop-x]');if(x)x.addEventListener('click',()=>npvPopClose());
+  const del=el.querySelector('[data-pop-del]');if(del)del.addEventListener('click',()=>{
+    const cur=ppSelected();if(!cur)return;npvPopClose();
+    if(NPV_LIVE)ppDeletePhase(cur.id);else ppPopDelete(cur);});
+}
+function npvPopMarkFind(kind,id){
+  if(NPV_LIVE){
+    const p=ppProject();if(!p)return null;
+    const o=(kind==='ev'?liveEvents(p):liveTodos(p)).find(z=>z.id===id);
+    if(!o)return null;
+    return kind==='ev'?{id:o.id,name:o.name||'',date:o.date||'',dept:o.dept||'',notes:o.notes||''}
+                      :{id:o.id,title:o.title||'',due:o.due||'',dept:o.dept||'',who:(o.who||[]).join(', ')};
+  }
+  if(kind==='ev'){const e=NPV_EVENTS.find(z=>z.id===id);
+    return e?{id:e.id,name:e.name||'',date:e.date||'',dept:e.dept||'',notes:e.notes||''}:null;}
+  const t=NPV_TODOS.find(z=>z.id===id);
+  return t?{id:t.id,title:t.title||'',due:t.due||'',dept:t.dept||'',who:(t.who||[]).join(', ')}:null;
+}
+function npvPopMarkHTML(kind,it){
+  const ev=kind==='ev';
+  let h='<div class="ins-hd"><span class="dot '+kind+'"></span>'
+   +'<span class="t">'+esc((ev?it.name:it.title)||(ev?'Checkpoint':'Task'))+'</span>'
+   +'<button class="x" data-pop-x title="Close (Esc)">&times;</button></div><div class="pop-body">';
+  h+='<div class="ins-f"><label>'+(ev?'Date':'Due')+'</label><input type="date" data-f="'+(ev?'date':'due')+'" value="'+esc(ev?it.date:it.due)+'"></div>';
+  h+='<div class="ins-f"><label>Name</label><input data-f="'+(ev?'name':'title')+'" value="'+esc(ev?it.name:it.title)+'"'+(ev?' list="ag-dl" placeholder="Client Approval"':' placeholder="Order acrylic"')+'></div>';
+  h+='<div class="ins-f"><label>Phase</label><select data-f="dept">'+deptOptions(it.dept)+'</select></div>';
+  h+='<div class="ins-f"><label>'+(ev?'Notes':'Who')+'</label><input data-f="'+(ev?'notes':'who')+'" value="'+esc(ev?it.notes:it.who)+'" placeholder="'+(ev?'notes':'who')+'"></div>';
+  h+='<div class="ins-acts"><button class="ins-btn dngr" data-pop-del>Delete</button></div></div>';
+  return h;
+}
+function npvPopBindMark(el,kind,id){
+  const commit=(f,val)=>{
+    if(NPV_LIVE){if(kind==='ev')liveCommitEvent(id,f,val);else liveCommitTodo(id,f,val);}
+    else if(kind==='ev'){const e=NPV_EVENTS.find(z=>z.id===id);if(e)e[f]=val;}
+    else{const t=NPV_TODOS.find(z=>z.id===id);
+      if(t){if(f==='who')t.who=val.split(',').map(x=>x.trim()).filter(Boolean);else t[f]=val;}}
+    npvRebuild();ppInspector();npvPopRender();
+  };
+  el.querySelectorAll('[data-f]').forEach(i=>{
+    i.addEventListener('keydown',e=>{e.stopPropagation();
+      if(e.key==='Escape'){e.preventDefault();npvPopClose();}
+      else if(e.key==='Enter'){e.preventDefault();i.blur();}});
+    i.addEventListener('change',()=>commit(i.dataset.f,i.value));
+  });
+  const x=el.querySelector('[data-pop-x]');if(x)x.addEventListener('click',()=>npvPopClose());
+  const del=el.querySelector('[data-pop-del]');if(del)del.addEventListener('click',()=>{
+    if(!confirm('Delete this '+(kind==='ev'?'checkpoint':'task')+'?'))return;
+    if(NPV_LIVE){if(kind==='ev')liveDeleteEvent(id);else liveDeleteTodo(id);}
+    else{if(kind==='ev')NPV_EVENTS=NPV_EVENTS.filter(z=>z.id!==id);else NPV_TODOS=NPV_TODOS.filter(z=>z.id!==id);}
+    npvPopClose();npvRebuild();ppInspector();
+    toast(kind==='ev'?'Checkpoint deleted':'Task deleted');});
+}
+/* Explorer-style rename: double-click a title, type, Enter/blur commits, Esc cancels. */
+function npvInlineRename(t,hostEl){
+  if(!t||!hostEl||hostEl.querySelector('.npv-rename'))return;
+  const cur=t.label||'';
+  const inp=document.createElement('input');
+  inp.className='npv-rename';inp.value=cur;
+  inp.placeholder=(deptById(t.department)||{}).name||t.department;
+  hostEl.innerHTML='';hostEl.appendChild(inp);
+  inp.focus();inp.select();
+  let done=false;
+  const commit=save=>{
+    if(done)return;done=true;
+    const v=inp.value.trim();
+    if(save&&v!==cur){ppPopName(t,v);ppInspector();if(NPV_POP)npvPopRender();}
+    else npvRender();
+  };
+  inp.addEventListener('keydown',e=>{e.stopPropagation();
+    if(e.key==='Enter'){e.preventDefault();commit(true);}
+    else if(e.key==='Escape'){e.preventDefault();commit(false);}});
+  inp.addEventListener('blur',()=>commit(true));
+  inp.addEventListener('mousedown',e=>e.stopPropagation());
+  inp.addEventListener('dblclick',e=>e.stopPropagation());
+}
+/* Right-click New X: create through the existing paths (undo toast intact), then open
+   the popover on the fresh item with its name selected — "create, then edit". */
+function npvAddThenEdit(kind,dept,date,x,y){
+  if(kind==='sub'||kind==='dept'){
+    npvCreateSubtask(dept,date,kind==='dept');
+    let s=ppSelected();
+    if(!s){const bar=(NPV_ALL||[]).find(z=>z.department===dept);if(bar){ppSelect(bar.id);s=ppSelected();}}
+    if(s)npvEditPop('phase',s,x,y,true);
+  }else{
+    const id=npvCreateMark(kind,dept,date);
+    if(id)npvEditPop(kind,id,x,y,true);
+  }
+}
+/* Create fns don't return the new id, so diff the list to find it. */
+function npvCreateMark(kind,dept,date){
+  const p=ppProject();
+  if(NPV_LIVE&&!p)return null;
+  const list=()=>NPV_LIVE?(kind==='ev'?liveEvents(p):liveTodos(p))
+                         :(kind==='ev'?NPV_EVENTS:NPV_TODOS);
+  const before=new Set(list().map(o=>o.id));
+  if(kind==='ev')npvCreateEvent(dept,date);else npvCreateTask(dept,date);
+  const fresh=list().find(o=>!before.has(o.id));
+  return fresh?fresh.id:null;
+}
+
 function npvBindDrag(){
   const host=document.getElementById('npv-body');
   /* Disclosure triangle. Bound before the bars so a click on it never reaches the
@@ -6289,7 +6500,7 @@ function npvBindDrag(){
       npvBlur();
       const id=mk.dataset.mkId,k=mk.dataset.mkK,d0=mk.dataset.mkDate;
       if(!id)return;
-      const x0=ev.clientX,dwv=NPV_GEO.dw,left0=parseFloat(mk.style.left)||0;
+      const x0=ev.clientX,y0=ev.clientY,dwv=NPV_GEO.dw,left0=parseFloat(mk.style.left)||0;
       const lbl=mk.nextElementSibling&&mk.nextElementSibling.classList.contains('npv-evlbl')
         ?mk.nextElementSibling:null;
       const lbl0=lbl?parseFloat(lbl.style.left)||0:0;
@@ -6305,9 +6516,9 @@ function npvBindDrag(){
         document.removeEventListener('mouseup',up);
         mk.classList.remove('dragging');
         if(!days){
-          /* a click: open the agenda and rename it right there */
+          /* a click: open the in-place editor on this checkpoint/task */
           ppInspector();
-          setTimeout(()=>ppFocusAgenda(id),30);
+          npvEditPop(k,id,x0,y0);
           return;
         }
         const nd=fmtDate(addDays(parseDate(d0),days));
@@ -6414,7 +6625,8 @@ function npvBindDrag(){
              draft the click opens the bar's popover editor, because draft bars aren't in
              ST for the inspector to find. */
           npvRender();
-          ppSelect(t.id); /* 3.5: one click verb on both pages — select into the inspector */
+          ppSelect(t.id); /* select into the bottom inspector */
+          npvEditPop('phase',ppSelected(),e2.clientX,e2.clientY); /* and the in-place editor */
           return;
         }
         /* A real drag that was locked, or rounded back to zero days: reset, no select. */
@@ -6619,6 +6831,7 @@ document.addEventListener('keydown',ev=>{
       const ksx=document.getElementById('pp-ks');
       if(ksx&&!ksx.classList.contains('hidden')){ksx.classList.add('hidden');ev.preventDefault();return;}
       if(npvCloseMenu()){ev.preventDefault();return;}
+      if(npvPopClose()){ev.preventDefault();return;}
       if(typing){ev.target.blur();return;}
       if(PP_SEL){ppSelect(null);ev.preventDefault();return;}
       ev.preventDefault();goTimeline();return;
@@ -7496,6 +7709,7 @@ async function boot(){
     if(DRAG||PENDING_SYNC||SYNCING)return;   /* SYNCING: never read half-committed rows mid-save */
     if(COACH)return;   /* REV74: don't redraw bars under the tour's spotlight */
     if([...document.querySelectorAll('.overlay')].some(o=>!o.classList.contains('hidden')))return;
+    if(document.getElementById('npv-pop')||document.getElementById('npv-menu'))return; /* don't rebuild under an open editor/menu */
     if(document.activeElement&&document.activeElement.closest&&document.activeElement.closest('#page'))return;
     POLL_N++;
     try{
@@ -7509,6 +7723,7 @@ async function boot(){
          await, or an edit/drag started mid-fetch gets overwritten by a pre-edit
          server snapshot. gen catches a save that completed during the fetch. */
       if(gen!==ST_GEN||DRAG||PENDING_SYNC||SYNCING)return;
+      if(document.getElementById('npv-pop')||document.getElementById('npv-menu'))return; /* an editor opened during the fetch */
       let dirty=false;
       /* REV46: todos has to be in the comparison. Without it the two strings never
          matched, so every tick replaced ST wholesale and re-rendered — and, with

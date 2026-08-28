@@ -7,9 +7,10 @@ const src=fs.readFileSync(FILE,'utf8');
 /* REV56: a subtask created inside its parent's window is born named and half the
    parent's length (see test56); older builds borrow the neighbours' average. */
 const R56=src.indexOf('npv-env')>=0;
-/* REV57 / N11: right-click menus are add-only with an inline name field; left-click
-   never opens a create menu and right-click never changes the selection. */
-const N11=/\.npv-menu \.mn/.test(src);
+/* REV57 / N11: right-click menus are add-only; left-click never opens a create menu and
+   right-click never changes the selection. (The old inline name field is retired — a New
+   action now opens the edit popover, sniffed here to gate the new-build branches.) */
+const N11=/npvEditPop/.test(src);
 
 let pass=0,fail=0;
 const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
@@ -129,7 +130,7 @@ function stage2(){
         ok('it offers only add-new actions (N11)',
            !!byAct('sub')&&!!byAct('ev')&&!!byAct('tk')&&!byAct('ren')&&!byAct('del'),
            items().join(' | '));
-        ok('it carries the inline name field', !!menu().querySelector('.mn'));
+        ok('the menu no longer carries an inline name field', !menu().querySelector('.mn'));
         ok('right-clicking a bar does not change the selection', E('PP_SEL')===null);
       }else{
         ok('it offers rename, subtask and delete',

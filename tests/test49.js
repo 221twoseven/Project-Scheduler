@@ -9,8 +9,9 @@ const E1=require('fs').readFileSync(FILE,'utf8').indexOf('pp-dock')>=0;
    the summary-bar assertions only apply to older builds (test56 owns the new model). */
 const SUMBAR=require('fs').readFileSync(FILE,'utf8').indexOf('npv-env')<0;
 /* REV57 / N11: right-click menus are add-only (rename/duplicate/delete live in the
-   inspector) and carry an inline name field. */
-const N11=/\.npv-menu \.mn/.test(require('fs').readFileSync(FILE,'utf8'));
+   inspector). The old inline name field is retired — a left-click now opens an edit
+   popover and a New action opens it on the fresh item; sniffed here to gate that branch. */
+const N11=/npvEditPop/.test(require('fs').readFileSync(FILE,'utf8'));
 
 let pass=0,fail=0;
 const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
@@ -103,8 +104,9 @@ function stage2(){
   bar.dispatchEvent(new win.MouseEvent('mousedown',{bubbles:true,clientX:200,clientY:20,button:0}));
   doc.dispatchEvent(new win.MouseEvent('mouseup',{bubbles:true,clientX:200,clientY:20,button:0}));
   setTimeout(()=>{
-    ok('a click selects rather than opening a popover', E('PP_SEL')!==null, String(E('PP_SEL')));
-    ok('no popover was thrown over the chart', !doc.getElementById('bar-pop'));
+    ok('a click selects the bar', E('PP_SEL')!==null, String(E('PP_SEL')));
+    if(N11)ok('and opens the edit popover on it', !!doc.getElementById('npv-pop'));
+    else ok('no popover was thrown over the chart', !doc.getElementById('bar-pop'));
     ok('the selected bar is ringed', !!q('#npv-body .npv-bar.pick'));
     ok('its row is highlighted', !!q('#npv-body .npv-row.pickrow'));
     ok('the inspector switched to the phase', !!doc.getElementById('ins-name'));
@@ -150,7 +152,7 @@ function stage3(){
     if(N11){
       ok('it offers only add-new (N11)', !!byAct('sub')&&!!byAct('ev')&&!!byAct('tk')
          &&!byAct('ren')&&!byAct('dup')&&!byAct('del'), menu().textContent.slice(0,60));
-      ok('it carries the inline name field', !!menu().querySelector('.mn'));
+      ok('the menu no longer carries an inline name field', !menu().querySelector('.mn'));
     }else{
       ok('it offers rename', !!byAct('ren'));
       ok('it offers add subtask', !!byAct('sub'));

@@ -88,13 +88,15 @@ function stage1(){
 }
 
 function stage2(){
-  sec('a plain click on a marker opens its agenda editor (like the Gantt)');
+  sec('a plain click on a marker opens its edit popover (like the Gantt)');
   clickOn(mkBand('tk1'));
   setTimeout(()=>{
-    const a=doc.activeElement;
-    const row=a&&a.closest?a.closest('.ag-i'):null;
-    ok('focus landed in the task\'s agenda row', !!row&&row.dataset.agId==='tk1',
-       row?row.dataset.agId:String(a&&a.className));
+    const p=doc.getElementById('npv-pop');
+    ok('the edit popover opened', !!p);
+    ok('it is the task editor for this marker',
+       !!(p&&p.querySelector('[data-f="title"]')&&p.querySelector('[data-f="due"]')),
+       p?[...p.querySelectorAll('[data-f]')].map(i=>i.dataset.f).join(','):'no popover');
+    E('npvPopClose();');
     stage3();
   },300);
 }
