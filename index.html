@@ -891,6 +891,11 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
 .npv-pop .ins-hd{position:sticky;top:0;z-index:1;border-radius:10px 10px 0 0}
 .npv-pop .pop-body{padding:12px 14px}
 .npv-pop .ins-f{margin-bottom:9px}
+/* Start/End share one row that spans the full field width (their right edge lines up with
+   Name/Notes); minmax(0,…) lets the native date inputs shrink instead of forcing the row
+   wider than the popover (which cropped the right edge). Days drops to its own line. */
+.npv-pop .pop-dates{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.npv-pop .pop-days input{max-width:96px}
 .npv-pop .ins-acts{margin-top:4px}
 .npv-pop .dot.ev{background:#F7C948;border:2px solid #16202E;box-sizing:border-box;
   transform:rotate(45deg);border-radius:1px;width:9px;height:9px}
@@ -6366,11 +6371,11 @@ function npvPopPhaseHTML(sel){
        +(crew.indexOf(n)>=0?' checked':'')+'>'+esc(n)+'</label>').join('')
      +'</div></div>';
   }
-  h+='<div class="ins-row3">'
+  h+='<div class="ins-row pop-dates">'
    +'<div class="ins-f"><label>Start</label><input type="date" data-f="startDate" value="'+esc(sel.startDate||'')+'"></div>'
    +'<div class="ins-f"><label>End</label><input type="date" data-f="endDate" value="'+esc(sel.endDate||'')+'"></div>'
-   +'<div class="ins-f"><label>Days</label><input type="number" min="1" data-f="estimatedDays" value="'+(sel.estimatedDays||1)+'"></div>'
-   +'</div>';
+   +'</div>'
+   +'<div class="ins-f pop-days"><label>Days</label><input type="number" min="1" data-f="estimatedDays" value="'+(sel.estimatedDays||1)+'"></div>';
   h+='<div class="ins-f"><label>Notes</label><textarea rows="2" data-f="notes" placeholder="Anything the shop needs to know">'+esc(sel.notes||'')+'</textarea></div>';
   h+='<div class="ins-acts"><button class="ins-btn dngr" data-pop-del title="Delete this phase">Delete</button></div>';
   h+='</div>';
