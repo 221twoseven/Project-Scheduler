@@ -123,7 +123,7 @@ function stage2(){
 }
 
 function stage3(){
-  sec('N11 — right-click adds; the New item opens in the edit popover to be named');
+  sec('N11 — right-click is a plain limited add menu (no name field, no editor thrown open)');
   E('ppSelect(null,true);');
   const bar=q('#npv-body .npv-bar');
   rclick(bar);
@@ -138,16 +138,10 @@ function stage3(){
     setTimeout(()=>{
       ok('the New action created a bar', E('ST.tasks.length')===n0+1);
       ok('the menu closed', !menu());
-      ok('the edit popover opened on the new bar', !!pop());
-      const nmf=pop()&&pop().querySelector('[data-f="label"]');
-      ok('the popover offers the name field', !!nmf);
-      nmf.value='Glass order';change(nmf);
-      setTimeout(()=>{
-        ok('naming in the popover writes through',
-           E("(ppSelected()||{}).label")==='Glass order', E("(ppSelected()||{}).label"));
-        E('npvPopClose();ppSelect(null,true);');
-        stage4();
-      },300);
+      ok('the menu just adds — it did not pop the editor open', !pop());
+      ok('the new bar is selected into the inspector', !!doc.getElementById('ins-name'));
+      E('ppSelect(null,true);');
+      stage4();
     },350);
   },300);
 }

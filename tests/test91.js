@@ -104,7 +104,7 @@ function stage2(){
 }
 
 function stage3(){
-  sec('right-click → New checkpoint creates it and opens its popover');
+  sec('right-click → New checkpoint is a plain add (no editor thrown open); a click edits it');
   const ev=rclick(q('#npv-body .npv-bar'));
   ok('the browser menu is suppressed', ev.defaultPrevented);
   setTimeout(()=>{
@@ -114,16 +114,24 @@ function stage3(){
     click(byAct('ev'));
     setTimeout(()=>{
       ok('a checkpoint was created', E('liveEvents(ppProject()).length')===before+1);
-      ok('the checkpoint popover opened', !!pop());
-      const nf=pop()&&pop().querySelector('[data-f="name"]');
-      ok('it has a Name and a Date field', !!nf&&!!(pop().querySelector('[data-f="date"]')));
-      nf.value='Client Approval';change(nf);
+      ok('the menu just adds — no editor popped open', !pop());
+      /* the checkpoint popover is reached by CLICKING the marker, like any item */
+      const mk=q('#npv-body .npv-ev');
+      ok('the checkpoint diamond is drawn on the chart', !!mk);
+      mk.dispatchEvent(new win.MouseEvent('mousedown',{bubbles:true,cancelable:true,clientX:200,clientY:20,button:0}));
+      doc.dispatchEvent(new win.MouseEvent('mouseup',{bubbles:true,cancelable:true,clientX:200,clientY:20,button:0}));
       setTimeout(()=>{
-        ok('naming the checkpoint writes through',
-           E("liveEvents(ppProject()).some(e=>e.name==='Client Approval')"));
-        E('npvPopClose();');
-        stage4();
-      },300);
+        ok('clicking the marker opens the checkpoint popover', !!pop());
+        const nf=pop()&&pop().querySelector('[data-f="name"]');
+        ok('it has a Name and a Date field', !!nf&&!!(pop().querySelector('[data-f="date"]')));
+        nf.value='Client Approval';change(nf);
+        setTimeout(()=>{
+          ok('naming the checkpoint writes through',
+             E("liveEvents(ppProject()).some(e=>e.name==='Client Approval')"));
+          E('npvPopClose();');
+          stage4();
+        },300);
+      },250);
     },300);
   },250);
 }

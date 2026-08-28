@@ -4866,7 +4866,7 @@ function npvSpareDepts(){
 /* REV49 — menus for a specific thing. Verb first, likeliest at the top, destructive at
    the bottom, and every item shows its key so the menu teaches the keyboard. */
 function npvMenuShell(clientX,clientY,title,html,bind){
-  npvCloseMenu(); /* only one menu at a time */
+  npvCloseMenu();npvPopClose(); /* one menu at a time, and never over the edit popover */
   const el=document.createElement('div');
   el.className='npv-menu';el.id='npv-menu';
   /* The menu is add-only: pick an action and its editor opens on the fresh item, where
@@ -4899,7 +4899,9 @@ function npvBarMenu(x,y,t){
         + '<button data-act="ev"><span class="mi ev"></span>New checkpoint<span class="k">E</span></button>'
         + '<button data-act="tk"><span class="mi tk"></span>New task<span class="k">T</span></button>';
   return npvMenuShell(x,y,esc(phaseLabel(t))+' &middot; '+esc(d.name||t.department),h,(act)=>{
-    npvAddThenEdit(act,t.department,t.startDate,x,y);
+    if(act==='sub')npvCreateSubtask(t.department,t.startDate,false);
+    else if(act==='ev')npvCreateEvent(t.department,t.startDate);
+    else if(act==='tk')npvCreateTask(t.department,t.startDate);
   });
 }
 function npvDeptMenu(x,y,dept,hit){
@@ -4920,7 +4922,9 @@ function npvDeptMenu(x,y,dept,hit){
   return npvMenuShell(x,y,esc(d.name||dept)+' &middot; '+kids.length+' bar'+(kids.length===1?'':'s'),h,(act)=>{
     const day=(hit&&hit.date)||(kids[0]&&kids[0].startDate)||'';
     if(act==='tog')npvToggleDept(dept);
-    else npvAddThenEdit(act,dept,day,x,y);
+    else if(act==='sub')npvCreateSubtask(dept,day,false);
+    else if(act==='ev')npvCreateEvent(dept,day);
+    else if(act==='tk')npvCreateTask(dept,day);
   });
 }
 function npvDuplicatePhase(t){
@@ -4951,7 +4955,7 @@ function npvDuplicatePhase(t){
 }
 
 function npvOpenMenu(clientX,clientY,hit,page){
-  npvCloseMenu();
+  npvCloseMenu();npvPopClose();
   const dept=hit.row?hit.row.dept:'';
   const dn=dept?((deptById(dept)||{}).name||dept):'';
   const el=document.createElement('div');
@@ -4996,8 +5000,10 @@ function npvOpenMenu(clientX,clientY,hit,page){
     if(act==='depts'){npvOpenMenu(clientX,clientY,hit,'depts');return;}
     npvCloseMenu();
     if(act==='tog')npvToggleDept(dept);
-    else if(act==='dept')npvAddThenEdit('dept',b.dataset.dept,hit.date,clientX,clientY);
-    else npvAddThenEdit(act,dept,hit.date,clientX,clientY);
+    else if(act==='sub')npvCreateSubtask(dept,hit.date,false);
+    else if(act==='dept')npvCreateSubtask(b.dataset.dept,hit.date,true);
+    else if(act==='ev')npvCreateEvent(dept,hit.date);
+    else if(act==='tk')npvCreateTask(dept,hit.date);
   }));
   return el;
 }
@@ -6456,31 +6462,6 @@ function npvInlineRename(t,hostEl){
   inp.addEventListener('mousedown',e=>e.stopPropagation());
   inp.addEventListener('dblclick',e=>e.stopPropagation());
 }
-/* Right-click New X: create through the existing paths (undo toast intact), then open
-   the popover on the fresh item with its name selected — "create, then edit". */
-function npvAddThenEdit(kind,dept,date,x,y){
-  if(kind==='sub'||kind==='dept'){
-    npvCreateSubtask(dept,date,kind==='dept');
-    let s=ppSelected();
-    if(!s){const bar=(NPV_ALL||[]).find(z=>z.department===dept);if(bar){ppSelect(bar.id);s=ppSelected();}}
-    if(s)npvEditPop('phase',s,x,y,true);
-  }else{
-    const id=npvCreateMark(kind,dept,date);
-    if(id)npvEditPop(kind,id,x,y,true);
-  }
-}
-/* Create fns don't return the new id, so diff the list to find it. */
-function npvCreateMark(kind,dept,date){
-  const p=ppProject();
-  if(NPV_LIVE&&!p)return null;
-  const list=()=>NPV_LIVE?(kind==='ev'?liveEvents(p):liveTodos(p))
-                         :(kind==='ev'?NPV_EVENTS:NPV_TODOS);
-  const before=new Set(list().map(o=>o.id));
-  if(kind==='ev')npvCreateEvent(dept,date);else npvCreateTask(dept,date);
-  const fresh=list().find(o=>!before.has(o.id));
-  return fresh?fresh.id:null;
-}
-
 function npvBindDrag(){
   const host=document.getElementById('npv-body');
   /* Disclosure triangle. Bound before the bars so a click on it never reaches the

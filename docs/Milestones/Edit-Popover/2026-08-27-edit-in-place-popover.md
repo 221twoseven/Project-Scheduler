@@ -19,9 +19,11 @@ you're working, on both the Gantt and the Calendar.
 - **Double-click a phase/subtask title** (the Gantt gutter name, or a calendar phase band)
   **renames it in place**, like renaming a folder in Explorer — Enter or click-away commits,
   Esc cancels.
-- **Right-click → New subtask / checkpoint / task** now creates the item immediately (the
-  Undo toast is preserved) and **opens the popover on it** with the name pre-selected —
-  "create, then edit". The broken inline **Name** field is gone from the right-click menu.
+- **Right-click → New subtask / checkpoint / task** stays the plain limited add menu it
+  always was (Undo toast preserved), just **without the broken inline Name field** — a
+  quick-add that does *not* open the editor. Name the new item afterward with a left-click
+  (popover) or a double-click. *(Refined 2026-08-28: an interim build opened the popover on
+  New-X; the owner asked for the plain limited menu back.)*
 - The popover dismisses on Esc (one layer, before it clears the selection), an outside
   click, or a scroll, and layers above the top toolbar so a tall popover clamped near the
   top of the window keeps its own header and close button visible.
