@@ -6,7 +6,7 @@ direction · **Branch:** development (pending promotion to main)
 ## What changed
 
 The owner's handoff: make the shell feel like established desktop/web software,
-not a bespoke dashboard. The strategy is `docs/Toolbar-Native-Direction.md`
+not a bespoke dashboard. The strategy is `docs/Archive/Toolbar-Native-Direction.md`
 (five phases). This is **Phase 1 — de-taxonomize + reserve visual weight**, and
 it reverses the eyebrow-label approach shipped hours earlier (REV88, Option A).
 

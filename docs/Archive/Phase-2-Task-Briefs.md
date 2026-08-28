@@ -1,7 +1,7 @@
 # Phase 2 — Claude Code Handoff Pack (The Visual System Pass)
 
 **August 26, 2026 · for `development` branch (post-Phase 1, `index.html` ~5,885 lines) · run briefs in order, one session + one PR each.**
-Specs live in `docs/Design-Language.md` (cited by §); finding IDs from `docs/UX-Audit-and-Strategy.md`.
+Specs live in `docs/Design-Language.md` (cited by §); finding IDs from `docs/Archive/UX-Audit-and-Strategy.md`.
 
 ---
 

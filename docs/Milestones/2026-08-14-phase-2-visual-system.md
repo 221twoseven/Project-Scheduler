@@ -1,8 +1,8 @@
 # Phase 2 visual system pass (U1–U8) — 2026-08-14
 
 **What this is.** The complete second phase of the UX plan in
-`docs/UX-Audit-and-Strategy.md`, delivered as eight task briefs
-(`docs/Phase-2-Task-Briefs.md`, U1–U8) over 2026-08-13/14, REV 50→52 on
+`docs/Archive/UX-Audit-and-Strategy.md`, delivered as eight task briefs
+(`docs/Archive/Phase-2-Task-Briefs.md`, U1–U8) over 2026-08-13/14, REV 50→52 on
 `development`. One-file records for each task live in [`Phase 2/`](Phase%202/).
 Phase 1 fixed what things *do*; Phase 2 fixed what they *say at a glance*.
 

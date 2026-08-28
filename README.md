@@ -27,7 +27,7 @@ treat it as optional background, not a prerequisite.
 | `msal-browser.min.js` | MSAL auth library, vendored locally (not a CDN). Loaded by `index.html` as a sibling — must stay at repo root. |
 | `reference/Timeline_50.html` | **Immutable reference** — frozen copy of the colleague's working REV50 build. Never modified; used as a diff baseline and the `npm run test:ref` control. |
 | `tests/` | jsdom regression suites (48 suites, ~1,100 assertions) and the `harness.js` that boots a build with MSAL and `fetch` stubbed. See `tests/README.md`. |
-| `docs/` | Architecture reference, hosting/auth setup (`SETUP.md`), handoff notes, and the backlog (`TODO.md`). |
+| `docs/` | Architecture reference, hosting/auth setup (`SETUP.md`), handoff notes, and the backlog (`TODO.md`). Retired planning docs and the completed v1 backlog live in `docs/Archive/`; milestone records in `docs/Milestones/`. |
 | `CLAUDE.md` | Working rules and guardrails for anyone (human or AI) making changes. **Read this first.** |
 | `CONTRIBUTING.md` | How to run, test, branch, and ship. |
 | `LICENSE` | Proprietary — Twoseven, all rights reserved. |

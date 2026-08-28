@@ -5,7 +5,7 @@ accepted that all hung on one root cause — **selection was half-implemented on
 Project draft** (audit I1). This REV makes draft selection real and retires the draft's
 floating popover; the saved page's bottom **"This phase" inspector now serves both
 pages**, and every verb that keyed off selection starts working on drafts. Audit:
-`docs/Phase-3.5-Parity-Audit.md` (rows D1–D4, L1/L3/L4, I1–I7, I9–I12). PR:
+`docs/Archive/Phase-3.5-Parity-Audit.md` (rows D1–D4, L1/L3/L4, I1–I7, I9–I12). PR:
 [#26](https://github.com/221twoseven/Project-Scheduler/pull/26).
 
 **The mechanism (why this was the hard one).** A draft regenerates its schedule on

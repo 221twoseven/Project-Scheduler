@@ -47,7 +47,7 @@ that whole arrangement one click — and the launch star makes it zero.
   seeding, delete-never-touches-live-state, launch-on-reload, the #view= link).
   Skips on the frozen REV50 reference. `tests/harness.js` gained two additive opts
   (`localStorage` preseed, `url`) so suites can test what a cold reload picks up.
-- Known ceilings / follow-ups (mirrored in `docs/TODO.md` §7):
+- Known ceilings / follow-ups (mirrored in `docs/Archive/TODO-v1-Archive.md` §7):
   - A view deliberately does **not** capture sidebar width, panel gutter, scroll
     position, or the linked-subtasks toggle — those read as workspace ergonomics, not
     "a view". Revisit only if someone saves a view and misses one.

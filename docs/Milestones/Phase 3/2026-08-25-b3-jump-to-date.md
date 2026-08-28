@@ -46,4 +46,4 @@ With both, "show me late October" is one keypress and one click from anywhere.
   clamped on-screen; on very narrow windows it may sit left of the click. Cosmetic.
 - Skipped: jump memory (persisting the last-jumped date / a recent-dates list) —
   not in the brief, no observed need; add if PMs ask the timeline to remember
-  where they jump. Tracked in `docs/TODO.md` §7.
+  where they jump. Tracked in `docs/Archive/TODO-v1-Archive.md` §7.

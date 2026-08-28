@@ -38,7 +38,7 @@ categorized here as **Phase 2.5**. One-file records for each REV live in
 the Pages deploy trimmed to app files only (PR #14), and the repo-visibility decision
 (staying public).
 
-**Decisions this interlude made or moved** (reconciled in `docs/TODO.md`):
+**Decisions this interlude made or moved** (reconciled in `docs/Archive/TODO-v1-Archive.md`):
 calendar parity done (§3 item 1); standalone events built (§3 item 2 — the app falls
 back to legacy phase-hosted saves until the list exists on the site); subtask model
 settled (§3 items 3/5); N6/N7 agenda editors delivered by REV64 without waiting on the

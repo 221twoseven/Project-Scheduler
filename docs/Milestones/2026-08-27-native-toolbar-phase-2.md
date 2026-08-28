@@ -5,7 +5,7 @@ direction · **Branch:** development (pending promotion to main)
 
 ## What changed
 
-Phase 2 of `docs/Toolbar-Native-Direction.md` — **move the low-frequency view
+Phase 2 of `docs/Archive/Toolbar-Native-Direction.md` — **move the low-frequency view
 controls off the row into menus**, so only the most-touched controls stand as
 buttons.
 

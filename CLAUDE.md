@@ -21,8 +21,10 @@ Project rules and context for working in this repository. Read this before makin
 - **`docs/Design-Language.md` — the design system. Read it before any change that
   touches appearance or interaction.** If a change contradicts it, either follow the
   doc or update the doc in the same PR — never silently diverge.
-- **`docs/UX-Audit-and-Strategy.md` — the current UX plan.** Findings, phases, and
-  the finding→fix index. Task briefs reference its IDs (C1, B2, E3, …).
+- **`docs/TODO.md` — the working backlog (v2.0.0 track).** Objectives, versioning
+  ladder, and the deferred/skipped ledger. The completed v1 backlog and all retired
+  planning docs (UX audit, task briefs, proposals) live in **`docs/Archive/`** —
+  history and rationale, not current state.
 
 ## Branches
 

@@ -1,6 +1,6 @@
 # Calendar collapses phases + the breadcrumb gets its own bar (REV84) — 2026-08-27
 
-Two Phase 3.5 punch-list items (`docs/TODO.md` §6), both code-ready with no owner
+Two Phase 3.5 punch-list items (`docs/Archive/TODO-v1-Archive.md` §6), both code-ready with no owner
 decision pending. PR:
 [#28](https://github.com/221twoseven/Project-Scheduler/pull/28).
 
