@@ -1312,7 +1312,7 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.0.2'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.0.3'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -5524,10 +5524,12 @@ function npvBindHost(host){
          dismissed a menu keeps the selection, as before. */
       const hadMenu=npvCloseMenu();
       /* A press that dismissed the edit popover keeps the selection too (same rule as
-         the menu) — on the calendar a deselect would also collapse the expanded phase.
-         The document capture handler closed the popover before this ran; it flags the
-         event so the two handlers agree. */
-      if(blank(ev.target)&&PP_SEL&&!hadMenu&&!ev._hadPop)ppSelect(null,true);
+         the menu) — the document capture handler closed the popover before this ran;
+         it flags the event so the two handlers agree. v1.0.3 (owner revision of obj 8):
+         on the CALENDAR blank space never deselects at all — the expanded phase
+         persists until its own band is clicked a second time (the toggle below);
+         Esc/breadcrumb/× still peel the selection. */
+      if(NPV_MODE!=='calendar'&&blank(ev.target)&&PP_SEL&&!hadMenu&&!ev._hadPop)ppSelect(null,true);
     });
     /* N11: left-click only selects and edits — empty canvas deselects (above) and no
        longer opens the create menu; that lives on right-click alone, both modes. */
@@ -5537,7 +5539,17 @@ function npvBindHost(host){
       if(NPV_MODE==='calendar'&&Math.abs(ev.clientX-dnX)<=4&&Math.abs(ev.clientY-dnY)<=4){
         const band=ev.target&&ev.target.closest?ev.target.closest('.cal-band.ph'):null;
         if(band){const t=NPV_TASKS[+band.dataset.i];
-          if(t){ppSelect(t.id);npvEditPop('phase',ppSelected(),ev.clientX,ev.clientY);}return;}
+          if(!t)return;
+          /* v1.0.3 (obj 8 revision): clicking the already-selected PARENT band a second
+             time deselects — that's what collapses the expanded phase (blank space never
+             does). The parent is the department's first bar (the REV56 positional model);
+             a re-clicked subtask band just reopens its editor. ev.detail>1 is the second
+             half of a double-click (rename intent, handled below) — it must not toggle
+             the selection away mid-gesture. */
+          const cur=ppSelected();
+          if(cur&&cur.id===t.id&&NPV_TASKS.find(x=>x.department===t.department)===t){
+            if(ev.detail===1)ppSelect(null,true);return;}
+          ppSelect(t.id);npvEditPop('phase',ppSelected(),ev.clientX,ev.clientY);return;}
       }
     });
     /* Double-click a title to rename it in place, like a folder in Explorer. Delegated

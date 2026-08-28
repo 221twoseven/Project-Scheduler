@@ -41,6 +41,13 @@ const E=s=>win.eval(s);
 const q=s=>doc.querySelector(s);
 const qa=s=>[...doc.querySelectorAll(s)];
 const mdown=el=>el.dispatchEvent(new win.MouseEvent('mousedown',{bubbles:true,clientX:50,clientY:50,button:0}));
+/* a real single click on a task's calendar band: mousedown (≤4px) then click, detail 1 */
+const clickBand=id=>{
+  const i=E("NPV_TASKS.findIndex(t=>t.id==='"+id+"')");
+  const b=q('#npv-body .cal-band.ph[data-i="'+i+'"]');
+  mdown(b);
+  b.dispatchEvent(new win.MouseEvent('click',{bubbles:true,clientX:50,clientY:50,button:0,detail:1}));
+};
 
 sec('source-level checks');
 ok('stale "add people in Settings" strings are gone', src.indexOf('in Settings')<0&&src.indexOf('under Settings')<0);
@@ -81,7 +88,7 @@ function resizeKeepsSelection(){
 function calendarPopoverClick(){
   ok('calendar selection survives the resize', E('PP_SEL')==='t1b', 'PP_SEL='+E('PP_SEL'));
 
-  sec('obj 8 — blank click with the popover open keeps the selection');
+  sec('obj 8 (revised) — blank space never collapses; the parent band toggles');
   E("ppSelect('t1')");
   const expanded=qa('#npv-body .cal-band').length;
   E("npvEditPop('phase',ppSelected(),100,100)");
@@ -92,8 +99,23 @@ function calendarPopoverClick(){
   ok('…but keeps the selection', E('PP_SEL')==='t1', 'PP_SEL='+E('PP_SEL'));
   ok('…and the phase stays expanded', qa('#npv-body .cal-band').length===expanded);
   mdown(q('#npv-body .cal-col'));
-  ok('the second blank click deselects', E('PP_SEL')===null);
+  ok('a second blank click still keeps the selection', E('PP_SEL')==='t1', 'PP_SEL='+E('PP_SEL'));
+  ok('…and the phase stays expanded', qa('#npv-body .cal-band').length===expanded);
+  /* re-clicking a selected SUBTASK band reopens its editor, no collapse */
+  E("ppSelect('t1b')");
+  clickBand('t1b');
+  ok('re-clicked subtask band reopens the popover', !!q('#npv-pop'));
+  ok('…subtask stays selected, phase expanded', E('PP_SEL')==='t1b'&&qa('#npv-body .cal-band').length===expanded);
+  E('npvPopClose()');
+  /* the second click on the PARENT band is what collapses */
+  E("ppSelect('t1')");E('npvPopClose()');
+  clickBand('t1');
+  ok('second click on the parent band deselects', E('PP_SEL')===null, 'PP_SEL='+E('PP_SEL'));
   ok('…and collapses the phase', qa('#npv-body .cal-band').length<expanded);
+  clickBand('t1');
+  ok('clicking the collapsed parent selects and expands again', E('PP_SEL')==='t1'&&qa('#npv-body .cal-band').length===expanded);
+  ok('…and reopens the editor popover', !!q('#npv-pop'));
+  E("ppSelect(null,true)");E('npvPopClose()');
 
   sec('obj 13 — vivid tints weekends on the calendar');
   E('TINT=true;syncVivid();npvRender()');

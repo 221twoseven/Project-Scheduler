@@ -86,10 +86,13 @@ Owner's objective numbers in parentheses. Each batch: build on `development`, ve
       lightened. Design-Language §2 updated. **Owner eyes on `/preview/` wanted** —
       and if "Black Bar" meant the calendar's black month header (`.cal-mon`),
       that's a one-line follow-up. Record: as above.
-- [x] **3. (Obj 8) Calendar blank-space click with popover open — DONE 2026-08-28
-      (v1.0.2):** the click that dismisses the popover keeps the selection (and the
-      expansion); the next blank click deselects/collapses. Same rule as the add
-      menu; applies on both Gantt and calendar. Suite: `tests/test-v102.js`.
+- [x] **3. (Obj 8) Calendar blank-space click — DONE 2026-08-28 (v1.0.2), REVISED
+      same day (owner) as v1.0.3:** on the calendar, blank space never deselects —
+      the expanded phase persists until its **parent band is clicked a second time**
+      (the toggle that collapses); a re-clicked subtask band reopens its editor; a
+      blank click only dismisses an open popover/menu. Esc/breadcrumb/× still exit;
+      the Gantt keeps empty-canvas deselect. Design-Language §6 amended. Suite:
+      `tests/test-v102.js`.
 - [x] **4. (Obj 5) Window-resize closed the subtask form — FIXED 2026-08-28
       (v1.0.2):** a PP_KEEP repaint (resize, poll, autosave) now carries the
       selection through — form, breadcrumb and ring survive; a poll that deleted the
@@ -205,6 +208,7 @@ Owner's objective numbers in parentheses. Each batch: build on `development`, ve
 | Release | Contents (§3 items) |
 |---|---|
 | v1.0.2 | ✅ Shipped 2026-08-28 — quick wins 1–4 + stale-Settings strings (§2) + runner SKIP line |
+| v1.0.3 | ✅ Shipped 2026-08-28 — obj 8 revision: calendar blank space never collapses; the parent band click toggles |
 | v1.0.3 | 5 (coach copy, once revised) · 6–7 (fonts, once licence-checked) |
 | v1.1.0 | 8–9 (calendar interactions) |
 | v1.2.0 | 10 (My Dashboard view) |
