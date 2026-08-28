@@ -60,17 +60,17 @@ setTimeout(()=>{
   ok('Done closes the tour',E("COACH===null")&&E("document.getElementById('coach').classList.contains('hidden')"));
 
   sec('Help replays it any time');
-  E("document.getElementById('btn-help').click()");
+  E("document.getElementById('mi-tour').click()");
   ok('the button restarts the tour at step 1',E("COACH&&COACH.i===0")&&!E("document.getElementById('coach').classList.contains('hidden')"));
   key('Escape');
   ok('Escape ends it',E("COACH===null"));
-  E("document.getElementById('btn-help').click()");
+  E("document.getElementById('mi-tour').click()");
   E("document.getElementById('coach-skip').click()");
   ok('Skip ends it too',E("COACH===null"));
 
   sec('Steps drop when their target is missing');
   E("var kept=document.getElementById('btn-dash');kept.parentNode.removeChild(kept);");
-  E("document.getElementById('btn-help').click()");
+  E("document.getElementById('mi-tour').click()");
   ok('a missing target shortens the tour instead of breaking it',
      E("COACH.steps.length")===E("COACH_STEPS.length")-1
      &&E("COACH.steps.every(s=>!!document.querySelector(s.sel))"));

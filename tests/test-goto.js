@@ -75,11 +75,11 @@ setTimeout(()=>{
   ok('prefilled with that month\'s first visible day',inp.value===E('fmtDate(TL_S)'),inp.value);
 
   sec('one overlay at a time (§6)');
-  click(doc.getElementById('btn-status'));
-  ok('the status menu is open',!doc.getElementById('status-menu').classList.contains('hidden'));
+  click(doc.getElementById('btn-filters'));
+  ok('the filters menu is open',!doc.getElementById('filters-menu').classList.contains('hidden'));
   press('g');
   ok('G swaps it for the go-to-date popover',
-     open()&&doc.getElementById('status-menu').classList.contains('hidden'));
+     open()&&doc.getElementById('filters-menu').classList.contains('hidden'));
 
   sec('quick picks');
   menu.querySelector('[data-goto="m3"]').dispatchEvent(new win.MouseEvent('click',{bubbles:true}));
@@ -106,7 +106,21 @@ setTimeout(()=>{
   click(lg);
   ok('it opens the popover',open());
 
-  done();
+  /* Returning from a project (Done / breadcrumb / Back = goTimeline → '#/') must land on
+     today's default view, not the far-left earliest date the fresh render sits at. */
+  sec('exiting a project parks today, not the far-left earliest date');
+  win.location.hash='#/project/p1';win.dispatchEvent(new win.Event('hashchange'));
+  setTimeout(()=>{
+    win.location.hash='#/';win.dispatchEvent(new win.Event('hashchange')); /* what goTimeline does */
+    setTimeout(()=>{
+      const sc2=doc.getElementById('gantt-scroll');
+      const park=E("Math.max(0,d2x(today())-dw()*1.5)");
+      ok('today sits inside the range, so the park is past the left edge',park>0,String(park));
+      ok('the timeline lands parked on today, not at scrollLeft 0',
+         Math.abs(sc2.scrollLeft-park)<1,sc2.scrollLeft+' vs '+park);
+      done();
+    },160);
+  },160);
 },1300);
 
 function done(){

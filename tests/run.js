@@ -47,6 +47,8 @@ const SUITES = [
   'test88.js',
   'test89.js',
   'test90.js',
+  'test91.js',
+  'test92.js',
   'test-contrast.js',
   'test-e2-click.js',
   'test-e3-resize.js',
@@ -59,6 +61,7 @@ const SUITES = [
   'test-b5.js',
   'test-v4-views.js',
   'test-c3-status.js',
+  'test-client-filter.js',
   'test-cb.js',
 ];
 

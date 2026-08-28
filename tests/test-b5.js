@@ -1,5 +1,5 @@
 /* B5 / Design-Language §4: density levels + group collapse.
-   - The Settings toggle cycles Comfortable 56 → Snug 44 → Compact 32 (--row-h); the
+   - The View ▾ menu sets Comfortable 56 → Snug 44 → Compact 32 (--row-h); the
      JS lane math follows; every hit target stays ≥24px; the choice persists in UI_KEY.
    - 30 projects fit one screen at Compact (the acceptance bar).
    - Clicking a grp-head collapses its group; collapsed sets persist in UI_KEY keyed
@@ -38,6 +38,13 @@ const dom=boot(FILE,{data:{projects,tasks,staff:[],todos:[]}});
 const win=dom.window,doc=win.document;
 const E=s=>win.eval(s);
 const click=el=>el&&el.dispatchEvent(new win.MouseEvent('click',{bubbles:true}));
+/* Phase 2: density moved into the View ▾ menu. Rebuild it and fire the radio's change. */
+function pickDensity(val){
+  E('buildViewMenu()');
+  const r=[...doc.querySelectorAll('#view-menu input[name=density-pick]')];
+  const idx={comfortable:0,snug:1,compact:2}[val];
+  r[idx].checked=true;r[idx].dispatchEvent(new win.Event('change',{bubbles:true}));
+}
 
 setTimeout(()=>{
   sec('density — Comfortable boot is the pre-B5 default');
@@ -45,17 +52,18 @@ setTimeout(()=>{
   ok('rowH(1) is 56 (the --row-h token)',E('rowH(1)')===56,'rowH(1)='+E('rowH(1)'));
   ok('body has no density class',!doc.body.classList.contains('compact')&&!doc.body.classList.contains('snug'));
 
-  sec('the Settings toggle cycles Comfortable → Snug → Compact');
-  click(doc.getElementById('mi-density'));
-  ok('first click lands on Snug',E('DENSITY')==='snug');
+  sec('the View ▾ menu sets Comfortable → Snug → Compact');
+  pickDensity('snug');
+  ok('picking Snug lands on Snug',E('DENSITY')==='snug');
   ok('rowH(1) is 44',E('rowH(1)')===44,'rowH(1)='+E('rowH(1)'));
   ok('body carries .snug (CSS --row-h override)',doc.body.classList.contains('snug')&&!doc.body.classList.contains('compact'));
   ok('Snug bars stay 32px',E('BAR_H')===32,'BAR_H='+E('BAR_H'));
-  click(doc.getElementById('mi-density'));
-  ok('second click lands on Compact',E('DENSITY')==='compact');
+  pickDensity('compact');
+  ok('picking Compact lands on Compact',E('DENSITY')==='compact');
   ok('rowH(1) is 32',E('rowH(1)')===32,'rowH(1)='+E('rowH(1)'));
   ok('body swaps .snug for .compact',doc.body.classList.contains('compact')&&!doc.body.classList.contains('snug'));
-  ok('the menu item label follows',doc.getElementById('mi-density-v').textContent==='Compact');
+  ok('the View menu marks Compact as current',
+     (function(){E('buildViewMenu()');const r=[...doc.querySelectorAll('#view-menu input[name=density-pick]')];return r[2].checked&&!r[0].checked;})());
   ok('bars keep a ≥24px hit target (§4)',E('BAR_H')>=24,'BAR_H='+E('BAR_H'));
   const bar=doc.querySelector('.job-bar.summary');
   ok('a drawn bar is BAR_H tall',bar&&bar.style.height===E('BAR_H')+'px',bar&&bar.style.height);

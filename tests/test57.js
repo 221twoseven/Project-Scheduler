@@ -3,18 +3,18 @@
    N1  — breadcrumb tail (Timeline ‹ name ‹ phase); clicking it unwinds one layer.
    N2  — a dirty unsaved draft asks before it is discarded.
    N13 — department Start/End date fields, bidirectional and workday-snapped.
-   N11 — left-click edits, right-click adds; menus carry an inline name field.
+   N11 — left-click edits, right-click adds; a New action opens the edit popover.
    N15 — the main-timeline toolbar controls hide on the project page.
    N16 — calendar collapses roster fan-out; "Selected only" filters the bands.
-   Skips entirely on builds that predate REV57 (the frozen REV50 reference).
+   Skips entirely on builds that predate the edit popover (the frozen REV50 reference).
    Run: node test57.js index.html */
 const {boot}=require('./harness');
 const fs=require('fs');
 const FILE=process.argv[2]||'index.html';
 const src=fs.readFileSync(FILE,'utf8');
 
-if(!/\.npv-menu \.mn/.test(src)){
-  console.log('  SKIP  build predates REV57 (no add-menu name field) — nothing to assert');
+if(!/npvEditPop/.test(src)){
+  console.log('  SKIP  build predates the edit popover — nothing to assert');
   console.log('\n'+'-'.repeat(46));
   console.log('  0 passed, 0 failed   ['+FILE+']');
   process.exit(0);
@@ -46,6 +46,7 @@ const E=s=>win.eval(s);
 const q=s=>doc.querySelector(s);
 const qa=s=>[...doc.querySelectorAll(s)];
 const menu=()=>doc.getElementById('npv-menu');
+const pop=()=>doc.getElementById('npv-pop');
 const click=el=>el&&el.dispatchEvent(new win.MouseEvent('click',{bubbles:true}));
 const change=el=>el.dispatchEvent(new win.Event('change',{bubbles:true}));
 const keyOn=(el,k,o)=>el.dispatchEvent(new win.KeyboardEvent('keydown',
@@ -122,7 +123,7 @@ function stage2(){
 }
 
 function stage3(){
-  sec('N11 — right-click adds, with an inline name; Enter creates');
+  sec('N11 — right-click is a plain limited add menu (no name field, no editor thrown open)');
   E('ppSelect(null,true);');
   const bar=q('#npv-body .npv-bar');
   rclick(bar);
@@ -131,16 +132,15 @@ function stage3(){
     ok('it is add-only', !menu().querySelector('[data-act="ren"]')
        &&!menu().querySelector('[data-act="del"]')&&!!menu().querySelector('[data-act="sub"]'));
     ok('right-click did not select', E('PP_SEL')===null);
-    const mn=menu().querySelector('.mn');
-    ok('it carries the name field', !!mn);
+    ok('the menu no longer carries an inline name field', !menu().querySelector('.mn'));
     const n0=E('ST.tasks.length');
-    mn.value='Glass order';
-    keyOn(mn,'Enter');
+    click(menu().querySelector('[data-act="sub"]'));
     setTimeout(()=>{
-      ok('Enter created under the first action', E('ST.tasks.length')===n0+1);
-      ok('the new bar carries the typed name',
-         E("ST.tasks.slice(-1)[0].label")==='Glass order', E("ST.tasks.slice(-1)[0].label"));
+      ok('the New action created a bar', E('ST.tasks.length')===n0+1);
       ok('the menu closed', !menu());
+      ok('the menu just adds — it did not pop the editor open', !pop());
+      ok('the new bar is selected into the inspector', !!doc.getElementById('ins-name'));
+      E('ppSelect(null,true);');
       stage4();
     },350);
   },300);

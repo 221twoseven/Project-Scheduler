@@ -289,13 +289,11 @@ In order:
       calendar parity, deferred polish) to production. Owner merged via ruleset bypass.
 - [x] **Backfill the "PR link: pending" lines** — done 2026-08-20: all five Phase 2
       records and the five REV53–57 records now link PR #15.
-- [ ] **Promote `development` → `main` (Phase 3 + 3.5 + 4 + audit pass):**
-      [#23](https://github.com/221twoseven/Project-Scheduler/pull/23) now carries
-      REV74–89 (Phase 3, all of Phase 3.5, and Phase 4) **plus the 2026-08-27
-      pre-merge audit pass (REV90 fixes + REV91 dead-code cleanup — see
-      `docs/Milestones/2026-08-27-pre-merge-audit-pass.md`)**. The 3.5 hold is
-      lifted — the punch list below is done. Owner approved the merge 2026-08-27;
-      it lands once CI is green.
+- [x] **Promote `development` → `main` — MERGED 2026-08-27:**
+      [#23](https://github.com/221twoseven/Project-Scheduler/pull/23) carried
+      **REV74–91** (Phase 3, all of Phase 3.5, Phase 4, and the 2026-08-27
+      pre-merge audit pass — REV90 fixes + REV91 dead-code cleanup, see
+      `docs/Milestones/2026-08-27-pre-merge-audit-pass.md`) to production.
 
 ## 5. Data / schema (⚠ all need approval — shared Lists)
 
@@ -609,7 +607,9 @@ own "only if it proves needed" gates.
       have to seed). Gate: owner wanting auto-run for new hires. (2026-08-27)
 - [ ] The Settings → Density menu item stays as an alias of the new toolbar
       density button for one release (REV88), then retires. Gate: the next
-      release after REV88 ships to `main`. (2026-08-27)
+      release after REV88 ships to `main`. **Gate FIRED 2026-08-27 — REV88–91
+      merged to main via PR #23; retire the alias in the next REV that touches
+      the toolbar/menus.** (2026-08-27)
 - [ ] The toolbar's Where/Style/Filter eyebrow labels hide below 1400px width
       (the existing `t-mini` media rule) — separators still mark the clusters.
       Gate: small-screen users missing the grouping. (REV88)
@@ -652,13 +652,25 @@ own "only if it proves needed" gates.
       the serialization is deliberate; dropping them is a schema decision (§5
       approval rule). (2026-08-27)
 
+**Edit-in-place popover (REV98,** `docs/Milestones/Edit-Popover/2026-08-27-edit-in-place-popover.md`**):**
+
+- [ ] The popover carries the data fields + Delete only; **Duplicate and Pin stay
+      inspector-only** to keep it compact. Gate: shop use asking for them on the
+      popover. (2026-08-27)
+- [ ] A background poll that lands while the popover (or an add menu) is open is
+      **deferred until it closes** — same as the pre-existing menu case — so a very
+      long edit session won't see a teammate's change until dismissed; the dock still
+      shows it on the next interaction. Gate: a real "why didn't I see their edit"
+      report. (2026-08-27)
+
 **Deliberate design ceilings — no action planned, revisit only on real complaints:**
 12-slot palette repeats at 13+ visible projects (T2); quiet re-selection after a committed
 project-page resize/move (T4); sidebar names >~26 chars truncate at default width (T5);
 off-screen edge chips don't dim with the search filter (T6); bottom-dock column minimum
 widths are fixed (U2/E1); In-Design and In-Fabrication bars both full-strength on purpose,
-the pill word separates them (U8); startup parks today left-of-center so the first look
-reads forward into upcoming work — only the Today button and `T` center (B3b, REV76).
+the pill word separates them (U8); the default view parks today left-of-center so the look
+reads forward into upcoming work — on first load and on every arrival at the timeline via
+routing (Done/breadcrumb/Back, REV101) — while only the Today button and `T` center (B3b, REV76).
 
 ## 8. Documentation upkeep
 

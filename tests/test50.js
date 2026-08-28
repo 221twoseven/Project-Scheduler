@@ -4,8 +4,9 @@ const {boot}=require('./harness');
 const fs=require('fs');
 const FILE=process.argv[2]||'reference/Timeline_50.html';
 const src=fs.readFileSync(FILE,'utf8');
-/* REV57 / N11: bar menus are add-only — rename lives in the inspector/popover. */
-const N11=/\.npv-menu \.mn/.test(src);
+/* REV57 / N11: bar menus are add-only — rename lives in the inspector/popover. (The old
+   inline name field is retired; a New action opens the edit popover, sniffed here.) */
+const N11=/npvEditPop/.test(src);
 
 let pass=0,fail=0;
 const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
@@ -168,7 +169,8 @@ function stage3(){
     setTimeout(()=>{
       if(CONV){
         ok('the phase inspector opened', !!doc.getElementById('ins-name'));
-        ok('no popover — it was retired', !doc.getElementById('bar-pop'));
+        ok('the edit popover opened on the draft bar too', !!doc.getElementById('npv-pop'));
+        ok('the retired bar-pop is gone', !doc.getElementById('bar-pop'));
         ok('draft dates are editable in the panel',
            (()=>{const s=q('#pp-insp [data-f="startDate"]');return !!s&&!s.readOnly&&!s.disabled;})());
         E('ppSelect(null,true);');

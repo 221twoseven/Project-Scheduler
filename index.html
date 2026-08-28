@@ -48,6 +48,14 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);font-size:var(--fs
 .t-btn.active{background:rgba(47,111,228,.32);border-color:rgba(96,150,240,.65);color:#fff}
 .t-btn.accent{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:600}
 .t-btn.accent:hover{background:var(--acc-deep)}
+/* Native shell (Phase 1): standalone toolbar buttons sit flat — only New Project
+   (accent) and an active view/nav state carry weight; the segmented .tog-grp groups
+   and the self-styled #t-tint keep their own frames. Scoped to .tb-row so overlay
+   and sidebar .t-btn are untouched. */
+.tb-row>.t-btn:not(.accent):not(.active),
+.tb-row .sf-wrap>.t-btn:not(.active){background:transparent;border-color:transparent}
+.tb-row>.t-btn:not(.accent):not(.active):hover,
+.tb-row .sf-wrap>.t-btn:not(.active):hover{background:rgba(255,255,255,.12);color:#fff}
 .t-sep{width:1px;height:24px;background:var(--chrome-line);flex-shrink:0}
 /* N15: on the project page every control in the timeline toolbar row acts on a chart
    that isn't visible — hide the whole row rather than grey it out, so nothing renders
@@ -56,7 +64,6 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);font-size:var(--fs
    only), so a visible .tb-timeline row sat on top of the page's title bar — the
    ← Timeline button and the N1 breadcrumb were painted but never visible. */
 body.pp-route .tb-timeline{display:none}
-.t-mini{font-size:var(--fs-micro);font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:#5E7292;white-space:nowrap}
 .tog-grp{display:flex;border:1px solid rgba(255,255,255,.13);border-radius:6px;overflow:hidden}
 .tog-grp .t-btn{border:none;border-right:1px solid rgba(255,255,255,.1);border-radius:0;height:26px;padding:0 12px}
 .tog-grp .t-btn:last-child{border-right:none}
@@ -64,7 +71,6 @@ body.pp-route .tb-timeline{display:none}
 @media (max-width:1400px){
   .t-btn{padding:0 8px;font-size:var(--fs-fine)}
   .tog-grp .t-btn{padding:0 8px}
-  .t-mini{display:none}
   .tb-app{display:none}
   .t-brand{padding:0 12px}
 }
@@ -383,6 +389,12 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 .sm-all{margin-top:6px;border:none;background:#F1F5F9;border-radius:6px;padding:5px;font-size:11px;cursor:pointer;color:#334155}
 .sm-all:hover{background:#E2E8F0}
 .sm-note{font-family:var(--mono);font-size:var(--fs-fine);color:#8194ab;padding:6px 8px 2px;border-top:1px solid #E2E8F0;margin-top:4px;white-space:nowrap}
+.sm-sec{font-size:var(--fs-micro);font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#94A3B8;padding:6px 8px 2px}
+#filters-menu{max-height:70vh;overflow:auto}
+.f-chips{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap}
+.f-chip{display:inline-flex;align-items:center;gap:2px;height:22px;padding:0 3px 0 9px;background:rgba(47,111,228,.2);border:1px solid rgba(96,150,240,.45);border-radius:11px;color:#DCE8FF;font-size:11px;white-space:nowrap}
+.f-x{border:none;background:none;color:#AFC6EF;cursor:pointer;font-size:14px;line-height:1;padding:0 4px;border-radius:50%}
+.f-x:hover{background:rgba(255,255,255,.16);color:#fff}
 /* V4/B6: saved-views menu rows — name applies, the small buttons manage.
    Everything is a real <button> so the menu walks on Tab (§9). */
 .vw-row{gap:4px;padding:2px 8px}
@@ -398,10 +410,6 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 .gp-picks{display:flex;gap:6px}
 .gp-picks .sm-all{flex:1;margin-top:0;white-space:nowrap}
 #lg-goto{text-align:left;display:flex;justify-content:space-between;align-items:center}
-/* Tint — low-priority toggle parked at the right of the timeline row */
-#t-tint{background:transparent;border-color:transparent;color:rgba(255,255,255,.42);font-size:11px;padding:5px 9px}
-#t-tint:hover{background:rgba(255,255,255,.08);color:rgba(255,255,255,.8)}
-#t-tint.on{background:rgba(47,111,228,.22);border-color:rgba(96,150,240,.5);color:#fff}
 
 /* ============ REV31: SPOTLIGHT FIX — dimmed rows keep clickable eyes ============ */
 .sb-row.dim{opacity:1;filter:none}
@@ -715,6 +723,23 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
 .dash .npv-scroll{flex:1;min-height:0}
 .dash-foot{display:flex;align-items:center;gap:9px;padding:9px 22px;border-top:1px solid #E2E8F0;
   background:var(--paper)}
+/* Project actions cluster right of the passive status; margin-right reserves the corner
+   for the dock toggle so the two never share button spacing. */
+.foot-actions{margin-left:auto;margin-right:34px;display:flex;align-items:center;gap:9px}
+.btn:disabled{opacity:.5;cursor:default}
+/* Collapse the edit form to give the chart the whole window — the footer bar stays.
+   State is persisted, so it holds across sessions. */
+.dash-insp.collapsed{height:auto!important}
+.dash-insp.collapsed #pp-insp,.dash-insp.collapsed #dock-resize{display:none}
+.dash-insp.collapsed .dash-foot{border-top:none}
+/* The dock toggle is application chrome, not a project action: it lives in its own fixed
+   corner of the dock, outside the footer's button row, in both states. */
+#pp-dock-toggle{position:absolute;right:12px;bottom:8px;z-index:31;padding:5px 7px;line-height:0;
+  border:1px solid #E2E8F0;border-radius:6px;background:#fff}
+#pp-dock-toggle svg{width:15px;height:15px;display:block;color:#7488A3;transition:transform .12s}
+#pp-dock-toggle:hover{border-color:var(--acc)}
+#pp-dock-toggle:hover svg{color:var(--acc)}
+.dash-insp.collapsed #pp-dock-toggle svg{transform:rotate(180deg)}
 
 /* --- inspector --- */
 .ins-hd{display:flex;align-items:center;gap:8px;padding:12px 15px;border-bottom:1px solid #E2E8F0;
@@ -871,6 +896,30 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
 .npv-menu .mi.tk{background:#fff;border:2px solid #3B7FD6;border-radius:50%;box-sizing:border-box}
 .npv-menu .mi.dp{background:#CBD6E4}
 .npv-menu .none{padding:9px;font-size:11px;color:#B4C0D0;font-style:italic;text-align:center}
+/* Edit-in-place popover — left-click any item, or right-click → New X. Reuses the
+   inspector's field classes (.ins-f/.ins-row3/.crew-list/.ins-btn) so the two editors
+   read identically; only the frame and the vertical body are its own. */
+/* Above the top toolbar (z-100): a tall popover anchored near the top of the viewport
+   clamps upward, and its own header/close must not slide behind the toolbar. Still below
+   modal overlays (200), the tooltip (999) and toasts (1000). */
+.npv-pop{position:fixed;z-index:120;width:274px;max-height:82vh;overflow-y:auto;background:#fff;
+  border:1px solid #CBD6E4;border-radius:10px;box-shadow:0 12px 34px -8px rgba(15,23,42,.34);
+  font-family:inherit}
+.npv-pop .ins-hd{position:sticky;top:0;z-index:1;border-radius:10px 10px 0 0}
+.npv-pop .pop-body{padding:12px 14px}
+.npv-pop .ins-f{margin-bottom:9px}
+/* Start/End share one row that spans the full field width (their right edge lines up with
+   Name/Notes); minmax(0,…) lets the native date inputs shrink instead of forcing the row
+   wider than the popover (which cropped the right edge). Days drops to its own line. */
+.npv-pop .pop-dates{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.npv-pop .pop-days input{max-width:96px}
+.npv-pop .ins-acts{margin-top:4px}
+.npv-pop .dot.ev{background:#F7C948;border:2px solid #16202E;box-sizing:border-box;
+  transform:rotate(45deg);border-radius:1px;width:9px;height:9px}
+.npv-pop .dot.tk{background:#fff;border:2px solid #3B7FD6;border-radius:50%;box-sizing:border-box}
+/* Explorer-style rename box that replaces a title on double-click. */
+.npv-rename{width:100%;box-sizing:border-box;font:inherit;color:#1E293B;border:1px solid var(--acc);
+  border-radius:4px;padding:0 4px;outline:none;background:#fff}
 .npv-body{cursor:default}
 
 /* ============ REV47: SUBTASKS ============ */
@@ -972,21 +1021,27 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
       </div>
     </div>
     <div class="sf-wrap">
-      <button id="btn-settings" class="t-btn" title="App settings and the shared staff list"><svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 2.5V8M3.5 11v2.5M8 2.5v2M8 7.5v6M12.5 2.5V8M12.5 11v2.5M1.5 9.5h4M6 6h4M10.5 9.5h4"/></svg> Settings <svg class="ico-s" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 6 8 9.5 11.5 6"/></svg></button>
-      <div id="settings-menu" class="tb-menu hidden">
+      <button id="btn-resources" class="t-btn" title="People, clients and other shared shop data"><svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2.5" width="5" height="5" rx="1"/><rect x="9" y="2.5" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/><rect x="9" y="9" width="5" height="5" rx="1"/></svg> Resources <svg class="ico-s" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 6 8 9.5 11.5 6"/></svg></button>
+      <div id="resources-menu" class="tb-menu hidden">
         <div class="sm-item" id="mi-people" title="Edit staff names, departments and time off">People &amp; Availability</div>
         <div class="sm-item" id="mi-clients" title="Edit the shared client list and job-code aliases">Clients</div>
-        <div class="sm-item" id="mi-density" title="Row height — click to cycle Comfortable → Snug → Compact">Density: <b id="mi-density-v">Comfortable</b></div>
-        <div class="sm-note">Shop Timeline · REV <span id="tb-rev-num"></span></div>
       </div>
     </div>
-    <button id="btn-help" class="t-btn" title="A quick tour of the app — where everything lives"><svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="8" r="6.5"/><path d="M6.2 6.2a1.8 1.8 0 1 1 2.6 1.7c-.5.3-.8.6-.8 1.2"/><path d="M8 11.3v.2"/></svg> Help</button>
+    <div class="sf-wrap">
+      <button id="btn-help" class="t-btn" title="Tour, keyboard shortcuts and version"><svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="8" r="6.5"/><path d="M6.2 6.2a1.8 1.8 0 1 1 2.6 1.7c-.5.3-.8.6-.8 1.2"/><path d="M8 11.3v.2"/></svg> Help <svg class="ico-s" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 6 8 9.5 11.5 6"/></svg></button>
+      <div id="help-menu" class="tb-menu hidden">
+        <div class="sm-item" id="mi-tour" title="A guided tour of the page you're on">Take a tour</div>
+        <div class="sm-item" id="mi-shortcuts" title="Every keyboard shortcut on this view">Keyboard shortcuts</div>
+        <div class="sm-item" id="mi-legend" title="What the colors, patterns and markers mean">Legend</div>
+        <div class="sm-note">Shop Timeline · REV <span id="tb-rev-num"></span></div>
+      </div>
+      <div id="legend-menu" class="tb-menu hidden"></div>
+    </div>
     <span class="tb-spacer"></span>
     <span id="tb-rev" title="App revision — the build this tab is running">REV</span>
     <span id="sync-pill" class="busy" title="Shows whether your changes are saved to SharePoint — click to retry after an error">● connecting…</span>
   </div>
   <div class="tb-row tb-timeline">
-    <span class="t-mini">Where</span>
     <div class="sf-wrap">
       <button id="btn-today" class="t-btn" title="Center the timeline on today (T)">Today</button>
       <div id="goto-menu" class="tb-menu hidden">
@@ -1000,31 +1055,35 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
       </div>
     </div>
     <div class="t-sep"></div>
-    <span class="t-mini">Style</span>
     <div class="tog-grp" id="tg-scale">
       <button id="btn-days" class="t-btn active" title="Show the timeline day by day (D)">Day</button>
       <button id="btn-day2" class="t-btn" title="Days at half width — about twice the range on screen (+ and − step the zoom)">2-Day</button>
       <button id="btn-weeks" class="t-btn" title="Show the timeline week by week (W)">Week</button>
       <button id="btn-month" class="t-btn" title="Whole months at a glance — a season fits on one screen (+ and − step the zoom)">Month</button>
     </div>
-    <div class="tog-grp" id="tg-color">
-      <button id="btn-col-proj" class="t-btn active" title="Color every bar by its project">Project</button>
-      <button id="btn-col-ent" class="t-btn" title="Color every bar by its department team">Team</button>
+    <div class="sf-wrap">
+      <button id="btn-colorby" class="t-btn" title="Choose what the bar colors mean">Color by: <b id="colorby-v">Project</b> <svg class="ico-s" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 6 8 9.5 11.5 6"/></svg></button>
+      <div id="colorby-menu" class="tb-menu hidden"></div>
     </div>
-    <button id="btn-density" class="t-btn" title="Row height — click to cycle Comfortable → Snug → Compact">Comfortable</button>
-    <button id="t-tint" class="t-btn" title="Colour the calendar background vividly by month">Vivid months</button>
+    <div class="sf-wrap">
+      <button id="btn-view" class="t-btn" title="Row height and calendar shading">View <svg class="ico-s" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 6 8 9.5 11.5 6"/></svg></button>
+      <div id="view-menu" class="tb-menu hidden"></div>
+    </div>
     <div class="t-sep"></div>
-    <span class="t-mini">Filter</span>
     <input id="t-search" type="text" placeholder="Search  /" autocomplete="off" spellcheck="false" title="Type to show only matching projects and phases (/)">
     <div class="sf-wrap">
-      <button id="btn-status" class="t-btn" title="Choose which project statuses are shown">Status <svg class="ico-s" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 6 8 9.5 11.5 6"/></svg></button>
-      <div id="status-menu" class="tb-menu hidden"></div>
+      <button id="btn-filters" class="t-btn" title="Filter the board by status, client or person">Filters <svg class="ico-s" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 6 8 9.5 11.5 6"/></svg></button>
+      <div id="filters-menu" class="tb-menu hidden">
+        <div class="sm-sec">Status</div>
+        <div id="status-menu"></div>
+        <div class="sm-sec">Client</div>
+        <div id="client-menu"></div>
+        <div class="sm-sec">Person</div>
+        <div id="person-menu"></div>
+      </div>
     </div>
-    <div class="sf-wrap">
-      <button id="btn-person" class="t-btn" title="Show only one person's work">Person <svg class="ico-s" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 6 8 9.5 11.5 6"/></svg></button>
-      <div id="person-menu" class="tb-menu hidden"></div>
-    </div>
-    <button id="btn-reset" class="t-btn" title="Clear the spotlight, search, status and person filters"><svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1.5 3v4h4"/><path d="M2.3 10a6 6 0 1 0 1.5-6.3L1.5 7"/></svg> Clear filters</button>
+    <span id="filter-chips" class="f-chips"></span>
+    <button id="btn-reset" class="t-btn hidden" title="Clear the spotlight, search, and all filters"><svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1.5 3v4h4"/><path d="M2.3 10a6 6 0 1 0 1.5-6.3L1.5 7"/></svg> Clear filters</button>
     <span class="tb-spacer"></span>
     <div class="sf-wrap">
       <button id="btn-views" class="t-btn" title="Save the current filters, zoom and layout as a named view, and jump between views">Views <svg class="ico-s" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 6 8 9.5 11.5 6"/></svg></button>
@@ -1033,12 +1092,8 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
     <label class="lock-tog" title="Lock all bars so drags can't change dates">
       <input type="checkbox" id="lock-ck">
       <span class="lock-track"><span class="lock-thumb"></span></span>
-      <span class="lock-txt">Protect dates</span>
+      <span class="lock-txt">Lock dates</span>
     </label>
-    <div class="sf-wrap">
-      <button id="btn-legend" class="t-btn" title="What the colors, patterns and markers mean">?</button>
-      <div id="legend-menu" class="tb-menu hidden"></div>
-    </div>
   </div>
 </div>
 
@@ -1249,7 +1304,7 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_REV=91; // bump this ONE number on every release; used everywhere the rev shows up
+const APP_REV=101; // bump this ONE number on every release; used everywhere the rev shows up
 
 /* ===================== CONSTANTS ===================== */
 const SET_KEY ='shopTimelineSettings_v1';
@@ -1268,9 +1323,6 @@ function applyDensity(d){
   BAR_H=g.bar;BAR_PAD=g.pad;LANE_G=g.gap;
   document.body.classList.toggle('snug',DENSITY==='snug');
   document.body.classList.toggle('compact',DENSITY==='compact');
-  const lbl=DENSITY[0].toUpperCase()+DENSITY.slice(1);
-  const v=document.getElementById('mi-density-v');if(v)v.textContent=lbl;
-  const tb=document.getElementById('btn-density');if(tb)tb.textContent=lbl;
 }
 let SIDE_W=300;
 /* B3 / §7 zoom steps, detail → overview. days and weeks keep their original px-per-day
@@ -1638,7 +1690,7 @@ function loadLocalPrefs(){
     /* V4/B6: restore through the same applier a saved view uses. No search/tint/group
        here — search never persists between sessions, tint and group live in their own
        loose keys loaded elsewhere; a partial snapshot leaves those untouched. */
-    applyViewState({lens:ui.lens,status:ui.showStatus,person:ui.person,color:ui.colorMode,
+    applyViewState({lens:ui.lens,status:ui.showStatus,person:ui.person,client:ui.clients,color:ui.colorMode,
       view:ui.view,density:ui.density===undefined?'comfortable':ui.density,
       collapsedGroups:ui.collapsedGroups,collapsedDepts:ui.collapsedDepts||[]});
     if(ui.sideW)setSideW(ui.sideW);
@@ -2083,6 +2135,7 @@ function savePeople(np){
    untouched, which is what lets loadLocalPrefs pass a partial object. */
 function viewState(){return{
   lens:LENS,group:GROUP_BY||'',status:[...SHOW_STATUS],person:PERSON||'',search:FILTER,
+  client:[...CLIENT_FILTER],
   color:COLOR_MODE,view:VIEW,density:DENSITY,tint:TINT,
   collapsedGroups:Object.fromEntries(Object.entries(GRP_COLLAPSED).map(([m,s])=>[m,[...s]])),
   collapsedDepts:[...COLLAPSED]};}
@@ -2095,16 +2148,15 @@ function applyViewState(s){
   /* REV90: an explicitly-empty status set restores too (the empty-state card offers the
      way back); only an ABSENT field is left untouched, for partial snapshots. */
   if(Array.isArray(s.status))SHOW_STATUS=new Set(s.status.filter(x=>ALL_STATUSES.includes(x)));
+  if(Array.isArray(s.client))CLIENT_FILTER=new Set(s.client.map(x=>String(x).trim()).filter(Boolean));
   if(typeof s.person==='string')PERSON=s.person||null;
   if(typeof s.search==='string'){FILTER=s.search.trim().toLowerCase();
     const se=document.getElementById('t-search');if(se)se.value=s.search;}
-  if(s.color==='entity'||s.color==='project'){COLOR_MODE=s.color;
-    tog('btn-col-ent',COLOR_MODE==='entity');tog('btn-col-proj',COLOR_MODE==='project');}
+  if(s.color==='entity'||s.color==='project'){COLOR_MODE=s.color;syncColorby();}
   if(DW[s.view]){VIEW=s.view;
     for(const[k,id]of Object.entries(VIEW_BTN))tog(id,k===VIEW);}
   if(s.density!==undefined)applyDensity(s.density);
-  if(typeof s.tint==='boolean'){TINT=s.tint;
-    const tb=document.getElementById('t-tint');if(tb)tb.classList.toggle('on',TINT);syncVivid();}
+  if(typeof s.tint==='boolean'){TINT=s.tint;syncVivid();}
   if(s.collapsedGroups)GRP_COLLAPSED=Object.fromEntries(Object.entries(s.collapsedGroups).map(([m,a])=>[m,new Set(a)]));
   if(Array.isArray(s.collapsedDepts))COLLAPSED=new Set(s.collapsedDepts);
 }
@@ -2116,7 +2168,7 @@ function saveUI(){
     localStorage.setItem('shopTimelineGroup',s.group);
     localStorage.setItem(UI_KEY,JSON.stringify({collapsedDepts:s.collapsedDepts,
     collapsedGroups:s.collapsedGroups,
-    density:s.density,colorMode:s.color,view:s.view,sideW:SIDE_W,npvGut:NPV_GUT,showStatus:s.status,person:s.person,lens:s.lens}));}catch(e){}}
+    density:s.density,colorMode:s.color,view:s.view,sideW:SIDE_W,npvGut:NPV_GUT,showStatus:s.status,clients:s.client,person:s.person,lens:s.lens}));}catch(e){}}
 
 /* ===================== SEARCH FILTER ===================== */
 let FILTER='';
@@ -2125,6 +2177,12 @@ let FILTER='';
 let PERSON=null;
 function personHit(t){return !PERSON||barCrew(t).includes(PERSON);}
 function projHasPerson(p){return !PERSON||tasksOf(p.id).some(personHit);}
+/* Phase 3 (native direction): client filter — narrow the board to selected clients
+   (rows removed, like status/person). Empty set = every client. The picker lists only
+   clients that actually have a project on the board, not the whole Clients master. */
+let CLIENT_FILTER=new Set();
+function clientHit(p){return CLIENT_FILTER.size===0||CLIENT_FILTER.has((p.client||'').trim());}
+function boardClients(){return [...new Set((ST&&ST.projects||[]).map(p=>(p.client||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b));}
 /* REV66: identity chain — who is the signed-in user on the staff list? Login email
    against Staff.email first, display name second. Null when unresolved (the
    dashboard-button slice adds the remembered-picker fallback). */
@@ -2154,10 +2212,10 @@ function defaultShowStatus(){return new Set(ALL_STATUSES);}
 let SHOW_STATUS=defaultShowStatus();
 function visTasks(){
   _ensureCache();
-  const key=[...SHOW_STATUS].join(',');
+  const key=[...SHOW_STATUS].join(',')+'|'+[...CLIENT_FILTER].join(',');
   if(_visCache&&_visKey===key)return _visCache;
   _visKey=key;
-  _visCache=ST.tasks.filter(t=>{const p=_projById.get(t.projectId);return !p||SHOW_STATUS.has(projectStatus(p));});
+  _visCache=ST.tasks.filter(t=>{const p=_projById.get(t.projectId);return !p||(SHOW_STATUS.has(projectStatus(p))&&clientHit(p));});
   return _visCache;
 }
 function applyFilter(){
@@ -2423,7 +2481,7 @@ function sortIndexForNew(deadline){
 function buildRows(){
   const rows=[];
   if(LENS==='project'){
-    const projs=currentProjOrder().filter(p=>SHOW_STATUS.has(projectStatus(p))&&projHasPerson(p));
+    const projs=currentProjOrder().filter(p=>SHOW_STATUS.has(projectStatus(p))&&clientHit(p)&&projHasPerson(p));
     const pushProj=p=>{
       rows.push({kind:'projHead',key:'P'+p.id,projectId:p.id,lanes:1});
       if(EXPANDED.has(p.id))
@@ -2734,9 +2792,9 @@ function renderGantt(){
     const b=document.createElement('button');b.className='npv-btn';
     b.textContent=(SHOW_STATUS.size===0)?'Show all statuses':'Reset the view';
     b.addEventListener('click',()=>{
-      SHOW_STATUS=new Set(ALL_STATUSES);FILTER='';PERSON=null;
+      SHOW_STATUS=new Set(ALL_STATUSES);FILTER='';PERSON=null;CLIENT_FILTER.clear();
       const sf=document.getElementById('t-search');if(sf)sf.value='';
-      saveUI();buildStatusMenu();updateFilterBadges();render();
+      saveUI();buildFiltersMenu();updateFilterBadges();render();
     });
     em.appendChild(b);canvas.appendChild(em);
   }
@@ -3759,6 +3817,10 @@ function applyRoute(){
     ROUTE={view:'timeline',id:null,creating:false};
     pg.classList.add('hidden');pg.innerHTML='';mn.classList.remove('hidden');
     render();
+    /* Arriving at the timeline — first load, or back from a project via Done / the
+       breadcrumb / Back — parks today left-of-center, the same default view as startup,
+       rather than the far-left earliest date the fresh render lands on. */
+    setTimeout(scrollTodayLeft,80);
   }
 }
 window.addEventListener('hashchange',applyRoute);
@@ -3862,17 +3924,22 @@ function renderProjectPage(){
    + '<div class="ins-wrap" id="pp-insp"></div>';
 
   h+='<div class="dash-foot">'
-   + (isNew?'':'<span class="pg-auto"><b>&#10003;</b> Changes save automatically</span>')
-   + '<span class="sp"></span>'
-   + '<button class="ins-btn" id="pp-keys" title="Show the keyboard shortcuts (?)">Shortcuts <kbd>?</kbd></button>'
-   /* REV87: manual complete (owner green-light 2026-08-27). Writing the shared
-      status column's existing 'complete' value is the whole feature — the late
-      reads and the grey treatment already key off it in both apps. */
-   + (isNew?'':'<button class="btn" id="pp-complete"></button>')
+   /* Left: passive status — reads as state, not a control. */
+   + (isNew?'':'<span class="pg-auto"><b>&#10003;</b> Changes saved</span>')
+   /* Right: actions on the project, weakest→strongest. Delete is a subdued destructive
+      (red only on hover) that confirms; Mark complete is the secondary workflow step;
+      Done is the primary exit and the most frequent action. Shortcuts moved to
+      Help ▾ / the ? overlay — it's app help, not a project action.
+      REV87: manual complete writes the shared status column's 'complete' value. */
+   + '<div class="foot-actions">'
    + (isNew?'':'<button class="btn btn-del" id="pp-del" title="Delete this project and everything on it">Delete project</button>')
-   + '<button class="btn btn-ghost" id="pp-cancel" title="'+(isNew?'Leave without creating the project':'Go back to the timeline — changes are already saved')+'">'+(isNew?'Cancel':'Done')+'</button>'
+   + (isNew?'':'<button class="btn btn-ghost" id="pp-complete"></button>')
+   + '<button class="btn '+(isNew?'btn-ghost':'btn-primary')+'" id="pp-cancel" title="'+(isNew?'Leave without creating the project':'Go back to the timeline — changes are already saved')+'">'+(isNew?'Cancel':'Done')+'</button>'
    + (isNew?'<button class="btn btn-primary" id="pp-save" title="Create the project with the schedule shown">Create project</button>':'')
-   + '</div></div></div></div>';
+   + '</div></div>'
+   /* Dock control lives in its own corner, outside the footer's button row (app chrome). */
+   + '<button class="ins-btn" id="pp-dock-toggle" title="Collapse the panel" aria-label="Collapse the panel" aria-expanded="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg></button>'
+   + '</div></div></div>';
   h+='<div class="ks hidden" id="pp-ks"><div class="ks-in">'
    + '<h3>Keyboard</h3><div class="ks-g">'
    + [['S','New subtask'],['E','New event'],['T','New task'],['R','Rename selected'],
@@ -3906,8 +3973,8 @@ function renderProjectPage(){
       events:(ST.events||[]).filter(e=>e.projectId!==p.id)});
     goTimeline();
   });
-  const ks=document.getElementById('pp-ks'),kb=document.getElementById('pp-keys');
-  if(kb)kb.addEventListener('click',()=>ks.classList.remove('hidden'));
+  /* Shortcuts left the footer (Help ▾ / the ? key open this sheet instead). */
+  const ks=document.getElementById('pp-ks');
   if(ks)ks.addEventListener('click',()=>ks.classList.add('hidden'));
   /* REV87: the label/disabled state lives in ppPaintMeta so a Setup-dropdown
      status change repaints it too. */
@@ -3960,6 +4027,10 @@ function renderProjectPage(){
       const g2=document.getElementById('npv-gutrs');if(g2)g2.classList.remove('on');
     });
   }
+
+  const dtog=document.getElementById('pp-dock-toggle');
+  if(dtog)dtog.addEventListener('click',()=>setDockCollapsed(!DOCK_COLLAPSED));
+  setDockCollapsed(DOCK_COLLAPSED,false); /* apply the persisted state; npvRebuild below paints it */
 
   npvRebuild();
   if(isNew)setTimeout(()=>{const n=document.getElementById('pp-name');if(n)n.focus();},40);
@@ -4103,6 +4174,9 @@ function ppSelect(id,quiet){
   if(NPV_MODE==='calendar')npvRender();
   ppInspector();
   ppPaintCrumb();
+  /* An open phase popover tracks the selection: repaint it on the new target, or close
+     it when the selection clears. (Checkpoint/task popovers own their own refresh.) */
+  if(NPV_POP&&NPV_POP.kind==='phase'){if(ppSelected())npvPopRender();else npvPopClose();}
   if(!quiet&&PP_SEL){
     const nm=document.getElementById('ins-name');
     if(nm&&!nm.value)nm.focus();
@@ -4375,30 +4449,10 @@ function ppBindInspector(p,sel){
     /* 3.5 convergence: one binding layer, two backends. Saved fields commit to ST;
        draft fields commit to the durable draft stores (lines + manual placements),
        exactly the way the retired popover did. */
+    /* One commit path shared with the in-place popover (ppCommitPhaseField), so a field
+       edited in either surface reads back the same in both. */
     box.querySelectorAll('[data-f]').forEach(i=>i.addEventListener('change',()=>{
-      const f=i.dataset.f;
-      /* the rebuild inside the commit can drop PP_SEL when the bar is a hidden
-         (collapsed) child — re-select by the key captured up front, like the
-         pre-3.5 code re-selected by id */
-      const k0=PP_SEL;
-      if(f==='department'){if(NPV_LIVE)ppMovePhase(sel.id,i.value);return;}
-      if(f==='label'){ppPopName(sel,i.value.trim());}
-      else if(f==='startDate'){ppPopDate(sel,'s',i.value);}
-      else if(f==='endDate'){ppPopDate(sel,'e',i.value);}
-      else if(f==='estimatedDays'){
-        const n=Math.max(1,parseInt(i.value,10)||1);
-        if(NPV_LIVE)commitPhase(sel.id,'estimatedDays',n);
-        /* draft: same semantics as dragging the right edge — a manual placement */
-        else NPV_MANUAL[npvKey(sel)]={startDate:sel.startDate,
-          endDate:fmtDate(fwdN(parseDate(sel.startDate),n)),estimatedDays:n};
-        npvRebuild();
-      }
-      else if(f==='notes'){
-        if(NPV_LIVE)commitPhase(sel.id,'notes',i.value);
-        else ppDraftLineFor(sel).notes=i.value;
-        npvRebuild();
-      }
-      ppSelect(PP_SEL||k0,true);
+      ppCommitPhaseField(sel,i.dataset.f,i.value);
     }));
     const g=(id,fn)=>{const b=document.getElementById(id);if(b)b.addEventListener('click',fn);};
     g('ins-dup',()=>npvDuplicatePhase(sel)); /* N11: moved here from the bar menu */
@@ -4418,17 +4472,8 @@ function ppBindInspector(p,sel){
        (the old popover dropped the placement here — a bar crewed after a drag
        snapped back to the scheduler dates). */
     const cw=document.getElementById('ins-crew');
-    if(cw)cw.addEventListener('change',()=>{
-      const k0=PP_SEL;
-      const names=[...cw.querySelectorAll('input:checked')].map(i=>i.value);
-      if(NPV_LIVE)commitPhase(sel.id,'assignee',names.join(', '));
-      else{
-        const m=NPV_MANUAL[npvKey(sel)];
-        const l=ppDraftLineFor(sel);l.who=names.join(', ');
-        if(m){delete NPV_MANUAL[npvKey(sel)];NPV_MANUAL[npvKey({...sel,assignee:l.who})]=m;}
-      }
-      npvRebuild();ppSelect(PP_SEL||k0,true);
-    });
+    if(cw)cw.addEventListener('change',()=>ppCommitCrew(sel,
+      [...cw.querySelectorAll('input:checked')].map(i=>i.value)));
   }else{
     ['pp-name','pp-client','pp-code','pp-deadline','pp-status'].forEach(id=>{
       const el=document.getElementById(id);
@@ -4514,12 +4559,6 @@ function ppBindInspector(p,sel){
       });
     });
   });
-}
-
-/* Clicking a chart marker lands the cursor in its agenda row — the row IS the editor. */
-function ppFocusAgenda(id){
-  const i=document.querySelector('.ag-i[data-ag-id="'+id+'"] .nm');
-  if(i){i.focus();i.select();}
 }
 
 function ppMovePhase(id,dept){
@@ -4633,6 +4672,9 @@ let PP_SEL=null;          /* REV49: selected phase id. Selection drives the insp
 let PP_INSP='project';    /* which pane: 'project' or 'phase' */
 let DOCK_H=280;           /* E1: bottom-dock height, persisted like the sidebar width */
 try{const v=parseInt(localStorage.getItem('shopTimelineDockH'),10);if(v>0)DOCK_H=v;}catch(e){}
+/* Bottom-dock collapse — form hidden, footer stays. Persisted per user across sessions. */
+let DOCK_COLLAPSED=false;
+try{DOCK_COLLAPSED=localStorage.getItem('shopTimelineDockCollapsed')==='1';}catch(e){}
 const NPV_ROWH=34;      /* must match .npv-row height in the stylesheet */
 let NPV_GEO=null;
 let NPV_RAF=null;
@@ -4862,36 +4904,27 @@ function npvSpareDepts(){
 /* REV49 — menus for a specific thing. Verb first, likeliest at the top, destructive at
    the bottom, and every item shows its key so the menu teaches the keyboard. */
 function npvMenuShell(clientX,clientY,title,html,bind){
-  npvCloseMenu(); /* N11: only one menu at a time */
+  npvCloseMenu();npvPopClose(); /* one menu at a time, and never over the edit popover */
   const el=document.createElement('div');
   el.className='npv-menu';el.id='npv-menu';
-  /* N11: every add menu carries an inline name field — type the name, Enter files it
-     under the first action; clicking any action uses it too. No second dialog. */
-  el.innerHTML='<div class="mh">'+title+'</div>'
-    +'<input class="mn" placeholder="Name (optional)" autocomplete="off" spellcheck="false">'
-    +html;
+  /* The menu is add-only: pick an action and its editor opens on the fresh item, where
+     the name is typed. (The old inline "Name" field lived here — it was overwritten by
+     the next menu press; the popover replaced it.) */
+  el.innerHTML='<div class="mh">'+title+'</div>'+html;
   const rows=(html.match(/<button/g)||[]).length;
-  const H=Math.min(374,78+rows*34), W=232;
+  const H=Math.min(374,52+rows*34), W=232;
   const vw=window.innerWidth||1200, vh=window.innerHeight||800;
   el.style.left=Math.round(Math.max(8,Math.min(clientX,vw-W-8)))+'px';
   el.style.top=Math.round(clientY+H>vh-8?Math.max(8,clientY-H):clientY)+'px';
   document.body.appendChild(el);
   el.addEventListener('mousedown',e=>e.stopPropagation());
   el.addEventListener('contextmenu',e=>{e.preventDefault();e.stopPropagation();});
-  const nameOf=()=>{const i=el.querySelector('.mn');return i?i.value.trim():'';};
   el.querySelectorAll('button').forEach(b=>b.addEventListener('click',e=>{
     e.preventDefault();e.stopPropagation();
-    const act=b.dataset.act,nm=nameOf();
+    const act=b.dataset.act;
     npvCloseMenu();
-    bind(act,b,nm);
+    bind(act,b);
   }));
-  const mn=el.querySelector('.mn');
-  if(mn)mn.addEventListener('keydown',e=>{
-    if(e.key!=='Enter')return;
-    e.preventDefault();
-    const first=el.querySelector('button[data-act]');
-    if(first)first.click();
-  });
   return el;
 }
 /* N11: right-click only adds. Rename, duplicate and delete live in the inspector
@@ -4903,10 +4936,10 @@ function npvBarMenu(x,y,t){
         +   'New subtask<span class="k">S</span></button>'
         + '<button data-act="ev"><span class="mi ev"></span>New checkpoint<span class="k">E</span></button>'
         + '<button data-act="tk"><span class="mi tk"></span>New task<span class="k">T</span></button>';
-  return npvMenuShell(x,y,esc(phaseLabel(t))+' &middot; '+esc(d.name||t.department),h,(act,b,nm)=>{
-    if(act==='sub')npvCreateSubtask(t.department,t.startDate,false,nm);
-    else if(act==='ev')npvCreateEvent(t.department,t.startDate,nm);
-    else if(act==='tk')npvCreateTask(t.department,t.startDate,nm);
+  return npvMenuShell(x,y,esc(phaseLabel(t))+' &middot; '+esc(d.name||t.department),h,(act)=>{
+    if(act==='sub')npvCreateSubtask(t.department,t.startDate,false);
+    else if(act==='ev')npvCreateEvent(t.department,t.startDate);
+    else if(act==='tk')npvCreateTask(t.department,t.startDate);
   });
 }
 function npvDeptMenu(x,y,dept,hit){
@@ -4924,12 +4957,12 @@ function npvDeptMenu(x,y,dept,hit){
    + '<button data-act="tk"><span class="mi tk"></span>New task<span class="k">T</span></button>';
   /* N11: "Remove from job" left with the other destructive actions — untick the
      department in the inspector checklist instead. */
-  return npvMenuShell(x,y,esc(d.name||dept)+' &middot; '+kids.length+' bar'+(kids.length===1?'':'s'),h,(act,b,nm)=>{
+  return npvMenuShell(x,y,esc(d.name||dept)+' &middot; '+kids.length+' bar'+(kids.length===1?'':'s'),h,(act)=>{
     const day=(hit&&hit.date)||(kids[0]&&kids[0].startDate)||'';
     if(act==='tog')npvToggleDept(dept);
-    else if(act==='sub')npvCreateSubtask(dept,day,false,nm);
-    else if(act==='ev')npvCreateEvent(dept,day,nm);
-    else if(act==='tk')npvCreateTask(dept,day,nm);
+    else if(act==='sub')npvCreateSubtask(dept,day,false);
+    else if(act==='ev')npvCreateEvent(dept,day);
+    else if(act==='tk')npvCreateTask(dept,day);
   });
 }
 function npvDuplicatePhase(t){
@@ -4960,7 +4993,7 @@ function npvDuplicatePhase(t){
 }
 
 function npvOpenMenu(clientX,clientY,hit,page){
-  npvCloseMenu();
+  npvCloseMenu();npvPopClose();
   const dept=hit.row?hit.row.dept:'';
   const dn=dept?((deptById(dept)||{}).name||dept):'';
   const el=document.createElement('div');
@@ -4991,35 +5024,25 @@ function npvOpenMenu(clientX,clientY,hit,page){
      + '<div class="sep"></div>'
      + '<button data-act="depts"><span class="mi dp"></span>Add a phase<span class="k">&rsaquo;</span></button>';
   }
-  /* N11: the inline name field — Enter files the typed name under the first action. */
-  h=h.replace('</div>','</div><input class="mn" placeholder="Name (optional)" autocomplete="off" spellcheck="false">');
   el.innerHTML=h;
-  const W=224,H=Math.min(354,78+el.innerHTML.split('<button').length*34);
+  const W=224,H=Math.min(354,52+el.innerHTML.split('<button').length*34);
   const vw=window.innerWidth||1200, vh=window.innerHeight||800;
   el.style.left=Math.round(Math.max(8,Math.min(clientX,vw-W-8)))+'px';
   el.style.top=Math.round(clientY+H>vh-8?Math.max(8,clientY-H):clientY)+'px';
   document.body.appendChild(el);
   el.addEventListener('mousedown',e=>e.stopPropagation());
   el.addEventListener('contextmenu',e=>{e.preventDefault();e.stopPropagation();});
-  const nameOf=()=>{const i=el.querySelector('.mn');return i?i.value.trim():'';};
   el.querySelectorAll('button').forEach(b=>b.addEventListener('click',e=>{
     e.preventDefault();e.stopPropagation();
-    const act=b.dataset.act,nm=nameOf();
+    const act=b.dataset.act;
     if(act==='depts'){npvOpenMenu(clientX,clientY,hit,'depts');return;}
     npvCloseMenu();
     if(act==='tog')npvToggleDept(dept);
-    else if(act==='sub')npvCreateSubtask(dept,hit.date,false,nm);
-    else if(act==='dept')npvCreateSubtask(b.dataset.dept,hit.date,true,nm);
-    else if(act==='ev')npvCreateEvent(dept,hit.date,nm);
-    else if(act==='tk')npvCreateTask(dept,hit.date,nm);
+    else if(act==='sub')npvCreateSubtask(dept,hit.date,false);
+    else if(act==='dept')npvCreateSubtask(b.dataset.dept,hit.date,true);
+    else if(act==='ev')npvCreateEvent(dept,hit.date);
+    else if(act==='tk')npvCreateTask(dept,hit.date);
   }));
-  const mn=el.querySelector('.mn');
-  if(mn)mn.addEventListener('keydown',e=>{
-    if(e.key!=='Enter')return;
-    e.preventDefault();
-    const first=el.querySelector('button[data-act]');
-    if(first)first.click();
-  });
   return el;
 }
 /* A new bar starts on the day you clicked and runs as long as the rest of that
@@ -5492,8 +5515,25 @@ function npvBindHost(host){
          (ppSelect stores a rebuild-stable key on drafts). */
       if(NPV_MODE==='calendar'&&Math.abs(ev.clientX-dnX)<=4&&Math.abs(ev.clientY-dnY)<=4){
         const band=ev.target&&ev.target.closest?ev.target.closest('.cal-band.ph'):null;
-        if(band){const t=NPV_TASKS[+band.dataset.i];if(t)ppSelect(t.id);return;}
+        if(band){const t=NPV_TASKS[+band.dataset.i];
+          if(t){ppSelect(t.id);npvEditPop('phase',ppSelected(),ev.clientX,ev.clientY);}return;}
       }
+    });
+    /* Double-click a title to rename it in place, like a folder in Explorer. Delegated
+       on the host so it survives every re-render (bands/gutters are rewritten each paint). */
+    host.addEventListener('dblclick',ev=>{
+      const tg=ev.target;if(!tg||!tg.closest)return;
+      /* Double-click is a rename intent; close the popover the paired single-clicks opened
+         (calendar bands select-and-open on click) so the rename box stands alone. */
+      if(NPV_MODE==='calendar'){
+        const band=tg.closest('.cal-band.ph');
+        if(band){ev.preventDefault();npvPopClose();const t=NPV_TASKS[+band.dataset.i];
+          if(t)npvInlineRename(t,band.querySelector('.cal-txt')||band);}
+        return;
+      }
+      const gut=tg.closest('.npv-gut');
+      if(gut){const bar=gut.parentElement&&gut.parentElement.querySelector('.npv-bar');
+        if(bar){ev.preventDefault();npvPopClose();const t=NPV_TASKS[+bar.dataset.i];if(t)npvInlineRename(t,gut);}}
     });
     /* REV71 — calendar drag-to-move. A phase band drags to a new day like a Gantt bar.
        The calendar has no pixel axis to do arithmetic against, so the drag reads dates
@@ -5540,9 +5580,9 @@ function npvBindHost(host){
           host.classList.remove('cal-dragging');mkEl.classList.remove('dragging');
           document.body.style.userSelect='';hideTooltip();
           if(!moved){
-            /* a click: open the agenda and rename it right there, like the Gantt */
+            /* a click: open the in-place editor on this checkpoint/task */
             ppInspector();
-            setTimeout(()=>ppFocusAgenda(id),30);
+            npvEditPop(k,id,x0,y0);
             return;
           }
           if(!days)return;
@@ -5642,7 +5682,7 @@ function npvBindHost(host){
           if(locked||!edgeD){
             /* 3.5/I14: same courtesy as the Gantt — a refused resize says why. */
             if(locked)toast(t.pinned?'📌 Pinned — untick Pin in the phase panel to resize it'
-                                    :'Protect dates is on — unlock it to resize');
+                                    :'Lock dates is on — unlock it to resize');
             return;
           }
           const ns2=resize==='l'?edgeD:s0, ne2=resize==='r'?edgeD:e0;
@@ -5781,17 +5821,22 @@ function npvBindHost(host){
     document.addEventListener('mousedown',ev=>{
       const tg=ev.target;
       if(!tg||!tg.closest)return;
+      /* A press inside the edit popover keeps it; any other press closes it (a press on
+         another bar then reopens it). */
+      if(tg.closest('#npv-pop'))return;
+      npvPopClose();
       /* The chart closes its own layers. This handler runs first, in capture, so
          doing it here too would clear the menu before the chart could see it was
          open — and a click meant to dismiss would open a fresh one. */
       if(tg.closest('#npv-body')||tg.closest('#npv-menu'))return;
       npvCloseMenu();
     },true);
-    /* Same trap as the popover: the menu's inline name field scrolls itself when a
-       typed name outgrows it — that must not dismiss the menu mid-word. */
+    /* Scrolling detaches the menu/popover from its anchor, so it closes — unless the
+       scroll is the layer's own (a long crew list or a menu scrolling its own body). */
     window.addEventListener('scroll',ev=>{
-      if(ev&&ev.target&&ev.target.closest&&ev.target.closest('#npv-menu'))return;
-      npvCloseMenu();
+      const t=ev&&ev.target&&ev.target.closest?ev.target:null;
+      if(t&&t.closest&&(t.closest('#npv-menu')||t.closest('#npv-pop')))return;
+      npvCloseMenu();npvPopClose();
     },true);
     BP_DOC_BOUND=true;
   }
@@ -6253,6 +6298,208 @@ function ppPopDelete(t){
   ppSelect(null,true);npvRebuild();
 }
 
+/* ============ Edit-in-place popover ============
+   One floating editor for all four item types (phase, subtask, checkpoint, task), on
+   both the Gantt and the calendar. It writes through the very same commit helpers the
+   bottom inspector uses, so the two surfaces stay in lockstep — edit in either place and
+   see it in both. A phase target is whatever is selected (PP_SEL); a checkpoint/task
+   target is its id. */
+let NPV_POP=null;
+
+/* Extracted from ppBindInspector so the dock and the popover share ONE commit path. */
+function ppCommitPhaseField(sel,f,value){
+  const k0=PP_SEL;
+  if(f==='department'){if(NPV_LIVE)ppMovePhase(sel.id,value);return;}
+  if(f==='label'){ppPopName(sel,String(value).trim());}
+  else if(f==='startDate'){ppPopDate(sel,'s',value);}
+  else if(f==='endDate'){ppPopDate(sel,'e',value);}
+  else if(f==='estimatedDays'){
+    const n=Math.max(1,parseInt(value,10)||1);
+    if(NPV_LIVE)commitPhase(sel.id,'estimatedDays',n);
+    /* draft: same semantics as dragging the right edge — a manual placement */
+    else NPV_MANUAL[npvKey(sel)]={startDate:sel.startDate,
+      endDate:fmtDate(fwdN(parseDate(sel.startDate),n)),estimatedDays:n};
+    npvRebuild();
+  }
+  else if(f==='notes'){
+    if(NPV_LIVE)commitPhase(sel.id,'notes',value);
+    else ppDraftLineFor(sel).notes=value;
+    npvRebuild();
+  }
+  ppSelect(PP_SEL||k0,true);
+}
+function ppCommitCrew(sel,names){
+  const k0=PP_SEL;
+  if(NPV_LIVE)commitPhase(sel.id,'assignee',names.join(', '));
+  else{
+    const m=NPV_MANUAL[npvKey(sel)];
+    const l=ppDraftLineFor(sel);l.who=names.join(', ');
+    if(m){delete NPV_MANUAL[npvKey(sel)];NPV_MANUAL[npvKey({...sel,assignee:l.who})]=m;}
+  }
+  npvRebuild();ppSelect(PP_SEL||k0,true);
+}
+
+function npvPopClose(){
+  const el=document.getElementById('npv-pop');
+  NPV_POP=null;
+  if(!el)return false;
+  el.remove();return true;
+}
+/* kind: 'phase' edits ppSelected(); 'ev'/'tk' edit the marker whose id===target. */
+function npvEditPop(kind,target,x,y,focusName){
+  if(!target){npvPopClose();return;}
+  npvCloseMenu();
+  NPV_POP={kind,id:(kind==='phase'?null:target),x:x||0,y:y||0,_new:!!focusName};
+  npvPopRender();
+}
+function npvPopPosition(el,x,y){
+  const W=el.offsetWidth||274,H=el.offsetHeight||300;
+  const vw=window.innerWidth||1200,vh=window.innerHeight||800;
+  el.style.left=Math.round(Math.max(8,Math.min(x,vw-W-8)))+'px';
+  el.style.top=Math.round(y+H>vh-8?Math.max(8,y-H):y)+'px';
+}
+function npvPopRender(){
+  if(!NPV_POP)return;
+  let el=document.getElementById('npv-pop');
+  if(!el){
+    el=document.createElement('div');el.id='npv-pop';el.className='npv-pop';
+    document.body.appendChild(el);
+    el.addEventListener('mousedown',e=>e.stopPropagation());
+    el.addEventListener('contextmenu',e=>{e.preventDefault();e.stopPropagation();});
+  }
+  if(NPV_POP.kind==='phase'){
+    const sel=ppSelected();
+    if(!sel){npvPopClose();return;}
+    el.innerHTML=npvPopPhaseHTML(sel);
+    npvPopPosition(el,NPV_POP.x,NPV_POP.y);
+    npvPopBindPhase(el);
+  }else{
+    const it=npvPopMarkFind(NPV_POP.kind,NPV_POP.id);
+    if(!it){npvPopClose();return;}
+    el.innerHTML=npvPopMarkHTML(NPV_POP.kind,it);
+    npvPopPosition(el,NPV_POP.x,NPV_POP.y);
+    npvPopBindMark(el,NPV_POP.kind,NPV_POP.id);
+  }
+  if(NPV_POP._new){
+    NPV_POP._new=false;
+    const n=el.querySelector('[data-f="label"],[data-f="name"],[data-f="title"]');
+    if(n){n.focus();if(n.select)n.select();}
+  }
+}
+function npvPopPhaseHTML(sel){
+  const d=deptById(sel.department)||{};
+  const p=ppProject();
+  let h='<div class="ins-hd"><span class="dot" style="background:'+(DEPT_COLORS[sel.department]||'#8A98AE')+'"></span>'
+   +'<span class="t">'+esc(phaseLabel(sel))+'</span>'
+   +'<button class="x" data-pop-x title="Close (Esc)">&times;</button></div><div class="pop-body">';
+  h+='<div class="ins-f"><label>Name</label><input data-f="label" value="'+esc(sel.label||'')+'" placeholder="'+esc(d.name||sel.department)+'"></div>';
+  h+='<div class="ins-f"><label>Department</label><select data-f="department"'
+   +(NPV_LIVE?'':' disabled title="Until the project is created, departments are chosen in the checklist"')
+   +'>'+deptOptions(sel.department)+'</select></div>';
+  if(!d.freeText){
+    const crew=crewOf(sel);
+    const pool=sel.department==='install'?allPeople():(projTeam(p).length?projTeam(p):allPeople());
+    h+='<div class="ins-f"><label>Crew</label><div class="crew-list ins-crew" data-pop-crew>'
+     +[...new Set([...pool,...crew])].map(n=>'<label><input type="checkbox" value="'+esc(n)+'"'
+       +(crew.indexOf(n)>=0?' checked':'')+'>'+esc(n)+'</label>').join('')
+     +'</div></div>';
+  }
+  h+='<div class="ins-row pop-dates">'
+   +'<div class="ins-f"><label>Start</label><input type="date" data-f="startDate" value="'+esc(sel.startDate||'')+'"></div>'
+   +'<div class="ins-f"><label>End</label><input type="date" data-f="endDate" value="'+esc(sel.endDate||'')+'"></div>'
+   +'</div>'
+   +'<div class="ins-f pop-days"><label>Days</label><input type="number" min="1" data-f="estimatedDays" value="'+(sel.estimatedDays||1)+'"></div>';
+  h+='<div class="ins-f"><label>Notes</label><textarea rows="2" data-f="notes" placeholder="Anything the shop needs to know">'+esc(sel.notes||'')+'</textarea></div>';
+  h+='<div class="ins-acts"><button class="ins-btn dngr" data-pop-del title="Delete this phase">Delete</button></div>';
+  h+='</div>';
+  return h;
+}
+function npvPopBindPhase(el){
+  el.querySelectorAll('[data-f]').forEach(i=>{
+    i.addEventListener('keydown',e=>{e.stopPropagation();
+      if(e.key==='Escape'){e.preventDefault();npvPopClose();}
+      else if(e.key==='Enter'&&i.tagName!=='TEXTAREA'){e.preventDefault();i.blur();}});
+    i.addEventListener('change',()=>{const cur=ppSelected();if(!cur)return;
+      ppCommitPhaseField(cur,i.dataset.f,i.value);});
+  });
+  const cw=el.querySelector('[data-pop-crew]');
+  if(cw)cw.addEventListener('change',()=>{const cur=ppSelected();if(!cur)return;
+    ppCommitCrew(cur,[...cw.querySelectorAll('input:checked')].map(x=>x.value));});
+  const x=el.querySelector('[data-pop-x]');if(x)x.addEventListener('click',()=>npvPopClose());
+  const del=el.querySelector('[data-pop-del]');if(del)del.addEventListener('click',()=>{
+    const cur=ppSelected();if(!cur)return;npvPopClose();
+    if(NPV_LIVE)ppDeletePhase(cur.id);else ppPopDelete(cur);});
+}
+function npvPopMarkFind(kind,id){
+  if(NPV_LIVE){
+    const p=ppProject();if(!p)return null;
+    const o=(kind==='ev'?liveEvents(p):liveTodos(p)).find(z=>z.id===id);
+    if(!o)return null;
+    return kind==='ev'?{id:o.id,name:o.name||'',date:o.date||'',dept:o.dept||'',notes:o.notes||''}
+                      :{id:o.id,title:o.title||'',due:o.due||'',dept:o.dept||'',who:(o.who||[]).join(', ')};
+  }
+  if(kind==='ev'){const e=NPV_EVENTS.find(z=>z.id===id);
+    return e?{id:e.id,name:e.name||'',date:e.date||'',dept:e.dept||'',notes:e.notes||''}:null;}
+  const t=NPV_TODOS.find(z=>z.id===id);
+  return t?{id:t.id,title:t.title||'',due:t.due||'',dept:t.dept||'',who:(t.who||[]).join(', ')}:null;
+}
+function npvPopMarkHTML(kind,it){
+  const ev=kind==='ev';
+  let h='<div class="ins-hd"><span class="dot '+kind+'"></span>'
+   +'<span class="t">'+esc((ev?it.name:it.title)||(ev?'Checkpoint':'Task'))+'</span>'
+   +'<button class="x" data-pop-x title="Close (Esc)">&times;</button></div><div class="pop-body">';
+  h+='<div class="ins-f"><label>'+(ev?'Date':'Due')+'</label><input type="date" data-f="'+(ev?'date':'due')+'" value="'+esc(ev?it.date:it.due)+'"></div>';
+  h+='<div class="ins-f"><label>Name</label><input data-f="'+(ev?'name':'title')+'" value="'+esc(ev?it.name:it.title)+'"'+(ev?' list="ag-dl" placeholder="Client Approval"':' placeholder="Order acrylic"')+'></div>';
+  h+='<div class="ins-f"><label>Phase</label><select data-f="dept">'+deptOptions(it.dept)+'</select></div>';
+  h+='<div class="ins-f"><label>'+(ev?'Notes':'Who')+'</label><input data-f="'+(ev?'notes':'who')+'" value="'+esc(ev?it.notes:it.who)+'" placeholder="'+(ev?'notes':'who')+'"></div>';
+  h+='<div class="ins-acts"><button class="ins-btn dngr" data-pop-del>Delete</button></div></div>';
+  return h;
+}
+function npvPopBindMark(el,kind,id){
+  const commit=(f,val)=>{
+    if(NPV_LIVE){if(kind==='ev')liveCommitEvent(id,f,val);else liveCommitTodo(id,f,val);}
+    else if(kind==='ev'){const e=NPV_EVENTS.find(z=>z.id===id);if(e)e[f]=val;}
+    else{const t=NPV_TODOS.find(z=>z.id===id);
+      if(t){if(f==='who')t.who=val.split(',').map(x=>x.trim()).filter(Boolean);else t[f]=val;}}
+    npvRebuild();ppInspector();npvPopRender();
+  };
+  el.querySelectorAll('[data-f]').forEach(i=>{
+    i.addEventListener('keydown',e=>{e.stopPropagation();
+      if(e.key==='Escape'){e.preventDefault();npvPopClose();}
+      else if(e.key==='Enter'){e.preventDefault();i.blur();}});
+    i.addEventListener('change',()=>commit(i.dataset.f,i.value));
+  });
+  const x=el.querySelector('[data-pop-x]');if(x)x.addEventListener('click',()=>npvPopClose());
+  const del=el.querySelector('[data-pop-del]');if(del)del.addEventListener('click',()=>{
+    if(!confirm('Delete this '+(kind==='ev'?'checkpoint':'task')+'?'))return;
+    if(NPV_LIVE){if(kind==='ev')liveDeleteEvent(id);else liveDeleteTodo(id);}
+    else{if(kind==='ev')NPV_EVENTS=NPV_EVENTS.filter(z=>z.id!==id);else NPV_TODOS=NPV_TODOS.filter(z=>z.id!==id);}
+    npvPopClose();npvRebuild();ppInspector();
+    toast(kind==='ev'?'Checkpoint deleted':'Task deleted');});
+}
+/* Explorer-style rename: double-click a title, type, Enter/blur commits, Esc cancels. */
+function npvInlineRename(t,hostEl){
+  if(!t||!hostEl||hostEl.querySelector('.npv-rename'))return;
+  const cur=t.label||'';
+  const inp=document.createElement('input');
+  inp.className='npv-rename';inp.value=cur;
+  inp.placeholder=(deptById(t.department)||{}).name||t.department;
+  hostEl.innerHTML='';hostEl.appendChild(inp);
+  inp.focus();inp.select();
+  let done=false;
+  const commit=save=>{
+    if(done)return;done=true;
+    const v=inp.value.trim();
+    if(save&&v!==cur){ppPopName(t,v);ppInspector();if(NPV_POP)npvPopRender();}
+    else npvRender();
+  };
+  inp.addEventListener('keydown',e=>{e.stopPropagation();
+    if(e.key==='Enter'){e.preventDefault();commit(true);}
+    else if(e.key==='Escape'){e.preventDefault();commit(false);}});
+  inp.addEventListener('blur',()=>commit(true));
+  inp.addEventListener('mousedown',e=>e.stopPropagation());
+  inp.addEventListener('dblclick',e=>e.stopPropagation());
+}
 function npvBindDrag(){
   const host=document.getElementById('npv-body');
   /* Disclosure triangle. Bound before the bars so a click on it never reaches the
@@ -6272,7 +6519,7 @@ function npvBindDrag(){
       npvBlur();
       const id=mk.dataset.mkId,k=mk.dataset.mkK,d0=mk.dataset.mkDate;
       if(!id)return;
-      const x0=ev.clientX,dwv=NPV_GEO.dw,left0=parseFloat(mk.style.left)||0;
+      const x0=ev.clientX,y0=ev.clientY,dwv=NPV_GEO.dw,left0=parseFloat(mk.style.left)||0;
       const lbl=mk.nextElementSibling&&mk.nextElementSibling.classList.contains('npv-evlbl')
         ?mk.nextElementSibling:null;
       const lbl0=lbl?parseFloat(lbl.style.left)||0:0;
@@ -6288,9 +6535,9 @@ function npvBindDrag(){
         document.removeEventListener('mouseup',up);
         mk.classList.remove('dragging');
         if(!days){
-          /* a click: open the agenda and rename it right there */
+          /* a click: open the in-place editor on this checkpoint/task */
           ppInspector();
-          setTimeout(()=>ppFocusAgenda(id),30);
+          npvEditPop(k,id,x0,y0);
           return;
         }
         const nd=fmtDate(addDays(parseDate(d0),days));
@@ -6397,7 +6644,8 @@ function npvBindDrag(){
              draft the click opens the bar's popover editor, because draft bars aren't in
              ST for the inspector to find. */
           npvRender();
-          ppSelect(t.id); /* 3.5: one click verb on both pages — select into the inspector */
+          ppSelect(t.id); /* select into the bottom inspector */
+          npvEditPop('phase',ppSelected(),e2.clientX,e2.clientY); /* and the in-place editor */
           return;
         }
         /* A real drag that was locked, or rounded back to zero days: reset, no select. */
@@ -6405,7 +6653,7 @@ function npvBindDrag(){
           npvRender();
           /* 3.5/I14: a refused resize says WHY instead of silently snapping back. */
           if(locked)toast(t.pinned?'📌 Pinned — untick Pin in the phase panel to resize it'
-                                  :'Protect dates is on — unlock it to resize');
+                                  :'Lock dates is on — unlock it to resize');
           return;
         }
         if(resize){
@@ -6580,7 +6828,7 @@ try{const tv=localStorage.getItem('shopTimelineTint');if(tv!==null)TINT=(tv==='1
   const ov=localStorage.getItem('shopTimelineOpenDepts');
   if(ov)NPV_OPEN=new Set(JSON.parse(ov)||[]);
   const gv=localStorage.getItem('shopTimelineGroup');if(gv)GROUP_BY=gv;}catch(e){}
-syncVivid();
+syncVivid();syncColorby();
 
 /* ===================== KEYBOARD ===================== */
 document.addEventListener('keydown',ev=>{
@@ -6602,6 +6850,7 @@ document.addEventListener('keydown',ev=>{
       const ksx=document.getElementById('pp-ks');
       if(ksx&&!ksx.classList.contains('hidden')){ksx.classList.add('hidden');ev.preventDefault();return;}
       if(npvCloseMenu()){ev.preventDefault();return;}
+      if(npvPopClose()){ev.preventDefault();return;}
       if(typing){ev.target.blur();return;}
       if(PP_SEL){ppSelect(null);ev.preventDefault();return;}
       ev.preventDefault();goTimeline();return;
@@ -6754,12 +7003,6 @@ for(const b of document.querySelectorAll('#goto-menu [data-goto]'))b.addEventLis
   else if(kind==='m3')d.setMonth(d.getMonth()+3);
   gotoDate(fmtDate(d));
 });
-const tintBtn=document.getElementById('t-tint');
-tintBtn.classList.toggle('on',TINT);
-tintBtn.addEventListener('click',()=>{
-  TINT=!TINT;tintBtn.classList.toggle('on',TINT);syncVivid();saveUI();
-  if(ROUTE.view==='project')npvRender();else render();
-});
 /* B3: four zoom steps (§7). D/W jump straight to Day/Week; +/− walk ZOOM_STEPS. */
 function setView(v){
   if(!DW[v]||v===VIEW)return;
@@ -6774,12 +7017,6 @@ document.getElementById('btn-lens-proj').addEventListener('click',()=>{if(LENS==
   saveUI();render();});
 document.getElementById('btn-lens-dept').addEventListener('click',()=>{if(LENS==='dept')return;LENS='dept';
   document.getElementById('btn-lens-dept').classList.add('active');document.getElementById('btn-lens-proj').classList.remove('active');
-  saveUI();render();});
-document.getElementById('btn-col-proj').addEventListener('click',()=>{if(COLOR_MODE==='project')return;COLOR_MODE='project';
-  document.getElementById('btn-col-proj').classList.add('active');document.getElementById('btn-col-ent').classList.remove('active');
-  saveUI();render();});
-document.getElementById('btn-col-ent').addEventListener('click',()=>{if(COLOR_MODE==='entity')return;COLOR_MODE='entity';
-  document.getElementById('btn-col-ent').classList.add('active');document.getElementById('btn-col-proj').classList.remove('active');
   saveUI();render();});
 document.getElementById('btn-new-proj').addEventListener('click',()=>openProjModal(null));
 document.getElementById('lock-ck').addEventListener('change',ev=>{DATE_LOCK=ev.target.checked;document.body.classList.toggle('dates-locked',DATE_LOCK);});
@@ -6863,6 +7100,18 @@ function setSideW(w){SIDE_W=Math.max(180,Math.min(480,Math.round(w)));document.g
    listeners live on document and key off the id. */
 function setDockH(h){DOCK_H=Math.max(140,Math.min(Math.round(h),window.innerHeight-220));
   const d=document.getElementById('pp-dock');if(d)d.style.height=DOCK_H+'px';}
+/* Collapse/expand the edit form. The class hides #pp-insp and the resize grip (the footer
+   bar stays), the chart's flex:1 reclaims the space; state persists across sessions. */
+function setDockCollapsed(collapsed,repaint){
+  DOCK_COLLAPSED=!!collapsed;
+  const d=document.getElementById('pp-dock');
+  if(d)d.classList.toggle('collapsed',DOCK_COLLAPSED);
+  const b=document.getElementById('pp-dock-toggle');
+  if(b){b.title=DOCK_COLLAPSED?'Expand the panel':'Collapse the panel';
+    b.setAttribute('aria-label',b.title);b.setAttribute('aria-expanded',String(!DOCK_COLLAPSED));}
+  try{localStorage.setItem('shopTimelineDockCollapsed',DOCK_COLLAPSED?'1':'0');}catch(e){}
+  if(repaint!==false)npvRender(); /* the chart grew/shrank — recompute its geometry */
+}
 (function(){
   let rs=null;
   document.addEventListener('mousedown',ev=>{
@@ -6889,13 +7138,31 @@ window.addEventListener('resize',render);
 
 /* ===================== REV31: STATUS FILTER & RESET VIEW ===================== */
 function statusFilterDirty(){const d=defaultShowStatus();if(SHOW_STATUS.size!==d.size)return true;for(const x of SHOW_STATUS)if(!d.has(x))return true;return false;}
+function activeFilterCount(){return (statusFilterDirty()?1:0)+(PERSON?1:0)+CLIENT_FILTER.size;}
 function updateFilterBadges(){
-  const b=document.getElementById('btn-status');
-  b.classList.toggle('active',statusFilterDirty());
-  b.innerHTML='Status ('+SHOW_STATUS.size+'/'+ALL_STATUSES.length+') '+ICO.caret;
-  const pb=document.getElementById('btn-person');
-  pb.classList.toggle('active',!!PERSON);
-  pb.innerHTML=(PERSON?'Person: '+esc(PERSON):'Person')+' '+ICO.caret;
+  const n=activeFilterCount();
+  const fb=document.getElementById('btn-filters');
+  if(fb){fb.classList.toggle('active',n>0);fb.innerHTML='Filters'+(n?' ('+n+')':'')+' '+ICO.caret;}
+  const cw=document.getElementById('filter-chips');
+  if(cw){
+    cw.innerHTML='';
+    const chip=(label,onX)=>{
+      const s=document.createElement('span');s.className='f-chip';
+      s.appendChild(document.createTextNode(label));
+      const x=document.createElement('button');x.type='button';x.className='f-x';x.textContent='×';
+      x.title='Remove — '+label;x.setAttribute('aria-label','Remove '+label);
+      x.addEventListener('click',ev=>{ev.stopPropagation();onX();});
+      s.appendChild(x);cw.appendChild(s);
+    };
+    if(statusFilterDirty())chip('Status ('+SHOW_STATUS.size+'/'+ALL_STATUSES.length+')',
+      ()=>{SHOW_STATUS=defaultShowStatus();saveUI();buildFiltersMenu();updateFilterBadges();render();});
+    for(const c of CLIENT_FILTER)chip('Client: '+c,
+      ()=>{CLIENT_FILTER.delete(c);saveUI();buildFiltersMenu();updateFilterBadges();render();});
+    if(PERSON)chip('Person: '+PERSON,
+      ()=>{PERSON=null;saveUI();buildFiltersMenu();updateFilterBadges();render();});
+  }
+  const rb=document.getElementById('btn-reset');
+  if(rb)rb.classList.toggle('hidden',n===0&&!FILTER&&SPOT.size===0);
 }
 /* REV65: person filter menu — one pick, or Everyone. Rebuilt on every open so it
    always reflects the current People & Availability roster. */
@@ -6916,6 +7183,23 @@ function buildPersonMenu(){
   for(const n of names)mk(n,n);
   if(!names.length){const d=document.createElement('div');d.className='sm-item';d.textContent='No people yet — add them in Settings';m.appendChild(d);}
 }
+/* Phase 3: client filter section — checkboxes for every client with a project on the
+   board (not the whole Clients master). Multi-select; empty = all clients. */
+function buildClientMenu(){
+  const m=document.getElementById('client-menu');if(!m)return;m.innerHTML='';
+  const clients=boardClients();
+  if(!clients.length){const d=document.createElement('div');d.className='sm-item';d.textContent='No clients on the board yet';m.appendChild(d);return;}
+  for(const name of clients){
+    const l=document.createElement('label');l.className='sm-item';
+    const c=document.createElement('input');c.type='checkbox';c.checked=CLIENT_FILTER.has(name);
+    c.addEventListener('change',()=>{if(c.checked)CLIENT_FILTER.add(name);else CLIENT_FILTER.delete(name);
+      saveUI();updateFilterBadges();render();});
+    l.appendChild(c);l.appendChild(document.createTextNode(' '+name));m.appendChild(l);
+  }
+}
+/* One consolidated Filters ▾ dropdown (native direction, Phase 3) — status, client and
+   person share one menu; each section builds into its own container div. */
+function buildFiltersMenu(){buildStatusMenu();buildClientMenu();buildPersonMenu();}
 function buildStatusMenu(){
   const m=document.getElementById('status-menu');
   m.innerHTML='';
@@ -6936,6 +7220,38 @@ function buildStatusMenu(){
   none.addEventListener('click',()=>{SHOW_STATUS=new Set();saveUI();buildStatusMenu();updateFilterBadges();render();});
   row.appendChild(all);row.appendChild(none);
   m.appendChild(row);
+}
+/* Phase 2 (native direction) — Color by ▾ dropdown, was the Project/Team segmented toggle */
+function syncColorby(){const b=document.getElementById('colorby-v');if(b)b.textContent=COLOR_MODE==='entity'?'Team':'Project';}
+function setColorMode(v){if((v!=='project'&&v!=='entity')||COLOR_MODE===v)return;COLOR_MODE=v;syncColorby();saveUI();render();}
+function buildColorbyMenu(){
+  const m=document.getElementById('colorby-menu');m.innerHTML='';
+  const mk=(label,val)=>{
+    const l=document.createElement('label');l.className='sm-item';
+    const c=document.createElement('input');c.type='radio';c.name='colorby-pick';c.checked=(COLOR_MODE===val);
+    c.addEventListener('change',()=>{setColorMode(val);closeMenus();});
+    l.appendChild(c);l.appendChild(document.createTextNode(' '+label));m.appendChild(l);
+  };
+  mk('Project','project');mk('Team','entity');
+}
+/* Phase 2 — View ▾ holds the low-frequency display prefs, was three standing toolbar buttons.
+   Row height (density) and month shading (Vivid) keep their behaviour; only the control moved. */
+function buildViewMenu(){
+  const m=document.getElementById('view-menu');m.innerHTML='';
+  const sec=t=>{const d=document.createElement('div');d.className='sm-sec';d.textContent=t;m.appendChild(d);};
+  sec('Row height');
+  const dmk=(label,val)=>{
+    const l=document.createElement('label');l.className='sm-item';
+    const c=document.createElement('input');c.type='radio';c.name='density-pick';c.checked=(DENSITY===val);
+    c.addEventListener('change',()=>{applyDensity(val);saveUI();render();});
+    l.appendChild(c);l.appendChild(document.createTextNode(' '+label));m.appendChild(l);
+  };
+  dmk('Comfortable','comfortable');dmk('Snug','snug');dmk('Compact','compact');
+  sec('Month shading');
+  const l=document.createElement('label');l.className='sm-item';
+  const c=document.createElement('input');c.type='checkbox';c.checked=TINT;
+  c.addEventListener('change',()=>{TINT=c.checked;syncVivid();saveUI();if(ROUTE.view==='project')npvRender();else render();});
+  l.appendChild(c);l.appendChild(document.createTextNode(' Vivid months'));m.appendChild(l);
 }
 /* ===================== C3: LEGEND ===================== */
 /* One screen explaining the five encodings: status treatments, red = install,
@@ -6982,9 +7298,12 @@ function wireMenu(btnId,menuId){
   b.addEventListener('click',ev=>{ev.stopPropagation();const open=m.classList.contains('hidden');closeMenus();if(open)m.classList.remove('hidden');});
   m.addEventListener('click',ev=>ev.stopPropagation());
 }
-wireMenu('btn-status','status-menu');
-document.getElementById('btn-person').addEventListener('click',buildPersonMenu);
-wireMenu('btn-person','person-menu');
+document.getElementById('btn-filters').addEventListener('click',buildFiltersMenu);
+wireMenu('btn-filters','filters-menu');
+document.getElementById('btn-colorby').addEventListener('click',buildColorbyMenu);
+wireMenu('btn-colorby','colorby-menu');
+document.getElementById('btn-view').addEventListener('click',buildViewMenu);
+wireMenu('btn-view','view-menu');
 
 /* ===================== V4/B6: NAMED SAVED VIEWS ===================== */
 /* Snapshots of viewState() kept in this browser only — deliberately not SharePoint,
@@ -7004,7 +7323,7 @@ function seedViews(){
 }
 function applyView(v){
   applyViewState(v.state);
-  saveUI();buildStatusMenu();updateFilterBadges();render();
+  saveUI();buildFiltersMenu();updateFilterBadges();render();
   toast('View: '+v.name);
 }
 function buildViewsMenu(){
@@ -7096,18 +7415,7 @@ document.getElementById('btn-dash').addEventListener('click',ev=>{
 });
 document.getElementById('dash-menu').addEventListener('click',ev=>ev.stopPropagation());
 wireMenu('btn-print','print-menu');
-wireMenu('btn-settings','settings-menu');
-/* B5: the density toggle cycles the three levels — geometry follows --row-h,
-   persisted like every other UI pref. REV88 surfaced it into the timeline row's
-   style cluster; the Settings item stays as an alias for a release. */
-function cycleDensity(){
-  const order=Object.keys(DENSITIES);
-  applyDensity(order[(order.indexOf(DENSITY)+1)%order.length]);
-  saveUI();render();
-}
-document.getElementById('mi-density').addEventListener('click',cycleDensity);
-document.getElementById('btn-density').addEventListener('click',cycleDensity);
-wireMenu('btn-legend','legend-menu');
+wireMenu('btn-resources','resources-menu');
 buildLegend();
 
 /* ===================== REV87: PM LATE-PROJECT PROMPT ===================== */
@@ -7181,13 +7489,13 @@ const COACH_STEPS=[
   {sel:'#gantt-scroll',t:'The timeline',
    b:'Each bar is a phase of work. Click one for its details, drag it to move, grab an edge to resize, right-click for more. Red bars are installs.'},
   {sel:'#t-search',t:'Find things fast',
-   b:'Type here (or press /) to show only matching projects and phases. Status and Person narrow the view the same way — Clear filters brings everything back.'},
+   b:'Type here (or press /) to show only matching projects and phases. Filters narrows the view by status, client or person — Clear filters brings everything back.'},
   {sel:'#btn-dash',t:'Your plate',
    b:'One click shows just your own work — your phases, checkpoints, tasks and time off.'},
   {sel:'#btn-new-proj',t:'Start a project',
    b:'Name it, pick its departments and set the install deadline — the schedule builds itself backward from that date. Nothing is saved until you press Create.'},
-  {sel:'#btn-legend',t:'When you forget',
-   b:'This ? explains the colors, patterns and markers. And this tour lives under Help — take it again any time.'}
+  {sel:'#btn-help',t:'When you forget',
+   b:'Help holds the colour legend, every keyboard shortcut, and this tour — open it any time.'}
 ];
 /* REV86: ONE shared tour for the project pages (owner decision 2026-08-27) — the
    REV82 convergence made New Project and Project Edit near-identical, so one step
@@ -7247,13 +7555,23 @@ function coachStart(stepList){
 }
 function coachNext(){if(!COACH)return;if(COACH.i>=COACH.steps.length-1){coachEnd();return;}COACH.i++;coachShow();}
 function coachBack(){if(!COACH||!COACH.i)return;COACH.i--;coachShow();}
-document.getElementById('btn-help').addEventListener('click',ev=>{
-  ev.stopPropagation();
-  /* REV86: Help teaches the page you are on — the project pages get their own
-     shared tour in place (it used to bounce home first). */
+/* Phase 4: Help is a menu now. "Take a tour" keeps the route-aware behaviour —
+   project pages get their own shared tour in place (REV86). */
+document.getElementById('mi-tour').addEventListener('click',()=>{
   if(ROUTE.view==='project'){coachStart(COACH_PP_STEPS);return;}
   coachStart();
 });
+document.getElementById('mi-shortcuts').addEventListener('click',()=>{
+  closeMenus();
+  /* the project page has its own shortcut sheet (pp-ks); the timeline uses tl-ks */
+  const s=document.getElementById(ROUTE.view==='project'?'pp-ks':'tl-ks');
+  if(s)s.classList.remove('hidden');
+});
+wireMenu('btn-help','help-menu');
+/* The ? legend folds into Help — "Legend" opens the same swatch popover (built at
+   init by buildLegend), anchored under the Help button. */
+document.getElementById('mi-legend').addEventListener('click',()=>{closeMenus();document.getElementById('legend-menu').classList.remove('hidden');});
+document.getElementById('legend-menu').addEventListener('click',ev=>ev.stopPropagation());
 document.getElementById('coach').addEventListener('click',coachNext);
 document.getElementById('coach-card').addEventListener('click',ev=>ev.stopPropagation());
 document.getElementById('coach-skip').addEventListener('click',coachEnd);
@@ -7265,9 +7583,9 @@ document.getElementById('btn-reset').addEventListener('click',()=>{
   SPOT.clear();
   FILTER='';document.getElementById('t-search').value='';
   SHOW_STATUS=defaultShowStatus();
-  PERSON=null;
-  saveUI();buildStatusMenu();updateFilterBadges();render();
-  toast('View reset — spotlight, search, status and person filters cleared');
+  PERSON=null;CLIENT_FILTER.clear();
+  saveUI();buildFiltersMenu();updateFilterBadges();render();
+  toast('View reset — spotlight, search and filters cleared');
 });
 
 /* ===================== REV31: MEETING MODE ===================== */
@@ -7406,8 +7724,7 @@ async function boot(){
 (async()=>{
   await boot();
   EXPANDED=new Set();   /* open collapsed — one tidy row per job */
-  applyRoute();
-  setTimeout(scrollTodayLeft,80);
+  applyRoute();   /* parks today itself when it lands on the timeline */
   /* REV74 (N14): a browser that has never seen the tour gets it once, after sign-in
      has settled and the first render is on screen. Help replays it any time. */
   let coachSeen='1';try{coachSeen=localStorage.getItem(COACH_KEY);}catch(e){}
@@ -7425,6 +7742,7 @@ async function boot(){
     if(DRAG||PENDING_SYNC||SYNCING)return;   /* SYNCING: never read half-committed rows mid-save */
     if(COACH)return;   /* REV74: don't redraw bars under the tour's spotlight */
     if([...document.querySelectorAll('.overlay')].some(o=>!o.classList.contains('hidden')))return;
+    if(document.getElementById('npv-pop')||document.getElementById('npv-menu'))return; /* don't rebuild under an open editor/menu */
     if(document.activeElement&&document.activeElement.closest&&document.activeElement.closest('#page'))return;
     POLL_N++;
     try{
@@ -7438,6 +7756,7 @@ async function boot(){
          await, or an edit/drag started mid-fetch gets overwritten by a pre-edit
          server snapshot. gen catches a save that completed during the fetch. */
       if(gen!==ST_GEN||DRAG||PENDING_SYNC||SYNCING)return;
+      if(document.getElementById('npv-pop')||document.getElementById('npv-menu'))return; /* an editor opened during the fetch */
       let dirty=false;
       /* REV46: todos has to be in the comparison. Without it the two strings never
          matched, so every tick replaced ST wholesale and re-rendered — and, with
