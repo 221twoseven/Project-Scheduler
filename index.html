@@ -723,15 +723,21 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
 .dash .npv-scroll{flex:1;min-height:0}
 .dash-foot{display:flex;align-items:center;gap:9px;padding:9px 22px;border-top:1px solid #E2E8F0;
   background:var(--paper)}
-/* Collapse the edit form to give the chart the whole window — the footer bar (with the
-   toggle) stays. State is persisted, so it holds across sessions. */
+/* Project actions cluster right of the passive status; margin-right reserves the corner
+   for the dock toggle so the two never share button spacing. */
+.foot-actions{margin-left:auto;margin-right:34px;display:flex;align-items:center;gap:9px}
+.btn:disabled{opacity:.5;cursor:default}
+/* Collapse the edit form to give the chart the whole window — the footer bar stays.
+   State is persisted, so it holds across sessions. */
 .dash-insp.collapsed{height:auto!important}
 .dash-insp.collapsed #pp-insp,.dash-insp.collapsed #dock-resize{display:none}
 .dash-insp.collapsed .dash-foot{border-top:none}
-/* margin-left:auto pins the toggle to the footer's far-right margin (its 22px padding),
-   leaving the Shortcuts/Delete/Done cluster where it is. */
-#pp-dock-toggle{margin-left:auto;padding:6px 8px;line-height:0}
-#pp-dock-toggle svg{width:15px;height:15px;display:block;color:#5B6B85;transition:transform .12s}
+/* The dock toggle is application chrome, not a project action: it lives in its own fixed
+   corner of the dock, outside the footer's button row, in both states. */
+#pp-dock-toggle{position:absolute;right:12px;bottom:8px;z-index:31;padding:5px 7px;line-height:0;
+  border:1px solid #E2E8F0;border-radius:6px;background:#fff}
+#pp-dock-toggle svg{width:15px;height:15px;display:block;color:#7488A3;transition:transform .12s}
+#pp-dock-toggle:hover{border-color:var(--acc)}
 #pp-dock-toggle:hover svg{color:var(--acc)}
 .dash-insp.collapsed #pp-dock-toggle svg{transform:rotate(180deg)}
 
@@ -1298,7 +1304,7 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_REV=99; // bump this ONE number on every release; used everywhere the rev shows up
+const APP_REV=100; // bump this ONE number on every release; used everywhere the rev shows up
 
 /* ===================== CONSTANTS ===================== */
 const SET_KEY ='shopTimelineSettings_v1';
@@ -3914,18 +3920,22 @@ function renderProjectPage(){
    + '<div class="ins-wrap" id="pp-insp"></div>';
 
   h+='<div class="dash-foot">'
-   + (isNew?'':'<span class="pg-auto"><b>&#10003;</b> Changes save automatically</span>')
-   + '<span class="sp"></span>'
-   + '<button class="ins-btn" id="pp-keys" title="Show the keyboard shortcuts (?)">Shortcuts <kbd>?</kbd></button>'
-   /* REV87: manual complete (owner green-light 2026-08-27). Writing the shared
-      status column's existing 'complete' value is the whole feature — the late
-      reads and the grey treatment already key off it in both apps. */
-   + (isNew?'':'<button class="btn" id="pp-complete"></button>')
+   /* Left: passive status — reads as state, not a control. */
+   + (isNew?'':'<span class="pg-auto"><b>&#10003;</b> Changes saved</span>')
+   /* Right: actions on the project, weakest→strongest. Delete is a subdued destructive
+      (red only on hover) that confirms; Mark complete is the secondary workflow step;
+      Done is the primary exit and the most frequent action. Shortcuts moved to
+      Help ▾ / the ? overlay — it's app help, not a project action.
+      REV87: manual complete writes the shared status column's 'complete' value. */
+   + '<div class="foot-actions">'
    + (isNew?'':'<button class="btn btn-del" id="pp-del" title="Delete this project and everything on it">Delete project</button>')
-   + '<button class="btn btn-ghost" id="pp-cancel" title="'+(isNew?'Leave without creating the project':'Go back to the timeline — changes are already saved')+'">'+(isNew?'Cancel':'Done')+'</button>'
+   + (isNew?'':'<button class="btn btn-ghost" id="pp-complete"></button>')
+   + '<button class="btn '+(isNew?'btn-ghost':'btn-primary')+'" id="pp-cancel" title="'+(isNew?'Leave without creating the project':'Go back to the timeline — changes are already saved')+'">'+(isNew?'Cancel':'Done')+'</button>'
    + (isNew?'<button class="btn btn-primary" id="pp-save" title="Create the project with the schedule shown">Create project</button>':'')
+   + '</div></div>'
+   /* Dock control lives in its own corner, outside the footer's button row (app chrome). */
    + '<button class="ins-btn" id="pp-dock-toggle" title="Collapse the panel" aria-label="Collapse the panel" aria-expanded="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg></button>'
-   + '</div></div></div></div>';
+   + '</div></div></div>';
   h+='<div class="ks hidden" id="pp-ks"><div class="ks-in">'
    + '<h3>Keyboard</h3><div class="ks-g">'
    + [['S','New subtask'],['E','New event'],['T','New task'],['R','Rename selected'],
@@ -3959,8 +3969,8 @@ function renderProjectPage(){
       events:(ST.events||[]).filter(e=>e.projectId!==p.id)});
     goTimeline();
   });
-  const ks=document.getElementById('pp-ks'),kb=document.getElementById('pp-keys');
-  if(kb)kb.addEventListener('click',()=>ks.classList.remove('hidden'));
+  /* Shortcuts left the footer (Help ▾ / the ? key open this sheet instead). */
+  const ks=document.getElementById('pp-ks');
   if(ks)ks.addEventListener('click',()=>ks.classList.add('hidden'));
   /* REV87: the label/disabled state lives in ppPaintMeta so a Setup-dropdown
      status change repaints it too. */
@@ -7548,7 +7558,10 @@ document.getElementById('mi-tour').addEventListener('click',()=>{
   coachStart();
 });
 document.getElementById('mi-shortcuts').addEventListener('click',()=>{
-  closeMenus();document.getElementById('tl-ks').classList.remove('hidden');
+  closeMenus();
+  /* the project page has its own shortcut sheet (pp-ks); the timeline uses tl-ks */
+  const s=document.getElementById(ROUTE.view==='project'?'pp-ks':'tl-ks');
+  if(s)s.classList.remove('hidden');
 });
 wireMenu('btn-help','help-menu');
 /* The ? legend folds into Help — "Legend" opens the same swatch popover (built at

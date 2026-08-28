@@ -46,11 +46,12 @@ setTimeout(()=>{
 },1300);
 
 function stage1(){
-  sec('the dock starts expanded, with a footer toggle in the bottom-right');
+  sec('the dock starts expanded, with a collapse toggle in the bottom-right corner');
   ok('the dock is present', !!dock());
   ok('it is not collapsed by default', !dock().classList.contains('collapsed'));
-  ok('the footer carries the collapse toggle', !!toggle());
-  ok('the toggle lives in the footer (bottom-right)', !!(toggle()&&toggle().closest('.dash-foot')));
+  ok('the dock carries the collapse toggle', !!toggle());
+  ok('the toggle sits in its own dock corner, outside the footer button row',
+     !!(toggle()&&toggle().closest('#pp-dock')&&!toggle().closest('.dash-foot')));
   ok('the edit form is present', !!q('#pp-insp'));
   ok('aria-expanded reads true', toggle().getAttribute('aria-expanded')==='true');
 
