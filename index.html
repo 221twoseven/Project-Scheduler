@@ -1033,12 +1033,12 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
         <div class="sm-item" id="mi-tour" title="A guided tour of the page you're on">Take a tour</div>
         <div class="sm-item" id="mi-shortcuts" title="Every keyboard shortcut on this view">Keyboard shortcuts</div>
         <div class="sm-item" id="mi-legend" title="What the colors, patterns and markers mean">Legend</div>
-        <div class="sm-note">Shop Timeline · REV <span id="tb-rev-num"></span></div>
+        <div class="sm-note">Shop Timeline · v<span id="tb-rev-num"></span></div>
       </div>
       <div id="legend-menu" class="tb-menu hidden"></div>
     </div>
     <span class="tb-spacer"></span>
-    <span id="tb-rev" title="App revision — the build this tab is running">REV</span>
+    <span id="tb-rev" title="App version — the build this tab is running">v</span>
     <span id="sync-pill" class="busy" title="Shows whether your changes are saved to SharePoint — click to retry after an error">● connecting…</span>
   </div>
   <div class="tb-row tb-timeline">
@@ -1304,7 +1304,9 @@ body.vivid .cal-col.we{background:repeating-linear-gradient(45deg,rgba(100,116,1
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_REV=101; // bump this ONE number on every release; used everywhere the rev shows up
+const APP_VER='1.0.1'; // bump this ONE string on every release; used everywhere the version shows up.
+// Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
+// History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
 /* ===================== CONSTANTS ===================== */
 const SET_KEY ='shopTimelineSettings_v1';
@@ -3684,7 +3686,7 @@ function buildPrintSheet(sIso,eIso){
   const tm=document.createElement('span');tm.className='pt-main';
   tm.textContent='TWOSEVEN — Shop Timeline · '+(LENS==='project'?'Projects':'Departments');
   const ts=document.createElement('span');ts.className='pt-sub';
-  ts.textContent='REV '+APP_REV+' · '+fmtNice(sIso)+' → '+fmtNice(eIso)+' · printed '+today().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  ts.textContent='v'+APP_VER+' · '+fmtNice(sIso)+' → '+fmtNice(eIso)+' · printed '+today().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
   title.appendChild(tm);title.appendChild(ts);
   sheet.appendChild(title);
   /* Grid */
@@ -7620,7 +7622,7 @@ function buildMeetingSheet(){
   const tbl=document.createElement('table');tbl.className='meet-table';
   const printedOn=today().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
   tbl.innerHTML='<thead><tr class="meet-title"><th colspan="7">TWOSEVEN — Shop Meeting Sheet'
-    +'<span class="meet-sub">REV '+APP_REV+' · printed '+esc(printedOn)+' · '+projs.length+' projects</span></th></tr>'
+    +'<span class="meet-sub">v'+APP_VER+' · printed '+esc(printedOn)+' · '+projs.length+' projects</span></th></tr>'
     +'<tr class="meet-cols"><th style="width:23%">Project</th><th style="width:9%">Status</th><th style="width:14%">Phase now</th><th style="width:16%">Timeline</th><th style="width:7%">Deadline</th><th style="width:5%">Days</th><th style="width:26%">Notes</th></tr></thead>';
   const tb=document.createElement('tbody');
   for(const k of keys){
@@ -7671,8 +7673,8 @@ document.getElementById('meet-print').addEventListener('click',()=>{
 });
 
 /* ===================== INIT ===================== */
-document.getElementById('tb-rev-num').textContent=APP_REV;
-document.getElementById('tb-rev').textContent='REV '+APP_REV;
+document.getElementById('tb-rev-num').textContent=APP_VER;
+document.getElementById('tb-rev').textContent='v'+APP_VER;
 loadLocalPrefs();
 /* V4/B6: the launch view overrides the remembered session; a #view= link (a teammate's
    shared snapshot) overrides both. Read-on-load only — neither is auto-saved as a view. */

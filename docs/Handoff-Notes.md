@@ -11,7 +11,7 @@
 > Actionable open items and operational-security follow-ups live in **[TODO.md](TODO.md)**.
 > For the current architecture from a fresh inspection, see **[ARCHITECTURE.md](ARCHITECTURE.md)**.
 >
-> The live app is `index.html` (see the `APP_REV` constant for the current build);
+> The live app is `index.html` (see the `APP_VER` constant for the current version);
 > `reference/Timeline_50.html` is the frozen REV50 baseline it began as.
 
 ---
@@ -244,7 +244,7 @@ Standing conventions in the code:
 - Events render as **yellow diamonds with black outlines**.
 - Every created item gets a **default date**.
 - Every mutating action shows an **Undo** button in its toast.
-- `APP_REV` is bumped in one place and appears everywhere the version shows.
+- `APP_VER` is bumped in one place and appears everywhere the version shows.
 
 Historically, patches to this large file were made with Python string-replacement scripts
 guarded by `assert s.count(anchor) == 1`, so an ambiguous anchor fails loudly instead of
