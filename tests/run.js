@@ -63,20 +63,29 @@ const SUITES = [
   'test-c3-status.js',
   'test-client-filter.js',
   'test-cb.js',
+  'test-v102.js',
 ];
 
 const repoRoot = path.resolve(__dirname, '..');
 const target = process.argv[2] || 'index.html';
 const targetAbs = path.resolve(repoRoot, target);
 
+/* A suite that feature-sniffs and opts out prints "skipped —" and exits 0. Count
+   those separately, so a typo'd sniff can't silently disable a suite forever
+   (deferred-ledger item, closed v1.0.2). */
 let failed = 0;
+const skipped = [];
 for (const suite of SUITES) {
   const r = spawnSync(process.execPath, [path.join(__dirname, suite), targetAbs], {
-    stdio: 'inherit',
+    encoding: 'utf8',
   });
+  process.stdout.write(r.stdout || '');
+  process.stderr.write(r.stderr || '');
   if (r.status !== 0) failed++;
+  else if (/skipped —|skipped -/.test(r.stdout || '')) skipped.push(suite);
 }
 
 console.log('\n' + '='.repeat(46));
 console.log(`  ${SUITES.length - failed}/${SUITES.length} suites passed   [${target}]`);
+if (skipped.length) console.log(`  SKIP  ${skipped.length} suite(s) self-skipped on this build: ${skipped.join(', ')}`);
 process.exit(failed ? 1 : 0);

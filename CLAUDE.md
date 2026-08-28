@@ -76,7 +76,8 @@ The current infrastructure values (for reference — do not change without instr
   jsdom with MSAL and `fetch` stubbed, recording every Graph request so persistence is
   asserted on the actual outgoing request bodies.
 - **Run the tests after implementation changes.** `tests/run.js` aggregates every suite
-  (behaviour suites `test46`–`test90`, `test-label`, plus the Phase 1–4 UX/design suites);
+  (behaviour suites `test46`–`test92`, `test-label`, the Phase 1–4 UX/design suites, and
+  per-release suites like `test-v102`);
   see `tests/README.md`. Validate company changes against `index.html`, and the frozen
   baseline with `test:ref`:
 

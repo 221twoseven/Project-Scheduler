@@ -61,8 +61,13 @@ function run(){
   ok('month boundaries draw hairlines', doc.querySelectorAll('#gantt-canvas .mon-line').length>0);
   ok('weekend columns still painted', doc.querySelectorAll('#gantt-canvas .wknd-col').length>0);
   ok('quiet weekend fill is #EEF1F5', /\.wknd-col\{[^}]*#EEF1F5/.test(src));
-  ok('vivid weekend look preserved behind body.vivid',
-     /body\.vivid \.wknd-col\{background:rgba\(148,163,184,\.24\)/.test(src));
+  /* v1.0.2 (owner objective 13): Vivid paints NO weekend strips — the old preserved-look
+     assertion inverted. Pre-v1.0.2 builds keep the legacy grey overlay rule. */
+  if(/body\.vivid \.wknd-col\{display:none\}/.test(src))
+    ok('vivid hides the weekend overlay (obj 13)', true);
+  else
+    ok('vivid weekend look preserved behind body.vivid (pre-v1.0.2)',
+       /body\.vivid \.wknd-col\{background:rgba\(148,163,184,\.24\)/.test(src));
 
   const mc=doc.querySelector('.hdr-m-cell');
   const hdrBgSet=new Set(),hdrFgSet=new Set();

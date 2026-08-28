@@ -53,15 +53,15 @@ The full story lives in the archive, `docs/Milestones/`, and `docs/Handoff-Notes
 
 ## 2. Loose ends carried from v1 (actionable now)
 
-- [ ] **Stale "Settings" strings in the app** (found at archive sweep, 2026-08-28):
-      `index.html` still says "add people in Settings" (×3 empty-state hints) and a
-      comment says "managed under Settings → Clients", but the Settings menu was
-      retired in REV95 (people/clients live under **Resources** now). Copy-only fix;
-      fold into the first quick-wins batch.
+- [x] **Stale "Settings" strings in the app — DONE 2026-08-28 (v1.0.2):** all five
+      strings and the comment now say Resources (the Settings menu retired in
+      REV95). Rode the quick-wins batch
+      (`docs/Milestones/Quick-Wins-v102/2026-08-28-v102-quick-wins.md`).
 - [ ] **Shared shop-terminal account — paid licence?** A business call, not a code
       task. Owner decides. (Carried from v1 §9.)
-- [ ] **Coach-mark copy revision** — this is §3 item 5; extraction list delivered to
-      the owner 2026-08-28, waiting on the revised copy.
+- [ ] **Coach-mark copy revision — ON HOLD (owner, 2026-08-28):** "leave coach mark
+      copy alone for now." The extraction list was delivered 2026-08-28 (chat); the
+      swap happens whenever the owner sends revised copy. This is §3 item 5.
 - [x] **Retire the Settings → Density alias** (v1 gate fired at PR #23) — resolved by
       REV95: the whole Settings menu was retired; density lives on the toolbar.
 
@@ -74,21 +74,31 @@ Owner's objective numbers in parentheses. Each batch: build on `development`, ve
 
 ### Quick wins — styling, copy, small fixes (patch bumps, batchable)
 
-- [ ] **1. (Obj 13) Vivid Months view: remove the grey weekend strips.** CSS-scoped
-      to the Months zoom's vivid rendering; weekends stay visible at other zooms.
-- [ ] **2. (Obj 12) Black bar restyle for legibility — "mellowing".** A styling pass
-      on the black bar; propose on `/preview/` for owner eyes before merging.
-      Design-Language update rides in the same change if the recipe shifts.
-- [ ] **3. (Obj 8) Calendar: blank-space click with a popover open should only close
-      the popover** — today it also collapses the expanded parent phase. Close the
-      popover, keep the expansion; a second blank click can still collapse.
-- [ ] **4. (Obj 5) Bug: resizing the browser window while the subtask dock/form is
-      open closes the form and pops the view up one level.** A window resize must
-      never change navigation state — reflow only.
-- [ ] **5. (Obj 6) Coach-marks language revision.** Extraction list delivered
-      2026-08-28; **waiting on the owner's revised copy**, then it's a copy-swap
-      patch across `COACH_STEPS` / `COACH_PP_STEPS` (+ the §2 stale-Settings strings
-      if not already fixed).
+- [x] **1. (Obj 13) Vivid Months: grey weekend strips removed — DONE 2026-08-28
+      (v1.0.2).** In Vivid, no weekend/holiday overlays anywhere (timeline, project
+      Gantt, project calendar — weekend cells take the month tint); Quiet keeps its
+      full weekend treatment; the Day/2-Day header still marks weekends in both
+      modes. Design-Language §2.4 updated; ceiling ledgered in §7. Record:
+      `docs/Milestones/Quick-Wins-v102/2026-08-28-v102-quick-wins.md`.
+- [x] **2. (Obj 12) Black bar mellowed — DONE 2026-08-28 (v1.0.2),** read as the app
+      toolbar (it hosts the TWOSEVEN title obj 10 targets): ink-black gradient →
+      slate navy `#2A3850→#202C41`, secondary text lifted to ≥4.5:1, chrome-line
+      lightened. Design-Language §2 updated. **Owner eyes on `/preview/` wanted** —
+      and if "Black Bar" meant the calendar's black month header (`.cal-mon`),
+      that's a one-line follow-up. Record: as above.
+- [x] **3. (Obj 8) Calendar blank-space click with popover open — DONE 2026-08-28
+      (v1.0.2):** the click that dismisses the popover keeps the selection (and the
+      expansion); the next blank click deselects/collapses. Same rule as the add
+      menu; applies on both Gantt and calendar. Suite: `tests/test-v102.js`.
+- [x] **4. (Obj 5) Window-resize closed the subtask form — FIXED 2026-08-28
+      (v1.0.2):** a PP_KEEP repaint (resize, poll, autosave) now carries the
+      selection through — form, breadcrumb and ring survive; a poll that deleted the
+      selected task drops the dock to the project pane instead of a stale form.
+      Root cause: `renderProjectPage` reset `PP_SEL` unconditionally. Suite: as above.
+- [ ] **5. (Obj 6) Coach-marks language revision — ON HOLD (owner, 2026-08-28).**
+      Extraction list delivered 2026-08-28; owner deferred ("leave coach mark copy
+      alone for now"). When revised copy arrives it's a copy-swap patch across
+      `COACH_STEPS` / `COACH_PP_STEPS`.
 
 ### Fonts (patch/minor — one licensing check first)
 
@@ -194,7 +204,7 @@ Owner's objective numbers in parentheses. Each batch: build on `development`, ve
 
 | Release | Contents (§3 items) |
 |---|---|
-| v1.0.2 | Quick wins: 1–4 + stale-Settings strings (§2) |
+| v1.0.2 | ✅ Shipped 2026-08-28 — quick wins 1–4 + stale-Settings strings (§2) + runner SKIP line |
 | v1.0.3 | 5 (coach copy, once revised) · 6–7 (fonts, once licence-checked) |
 | v1.1.0 | 8–9 (calendar interactions) |
 | v1.2.0 | 10 (My Dashboard view) |
@@ -298,8 +308,9 @@ these are the ones still open, plus new deferrals as they happen.
       roster-department change.
 - [ ] `#tm-dl` datalist keeps its task-modal prefix while serving the staff modal.
       Gate: next staff-modal edit.
-- [ ] `tests/run.js` counts a self-skipped suite as "passed". Gate: next runner
-      change adds a SKIP line to the summary.
+- [x] `tests/run.js` counts a self-skipped suite as "passed" — **closed 2026-08-28
+      (v1.0.2):** the runner now prints a SKIP summary line naming self-skipped
+      suites (gate fired when the batch registered `test-v102.js`).
 - [ ] `metalFab` and `todoToFields`' `labels`/`checklist` are write-only shared-List
       schema — dropping them is a §5-approval decision.
 
@@ -313,6 +324,10 @@ these are the ones still open, plus new deferrals as they happen.
 - [ ] Font files & licences (§3 items 6–7): nothing committed until the licence
       check passes; Bahnschrift starts as `local()`-only. Gate: licence confirmed /
       non-Windows coverage demanded. (2026-08-28)
+- [ ] Vivid shows no non-working-day marker on the canvas at all (holidays
+      included) — the obj-13 ruling makes the month colour king; weekends stay
+      visible in the Day/2-Day header and everywhere in Quiet. Gate: someone
+      scheduling into a weekend because Vivid hid it. (v1.0.2, 2026-08-28)
 
 **Deliberate design ceilings — no action planned, revisit only on real complaints:**
 12-slot palette repeats at 13+ visible projects (T2); quiet re-selection after a

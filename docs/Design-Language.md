@@ -66,6 +66,12 @@ Default ("Quiet" — new): workdays `#FCFDFE`; weekends/holidays `#EEF1F5` with 
 
 The current saturated month-band look remains available behind the existing **Tint** toggle (relabel: "Vivid months"), preserving continuity for users who navigate by it.
 
+**Vivid shows the month colour uninterrupted (v1.0.2, owner objective 13):** weekend/holiday
+columns paint no grey strips or hatch in Vivid — on the main timeline and project Gantt the
+overlays are hidden, and on the project calendar weekend cells take the month tint like
+weekdays. Quiet mode keeps the grey weekend treatment above; at Day/2-Day zoom the date
+header still marks weekends in both modes.
+
 Month **header** bands may keep a stronger version of their hue (they're outside the data area), but capped at the header: `hsl(h, 30%, 88%)` fill with `hsl(h, 35%, 30%)` text rather than today's mid-saturation fills.
 
 ### 2.5 Text on color — the label function
@@ -92,7 +98,15 @@ No hand-picked per-bar text colors. Pills use the same rule. A jsdom test (`test
 ### 2.6 Chrome (toolbar & sidebar)
 
 Existing tokens are good — codify them as the only chrome colors:
-`--ink #0D131D`, `--ink-2 #141C29`, `--chrome-line #232F42`, accent `--acc #2F6FE4` / `--acc-deep #1D5AC9`, warn `--warn #F0A814`, danger `--late #DC2626`, sidebar `--side #EDF1F7` / `--side-line #C9D4E3`, paper `--paper #F5F7FA`. New UI must draw from these; no ad-hoc hex in new code (a grep-able rule a reviewer can enforce).
+`--ink #0D131D`, `--ink-2 #141C29`, `--chrome-line #3A4A66`, accent `--acc #2F6FE4` / `--acc-deep #1D5AC9`, warn `--warn #F0A814`, danger `--late #DC2626`, sidebar `--side #EDF1F7` / `--side-line #C9D4E3`, paper `--paper #F5F7FA`. New UI must draw from these; no ad-hoc hex in new code (a grep-able rule a reviewer can enforce).
+
+**The mellowed bar (v1.0.2, owner objective 12):** the toolbar no longer paints the
+near-black ink gradient — it owns a soft slate-navy pair, `#2A3850 → #202C41`, with a
+`#141D2C` bottom edge and a lighter shadow. `--ink`/`--ink-2` keep their original values
+(they also serve text and the `labelColor()` ink candidate); `--chrome-line` was lifted
+to `#3A4A66` to stay visible on the lighter bar. Secondary bar text (`.tb-app`, the
+version pill, the search placeholder) sits at `#8CA0BF`, button text at
+`rgba(255,255,255,.9)` — all ≥4.5:1 on the new fills.
 
 **Toolbar grouping rule (native direction — supersedes the REV88 eyebrow model;
 see `Toolbar-Native-Direction.md`):** every row-2 control sits with the question
