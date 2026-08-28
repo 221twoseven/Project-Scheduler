@@ -6,8 +6,9 @@ SharePoint through Microsoft Graph. It runs as a static page on GitHub Pages wit
 Microsoft Entra (MSAL) sign-in — there is no server of our own.
 
 - **Live app:** `index.html`, served via GitHub Pages from the `main` branch.
-- **Current build:** REV90 (one HTML file — the `APP_REV` constant in `index.html` is
-  the source of truth; this line goes stale, that number doesn't).
+- **Current build:** v1.0.1 (one HTML file — the `APP_VER` constant in `index.html` is
+  the source of truth; this line goes stale, that number doesn't). Versions before
+  v1.0.1 were numbered REV1–101: REV1–50 alpha, REV50–100 beta.
 
 ## Who this is for
 
