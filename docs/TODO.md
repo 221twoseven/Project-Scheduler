@@ -18,7 +18,9 @@ database is the breaking change the major number exists for. `APP_VER` in `index
 is the source of truth; keep `package.json` aligned.
 
 Last reviewed: 2026-08-31 — appended the owner's second objective list (the 2026-08-31
-brief, §3 items 14–26) and refolded the version ladder.
+brief, §3 items 14–26) and refolded the version ladder. Same day: v1.2.1–v1.6.0 all
+shipped to `development`; **owner called a PAUSE after v1.6.0 — hone the shipped
+batches before any new rung (permissions v1.7.0 is NOT started).**
 
 ---
 
@@ -163,13 +165,15 @@ Owner's objective numbers in parentheses. Each batch: build on `development`, ve
 
 ### Bug reporting (minor bump — one storage decision ⚠)
 
-- [ ] **11. (Obj 2) Bug report / feature request form in the Help menu.**
-      Fields: Name + Email (autofilled from the signed-in account), Bug vs Feature
-      request (checkbox), screenshot upload, multiline description.
-      **List APPROVED (owner, 2026-08-31):** app-side `ShopTimeline_Feedback`
-      (additive, REV54 Events pattern), screenshot as a list-item attachment via
-      Graph. Field spec delivered 2026-08-31 (chat + §5); waiting on the owner to
-      create the list and share nothing further — the app addresses lists by name.
+- [x] **11. (Obj 2) Bug report / feature request form — DONE 2026-08-31 (v1.6.0).**
+      Help ▾ → "Report a bug or idea": Name + Email prefilled from the signed-in
+      account, Bug vs Feature, multiline description, optional screenshot. Posts to
+      the owner-created `ShopTimeline_Feedback` list. **One design change from the
+      straw proposal ⚠→resolved:** Graph v1.0 has no list-item-attachment API, so
+      the screenshot uploads to the site's default document library
+      (`/ShopTimeline Feedback/` folder, created on first upload) and the report
+      links to it in the description — no new columns needed. Failure toast points
+      at the Site-contents-vs-My-Lists check. Suite: `tests/test-v160.js`.
 
 ### Permissions (minor bump, v2-gating)
 
@@ -182,9 +186,9 @@ Owner's objective numbers in parentheses. Each batch: build on `development`, ve
       - Non-admins: no client list, no people edits, no department/phase edits;
         **Lock Dates on by default and the button hidden**; Project Edit fields
         render as plain text (not inputs/checkboxes) — visible, locked.
-      - Owner's brief cut off at "This form is its own page with its own toolbar (" —
-        **confirm which form** (People & Availability promoted to its own page? —
-        that matches the v1 open decision on the modal outgrowing itself).
+      - ~~Owner's brief cut off at "This form is its own page with its own toolbar ("~~
+        — **RESOLVED 2026-08-31: owner said disregard the incomplete sentence.** No
+        own-page form requirement; scope is the roster checkbox + gating above.
       - **Design constraint to record honestly:** this is a client-side SPA; every
         signed-in user's token carries `Sites.ReadWrite.All`, so UI gating is
         workflow protection, not security — a determined user could still write via
@@ -325,7 +329,7 @@ rule §5); old data keeps reading fine.
 | v1.3.0 | ✅ Shipped 2026-08-31 — Department view: phase click routes to the project page; lane rows get name-over-dept + assignment dates |
 | v1.4.0 | ✅ Shipped 2026-08-31 — Milestones & Notes: renames + simplified editors + Gantt labels hidden |
 | v1.5.0 | ✅ Shipped 2026-08-31 — viewport-fitting zoom (Week/Month/3-Mo + drag-zoom gesture) on both Gantts |
-| v1.6.0 | 11 (bug reporting) ⚠ |
+| v1.6.0 | ✅ Shipped 2026-08-31 — bug report / feature request form (list created by owner same day) |
 | v1.7.0 | 12 (permissions) ⚠ |
 | v1.8.0 | 26 (change log) ⚠ — after permissions |
 | v2.0.0 | 13 (single source of truth) ⚠ — likely several minors along the way (one per absorbed store), with v2.0.0 as the cutover declaration |
@@ -335,8 +339,11 @@ rule §5); old data keeps reading fine.
 - `ShopTimeline_Feedback` (§3 item 11) — **APPROVED + CREATED 2026-08-31** from the
   delivered field spec. All columns single-line text except `description`
   (multi-line, plain text): Title, kind, name, email, description (multi-line),
-  appVersion, appId. Screenshot rides as a list-item attachment. `appId` is
-  app-written; the built-in SharePoint ID is unrelated.
+  appVersion, appId. `appId` is app-written; the built-in SharePoint ID is
+  unrelated. **Screenshot handling changed at build time (v1.6.0):** Graph v1.0 has
+  no list-item-attachment API, so screenshots upload to the site's default document
+  library (`/ShopTimeline Feedback/`) and the report links to them — no extra
+  columns, no schema impact.
 - `ShopTimeline_Changelog` (§3 item 26) — **APPROVED + CREATED 2026-08-31**, same
   arrangement. All single-line text except `detail` (multi-line, plain text):
   Title, projectId, who, at, field, detail (multi-line), appId.

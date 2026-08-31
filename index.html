@@ -1066,6 +1066,7 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
         <div class="sm-item" id="mi-tour" title="A guided tour of the page you're on">Take a tour</div>
         <div class="sm-item" id="mi-shortcuts" title="Every keyboard shortcut on this view">Keyboard shortcuts</div>
         <div class="sm-item" id="mi-legend" title="What the colors, patterns and markers mean">Legend</div>
+        <div class="sm-item" id="mi-report" title="File a bug or ask for a feature — lands on SharePoint with your name attached">Report a bug or idea</div>
         <div class="sm-note">Shop Timeline · v<span id="tb-rev-num"></span></div>
       </div>
       <div id="legend-menu" class="tb-menu hidden"></div>
@@ -1266,6 +1267,31 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
   </div>
 </div>
 
+<!-- v1.6.0 (v2 obj 2): BUG REPORT / FEATURE REQUEST -->
+<div id="fb-overlay" class="overlay hidden">
+  <div class="modal" id="fb-modal">
+    <h3>Report a bug or request a feature</h3>
+    <div class="modal-body">
+      <div class="hint">Reports land in the ShopTimeline_Feedback list on SharePoint with your name attached, so whoever picks it up can ask questions.</div>
+      <div class="fg"><label>Name</label><input id="fb-name" type="text"></div>
+      <div class="fg"><label>Email</label><input id="fb-email" type="email"></div>
+      <div class="fg"><label>Kind</label><div id="fb-kind">
+        <label><input type="radio" name="fb-kind" value="bug" checked> Bug</label>
+        <label style="margin-left:14px"><input type="radio" name="fb-kind" value="feature"> Feature request</label>
+      </div></div>
+      <div class="fg"><label>What happened / what do you need?</label><textarea id="fb-desc" rows="5" placeholder="What you did, what you expected, what you got instead"></textarea></div>
+      <div class="fg"><label>Screenshot (optional)</label><input id="fb-shot" type="file" accept="image/*"></div>
+    </div>
+    <div class="m-actions">
+      <span></span>
+      <div class="m-right">
+        <button id="fb-cancel" class="btn btn-ghost">Cancel</button>
+        <button id="fb-send" class="btn btn-primary">Send report</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- REV87: PM LATE-PROJECT PROMPT -->
 <div id="pmlate-overlay" class="overlay hidden">
   <div class="modal" id="pmlate-modal">
@@ -1345,7 +1371,7 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.5.0'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.6.0'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -1771,6 +1797,11 @@ const LIST_EVENTS='ShopTimeline_Events';
 /* N3: the client roster, imported from the Excel master. App-only — the colleague app
    never reads it. Columns: Title = client name, field_2 = job-code alias. */
 const LIST_CLIENTS='ShopTimeline_Clients';
+/* v1.6.0 (v2 obj 2): bug reports / feature requests. App-only, owner-created
+   2026-08-31. Columns (all text): Title, kind, name, email, description (multi-line),
+   appVersion, appId. Screenshots go to the site's default document library (Graph
+   v1.0 has no list-item attachment API) and the item links to them. */
+const LIST_FEEDBACK='ShopTimeline_Feedback';
 const SCOPES=['User.Read','Sites.ReadWrite.All'];
 let PCA=null,ACCOUNT=null,SITE_ID=null;
 let SP_IDS={proj:{},task:{},staff:{},todo:{},event:{}};   /* our appId -> SharePoint item id */
@@ -7102,6 +7133,7 @@ document.addEventListener('keydown',ev=>{
     closeTaskModal();
     document.getElementById('staff-overlay').classList.add('hidden');
     document.getElementById('clients-overlay').classList.add('hidden');
+    document.getElementById('fb-overlay').classList.add('hidden');
     document.getElementById('print-overlay').classList.add('hidden');
     document.getElementById('meet-overlay').classList.add('hidden');
     document.getElementById('pmlate-overlay').classList.add('hidden');
@@ -7874,6 +7906,57 @@ wireMenu('btn-help','help-menu');
    init by buildLegend), anchored under the Help button. */
 document.getElementById('mi-legend').addEventListener('click',()=>{closeMenus();document.getElementById('legend-menu').classList.remove('hidden');});
 document.getElementById('legend-menu').addEventListener('click',ev=>ev.stopPropagation());
+
+/* ===== v1.6.0 (v2 obj 2): BUG REPORT / FEATURE REQUEST ===== */
+function openFeedback(){
+  closeMenus();
+  if(!ACCOUNT){toast('Sign in first — reports carry your name.','err');return;}
+  document.getElementById('fb-name').value=meName()||ACCOUNT.name||'';
+  document.getElementById('fb-email').value=ACCOUNT.username||'';
+  document.getElementById('fb-desc').value='';
+  document.getElementById('fb-shot').value='';
+  document.querySelector('#fb-kind input[value="bug"]').checked=true;
+  document.getElementById('fb-overlay').classList.remove('hidden');
+  document.getElementById('fb-desc').focus();
+}
+function closeFeedback(){document.getElementById('fb-overlay').classList.add('hidden');}
+async function sendFeedback(){
+  const desc=document.getElementById('fb-desc').value.trim();
+  if(!desc){toast('Say a few words about it first.','err');document.getElementById('fb-desc').focus();return;}
+  const kind=(document.querySelector('#fb-kind input:checked')||{}).value||'bug';
+  const btn=document.getElementById('fb-send');
+  btn.disabled=true;btn.textContent='Sending…';
+  try{
+    await spSite();
+    let extra='';
+    const f=document.getElementById('fb-shot').files[0];
+    if(f){
+      /* Graph v1.0 has no list-item attachment API — the screenshot goes to the
+         site's default document library and the report links to it. */
+      const t=await spToken();
+      const path='/ShopTimeline Feedback/'+Date.now()+'-'+String(f.name||'shot.png').replace(/[^\w.\-]+/g,'_');
+      const r=await fetch('https://graph.microsoft.com/v1.0/sites/'+SITE_ID+'/drive/root:'+encodeURI(path)+':/content',
+        {method:'PUT',headers:{Authorization:'Bearer '+t,'Content-Type':f.type||'application/octet-stream'},body:f});
+      if(r.ok){const d=await r.json();if(d&&d.webUrl)extra='\n\nScreenshot: '+d.webUrl;}
+      else toast('The screenshot upload failed — sending the report without it.','err');
+    }
+    await gfetch(listUrl(LIST_FEEDBACK)+'/items',{method:'POST',body:JSON.stringify({fields:{
+      Title:(kind==='bug'?'Bug':'Feature')+' — '+desc.slice(0,80),
+      kind:kind,
+      name:document.getElementById('fb-name').value.trim(),
+      email:document.getElementById('fb-email').value.trim(),
+      description:desc+extra,appVersion:APP_VER,appId:genId()}})});
+    closeFeedback();
+    toast('Thanks — the report is filed.');
+  }catch(e){
+    console.error(e);
+    toast('Could not reach the ShopTimeline_Feedback list — check it lives on the TWOSEVENINC site (Site contents), not My Lists.','err');
+  }finally{btn.disabled=false;btn.textContent='Send report';}
+}
+document.getElementById('mi-report').addEventListener('click',openFeedback);
+document.getElementById('fb-cancel').addEventListener('click',closeFeedback);
+document.getElementById('fb-send').addEventListener('click',sendFeedback);
+document.getElementById('fb-overlay').addEventListener('click',ev=>{if(ev.target.id==='fb-overlay')closeFeedback();});
 document.getElementById('coach').addEventListener('click',coachNext);
 document.getElementById('coach-card').addEventListener('click',ev=>ev.stopPropagation());
 document.getElementById('coach-skip').addEventListener('click',coachEnd);
