@@ -151,6 +151,23 @@ function stage4(){
 }
 
 function stage5(){
+  /* v1.2.1 (08-31 obj 12): "Add a phase" left the right-click menu entirely — new
+     builds assert its absence (the department picker's surviving door, the calendar
+     double-click, is asserted in test-v121.js). Older builds keep the REV71 checks. */
+  if(src.indexOf('data-act="depts"')<0){
+    sec('the right-click menu no longer offers "Add a phase" (v1.2.1 obj 12)');
+    rclick(cell('2026-08-26'));
+    setTimeout(()=>{
+      ok('a menu opened', !!menu());
+      ok('"Add a phase" is gone', menu()&&menu().textContent.indexOf('Add a phase')<0,
+         menu()&&menu().textContent.slice(0,80));
+      ok('New checkpoint / New task remain',
+         menu()&&!!menu().querySelector('button[data-act="ev"]')&&!!menu().querySelector('button[data-act="tk"]'));
+      E('npvCloseMenu();');
+      stage6();
+    },250);
+    return;
+  }
   sec('the create menu says "Add a phase", not "Add a department"');
   rclick(cell('2026-08-26'));
   setTimeout(()=>{

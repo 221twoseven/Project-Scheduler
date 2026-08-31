@@ -30,7 +30,9 @@ Each visual channel encodes exactly one thing:
 | **Red `#CE4242`** | Installation only (existing rule — keep absolute) | Anything else; late-ness uses the marker system, not bar color |
 | **Canvas background** | Calendar time (workday/weekend/month), *quietly* | Data of any kind |
 
-Consequences: forecast and on-hold bars keep their **project's hue** and signal status by treatment — forecast = 40% opacity + dashed outline; on-hold = 55% desaturation + diagonal hatch; estimating keeps its current stripe (it already follows the rule). The gray/gold hue-theft overrides are retired.
+Consequences: on-hold bars keep their **project's hue** and signal status by treatment — on-hold = 55% desaturation + diagonal hatch; estimating keeps its current stripe (it already follows the rule). The gray/gold hue-theft overrides are retired.
+
+**The one exception (v1.2.1, owner rule 2026-08-31): forecast projects are uncolored.** A penciled-in job renders `FORECAST_GREY #6B7484` everywhere it draws — bars (summary and task, in both color modes, install bars included), sidebar dot, dashed outline — on top of its existing 40% opacity + dashed-edge treatment. Its palette slot stays reserved, so no other project's color moves when the status firms up and the hue returns.
 
 ### 2.2 Identity palette (projects)
 

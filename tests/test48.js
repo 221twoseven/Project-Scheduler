@@ -194,9 +194,17 @@ function stage4(){
     ok('a menu opened', !!menu());
     ok('it offers an event and a task', !!byAct('ev')&&!!byAct('tk'));
     ok('it offers no subtask, there being no department', !byAct('sub'), items().join(' | '));
-    ok('it offers to add a department', !!byAct('depts'));
-
-    click(byAct('depts'));
+    /* v1.2.1 (08-31 obj 12): "Add a phase" left the right-click menu; its surviving
+       door is the calendar double-click, which opens the same picker page directly —
+       open it that way and keep asserting the whole create flow. */
+    if(src.indexOf('data-act="depts"')<0){
+      ok('it no longer offers to add a department (v1.2.1 obj 12)', !byAct('depts'));
+      E('npvCloseMenu()');
+      E("npvOpenMenu("+x+","+y+",{row:null,date:'2026-08-26'},'depts')");
+    }else{
+      ok('it offers to add a department', !!byAct('depts'));
+      click(byAct('depts'));
+    }
     setTimeout(()=>{
       ok('the department list opened in place', !!menu()&&!!menu().querySelector('button[data-act="dept"]'));
       const used=E("JSON.stringify([...new Set(NPV_TASKS.map(t=>t.department))])");

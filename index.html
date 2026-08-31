@@ -1341,7 +1341,7 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.2.0'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.2.1'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -2307,6 +2307,19 @@ function computeConflicts(){
     }
   }
 }
+/* v1.2.1 (08-31 obj 10): how many OTHER jobs this bar's crew is on during its window —
+   feeds the tooltip warning's count. Same person rules as computeConflicts; "jobs"
+   counts distinct projects, not bars. */
+function conflictCount(t){
+  const crew=barCrew(t).filter(n=>personByName(n));
+  const jobs=new Set();
+  for(const o of ST.tasks){
+    if(o.projectId===t.projectId)continue;
+    if(o.startDate>t.endDate||o.endDate<t.startDate)continue;
+    if(barCrew(o).some(n=>crew.includes(n)))jobs.add(o.projectId);
+  }
+  return jobs.size;
+}
 
 /* ===================== COLORS ===================== */
 /* Text on a colored fill (Design-Language §2.5): whichever of ink/white has the
@@ -2343,10 +2356,16 @@ function _projSlots(){
   }
   return _slotMap;
 }
+/* v1.2.1 (08-31 obj 11): forecast = uncolored. A penciled-in job gets no identity hue
+   anywhere it draws — bar, sidebar dot, dashed outline — until its status firms up.
+   Its palette slot stays reserved so nobody else's color moves when it does. */
+const FORECAST_GREY='#6B7484';
 function projColor(pid){
+  const p=projById(pid);
+  if(p&&projectStatus(p)==='forecast')return FORECAST_GREY;
   const m=_projSlots();
   if(m.has(pid))return PCOLS[m.get(pid)];
-  return projById(pid)?PCOLS[hashSlot(pid)]:'#6B7484';
+  return p?PCOLS[hashSlot(pid)]:'#6B7484';
 }
 function personColor(rosterKey,name){const arr=STAFF[rosterKey]||[];const i=arr.indexOf(name);return i<0?hashColor(name):PCOLS[i%PCOLS.length];}
 /* Color for a bar in "Team" mode: person color in roster lanes (dept lens),
@@ -2358,7 +2377,13 @@ function entityColor(t){
   if(LENS==='dept'&&d.roster)return personColor(d.roster,barCrew(t)[0]||'');
   return DEPT_COLORS[t.department]||'#6B7484';
 }
-function barColor(t){if(isInstall(t))return INSTALL_RED;return COLOR_MODE==='entity'?entityColor(t):projColor(t.projectId);}
+function barColor(t){
+  /* forecast wins over install red and entity colors — the whole job reads penciled-in */
+  const p=projById(t.projectId);
+  if(p&&projectStatus(p)==='forecast')return FORECAST_GREY;
+  if(isInstall(t))return INSTALL_RED;
+  return COLOR_MODE==='entity'?entityColor(t):projColor(t.projectId);
+}
 /* Lane identity color for sidebar dots in the dept lens */
 function laneColor(dept,assignee){
   const d=deptById(dept);
@@ -2743,7 +2768,10 @@ function renderSidebar(){
       sub.textContent=(p.jobCode?p.jobCode+' · ':'')+(p.deadline?fmtNice(p.deadline):'');l2.appendChild(sub);
       if(p.deadline&&projectStatus(p)!=='complete'){
         const dl=diffDays(today(),parseDate(p.deadline));
-        if(dl<0){const c=document.createElement('span');c.className='sb-chip late';c.textContent='LATE '+Math.abs(dl)+'d';l2.appendChild(c);}
+        /* v1.2.1 (08-31 obj 2): the LATE chip only matters while the job is still
+           current — a past project (all work wrapped, install behind us) stays quiet. */
+        const current=tasksOf(p.id).some(t=>t.endDate>=fmtDate(today()));
+        if(dl<0){if(current){const c=document.createElement('span');c.className='sb-chip late';c.textContent='LATE '+Math.abs(dl)+'d';l2.appendChild(c);}}
         else if(dl<=5){const c=document.createElement('span');c.className='sb-chip soon';c.textContent=dl===0?'TODAY':dl+'d';l2.appendChild(c);}
       }
       col.appendChild(l2);row.appendChild(col);
@@ -3371,7 +3399,8 @@ function showTooltipTask(t,ev,hiNode){
     +'<div class="tt-dim">'+esc(assigneeText(t))+'</div>'
     +'<div class="tt-dim">'+fmtNice(t.startDate)+' → '+fmtNice(t.endDate)+' · '+days+'d</div>'
     +(t.notes?'<div class="tt-notes">'+esc(t.notes)+'</div>':'')
-    +(CONFLICTS.has(t.id)?'<div class="tt-warn">⚠ '+esc(barCrew(t).join(', ')||'Crew')+' is on another job during this window</div>':'')
+    +(CONFLICTS.has(t.id)?(()=>{const n=Math.max(1,conflictCount(t));
+      return '<div class="tt-warn">⚠ '+esc(barCrew(t).join(', ')||'Crew')+' is on '+n+' other job'+(n===1?'':'s')+' during this window</div>';})():'')
     +barCrew(t).map(n=>oooOverlaps(n,t.startDate,t.endDate).map(o=>'<div class="tt-warn">✈ '+esc(n)+' is out '+fmtNice(o.start)+' → '+fmtNice(o.end)+(o.note?' ('+esc(o.note)+')':'')+'</div>').join('')).join('')
     +tn
     +((t.updatedBy||t.updatedAt)?'<div class="tt-dim tt-upd">Updated by '+esc(t.updatedBy||'—')+(t.updatedAt?' · '+esc(timeAgo(t.updatedAt)):'')+'</div>':'')
@@ -5090,11 +5119,11 @@ function npvOpenMenu(clientX,clientY,hit,page){
       h+='<div class="sep"></div><button data-act="tog"><span class="mi dp"></span>'
        + (hit.row.open?'Collapse ':'Expand ')+esc(dn)+'</button>';
   }else{
+    /* v1.2.1 (08-31 obj 12): "Add a phase" left the right-click menu — the calendar
+       double-click and the Departments checklist are its doors now. */
     h+='<div class="mh">'+esc(dateTxt)+'</div>'
      + '<button data-act="ev"><span class="mi ev"></span>New checkpoint<span class="k">E</span></button>'
-     + '<button data-act="tk"><span class="mi tk"></span>New task<span class="k">T</span></button>'
-     + '<div class="sep"></div>'
-     + '<button data-act="depts"><span class="mi dp"></span>Add a phase<span class="k">&rsaquo;</span></button>';
+     + '<button data-act="tk"><span class="mi tk"></span>New task<span class="k">T</span></button>';
   }
   el.innerHTML=h;
   const W=224,H=Math.min(354,52+el.innerHTML.split('<button').length*34);
@@ -5107,7 +5136,6 @@ function npvOpenMenu(clientX,clientY,hit,page){
   el.querySelectorAll('button').forEach(b=>b.addEventListener('click',e=>{
     e.preventDefault();e.stopPropagation();
     const act=b.dataset.act;
-    if(act==='depts'){npvOpenMenu(clientX,clientY,hit,'depts');return;}
     npvCloseMenu();
     if(act==='tog')npvToggleDept(dept);
     else if(act==='sub')npvCreateSubtask(dept,hit.date,false);
@@ -7410,16 +7438,19 @@ function buildLegend(){
   const bar=(st,inner)=>'<span class="job-bar lg-bar"'+(st?' data-st="'+st+'"':'')
     +' style="background-color:'+hue+';color:'+fg+';outline-color:'+hue+'">'+(inner||'')+'</span>';
   const row=(sw,txt)=>'<div class="lg-row">'+sw+'<span>'+txt+'</span></div>';
-  const NOTE={'forecast':'Penciled in — faded, dashed edge','estimating':'Being quoted — striped',
+  const NOTE={'forecast':'Penciled in — grey, faded, dashed edge','estimating':'Being quoted — striped',
     'in-design':'Active — solid bar','in-fabrication':'Active — solid bar',
     'on-hold':'Paused — hatched','complete':'Done — dimmed, ✓'};
+  /* v1.2.1 (obj 11): the forecast swatch is grey like the real bars now are */
+  const fbar=inner=>'<span class="job-bar lg-bar" data-st="forecast" style="background-color:'
+    +FORECAST_GREY+';color:'+labelColor(FORECAST_GREY)+';outline-color:'+FORECAST_GREY+'">'+inner+'</span>';
   document.getElementById('legend-menu').innerHTML=
     '<div class="lg-sec">Project status</div>'
-    +'<div class="lg-hint">Bars keep their project’s color at every status — only the pattern and the pill change.</div>'
+    +'<div class="lg-hint">Bars keep their project’s color at every status except Forecast — a penciled-in job stays grey until it firms up.</div>'
     +ALL_STATUSES.map(st=>{
       let inner='<span class="sum-pill">'+esc(STATUS_LBL[st])+'</span>';
       if(st==='estimating')inner='<span class="bar-stripe"></span>'+inner;
-      return row(bar(st,inner),NOTE[st]);
+      return row(st==='forecast'?fbar(inner):bar(st,inner),NOTE[st]);
     }).join('')
     +'<div class="lg-sec">Installation</div>'
     +row('<span class="job-bar lg-bar" style="background-color:'+INSTALL_RED+';color:'+labelColor(INSTALL_RED)+'"></span>',
@@ -7640,6 +7671,9 @@ const COACH_STEPS=[
    b:'Projects stack here with their job codes and deadlines. Click a row to open its phases, the eye spotlights one job, the pencil edits it — and the Departments lens regroups everything by crew.'},
   {sel:'#gantt-scroll',t:'The timeline',
    b:'Each bar is a phase of work. Click one for its details, drag it to move, grab an edge to resize, right-click for more. Red bars are installs.'},
+  /* v1.2.1 (08-31 obj 1): teach the date-bar pan — the least discoverable move on the view */
+  {sel:'#gantt-hdr',t:'Slide through time',
+   b:'Click and drag the numbered date bar left or right to move the timeline. The Today button (or T) brings you back to today, and G jumps to any date.'},
   {sel:'#t-search',t:'Find things fast',
    b:'Type here (or press /) to show only matching projects and phases. Filters narrows the view by status, client or person — Clear filters brings everything back.'},
   {sel:'#btn-dash',t:'Your plate',

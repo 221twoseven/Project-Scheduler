@@ -80,7 +80,11 @@ function stage1(){
      (menu()||{textContent:''}).textContent.slice(0,50));
   ok('it offers an event and a task', !!byAct('ev')&&!!byAct('tk'), items().join(' | '));
   ok('it offers no subtask, there being no department row', !byAct('sub'));
-  ok('it offers to add a department', !!byAct('depts'));
+  /* v1.2.1 (08-31 obj 12): "Add a phase" left the right-click menu */
+  if(src.indexOf('data-act="depts"')<0)
+    ok('it no longer offers to add a department (v1.2.1 obj 12)', !byAct('depts'));
+  else
+    ok('it offers to add a department', !!byAct('depts'));
 
   click(byAct('ev'));
   setTimeout(()=>{

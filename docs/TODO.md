@@ -17,7 +17,8 @@ single-source-of-truth milestone** (§3 item 13) — the app becoming the compan
 database is the breaking change the major number exists for. `APP_VER` in `index.html`
 is the source of truth; keep `package.json` aligned.
 
-Last reviewed: 2026-08-28 — created from the v1 archive + the owner's v2 objective list.
+Last reviewed: 2026-08-31 — appended the owner's second objective list (the 2026-08-31
+brief, §3 items 14–26) and refolded the version ladder.
 
 ---
 
@@ -102,10 +103,10 @@ Owner's objective numbers in parentheses. Each batch: build on `development`, ve
       selection through — form, breadcrumb and ring survive; a poll that deleted the
       selected task drops the dock to the project pane instead of a stale form.
       Root cause: `renderProjectPage` reset `PP_SEL` unconditionally. Suite: as above.
-- [ ] **5. (Obj 6) Coach-marks language revision — ON HOLD (owner, 2026-08-28).**
-      Extraction list delivered 2026-08-28; owner deferred ("leave coach mark copy
-      alone for now"). When revised copy arrives it's a copy-swap patch across
-      `COACH_STEPS` / `COACH_PP_STEPS`.
+- [ ] **5. (Obj 6) Coach-marks language revision — TABLED INDEFINITELY (owner,
+      2026-08-31).** Extraction list delivered 2026-08-28. If copy ever arrives it's
+      a copy-swap patch across `COACH_STEPS` / `COACH_PP_STEPS`. (New steps are not
+      covered by the hold — the 08-31 obj 1 step shipped in v1.2.1.)
 
 ### Fonts (patch/minor — one licensing check first)
 
@@ -157,10 +158,10 @@ Owner's objective numbers in parentheses. Each batch: build on `development`, ve
 - [ ] **11. (Obj 2) Bug report / feature request form in the Help menu.**
       Fields: Name + Email (autofilled from the signed-in account), Bug vs Feature
       request (checkbox), screenshot upload, multiline description.
-      **Decision needed before code ⚠:** where reports land. Straw proposal: a new
-      app-side `ShopTimeline_Feedback` list (additive, colleague app unaffected — the
-      REV54 Events pattern) with the screenshot as a list-item attachment via Graph.
-      Needs owner approval for the new list.
+      **List APPROVED (owner, 2026-08-31):** app-side `ShopTimeline_Feedback`
+      (additive, REV54 Events pattern), screenshot as a list-item attachment via
+      Graph. Field spec delivered 2026-08-31 (chat + §5); waiting on the owner to
+      create the list and share nothing further — the app addresses lists by name.
 
 ### Permissions (minor bump, v2-gating)
 
@@ -182,6 +183,82 @@ Owner's objective numbers in parentheses. Each batch: build on `development`, ve
         Graph. Real enforcement would need SharePoint-side permissions. State this
         in the milestone record; decide if it's acceptable (it likely is, same trust
         model as the shared Lists today).
+
+### 2026-08-31 brief — quick wins (patch bumps, batchable)
+
+Objective numbers below are from the **2026-08-31 brief** (a separate numbering from
+the 08-28 brief above — see the legend).
+
+- [x] **14. (08-31 obj 12) "Add a phase" removed from the right-click menu — DONE
+      2026-08-31 (v1.2.1).** Both pages (the menu builder is shared). New checkpoint /
+      New task stay (items 21–22 will rename those labels); phase creation keeps its
+      other doors (calendar double-click picker untouched, Departments checklist).
+- [x] **15. (08-31 obj 2) Past projects' date pill removed — DONE 2026-08-31
+      (v1.2.1),** read as the sidebar's red **LATE Nd** chip (the only date pill on a
+      project row): it now shows only while the job is still current (any bar ending
+      today or later); a past project — work wrapped, install behind us — stays
+      quiet. **Owner eyes on `/preview/` wanted** in case a different pill was meant.
+- [x] **16. (08-31 obj 10) Concurrency warning counts — DONE 2026-08-31 (v1.2.1):**
+      "… is on **X other jobs** during this window", X = distinct other *projects*
+      sharing this bar's crew in the window (singular/plural handled).
+- [x] **17. (08-31 obj 11) Forecast renders uncolored — DONE 2026-08-31 (v1.2.1):**
+      `FORECAST_GREY` everywhere a forecast project draws (bars in both color modes,
+      install bars included, sidebar dot, outline); palette slot stays reserved so
+      colors don't shuffle when the status firms up. Legend + Design-Language §2.1
+      updated (the one exception to hue-is-identity).
+
+### 2026-08-31 brief — tour addition (patch)
+
+- [x] **18. (08-31 obj 1) Date-bar drag tour step — DONE 2026-08-31 (v1.2.1),**
+      owner-approved same day (new steps aren't covered by the copy hold): "Slide
+      through time" step on `#gantt-hdr`, after the timeline step.
+
+### 2026-08-31 brief — Department view (minor bump)
+
+- [ ] **19. (08-31 obj 5) Clicking a phase in Department view navigates to the
+      project edit page** instead of opening an edit modal.
+- [ ] **20. (08-31 obj 9) Department-view sidebar restructure:** department moves
+      below the person's name as a subheading; the freed right side (where the
+      department used to sit) shows their assignments with relevant dates,
+      right-justified.
+
+### 2026-08-31 brief — Milestones & Notes (minor bump — rename + simplify)
+
+UI copy and editors only — **stored SharePoint field names stay as-is** (shared-schema
+rule §5); old data keeps reading fine.
+
+- [ ] **21. (08-31 obj 3) Checkpoint → Milestone.** A Milestone has: date, plain-text
+      name (the milestone-type dropdown removed), phase (as today). Notes field
+      removed from the milestone editor.
+- [ ] **22. (08-31 obj 6) Task → Note.** A Note has: date + single-line plain text.
+      Nothing else in its editor.
+- [ ] **23. (08-31 obj 4) Declutter milestone/note labels on the Gantt:** adjacent or
+      overlapping labels are unreadable, so hide them; hover shows a tooltip with the
+      milestone's name, click opens the edit popover.
+
+### 2026-08-31 brief — zoom revision (minor bump)
+
+- [ ] **24. (08-31 obj 7) Global Gantt zoom becomes Week / Month / 3-Month** —
+      viewport-fitting: Week shows one week across the screen, Month one month,
+      3-Month three months (replaces the confusing day / 2-day / week / month steps).
+      Horizontal click-drag on the numbered date bar keeps panning. **Stretch:**
+      vertical drag on the date bar dynamically zooms, with angle-based gesture
+      split (≈±15° bands around horizontal → pan, around vertical → zoom; tune the
+      threshold for feel). Prototype the gesture first — **owner pre-authorized
+      skipping it if it's unusable** (ledger it if skipped).
+- [ ] **25. (08-31 obj 8) Project edit Gantt gets the same zoom controls** as the
+      global view (item 24's model).
+
+### 2026-08-31 brief — change log (minor bump, after permissions ⚠)
+
+- [ ] **26. (08-31 obj 13) Project Edit change log.** Admin-viewable (needs §3
+      item 12 permissions first). Two surfaces: a **global changelog** in the
+      Resources dropdown, and a **project-specific changelog** on the project edit
+      page (that project's changes only). **Owner rulings 2026-08-31:** the list is
+      approved — app-side `ShopTimeline_Changelog` (additive; field spec delivered
+      2026-08-31, chat + §5); and "replaces the dock" means a SECOND collapsible
+      edit dock with the changelog as contents, footer toggle, **only one dock
+      viewable at a time** (not the REV99 dock's removal).
 
 ### The heavy lift — single source of truth (the v2.0.0 milestone)
 
@@ -220,16 +297,30 @@ Owner's objective numbers in parentheses. Each batch: build on `development`, ve
 | v1.0.3 | ✅ Shipped 2026-08-28 — obj 8 revision: calendar blank space never collapses; the parent band click toggles |
 | v1.0.4 | ✅ Shipped 2026-08-28 — obj 8 extension: phases multi-expand on the calendar; Collapse all in the legend bar |
 | v1.1.0 | ✅ Shipped 2026-08-31 — calendar interactions: obj 7 double-click create + obj 9 live drag-follow |
-| v1.1.x | 5 (coach copy, once revised) · 6–7 (fonts, once licence-checked) — patches whenever unblocked |
 | v1.2.0 | ✅ Shipped 2026-08-31 — obj 1: My Dashboard as its own view (trail bar, no lens toggles, flat phases, collapsible dock) |
-| v1.3.0 | 11 (bug reporting) ⚠ |
-| v1.4.0 | 12 (permissions) ⚠ |
-| v2.0.0 | 13 (single source of truth) ⚠ — likely several v1.5+ minors along the way (one per absorbed store), with v2.0.0 as the cutover declaration |
+| v1.2.1 | ✅ Shipped 2026-08-31 — 08-31 quick wins 14–17 + tour step 18 |
+| v1.2.x | 5 (coach copy — tabled indefinitely) · 6–7 (fonts, once licence-checked) — patches whenever unblocked |
+| v1.3.0 | 19–20 (Department view) |
+| v1.4.0 | 21–23 (Milestones & Notes) |
+| v1.5.0 | 24–25 (zoom revision) |
+| v1.6.0 | 11 (bug reporting) ⚠ |
+| v1.7.0 | 12 (permissions) ⚠ |
+| v1.8.0 | 26 (change log) ⚠ — after permissions |
+| v2.0.0 | 13 (single source of truth) ⚠ — likely several minors along the way (one per absorbed store), with v2.0.0 as the cutover declaration |
 
 ## 5. Data / schema (⚠ all need approval — shared Lists)
 
-- Candidate new list: `ShopTimeline_Feedback` (§3 item 11).
-- Candidate new column: `admin` on the staff list (§3 item 12).
+- `ShopTimeline_Feedback` (§3 item 11) — **APPROVED 2026-08-31**, owner creating the
+  list from the delivered field spec. All columns single-line text except
+  `description` (multi-line, plain text): Title, kind, name, email, description
+  (multi-line), appVersion, appId. Screenshot rides as a list-item attachment.
+- `ShopTimeline_Changelog` (§3 item 26) — **APPROVED 2026-08-31**, same arrangement.
+  All single-line text except `detail` (multi-line, plain text): Title, projectId,
+  who, at, field, detail (multi-line), appId.
+- Candidate new column: `admin` on the staff list (§3 item 12) — still needs the
+  colleague-app check.
+- **Non-change to note:** the Checkpoint→Milestone / Task→Note renames (§3 items
+  21–22) are UI copy only — stored field names do not change.
 - Everything in §3 item 13's inventory.
 - **Standing rule:** any schema change must be checked against the colleague app
   before shipping; additive-only unless explicitly approved otherwise.
@@ -365,3 +456,5 @@ today left-of-center — on first load and on every arrival at the timeline via 
 
 - ⚠ Needs explicit approval — touches shared SharePoint schema or Entra/auth config.
 - (Obj N) = the owner's objective numbering from the 2026-08-28 v2 brief.
+- (08-31 obj N) = the owner's numbering from the 2026-08-31 brief (a separate list —
+  the two briefs' numbers do not correspond).
