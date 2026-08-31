@@ -1089,10 +1089,9 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
     </div>
     <div class="t-sep"></div>
     <div class="tog-grp" id="tg-scale">
-      <button id="btn-days" class="t-btn active" title="Show the timeline day by day (D)">Day</button>
-      <button id="btn-day2" class="t-btn" title="Days at half width — about twice the range on screen (+ and − step the zoom)">2-Day</button>
-      <button id="btn-weeks" class="t-btn" title="Show the timeline week by week (W)">Week</button>
-      <button id="btn-month" class="t-btn" title="Whole months at a glance — a season fits on one screen (+ and − step the zoom)">Month</button>
+      <button id="btn-week" class="t-btn" title="One week fills the screen (W; + and − step the zoom)">Week</button>
+      <button id="btn-month" class="t-btn active" title="One month fills the screen (M)">Month</button>
+      <button id="btn-month3" class="t-btn" title="Three months fill the screen — drag the date bar up or down to zoom anywhere between">3 Mo</button>
     </div>
     <div class="sf-wrap">
       <button id="btn-colorby" class="t-btn" title="Choose what the bar colors mean">Color by: <b id="colorby-v">Project</b> <svg class="ico-s" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 6 8 9.5 11.5 6"/></svg></button>
@@ -1138,8 +1137,8 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
     <div><kbd>/</kbd>Search</div>
     <div><kbd>T</kbd>Center on today</div>
     <div><kbd>G</kbd>Go to date</div>
-    <div><kbd>D</kbd>Day scale</div>
     <div><kbd>W</kbd>Week scale</div>
+    <div><kbd>M</kbd>Month scale</div>
     <div><kbd>+ −</kbd>Step the zoom</div>
     <div><kbd>⌘ Z</kbd>Undo</div>
     <div><kbd>Esc</kbd>Close / clear</div>
@@ -1346,7 +1345,7 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.4.0'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.5.0'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -1369,11 +1368,22 @@ function applyDensity(d){
   document.body.classList.toggle('compact',DENSITY==='compact');
 }
 let SIDE_W=300;
-/* B3 / §7 zoom steps, detail → overview. days and weeks keep their original px-per-day
-   so those two steps render pixel-identical to every pre-B3 build. */
-const DW={days:40,day2:20,weeks:14,month:5};
-const ZOOM_STEPS=['days','day2','weeks','month'];
-const VIEW_BTN={days:'btn-days',day2:'btn-day2',weeks:'btn-weeks',month:'btn-month'};
+/* v1.5.0 (08-31 obj 7) / §7: viewport-fitting zoom. FIT is how many days span the
+   visible canvas — the three steps pin it to a week / a month / a quarter, and a
+   vertical drag on the date bar slides it anywhere between (see the pan handler).
+   px-per-day derives from the live viewport width, so "Week" always means one week
+   on screen. Replaces the B3 fixed px-per-day steps (Day/2-Day/Week/Month). */
+const FIT_STEPS={week:7,month:30,month3:91};
+const ZOOM_STEPS=['week','month','month3'];
+const VIEW_BTN={week:'btn-week',month:'btn-month',month3:'btn-month3'};
+const FIT_MIN=7,FIT_MAX=91;
+let FIT=30;      /* continuous days-on-screen; VIEW derives from it */
+let DW_PX=null;  /* px-per-day, cached once per render (dw() reads it) */
+function viewOf(fit){for(const k of ZOOM_STEPS)if(Math.abs(fit-FIT_STEPS[k])<.5)return k;return null;}
+/* Old stored/saved-view step names → the closest new feel (Day was ~a month across
+   a 1200px screen; Week/Month showed a season or more). */
+const VIEW_MIG={days:'month',day2:'month',weeks:'month3'};
+function vpw(){const el=document.getElementById('gantt-scroll');return (el&&el.clientWidth)||1200;}
 
 const DEPTS=[
   /* 1 · OFFICE */
@@ -1488,7 +1498,7 @@ function rostersToPeople(st){
   }
   return Object.values(map);
 }
-let VIEW='days', LENS='project';
+let VIEW='month', LENS='project';
 let COLOR_MODE='project';     // 'project' | 'entity' (color by department/person)
 let TL_S, TL_E;
 let ROWS=[], TOTAL_H=0;
@@ -1508,7 +1518,7 @@ function diffDays(a,b){return Math.round((b-a)/86400000);}
    week 1 are both odd, so two adjacent weeks rendered the same shade) — count whole
    weeks from a fixed Monday instead. diffDays' Math.round absorbs DST offsets. */
 function wkPar(d){const w=d.getDay();const m=addDays(d,-(w===0?6:w-1));return Math.abs(Math.floor(diffDays(new Date(2001,0,1),m)/7))%2;}
-function dw(){return DW[VIEW];}
+function dw(){return DW_PX!=null?DW_PX:vpw()/FIT;}
 function d2x(d){return diffDays(TL_S,d)*dw();}
 function x2d(x){return addDays(TL_S,Math.round(x/dw()));}
 function fmtNice(s){return parseDate(s).toLocaleDateString('en-US',{month:'short',day:'numeric'});}
@@ -1735,7 +1745,7 @@ function loadLocalPrefs(){
        here — search never persists between sessions, tint and group live in their own
        loose keys loaded elsewhere; a partial snapshot leaves those untouched. */
     applyViewState({lens:ui.lens,status:ui.showStatus,person:ui.person,client:ui.clients,color:ui.colorMode,
-      view:ui.view,density:ui.density===undefined?'comfortable':ui.density,
+      view:ui.view,fit:ui.fit,density:ui.density===undefined?'comfortable':ui.density,
       collapsedGroups:ui.collapsedGroups,collapsedDepts:ui.collapsedDepts||[]});
     if(ui.sideW)setSideW(ui.sideW);
     if(ui.npvGut)npvSetGut(ui.npvGut);
@@ -2180,7 +2190,7 @@ function savePeople(np){
 function viewState(){return{
   lens:LENS,group:GROUP_BY||'',status:[...SHOW_STATUS],person:PERSON||'',search:FILTER,
   client:[...CLIENT_FILTER],
-  color:COLOR_MODE,view:VIEW,density:DENSITY,tint:TINT,
+  color:COLOR_MODE,view:VIEW,fit:FIT,density:DENSITY,tint:TINT,
   collapsedGroups:Object.fromEntries(Object.entries(GRP_COLLAPSED).map(([m,s])=>[m,[...s]])),
   collapsedDepts:[...COLLAPSED]};}
 function applyViewState(s){
@@ -2197,8 +2207,11 @@ function applyViewState(s){
   if(typeof s.search==='string'){FILTER=s.search.trim().toLowerCase();
     const se=document.getElementById('t-search');if(se)se.value=s.search;}
   if(s.color==='entity'||s.color==='project'){COLOR_MODE=s.color;syncColorby();}
-  if(DW[s.view]){VIEW=s.view;
-    for(const[k,id]of Object.entries(VIEW_BTN))tog(id,k===VIEW);}
+  /* v1.5.0: restore FIT (continuous) when present; else a step name, migrating the
+     old B3 names (days/day2/weeks) to their closest new feel. */
+  {const v=VIEW_MIG[s.view]||s.view;
+   if(typeof s.fit==='number'&&s.fit>=FIT_MIN&&s.fit<=FIT_MAX)setFit(s.fit,true);
+   else if(FIT_STEPS[v])setFit(FIT_STEPS[v],true);}
   if(s.density!==undefined)applyDensity(s.density);
   if(typeof s.tint==='boolean'){TINT=s.tint;syncVivid();}
   if(s.collapsedGroups)GRP_COLLAPSED=Object.fromEntries(Object.entries(s.collapsedGroups).map(([m,a])=>[m,new Set(a)]));
@@ -2212,7 +2225,7 @@ function saveUI(){
     localStorage.setItem('shopTimelineGroup',s.group);
     localStorage.setItem(UI_KEY,JSON.stringify({collapsedDepts:s.collapsedDepts,
     collapsedGroups:s.collapsedGroups,
-    density:s.density,colorMode:s.color,view:s.view,sideW:SIDE_W,npvGut:NPV_GUT,showStatus:s.status,clients:s.client,person:s.person,lens:s.lens}));}catch(e){}}
+    density:s.density,colorMode:s.color,view:s.view,fit:s.fit,sideW:SIDE_W,npvGut:NPV_GUT,showStatus:s.status,clients:s.client,person:s.person,lens:s.lens}));}catch(e){}}
 
 /* ===================== SEARCH FILTER ===================== */
 let FILTER='';
@@ -2608,6 +2621,7 @@ function computeRange(){
 
 function render(){
   if(typeof ROUTE!=='undefined'&&ROUTE&&ROUTE.view==='project'){document.body.classList.remove('me-dock-on');if(!PP_QUIET){PP_KEEP=true;renderProjectPage();}return;} /* 3.5/I13: a data repaint of the page on screen keeps its working state */
+  DW_PX=vpw()/FIT; /* v1.5.0: px-per-day follows the live viewport, once per render */
   const{s,e}=computeRange();TL_S=s;TL_E=e;
   {const td=today();TODAY_X=(td>=TL_S&&td<=TL_E)?d2x(td):null;}
   computeConflicts();
@@ -3016,14 +3030,17 @@ function buildHeaderInto(hdr,DW_){
     mc.addEventListener('click',ev=>{ev.stopPropagation();openGotoPop(iso,ev.clientX);});
     mRow.appendChild(mc);
   }
-  if(VIEW==='days'||VIEW==='day2'){
+  /* v1.5.0: the header follows px-per-day, not a step name — a continuous FIT (the
+     drag-zoom) degrades the same way the old steps did: roomy cells get a number a
+     day, narrow ones Mondays only, and below that weeks label themselves. */
+  if(DW_>=18){
     cur=new Date(TL_S);const td=today();
     while(cur<=TL_E){
       const dc=document.createElement('div');dc.className='hdr-d-cell';
       dc.style.left=d2x(cur)+'px';dc.style.width=DW_+'px';
       dc.style.background=dayBg(cur.getMonth(),wkPar(cur));
-      /* 2-Day cells are too narrow for a number each — Mondays only (§7) */
-      if(VIEW==='days'||cur.getDay()===1)dc.textContent=cur.getDate();
+      /* narrow day cells are too tight for a number each — Mondays only (§7) */
+      if(DW_>=25||cur.getDay()===1)dc.textContent=cur.getDate();
       if(cur.getTime()===td.getTime())dc.classList.add('is-today');
       if(!isWorking(cur))dc.classList.add('is-wknd');
       dRow.appendChild(dc);cur=addDays(cur,1);
@@ -3034,8 +3051,8 @@ function buildHeaderInto(hdr,DW_){
       const dc=document.createElement('div');dc.className='hdr-d-cell';
       dc.style.left=d2x(cur)+'px';dc.style.width=(7*DW_)+'px';
       dc.style.background=dayBg(cur.getMonth(),wkPar(cur));
-      /* Month step: the month row alone labels time — no day numbers (§7) */
-      if(VIEW==='weeks')dc.textContent=cur.getDate()+' '+cur.toLocaleString('default',{month:'short'});
+      /* under ~8px/day the month row alone labels time — no week numbers (§7) */
+      if(DW_>=8)dc.textContent=cur.getDate()+' '+cur.toLocaleString('default',{month:'short'});
       dRow.appendChild(dc);cur=addDays(cur,7);
     }
   }
@@ -4029,6 +4046,11 @@ function renderProjectPage(){
    + '<div class="dash-chart"><div class="npv npv-full">'
    + '<div class="npv-hd"><span class="npv-ttl" id="npv-nums"></span>'
    + '<div class="npv-modes"><button id="npv-m-g" title="Show the schedule as a Gantt chart (G)">Gantt</button><button id="npv-m-c" title="Show the schedule as a month calendar (C)">Calendar</button></div>'
+   /* v1.5.0 (08-31 obj 8): the global view's zoom steps, plus Fit (the whole job) */
+   + '<div class="npv-modes" id="npv-zoom"><button data-fit="" title="Fit the whole job on screen">Fit</button>'
+   + '<button data-fit="7" title="One week fills the panel">Week</button>'
+   + '<button data-fit="30" title="One month fills the panel">Month</button>'
+   + '<button data-fit="91" title="Three months fill the panel">3 Mo</button></div>'
    + '<div class="npv-subs"><button id="npv-tint" title="Colour the calendar background vividly by month">Vivid months</button>'
    + '<button id="npv-link" title="Dragging a department bar moves its subtasks with it">Link</button>'
    + '<button id="npv-focus" class="hidden" title="Show only the selected phase\'s bands on the calendar">Selected only</button></div>'
@@ -4123,6 +4145,12 @@ function renderProjectPage(){
   const mg=document.getElementById('npv-m-g'),mc=document.getElementById('npv-m-c');
   if(mg)mg.addEventListener('click',()=>{NPV_MODE='gantt';npvRender();});
   if(mc)mc.addEventListener('click',()=>{NPV_MODE='calendar';npvRender();});
+  const zm=document.getElementById('npv-zoom');
+  if(zm)zm.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{
+    NPV_FIT=b.dataset.fit?parseInt(b.dataset.fit,10):null;
+    try{localStorage.setItem('shopTimelineNpvFit',NPV_FIT||'');}catch(e){}
+    npvRender();
+  }));
   const tg=document.getElementById('npv-tint');
   if(tg)tg.addEventListener('click',()=>{TINT=!TINT;syncVivid();saveUI();npvRender();});
   const lk=document.getElementById('npv-link');
@@ -4779,6 +4807,10 @@ let NPV_EVENTS=[];       /* draft events  {id,name,date,dept} */
 let NPV_TODOS=[];        /* draft tasks   {id,title,who,due,priority,dept} */
 let NPV_LINES=[];        /* named phase lines {id,name,dept,who} */
 let NPV_MODE='gantt';    /* 'gantt' | 'calendar' */
+/* v1.5.0 (08-31 obj 8): project-gantt zoom — null fits the whole job (the historical
+   behavior); 7/30/91 pin a week/month/quarter across the panel. Per-browser pref. */
+let NPV_FIT=null;
+try{const f=parseInt(localStorage.getItem('shopTimelineNpvFit'),10);if([7,30,91].includes(f))NPV_FIT=f;}catch(e){}
 let NPV_CAL_FOCUS=false; /* N16: calendar shows only the selected phase's bands */
 let NPV_CAL_OPEN=new Set(); /* v1.0.4 (obj 8): calendar phases expanded (dept ids) — any
                                number at once, independent of the selection and of the
@@ -5417,6 +5449,10 @@ function npvRender(){
   const fk2=document.getElementById('npv-focus');
   if(fk2){fk2.classList.toggle('hidden',NPV_MODE!=='calendar');
     fk2.classList.toggle('on',NPV_CAL_FOCUS);}
+  const zm2=document.getElementById('npv-zoom');
+  if(zm2){zm2.classList.toggle('hidden',NPV_MODE!=='gantt'); /* the calendar has its own scale */
+    zm2.querySelectorAll('button').forEach(b=>b.classList.toggle('on',
+      (b.dataset.fit?parseInt(b.dataset.fit,10):null)===NPV_FIT));}
   npvRenderLegend();
 
   if(!NPV_TASKS.length){
@@ -5447,7 +5483,9 @@ function npvRender(){
   const span=Math.max(1,diffDays(lo,hi)+1);
   const scroll=document.getElementById('npv-scroll');
   const avail=Math.max(240,(scroll?scroll.clientWidth:560)-NPV_GUT-8);
-  const dwv=Math.max(7,Math.floor(avail/spanFit));
+  /* v1.5.0 (08-31 obj 8): the same viewport-fitting steps as the global view — Fit
+     (the whole job, the historical default) or a pinned week/month/quarter. */
+  const dwv=NPV_FIT?Math.max(2,avail/NPV_FIT):Math.max(7,Math.floor(avail/spanFit));
   NPV_GEO={lo,hi,span,dw:dwv,spanFit};
   const x=dt=>NPV_GUT+diffDays(lo,dt)*dwv;
   const innerW=NPV_GUT+span*dwv;
@@ -7139,8 +7177,8 @@ document.addEventListener('keydown',ev=>{
   if(ROUTE.view==='project')return; /* N15: the keys below drive main-timeline controls hidden here */
   if(k==='/'){ev.preventDefault();document.getElementById('t-search').focus();}
   else if(k==='t')scrollToToday();
-  else if(k==='d')setView('days');
-  else if(k==='w')setView('weeks');
+  else if(k==='w')setView('week');
+  else if(k==='m')setView('month');
   else if(k==='+'||k==='=')zoomStep(-1);
   else if(k==='-'||k==='_')zoomStep(1);
   else if(k==='g'){ev.preventDefault();openGotoPop();}
@@ -7207,14 +7245,31 @@ for(const b of document.querySelectorAll('#goto-menu [data-goto]'))b.addEventLis
   else if(kind==='m3')d.setMonth(d.getMonth()+3);
   gotoDate(fmtDate(d));
 });
-/* B3: four zoom steps (§7). D/W jump straight to Day/Week; +/− walk ZOOM_STEPS. */
-function setView(v){
-  if(!DW[v]||v===VIEW)return;
-  VIEW=v;
-  for(const[k,id]of Object.entries(VIEW_BTN))document.getElementById(id).classList.toggle('active',k===v);
-  saveUI();render();scrollToToday();
+/* v1.5.0: three viewport-fitting steps (§7). W/M jump to Week/Month; +/− walk
+   ZOOM_STEPS; a vertical date-bar drag sets FIT continuously (VIEW then reads
+   'between steps' and no button highlights). */
+function syncScaleBtns(){
+  for(const[k,id]of Object.entries(VIEW_BTN)){const b=document.getElementById(id);if(b)b.classList.toggle('active',k===VIEW);}
 }
-function zoomStep(d){const v=ZOOM_STEPS[ZOOM_STEPS.indexOf(VIEW)+d];if(v)setView(v);}
+function setFit(f,quiet){
+  FIT=Math.max(FIT_MIN,Math.min(FIT_MAX,f));
+  VIEW=viewOf(FIT)||'custom';
+  syncScaleBtns();
+  if(!quiet){saveUI();render();}
+}
+function setView(v){
+  if(!FIT_STEPS[v]||(v===VIEW&&FIT===FIT_STEPS[v]))return;
+  setFit(FIT_STEPS[v]);
+  scrollToToday();
+}
+function zoomStep(d){
+  /* + (d<0) lands on the nearest step showing FEWER days, − (d>0) on more — works
+     the same from a named step or a custom drag-set FIT. */
+  let v=null;
+  if(d<0){for(let i=ZOOM_STEPS.length-1;i>=0;i--)if(FIT_STEPS[ZOOM_STEPS[i]]<FIT-.5){v=ZOOM_STEPS[i];break;}}
+  else{for(let i=0;i<ZOOM_STEPS.length;i++)if(FIT_STEPS[ZOOM_STEPS[i]]>FIT+.5){v=ZOOM_STEPS[i];break;}}
+  if(v)setView(v);
+}
 for(const[k,id]of Object.entries(VIEW_BTN))document.getElementById(id).addEventListener('click',()=>setView(k));
 document.getElementById('btn-lens-proj').addEventListener('click',()=>{if(LENS==='project')return;LENS='project';
   document.getElementById('btn-lens-proj').classList.add('active');document.getElementById('btn-lens-dept').classList.remove('active');
@@ -7258,23 +7313,48 @@ document.getElementById('sidebar').addEventListener('wheel',ev=>{
 
 /* 3.5: drag the date header to pan the timeline left/right. A 4px threshold keeps
    month-name clicks (the go-to-date popover) working; a capture-phase click guard
-   swallows the click that follows a real drag. */
+   swallows the click that follows a real drag.
+   v1.5.0 (08-31 obj 7): the same drag zooms when it goes vertical. The first ~6px of
+   travel picks the axis once — more horizontal = pan (as always), more vertical =
+   zoom (a 45° split; the owner's ±15° bands would leave dead diagonal zones where a
+   drag does nothing, which reads as broken). Zooming slides FIT continuously between
+   the Week and 3-Month steps, keeps the date under the pointer anchored, and
+   re-renders on animation frames. Drag up = closer in. */
 (function(){
   let pan=null,panned=false;
+  let raf=null;
   hdrWrap.addEventListener('mousedown',ev=>{
     if(ev.button!==0)return;
-    pan={x:ev.clientX,sl:gScroll.scrollLeft};panned=false;ev.preventDefault();
+    const vr=gScroll.getBoundingClientRect();
+    pan={x:ev.clientX,y:ev.clientY,sl:gScroll.scrollLeft,fit:FIT,mode:null,
+         px:ev.clientX-vr.left,
+         anchorDays:(gScroll.scrollLeft+(ev.clientX-vr.left))/dw()};
+    panned=false;ev.preventDefault();
   });
   document.addEventListener('mousemove',ev=>{
     if(!pan)return;
-    const dx=ev.clientX-pan.x;
-    if(!panned&&Math.abs(dx)<4)return;
-    if(!panned){panned=true;document.body.style.cursor='grabbing';document.body.style.userSelect='none';}
-    gScroll.scrollLeft=pan.sl-dx;
+    const dx=ev.clientX-pan.x,dy=ev.clientY-pan.y;
+    if(!panned&&Math.abs(dx)<4&&Math.abs(dy)<6)return;
+    if(!pan.mode)pan.mode=Math.abs(dy)>Math.abs(dx)?'zoom':'pan';
+    if(!panned){panned=true;
+      document.body.style.cursor=pan.mode==='zoom'?'ns-resize':'grabbing';
+      document.body.style.userSelect='none';}
+    if(pan.mode==='pan'){gScroll.scrollLeft=pan.sl-dx;return;}
+    /* zoom: ~166px of travel halves or doubles the days on screen */
+    const f=Math.max(FIT_MIN,Math.min(FIT_MAX,pan.fit*Math.exp(dy/240)));
+    if(Math.abs(f-FIT)<.05)return;
+    setFit(f,true);
+    if(!raf)raf=requestAnimationFrame(()=>{raf=null;
+      render();
+      gScroll.scrollLeft=pan?pan.anchorDays*dw()-pan.px:gScroll.scrollLeft;
+    });
   });
   document.addEventListener('mouseup',()=>{
-    if(!pan)return;pan=null;
+    if(!pan)return;
+    const zoomed=pan.mode==='zoom'&&panned;
+    pan=null;
     if(panned){document.body.style.cursor='';document.body.style.userSelect='';}
+    if(zoomed)saveUI(); /* persist the drag-set FIT once, not per frame */
   });
   hdrWrap.addEventListener('click',ev=>{
     if(panned){panned=false;ev.stopPropagation();ev.preventDefault();}
@@ -7527,7 +7607,7 @@ const VIEWS_KEY='shopTimelineViews_v1';
 function loadViews(){try{const v=JSON.parse(localStorage.getItem(VIEWS_KEY));if(Array.isArray(v))return v;}catch(e){}return null;}
 function saveViews(v){try{localStorage.setItem(VIEWS_KEY,JSON.stringify(v));}catch(e){}}
 function defaultViewState(){return{lens:'project',group:'',status:[...ALL_STATUSES],person:'',search:'',
-  color:'project',view:'days',density:'comfortable',tint:false,collapsedGroups:{},collapsedDepts:[]};}
+  color:'project',view:'month',fit:30,density:'comfortable',tint:false,collapsedGroups:{},collapsedDepts:[]};}
 /* First run seeds two starters. Seeding happens on first menu open, not at boot, so
    the REV66 identity chain has had a chance to resolve who "me" is. */
 function seedViews(){

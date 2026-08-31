@@ -7,8 +7,16 @@ const fs=require('fs');
 const FILE=process.argv[2]||'index.html';
 
 /* The frozen REV50 reference predates B3 — same convention as test-b1.js. */
-if(fs.readFileSync(FILE,'utf8').indexOf('ZOOM_STEPS')<0){
+const src0=fs.readFileSync(FILE,'utf8');
+if(src0.indexOf('ZOOM_STEPS')<0){
   console.log('test-b3-zoom: skipped — no ZOOM_STEPS in '+FILE+' (pre-B3 build)');
+  process.exit(0);
+}
+/* v1.5.0 (08-31 obj 7) replaced the B3 fixed px-per-day steps with viewport-fitting
+   Week/Month/3-Month — this suite's model no longer exists; test-v150.js covers the
+   new one (steps, keyboard, persistence, edge chips, drag-zoom). */
+if(src0.indexOf('FIT_STEPS')>=0){
+  console.log('test-b3-zoom: skipped — v1.5.0+ build ('+FILE+'), superseded by test-v150');
   process.exit(0);
 }
 

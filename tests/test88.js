@@ -30,7 +30,7 @@ setTimeout(()=>{
   sec('1 · reading order: position · view · filter · — · Views/lock/?');
   const all=[...row.querySelectorAll('*')];
   const at=id=>all.indexOf(doc.getElementById(id));
-  const seq=['btn-today','btn-days','btn-colorby','btn-view',
+  const seq=['btn-today','btn-week','btn-colorby','btn-view', /* v1.5.0: the scale group leads with Week */
              't-search','btn-filters','btn-reset','btn-views','lock-ck'];
   let ordered=true,brk='';
   for(let i=1;i<seq.length;i++)if(at(seq[i])<at(seq[i-1])){ordered=false;brk=seq[i-1]+' → '+seq[i];}
@@ -48,7 +48,7 @@ setTimeout(()=>{
   ok('the old toolbar density button is gone',!doc.getElementById('btn-density'));
   ok('the Settings → Density alias is retired',!doc.getElementById('mi-density'));
   ok('the old Project/Team color toggle is gone',!doc.getElementById('btn-col-proj')&&!doc.getElementById('btn-col-ent'));
-  ok('scale stays a visible segmented control',!!doc.getElementById('tg-scale')&&!!doc.getElementById('btn-days'));
+  ok('scale stays a visible segmented control',!!doc.getElementById('tg-scale')&&!!doc.getElementById('btn-week'));
   E('buildViewMenu()');
   const vitems=[...doc.querySelectorAll('#view-menu .sm-item')].map(l=>l.textContent.trim());
   ok('View ▾ lists the three densities + Vivid months',

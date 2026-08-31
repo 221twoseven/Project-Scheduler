@@ -256,16 +256,19 @@ rule §5); old data keeps reading fine.
 
 ### 2026-08-31 brief — zoom revision (minor bump)
 
-- [ ] **24. (08-31 obj 7) Global Gantt zoom becomes Week / Month / 3-Month** —
-      viewport-fitting: Week shows one week across the screen, Month one month,
-      3-Month three months (replaces the confusing day / 2-day / week / month steps).
-      Horizontal click-drag on the numbered date bar keeps panning. **Stretch:**
-      vertical drag on the date bar dynamically zooms, with angle-based gesture
-      split (≈±15° bands around horizontal → pan, around vertical → zoom; tune the
-      threshold for feel). Prototype the gesture first — **owner pre-authorized
-      skipping it if it's unusable** (ledger it if skipped).
-- [ ] **25. (08-31 obj 8) Project edit Gantt gets the same zoom controls** as the
-      global view (item 24's model).
+- [x] **24. (08-31 obj 7) Viewport-fitting zoom — DONE 2026-08-31 (v1.5.0),
+      GESTURE INCLUDED.** Week/Month/3-Month fit 7/30/91 days across the live
+      viewport (old stored steps migrate: Day/2-Day→Month, Week→3-Month; W/M keys,
+      +/− walk). The vertical date-bar drag shipped: it slides the fit continuously
+      between Week and 3-Month, anchored on the date under the pointer, rAF-throttled
+      (~14–21ms/frame measured at 14 projects in a real browser — usable). Built with
+      a **45° axis split instead of the suggested ±15° bands** — bands leave dead
+      diagonal zones where a drag does nothing, which reads as broken; ledgered in §7.
+      Header degrades by px-per-day, not step name. Design-Language §7 rewritten.
+- [x] **25. (08-31 obj 8) Project Gantt zoom — DONE 2026-08-31 (v1.5.0):** the same
+      Week/Month/3-Mo steps plus **Fit** (whole job — the historical scale, still the
+      default), Gantt mode only, persisted per browser. No drag-zoom gesture on the
+      project date strip — ledgered in §7.
 
 ### 2026-08-31 brief — change log (minor bump, after permissions ⚠)
 
@@ -321,7 +324,7 @@ rule §5); old data keeps reading fine.
 | v1.2.x | 5 (coach copy — tabled indefinitely) · 6–7 (fonts, once licence-checked) — patches whenever unblocked |
 | v1.3.0 | ✅ Shipped 2026-08-31 — Department view: phase click routes to the project page; lane rows get name-over-dept + assignment dates |
 | v1.4.0 | ✅ Shipped 2026-08-31 — Milestones & Notes: renames + simplified editors + Gantt labels hidden |
-| v1.5.0 | 24–25 (zoom revision) |
+| v1.5.0 | ✅ Shipped 2026-08-31 — viewport-fitting zoom (Week/Month/3-Mo + drag-zoom gesture) on both Gantts |
 | v1.6.0 | 11 (bug reporting) ⚠ |
 | v1.7.0 | 12 (permissions) ⚠ |
 | v1.8.0 | 26 (change log) ⚠ — after permissions |
@@ -467,6 +470,13 @@ these are the ones still open, plus new deferrals as they happen.
       line in the popover. (v1.4.0, 2026-08-31)
 - [ ] Marker hover uses the native `title` (unstyled, invisible on touch) — same
       ceiling as the Phase 1 T8 entry above; the two share a gate. (v1.4.0)
+- [ ] Drag-zoom uses a 45° axis split, not the owner's suggested ±15° bands — bands
+      leave dead diagonal zones where a drag does nothing. Gate: owner preferring
+      the bands after feeling the split on `/preview/`. (v1.5.0, 2026-08-31)
+- [ ] The project page's date strip has no drag-zoom gesture (buttons only) and the
+      global page has no Fit step. Gate: someone reaching for either. (v1.5.0)
+- [ ] A drag-set custom FIT survives reloads but has no UI to re-enter it exactly —
+      the buttons snap to named steps. Cosmetic. Gate: someone caring. (v1.5.0)
 - [ ] Font files & licences (§3 items 6–7): nothing committed until the licence
       check passes; Bahnschrift starts as `local()`-only. Gate: licence confirmed /
       non-Windows coverage demanded. (2026-08-28)
