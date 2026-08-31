@@ -129,7 +129,7 @@ function menuChecks(page){
   E("npvOpenMenu(60,60,{row:null,date:'"+D(1)+"'})");
   let m=q('#npv-menu');
   ok(page+': blank right-click has no "Add a phase"', !!m&&!m.querySelector('[data-act="depts"]')&&m.textContent.indexOf('Add a phase')<0);
-  ok(page+': New checkpoint + New task remain', !!m&&!!m.querySelector('[data-act="ev"]')&&!!m.querySelector('[data-act="tk"]'));
+  ok(page+': the two add actions (ev/tk) remain', !!m&&!!m.querySelector('[data-act="ev"]')&&!!m.querySelector('[data-act="tk"]'));
   E('npvCloseMenu()');
   E("npvOpenMenu(60,60,{row:null,date:'"+D(1)+"'},'depts')");
   m=q('#npv-menu');

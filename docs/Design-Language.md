@@ -178,6 +178,16 @@ Inline SVG, 16×16 viewBox, 1.5px stroke, `currentColor` — pasted literally in
 
 ## 6. Interaction patterns
 
+> **Terminology (v1.4.0, owner 08-31 brief):** the UI now says **Milestone** where it
+> said Checkpoint, and **Note** where it said Task (the dated to-do — phase bars were
+> never "Tasks" in the UI). A milestone edits as date + plain-text name + phase (the
+> type dropdown and notes field are retired); a note edits as date + single-line text
+> only (phase and who retired from its editors). On the project **Gantt** the
+> milestone/note markers carry no inline label — the hover title names them, click
+> opens the edit popover. Stored SharePoint fields keep their old names. Sections
+> below keep historical wording ("checkpoint", "event", "task") where they narrate
+> past decisions.
+
 **The three-path rule.** Every action is reachable three ways: pointer (visible button/menu), context menu (right-click), keyboard (shortcut shown in the menu). The project page already lives by this; it becomes app-wide law. Anything drag-only (bar move/resize, OOO ranges) gets a click-editable equivalent (inspector fields or popover with date inputs).
 
 **Click hierarchy on the timeline.** Single **left-click on a bar opens its edit-details modal** — the primary read/edit path. **Departments-lens exception (v1.3.0, owner objective 08-31/5): there a phase click navigates to the project edit page instead** — the inspector is the edit surface; the modal stays the Projects-lens path. Drag moves; edge-drag resizes; right-click opens the context menu. Disambiguation: the modal opens on mouse-up only if total pointer travel is under ~3px; any real drag suppresses it. Click on empty canvas deselects; double-click on empty canvas is reserved (no action yet — don't spend it casually; the **project calendar** spent its own in v1.1.0 — see the calendar rules under N11 below). Double-click on a phase bar on the **main timeline** stays unbound (single-click already opens the modal, and the verb stays reserved). On the **project pages**, double-click a phase/subtask **title** to rename it in place (owner request 2026-08-27 — this binds the project-page double-click the earlier ruling had reserved; see the edit-popover amendment under N11 below).

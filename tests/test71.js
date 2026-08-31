@@ -161,7 +161,7 @@ function stage5(){
       ok('a menu opened', !!menu());
       ok('"Add a phase" is gone', menu()&&menu().textContent.indexOf('Add a phase')<0,
          menu()&&menu().textContent.slice(0,80));
-      ok('New checkpoint / New task remain',
+      ok('the two add actions (ev/tk) remain',
          menu()&&!!menu().querySelector('button[data-act="ev"]')&&!!menu().querySelector('button[data-act="tk"]'));
       E('npvCloseMenu();');
       stage6();

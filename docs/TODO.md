@@ -240,14 +240,19 @@ the 08-28 brief above — see the legend).
 UI copy and editors only — **stored SharePoint field names stay as-is** (shared-schema
 rule §5); old data keeps reading fine.
 
-- [ ] **21. (08-31 obj 3) Checkpoint → Milestone.** A Milestone has: date, plain-text
-      name (the milestone-type dropdown removed), phase (as today). Notes field
-      removed from the milestone editor.
-- [ ] **22. (08-31 obj 6) Task → Note.** A Note has: date + single-line plain text.
-      Nothing else in its editor.
-- [ ] **23. (08-31 obj 4) Declutter milestone/note labels on the Gantt:** adjacent or
-      overlapping labels are unreadable, so hide them; hover shows a tooltip with the
-      milestone's name, click opens the edit popover.
+- [x] **21. (08-31 obj 3) Checkpoint → Milestone — DONE 2026-08-31 (v1.4.0).** Every
+      editor (agenda row, edit popover, phase-modal list) is date + plain-text name +
+      phase; the type dropdown/datalist (`TN_TARGETS`) and the notes field are gone.
+      Old stored notes/types still read (tooltips show them); they're just no longer
+      editable. Copy sweep across menus, toasts, dashboard, legend, tour, shortcuts.
+- [x] **22. (08-31 obj 6) Task → Note — DONE 2026-08-31 (v1.4.0).** Note editors are
+      date + single-line text only — the phase picker and who field left the note's
+      agenda row and popover (per the spec's "only"; stored fields untouched, so old
+      who/phase data persists invisibly). Ledgered in §7.
+- [x] **23. (08-31 obj 4) Gantt marker labels hidden — DONE 2026-08-31 (v1.4.0):**
+      the project Gantt draws no inline milestone/note label (`.npv-evlbl` retired);
+      the hover title carries name · date, click opens the edit popover (as before).
+      Calendar bands keep their in-cell names — they don't overlap the same way.
 
 ### 2026-08-31 brief — zoom revision (minor bump)
 
@@ -315,7 +320,7 @@ rule §5); old data keeps reading fine.
 | v1.2.2 | ✅ Shipped 2026-08-31 — item 15 correction (the "date pill" is the B1 edge chip; LATE chip restored, past rows lose their left edge chip) + item 10a (the dashboard never presents as filtered) |
 | v1.2.x | 5 (coach copy — tabled indefinitely) · 6–7 (fonts, once licence-checked) — patches whenever unblocked |
 | v1.3.0 | ✅ Shipped 2026-08-31 — Department view: phase click routes to the project page; lane rows get name-over-dept + assignment dates |
-| v1.4.0 | 21–23 (Milestones & Notes) |
+| v1.4.0 | ✅ Shipped 2026-08-31 — Milestones & Notes: renames + simplified editors + Gantt labels hidden |
 | v1.5.0 | 24–25 (zoom revision) |
 | v1.6.0 | 11 (bug reporting) ⚠ |
 | v1.7.0 | 12 (permissions) ⚠ |
@@ -456,6 +461,12 @@ these are the ones still open, plus new deferrals as they happen.
       asking "why do I have to find the phase again". (v1.3.0, 2026-08-31)
 - [ ] Lane assignment lines clip to row height with "+N more" — no way to see the
       tail without expanding density. Gate: real complaints. (v1.3.0, 2026-08-31)
+- [ ] Old milestone notes/types and note who/phase data survive in storage but have
+      no editor — visible only in main-timeline tooltips (notes) or not at all
+      (who). Gate: someone needing to read or clear old values; fix is a read-only
+      line in the popover. (v1.4.0, 2026-08-31)
+- [ ] Marker hover uses the native `title` (unstyled, invisible on touch) — same
+      ceiling as the Phase 1 T8 entry above; the two share a gate. (v1.4.0)
 - [ ] Font files & licences (§3 items 6–7): nothing committed until the licence
       check passes; Bahnschrift starts as `local()`-only. Gate: licence confirmed /
       non-Windows coverage demanded. (2026-08-28)

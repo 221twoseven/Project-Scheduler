@@ -1,4 +1,4 @@
-/* Timeline regression suite — run: node test46.js Timeline_46.html
+﻿/* Timeline regression suite â€” run: node test46.js Timeline_46.html
    Covers the four REV46 fixes plus the invariants the old suites guarded. */
 const {boot}=require('./harness');
 const fs=require('fs');
@@ -38,19 +38,19 @@ setTimeout(run,1300);
 function run(){
   sec('geometry constants match the stylesheet');
   /* Since the resizable gutter, the stylesheet reads var(--npv-gut) and geometry reads
-     NPV_GUT (npvSetGut keeps them in step) — assert the var's fallback matches the
+     NPV_GUT (npvSetGut keeps them in step) â€” assert the var's fallback matches the
      boot default. Pre-var builds (the REV50 reference) still carry a literal width. */
   const gutVar=src.match(/\.npv-gut\{[^}]*width:var\(--npv-gut,(\d+)px\)/);
   const gut=gutVar?gutVar[1]:([...src.matchAll(/\.npv-gut\{[^}]*width:(\d+)px/g)].pop()||[])[1];
   const rowh=[...src.matchAll(/\.npv-row\{[^}]*height:(\d+)px/g)].pop();
   ok('NPV_GUT matches .npv-gut width', String(E('NPV_GUT'))===gut, 'JS '+E('NPV_GUT')+' vs CSS '+gut);
   ok('NPV_ROWH matches last .npv-row height', String(E('NPV_ROWH'))===rowh[1], 'JS '+E('NPV_ROWH')+' vs CSS '+rowh[1]);
-  if(/--fs-fine:/.test(src)){ /* C5 tokens — skipped on pre-C5 builds like the REV50 reference */
-    ok('--row-h token is Comfortable (Design-Language §4)',
+  if(/--fs-fine:/.test(src)){ /* C5 tokens â€” skipped on pre-C5 builds like the REV50 reference */
+    ok('--row-h token is Comfortable (Design-Language Â§4)',
        /applyDensity/.test(src)?/--row-h:56px/.test(src):/--row-h:44px/.test(src));
     ok('no informational font-size below 11px (C5)', !/font-size:(10|[0-9])(\.[0-9]+)?px/.test(src));
   }
-  if(/applyDensity/.test(src)){ /* B5 density (three levels, owner 2026-08-26) — skipped on pre-B5 builds */
+  if(/applyDensity/.test(src)){ /* B5 density (three levels, owner 2026-08-26) â€” skipped on pre-B5 builds */
     ok('Snug override sets --row-h:44px', /body\.snug\{--row-h:44px\}/.test(src));
     ok('Compact override sets --row-h:32px', /body\.compact\{--row-h:32px\}/.test(src));
     ok('JS lane math mirrors --row-h at Comfortable (56)', E('rowH(1)')===56, 'rowH(1)='+E('rowH(1)'));
@@ -58,7 +58,7 @@ function run(){
     ok('JS lane math mirrors --row-h at Snug (44)', E('rowH(1)')===44, 'rowH(1)='+E('rowH(1)'));
     E("applyDensity('compact')");
     ok('JS lane math mirrors --row-h at Compact (32)', E('rowH(1)')===32, 'rowH(1)='+E('rowH(1)'));
-    ok('Compact bar keeps the ≥24px hit target (§4)', E('BAR_H')>=24, 'BAR_H='+E('BAR_H'));
+    ok('Compact bar keeps the â‰¥24px hit target (Â§4)', E('BAR_H')>=24, 'BAR_H='+E('BAR_H'));
     E("applyDensity('comfortable')");
   }
 
@@ -141,7 +141,7 @@ function stage3(){
 
     /* Renaming happens inline in the agenda row. The checkpoint-editor agenda (post-REV50)
        renders a permanent name input; the reference build opens one on click. */
-    const NEWAG=/ag-dl/.test(src);
+    const NEWAG=src.indexOf('<input class="nm"')>=0; /* the new agenda's name is a permanent INPUT; the reference renders a span and opens one on click */
     click(doc.querySelector('#pp-insp .ag-i .nm'));
     setTimeout(()=>{
       const inp=NEWAG?doc.querySelector('#pp-insp .ag-i input.nm')
@@ -231,3 +231,5 @@ function done(){
   process.exit(fail?1:0);
 }
 setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},25000);
+
+

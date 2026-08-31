@@ -1,10 +1,10 @@
-/* One test per reported issue, on the page where it was reported.
+﻿/* One test per reported issue, on the page where it was reported.
    Run: node tests/run.js  (or: node tests/test50.js reference/Timeline_50.html) */
 const {boot}=require('./harness');
 const fs=require('fs');
 const FILE=process.argv[2]||'reference/Timeline_50.html';
 const src=fs.readFileSync(FILE,'utf8');
-/* REV57 / N11: bar menus are add-only — rename lives in the inspector/popover. (The old
+/* REV57 / N11: bar menus are add-only â€” rename lives in the inspector/popover. (The old
    inline name field is retired; a New action opens the edit popover, sniffed here.) */
 const N11=/npvEditPop/.test(src);
 
@@ -19,7 +19,7 @@ const q=s=>doc.querySelector(s);
 const qa=s=>[...doc.querySelectorAll(s)];
 const click=el=>el&&el.dispatchEvent(new win.MouseEvent('click',{bubbles:true}));
 /* Real-browser key: dispatched FROM the focused element, so ev.target is the input the
-   way it is in Chrome — this is exactly what jsdom hid last time. */
+   way it is in Chrome â€” this is exactly what jsdom hid last time. */
 const keyOn=(el,k,o)=>el.dispatchEvent(new win.KeyboardEvent('keydown',
   Object.assign({key:k,bubbles:true,cancelable:true},o||{})));
 
@@ -90,7 +90,7 @@ function stage1(){
 }
 
 function stage2(){
-  sec('ISSUE: events were black — now a yellow diamond, black outline');
+  sec('ISSUE: events were black â€” now a yellow diamond, black outline');
   const evCss=src.match(/\.npv-ev\{[^}]*\}/)[0];
   ok('fill is yellow', /F7C948/i.test(evCss), evCss.slice(0,90));
   ok('outline is black', /border:\s*2px solid #16202E/.test(evCss));
@@ -103,13 +103,19 @@ function stage2(){
   E("NPV_EVENTS[NPV_EVENTS.length-1].name='Client review';npvRebuild();");
   setTimeout(()=>{
     const lbl=q('#npv-body .npv-evlbl');
-    ok('a label chip renders beside the diamond', !!lbl&&/Client review/.test(lbl.textContent),
-       lbl?lbl.textContent:'(none)');
+    /* v1.4.0 (08-31 obj 4): label chips retired â€” the name lives in the hover title. */
+    if(/\.npv-evlbl\{/.test(src))
+      ok('a label chip renders beside the diamond', !!lbl&&/Client review/.test(lbl.textContent),
+         lbl?lbl.textContent:'(none)');
+    else{
+      ok('no label chip renders (v1.4.0 obj 4)', !lbl);
+      ok('the diamond title carries the name', /Client review/.test((q('#npv-body .npv-ev')||{title:''}).title));
+    }
     ok('the diamond carries its id, kind and date',
        (()=>{const m=q('#npv-body .npv-ev');
          return m&&m.dataset.mkId&&m.dataset.mkK==='ev'&&m.dataset.mkDate;})());
 
-    sec('ISSUE: events could not be moved — drag the diamond');
+    sec('ISSUE: events could not be moved â€” drag the diamond');
     const mk=q('#npv-body .npv-ev');
     const d0=mk.dataset.mkDate;
     const dw=E('NPV_GEO.dw');
@@ -130,7 +136,7 @@ function stage2(){
       setTimeout(()=>{
         /* The checkpoint-editor agenda (post-REV50) renders a permanent name input;
            the reference build opens one on click. */
-        const NEWAG=/ag-dl/.test(src);
+        const NEWAG=src.indexOf('<input class="nm"')>=0; /* the new agenda's name is a permanent INPUT; the reference renders a span */
         const inp=NEWAG?q('#pp-insp .ag-i input.nm'):q('#pp-insp .ag-i input');
         ok('the agenda opened with an inline editor', !!inp);
         if(inp){
@@ -160,7 +166,7 @@ function stage3(){
     ok('the new bar is visibly named', /Subtask 2/.test(host.textContent));
     ok('its department expanded to show it', qa('#npv-body .npv-row.child').length>0);
 
-    const CONV=/ppDraftResolve/.test(src); /* REV82: the popover retired — the inspector serves drafts */
+    const CONV=/ppDraftResolve/.test(src); /* REV82: the popover retired â€” the inspector serves drafts */
     sec(CONV?'clicking a draft bar selects into the shared inspector (REV82)'
             :'clicking a draft bar opens its editor (inspector cannot hold drafts)');
     const kid=q('#npv-body .npv-bar.kid')||qa('#npv-body .npv-bar:not(.sum)')[0];
@@ -266,3 +272,4 @@ function done(){
   process.exit(fail?1:0);
 }
 setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},40000);
+
