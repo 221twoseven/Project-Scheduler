@@ -225,12 +225,15 @@ the 08-28 brief above — see the legend).
 
 ### 2026-08-31 brief — Department view (minor bump)
 
-- [ ] **19. (08-31 obj 5) Clicking a phase in Department view navigates to the
-      project edit page** instead of opening an edit modal.
-- [ ] **20. (08-31 obj 9) Department-view sidebar restructure:** department moves
-      below the person's name as a subheading; the freed right side (where the
-      department used to sit) shows their assignments with relevant dates,
-      right-justified.
+- [x] **19. (08-31 obj 5) Dept-view phase click navigates to the project edit
+      page — DONE 2026-08-31 (v1.3.0).** The task modal stays the Projects-lens
+      edit surface (§6 exception recorded in Design-Language). The clicked phase
+      is not preselected on arrival — ledgered in §7.
+- [x] **20. (08-31 obj 9) Department-view sidebar restructure — DONE 2026-08-31
+      (v1.3.0):** lane rows read name-over-department (the `.sb-2l` two-line
+      pattern), and the freed right side lists that lane's assignments —
+      project + dates, current work first, capped to what the row height fits
+      with a "+N more" tail.
 
 ### 2026-08-31 brief — Milestones & Notes (minor bump — rename + simplify)
 
@@ -311,7 +314,7 @@ rule §5); old data keeps reading fine.
 | v1.2.1 | ✅ Shipped 2026-08-31 — 08-31 quick wins 14–17 + tour step 18 |
 | v1.2.2 | ✅ Shipped 2026-08-31 — item 15 correction (the "date pill" is the B1 edge chip; LATE chip restored, past rows lose their left edge chip) + item 10a (the dashboard never presents as filtered) |
 | v1.2.x | 5 (coach copy — tabled indefinitely) · 6–7 (fonts, once licence-checked) — patches whenever unblocked |
-| v1.3.0 | 19–20 (Department view) |
+| v1.3.0 | ✅ Shipped 2026-08-31 — Department view: phase click routes to the project page; lane rows get name-over-dept + assignment dates |
 | v1.4.0 | 21–23 (Milestones & Notes) |
 | v1.5.0 | 24–25 (zoom revision) |
 | v1.6.0 | 11 (bug reporting) ⚠ |
@@ -448,6 +451,11 @@ these are the ones still open, plus new deferrals as they happen.
       closes. Gate: a real "why didn't I see their edit" report.
 
 **New (v2 track):**
+- [ ] Dept-lens phase click lands on the project page without preselecting the
+      clicked phase — arriving selected needs a cross-route handoff. Gate: PMs
+      asking "why do I have to find the phase again". (v1.3.0, 2026-08-31)
+- [ ] Lane assignment lines clip to row height with "+N more" — no way to see the
+      tail without expanding density. Gate: real complaints. (v1.3.0, 2026-08-31)
 - [ ] Font files & licences (§3 items 6–7): nothing committed until the licence
       check passes; Bahnschrift starts as `local()`-only. Gate: licence confirmed /
       non-Windows coverage demanded. (2026-08-28)

@@ -201,6 +201,12 @@ body.compact .sb-chip{line-height:1.2;padding:.5px 6px}
 .sb-count{font-family:var(--mono);font-size:var(--fs-fine);font-weight:600;background:rgba(87,104,127,.16);border-radius:8px;padding:1px 7px;color:#57687F;flex-shrink:0;text-transform:none;letter-spacing:0}
 .sb-row.lane-row .sb-name{font-weight:450;font-size:12px}
 .sb-row.lane-row{padding-left:24px}
+/* v1.3.0 (08-31 obj 9): lane rows read name-over-department on the left; the right
+   side (the department's old spot) lists that lane's assignments with dates. */
+.sb-asns{margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;gap:1px;overflow:hidden;min-width:0;max-width:58%;text-align:right}
+.sb-asn{display:flex;gap:5px;align-items:baseline;max-width:100%;font-size:var(--fs-fine);color:#5E7292;white-space:nowrap;line-height:1.25}
+.sb-asn .n{overflow:hidden;text-overflow:ellipsis;min-width:0}
+.sb-asn .d{font-family:var(--mono);color:#93A2B8;flex-shrink:0;letter-spacing:.02em}
 .sb-row.drop-hi{background:rgba(47,111,228,.12)!important;outline:2px solid rgba(47,111,228,.4);outline-offset:-2px}
 .sb-edit{background:none;border:none;color:#A8B6C8;font-size:12px;cursor:pointer;padding:2px 5px;border-radius:3px;opacity:0;transition:opacity .15s;flex-shrink:0}
 .sb-row:hover .sb-edit{opacity:1}
@@ -1344,7 +1350,7 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.2.2'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.3.0'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -2822,9 +2828,32 @@ function renderSidebar(){
       row.className='sb-row lane-row';
       row.dataset.secid=r.secId;
       const dot=document.createElement('span');dot.className='c-dot';dot.style.background=laneColor(r.dept,r.assignee);row.appendChild(dot);
-      const nm=document.createElement('span');nm.className='sb-name';nm.textContent=r.label;row.appendChild(nm);
+      /* v1.3.0 (08-31 obj 9): two-line lane identity — name over department — and the
+         freed right side lists the lane's assignments with dates, current work first. */
+      const col=document.createElement('span');col.className='sb-2l';
+      const nm=document.createElement('span');nm.className='sb-name';nm.textContent=r.label;col.appendChild(nm);
       const dnm=(deptById(r.dept)||{}).name||r.dept;
-      if(r.label!==dnm){const su=document.createElement('span');su.className='sb-sub';su.textContent=dnm;row.appendChild(su);}
+      if(r.label!==dnm){const su=document.createElement('span');su.className='sb-sub';su.textContent=dnm;col.appendChild(su);}
+      row.appendChild(col);
+      const box=document.createElement('span');box.className='sb-asns';
+      const t0=fmtDate(today());
+      const bars=[...r.tasks].sort((a,b)=>
+        ((a.endDate>=t0?0:1)-(b.endDate>=t0?0:1))||String(a.startDate).localeCompare(String(b.startDate)));
+      const max=Math.max(1,Math.floor((r.height-6)/14)); /* what the row height fits */
+      const show=bars.length>max?bars.slice(0,Math.max(1,max-1)):bars;
+      for(const t of show){
+        const p=projById(t.projectId);
+        const a=document.createElement('span');a.className='sb-asn';
+        const n=document.createElement('span');n.className='n';n.textContent=p?p.name:'—';
+        const d=document.createElement('span');d.className='d';
+        d.textContent=fmtNice(t.startDate)+'–'+fmtNice(t.endDate);
+        a.appendChild(n);a.appendChild(d);box.appendChild(a);
+      }
+      if(bars.length>show.length){
+        const m=document.createElement('span');m.className='sb-asn';
+        m.textContent='+'+(bars.length-show.length)+' more';box.appendChild(m);
+      }
+      row.appendChild(box);
     }
     frag.appendChild(row);
   }
@@ -3284,8 +3313,11 @@ function makeTaskBar(t,row,lane,labelMode){
      merely attempted — sets SUPPRESS_CLICK on mouseup so this never fires after a drag.
      (The project page differs: there a plain click selects the bar and the bottom
      inspector is the details surface.) Handle clicks bubble here on purpose, so a clean
-     click on a resize handle still opens the modal. */
-  bar.addEventListener('click',ev=>{ev.stopPropagation();if(!SUPPRESS_CLICK)openTaskModal(t.id);});
+     click on a resize handle still opens the modal.
+     v1.3.0 (08-31 obj 5): the Departments lens differs too — there a phase click goes
+     to the project edit page; the modal stays the Projects-lens edit surface. */
+  bar.addEventListener('click',ev=>{ev.stopPropagation();if(SUPPRESS_CLICK)return;
+    if(LENS==='dept')goProject(t.projectId);else openTaskModal(t.id);});
   bar.addEventListener('mouseenter',ev=>{if(!DRAG)showTooltipTask(t,ev);});
   bar.addEventListener('mousemove',ev=>{if(!DRAG)posTooltip(ev);});
   bar.addEventListener('mouseleave',hideTooltip);
