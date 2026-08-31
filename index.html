@@ -524,9 +524,13 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 .npv-dnum{position:absolute;top:18px;height:14px;font-size:var(--fs-fine);color:#B4C0D0;text-align:center}
 .npv-we{position:absolute;top:0;bottom:0;background:#EEF1F5;pointer-events:none}
 body.vivid .npv-we{display:none} /* v1.0.2: no weekend strips over the vivid tint (obj 13) */
+/* v1.6.2: the axis's sticky gutter mask (see npvRender) — above the day columns and
+   labels (z2), below nothing that matters; the row gutters stay their own z3 cells. */
+.npv-axgut{position:sticky;left:0;height:100%;background:#FBFDFF;z-index:3;
+  border-right:1px solid #EDF2F7;pointer-events:none}
 .npv-body{position:relative}
 .npv-row{position:relative;height:34px}  /* NPV_ROWH in the script must match */
-.npv-row:nth-child(odd){background:#FCFDFE}
+.npv-row:nth-child(odd){background:rgba(255,255,255,.35)} /* v1.6.2: translucent so the z0 weekend/tint layer reads through (same trick Vivid uses); was the visually identical #FCFDFE */
 .npv-gut{position:sticky;left:0;z-index:3;width:var(--npv-gut,150px);height:100%;display:flex;align-items:center;padding:0 8px;font-size:var(--fs-fine);font-weight:600;color:#475569;background:#fff;border-right:1px solid #EDF2F7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .npv-row:nth-child(odd) .npv-gut{background:#FCFDFE}
 .npv-bar{position:absolute;height:24px;top:5px;border-radius:4px;cursor:grab;display:flex;align-items:center;padding:0 6px;font-size:var(--fs-fine);font-weight:600;white-space:nowrap;overflow:hidden;z-index:2;user-select:none}
@@ -602,7 +606,15 @@ body.vivid .npv-we{display:none} /* v1.0.2: no weekend strips over the vivid tin
 /* ============ REV41 ============ */
 .npv-ev{top:12px}
 .npv-tk{top:11.5px}
-.npv-web{position:absolute;top:0;bottom:0;background:rgba(100,116,139,.10);z-index:1;pointer-events:none}
+/* v1.6.2: the weekend web takes the Design-Language §2.4 quiet weekend treatment —
+   opaque #EEF1F5 with the 45° hatch, exactly like the global timeline's .wknd-col —
+   and moved into the z0 tint layer UNDER the rows. The old rgba(100,116,139,.10)
+   slab sat at z1 after the rows, i.e. on top of the bars, washing every phase that
+   crossed a weekend — invisible at sliver widths, murky at the px/day the new zoom
+   reaches. The quiet zebra goes translucent (like Vivid's) so the web reads through. */
+.npv-web{position:absolute;top:0;bottom:0;pointer-events:none;
+  background-color:#EEF1F5;
+  background-image:repeating-linear-gradient(45deg,rgba(100,116,139,.044) 0 4px,transparent 4px 8px)}
 body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 .npv-leg{display:flex;flex-wrap:wrap;gap:5px 14px;padding:8px 12px;border-bottom:1px solid #E2E8F0;background:#fff}
 .npv-leg .lg{display:flex;align-items:center;gap:6px;font-size:var(--fs-fine);font-weight:600;color:#5B6B85;white-space:nowrap}
@@ -1382,7 +1394,7 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.6.2'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.6.3'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -4197,9 +4209,24 @@ function renderProjectPage(){
   if(mc)mc.addEventListener('click',()=>{NPV_MODE='calendar';npvRender();});
   const zm=document.getElementById('npv-zoom');
   if(zm)zm.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{
+    /* v1.6.2 fix: hold today (or the panel-center date when today is off-screen) at
+       its pixel through the step change — the old scrollLeft used to land on
+       whatever date happened to sit at that pixel in the new scale. */
+    const sc2=document.getElementById('npv-scroll');
+    let anc=null;
+    if(sc2&&NPV_GEO&&NPV_MODE==='gantt'){
+      /* the same width fallback npvRender uses — a hidden/jsdom panel reads 0 */
+      const vw=Math.max(240,(sc2.clientWidth||560)-NPV_GUT-8)+NPV_GUT+8;
+      const tdD=diffDays(NPV_GEO.lo,today());
+      const tx=NPV_GUT+tdD*NPV_GEO.dw-sc2.scrollLeft;
+      const days=(tx>=0&&tx<=vw)?tdD
+        :(sc2.scrollLeft+vw/2-NPV_GUT)/NPV_GEO.dw;
+      anc={days:days,px:NPV_GUT+days*NPV_GEO.dw-sc2.scrollLeft};
+    }
     NPV_FIT=b.dataset.fit?parseInt(b.dataset.fit,10):null;
     try{localStorage.setItem('shopTimelineNpvFit',NPV_FIT||'');}catch(e){}
     npvRender();
+    if(anc&&NPV_GEO&&sc2)sc2.scrollLeft=NPV_GUT+anc.days*NPV_GEO.dw-anc.px;
   }));
   const tg=document.getElementById('npv-tint');
   if(tg)tg.addEventListener('click',()=>{TINT=!TINT;syncVivid();saveUI();npvRender();});
@@ -5619,7 +5646,10 @@ function npvRender(){
   if(gutrs)gutrs.style.display='';
 
   /* axis */
-  let ax='';
+  /* v1.6.2 fix: the row gutters are sticky masks, but the axis never had one — once
+     the panel scrolls (a common state now the strip pans/zooms), date numbers, month
+     names and day shading slid under the name column. This cell masks them. */
+  let ax='<div class="npv-axgut" style="width:'+NPV_GUT+'px"></div>';
   let cur=new Date(lo);
   while(cur<=hi){
     ax+='<div class="'+(TINT?'npv-tintcol':'npv-qcol')+'" style="left:'+x(cur)+'px;width:'+dwv+'px;background:'
@@ -5735,12 +5765,7 @@ function npvRender(){
      + 'data-mk-date="'+esc(mk.date)+'" style="left:'+left+'px;top:'+top+'px" '
      + 'title="'+esc(nm+' \u00b7 '+fmtNice(mk.date)+' \u2014 drag to move, click to edit, right-click to delete')+'"></div>';
   }
-  /* Weekend columns run the full height of the body so weeks read as blocks. */
-  {let c2=new Date(lo);
-   while(c2<=hi){
-     if(!isWorking(c2))h+='<div class="npv-web" style="left:'+x(c2)+'px;width:'+dwv+'px"></div>';
-     c2=addDays(c2,1);
-   }}
+  /* Weekend columns moved into the tint layer below (v1.6.2) — see the CSS note. */
   h+='<div class="npv-today" style="left:'+x(td)+'px;width:'+dwv+'px"></div>';
   h+='<div class="npv-dl" style="left:'+(x(dl)+dwv)+'px"></div>';
   /* Tint sits in its own layer appended last so it can't shift the rows' nth-child
@@ -5751,6 +5776,9 @@ function npvRender(){
     while(c3<=hi){
       tl+='<div class="'+(TINT?'npv-tintcol':'npv-qcol')+'" style="left:'+x(c3)+'px;width:'+dwv+'px;background:'
         +dayBg(c3.getMonth(),wkPar(c3))+'"></div>';
+      /* v1.6.2: the weekend web rides this layer, after its day's tint column, so it
+         sits above the month wash but below every row and bar. */
+      if(!isWorking(c3))tl+='<div class="npv-web" style="left:'+x(c3)+'px;width:'+dwv+'px"></div>';
       if(!TINT&&c3.getDate()===1&&c3.getTime()!==lo.getTime())
         tl+='<div class="mon-line" style="left:'+x(c3)+'px"></div>';
       c3=addDays(c3,1);

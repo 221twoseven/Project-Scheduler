@@ -342,6 +342,7 @@ rule §5); old data keeps reading fine.
 | v1.6.0 | ✅ Shipped 2026-08-31 — bug report / feature request form (list created by owner same day) |
 | v1.6.1 | ✅ Shipped 2026-08-31 — the owner's ten-item `/preview/` punch list (see Last-reviewed note + milestone record) |
 | v1.6.2 | ✅ Shipped 2026-08-31 — second review round: header/canvas same-frame sync (drag-zoom judder), project date-strip pan/zoom parity (§7 gate half-fired), Summary·name for other people's plates, full-height Notes dock column |
+| v1.6.3 | ✅ Shipped 2026-08-31 — project-Gantt scroll fallout: step buttons anchor today, sticky axis gutter mask, weekend webs moved under the rows with the §2.4 hatch (they painted OVER the bars) |
 | v1.7.0 | 12 (permissions) ⚠ |
 | v1.8.0 | 26 (change log) ⚠ — after permissions |
 | v2.0.0 | 13 (single source of truth) ⚠ — likely several minors along the way (one per absorbed store), with v2.0.0 as the cutover declaration |
@@ -515,6 +516,11 @@ these are the ones still open, plus new deferrals as they happen.
 - [ ] The sidebar/canvas scroll parity fix pads by the footer height but not the
       Gantt's ~10px horizontal scrollbar — the last few px of sync can clamp at the
       very bottom. Cosmetic. Gate: someone notices. (v1.6.1)
+- [ ] Project-Gantt today column and deadline pennant (z4) out-stack the sticky row
+      gutters (their z3 lives inside z1 row contexts) — at extreme scroll the
+      translucent today wash can slide over the name column. The axis is masked
+      (v1.6.3); a full fix means restructuring the gutter stacking. Gate: someone
+      notices it on a real job. (v1.6.3, 2026-08-31)
 
 **Deliberate design ceilings — no action planned, revisit only on real complaints:**
 12-slot palette repeats at 13+ visible projects (T2); quiet re-selection after a

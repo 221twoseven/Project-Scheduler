@@ -1,4 +1,5 @@
-/* v1.6.2 — the second /preview/ polish round (owner review, 2026-08-31).
+/* v1.6.2 + v1.6.3 — the second /preview/ polish round and its fix batch (2026-08-31).
+   v1.6.2:
    0) Follow-up on v1.6.1 item 9: the date header syncs in the SAME frame as the
       canvas during zooms (hdr-wrap no longer lags a scroll-event tick behind).
    1) The project-page date strip drives the global header's gestures — drag
@@ -6,6 +7,12 @@
    2) Dept lens + another person's filter reads as "Summary · name", not My
       Dashboard — the toolbar button stays dark; your own stays "My Dashboard".
    3) The phase dock gains a third column: agenda's width halved, notes full-height.
+   v1.6.3 (the project-Gantt scroll fallout):
+   4) Step buttons anchor today's pixel through the fit change (no random snap).
+   5) The axis gets a sticky gutter mask — dates/months/shading no longer slide
+      under the name column when the panel is scrolled.
+   6) Weekend webs move into the z0 tint layer with the §2.4 hatch treatment —
+      they used to paint ABOVE the rows, washing every bar that crossed a weekend.
    Run: node tests/test-v162.js index.html  (or via tests/run.js) */
 const {boot}=require('./harness');
 const fs=require('fs');
@@ -116,8 +123,35 @@ function projPart(){
        win.localStorage.getItem('shopTimelineNpvFit'));
     E("document.querySelector('#npv-zoom button[data-fit=\\'\\']').click()");
     ok('the Fit button restores whole-job scale', E('NPV_FIT')===null);
-    done();
+    v163Part();
   },120);
+}
+
+function v163Part(){
+  sec('v1.6.3 — step buttons anchor today through the fit change');
+  const sc=doc.getElementById('npv-scroll');
+  const todayX=()=>E('NPV_GUT+diffDays(NPV_GEO.lo,today())*NPV_GEO.dw')-sc.scrollLeft;
+  const x0=todayX();
+  E("document.querySelector('#npv-zoom button[data-fit=\\'7\\']').click()");
+  ok('Fit → Week holds today at the same pixel', Math.abs(todayX()-x0)<1.5,
+     x0+' -> '+todayX());
+  E("document.querySelector('#npv-zoom button[data-fit=\\'30\\']').click()");
+  ok('Week → Month holds it too', Math.abs(todayX()-x0)<1.5, x0+' -> '+todayX());
+
+  sec('v1.6.3 — the axis wears a sticky gutter mask');
+  const ag=q('#npv-axis .npv-axgut');
+  ok('the mask renders first in the axis', !!ag&&ag===doc.getElementById('npv-axis').firstChild);
+  ok('…sized to the name column', ag&&ag.style.width===E('NPV_GUT')+'px', ag&&ag.style.width);
+
+  sec('v1.6.3 — weekend webs live under the rows, not over the bars');
+  ok('webs render inside the z0 tint layer', qa('#npv-body .npv-tintl .npv-web').length>0,
+     qa('#npv-body .npv-tintl .npv-web').length+' webs');
+  ok('…and none float loose above the rows anymore',
+     qa('#npv-body > .npv-web').length===0);
+  ok('the web carries the §2.4 hatch, not the old grey slab',
+     /\.npv-web\{[^}]*\}|repeating-linear-gradient/.test(src)
+     &&src.indexOf('.npv-web{position:absolute;top:0;bottom:0;background:rgba(100,116,139,.10)')<0);
+  done();
 }
 
 function done(){
