@@ -3,7 +3,9 @@
    - Project lens: only projects the person is on (explicit crew, or implicit via the
      project team on an unowned umbrella); expanded subtask rows filter the same way.
    - Departments lens: only the person's lanes survive; empty sections drop.
-   - Reset (toolbar Clear filters AND the in-canvas Reset the view) clears the person.
+   - Reset (toolbar Clear filters AND the in-canvas Reset the view) clears the person —
+     except on My Dashboard (dept lens + person), where the person is the view, not a
+     filter, and resets keep it (v1.2.2).
    - The pick persists in the UI prefs and restores on load.
    - A person with nothing scheduled gets an explanatory empty-state card.
    Skips on builds that predate the person filter.
@@ -84,9 +86,13 @@ setTimeout(()=>{
      E("ROWS.filter(r=>r.kind==='deptHead').every(r=>r.count>0)"));
 
   sec('Reset paths clear the person');
+  /* v1.2.2: dept lens + person IS My Dashboard — there the person isn't a filter,
+     so Clear filters keeps it; on the Projects lens it clears as always. */
   E("document.getElementById('btn-reset').click();");
-  ok('toolbar Clear filters clears the pick',E('PERSON===null'));
-  ok('all projects come back',(E("LENS='project';render();"),E("ROWS.filter(r=>r.kind==='projHead').length")===2));
+  ok('on the dashboard, Clear filters keeps the person',E("PERSON==='Nick'"));
+  E("LENS='project';render();document.getElementById('btn-reset').click();");
+  ok('toolbar Clear filters clears the pick on the Projects lens',E('PERSON===null'));
+  ok('all projects come back',E("ROWS.filter(r=>r.kind==='projHead').length")===2);
 
   sec('Persistence');
   E("PERSON='Peter';saveUI();");

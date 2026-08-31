@@ -111,6 +111,9 @@ body.pp-route #dash-bar{display:none!important}
 body.dash-on .sb-lens{display:none}
 body.dash-on #sb-all{display:none}
 body.dash-on .sb-chev{visibility:hidden}
+/* v1.2.2: the dashboard is a place, not a filtered view — the person "filter" that
+   powers it never presents as one. Filters offers status + client only here. */
+body.dash-on #fm-person-sec,body.dash-on #person-menu{display:none}
 .sb-dash-lbl{display:none}
 body.dash-on #sb-head .sb-dash-lbl{display:block;flex:1;font-size:var(--fs-fine);font-weight:700;letter-spacing:.16em;color:var(--txt-micro)}
 body.me-dock-on.me-dock-col #main{bottom:45px}
@@ -1106,7 +1109,7 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
         <div id="status-menu"></div>
         <div class="sm-sec">Client</div>
         <div id="client-menu"></div>
-        <div class="sm-sec">Person</div>
+        <div class="sm-sec" id="fm-person-sec">Person</div>
         <div id="person-menu"></div>
       </div>
     </div>
@@ -1341,7 +1344,7 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.2.1'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.2.2'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -2626,6 +2629,7 @@ function renderDashBar(){
   if(bar){bar.classList.toggle('hidden',!on);
     if(on){const nm=document.getElementById('db-name');
       if(nm)nm.textContent='My Dashboard · '+PERSON;}}
+  updateFilterBadges(); /* v1.2.2: the person chip/count flips with the dash state */
   FIT_MAIN(); /* #main's top offset includes the bar while it shows */
 }
 function renderMeDock(){
@@ -2703,8 +2707,12 @@ function renderEmptyState(){
     html='<div class="es-big">All projects are hidden</div>'
       +'<div class="es-sub">The status filter is hiding every project.<br>Click <b>Clear filters</b> in the toolbar to see them again.</div>';
   }else if(PERSON&&!visTasks().some(personHit)){
-    html='<div class="es-big">Nothing scheduled for '+esc(PERSON)+'</div>'
-      +'<div class="es-sub">The person filter is on and no visible phase has '+esc(PERSON)+' on it.<br>Click <b>Clear filters</b> in the toolbar to see everyone.</div>';
+    /* v1.2.2: on the dashboard the person isn't a filter, so don't explain it as one */
+    html=dashOn()
+      ?'<div class="es-big">Nothing scheduled for '+esc(PERSON)+'</div>'
+        +'<div class="es-sub">No visible phase has '+esc(PERSON)+' on it yet.<br>The × up top goes back to all projects.</div>'
+      :'<div class="es-big">Nothing scheduled for '+esc(PERSON)+'</div>'
+        +'<div class="es-sub">The person filter is on and no visible phase has '+esc(PERSON)+' on it.<br>Click <b>Clear filters</b> in the toolbar to see everyone.</div>';
   }else if((FILTER||SPOT.size)
       &&!ST.projects.some(p=>(!FILTER||projMatch(p))&&(!SPOT.size||SPOT.has(p.id)))
       &&!ST.tasks.some(t=>(!FILTER||taskMatch(t))&&(!SPOT.size||SPOT.has(t.projectId)))){
@@ -2768,10 +2776,7 @@ function renderSidebar(){
       sub.textContent=(p.jobCode?p.jobCode+' · ':'')+(p.deadline?fmtNice(p.deadline):'');l2.appendChild(sub);
       if(p.deadline&&projectStatus(p)!=='complete'){
         const dl=diffDays(today(),parseDate(p.deadline));
-        /* v1.2.1 (08-31 obj 2): the LATE chip only matters while the job is still
-           current — a past project (all work wrapped, install behind us) stays quiet. */
-        const current=tasksOf(p.id).some(t=>t.endDate>=fmtDate(today()));
-        if(dl<0){if(current){const c=document.createElement('span');c.className='sb-chip late';c.textContent='LATE '+Math.abs(dl)+'d';l2.appendChild(c);}}
+        if(dl<0){const c=document.createElement('span');c.className='sb-chip late';c.textContent='LATE '+Math.abs(dl)+'d';l2.appendChild(c);}
         else if(dl<=5){const c=document.createElement('span');c.className='sb-chip soon';c.textContent=dl===0?'TODAY':dl+'d';l2.appendChild(c);}
       }
       col.appendChild(l2);row.appendChild(col);
@@ -2877,7 +2882,8 @@ function renderGantt(){
     const b=document.createElement('button');b.className='npv-btn';
     b.textContent=(SHOW_STATUS.size===0)?'Show all statuses':'Reset the view';
     b.addEventListener('click',()=>{
-      SHOW_STATUS=new Set(ALL_STATUSES);FILTER='';PERSON=null;CLIENT_FILTER.clear();
+      SHOW_STATUS=new Set(ALL_STATUSES);FILTER='';CLIENT_FILTER.clear();
+      if(!dashOn())PERSON=null; /* v1.2.2: resets never exit My Dashboard */
       const sf=document.getElementById('t-search');if(sf)sf.value='';
       saveUI();buildFiltersMenu();updateFilterBadges();render();
     });
@@ -3143,11 +3149,15 @@ function updateEdgeIndicators(){
   if(!sc||!host)return;
   const vl=sc.scrollLeft,vr=vl+sc.clientWidth;
   const chips=[];
+  const t0=today();
   for(const r of ROWS){
     if(!r._bars||r._bars.some(b=>b.x1<vr&&b.x2>vl))continue; /* some bar is (partly) in view */
     let L=null,R=null;
     for(const b of r._bars){if(b.x2<=vl){if(!L||b.x2>L.x2)L=b;}else if(!R||b.x1<R.x1)R=b;}
-    if(L)chips.push({r,side:'l',b:L,d:L.e});
+    /* v1.2.2 (08-31 obj 2): a past row — every bar wrapped before today — earns no
+       left chip; the date pill only matters while the job is still current. Right
+       chips always point at upcoming bars, so they keep. */
+    if(L&&r._bars.some(b=>b.e>=t0))chips.push({r,side:'l',b:L,d:L.e});
     if(R)chips.push({r,side:'r',b:R,d:R.s});
   }
   const sig=chips.map(c=>c.r.key+c.side+(+c.d)).join('|');
@@ -7314,7 +7324,9 @@ window.addEventListener('resize',render);
 
 /* ===================== REV31: STATUS FILTER & RESET VIEW ===================== */
 function statusFilterDirty(){const d=defaultShowStatus();if(SHOW_STATUS.size!==d.size)return true;for(const x of SHOW_STATUS)if(!d.has(x))return true;return false;}
-function activeFilterCount(){return (statusFilterDirty()?1:0)+(PERSON?1:0)+CLIENT_FILTER.size;}
+/* v1.2.2: on My Dashboard the person is the view, not a filter — it never counts,
+   chips, or shows Clear filters on its own (the trail bar already names the person). */
+function activeFilterCount(){return (statusFilterDirty()?1:0)+(PERSON&&!dashOn()?1:0)+CLIENT_FILTER.size;}
 function updateFilterBadges(){
   const n=activeFilterCount();
   const fb=document.getElementById('btn-filters');
@@ -7334,7 +7346,7 @@ function updateFilterBadges(){
       ()=>{SHOW_STATUS=defaultShowStatus();saveUI();buildFiltersMenu();updateFilterBadges();render();});
     for(const c of CLIENT_FILTER)chip('Client: '+c,
       ()=>{CLIENT_FILTER.delete(c);saveUI();buildFiltersMenu();updateFilterBadges();render();});
-    if(PERSON)chip('Person: '+PERSON,
+    if(PERSON&&!dashOn())chip('Person: '+PERSON,
       ()=>{PERSON=null;saveUI();buildFiltersMenu();updateFilterBadges();render();});
   }
   const rb=document.getElementById('btn-reset');
@@ -7769,7 +7781,8 @@ document.getElementById('btn-reset').addEventListener('click',()=>{
   SPOT.clear();
   FILTER='';document.getElementById('t-search').value='';
   SHOW_STATUS=defaultShowStatus();
-  PERSON=null;CLIENT_FILTER.clear();
+  if(!dashOn())PERSON=null; /* v1.2.2: clearing filters never exits My Dashboard */
+  CLIENT_FILTER.clear();
   saveUI();buildFiltersMenu();updateFilterBadges();render();
   toast('View reset — spotlight, search and filters cleared');
 });

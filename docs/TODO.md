@@ -143,6 +143,14 @@ Owner's objective numbers in parentheses. Each batch: build on `development`, ve
 
 ### My Dashboard as a real view (minor bump)
 
+- [x] **10a. My Dashboard never presents as a filtered view — DONE 2026-08-31
+      (v1.2.2, owner revision to obj 1):** the person that mechanically powers the
+      dashboard stops counting as a filter while it's on — no "Person: name" chip
+      (the trail bar already names them), no Filters badge for it, the Person
+      section hidden from the Filters menu (status + client only), Clear filters
+      hidden until a status/client filter is set and never exits the dashboard,
+      and the empty-state card stops explaining a "person filter". Off the
+      dashboard, the person filter behaves exactly as before.
 - [x] **10. (Obj 1) My Dashboard becomes its own place — DONE 2026-08-31 (v1.2.0).**
       Mechanics unchanged (Departments lens + person filter); presentation is a
       distinct view: a project-page-style trail bar (`All Projects › My Dashboard ·
@@ -194,10 +202,12 @@ the 08-28 brief above — see the legend).
       New task stay (items 21–22 will rename those labels); phase creation keeps its
       other doors (calendar double-click picker untouched, Departments checklist).
 - [x] **15. (08-31 obj 2) Past projects' date pill removed — DONE 2026-08-31
-      (v1.2.1),** read as the sidebar's red **LATE Nd** chip (the only date pill on a
-      project row): it now shows only while the job is still current (any bar ending
-      today or later); a past project — work wrapped, install behind us — stays
-      quiet. **Owner eyes on `/preview/` wanted** in case a different pill was meant.
+      (v1.2.1), CORRECTED same day (owner screenshot) as v1.2.2:** the pill is the
+      **B1 off-screen edge chip** on the Gantt canvas, not the sidebar LATE chip.
+      v1.2.2 reverts the LATE-chip gating (it shows again exactly as before) and
+      instead suppresses the **left** edge chip on rows whose every bar wrapped
+      before today; current rows keep their chips, and right chips (always pointing
+      at upcoming bars) are untouched.
 - [x] **16. (08-31 obj 10) Concurrency warning counts — DONE 2026-08-31 (v1.2.1):**
       "… is on **X other jobs** during this window", X = distinct other *projects*
       sharing this bar's crew in the window (singular/plural handled).
@@ -299,6 +309,7 @@ rule §5); old data keeps reading fine.
 | v1.1.0 | ✅ Shipped 2026-08-31 — calendar interactions: obj 7 double-click create + obj 9 live drag-follow |
 | v1.2.0 | ✅ Shipped 2026-08-31 — obj 1: My Dashboard as its own view (trail bar, no lens toggles, flat phases, collapsible dock) |
 | v1.2.1 | ✅ Shipped 2026-08-31 — 08-31 quick wins 14–17 + tour step 18 |
+| v1.2.2 | ✅ Shipped 2026-08-31 — item 15 correction (the "date pill" is the B1 edge chip; LATE chip restored, past rows lose their left edge chip) + item 10a (the dashboard never presents as filtered) |
 | v1.2.x | 5 (coach copy — tabled indefinitely) · 6–7 (fonts, once licence-checked) — patches whenever unblocked |
 | v1.3.0 | 19–20 (Department view) |
 | v1.4.0 | 21–23 (Milestones & Notes) |
@@ -310,13 +321,17 @@ rule §5); old data keeps reading fine.
 
 ## 5. Data / schema (⚠ all need approval — shared Lists)
 
-- `ShopTimeline_Feedback` (§3 item 11) — **APPROVED 2026-08-31**, owner creating the
-  list from the delivered field spec. All columns single-line text except
-  `description` (multi-line, plain text): Title, kind, name, email, description
-  (multi-line), appVersion, appId. Screenshot rides as a list-item attachment.
-- `ShopTimeline_Changelog` (§3 item 26) — **APPROVED 2026-08-31**, same arrangement.
-  All single-line text except `detail` (multi-line, plain text): Title, projectId,
-  who, at, field, detail (multi-line), appId.
+- `ShopTimeline_Feedback` (§3 item 11) — **APPROVED + CREATED 2026-08-31** from the
+  delivered field spec. All columns single-line text except `description`
+  (multi-line, plain text): Title, kind, name, email, description (multi-line),
+  appVersion, appId. Screenshot rides as a list-item attachment. `appId` is
+  app-written; the built-in SharePoint ID is unrelated.
+- `ShopTimeline_Changelog` (§3 item 26) — **APPROVED + CREATED 2026-08-31**, same
+  arrangement. All single-line text except `detail` (multi-line, plain text):
+  Title, projectId, who, at, field, detail (multi-line), appId.
+- **Verify before first use:** both new lists must live on the TWOSEVENINC site
+  (Site contents), not "My Lists" — the app resolves lists by name on the site and
+  cannot see personal lists. (Owner had strays in My Lists, 2026-08-31.)
 - Candidate new column: `admin` on the staff list (§3 item 12) — still needs the
   colleague-app check.
 - **Non-change to note:** the Checkpoint→Milestone / Task→Note renames (§3 items

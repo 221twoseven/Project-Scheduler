@@ -1,8 +1,8 @@
 /* v1.2.1 quick-wins batch — four 08-31 objectives + the tour step.
    1) (08-31 obj 12) "Add a phase" left the project-page right-click menu; the
       calendar double-click's department picker still works.
-   2) (08-31 obj 2)  The sidebar LATE chip stays quiet on past projects (all work
-      wrapped, install behind us) and still shows on late-but-current jobs.
+   2) (08-31 obj 2, corrected v1.2.2) A past row — every bar wrapped before today —
+      earns no LEFT off-screen edge chip (the B1 date pill); current rows keep theirs.
    3) (08-31 obj 10) The conflict tooltip counts jobs: "… is on 2 other jobs …".
    4) (08-31 obj 11) Forecast projects render uncolored (FORECAST_GREY) everywhere.
    5) (08-31 obj 1)  The main tour teaches the date-bar drag (#gantt-hdr step).
@@ -70,11 +70,16 @@ function main(){
   ok('a #gantt-hdr step is in COACH_STEPS', E("COACH_STEPS.some(s=>s.sel==='#gantt-hdr')"));
   ok('its target exists on the main view', !!q('#gantt-hdr'));
 
-  sec('obj 2 — LATE chip only while the job is current');
-  const rowOf=nm=>qa('.sb-row').find(r=>{const n=r.querySelector('.sb-name');return n&&n.textContent===nm;});
-  const chip=nm=>{const r=rowOf(nm);return r?r.querySelector('.sb-chip.late'):null;};
-  ok('past project (work wrapped) shows no LATE chip', rowOf('Delta Past')&&!chip('Delta Past'));
-  ok('late-but-current project keeps its LATE chip', !!chip('Echo LateLive'));
+  sec('obj 2 — no left edge chip for past projects (v1.2.2 correction)');
+  /* Scroll the viewport far right so every bar sits off-screen left, then rebuild
+     the chips: current rows earn a left date pill, past rows stay quiet. */
+  E("document.getElementById('gantt-scroll').scrollLeft=99999");
+  E('updateEdgeIndicators()');
+  const chipKeys=qa('#edge-inds .edge-ind[data-side="l"]').map(e=>e.dataset.key);
+  ok('a current project still earns its left chip', chipKeys.indexOf('Pp1')>=0, chipKeys.join(','));
+  ok('a late-but-current project keeps its chip too', chipKeys.indexOf('Pp5')>=0, chipKeys.join(','));
+  ok('a past project (work wrapped) shows no left chip', chipKeys.indexOf('Pp4')<0, chipKeys.join(','));
+  E("document.getElementById('gantt-scroll').scrollLeft=0;updateEdgeIndicators()");
 
   sec('obj 10 — the warning counts jobs');
   ok('t1 overlaps 2 other jobs', E("conflictCount(taskById('t1'))")===2,
@@ -94,6 +99,25 @@ function main(){
   const sum=q('.job-bar.summary[data-pid="p6"]');
   ok('forecast summary bar painted grey', !!sum&&sum.style.backgroundColor==='rgb(107, 116, 132)',
      sum&&sum.style.backgroundColor);
+
+  sec('v1.2.2 — the dashboard never presents as a filtered view');
+  E("LENS='dept';PERSON='Nick';saveUI();render()");
+  ok('dashboard is on', E('dashOn()')===true);
+  ok('the person does not count as an active filter', E('activeFilterCount()')===0);
+  ok('no "Person:" chip renders', !qa('#filter-chips .f-chip').some(c=>/Person:/.test(c.textContent)));
+  ok('Clear filters stays hidden', q('#btn-reset').classList.contains('hidden'));
+  ok('the Person section is CSS-hidden on the dashboard',
+     /body\.dash-on #fm-person-sec,body\.dash-on #person-menu\{display:none\}/.test(src));
+  E("CLIENT_FILTER.add('C');updateFilterBadges()");
+  ok('a client filter surfaces Clear filters again', !q('#btn-reset').classList.contains('hidden'));
+  q('#btn-reset').click();
+  ok('Clear filters clears the client filter', E('CLIENT_FILTER.size')===0);
+  ok('…but never exits the dashboard', E('dashOn()')===true&&E('PERSON')==='Nick');
+  E("LENS='project';render()");
+  ok('on the Projects lens the same person IS a filter again',
+     qa('#filter-chips .f-chip').some(c=>/Person: Nick/.test(c.textContent))
+     &&!q('#btn-reset').classList.contains('hidden'));
+  E("PERSON=null;saveUI();updateFilterBadges();render()");
 
   /* obj 12 — right-click menu, saved page then draft page (the REV49 lesson) */
   win.location.hash='#/project/p1';
