@@ -37,24 +37,27 @@ const click=el=>el&&el.dispatchEvent(new win.MouseEvent('click',{bubbles:true}))
 const press=k=>doc.dispatchEvent(new win.KeyboardEvent('keydown',{key:k}));
 
 setTimeout(()=>{
+  /* v1.6.1: step zooms animate (zoomTo) — zoomSettle() jumps a pending animation to
+     its target synchronously so the assertions below stay deterministic. */
+  const settle=()=>E('zoomSettle()');
   sec('the three steps fit the viewport');
   ok('boot lands on Month, 30 days across', E('VIEW')==='month'&&E('FIT')===30&&near(E('dw()'),40));
-  press('w');
+  press('w');settle();
   ok('W = one week on screen', E('VIEW')==='week'&&near(E('dw()'),1200/7), E('dw()'));
-  press('m');
+  press('m');settle();
   ok('M = one month on screen', E('VIEW')==='month'&&near(E('dw()'),40));
-  press('-');
+  press('-');settle();
   ok('− steps out to 3-Month', E('VIEW')==='month3'&&near(E('dw()'),1200/91), E('VIEW')+' '+E('dw()'));
-  press('-');
+  press('-');settle();
   ok('− at 3-Month is a no-op', E('VIEW')==='month3');
-  press('+');
+  press('+');settle();
   ok('+ steps back in to Month', E('VIEW')==='month');
-  click(q('#btn-week'));
+  click(q('#btn-week'));settle();
   ok('the Week button works and highlights', E('VIEW')==='week'
      &&q('#btn-week').classList.contains('active')&&!q('#btn-month').classList.contains('active'));
 
   sec('the header degrades by px-per-day, not step name');
-  E("setView('month')");
+  E("setView('month');zoomSettle()");
   ok('Month: day cells numbered every day', (()=>{
     const cells=qa('#gantt-hdr .hdr-row')[1].children;
     return cells.length>10&&[...cells].slice(0,7).every(c=>c.textContent!=='');})());
@@ -64,7 +67,7 @@ setTimeout(()=>{
     const labeled=cells.filter(c=>c.textContent);
     return labeled.length>0&&labeled.length<cells.length;})());
   ok('a custom FIT highlights no step button', qa('#tg-scale .t-btn.active').length===0);
-  E("setView('month3')");
+  E("setView('month3');zoomSettle()");
   ok('3-Month: week cells, labeled', (()=>{
     const cells=[...qa('#gantt-hdr .hdr-row')[1].children];
     return cells.length>0&&near(parseFloat(cells[0].style.width),7*1200/91)&&cells.some(c=>/\d/.test(c.textContent));})());
@@ -72,16 +75,16 @@ setTimeout(()=>{
   sec('persistence + migration');
   E("setFit(45);saveUI()");
   ok('a drag-set FIT persists', JSON.parse(win.localStorage.getItem('shopTimelineUI_v1')).fit===45);
-  E("setView('month');localStorage.setItem(UI_KEY,JSON.stringify({view:'days'}));loadLocalPrefs();");
+  E("setView('month');zoomSettle();localStorage.setItem(UI_KEY,JSON.stringify({view:'days'}));loadLocalPrefs();");
   ok('old stored "days" migrates to Month', E('VIEW')==='month'&&E('FIT')===30);
   E("localStorage.setItem(UI_KEY,JSON.stringify({view:'weeks'}));loadLocalPrefs();");
   ok('old stored "weeks" migrates to 3-Month', E('VIEW')==='month3'&&E('FIT')===91);
-  E("localStorage.setItem(UI_KEY,JSON.stringify({view:'bogus'}));setView('month');loadLocalPrefs();");
+  E("localStorage.setItem(UI_KEY,JSON.stringify({view:'bogus'}));setView('month');zoomSettle();loadLocalPrefs();");
   ok('an unknown stored step is ignored', E('VIEW')==='month');
 
   sec('date-bar drag: horizontal pans, vertical zooms (45° split)');
   const hw=doc.getElementById('hdr-wrap'),sc=doc.getElementById('gantt-scroll');
-  E("setView('month')");sc.scrollLeft=500;
+  E("setView('month');zoomSettle()");sc.scrollLeft=500;
   hw.dispatchEvent(new win.MouseEvent('mousedown',{bubbles:true,clientX:300,clientY:30,button:0}));
   doc.dispatchEvent(new win.MouseEvent('mousemove',{bubbles:true,clientX:220,clientY:34}));
   doc.dispatchEvent(new win.MouseEvent('mouseup',{bubbles:true}));

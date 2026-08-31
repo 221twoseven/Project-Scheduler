@@ -20,7 +20,13 @@ is the source of truth; keep `package.json` aligned.
 Last reviewed: 2026-08-31 — appended the owner's second objective list (the 2026-08-31
 brief, §3 items 14–26) and refolded the version ladder. Same day: v1.2.1–v1.6.0 all
 shipped to `development`; **owner called a PAUSE after v1.6.0 — hone the shipped
-batches before any new rung (permissions v1.7.0 is NOT started).**
+batches before any new rung (permissions v1.7.0 is NOT started).** The owner's first
+`/preview/` review of those batches came back the same day as a ten-item punch list —
+all ten shipped as **v1.6.1** (calendar-marker redraw, Saved Views rename + anchor,
+past projects sink, sidebar bottom-crop, Today-anchored smooth step zoom, lane
+summaries drop past work, shortcuts as a Help popover muted against the Legend,
+legend navigation entries removed, drag-zoom smoothing, bug-form radio fix).
+Record: `docs/Milestones/2026-08-31-v161-preview-polish.md`.
 
 ---
 
@@ -330,6 +336,7 @@ rule §5); old data keeps reading fine.
 | v1.4.0 | ✅ Shipped 2026-08-31 — Milestones & Notes: renames + simplified editors + Gantt labels hidden |
 | v1.5.0 | ✅ Shipped 2026-08-31 — viewport-fitting zoom (Week/Month/3-Mo + drag-zoom gesture) on both Gantts |
 | v1.6.0 | ✅ Shipped 2026-08-31 — bug report / feature request form (list created by owner same day) |
+| v1.6.1 | ✅ Shipped 2026-08-31 — the owner's ten-item `/preview/` punch list (see Last-reviewed note + milestone record) |
 | v1.7.0 | 12 (permissions) ⚠ |
 | v1.8.0 | 26 (change log) ⚠ — after permissions |
 | v2.0.0 | 13 (single source of truth) ⚠ — likely several minors along the way (one per absorbed store), with v2.0.0 as the cutover declaration |
@@ -491,6 +498,15 @@ these are the ones still open, plus new deferrals as they happen.
       included) — the obj-13 ruling makes the month colour king; weekends stay
       visible in the Day/2-Day header and everywhere in Quiet. Gate: someone
       scheduling into a weekend because Vivid hid it. (v1.0.2, 2026-08-28)
+- [ ] Calendar milestone prefix is the **department** name, not a phase's custom
+      label — markers only carry the department id. Gate: someone renames a phase
+      and expects the custom name in the prefix. (v1.6.1, 2026-08-31)
+- [ ] Dept-lane summaries keep **upcoming** assignments (the complaint was past
+      ones); a strict "in progress only" read is a one-line filter. Gate: the owner
+      asking for future work gone too. (v1.6.1)
+- [ ] The sidebar/canvas scroll parity fix pads by the footer height but not the
+      Gantt's ~10px horizontal scrollbar — the last few px of sync can clamp at the
+      very bottom. Cosmetic. Gate: someone notices. (v1.6.1)
 
 **Deliberate design ceilings — no action planned, revisit only on real complaints:**
 12-slot palette repeats at 13+ visible projects (T2); quiet re-selection after a

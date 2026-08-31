@@ -203,7 +203,7 @@ body.compact .sb-chip{line-height:1.2;padding:.5px 6px}
 .sb-row.lane-row{padding-left:24px}
 /* v1.3.0 (08-31 obj 9): lane rows read name-over-department on the left; the right
    side (the department's old spot) lists that lane's assignments with dates. */
-.sb-asns{margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;gap:1px;overflow:hidden;min-width:0;max-width:58%;text-align:right}
+.sb-asns{margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;gap:1px;overflow:hidden;min-width:0;max-width:58%;text-align:right;padding-right:8px} /* v1.6.1: breathing room against the sidebar edge */
 .sb-asn{display:flex;gap:5px;align-items:baseline;max-width:100%;font-size:var(--fs-fine);color:#5E7292;white-space:nowrap;line-height:1.25}
 .sb-asn .n{overflow:hidden;text-overflow:ellipsis;min-width:0}
 .sb-asn .d{font-family:var(--mono);color:#93A2B8;flex-shrink:0;letter-spacing:.02em}
@@ -359,6 +359,12 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 .fg input,.fg select,.fg textarea{width:100%;border:1.5px solid #E2E8F0;border-radius:7px;padding:7px 9px;font-size:13px;color:#101A29;background:#FAFBFC;outline:none;font-family:inherit;resize:vertical;transition:border-color .14s}
 .fg input[type=date],.fg input[type=number]{font-family:var(--mono);font-size:12px}
 .fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(47,111,228,.13);background:#fff}
+/* v1.6.1: the bug-report Kind radios — undo the generic .fg label/input rules that
+   stretched the radios full-width and left them misaligned with their captions. */
+#fb-kind{display:flex;align-items:center;gap:18px;padding:2px 0}
+#fb-kind label{display:flex;align-items:center;gap:6px;margin:0;font-size:13px;font-weight:400;
+  text-transform:none;letter-spacing:0;color:#101A29;cursor:pointer}
+#fb-kind input{width:auto;margin:0;accent-color:var(--acc)}
 .fg-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .fg-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
 .role-list{border:1.5px solid #E2E8F0;border-radius:7px;background:#FAFBFC;max-height:100px;overflow:auto;padding:5px 9px}
@@ -631,8 +637,17 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
    sliver — shrink the pad if stacked bands misfire. */
 .cal-txt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
 .cal-band::after{content:'';position:absolute;left:0;right:0;top:-4px;bottom:-4px}
-.cal-band.ev{background:#16324F!important;border-radius:0}
-.cal-band.tk{background:#fff!important;color:#1D4ED8;border:1.5px solid #3B7FD6}
+/* v1.6.1: calendar markers lose the fill box — an indicator glyph + plain text,
+   bottom-justified in the week row (the 1fr spacer track in npvPaintCalendar).
+   Milestones read ink behind a yellow diamond; notes grey behind a white circle. */
+.cal-band.ev,.cal-band.tk{background:none;border:none;border-radius:0;height:auto;min-height:15px;
+  justify-content:flex-start;text-align:left;white-space:normal}
+.cal-band.ev{color:#16202E}
+.cal-band.tk{color:#64748B}
+.cal-band.ev .cal-txt,.cal-band.tk .cal-txt{white-space:normal;overflow:visible;text-overflow:clip}
+.cal-mki{flex-shrink:0;width:9px;height:9px;box-sizing:border-box;margin:1px 6px 1px 2px}
+.cal-band.ev .cal-mki{background:#F7C948;border:1.5px solid #16202E;transform:rotate(45deg)}
+.cal-band.tk .cal-mki{background:#fff;border:1.5px solid #3B7FD6;border-radius:50%}
 .cal-empty{padding:34px 18px;text-align:center;font-size:12.5px;color:#B4C0D0;font-style:italic}
 /* REV53: the calendar is a live surface like the Gantt — phase bands click and
    right-click, and the selected phase carries the same ring (it can be several
@@ -890,13 +905,8 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
   cursor:pointer}
 .toast .undo:hover{background:rgba(255,255,255,.16)}
 
-/* --- shortcut sheet --- */
-.ks{position:fixed;inset:0;z-index:70;display:flex;align-items:center;justify-content:center;
-  background:rgba(15,23,42,.42)}
-.ks.hidden{display:none}
-.ks-in{background:#fff;border-radius:12px;padding:22px 26px;width:460px;max-width:calc(100vw - 40px);
-  box-shadow:0 24px 60px -12px rgba(15,23,42,.4)}
-.ks-in h3{margin:0 0 14px;font-size:14px;color:#1E293B}
+/* --- keyboard shortcuts (v1.6.1: a Help popover like the Legend — the modal sheet
+   and its scrim retired; the .ks-g grid moved into #kbd-menu) --- */
 .ks-g{display:grid;grid-template-columns:1fr 1fr;gap:7px 22px}
 .ks-g div{display:flex;align-items:center;gap:9px;font-size:12px;color:#475569}
 .ks-g kbd{font-family:inherit;font-size:var(--fs-fine);font-weight:700;color:#33415A;background:#F1F5F9;
@@ -991,6 +1001,11 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
    shows what the live CSS renders. These rules only undo bar positioning for the menu.
    Placed after every .job-bar rule so the static positioning wins the specificity tie. */
 #legend-menu{left:auto;right:0;width:390px;padding:12px;cursor:default}
+/* v1.6.1: keyboard shortcuts share the popover pattern (and the tb-menu one-at-a-time
+   rule mutually mutes it against the Legend); Saved Views anchors right so the menu
+   can't run past the window edge. */
+#kbd-menu{left:auto;right:0;width:410px;padding:12px;cursor:default}
+#views-menu{left:auto;right:0}
 .lg-sec{font-size:var(--fs-fine);font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:#7488A3;margin:8px 0 5px}
 .lg-sec:first-child{margin-top:0}
 .lg-hint{font-size:var(--fs-fine);color:#94A3B8;margin-bottom:6px;line-height:1.4}
@@ -1070,6 +1085,7 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
         <div class="sm-note">Shop Timeline · v<span id="tb-rev-num"></span></div>
       </div>
       <div id="legend-menu" class="tb-menu hidden"></div>
+      <div id="kbd-menu" class="tb-menu hidden"></div>
     </div>
     <span class="tb-spacer"></span>
     <span id="tb-rev" title="App version — the build this tab is running">v</span>
@@ -1119,7 +1135,7 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
     <button id="btn-reset" class="t-btn hidden" title="Clear the spotlight, search, and all filters"><svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1.5 3v4h4"/><path d="M2.3 10a6 6 0 1 0 1.5-6.3L1.5 7"/></svg> Clear filters</button>
     <span class="tb-spacer"></span>
     <div class="sf-wrap">
-      <button id="btn-views" class="t-btn" title="Save the current filters, zoom and layout as a named view, and jump between views">Views <svg class="ico-s" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 6 8 9.5 11.5 6"/></svg></button>
+      <button id="btn-views" class="t-btn" title="Save the current filters, zoom and layout as a named view, and jump between views">Saved Views <svg class="ico-s" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 6 8 9.5 11.5 6"/></svg></button>
       <div id="views-menu" class="tb-menu hidden"></div>
     </div>
     <label class="lock-tog" title="Lock all bars so drags can't change dates">
@@ -1130,22 +1146,8 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
   </div>
 </div>
 
-<!-- Phase 4 (A2): the main timeline's shortcut sheet — the project page had one, this
-     view didn't. Same .ks overlay; ? toggles it, Esc or a click closes it. -->
-<div class="ks hidden" id="tl-ks"><div class="ks-in">
-  <h3>Keyboard</h3><div class="ks-g">
-    <div><kbd>N</kbd>New project</div>
-    <div><kbd>/</kbd>Search</div>
-    <div><kbd>T</kbd>Center on today</div>
-    <div><kbd>G</kbd>Go to date</div>
-    <div><kbd>W</kbd>Week scale</div>
-    <div><kbd>M</kbd>Month scale</div>
-    <div><kbd>+ −</kbd>Step the zoom</div>
-    <div><kbd>⌘ Z</kbd>Undo</div>
-    <div><kbd>Esc</kbd>Close / clear</div>
-    <div><kbd>?</kbd>This sheet</div>
-  </div>
-</div></div>
+<!-- Phase 4 (A2) shortcut sheet retired in v1.6.1 — shortcuts live in the #kbd-menu
+     Help popover now (openKbdMenu), route-aware and mutually exclusive with the Legend. -->
 
 <!-- v1.2.0 (obj 1): My Dashboard reads as its own place — a project-page-style
      breadcrumb bar with an × exit, fixed under the toolbar while the dashboard is on. -->
@@ -1277,7 +1279,7 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
       <div class="fg"><label>Email</label><input id="fb-email" type="email"></div>
       <div class="fg"><label>Kind</label><div id="fb-kind">
         <label><input type="radio" name="fb-kind" value="bug" checked> Bug</label>
-        <label style="margin-left:14px"><input type="radio" name="fb-kind" value="feature"> Feature request</label>
+        <label><input type="radio" name="fb-kind" value="feature"> Feature request</label>
       </div></div>
       <div class="fg"><label>What happened / what do you need?</label><textarea id="fb-desc" rows="5" placeholder="What you did, what you expected, what you got instead"></textarea></div>
       <div class="fg"><label>Screenshot (optional)</label><input id="fb-shot" type="file" accept="image/*"></div>
@@ -1371,7 +1373,7 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.6.0'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.6.1'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -2594,7 +2596,14 @@ function sortIndexForNew(deadline){
 function buildRows(){
   const rows=[];
   if(LENS==='project'){
-    const projs=currentProjOrder().filter(p=>SHOW_STATUS.has(projectStatus(p))&&clientHit(p)&&projHasPerson(p));
+    let projs=currentProjOrder().filter(p=>SHOW_STATUS.has(projectStatus(p))&&clientHit(p)&&projHasPerson(p));
+    /* v1.6.1: projects with no current work — every phase wrapped before today (or,
+       bare of phases, a past deadline) — sink to the bottom, stably, so the live
+       board leads. Runs before grouping, so they sink inside their groups too. */
+    {const t0=fmtDate(today());
+     const past=p=>{const ts=tasksOf(p.id);
+       return ts.length?ts.every(t=>t.endDate<t0):!!(p.deadline&&p.deadline<t0);};
+     projs=[...projs.filter(p=>!past(p)),...projs.filter(past)];}
     const pushProj=p=>{
       rows.push({kind:'projHead',key:'P'+p.id,projectId:p.id,lanes:1});
       if(EXPANDED.has(p.id))
@@ -2878,8 +2887,10 @@ function renderSidebar(){
       row.appendChild(col);
       const box=document.createElement('span');box.className='sb-asns';
       const t0=fmtDate(today());
-      const bars=[...r.tasks].sort((a,b)=>
-        ((a.endDate>=t0?0:1)-(b.endDate>=t0?0:1))||String(a.startDate).localeCompare(String(b.startDate)));
+      /* v1.6.1: wrapped assignments (ended before today) leave the summary — the
+         lane reads current + upcoming work only, in start order. */
+      const bars=r.tasks.filter(t=>t.endDate>=t0)
+        .sort((a,b)=>String(a.startDate).localeCompare(String(b.startDate)));
       const max=Math.max(1,Math.floor((r.height-6)/14)); /* what the row height fits */
       const show=bars.length>max?bars.slice(0,Math.max(1,max-1)):bars;
       for(const t of show){
@@ -4117,14 +4128,8 @@ function renderProjectPage(){
    /* Dock control lives in its own corner, outside the footer's button row (app chrome). */
    + '<button class="ins-btn" id="pp-dock-toggle" title="Collapse the panel" aria-label="Collapse the panel" aria-expanded="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg></button>'
    + '</div></div></div>';
-  h+='<div class="ks hidden" id="pp-ks"><div class="ks-in">'
-   + '<h3>Keyboard</h3><div class="ks-g">'
-   + [['S','New subtask'],['E','New milestone'],['T','New note'],['R','Rename selected'],
-      ['\u2191 \u2193','Move selection'],['\u21e7 \u2190 \u2192','Nudge a day'],
-      ['\u2318 Z','Undo'],['Del','Delete selected'],
-      ['G / C','Gantt or Calendar'],['Esc','Deselect, then leave']]
-     .map(k=>'<div><kbd>'+k[0]+'</kbd>'+k[1]+'</div>').join('')
-   + '</div></div></div>';
+  /* v1.6.1: the pp-ks sheet retired \u2014 the ? key and Help \u25be open the route-aware
+     #kbd-menu popover instead (openKbdMenu). */
 
   document.getElementById('page').innerHTML=h;
 
@@ -4150,9 +4155,6 @@ function renderProjectPage(){
       events:(ST.events||[]).filter(e=>e.projectId!==p.id)});
     goTimeline();
   });
-  /* Shortcuts left the footer (Help ▾ / the ? key open this sheet instead). */
-  const ks=document.getElementById('pp-ks');
-  if(ks)ks.addEventListener('click',()=>ks.classList.add('hidden'));
   /* REV87: the label/disabled state lives in ppPaintMeta so a Setup-dropdown
      status change repaints it too. */
   const cmp=document.getElementById('pp-complete');
@@ -6367,11 +6369,17 @@ function npvPaintCalendar(lo,hi,dl){
       if(d<c||d>wEnd)continue;
       const i=diffDays(c,d);
       /* REV72: markers carry their identity so they drag/click/delete like the
-         Gantt's diamonds. */
-      items.push({s:i,e:i,txt:mk.nm,col:'',kind:mk.k,id:mk.id,date:mk.date});
+         Gantt's diamonds. v1.6.1: a milestone on a phase leads with the phase name. */
+      const pfx=mk.k==='ev'&&mk.dept?(((deptById(mk.dept)||{}).name||'')+': '):'';
+      items.push({s:i,e:i,txt:pfx+mk.nm,col:'',kind:mk.k,id:mk.id,date:mk.date});
     }
 
-    h+='<div class="cal-wk">';
+    /* v1.6.1: markers sit at the bottom of the week — phases keep the top rows, a
+       1fr spacer track absorbs the slack, marker rows follow it. Rows stay auto so
+       wrapped marker text grows the week instead of overlapping. */
+    const phN=items.filter(x=>x.kind==='ph').length,mkN=items.length-phN;
+    h+='<div class="cal-wk" style="grid-template-rows:minmax(17px,auto)'
+      +(phN?' repeat('+phN+',auto)':'')+' 1fr'+(mkN?' repeat('+mkN+',auto)':'')+'">';
     for(let i=0;i<7;i++){
       const d=addDays(c,i);
       const cls=['cal-col'];
@@ -6388,11 +6396,13 @@ function npvPaintCalendar(lo,hi,dl){
       h+='<div class="cal-dn" data-d="'+fmtDate(d)+'" style="grid-column:'+(i+1)+'">'+p2(d.getMonth()+1)+'/'+p2(d.getDate())+'</div>';
     }
     items.forEach((it,r)=>{
+      /* phases fill rows 2..phN+1; row phN+2 is the 1fr spacer; markers follow it */
       h+='<div class="cal-band '+it.kind+(it.sel?' pick':'')+'"'
         +(it.kind==='ph'?' data-i="'+it.ti+'"'
           :' data-mk-id="'+esc(it.id)+'" data-mk-k="'+it.kind+'" data-mk-date="'+esc(it.date)+'"')
         +' title="'+esc(it.txt)+'" style="grid-column:'+(it.s+1)+'/'+(it.e+2)
-        +';grid-row:'+(r+2)+(it.col?';background:'+it.col+';color:'+labelColor(it.col):'')+'">'
+        +';grid-row:'+(r+2+(r>=phN?1:0))+(it.col?';background:'+it.col+';color:'+labelColor(it.col):'')+'">'
+        +(it.kind!=='ph'?'<span class="cal-mki"></span>':'')
         +(it.hl?'<span class="cal-hdl l"></span>':'')
         +'<span class="cal-txt">'+esc(it.txt)+'</span>'
         +(it.hr?'<span class="cal-hdl r"></span>':'')
@@ -7119,17 +7129,14 @@ document.addEventListener('keydown',ev=>{
     if(ev.target===se&&se.value){se.value='';FILTER='';applyFilter();return;}
     if(ev.target===se){se.blur();return;}
     if(ROUTE.view==='project'){
-      /* Shortcut sheet, menu, popover, selection, then the page. One Escape per layer. */
-      const ksx=document.getElementById('pp-ks');
-      if(ksx&&!ksx.classList.contains('hidden')){ksx.classList.add('hidden');ev.preventDefault();return;}
+      /* Toolbar popover, menu, popover, selection, then the page. One Escape per layer. */
+      if(document.querySelector('.tb-menu:not(.hidden)')){closeMenus();ev.preventDefault();return;}
       if(npvCloseMenu()){ev.preventDefault();return;}
       if(npvPopClose()){ev.preventDefault();return;}
       if(typing){ev.target.blur();return;}
       if(PP_SEL){ppSelect(null);ev.preventDefault();return;}
       ev.preventDefault();goTimeline();return;
     }
-    const tks=document.getElementById('tl-ks');
-    if(tks&&!tks.classList.contains('hidden')){tks.classList.add('hidden');ev.preventDefault();return;}
     closeTaskModal();
     document.getElementById('staff-overlay').classList.add('hidden');
     document.getElementById('clients-overlay').classList.add('hidden');
@@ -7155,7 +7162,7 @@ document.addEventListener('keydown',ev=>{
     const dept=sel?sel.department:(NPV_ORDER.find(d=>d!=='pm')||'');
     const day=sel?sel.startDate:'';
     const k=ev.key;
-    if(k==='?'){const b=document.getElementById('pp-ks');if(b){b.classList.toggle('hidden');ev.preventDefault();}return;}
+    if(k==='?'){toggleKbdMenu();ev.preventDefault();return;}
     if(k==='g'||k==='G'){NPV_MODE='gantt';npvRender();ev.preventDefault();return;}
     if(k==='c'||k==='C'){NPV_MODE='calendar';npvRender();ev.preventDefault();return;}
     if(k==='e'||k==='E'){npvCreateEvent(dept,day);ev.preventDefault();return;}
@@ -7214,9 +7221,8 @@ document.addEventListener('keydown',ev=>{
   else if(k==='+'||k==='=')zoomStep(-1);
   else if(k==='-'||k==='_')zoomStep(1);
   else if(k==='g'){ev.preventDefault();openGotoPop();}
-  else if(ev.key==='?'){ev.preventDefault();document.getElementById('tl-ks').classList.toggle('hidden');}
+  else if(ev.key==='?'){ev.preventDefault();toggleKbdMenu();}
 });
-document.getElementById('tl-ks').addEventListener('click',()=>document.getElementById('tl-ks').classList.add('hidden'));
 
 /* ===================== TOOLBAR ===================== */
 /* B3: one centering rule for every jump — smooth unless prefers-reduced-motion (T6). */
@@ -7289,10 +7295,59 @@ function setFit(f,quiet){
   syncScaleBtns();
   if(!quiet){saveUI();render();}
 }
+/* v1.6.1: a zoom frame repaints geometry only — the sidebar, dash bar and me-dock
+   don't depend on px-per-day, and skipping them keeps zoom frames cheap enough to
+   feel fluid (the drag gesture and the animated step zoom both run through here). */
+function zoomRender(){
+  DW_PX=vpw()/FIT;
+  {const td=today();TODAY_X=(td>=TL_S&&td<=TL_E)?d2x(td):null;}
+  renderGantt();
+  if(FILTER||SPOT.size)applyFilter();
+}
+/* v1.6.1: step zooms (buttons, W/M, +/−) scale about Today — or the date mid-viewport
+   when today is off-screen — holding that anchor's pixel in place while FIT animates
+   briefly. No more full re-render followed by a smooth-scroll back to position. */
+let ZT=null; /* pending step-zoom animation: {raf,target,anchorD,ax} */
+function zoomAnchor(z){
+  const sc=document.getElementById('gantt-scroll');
+  if(sc)sc.scrollLeft=Math.max(0,d2x(z.anchorD)+dw()/2-z.ax);
+}
+function zoomSettle(){
+  if(!ZT)return;
+  if(ZT.raf&&window.cancelAnimationFrame)cancelAnimationFrame(ZT.raf);
+  if(ZT.tmr)clearTimeout(ZT.tmr);
+  const z=ZT;ZT=null;
+  setFit(z.target,true);
+  saveUI();render();
+  zoomAnchor(z);
+}
+function zoomTo(target){
+  const sc=document.getElementById('gantt-scroll');
+  if(ZT)zoomSettle();
+  if(!sc){setFit(target);return;}
+  const tx=TODAY_X!=null?TODAY_X+dw()/2-sc.scrollLeft:null;
+  const anchorD=(tx!=null&&tx>=0&&tx<=vpw())?today():x2d(sc.scrollLeft+vpw()/2);
+  ZT={raf:0,target:target,anchorD:anchorD,ax:d2x(anchorD)+dw()/2-sc.scrollLeft};
+  const reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce||!window.requestAnimationFrame){zoomSettle();return;}
+  const ln0=Math.log(FIT),lnD=Math.log(target)-ln0,t0=performance.now(),DUR=180;
+  const step=now=>{
+    if(!ZT)return; /* settled early (a click or drag cut in) */
+    const k=Math.min(1,(now-t0)/DUR);
+    if(k>=1){zoomSettle();return;}
+    FIT=Math.exp(ln0+lnD*(1-Math.cos(k*Math.PI))/2); /* ease in-out on a log scale */
+    VIEW=viewOf(FIT)||'custom';
+    zoomRender();
+    zoomAnchor(ZT);
+    ZT.raf=requestAnimationFrame(step);
+  };
+  ZT.raf=requestAnimationFrame(step);
+  /* a hidden tab starves rAF — this backstop lands the zoom regardless */
+  ZT.tmr=setTimeout(zoomSettle,DUR+80);
+}
 function setView(v){
   if(!FIT_STEPS[v]||(v===VIEW&&FIT===FIT_STEPS[v]))return;
-  setFit(FIT_STEPS[v]);
-  scrollToToday();
+  zoomTo(FIT_STEPS[v]);
 }
 function zoomStep(d){
   /* + (d<0) lands on the nearest step showing FEWER days, − (d>0) on more — works
@@ -7357,6 +7412,7 @@ document.getElementById('sidebar').addEventListener('wheel',ev=>{
   let raf=null;
   hdrWrap.addEventListener('mousedown',ev=>{
     if(ev.button!==0)return;
+    zoomSettle(); /* v1.6.1: a step-zoom animation yields to the hand on the bar */
     const vr=gScroll.getBoundingClientRect();
     pan={x:ev.clientX,y:ev.clientY,sl:gScroll.scrollLeft,fit:FIT,mode:null,
          px:ev.clientX-vr.left,
@@ -7376,8 +7432,10 @@ document.getElementById('sidebar').addEventListener('wheel',ev=>{
     const f=Math.max(FIT_MIN,Math.min(FIT_MAX,pan.fit*Math.exp(dy/240)));
     if(Math.abs(f-FIT)<.05)return;
     setFit(f,true);
+    /* v1.6.1: frames go through zoomRender — geometry only, no sidebar/dock repaint —
+       which is what makes the gesture track the hand instead of stuttering. */
     if(!raf)raf=requestAnimationFrame(()=>{raf=null;
-      render();
+      zoomRender();
       gScroll.scrollLeft=pan?pan.anchorDays*dw()-pan.px:gScroll.scrollLeft;
     });
   });
@@ -7386,7 +7444,7 @@ document.getElementById('sidebar').addEventListener('wheel',ev=>{
     const zoomed=pan.mode==='zoom'&&panned;
     pan=null;
     if(panned){document.body.style.cursor='';document.body.style.userSelect='';}
-    if(zoomed)saveUI(); /* persist the drag-set FIT once, not per frame */
+    if(zoomed){saveUI();render();} /* one full repaint settles what the light frames skipped */
   });
   hdrWrap.addEventListener('click',ev=>{
     if(panned){panned=false;ev.stopPropagation();ev.preventDefault();}
@@ -7408,6 +7466,18 @@ function setSideW(w){SIDE_W=Math.max(180,Math.min(480,Math.round(w)));document.g
   if(window.ResizeObserver)new ResizeObserver(fit).observe(tb);
   window.addEventListener('resize',fit);
   fit();
+})();
+/* v1.6.1: the sidebar viewport is shorter than the Gantt's by the footer bar, so at
+   max scroll the last rows cleared the canvas but stayed cropped in the sidebar
+   (worst with group headers added by the client/PM/status sorts). Padding the
+   scroller by the footer's height lets both panes overscroll far enough, and the
+   shared scrollTop keeps the rows aligned. */
+(function(){
+  const foot=document.getElementById('sb-foot'),sc=document.getElementById('gantt-scroll');
+  if(!foot||!sc)return;
+  const pad=()=>{sc.style.paddingBottom=foot.offsetHeight+'px';};
+  if(window.ResizeObserver)new ResizeObserver(pad).observe(foot);
+  pad();
 })();
 (function(){
   const h=document.getElementById('sb-resize');let rs=null;
@@ -7610,12 +7680,9 @@ function buildLegend(){
     +row('<span class="lg-mk"><span class="today-line" style="left:8px;width:56px;height:100%"><span class="today-tag">TODAY</span></span></span>',
       'Today — the strongest line on the canvas')
     +row('<span class="lg-mk"><span class="dl-flag" style="left:14px;height:100%;color:'+hue+'"></span></span>',
-      'Deadline — pennant and dotted drop-line')
-    +'<div class="lg-sec">Navigate</div>'
-    +'<button id="lg-goto" class="sm-all" title="Jump the timeline to any date — also on G or a month-name click">Go to date… <span class="gp-key">G</span></button>'
-    +'<button id="lg-keys" class="sm-all" title="Every keyboard shortcut on this view — also on ?">Keyboard shortcuts… <span class="gp-key">?</span></button>';
-  document.getElementById('lg-goto').addEventListener('click',()=>openGotoPop());
-  document.getElementById('lg-keys').addEventListener('click',()=>{closeMenus();document.getElementById('tl-ks').classList.remove('hidden');});
+      'Deadline — pennant and dotted drop-line');
+  /* v1.6.1: the Navigate section (Go to date / Keyboard shortcuts) left the legend —
+     both live one menu over in Help, and the legend is back to being just a legend. */
 }
 
 /* Toolbar dropdowns — one open at a time, close on outside click or Esc */
@@ -7895,12 +7962,29 @@ document.getElementById('mi-tour').addEventListener('click',()=>{
   if(ROUTE.view==='project'){coachStart(COACH_PP_STEPS);return;}
   coachStart();
 });
-document.getElementById('mi-shortcuts').addEventListener('click',()=>{
+/* v1.6.1: keyboard shortcuts are a Help popover like the Legend — same tb-menu
+   machinery, so opening one mutes the other and outside-click/Esc close both.
+   Content is route-aware: the timeline's keys or the project page's. */
+const KBD_TL=[['N','New project'],['/','Search'],['T','Center on today'],['G','Go to date'],
+  ['W','Week scale'],['M','Month scale'],['+ −','Step the zoom'],['⌘ Z','Undo'],
+  ['Esc','Close / clear'],['?','This list']];
+const KBD_PP=[['S','New subtask'],['E','New milestone'],['T','New note'],['R','Rename selected'],
+  ['↑ ↓','Move selection'],['⇧ ← →','Nudge a day'],['⌘ Z','Undo'],['Del','Delete selected'],
+  ['G / C','Gantt or Calendar'],['Esc','Deselect, then leave']];
+function openKbdMenu(){
   closeMenus();
-  /* the project page has its own shortcut sheet (pp-ks); the timeline uses tl-ks */
-  const s=document.getElementById(ROUTE.view==='project'?'pp-ks':'tl-ks');
-  if(s)s.classList.remove('hidden');
-});
+  const m=document.getElementById('kbd-menu');
+  const keys=(typeof ROUTE!=='undefined'&&ROUTE&&ROUTE.view==='project')?KBD_PP:KBD_TL;
+  m.innerHTML='<div class="lg-sec">Keyboard shortcuts</div><div class="ks-g">'
+    +keys.map(k=>'<div><kbd>'+k[0]+'</kbd>'+k[1]+'</div>').join('')+'</div>';
+  m.classList.remove('hidden');
+}
+function toggleKbdMenu(){
+  if(document.getElementById('kbd-menu').classList.contains('hidden'))openKbdMenu();
+  else closeMenus();
+}
+document.getElementById('mi-shortcuts').addEventListener('click',openKbdMenu);
+document.getElementById('kbd-menu').addEventListener('click',ev=>ev.stopPropagation());
 wireMenu('btn-help','help-menu');
 /* The ? legend folds into Help — "Legend" opens the same swatch popover (built at
    init by buildLegend), anchored under the Help button. */

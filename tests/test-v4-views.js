@@ -59,7 +59,7 @@ setTimeout(()=>{
        return E('JSON.stringify(viewState())')===a;})());
 
   sec('acceptance â€” save "Install crunch", switch away, reapply â†’ identical render');
-  E("SHOW_STATUS=new Set(['in-fabrication','in-design']);GROUP_BY='pm';setView('week');applyDensity('compact');saveUI();render();");
+  E("SHOW_STATUS=new Set(['in-fabrication','in-design']);GROUP_BY='pm';setView('week');zoomSettle();applyDensity('compact');saveUI();render();"); /* v1.6.1: setView animates — settle before snapshotting */
   const rowsBefore=E('ROWS.length');
   const sideBefore=doc.getElementById('side-rows').innerHTML;
   const barsBefore=doc.querySelectorAll('#gantt-canvas .job-bar').length;

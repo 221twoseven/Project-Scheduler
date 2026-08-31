@@ -27,19 +27,24 @@ const click=el=>el.dispatchEvent(new win.MouseEvent('click',{bubbles:true,cancel
 const key=(k)=>doc.dispatchEvent(new win.KeyboardEvent('keydown',{key:k,bubbles:true,cancelable:true}));
 
 setTimeout(()=>{
-  sec('1 · the timeline shortcut sheet');
-  const ks=doc.getElementById('tl-ks');
-  ok('the sheet exists and starts hidden',!!ks&&ks.classList.contains('hidden'));
+  sec('1 · the keyboard-shortcuts popover (v1.6.1: a Help popover, not a modal sheet)');
+  const ks=doc.getElementById('kbd-menu');
+  ok('the popover exists and starts hidden',!!ks&&ks.classList.contains('hidden'));
   key('?');
   ok('? opens it',!ks.classList.contains('hidden'));
+  ok('…listing the timeline keys',/New project/.test(ks.textContent));
   key('Escape');
   ok('Esc closes it',ks.classList.contains('hidden'));
-  const lk=doc.getElementById('lg-keys');
-  ok('the ? legend carries a "Keyboard shortcuts…" entry',!!lk);
-  click(lk);
-  ok('…which opens the sheet',!ks.classList.contains('hidden'));
-  click(ks);
-  ok('a click anywhere closes it',ks.classList.contains('hidden'));
+  E('openKbdMenu()');
+  ok('Help ▾ → Keyboard shortcuts opens it too',!ks.classList.contains('hidden'));
+  const lg=doc.getElementById('legend-menu');
+  E("document.getElementById('mi-legend').dispatchEvent(new MouseEvent('click',{bubbles:true}))");
+  ok('opening the Legend mutes the shortcuts popover',
+     ks.classList.contains('hidden')&&!lg.classList.contains('hidden'));
+  E('openKbdMenu()');
+  ok('…and opening shortcuts mutes the Legend',
+     !ks.classList.contains('hidden')&&lg.classList.contains('hidden'));
+  E('closeMenus()');
 
   sec('2 · the empty state offers the sample project');
   const es=doc.getElementById('empty-state');

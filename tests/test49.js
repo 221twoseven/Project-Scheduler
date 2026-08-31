@@ -265,12 +265,17 @@ function stage5(){
 
                 key('?');
                 setTimeout(()=>{
-                  ok('? opens the shortcut sheet',
-                     !doc.getElementById('pp-ks').classList.contains('hidden'));
+                  /* v1.6.1: the pp-ks sheet became the route-aware #kbd-menu popover;
+                     the frozen reference build still carries the sheet. */
+                  const km=doc.getElementById('kbd-menu');
+                  const sheet=km||doc.getElementById('pp-ks');
+                  ok('? opens the shortcuts surface',
+                     sheet&&!sheet.classList.contains('hidden'));
+                  if(km)ok('…listing the project-page keys',/New subtask/.test(km.textContent));
                   key('Escape');
                   setTimeout(()=>{
-                    ok('escape closes the sheet',
-                       doc.getElementById('pp-ks').classList.contains('hidden'));
+                    ok('escape closes it',
+                       sheet&&sheet.classList.contains('hidden'));
                     stage6();
                   },200);
                 },200);
