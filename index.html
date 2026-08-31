@@ -517,7 +517,7 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 #npv-gutrs{position:absolute;top:0;bottom:0;left:calc(var(--npv-gut,150px) - 3px);width:7px;cursor:col-resize;z-index:8}
 #npv-gutrs:hover,#npv-gutrs.on{background:rgba(47,111,228,.3)}
 .npv-in{position:relative;min-width:100%}
-.npv-axis{position:relative;height:34px;border-bottom:1px solid #E2E8F0;background:#FBFDFF}
+.npv-axis{position:relative;height:34px;border-bottom:1px solid #E2E8F0;background:#FBFDFF;cursor:grab} /* v1.6.2: the strip pans/zooms like the global header */
 /* z-index lifts the label above the day/tint background columns painted after it —
    without it every column after the 1st covers the text ("AUGUST" read "AU"). */
 .npv-mon{position:absolute;top:2px;height:14px;font-size:var(--fs-fine);font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#94A3B8;padding-left:4px;white-space:nowrap;overflow:hidden;z-index:2;pointer-events:none}
@@ -809,6 +809,15 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 .ins-sec[data-sec="team"]{min-width:340px}
 .ins-sec[data-sec="depts"]{min-width:300px}
 .ins-sec[data-sec="agenda"]{min-width:340px}
+/* v1.6.2: phase layout is phase | agenda | notes — the phase column keeps its half,
+   the agenda's old half splits between the agenda and the full-height notes field. */
+.ins-sec[data-sec="phase"]{flex:2 1 0}
+.ins-sec[data-sec="phase"]~.ins-sec[data-sec="agenda"]{min-width:240px}
+.ins-sec[data-sec="notes"] .in{display:flex}
+.ins-notes{flex:1;width:100%;min-height:90px;resize:none;border:1px solid #DDE5EF;border-radius:6px;
+  padding:7px 9px;font-size:12.5px;font-family:inherit;background:#fff;color:#1E293B;outline:none;
+  box-sizing:border-box}
+.ins-notes:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(59,127,214,.12)}
 .ins-sec>h4{display:flex;align-items:center;gap:7px;margin:0;padding:10px 15px;flex-shrink:0;
   font-size:var(--fs-fine);font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#7488A3;
   user-select:none;border-bottom:1px solid #EDF2F7}
@@ -1373,7 +1382,7 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.6.1'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.6.2'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -2678,13 +2687,19 @@ function render(){
    stays in People & Availability and the Home modal. */
 /* v1.2.0 (obj 1): the same mechanics, presented as its own place. */
 function dashOn(){return LENS==='dept'&&!!PERSON&&!(typeof ROUTE!=='undefined'&&ROUTE&&ROUTE.view==='project');}
+/* v1.6.2: the same view serves two readings — MY dashboard when the person is the
+   signed-in identity, and a plain workload summary when it's someone else. Mechanics
+   are identical; only the naming and the toolbar button's lit state differ. */
+function dashSelf(){return dashOn()&&PERSON===(meName()||rememberedMe());}
 function renderDashBar(){
   const on=dashOn();
   document.body.classList.toggle('dash-on',on);
   const bar=document.getElementById('dash-bar');
   if(bar){bar.classList.toggle('hidden',!on);
     if(on){const nm=document.getElementById('db-name');
-      if(nm)nm.textContent='My Dashboard · '+PERSON;}}
+      if(nm)nm.textContent=(dashSelf()?'My Dashboard · ':'Summary · ')+PERSON;}}
+  const sl=document.querySelector('#sb-head .sb-dash-lbl');
+  if(sl)sl.textContent=dashSelf()?'My Dashboard':'Summary';
   updateFilterBadges(); /* v1.2.2: the person chip/count flips with the dash state */
   FIT_MAIN(); /* #main's top offset includes the bar while it shows */
 }
@@ -2692,7 +2707,9 @@ function renderMeDock(){
   const on=dashOn();
   document.body.classList.toggle('me-dock-on',on);
   document.body.classList.toggle('me-dock-col',on&&ME_DOCK_COL);
-  const db=document.getElementById('btn-dash');if(db)db.classList.toggle('active',on);
+  /* v1.6.2: the button lights only for YOUR dashboard — another person's summary
+     view leaves it dark. */
+  const db=document.getElementById('btn-dash');if(db)db.classList.toggle('active',dashSelf());
   const dk=document.getElementById('me-dock');
   if(!on){dk.innerHTML='';return;}
   const per=personByName(PERSON)||{name:PERSON,depts:[],ooo:[]};
@@ -4092,7 +4109,7 @@ function renderProjectPage(){
    + '<div class="npv-modes" id="npv-zoom"><button data-fit="" title="Fit the whole job on screen">Fit</button>'
    + '<button data-fit="7" title="One week fills the panel">Week</button>'
    + '<button data-fit="30" title="One month fills the panel">Month</button>'
-   + '<button data-fit="91" title="Three months fill the panel">3 Mo</button></div>'
+   + '<button data-fit="91" title="Three months fill the panel — drag the date strip up or down to zoom anywhere between">3 Mo</button></div>'
    + '<div class="npv-subs"><button id="npv-tint" title="Colour the calendar background vividly by month">Vivid months</button>'
    + '<button id="npv-link" title="Dragging a department bar moves its subtasks with it">Link</button>'
    + '<button id="npv-focus" class="hidden" title="Show only the selected phase\'s bands on the calendar">Selected only</button></div>'
@@ -4210,6 +4227,63 @@ function renderProjectPage(){
       if(!NPV_GUTDRAG)return;
       NPV_GUTDRAG=null;saveUI();
       const g2=document.getElementById('npv-gutrs');if(g2)g2.classList.remove('on');
+    });
+  }
+
+  /* v1.6.2 (§7 gate fired — the owner reached for it): the project date strip drives
+     the same gestures as the global header. Drag left/right pans; drag up/down zooms
+     continuously between Week and 3-Month (the same 45° axis pick), anchored on the
+     date under the pointer. The axis and the rows share #npv-scroll, so the pan needs
+     no header sync; each zoom frame re-renders and re-anchors on animation frames. */
+  const ax=document.getElementById('npv-axis');
+  if(ax){
+    ax.title='Drag to pan — drag up or down to zoom';
+    ax.addEventListener('mousedown',ev=>{
+      if(ev.button!==0||NPV_MODE!=='gantt'||!NPV_GEO)return;
+      const sc2=document.getElementById('npv-scroll');
+      if(!sc2)return;
+      const px=ev.clientX-sc2.getBoundingClientRect().left;
+      NPV_AXDRAG={x:ev.clientX,y:ev.clientY,sl:sc2.scrollLeft,mode:null,px:px,
+        /* Fit mode has no stored fit — derive the live days-on-screen so the zoom
+           rate feels the same leaving Fit as leaving a named step. */
+        fit:NPV_FIT||Math.max(240,sc2.clientWidth-NPV_GUT-8)/NPV_GEO.dw,
+        days:(sc2.scrollLeft+px-NPV_GUT)/NPV_GEO.dw};
+      ev.preventDefault();
+    });
+  }
+  if(!NPV_AXDRAG_BOUND){
+    NPV_AXDRAG_BOUND=true;
+    let raf=null;
+    document.addEventListener('mousemove',ev=>{
+      const pn=NPV_AXDRAG;
+      if(!pn)return;
+      const sc2=document.getElementById('npv-scroll');
+      if(!sc2)return;
+      const dx=ev.clientX-pn.x,dy=ev.clientY-pn.y;
+      if(!pn.mode){
+        if(Math.abs(dx)<4&&Math.abs(dy)<6)return;
+        pn.mode=Math.abs(dy)>Math.abs(dx)?'zoom':'pan';
+        document.body.style.cursor=pn.mode==='zoom'?'ns-resize':'grabbing';
+        document.body.style.userSelect='none';
+      }
+      if(pn.mode==='pan'){sc2.scrollLeft=pn.sl-dx;return;}
+      const f=Math.max(FIT_MIN,Math.min(FIT_MAX,pn.fit*Math.exp(dy/240)));
+      if(NPV_FIT&&Math.abs(f-NPV_FIT)<.05)return;
+      NPV_FIT=f;
+      if(!raf)raf=requestAnimationFrame(()=>{raf=null;
+        npvRender();
+        const sc3=document.getElementById('npv-scroll');
+        if(NPV_AXDRAG&&NPV_GEO&&sc3)
+          sc3.scrollLeft=NPV_GUT+NPV_AXDRAG.days*NPV_GEO.dw-NPV_AXDRAG.px;
+      });
+    });
+    document.addEventListener('mouseup',()=>{
+      if(!NPV_AXDRAG)return;
+      const zoomed=NPV_AXDRAG.mode==='zoom';
+      NPV_AXDRAG=null;
+      document.body.style.cursor='';document.body.style.userSelect='';
+      if(zoomed){try{localStorage.setItem('shopTimelineNpvFit',NPV_FIT||'');}catch(e){}
+        npvRender();} /* persist once on release; one full repaint settles the frame path */
     });
   }
 
@@ -4531,7 +4605,8 @@ function ppInspector(){
      + '<div class="ins-f"><label>End</label><input type="date" data-f="endDate" value="'+esc(sel.endDate||'')+'"></div>'
      + '<div class="ins-f"><label>Days</label><input type="number" min="1" data-f="estimatedDays" value="'+(sel.estimatedDays||1)+'"></div>'
      + '</div>';
-    f+='<div class="ins-f"><label>Notes</label><textarea rows="2" data-f="notes" placeholder="Anything the shop needs to know">'+esc(sel.notes||'')+'</textarea></div>';
+    /* v1.6.2: the notes textarea moved to its own dock section (after the agenda),
+       where it gets real height instead of two cramped rows under the dates. */
     /* 3.5/I14: pin finally has a working control. Bars could be pinned from the main
        timeline, then silently refused to resize here with no way to see or undo it.
        (Saved bars only — a draft bar pins itself the moment you drag it.) */
@@ -4544,6 +4619,11 @@ function ppInspector(){
      + '<button class="ins-btn dngr" id="ins-del" title="Delete this phase">Delete</button></div>';
     h+=ppSec('phase','This phase',f,null,true);
     h+=ppAgendaHTML(p,sel.department);
+    /* v1.6.2: a third dock column — the agenda's width split in half, the right half
+       all notes. Same data-f commit path as before, just more room to write. */
+    h+=ppSec('notes','Notes',
+      '<textarea class="ins-notes" data-f="notes" placeholder="Anything the shop needs to know">'
+      +esc(sel.notes||'')+'</textarea>');
     h+='</div>';
   }else{
     h+='<div class="ins-hd"><span class="dot" style="background:'+ppColor(p)+'"></span>'
@@ -4832,6 +4912,7 @@ function ppPaintMeta(p){
    on screen is what lands in SharePoint. */
 let NPV_RESIZE_BOUND=false;
 let NPV_GUTDRAG=null,NPV_GUTDRAG_BOUND=false;
+let NPV_AXDRAG=null,NPV_AXDRAG_BOUND=false; /* v1.6.2: date-strip pan/zoom drag state */
 let NPV_ALL=[];          /* every generated row, Project Management included */
 let NPV_TASKS=[];        /* the rows actually drawn */
 let NPV_MANUAL={};
@@ -4843,7 +4924,9 @@ let NPV_MODE='gantt';    /* 'gantt' | 'calendar' */
 /* v1.5.0 (08-31 obj 8): project-gantt zoom — null fits the whole job (the historical
    behavior); 7/30/91 pin a week/month/quarter across the panel. Per-browser pref. */
 let NPV_FIT=null;
-try{const f=parseInt(localStorage.getItem('shopTimelineNpvFit'),10);if([7,30,91].includes(f))NPV_FIT=f;}catch(e){}
+/* v1.6.2: a drag-set fit is continuous, so accept any stored value in the 7–91 range
+   (old integer steps still parse the same). */
+try{const f=parseFloat(localStorage.getItem('shopTimelineNpvFit'));if(f>=7&&f<=91)NPV_FIT=f;}catch(e){}
 let NPV_CAL_FOCUS=false; /* N16: calendar shows only the selected phase's bands */
 let NPV_CAL_OPEN=new Set(); /* v1.0.4 (obj 8): calendar phases expanded (dept ids) — any
                                number at once, independent of the selection and of the
@@ -7310,7 +7393,12 @@ function zoomRender(){
 let ZT=null; /* pending step-zoom animation: {raf,target,anchorD,ax} */
 function zoomAnchor(z){
   const sc=document.getElementById('gantt-scroll');
-  if(sc)sc.scrollLeft=Math.max(0,d2x(z.anchorD)+dw()/2-z.ax);
+  if(!sc)return;
+  sc.scrollLeft=Math.max(0,d2x(z.anchorD)+dw()/2-z.ax);
+  /* v1.6.1: the date header scrolls in its own container synced by gScroll's scroll
+     event — which fires a tick late, so during a zoom it lags the canvas by a frame.
+     Push it here in the same frame so the month/day bars track the bars exactly. */
+  const hw=document.getElementById('hdr-wrap');if(hw)hw.scrollLeft=sc.scrollLeft;
 }
 function zoomSettle(){
   if(!ZT)return;
@@ -7436,7 +7524,8 @@ document.getElementById('sidebar').addEventListener('wheel',ev=>{
        which is what makes the gesture track the hand instead of stuttering. */
     if(!raf)raf=requestAnimationFrame(()=>{raf=null;
       zoomRender();
-      gScroll.scrollLeft=pan?pan.anchorDays*dw()-pan.px:gScroll.scrollLeft;
+      if(pan){gScroll.scrollLeft=pan.anchorDays*dw()-pan.px;
+        hdrWrap.scrollLeft=gScroll.scrollLeft;} /* same-frame header sync (see zoomAnchor) */
     });
   });
   document.addEventListener('mouseup',()=>{

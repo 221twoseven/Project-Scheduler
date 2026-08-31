@@ -26,7 +26,11 @@ all ten shipped as **v1.6.1** (calendar-marker redraw, Saved Views rename + anch
 past projects sink, sidebar bottom-crop, Today-anchored smooth step zoom, lane
 summaries drop past work, shortcuts as a Help popover muted against the Legend,
 legend navigation entries removed, drag-zoom smoothing, bug-form radio fix).
-Record: `docs/Milestones/2026-08-31-v161-preview-polish.md`.
+Record: `docs/Milestones/2026-08-31-v161-preview-polish.md`. The second review round
+(markers ✓, step zoom ✓, drag-zoom still juddery + three new asks) shipped as
+**v1.6.2**: same-frame header sync, project date-strip gesture parity, Summary·name
+for other people's plates, and the full-height Notes dock column. Record:
+`docs/Milestones/2026-08-31-v162-preview-polish-2.md`.
 
 ---
 
@@ -337,6 +341,7 @@ rule §5); old data keeps reading fine.
 | v1.5.0 | ✅ Shipped 2026-08-31 — viewport-fitting zoom (Week/Month/3-Mo + drag-zoom gesture) on both Gantts |
 | v1.6.0 | ✅ Shipped 2026-08-31 — bug report / feature request form (list created by owner same day) |
 | v1.6.1 | ✅ Shipped 2026-08-31 — the owner's ten-item `/preview/` punch list (see Last-reviewed note + milestone record) |
+| v1.6.2 | ✅ Shipped 2026-08-31 — second review round: header/canvas same-frame sync (drag-zoom judder), project date-strip pan/zoom parity (§7 gate half-fired), Summary·name for other people's plates, full-height Notes dock column |
 | v1.7.0 | 12 (permissions) ⚠ |
 | v1.8.0 | 26 (change log) ⚠ — after permissions |
 | v2.0.0 | 13 (single source of truth) ⚠ — likely several minors along the way (one per absorbed store), with v2.0.0 as the cutover declaration |
@@ -489,6 +494,9 @@ these are the ones still open, plus new deferrals as they happen.
       the bands after feeling the split on `/preview/`. (v1.5.0, 2026-08-31)
 - [ ] The project page's date strip has no drag-zoom gesture (buttons only) and the
       global page has no Fit step. Gate: someone reaching for either. (v1.5.0)
+      **Half-fired 2026-08-31 (v1.6.2):** the owner reached for the strip gesture —
+      shipped, full parity with the global header (pan + continuous zoom, float
+      NPV_FIT). The global-Fit half stays open on the same gate.
 - [ ] A drag-set custom FIT survives reloads but has no UI to re-enter it exactly —
       the buttons snap to named steps. Cosmetic. Gate: someone caring. (v1.5.0)
 - [ ] Font files & licences (§3 items 6–7): nothing committed until the licence

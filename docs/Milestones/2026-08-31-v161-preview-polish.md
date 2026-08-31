@@ -39,6 +39,12 @@ findings. All ten shipped in one patch as v1.6.1 on `development`.
 9. **Drag-zoom smoothed.** Zoom frames (gesture and animated steps) go through
    `zoomRender()` — geometry only (header + canvas), skipping the sidebar/dock/dash
    repaints that made frames stutter. One full render settles on release.
+   **Follow-up (owner re-review, same day):** the vertical drag still juddered
+   because the date header lives in a separate scroll container (`#hdr-wrap`) synced
+   only by `#gantt-scroll`'s async `scroll` event — a frame late. Each zoom frame the
+   canvas jumped to the anchored position while the month/day bars caught up a tick
+   behind. Fixed by pushing `hdrWrap.scrollLeft = gScroll.scrollLeft` in the same
+   frame (both the drag rAF and `zoomAnchor`), so the header tracks the bars exactly.
 10. **Bug-report form alignment fixed.** The generic `.fg label` / `.fg input` rules
     were stretching the Kind radios full-width; `#fb-kind` now has its own flex
     layout and the radios sit beside their captions.
