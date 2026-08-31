@@ -100,6 +100,14 @@ No hand-picked per-bar text colors. Pills use the same rule. A jsdom test (`test
 Existing tokens are good — codify them as the only chrome colors:
 `--ink #0D131D`, `--ink-2 #141C29`, `--chrome-line #3A4A66`, accent `--acc #2F6FE4` / `--acc-deep #1D5AC9`, warn `--warn #F0A814`, danger `--late #DC2626`, sidebar `--side #EDF1F7` / `--side-line #C9D4E3`, paper `--paper #F5F7FA`. New UI must draw from these; no ad-hoc hex in new code (a grep-able rule a reviewer can enforce).
 
+**My Dashboard is its own place (v1.2.0, owner objective 1):** mechanically it stays
+the Departments lens + person filter, but it presents like a page — a project-style
+trail bar (`All Projects › My Dashboard · name`, × exit) fixed under the toolbar, the
+sidebar lens toggles replaced by a "My Dashboard" label, no collapse affordances (all
+assigned phases paint flat), and the summary dock carrying the same collapse chevron
+as the project page's dock (its own persisted key). Exits: the crumb, the ×, or
+anything that clears the person filter.
+
 **The mellowed bar (v1.0.2, owner objective 12):** the toolbar no longer paints the
 near-black ink gradient — it owns a soft slate-navy pair, `#2A3850 → #202C41`, with a
 `#141D2C` bottom edge and a lighter shadow. `--ink`/`--ink-2` keep their original values

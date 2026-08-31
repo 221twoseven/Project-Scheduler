@@ -142,16 +142,15 @@ Owner's objective numbers in parentheses. Each batch: build on `development`, ve
 
 ### My Dashboard as a real view (minor bump)
 
-- [ ] **10. (Obj 1) My Dashboard becomes its own place.** Still *mechanically* the
-      view filters underneath, but *presented* as a distinct view, not a filtered
-      timeline:
-      - Header styled like the project edit view: breadcrumb trail + × to exit
-        (no more "clear filters to leave").
-      - Not reachable-looking as Projects/Department lenses — those toggles hidden
-        inside the dashboard.
-      - The Gantt shows **all assigned phases flat** — no expand/collapse needed.
-      - The Summary dock is always available here (today it's Department-view-only)
-        with the same collapse control/behavior as docks elsewhere (REV99 pattern).
+- [x] **10. (Obj 1) My Dashboard becomes its own place — DONE 2026-08-31 (v1.2.0).**
+      Mechanics unchanged (Departments lens + person filter); presentation is a
+      distinct view: a project-page-style trail bar (`All Projects › My Dashboard ·
+      name` + × exit) fixed under the toolbar, lens toggles/⇕ All hidden behind a
+      "My Dashboard" sidebar label, every assigned phase flat (collapsed sections
+      ignored, carets hidden), and the summary dock trades its old breadcrumb/✕ for
+      the REV99 collapse chevron persisted under its own key. Record:
+      `docs/Milestones/2026-08-31-v120-dashboard-view.md`. Suite:
+      `tests/test-v120.js` (+ test67/68 branched).
 
 ### Bug reporting (minor bump — one storage decision ⚠)
 
@@ -222,7 +221,7 @@ Owner's objective numbers in parentheses. Each batch: build on `development`, ve
 | v1.0.4 | ✅ Shipped 2026-08-28 — obj 8 extension: phases multi-expand on the calendar; Collapse all in the legend bar |
 | v1.1.0 | ✅ Shipped 2026-08-31 — calendar interactions: obj 7 double-click create + obj 9 live drag-follow |
 | v1.1.x | 5 (coach copy, once revised) · 6–7 (fonts, once licence-checked) — patches whenever unblocked |
-| v1.2.0 | 10 (My Dashboard view) |
+| v1.2.0 | ✅ Shipped 2026-08-31 — obj 1: My Dashboard as its own view (trail bar, no lens toggles, flat phases, collapsible dock) |
 | v1.3.0 | 11 (bug reporting) ⚠ |
 | v1.4.0 | 12 (permissions) ⚠ |
 | v2.0.0 | 13 (single source of truth) ⚠ — likely several v1.5+ minors along the way (one per absorbed store), with v2.0.0 as the cutover declaration |

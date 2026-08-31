@@ -64,6 +64,7 @@ const SUITES = [
   'test-client-filter.js',
   'test-cb.js',
   'test-v102.js',
+  'test-v120.js',
 ];
 
 const repoRoot = path.resolve(__dirname, '..');

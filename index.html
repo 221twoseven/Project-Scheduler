@@ -103,6 +103,24 @@ body.pp-route .tb-timeline{display:none}
 body.me-dock-on #main{bottom:236px}
 body.me-dock-on #me-dock{display:flex;flex-direction:column;position:fixed;left:0;right:0;bottom:0;
   height:236px;background:var(--paper);border-top:1.5px solid #E2E8F0;z-index:20}
+/* v1.2.0 (obj 1): the dashboard as its own place — trail bar fixed under the toolbar,
+   lens toggles and row-collapse affordances hidden, dock collapsible like the project
+   page's (REV99 pattern). The mechanics stay the view filters underneath. */
+#dash-bar{position:fixed;left:0;right:0;z-index:60;background:#fff;border-bottom:1px solid #E2E8F0}
+body.pp-route #dash-bar{display:none!important}
+body.dash-on .sb-lens{display:none}
+body.dash-on #sb-all{display:none}
+body.dash-on .sb-chev{visibility:hidden}
+.sb-dash-lbl{display:none}
+body.dash-on #sb-head .sb-dash-lbl{display:block;flex:1;font-size:var(--fs-fine);font-weight:700;letter-spacing:.16em;color:var(--txt-micro)}
+body.me-dock-on.me-dock-col #main{bottom:45px}
+body.me-dock-on.me-dock-col #me-dock{height:45px}
+body.me-dock-col #me-dock .ins-body{display:none}
+#md-collapse{margin-left:auto;padding:5px 7px;line-height:0}
+#md-collapse svg{width:15px;height:15px;display:block;color:#7488A3;transition:transform .12s}
+#md-collapse:hover{border-color:var(--acc)}
+#md-collapse:hover svg{color:var(--acc)}
+body.me-dock-col #md-collapse svg{transform:rotate(180deg)}
 .md-hd{display:flex;align-items:center;gap:9px;padding:10px 16px;border-bottom:1px solid #E2E8F0;background:#fff;flex-shrink:0}
 .md-hd .dot{width:11px;height:11px;border-radius:3px;flex-shrink:0}
 .md-hd .t{font-size:13px;font-weight:700;color:#1E293B}
@@ -1124,9 +1142,18 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
   </div>
 </div></div>
 
+<!-- v1.2.0 (obj 1): My Dashboard reads as its own place — a project-page-style
+     breadcrumb bar with an × exit, fixed under the toolbar while the dashboard is on. -->
+<div id="dash-bar" class="dash-top hidden"><nav class="pg-trail">
+  <button class="pg-cr" id="db-all" title="Back to the full timeline">All Projects</button>
+  <span class="pg-sep">›</span>
+  <span class="pg-cr cur" id="db-name">My Dashboard</span>
+  <button class="pg-x" id="db-x" title="Back to the full timeline">✕</button>
+</nav></div>
 <div id="main">
   <div id="sidebar">
     <div id="sb-head">
+      <span class="sb-dash-lbl">My Dashboard</span>
       <div class="tog-grp sb-lens">
         <button id="btn-lens-proj" class="t-btn active" title="Group the rows by project">Projects</button>
         <button id="btn-lens-dept" class="t-btn" title="Group the rows by department">Departments</button>
@@ -1314,7 +1341,7 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.1.0'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.2.0'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -2527,7 +2554,9 @@ function buildRows(){
       const count=lanes.reduce((a,r)=>a+r.tasks.length,0);
       if(PERSON&&count===0)continue;
       rows.push({kind:'deptHead',key:'H'+sec.id,secId:sec.id,label:sec.kind==='group'?sec.label:deptById(sec.id).name,count});
-      if(!COLLAPSED.has(sec.id))rows.push(...lanes);
+      /* v1.2.0 (obj 1): the dashboard shows every assigned phase flat — no section is
+         ever collapsed there (the sidebar hides the carets to match). */
+      if(!COLLAPSED.has(sec.id)||dashOn())rows.push(...lanes);
     }
   }
   let y=0;
@@ -2555,6 +2584,7 @@ function render(){
   const rm=buildRows();ROWS=rm.rows;TOTAL_H=rm.totalH;
   renderSidebar();renderGantt();
   applyFilter(); /* renders the empty-state card too */
+  renderDashBar();
   renderMeDock();
 }
 
@@ -2562,9 +2592,21 @@ function render(){
    the filtered Gantt above, this title block below — who they are, what they're on,
    their checkpoints, their tasks, their time off. Data is read-only here; editing
    stays in People & Availability and the Home modal. */
+/* v1.2.0 (obj 1): the same mechanics, presented as its own place. */
+function dashOn(){return LENS==='dept'&&!!PERSON&&!(typeof ROUTE!=='undefined'&&ROUTE&&ROUTE.view==='project');}
+function renderDashBar(){
+  const on=dashOn();
+  document.body.classList.toggle('dash-on',on);
+  const bar=document.getElementById('dash-bar');
+  if(bar){bar.classList.toggle('hidden',!on);
+    if(on){const nm=document.getElementById('db-name');
+      if(nm)nm.textContent='My Dashboard · '+PERSON;}}
+  FIT_MAIN(); /* #main's top offset includes the bar while it shows */
+}
 function renderMeDock(){
-  const on=LENS==='dept'&&!!PERSON&&!(typeof ROUTE!=='undefined'&&ROUTE&&ROUTE.view==='project');
+  const on=dashOn();
   document.body.classList.toggle('me-dock-on',on);
+  document.body.classList.toggle('me-dock-col',on&&ME_DOCK_COL);
   const db=document.getElementById('btn-dash');if(db)db.classList.toggle('active',on);
   const dk=document.getElementById('me-dock');
   if(!on){dk.innerHTML='';return;}
@@ -2598,22 +2640,25 @@ function renderMeDock(){
   const deptLbl=(per.depts||[]).map(d=>{const m=SM_DEPTS.find(x=>x[0]===d);return m?m[1]:d;}).join(', ');
   const sec2=(title,n,inner)=>'<div class="ins-sec"><h4>'+title+'<span class="n">'+n+'</span></h4><div class="in">'+inner+'</div></div>';
   dk.innerHTML=
-    /* N1-style trail: Timeline › name. The current segment is dark; Timeline unwinds
-       to the home view — the unfiltered Gantt, in whichever lens was most recent. */
-    '<div class="md-hd"><button class="pg-cr" id="md-home" title="Back to the full timeline">Timeline</button>'
-    +'<span class="pg-sep">›</span>'
+    /* v1.2.0: the trail (and the ×) moved to the #dash-bar up top — this header is
+       the person summary plus the same collapse control the project page's dock has
+       (REV99 pattern), so the dock behaves like every other dock in the app. */
+    '<div class="md-hd">'
     +'<span class="dot" style="background:'+hashColor(per.name)+'"></span>'
     +'<span class="t">'+esc(per.name)+'</span>'
     +'<span class="sub">'+esc([per.role,deptLbl,per.email].filter(Boolean).join(' · ')||'Not on the staff list')+'</span>'
-    +'<button class="x" id="md-close" title="Back to the full timeline">✕</button></div>'
+    +'<button class="ins-btn" id="md-collapse" title="'+(ME_DOCK_COL?'Expand the panel':'Collapse the panel')+'" aria-expanded="'+String(!ME_DOCK_COL)+'"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg></button></div>'
     +'<div class="ins-body">'
     +sec2('Working on',active.length+coming.length,cap([...active,...coming],barRow))
     +sec2('Checkpoints',checkpoints.length,cap(checkpoints,evRow))
     +sec2('Tasks',tasks.length,cap(tasks,tkRow))
     +sec2('Time off',ooo.length,cap(ooo,ooRow))
     +'</div>';
-  document.getElementById('md-close').addEventListener('click',()=>exitDash());
-  document.getElementById('md-home').addEventListener('click',()=>exitDash());
+  document.getElementById('md-collapse').addEventListener('click',()=>{
+    ME_DOCK_COL=!ME_DOCK_COL;
+    try{localStorage.setItem('shopTimelineMeDockCollapsed',ME_DOCK_COL?'1':'0');}catch(e){}
+    renderMeDock();
+  });
 }
 
 /* Always shows a card when the canvas has no visible projects: signed out → the
@@ -4697,6 +4742,11 @@ try{const v=parseInt(localStorage.getItem('shopTimelineDockH'),10);if(v>0)DOCK_H
 /* Bottom-dock collapse — form hidden, footer stays. Persisted per user across sessions. */
 let DOCK_COLLAPSED=false;
 try{DOCK_COLLAPSED=localStorage.getItem('shopTimelineDockCollapsed')==='1';}catch(e){}
+/* v1.2.0 (obj 1): the dashboard summary dock's collapse — its own key, independent of
+   the project page's dock. FIT_MAIN is bound by the toolbar-fit IIFE below. */
+let ME_DOCK_COL=false;
+try{ME_DOCK_COL=localStorage.getItem('shopTimelineMeDockCollapsed')==='1';}catch(e){}
+let FIT_MAIN=()=>{};
 const NPV_ROWH=34;      /* must match .npv-row height in the stylesheet */
 let NPV_GEO=null;
 let NPV_RAF=null;
@@ -7174,7 +7224,13 @@ function setSideW(w){SIDE_W=Math.max(180,Math.min(480,Math.round(w)));document.g
 /* Keep the workspace below the toolbar even when it wraps to two rows */
 (function(){
   const tb=document.getElementById('toolbar'),mn=document.getElementById('main');
-  const fit=()=>{mn.style.top=tb.offsetHeight+'px';};
+  const fit=()=>{
+    const db=document.getElementById('dash-bar');
+    const on=db&&document.body.classList.contains('dash-on')&&!document.body.classList.contains('pp-route');
+    if(db&&on)db.style.top=tb.offsetHeight+'px';
+    mn.style.top=(tb.offsetHeight+(on?db.offsetHeight:0))+'px';
+  };
+  FIT_MAIN=fit; /* renderDashBar re-fits when the dashboard bar comes and goes */
   if(window.ResizeObserver)new ResizeObserver(fit).observe(tb);
   window.addEventListener('resize',fit);
   fit();
@@ -7506,6 +7562,10 @@ document.getElementById('btn-dash').addEventListener('click',ev=>{
   const open=m.classList.contains('hidden');closeMenus();if(open)m.classList.remove('hidden');
 });
 document.getElementById('dash-menu').addEventListener('click',ev=>ev.stopPropagation());
+/* v1.2.0 (obj 1): the dashboard bar's two exits — the crumb and the × — both unwind
+   to the full timeline, same as the project page's trail. */
+document.getElementById('db-all').addEventListener('click',()=>exitDash());
+document.getElementById('db-x').addEventListener('click',()=>exitDash());
 wireMenu('btn-print','print-menu');
 wireMenu('btn-resources','resources-menu');
 buildLegend();
