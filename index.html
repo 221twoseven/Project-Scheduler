@@ -581,6 +581,8 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
   transform:rotate(45deg);border-radius:1px;width:10px;height:10px}
 .npv-leg .lg i.tk{background:#fff;border:2px solid #3B7FD6;border-radius:50%;box-sizing:border-box}
 .npv-leg-empty{font-size:11px;color:#B4C0D0;font-style:italic}
+#npv-collapse-all{margin-left:auto;background:#fff;border:1px solid #CBD6E4;border-radius:6px;padding:2px 10px;font-size:var(--fs-fine);font-weight:600;color:#5B6B85;cursor:pointer;font-family:inherit}
+#npv-collapse-all:hover{background:#E8EEF7;color:#1E293B}
 
 
 /* ============ REV41: CALENDAR IN THE IN-HOUSE FORMAT ============ */
@@ -1312,7 +1314,7 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.0.3'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.0.4'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -3876,7 +3878,7 @@ function renderProjectPage(){
   const keepSel=PP_KEEP?PP_SEL:null;
   if(!PP_KEEP){
     NPV_MANUAL={};NPV_TASKS=[];NPV_ALL=[];NPV_ORDER=[];NPV_ORDER_DIRTY=false;
-    NPV_EVENTS=[];NPV_TODOS=[];NPV_LINES=[];NPV_UNDO=[];
+    NPV_EVENTS=[];NPV_TODOS=[];NPV_LINES=[];NPV_UNDO=[];NPV_CAL_OPEN=new Set();
     if(isNew){
       NPV_MODE='gantt';
       ppFormInit();
@@ -4667,6 +4669,9 @@ let NPV_TODOS=[];        /* draft tasks   {id,title,who,due,priority,dept} */
 let NPV_LINES=[];        /* named phase lines {id,name,dept,who} */
 let NPV_MODE='gantt';    /* 'gantt' | 'calendar' */
 let NPV_CAL_FOCUS=false; /* N16: calendar shows only the selected phase's bands */
+let NPV_CAL_OPEN=new Set(); /* v1.0.4 (obj 8): calendar phases expanded (dept ids) — any
+                               number at once, independent of the selection and of the
+                               Gantt's NPV_OPEN; cleared by the legend-bar Collapse all */
 let NPV_LIVE=false;      /* true when the chart mirrors a saved project instead of a draft */
 let TINT=false;              /* C2: quiet canvas is the default; true = the vivid MONTH_HSL look */
 let GROUP_BY=null;       /* 'client' | 'pm' | 'status' — drives the sidebar group headers */           /* month hue + week saturation behind the charts */
@@ -4993,7 +4998,7 @@ function npvDuplicatePhase(t){
     NPV_LINES.push(l);
     NPV_MANUAL[npvKey({department:t.department,label:l.name,assignee:who})]=
       {startDate:t.startDate,endDate:t.endDate,estimatedDays:t.estimatedDays};
-    NPV_OPEN.add(t.department);saveUI();npvRebuild();
+    NPV_OPEN.add(t.department);NPV_CAL_OPEN.add(t.department);saveUI();npvRebuild();
     ppSelect('l:'+l.id,true);
     npvToastU('Duplicated '+phaseLabel(t),()=>{
       NPV_LINES=NPV_LINES.filter(x=>x.id!==l.id);
@@ -5005,7 +5010,7 @@ function npvDuplicatePhase(t){
   const copy={...t,id:genId(),label:(t.label||'')+' copy',ticketNodes:[]};
   PP_QUIET=true;
   try{saveState({projects:ST.projects,tasks:[...ST.tasks,copy]});}finally{PP_QUIET=false;}
-  NPV_OPEN.add(t.department);saveUI();npvRebuild();ppSelect(copy.id);
+  NPV_OPEN.add(t.department);NPV_CAL_OPEN.add(t.department);saveUI();npvRebuild();ppSelect(copy.id);
   toastU('Duplicated '+phaseLabel(t));
 }
 
@@ -5084,7 +5089,7 @@ function npvCreateSubtask(dept,date,newDept,name){
       if(ck&&!ck.checked){ck.checked=true;ck.dispatchEvent(new Event('change',{bubbles:true}));}
       else if(PP_FORM&&!PP_FORM.activeDepartments.includes(dept))PP_FORM.activeDepartments.push(dept);
       ppFormSync();npvRebuild();
-      NPV_OPEN.add(dept);saveUI();
+      NPV_OPEN.add(dept);NPV_CAL_OPEN.add(dept);saveUI();
       toastU('Added '+((deptById(dept)||{}).name||dept));
       return;
     }
@@ -5108,7 +5113,7 @@ function npvCreateSubtask(dept,date,newDept,name){
       NPV_MANUAL[npvKey({department:dept,label:nm,assignee:''})]=
         {startDate:w0.startDate,endDate:npvEndAfter(w0.startDate,half),estimatedDays:half};
     }
-    NPV_OPEN.add(dept);saveUI();
+    NPV_OPEN.add(dept);NPV_CAL_OPEN.add(dept);saveUI();
     npvRebuild();
     /* 3.5/I7: same outcome as the saved page — the new bar is selected into the
        inspector, and the undo rides the draft undo stack (⌘Z). */
@@ -5143,7 +5148,7 @@ function npvCreateSubtask(dept,date,newDept,name){
     : ST.projects;
   PP_QUIET=true;
   try{saveState({projects,tasks:[...ST.tasks,t]});}finally{PP_QUIET=false;}
-  NPV_OPEN.add(dept);saveUI();
+  NPV_OPEN.add(dept);NPV_CAL_OPEN.add(dept);saveUI();
   npvRebuild();
   /* Straight into the name field — an unnamed bar is the thing people forget. */
   ppSelect(t.id);
@@ -5540,15 +5545,19 @@ function npvBindHost(host){
         const band=ev.target&&ev.target.closest?ev.target.closest('.cal-band.ph'):null;
         if(band){const t=NPV_TASKS[+band.dataset.i];
           if(!t)return;
-          /* v1.0.3 (obj 8 revision): clicking the already-selected PARENT band a second
-             time deselects — that's what collapses the expanded phase (blank space never
-             does). The parent is the department's first bar (the REV56 positional model);
-             a re-clicked subtask band just reopens its editor. ev.detail>1 is the second
-             half of a double-click (rename intent, handled below) — it must not toggle
-             the selection away mid-gesture. */
+          /* v1.0.3/v1.0.4 (obj 8): clicking a band selects it and EXPANDS its phase —
+             without collapsing any other expanded phase (NPV_CAL_OPEN holds them all).
+             Clicking the already-selected PARENT band a second time collapses that one
+             phase and deselects (blank space never collapses). The parent is the
+             department's first bar (the REV56 positional model); a re-clicked subtask
+             band just reopens its editor. ev.detail>1 is the second half of a
+             double-click (rename intent, handled below) — it must not toggle the
+             selection away mid-gesture. */
           const cur=ppSelected();
           if(cur&&cur.id===t.id&&NPV_TASKS.find(x=>x.department===t.department)===t){
-            if(ev.detail===1)ppSelect(null,true);return;}
+            if(ev.detail===1){NPV_CAL_OPEN.delete(t.department);ppSelect(null,true);}
+            return;}
+          NPV_CAL_OPEN.add(t.department);
           ppSelect(t.id);npvEditPop('phase',ppSelected(),ev.clientX,ev.clientY);return;}
       }
     });
@@ -5993,7 +6002,15 @@ function npvRenderLegend(){
   const mks=npvMarkers();
   if(mks.some(m=>m.k==='ev'))h+='<span class="lg"><i class="ev"></i>Checkpoint</span>';
   if(mks.some(m=>m.k==='tk'))h+='<span class="lg"><i class="tk"></i>Task</span>';
-  box.innerHTML=h||'<span class="npv-leg-empty">Departments appear here once the schedule has some.</span>';
+  if(!h)h='<span class="npv-leg-empty">Departments appear here once the schedule has some.</span>';
+  /* v1.0.4 (obj 8): phases multi-expand on the calendar — a reset lives in the legend
+     bar, against the right margin. The legend is rewritten every render, so the
+     listener binds fresh with it. */
+  if(NPV_MODE==='calendar')
+    h+='<button id="npv-collapse-all" title="Reset the calendar view — collapse every expanded phase">Collapse all</button>';
+  box.innerHTML=h;
+  const ca=document.getElementById('npv-collapse-all');
+  if(ca)ca.addEventListener('click',()=>{NPV_CAL_OPEN.clear();ppSelect(null,true);}); /* ppSelect repaints the calendar */
 }
 
 function npvMarkers(){
@@ -6095,10 +6112,13 @@ function npvPaintCalendar(lo,hi,dl){
       const pi=NPV_TASKS.findIndex(z=>z.department===t.department);
       const kid=pi!==ti;
       /* REV84: phases collapse by default — a subtask band (a kid whose label/window
-         differs from the parent's, i.e. not an N16 roster twin) only paints while its
-         phase is selected. Clicking a phase band selects it (ppSelect), which opens
-         the bottom phase editor AND repaints with the subtasks in view. */
-      if(kid&&calKey(t)!==calKey(NPV_TASKS[pi])&&(!selT0||selT0.department!==t.department))return;
+         differs from the parent's, i.e. not an N16 roster twin) stays hidden until its
+         phase is expanded. v1.0.4 (obj 8): expansion is its own per-phase state
+         (NPV_CAL_OPEN) — any number of phases open at once, persisting across selection
+         changes; the selected task's phase always shows so a fresh selection (keyboard,
+         create) is never invisible. */
+      if(kid&&calKey(t)!==calKey(NPV_TASKS[pi])&&!NPV_CAL_OPEN.has(t.department)
+        &&(!selT0||selT0.department!==t.department))return;
       const col0=DEPT_COLORS[t.department]||'#8A98AE';
       /* N16: roster fan-out collapses to one band per phase — same department, label
          and window, different assignee — with a +N chip in the label.

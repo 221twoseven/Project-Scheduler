@@ -74,8 +74,19 @@ function savedPage(){
 
     E('ppSelect(null);');
     setTimeout(()=>{
-      ok('deselecting collapses the phase again', !band('Door Frames'),
-         bands().map(b=>b.textContent).join(' | '));
+      /* v1.0.4 (owner revision of obj 8): expansion is its own state (NPV_CAL_OPEN) —
+         deselecting no longer collapses; only the parent-band toggle / Collapse all do.
+         Pre-v1.0.4 builds keep the REV84 selection-follows rule. */
+      if(src.indexOf('NPV_CAL_OPEN')>=0){
+        ok('deselecting keeps the phase expanded (v1.0.4 multi-expand)', !!band('Door Frames'),
+           bands().map(b=>b.textContent).join(' | '));
+        E('NPV_CAL_OPEN.clear();npvRender();');
+        ok('clearing the expand set collapses it', !band('Door Frames'),
+           bands().map(b=>b.textContent).join(' | '));
+      }else{
+        ok('deselecting collapses the phase again (pre-v1.0.4)', !band('Door Frames'),
+           bands().map(b=>b.textContent).join(' | '));
+      }
       setTimeout(draftPage,300);
     },250);
   },350);
@@ -98,8 +109,16 @@ function draftPage(){
            bands().map(b=>b.textContent).join(' | '));
         E('ppSelect(null);');
         setTimeout(()=>{
-          ok('deselected, the draft subtask collapses away', !band('Chunk A'),
-             bands().map(b=>b.textContent).join(' | '));
+          if(src.indexOf('NPV_CAL_OPEN')>=0){
+            ok('deselected, the created subtask stays in view (v1.0.4 — create expands)',
+               !!band('Chunk A'), bands().map(b=>b.textContent).join(' | '));
+            E('NPV_CAL_OPEN.clear();npvRender();');
+            ok('cleared, the draft subtask collapses away', !band('Chunk A'),
+               bands().map(b=>b.textContent).join(' | '));
+          }else{
+            ok('deselected, the draft subtask collapses away', !band('Chunk A'),
+               bands().map(b=>b.textContent).join(' | '));
+          }
           const pb=doc.querySelector('#npv-body .cal-band.ph[data-i="'+
             E("NPV_TASKS.findIndex(t=>t.department==='td')")+'"]');
           clickOn(pb);

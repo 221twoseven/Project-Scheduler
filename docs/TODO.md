@@ -87,12 +87,16 @@ Owner's objective numbers in parentheses. Each batch: build on `development`, ve
       and if "Black Bar" meant the calendar's black month header (`.cal-mon`),
       that's a one-line follow-up. Record: as above.
 - [x] **3. (Obj 8) Calendar blank-space click — DONE 2026-08-28 (v1.0.2), REVISED
-      same day (owner) as v1.0.3:** on the calendar, blank space never deselects —
-      the expanded phase persists until its **parent band is clicked a second time**
-      (the toggle that collapses); a re-clicked subtask band reopens its editor; a
-      blank click only dismisses an open popover/menu. Esc/breadcrumb/× still exit;
-      the Gantt keeps empty-canvas deselect. Design-Language §6 amended. Suite:
-      `tests/test-v102.js`.
+      same day (owner) as v1.0.3, EXTENDED same day (owner) as v1.0.4:** on the
+      calendar, blank space never deselects — a blank click only dismisses an open
+      popover/menu. **Phases multi-expand (v1.0.4):** expansion is its own per-phase
+      state (`NPV_CAL_OPEN`) — clicking another phase expands it without collapsing
+      the first, any number open at once, deselect collapses nothing; a phase
+      collapses only via a second click on its **parent band**, or the new
+      **Collapse all** button in the legend bar (right margin, calendar only).
+      A re-clicked subtask band reopens its editor; create/duplicate expands its
+      phase. Esc/breadcrumb/× still exit; the Gantt keeps empty-canvas deselect.
+      Design-Language §6 amended twice. Suite: `tests/test-v102.js`.
 - [x] **4. (Obj 5) Window-resize closed the subtask form — FIXED 2026-08-28
       (v1.0.2):** a PP_KEEP repaint (resize, poll, autosave) now carries the
       selection through — form, breadcrumb and ring survive; a poll that deleted the
@@ -209,6 +213,7 @@ Owner's objective numbers in parentheses. Each batch: build on `development`, ve
 |---|---|
 | v1.0.2 | ✅ Shipped 2026-08-28 — quick wins 1–4 + stale-Settings strings (§2) + runner SKIP line |
 | v1.0.3 | ✅ Shipped 2026-08-28 — obj 8 revision: calendar blank space never collapses; the parent band click toggles |
+| v1.0.4 | ✅ Shipped 2026-08-28 — obj 8 extension: phases multi-expand on the calendar; Collapse all in the legend bar |
 | v1.0.3 | 5 (coach copy, once revised) · 6–7 (fonts, once licence-checked) |
 | v1.1.0 | 8–9 (calendar interactions) |
 | v1.2.0 | 10 (My Dashboard view) |
@@ -278,8 +283,11 @@ these are the ones still open, plus new deferrals as they happen.
       Gate: the same complaint about moves (REV83). *(§3 item 9 may close this.)*
 - [ ] Collapsed calendar phase spans only the parent bar's window — an out-of-window
       subtask is invisible until expanded. Gate: a PM missing one (REV84).
-- [ ] Calendar collapse follows selection, not the Gantt's ▸ state — per the owner's
-      wording. Gate: someone expecting shared expansion (REV84).
+- [x] Calendar collapse follows selection, not the Gantt's ▸ state (REV84) —
+      **superseded 2026-08-28 (v1.0.4):** the calendar now has its own multi-expand
+      state (`NPV_CAL_OPEN`), decoupled from selection. Still independent of the
+      Gantt's ▸ state — that half of the gate stands: someone expecting the two
+      surfaces to share expansion.
 - [ ] The positional parent model shows through the collapse (resize a phase past
       its subtask and the calendar band flips with the Gantt parent row — the
       surfaces agree). Gate: a PM confused by the swap (REV84).

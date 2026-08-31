@@ -33,7 +33,11 @@ const tasks=[
  {appId:'t1',projectId:'p1',department:'td',assignee:'Peter',startDate:'2026-08-03',
   endDate:'2026-08-14',estimatedDays:10,ticketNodes:'[]',notes:'',pinned:false,label:''},
  {appId:'t1b',projectId:'p1',department:'td',assignee:'Peter',startDate:'2026-08-05',
-  endDate:'2026-08-10',estimatedDays:4,ticketNodes:'[]',notes:'',pinned:false,label:'Panels'}];
+  endDate:'2026-08-10',estimatedDays:4,ticketNodes:'[]',notes:'',pinned:false,label:'Panels'},
+ {appId:'f1',projectId:'p1',department:'fab',assignee:'Nick',startDate:'2026-08-17',
+  endDate:'2026-08-21',estimatedDays:5,ticketNodes:'[]',notes:'',pinned:false,label:''},
+ {appId:'f2',projectId:'p1',department:'fab',assignee:'Nick',startDate:'2026-08-18',
+  endDate:'2026-08-20',estimatedDays:3,ticketNodes:'[]',notes:'',pinned:false,label:'Welds'}];
 
 const dom=boot(FILE,{data:{projects,tasks,staff:[],todos:[]}});
 const win=dom.window,doc=win.document;
@@ -116,6 +120,28 @@ function calendarPopoverClick(){
   ok('clicking the collapsed parent selects and expands again', E('PP_SEL')==='t1'&&qa('#npv-body .cal-band').length===expanded);
   ok('…and reopens the editor popover', !!q('#npv-pop'));
   E("ppSelect(null,true)");E('npvPopClose()');
+
+  sec('obj 8 (v1.0.4) — phases multi-expand; Collapse all resets');
+  ok('deselecting did NOT collapse (expansion is its own state)',
+     qa('#npv-body .cal-band').length===expanded, qa('#npv-body .cal-band').length+' bands');
+  clickBand('f1');
+  ok('clicking a second phase keeps the first expanded',
+     E("NPV_CAL_OPEN.has('td')&&NPV_CAL_OPEN.has('fab')")===true,
+     'open: '+E("[...NPV_CAL_OPEN].join(',')"));
+  ok('both phases’ subtasks are on screen',
+     qa('#npv-body .cal-band').length>expanded, qa('#npv-body .cal-band').length+' bands');
+  E('npvPopClose()');
+  const ca=q('#npv-collapse-all');
+  ok('Collapse all sits in the legend bar (calendar mode)', !!ca);
+  ok('…against the right margin', !!ca&&/margin-left:auto/.test(src.match(/#npv-collapse-all\{[^}]*\}/)[0]));
+  if(ca)ca.dispatchEvent(new win.MouseEvent('click',{bubbles:true}));
+  ok('Collapse all clears every expansion and the selection',
+     E('NPV_CAL_OPEN.size')===0&&E('PP_SEL')===null);
+  ok('…and the calendar is back to one band per phase',
+     qa('#npv-body .cal-band').length<expanded, qa('#npv-body .cal-band').length+' bands');
+  E("NPV_MODE='gantt';npvRender()");
+  ok('the button leaves the legend outside calendar mode', !q('#npv-collapse-all'));
+  E("NPV_MODE='calendar';npvRender()");
 
   sec('obj 13 — vivid tints weekends on the calendar');
   E('TINT=true;syncVivid();npvRender()');
