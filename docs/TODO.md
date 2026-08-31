@@ -124,15 +124,21 @@ Owner's objective numbers in parentheses. Each batch: build on `development`, ve
 
 ### Calendar interaction features (minor bumps)
 
-- [ ] **8. (Obj 7) Double-click on calendar blank space creates a new phase and opens
-      the phase edit popover.** Reuses the existing create path (the right-click
-      menu's "Add a phase") + the REV98 popover. Mind the ledger's calendar-marker
-      dedup entry (§7 audit group) — this touches those handlers, so its gate fires.
-- [ ] **9. (Obj 9) Live drag dynamics for duration drag-to-edit.** While an edge
-      handle drags, the bar edge follows the pointer continuously (left/right), then
-      snaps to the full-day grid (existing snap) on release. Extends the REV83 live
-      day-tint; applies to phase and subtask bars. Gantt and calendar should feel the
-      same — scope to wherever the drag affordance exists.
+- [x] **8. (Obj 7) Double-click calendar blank space creates a phase — DONE
+      2026-08-31 (v1.1.0).** The double-click opens the "Add a phase" department
+      picker at the pointer (a phase needs a department — same list as right-click,
+      one step shorter), seeded with the clicked day; the fresh phase arrives
+      selected with its edit popover open on the name field. Both pages (REV49
+      lesson). Calendar only — the Gantt's blank double-click stays reserved.
+      Design-Language §6 amended. Suite: `tests/test-v102.js`. *(Correction to the
+      earlier note here: this did not touch the marker drag/click/delete block, so
+      the marker-dedup ledger gate did NOT fire — that entry stays open.)*
+- [x] **9. (Obj 9) Live drag dynamics for duration drag-to-edit — DONE 2026-08-31
+      (v1.1.0).** On the calendar, the grabbed edge handle follows the pointer
+      px-for-px (clamped to its week row) while the REV83 day tint and tooltip show
+      the snapped result; the existing full-day snap owns the outcome on release.
+      Phase and subtask bands alike. The Gantt already live-follows — the calendar
+      was the odd one out; ceilings ledgered in §7. Suite: as above.
 
 ### My Dashboard as a real view (minor bump)
 
@@ -214,8 +220,8 @@ Owner's objective numbers in parentheses. Each batch: build on `development`, ve
 | v1.0.2 | ✅ Shipped 2026-08-28 — quick wins 1–4 + stale-Settings strings (§2) + runner SKIP line |
 | v1.0.3 | ✅ Shipped 2026-08-28 — obj 8 revision: calendar blank space never collapses; the parent band click toggles |
 | v1.0.4 | ✅ Shipped 2026-08-28 — obj 8 extension: phases multi-expand on the calendar; Collapse all in the legend bar |
-| v1.0.3 | 5 (coach copy, once revised) · 6–7 (fonts, once licence-checked) |
-| v1.1.0 | 8–9 (calendar interactions) |
+| v1.1.0 | ✅ Shipped 2026-08-31 — calendar interactions: obj 7 double-click create + obj 9 live drag-follow |
+| v1.1.x | 5 (coach copy, once revised) · 6–7 (fonts, once licence-checked) — patches whenever unblocked |
 | v1.2.0 | 10 (My Dashboard view) |
 | v1.3.0 | 11 (bug reporting) ⚠ |
 | v1.4.0 | 12 (permissions) ⚠ |
@@ -279,8 +285,12 @@ these are the ones still open, plus new deferrals as they happen.
 - [ ] Draft selection key for an unsplit bar falls back to the department's first
       bar if a mid-selection split lands — benign today. Gate: re-parenting ever
       landing (REV82).
-- [ ] Calendar live-resize tint is edge-resize-only; moves keep tooltip feedback.
-      Gate: the same complaint about moves (REV83). *(§3 item 9 may close this.)*
+- [ ] Calendar live feedback covers resize only (REV83 tint; v1.1.0 added px-level
+      edge-follow) — drag-to-MOVE still keeps tooltip-only feedback. Gate: the same
+      complaint about moves. New v1.1.0 ceilings: the live follow stretches only the
+      grabbed week-row segment (a multi-week phase's other rows redraw on release),
+      and the pixel follow can briefly overshoot the nesting/pin clamp — the tint
+      and the release snap always show and file the clamped truth. (2026-08-31)
 - [ ] Collapsed calendar phase spans only the parent bar's window — an out-of-window
       subtask is invisible until expanded. Gate: a PM missing one (REV84).
 - [x] Calendar collapse follows selection, not the Gantt's ▸ state (REV84) —

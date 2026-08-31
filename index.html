@@ -1314,7 +1314,7 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.0.4'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.1.0'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -5061,7 +5061,7 @@ function npvOpenMenu(clientX,clientY,hit,page){
     npvCloseMenu();
     if(act==='tog')npvToggleDept(dept);
     else if(act==='sub')npvCreateSubtask(dept,hit.date,false);
-    else if(act==='dept')npvCreateSubtask(b.dataset.dept,hit.date,true);
+    else if(act==='dept')npvCreateSubtask(b.dataset.dept,hit.date,true,null,hit.pop);
     else if(act==='ev')npvCreateEvent(dept,hit.date);
     else if(act==='tk')npvCreateTask(dept,hit.date);
   }));
@@ -5077,7 +5077,9 @@ function npvDefaultDays(dept){
 function npvEndAfter(start,days){
   return fmtDate(fwdN(parseDate(start),days));
 }
-function npvCreateSubtask(dept,date,newDept,name){
+function npvCreateSubtask(dept,date,newDept,name,popAt){
+  /* popAt=[x,y] (v1.1.0, obj 7): the double-click create path — open the fresh
+     phase's edit popover there, straight into its name field. */
   if(!dept)return;
   if(!NPV_LIVE){
     /* 3.5/I8: "Add a phase" must actually add the department on a draft — this used
@@ -5091,6 +5093,8 @@ function npvCreateSubtask(dept,date,newDept,name){
       ppFormSync();npvRebuild();
       NPV_OPEN.add(dept);NPV_CAL_OPEN.add(dept);saveUI();
       toastU('Added '+((deptById(dept)||{}).name||dept));
+      if(popAt){const nb=NPV_TASKS.find(z=>z.department===dept);
+        if(nb){ppSelect(nb.id,true);npvEditPop('phase',ppSelected(),popAt[0],popAt[1],true);}}
       return;
     }
     /* REV50: this used to push a nameless line and point at a tab that no longer
@@ -5152,6 +5156,7 @@ function npvCreateSubtask(dept,date,newDept,name){
   npvRebuild();
   /* Straight into the name field — an unnamed bar is the thing people forget. */
   ppSelect(t.id);
+  if(popAt)npvEditPop('phase',ppSelected(),popAt[0],popAt[1],true);
   toastU('Added a '+((deptById(dept)||{}).name||dept)+' bar');
 }
 /* No thing on this chart is ever created without a date again. An undated event isn't
@@ -5570,7 +5575,18 @@ function npvBindHost(host){
       if(NPV_MODE==='calendar'){
         const band=tg.closest('.cal-band.ph');
         if(band){ev.preventDefault();npvPopClose();const t=NPV_TASKS[+band.dataset.i];
-          if(t)npvInlineRename(t,band.querySelector('.cal-txt')||band);}
+          if(t)npvInlineRename(t,band.querySelector('.cal-txt')||band);
+          return;}
+        /* v1.1.0 (obj 7): double-click on blank calendar space creates a new phase —
+           it opens the "Add a phase" department picker straight away (a phase needs a
+           department; same list the right-click menu offers), seeded with the clicked
+           day, and the fresh phase opens its edit popover at the pointer. */
+        if(!tg.closest('.cal-band')){
+          const hit=npvCalHit(ev);
+          if(hit){ev.preventDefault();npvPopClose();
+            hit.pop=[ev.clientX,ev.clientY];
+            npvOpenMenu(ev.clientX,ev.clientY,hit,'depts');}
+        }
         return;
       }
       const gut=tg.closest('.npv-gut');
@@ -5666,7 +5682,7 @@ function npvBindHost(host){
       }
       const x0=ev.clientX,y0=ev.clientY;
       const tip=document.getElementById('tooltip');
-      let moved=false,anchor=null,days=0,edgeD=null;
+      let moved=false,anchor=null,days=0,edgeD=null,bandGeo=null;
       const mv=e2=>{
         if(!moved){
           if(Math.abs(e2.clientX-x0)<3&&Math.abs(e2.clientY-y0)<3)return;
@@ -5678,6 +5694,24 @@ function npvBindHost(host){
           }
         }
         if(locked)return;
+        /* v1.1.0 (obj 9): the grabbed edge follows the pointer px-for-px, clamped to
+           the week row; the day snap still happens on release (tint + tooltip keep
+           showing the snapped result). Only the grabbed segment stretches live — the
+           other week rows redraw on release. */
+        if(resize){
+          if(!bandGeo){const r=band.getBoundingClientRect(),
+            wr=(band.closest('.cal-wk')||band).getBoundingClientRect();
+            bandGeo={w:r.width,left:r.left,rowL:wr.left,rowR:wr.right};}
+          let dx=e2.clientX-x0;
+          if(resize==='r'){
+            const w=Math.max(8,Math.min(bandGeo.rowR-bandGeo.left-4,bandGeo.w+dx));
+            band.style.width=w+'px';
+          }else{
+            dx=Math.max(bandGeo.rowL-bandGeo.left+4,Math.min(bandGeo.w-8,dx));
+            band.style.transform='translateX('+dx+'px)';
+            band.style.width=(bandGeo.w-dx)+'px';
+          }
+        }
         const cel=e2.target&&e2.target.closest?e2.target.closest('[data-d]'):null;
         if(!cel)return;
         if(resize){
@@ -5715,6 +5749,9 @@ function npvBindHost(host){
         document.removeEventListener('mousemove',mv);
         document.removeEventListener('mouseup',up);
         host.classList.remove('cal-dragging');band.classList.remove('dragging');
+        /* v1.1.0 (obj 9): drop the live-follow geometry — the early-return paths below
+           (no-op drag, refused resize) never rebuild, so the band must snap back here. */
+        band.style.width='';band.style.transform='';
         document.body.style.userSelect='';document.body.style.cursor='';hideTooltip();
         host.querySelectorAll('.cal-col.rz').forEach(cc=>cc.classList.remove('rz'));
         /* No movement: the click handler selects/opens as before. A drag back to the

@@ -151,6 +151,70 @@ function calendarPopoverClick(){
   const weQ=q('#npv-body .cal-col.we');
   ok('quiet weekend cell has no inline tint (CSS hatch shows)', !!weQ&&!/background/.test(weQ.getAttribute('style')||''));
 
+  if(src.indexOf('popAt')>=0)return v110(); /* obj 7/9 shipped in the same file era */
   console.log('\n'+pass+' passed, '+fail+' failed');
   process.exit(fail?1:0);
+}
+
+function v110(){
+  sec('obj 7 — double-click blank calendar space creates a phase (saved page)');
+  const cell=q('#npv-body .cal-col[data-d]');
+  cell.dispatchEvent(new win.MouseEvent('dblclick',{bubbles:true,clientX:200,clientY:200}));
+  const menu=q('#npv-menu');
+  ok('the department picker opens at the pointer', !!menu&&/Add a phase/.test(menu.innerHTML));
+  const pick=menu&&menu.querySelector('button[data-act="dept"]');
+  ok('it lists the spare departments', !!pick);
+  const dept=pick.dataset.dept, date=cell.dataset.d;
+  pick.dispatchEvent(new win.MouseEvent('click',{bubbles:true}));
+  const made=E("ST.tasks.filter(t=>t.department==='"+dept+"').length");
+  ok('picking one files a phase in that department', made===1, made+' tasks');
+  ok('…starting on the double-clicked day',
+     E("ST.tasks.find(t=>t.department==='"+dept+"').startDate")===date);
+  ok('…which is selected', E('PP_SEL')===E("ST.tasks.find(t=>t.department==='"+dept+"').id"));
+  ok('…with its edit popover open', !!q('#npv-pop'));
+  E('npvPopClose()');E('ppSelect(null,true)');
+
+  sec('obj 9 — the grabbed edge follows the pointer, snaps on release');
+  E("ppSelect('t1')"); /* expand td so its parent band is on screen */
+  const i=E("NPV_TASKS.findIndex(t=>t.id==='t1')");
+  /* REV72: only the segment holding the phase's true end carries the right handle —
+     a multi-week phase's first segment has none. */
+  const seg=qa('#npv-body .cal-band.ph[data-i="'+i+'"]').find(b=>b.querySelector('.cal-hdl.r'));
+  const hdl=seg&&seg.querySelector('.cal-hdl.r');
+  ok('the selected band offers a right edge handle', !!hdl);
+  hdl.dispatchEvent(new win.MouseEvent('mousedown',{bubbles:true,clientX:100,clientY:50,button:0}));
+  doc.dispatchEvent(new win.MouseEvent('mousemove',{bubbles:true,clientX:140,clientY:50}));
+  ok('mid-drag the band segment carries a live width', (seg.getAttribute('style')||'').indexOf('width')>=0,
+     'style="'+seg.getAttribute('style')+'"');
+  doc.dispatchEvent(new win.MouseEvent('mouseup',{bubbles:true,clientX:140,clientY:50}));
+  const seg2=q('#npv-body .cal-band.ph[data-i="'+i+'"]');
+  ok('release drops the live geometry (day snap owns the result)',
+     !seg2||(seg2.getAttribute('style')||'').indexOf('width')<0);
+  E('npvPopClose()');
+
+  sec('obj 7 — and on the New Project draft (the REV49 lesson)');
+  win.location.hash='#/project/new';
+  win.dispatchEvent(new win.Event('hashchange'));
+  setTimeout(()=>{
+    const nm=doc.getElementById('pp-name');
+    nm.value='Draft Job';nm.dispatchEvent(new win.Event('input',{bubbles:true}));
+    E("ppFormSync();npvRebuild();NPV_MODE='calendar';npvRender();");
+    setTimeout(()=>{
+      const c2=q('#npv-body .cal-col[data-d]');
+      ok('the draft calendar paints', !!c2);
+      c2.dispatchEvent(new win.MouseEvent('dblclick',{bubbles:true,clientX:200,clientY:200}));
+      const m2=q('#npv-menu');
+      const p2=m2&&m2.querySelector('button[data-act="dept"]');
+      ok('the picker opens on the draft too', !!p2);
+      const d2=p2.dataset.dept;
+      p2.dispatchEvent(new win.MouseEvent('click',{bubbles:true}));
+      setTimeout(()=>{
+        ok('the department joins the draft', E("PP_FORM.activeDepartments.includes('"+d2+"')")===true);
+        ok('the fresh phase is selected with its popover open',
+           E('PP_SEL')!==null&&!!q('#npv-pop'), 'PP_SEL='+E('PP_SEL')+' pop='+!!q('#npv-pop'));
+        console.log('\n'+pass+' passed, '+fail+' failed');
+        process.exit(fail?1:0);
+      },300);
+    },300);
+  },350);
 }
