@@ -10,7 +10,9 @@
 <style>
 /* ============ TOKENS ============ */
 :root{
-  --sans:'Segoe UI',-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;
+  /* v1.7.1 (obj 11): Bahnschrift leads via local() only — Windows 10+ ships it, no
+     committed file; non-Windows machines fall through to the old stack unchanged. */
+  --sans:Bahnschrift,'Segoe UI',-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;
   --mono:ui-monospace,'Cascadia Mono','Segoe UI Mono',Consolas,'Roboto Mono',monospace;
   --ink:#0D131D; --ink-2:#141C29; --chrome-line:#3A4A66; /* v1.0.2: chrome-line lifted with the mellowed bar (obj 12) */
   --paper:#F5F7FA; --side:#EDF1F7; --side-line:#C9D4E3;
@@ -42,7 +44,10 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);font-size:var(--fs
 .tb-global{border-bottom:1px solid var(--chrome-line)}
 .tb-spacer{flex:1 1 auto;min-width:0}
 .t-brand{display:flex;align-items:center;gap:9px;align-self:stretch;padding:0 16px;border-right:1px solid var(--chrome-line);margin-right:4px;user-select:none;min-height:40px}
-.tb-co{font-size:13px;font-weight:800;letter-spacing:.24em;color:#fff}
+/* v1.7.1 (obj 10): Brauer Neue Std Bold for the TWOSEVEN title — the one committed
+   font file (licence confirmed 2026-09-01); everything else stays on --sans. */
+@font-face{font-family:'Brauer Neue';src:url('fonts/BrNStdBd.otf') format('opentype');font-weight:800;font-style:normal;font-display:swap}
+.tb-co{font-family:'Brauer Neue',var(--sans);font-size:13px;font-weight:800;letter-spacing:.24em;color:#fff}
 .tb-app{font-size:var(--fs-fine);font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:#8CA0BF}
 .t-btn{display:inline-flex;align-items:center;justify-content:center;gap:4px;height:28px;background:rgba(255,255,255,.06);color:rgba(255,255,255,.9);border:1px solid rgba(255,255,255,.13);border-radius:6px;padding:0 12px;font-size:var(--fs-label);font-weight:500;cursor:pointer;font-family:inherit;transition:background .12s,color .12s;white-space:nowrap}
 .ico{width:16px;height:16px;flex:none;vertical-align:-3px}
@@ -1399,7 +1404,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.7.0'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.7.1'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -1952,8 +1957,9 @@ function projToFields(p){const f={Title:p.name||'',client:p.client||'',jobCode:p
 function fieldsToProj(f){return{id:f.appId,name:f.Title||'',client:f.client||'',jobCode:f.jobCode||'',deadline:isoDay(f.deadline),status:f.status||'auto',projectManager:f.projectManager||'',drafter:f.drafter||'',leadFab:f.leadFab||'',fabricators:f.fabricators||'',metalFab:f.metalFab||'',activeDepartments:safeArr(f.activeDepartments),sortIndex:f.sortIndex==null?null:Number(f.sortIndex),createdAt:isoDay(f.createdAt)};}
 function taskToFields(t){const d=deptById(t.department);return{Title:(d?d.name:t.department)||'Task',projectId:t.projectId,department:t.department,assignee:Array.isArray(t.assignee)?JSON.stringify(t.assignee):(t.assignee||''),startDate:t.startDate||null,endDate:t.endDate||null,estimatedDays:t.estimatedDays||1,ticketNodes:JSON.stringify(t.ticketNodes||[]),notes:t.notes||'',pinned:!!t.pinned,label:t.label||'',appId:t.id};}
 function fieldsToTask(f){const a=(f.department==='install'&&typeof f.assignee==='string'&&f.assignee.trim().startsWith('['))?safeArr(f.assignee):(f.assignee||'');return{id:f.appId,projectId:f.projectId,department:f.department,assignee:a,startDate:isoDay(f.startDate),endDate:isoDay(f.endDate),estimatedDays:Number(f.estimatedDays)||1,ticketNodes:safeArr(f.ticketNodes),notes:f.notes||'',pinned:!!f.pinned,label:f.label||''};}
-function personToFields(p){return{Title:p.name||'',depts:JSON.stringify(p.depts||[]),ooo:JSON.stringify(p.ooo||[]),email:p.email||'',role:p.role||'',appId:p.id};}
-function fieldsToPerson(f){return{id:f.appId,name:f.Title||'',depts:safeArr(f.depts),ooo:safeArr(f.ooo),email:f.email||'',role:f.role||''};}
+/* v1.7.1: phone rides the person record (column created by the owner 2026-09-01). */
+function personToFields(p){return{Title:p.name||'',depts:JSON.stringify(p.depts||[]),ooo:JSON.stringify(p.ooo||[]),email:p.email||'',phone:p.phone||'',role:p.role||'',appId:p.id};}
+function fieldsToPerson(f){return{id:f.appId,name:f.Title||'',depts:safeArr(f.depts),ooo:safeArr(f.ooo),email:f.email||'',phone:f.phone||'',role:f.role||''};}
 
 async function spLoadStaff(){
   await spSite();
@@ -3821,7 +3827,7 @@ function renderCompanyPage(){
   document.getElementById('cd-x').addEventListener('click',goTimeline);
   document.getElementById('cd-add').addEventListener('click',()=>{
     if(CD_EDIT&&!confirm('Discard the changes to this record?'))return;
-    CD_EDIT=isPeople?{id:genId(),name:'',depts:[],ooo:[],email:'',role:'',_new:true}
+    CD_EDIT=isPeople?{id:genId(),name:'',depts:[],ooo:[],email:'',phone:'',role:'',_new:true}
                     :{name:'',alias:'',_new:true};
     cdPaintDetail();
     if(isPeople)loadTeamMembers().then(cdApplyTeam);
@@ -3874,6 +3880,7 @@ function cdPaintDetail(){
     el.innerHTML='<div class="cdd"><div class="cdd-hd"><h3>'+esc(per.name)+'</h3>'
      +(per.role?'<div class="cdd-role">'+esc(per.role)+'</div>':'')+'</div><dl>'
      +'<div class="cdd-f"><dt>Work email</dt><dd>'+(per.email?esc(per.email):'—')+'</dd></div>'
+     +'<div class="cdd-f"><dt>Phone</dt><dd>'+(per.phone?esc(per.phone):'—')+'</dd></div>'
      +'<div class="cdd-f"><dt>Departments</dt><dd>'+((per.depts||[]).map(d=>esc(cdDeptLbl(d))).join(' · ')||'—')+'</dd></div>'
      +'<div class="cdd-f"><dt>Availability</dt><dd>'
        +'<span class="cd-avail'+(av.now?' away':'')+'">'+esc(av.now?av.txt:'Available')+'</span>'
@@ -3910,6 +3917,7 @@ function cdPaintEditor(el,isPeople){
     el.innerHTML='<div class="cdd"><div class="cdd-hd"><h3>'+(r._new?'New person':esc(r.name))+'</h3></div>'
      +'<div class="cd-fg"><label>Name</label><input id="cde-name" type="text" list="cd-dl" placeholder="Name — suggests from the company Team"></div>'
      +'<div class="cd-fg"><label>Work email</label><input id="cde-email" type="email" placeholder="Work email (for &quot;me&quot; features)"></div>'
+     +'<div class="cd-fg"><label>Phone</label><input id="cde-phone" type="tel"></div>'
      +'<div class="cd-fg"><label>Role / title</label><input id="cde-role" type="text"></div>'
      +'<div class="cd-fg"><label>Departments</label><div class="cd-depts" id="cde-depts"></div></div>'
      +'<div class="cd-fg"><label>Out of office</label><div id="cde-ooo"></div><button class="tn-add" id="cde-ooo-add">+ Out of office</button></div>'
@@ -3918,8 +3926,9 @@ function cdPaintEditor(el,isPeople){
      +'<span style="flex:1"></span>'
      +'<button class="btn btn-ghost" id="cde-cancel">Cancel</button>'
      +'<button class="btn btn-primary" id="cde-save">Save</button></div></div>';
-    const nm=document.getElementById('cde-name'),em=document.getElementById('cde-email'),ro=document.getElementById('cde-role');
-    nm.value=r.name||'';em.value=r.email||'';ro.value=r.role||'';
+    const nm=document.getElementById('cde-name'),em=document.getElementById('cde-email'),ro=document.getElementById('cde-role'),ph=document.getElementById('cde-phone');
+    nm.value=r.name||'';em.value=r.email||'';ro.value=r.role||'';ph.value=r.phone||'';
+    ph.addEventListener('input',()=>{r.phone=ph.value;});
     nm.addEventListener('input',()=>{r.name=nm.value;
       /* picking (or typing) an exact Team member fills their email if it's empty */
       const m=(TM_MEMBERS||[]).find(x=>x.email&&x.name.toLowerCase()===nm.value.trim().toLowerCase());
@@ -3977,7 +3986,7 @@ function cdPaintEditor(el,isPeople){
 
 function cdSavePerson(){
   const r=CD_EDIT;if(!r)return;
-  const per={id:r.id,name:(r.name||'').trim(),email:(r.email||'').trim(),role:(r.role||'').trim(),
+  const per={id:r.id,name:(r.name||'').trim(),email:(r.email||'').trim(),phone:(r.phone||'').trim(),role:(r.role||'').trim(),
     depts:r.depts||[],
     ooo:(r.ooo||[]).filter(o=>o.start&&o.end).map(o=>o.end>=o.start?o:{...o,start:o.end,end:o.start})};
   if(!per.name){toast('Give the person a name first.','err');return;}

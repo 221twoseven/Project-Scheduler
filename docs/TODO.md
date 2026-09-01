@@ -26,7 +26,13 @@ into §3 item 27 and **shipped it the same day as v1.7.0** (owner: "Build"); per
 → v1.8.0, changelog → v1.9.0. Same message: the owner lifted the schema gate (⚠ items
 are owner-applied list edits now, see the note above), confirmed both font licences,
 approved the `/preview/` state of the v1.6.x rounds, and added feedback-recipient
-assignment to the permissions scope (item 12). Previous review 2026-08-31 — appended the owner's second
+assignment to the permissions scope (item 12). Later the same day the owner approved
+v1.7.0 at `/preview/`, created the `admin`/`feedbackRecipient`/`phone` staff columns,
+verified the Feedback/Changelog lists on the site, chose Graph mail for feedback
+delivery, and supplied the Brauer Neue files — **v1.7.1 shipped** (fonts + phone
+field), item 12 became fully buildable, and the item-13 inventory gained Employee
+Contacts + the 27-Employees nightly-automation flag and the staffing-reconciliation
+ruling (parallel-run, work-email join key). Previous review 2026-08-31 — appended the owner's second
 objective list (the 2026-08-31 brief, §3 items 14–26) and refolded the version ladder. Same day: v1.2.1–v1.6.0 all
 shipped to `development`; **owner called a PAUSE after v1.6.0 — hone the shipped
 batches before any new rung (permissions v1.7.0 is NOT started).** The owner's first
@@ -144,18 +150,18 @@ Owner's objective numbers in parentheses. Each batch: build on `development`, ve
 
 ### Fonts (patch/minor — one licensing check first)
 
-- [ ] **6. (Obj 10) Brauer Neue for the app title (TWOSEVEN).** TTF/OTF on hand;
-      `@font-face` + one `font-family` rule on the title. **Licence CONFIRMED
-      2026-09-01 (owner): permits use — gate cleared.** Waiting only on the file:
-      Robert drops the TTF/OTF into a repo `fonts/` folder (or hands it over), then
-      it's a wire-up patch. The font file must also join the deploy allowlist in
-      `.github/workflows/deploy-pages.yml`.
-- [ ] **7. (Obj 11) Bahnschrift app-wide, if practical.** Regular weight TTF only, no
-      italics. **Licence CONFIRMED 2026-09-01 (owner).** Bahnschrift ships with
-      Windows 10+, so the first rung needs NO file at all: `font-family: Bahnschrift,
-      <current stack>` via `local()` (covers every shop Windows machine free); commit
-      the TTF only if Mac/mobile coverage proves needed. Verify weight/spacing at the
-      app's small sizes before going global. Fully unblocked — ride the next patch.
+- [x] **6. (Obj 10) Brauer Neue for the app title — DONE 2026-09-01 (v1.7.1).**
+      Licence confirmed same day (owner); Robert supplied the family in `fonts/`,
+      and **only `BrNStdBd.otf` is committed and deployed** (the owner named
+      BrNStdBd as the title face; the public site publishes only what it uses).
+      `@font-face 'Brauer Neue'` + the `.tb-co` rule; the file joined all three
+      deploy sparse-checkout lists — **workflow drift ledgered in §7** (main/sandbox
+      still carry the old allowlist until the next sync).
+- [x] **7. (Obj 11) Bahnschrift app-wide — DONE 2026-09-01 (v1.7.1),** the no-file
+      rung: `--sans` now leads with `Bahnschrift` via `local()` (Windows 10+ ships
+      it; non-Windows falls through to the old stack unchanged). Verified at the
+      timeline's smallest sizes in a real browser. Committing a TTF stays gated on
+      non-Windows coverage demand (§7 entry, half open).
 
 ### Calendar interaction features (minor bumps)
 
@@ -213,22 +219,19 @@ Owner's objective numbers in parentheses. Each batch: build on `development`, ve
       - Admin roster: a checkbox per person, populated from the same staff list
         People & Availability uses; admins can grant/revoke admin (checkbox inside
         People & Availability — after §3 item 27 lands, this surface is the People
-        page's edit state). **⚠ needs an `admin` column on the staff list — spec
-        delivered 2026-09-01 (single line of text named exactly `admin`, lowercase,
-        on `ShopTimeline_Staff`, TWOSEVENINC site); Robert creates it.** Additive,
-        so the colleague app is unaffected (it ignores unknown columns).
+        page's edit state). **`admin` column CREATED 2026-09-01 (Robert), `1` on
+        his row — nothing blocks this item now; it's the next batch (v1.8.0).**
       - Admins: full access as the app is today.
       - Non-admins: no client list, no people edits, no department/phase edits;
         **Lock Dates on by default and the button hidden**; Project Edit fields
         render as plain text (not inputs/checkboxes) — visible, locked.
       - **Feedback recipients (owner, 2026-09-01):** a second per-person checkbox —
-        who receives bug reports / feature requests (the owner, at minimum). **⚠
-        needs a `feedbackRecipient` column on the staff list — spec delivered
-        2026-09-01 (single line of text, exact lowercase-camel name, TWOSEVENINC
-        site); Robert creates it alongside `admin`.** Open decision: the delivery
-        mechanism — Graph `sendMail` from the submitter needs a new `Mail.Send`
-        delegated scope (Entra change, owner-consented) vs. SharePoint list alerts
-        (no code, but not app-managed). Decide when this batch starts.
+        who receives bug reports / feature requests. **`feedbackRecipient` column
+        CREATED 2026-09-01 (Robert), `1` on his row. Delivery DECIDED same day:
+        Graph `sendMail` as the signed-in submitter** — needs the `Mail.Send`
+        delegated permission added to the Entra app registration + admin consent
+        (spec delivered to Robert 2026-09-01; the app requests the scope when this
+        batch ships). ⚠ Entra — owner-executed, per CLAUDE.md.
       - ~~Owner's brief cut off at "This form is its own page with its own toolbar ("~~
         — **RESOLVED 2026-08-31: owner said disregard the incomplete sentence.** No
         own-page form requirement; scope is the roster checkbox + gating above.
@@ -417,10 +420,38 @@ rule §5); old data keeps reading fine.
       - 27 Projects (Archive) (SharePoint list)
       - 27 Events (Archive) (SharePoint list)
       - PTO Contract Approvals (SharePoint list) — **fed by a Teams PowerApps plugin
-        with an approvals automation the owner can't see ⚠ — must connect to People
-        & Availability; needs discovery of that flow before anything moves**
+        built by the operations manager (identified 2026-09-01; he's on vacation
+        until ~2026-09-08 — Robert schedules the discovery session with him in a
+        couple of weeks); must connect to the People page; nothing moves before
+        that flow is understood ⚠**
       - Material Deliveries (SharePoint list)
-      - 27 Employees (SharePoint list)
+      - 27 Employees (SharePoint list) — **carries an unknown automation touching
+        every row nightly at 10pm (observed 2026-09-01) ⚠ — likely a directory
+        sync (its `userType` Business Standard/Guest values smell like an
+        Entra/M365 mirror); do not write to or retire this list until the ops
+        manager identifies the flow (same discovery session as PTO).** Columns:
+        employee, email, mobilePhone, department, jobTitle, employmentStatus,
+        employmentType, payStructure, driver, userType. Old, long, sparsely
+        maintained.
+      - Employee Contacts (SharePoint list — added to the inventory 2026-09-01):
+        the HR manager's working store — manually maintained, current (last entry =
+        last hire), the richest employee record. Columns: Employee Name, Status
+        (Active/Off Payroll/Terminated/Archived), Category (Full/Part Time/
+        Seasonal/Archived), Pay Type, Email, Primary Phone, PersonalEmail, Current
+        Title, Department, Company Driver. **The likely identity/lifecycle master
+        for the staffing consolidation; carries HR-sensitive fields (pay type,
+        personal contacts) that must NOT surface in the app.**
+      **Staffing reconciliation ruling (2026-09-01, from Robert's read of the two
+      lists):** `ShopTimeline_Staff` stays the app's operational roster,
+      parallel-run (the proven client-list pattern) — additive columns land as
+      needed (`admin`, `feedbackRecipient`, `phone` all created 2026-09-01), the
+      join key across all three lists is the **work email** (already the app's
+      identity chain via `meName()`), and the eventual lifecycle column's
+      vocabulary should align with Employee Contacts' `Status` so a future sync is
+      1:1 — don't invent a third vocabulary. A later read-only import can backfill
+      phone/title/department from Employee Contacts into the People page for
+      review-then-save; `27 Employees` is untouchable until its automation is
+      identified.
       - All `ShopTimeline_*` lists this app already owns
       Known redundancies going in: client + staffing lists, project history,
       department/logistics calendars. Everything here is ⚠ by definition — per-store
@@ -453,7 +484,8 @@ rule §5); old data keeps reading fine.
 | v1.6.5 | ✅ Shipped 2026-09-01 — legacy person strings resolve to roster people (`canonName` in `barCrew`): dept lanes merge, person filter/dashboards find legacy-named work, overbooking sees through old strings; stored values never rewritten |
 | v1.6.6 | ✅ Shipped 2026-09-01 — Filters dropdown revision: Person radios stay in the menu inside a Summary (switch/clear in place; Everyone = the × exit), one menu-wide "Show everything" reset replaces the status-scoped Show all / Clear all pair |
 | v1.7.0 | ✅ Shipped 2026-09-01 — 27 (Company Data: People & Clients as read-first pages; Resources → Company Data; modals retired) |
-| v1.8.0 | 12 (permissions) ⚠ |
+| v1.7.1 | ✅ Shipped 2026-09-01 — fonts 6–7 (Brauer Neue title file + Bahnschrift `local()` app-wide) + the staff `phone` field (owner-created column) |
+| v1.8.0 | 12 (permissions + feedback recipients) — columns created, Mail.Send spec delivered; buildable |
 | v1.9.0 | 26 (change log) ⚠ — after permissions |
 | v2.0.0 | 13 (single source of truth) ⚠ — likely several minors along the way (one per absorbed store), with v2.0.0 as the cutover declaration |
 
@@ -470,14 +502,19 @@ rule §5); old data keeps reading fine.
 - `ShopTimeline_Changelog` (§3 item 26) — **APPROVED + CREATED 2026-08-31**, same
   arrangement. All single-line text except `detail` (multi-line, plain text):
   Title, projectId, who, at, field, detail (multi-line), appId.
-- **Verify before first use:** both new lists must live on the TWOSEVENINC site
-  (Site contents), not "My Lists" — the app resolves lists by name on the site and
-  cannot see personal lists. (Owner had strays in My Lists, 2026-08-31.)
-- Candidate new column: `admin` on the staff list (§3 item 12) — **spec delivered
-  2026-09-01; Robert creates it** (single line of text, exact name `admin`).
-- Candidate new column: `feedbackRecipient` on the staff list (§3 item 12's
-  who-receives-feedback checkbox, owner 2026-09-01) — same arrangement: single line
-  of text, exact name `feedbackRecipient`; Robert creates it alongside `admin`.
+- ~~Verify before first use: both new lists must live on the TWOSEVENINC site~~ —
+  **VERIFIED 2026-09-01 (Robert): `ShopTimeline_Feedback` and
+  `ShopTimeline_Changelog` both live on the TWOSEVENINC site.** (The app resolves
+  lists by name on the site and cannot see personal "My Lists".)
+- `admin`, `feedbackRecipient`, and `phone` columns on `ShopTimeline_Staff` —
+  **CREATED 2026-09-01 (Robert)**; `1` on his row for the first two. The app reads
+  and writes `phone` as of v1.7.1 (field mappers + People page). **Verify the
+  phone column's internal name is exactly `phone`** (List settings → click the
+  column → the `Field=` value in the URL) — a mismatch would 400 every staff save
+  once a phone is entered.
+- Entra: `Mail.Send` (Delegated) joins the app registration for §3 item 12's
+  feedback mail — owner-executed + admin consent; the app requests the scope when
+  that batch ships. ⚠
 - Candidate new column: a lifecycle/`status` column (Active/Inactive/Archived) on
   `ShopTimeline_Staff` and `ShopTimeline_Clients` (§3 item 27's archive-not-delete
   model) — additive; Robert applies it when item 27's lifecycle pass is designed
@@ -624,10 +661,19 @@ these are the ones still open, plus new deferrals as they happen.
       the buttons snap to named steps. Cosmetic. Gate: someone caring. (v1.5.0)
 - [ ] Font files & licences (§3 items 6–7): nothing committed until the licence
       check passes; Bahnschrift starts as `local()`-only. Gate: licence confirmed /
-      non-Windows coverage demanded. (2026-08-28) **Gate half-fired 2026-09-01:
-      licences CONFIRMED (owner) — Brauer Neue awaits the file upload; the
-      `local()`-only start for Bahnschrift stands until non-Windows coverage is
-      demanded (that half stays open).**
+      non-Windows coverage demanded. (2026-08-28) **Licence gate FIRED 2026-09-01
+      (owner confirmed; v1.7.1 shipped `BrNStdBd.otf` + the `local()` stack).**
+      Still open on the second half: a committed Bahnschrift TTF waits on
+      non-Windows coverage demand — until then Macs/phones silently fall through
+      to Segoe/system faces. Also deliberate: only the ONE Brauer file is
+      committed; the other five weights sit uncommitted in the local `fonts/`
+      folder (the public repo publishes only what the site uses).
+- [ ] The fonts deploy-allowlist edit lives only on `development` until the next
+      main/sandbox sync — the workflow must be identical on all three branches, so
+      **a push to `main` or `sandbox` before v1.7.1 reaches them fails the Pages
+      deploy at the guard step** (non-destructive: the old site stays up). Gate:
+      the next merge to main carries `.github/workflows/deploy-pages.yml`; sandbox
+      needs the same file cherry-picked. (v1.7.1, 2026-09-01)
 - [ ] Vivid shows no non-working-day marker on the canvas at all (holidays
       included) — the obj-13 ruling makes the month colour king; weekends stay
       visible in the Day/2-Day header and everywhere in Quiet. Gate: someone

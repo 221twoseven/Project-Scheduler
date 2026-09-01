@@ -42,6 +42,7 @@ jobs:
           sparse-checkout: |
             index.html
             msal-browser.min.js
+            fonts/BrNStdBd.otf
           sparse-checkout-cone-mode: false
 
       - name: Checkout development into /preview (shareable preview)
@@ -52,6 +53,7 @@ jobs:
           sparse-checkout: |
             index.html
             msal-browser.min.js
+            fonts/BrNStdBd.otf
           sparse-checkout-cone-mode: false
 
       - name: Checkout sandbox into /sandbox (collaborator copy)
@@ -62,6 +64,7 @@ jobs:
           sparse-checkout: |
             index.html
             msal-browser.min.js
+            fonts/BrNStdBd.otf
           sparse-checkout-cone-mode: false
 
       - name: Drop nested .git so it isn't published
