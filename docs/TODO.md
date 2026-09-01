@@ -34,7 +34,12 @@ for other people's plates, and the full-height Notes dock column. Record:
 drag-zoom ✓, strip gesture ✓) shipped as **v1.6.4**: the Summary/Dashboard place
 follows the person into the Projects lens — the lens toggle hides whenever a person
 is on; only the dept reading stays flat (`dash-flat`). Record:
-`docs/Milestones/2026-09-01-v164-preview-polish-3.md`.
+`docs/Milestones/2026-09-01-v164-preview-polish-3.md`. Same day, the owner's live-data
+report ("legacy person IDs assigned, authenticated IDs not") shipped as **v1.6.5**:
+`canonName()` resolves legacy abbreviated crew/role strings ("Davis S.", bare first
+names) to roster people inside `barCrew()` — lanes merge, dashboards/filters find
+legacy work, overbooking stops skipping them; stored values untouched. Record:
+`docs/Milestones/2026-09-01-v165-legacy-person-ids.md`.
 
 ---
 
@@ -348,6 +353,7 @@ rule §5); old data keeps reading fine.
 | v1.6.2 | ✅ Shipped 2026-08-31 — second review round: header/canvas same-frame sync (drag-zoom judder), project date-strip pan/zoom parity (§7 gate half-fired), Summary·name for other people's plates, full-height Notes dock column |
 | v1.6.3 | ✅ Shipped 2026-08-31 — project-Gantt scroll fallout: step buttons anchor today, sticky axis gutter mask, weekend webs moved under the rows with the §2.4 hatch (they painted OVER the bars) |
 | v1.6.4 | ✅ Shipped 2026-09-01 — third review round: the Summary/Dashboard place follows the person into the Projects lens (toggle hidden while a person is on; flat treatment stays dept-only) |
+| v1.6.5 | ✅ Shipped 2026-09-01 — legacy person strings resolve to roster people (`canonName` in `barCrew`): dept lanes merge, person filter/dashboards find legacy-named work, overbooking sees through old strings; stored values never rewritten |
 | v1.7.0 | 12 (permissions) ⚠ |
 | v1.8.0 | 26 (change log) ⚠ — after permissions |
 | v2.0.0 | 13 (single source of truth) ⚠ — likely several minors along the way (one per absorbed store), with v2.0.0 as the cutover declaration |
@@ -530,6 +536,20 @@ these are the ones still open, plus new deferrals as they happen.
       while a person is on, so regrouping the same person means exiting (×) and
       re-entering from the other lens. Same trade My Dashboard made in v1.2.0.
       Gate: someone asking to regroup in place. (v1.6.4, 2026-09-01)
+- [ ] Legacy person strings are healed at compare/display time only — the stored
+      `projectManager`/`drafter`/`leadFab`/assignee values keep their old
+      abbreviations until someone next edits that project's Team boxes or that
+      task's crew (the editors resolve to roster names, so a save writes canonical).
+      A one-time data scrub of the shared-list values would finish the job at once
+      but is shared-data territory ⚠. Gate: the owner ordering the scrub.
+      (v1.6.5, 2026-09-01)
+- [ ] `canonName` covers bar crews and role fields, not to-do assignees — a to-do
+      stored with a legacy name still misses its person's dashboard Notes section.
+      Gate: someone missing a to-do; fix is the same map in the me-dock/todo
+      filters. (v1.6.5)
+- [ ] Two roster people sharing a first name + surname initial keep legacy strings
+      unmerged (deliberate ambiguity rule — never guess identity). Gate: it happens
+      on the real roster; fix is a manual data correction, not code. (v1.6.5)
 
 **Deliberate design ceilings — no action planned, revisit only on real complaints:**
 12-slot palette repeats at 13+ visible projects (T2); quiet re-selection after a

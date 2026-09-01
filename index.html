@@ -1397,7 +1397,7 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.6.4'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.6.5'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -1516,7 +1516,9 @@ function crewOf(t){const a=t.assignee;if(Array.isArray(a))return a;if(typeof a==
 /* Who actually works a bar: its own crew if one is set, else the project's team for that
    department's role — an unassigned phase umbrella is implicitly owned by the roster
    picked in the project settings. */
-function barCrew(t){const c=crewOf(t);if(c.length)return c;const p=projById(t.projectId);return p?roleListFor(p,t.department):[];}
+function barCrew(t){const c=crewOf(t);const p=c.length?null:projById(t.projectId);
+  const raw=c.length?c:(p?roleListFor(p,t.department):[]);
+  return [...new Set(raw.map(canonName))];} /* v1.6.5: legacy strings resolve to roster people */
 /* A phase can carry its own name. Blank falls back to the department, so every existing
    row behaves exactly as before. */
 function phaseLabel(t){
@@ -1525,7 +1527,7 @@ function phaseLabel(t){
   if(d&&d.freeText)return t.assignee||'Other';
   return d?d.name:t.department;
 }
-function assigneeText(t){return crewOf(t).join(', ')||(isInstall(t)?'Crew TBD':'');}
+function assigneeText(t){return [...new Set(crewOf(t).map(canonName))].join(', ')||(isInstall(t)?'Crew TBD':'');}
 /* Stable identity colors per department for "Team" color mode */
 const DEPT_COLORS={pm:'#567693',vinyl:'#D92871',othunit7:'#647590',td:'#9050C3',othoffice:'#637590',print:'#C04485',cnc:'#BE531B',beamsaw:'#936E12','3dprint':'#268449',laser:'#CE4242',other:'#63758F',fab:'#2B73CF',metal:'#8B5E3C',softgoods:'#C0487B',electrical:'#876511',othshop:'#6A7866',prefinish:'#2F7E8C',finish:'#148079',othfinish:'#657589',install:'#5A5DEC'};
 /* v1.4.0: TN_TARGETS retired — milestone names are plain text now (08-31 obj 3) */
@@ -1540,6 +1542,25 @@ function rebuildStaff(){
   for(const[did,key]of ROSTER_DEPTS)STAFF[key]=PEOPLE.filter(p=>(p.depts||[]).includes(did)).map(p=>p.name);
 }
 function personByName(n){return PEOPLE.find(p=>p.name===n);}
+/* v1.6.5 (owner report): legacy project records store abbreviated people
+   ("Davis S.", or bare first names) while the staff picker writes full display
+   names — raw string compares split one human into an empty roster lane plus a
+   working legacy lane, hid their work from the person filter/dashboards, and made
+   the overbooking check skip them. Resolve any crew/role string to its roster
+   person when the match is unambiguous (exact, "First L." initial form, or bare
+   first name); ambiguous or unknown strings pass through untouched. Comparisons
+   and grouping only — stored values are never rewritten. */
+function canonName(s){
+  s=String(s||'').trim();if(!s||!PEOPLE.length)return s;
+  const low=s.toLowerCase();
+  let hit=PEOPLE.filter(p=>p.name.trim().toLowerCase()===low);
+  if(!hit.length){
+    const m=low.match(/^(\S+)(?:\s+(\S)\.?)?$/); /* "first" or "first x." */
+    if(m)hit=PEOPLE.filter(p=>{const t=p.name.trim().toLowerCase().split(/\s+/);
+      return t[0]===m[1]&&(!m[2]||(t[1]||'').charAt(0)===m[2]);});
+  }
+  return hit.length===1?hit[0].name:s;
+}
 function oooFor(name){const p=personByName(name);return p?(p.ooo||[]):[];}
 function oooOverlaps(name,sIso,eIso){return oooFor(name).filter(o=>o.start&&o.end&&o.start<=eIso&&o.end>=sIso);}
 /* Convert legacy roster-shaped staff (v22 and earlier) into people records */
@@ -2522,7 +2543,7 @@ function laneRowsForSection(sec){
     for(const k of ks){
       const mine=dtasks.filter(t=>{const c=crews.get(t.id);return c.length?c.includes(k):k==='—';})
         .map(t=>{const c=crews.get(t.id);return c.length&&c[0]!==k?{...t,__ghost:true}:t;});
-      const ghosts=k==='—'?[]:visTasks().filter(t2=>isInstall(t2)&&crewOf(t2).includes(k)).map(t2=>({...t2,__ghost:true}));
+      const ghosts=k==='—'?[]:visTasks().filter(t2=>isInstall(t2)&&crewOf(t2).map(canonName).includes(k)).map(t2=>({...t2,__ghost:true}));
       mkLane(did,k,k,[...mine,...ghosts]);
     }
   };
@@ -2573,7 +2594,7 @@ function sortProjectsBy(cmp,label,groupBy){
 /* What a project is filed under for the current grouping, and how that reads as a heading. */
 function groupKeyOf(p){
   if(GROUP_BY==='client')return (p.client||'').trim()||'\u0000';
-  if(GROUP_BY==='pm')return (roleList(p.projectManager)[0]||'').trim()||'\u0000';
+  if(GROUP_BY==='pm')return canonName(roleList(p.projectManager)[0]||'')||'\u0000';
   if(GROUP_BY==='status')return projectStatus(p);
   return null;
 }
@@ -2586,7 +2607,7 @@ function groupLabelOf(k){
 function grpSet(){return GRP_COLLAPSED[GROUP_BY]||(GRP_COLLAPSED[GROUP_BY]=new Set());}
 document.getElementById('sort-deadline').addEventListener('click',()=>sortProjectsBy((a,b)=>String(a.deadline||'9999').localeCompare(String(b.deadline||'9999')),'due date',null));
 document.getElementById('sort-client').addEventListener('click',()=>sortProjectsBy((a,b)=>String(a.client||'').localeCompare(String(b.client||''))||String(a.deadline||'9999').localeCompare(String(b.deadline||'9999')),'client','client'));
-document.getElementById('sort-pm').addEventListener('click',()=>sortProjectsBy((a,b)=>String(roleList(a.projectManager)[0]||'').localeCompare(String(roleList(b.projectManager)[0]||''))||String(a.deadline||'9999').localeCompare(String(b.deadline||'9999')),'project manager','pm'));
+document.getElementById('sort-pm').addEventListener('click',()=>sortProjectsBy((a,b)=>canonName(roleList(a.projectManager)[0]||'').localeCompare(canonName(roleList(b.projectManager)[0]||''))||String(a.deadline||'9999').localeCompare(String(b.deadline||'9999')),'project manager','pm'));
 document.getElementById('sort-status').addEventListener('click',()=>sortProjectsBy((a,b)=>{
   /* Rank by the live status list so a new status can never fall to an unsorted tail. */
   const o={};ALL_STATUSES.forEach((v,i)=>o[v]=i+1);
@@ -3324,9 +3345,9 @@ function makeSummaryBar(p,s,e,row){
     let inner='<span class="sum-pill">'+esc(STATUS_LBL[st])+'</span>';
     if(w>=BAR_W_PILL)inner+=esc(p.name)+(w>=BAR_W_CODE&&p.jobCode?' · '+esc(p.jobCode):'');
     if(w>=BAR_W_CHIPS)inner+=[
-      p.projectManager&&('<span class="role-tag">PM</span>'+esc(p.projectManager)),
-      p.drafter&&('<span class="role-tag">D</span>'+esc(p.drafter)),
-      p.leadFab&&('<span class="role-tag">F</span>'+esc(p.leadFab))
+      p.projectManager&&('<span class="role-tag">PM</span>'+esc(roleList(p.projectManager).map(canonName).join(', '))),
+      p.drafter&&('<span class="role-tag">D</span>'+esc(roleList(p.drafter).map(canonName).join(', '))),
+      p.leadFab&&('<span class="role-tag">F</span>'+esc(roleList(p.leadFab).map(canonName).join(', ')))
     ].filter(Boolean).join('');
     lbl.innerHTML=inner;
     bar.appendChild(lbl);
@@ -3546,7 +3567,7 @@ function showTooltipProj(p,s,e,ev){
   el.innerHTML='<div class="tt-title">'+esc(p.name)+'</div>'
     +'<div class="tt-dim">'+esc(p.client||'')+(p.jobCode?' · '+esc(p.jobCode):'')+'</div>'
     +'<div class="tt-dim">'+fmtNice(fmtDate(s))+' → '+fmtNice(fmtDate(e))+' · deadline '+fmtNice(p.deadline)+(projectStatus(p)!=='complete'?' ('+(diffDays(today(),parseDate(p.deadline))>=0?diffDays(today(),parseDate(p.deadline))+'d left':Math.abs(diffDays(today(),parseDate(p.deadline)))+'d over')+')':'')+'</div>'
-    +'<div class="tt-dim">PM '+esc(p.projectManager||'—')+' · D '+esc(p.drafter||'—')+' · F '+esc(p.leadFab||'—')+(p.fabricators?' · Crew '+esc(p.fabricators):'')+'</div>'
+    +'<div class="tt-dim">PM '+esc(roleList(p.projectManager).map(canonName).join(', ')||'—')+' · D '+esc(roleList(p.drafter).map(canonName).join(', ')||'—')+' · F '+esc(roleList(p.leadFab).map(canonName).join(', ')||'—')+(p.fabricators?' · Crew '+esc(roleList(p.fabricators).map(canonName).join(', ')):'')+'</div>'
     +upd
     +'<div><span class="tt-badge">'+esc(STATUS_LBL[projectStatus(p)])+'</span></div>';
   el.classList.remove('hidden');posTooltip(ev);
@@ -3564,7 +3585,7 @@ function hideTooltip(){document.getElementById('tooltip').classList.add('hidden'
 /* Multi-select role checkboxes for the project page */
 function fillRoleChecks(elId,names,currentStr){
   const el=document.getElementById(elId);el.innerHTML='';
-  const sel=new Set(roleList(currentStr));
+  const sel=new Set(roleList(currentStr).map(canonName)); /* v1.6.5: legacy value checks its roster person, not a phantom box */
   const all=[...new Set([...(names||[]),...sel])];
   if(!all.length){el.innerHTML='<div class="tn-empty">No names yet — add people under Resources.</div>';return;}
   for(const n of all){
@@ -3606,10 +3627,10 @@ function tmAssigneeUI(deptId,current){
      then the whole staff). */
   sel.classList.add('hidden');txt.classList.add('hidden');crew.classList.remove('hidden');
   const p=projById(document.getElementById('tm-project').value);
-  let checked=crewOf({assignee:current}).filter(n=>personByName(n));
+  let checked=crewOf({assignee:current}).map(canonName).filter(n=>personByName(n));
   if(deptId==='install'){
     lbl.textContent='Install Crew — pick from full staff';
-    if(!checked.length&&p)checked=[...new Set([...roleList(p.projectManager),...roleList(p.leadFab)])];
+    if(!checked.length&&p)checked=[...new Set([...roleList(p.projectManager),...roleList(p.leadFab)].map(canonName))];
     buildCrewList(checked);
     return;
   }
@@ -4064,7 +4085,7 @@ const PP_ROLES=[['pp-r-pm','Project manager','projectManagers','projectManager']
 /* The project's labor pool: everyone checked in any Team role, deduped. Crew pickers
    cull to this — the pool moves fluidly between subtasks, but it's picked once, in the
    project settings. */
-function projTeam(p){return [...new Set(PP_ROLES.flatMap(r=>roleList(p&&p[r[3]])))];}
+function projTeam(p){return [...new Set(PP_ROLES.flatMap(r=>roleList(p&&p[r[3]])).map(canonName))];}
 
 function ppColor(p){return p&&p.id?projColor(p.id):'#94A3B8';}
 
@@ -5695,7 +5716,7 @@ function npvRender(){
     const col0=DEPT_COLORS[t.department]||'#6B7484';
     const col=cls==='kid'?kidShade(col0):col0;
     /* 3.5 keep-pile: the hover tooltip carries the crew too (same source the gutter shows). */
-    const who=Array.isArray(t.assignee)?t.assignee.join(', '):(t.assignee||'');
+    const who=[...new Set(crewOf(t).map(canonName))].join(', '); /* v1.6.5: show the roster name */
     return '<div class="npv-bar'+(t.__manual?' manual':'')+(cls?' '+cls:'')+'" data-i="'+i+'" '
      + 'style="left:'+bx+'px;width:'+bw+'px;background:'+col+';color:'+labelColor(col)+'" '
      + 'title="'+esc(nm+(who?' · '+who:'')+' · '+fmtNice(t.startDate)+' → '+fmtNice(t.endDate)+' · '+(t.estimatedDays||1)+'d')+'">'
@@ -5725,7 +5746,7 @@ function npvRender(){
     }
     const t=row.t,i=row.i,d=deptById(t.department);
     const nm=phaseLabel(t);
-    const who=Array.isArray(t.assignee)?t.assignee.join(', '):(t.assignee||'');
+    const who=[...new Set(crewOf(t).map(canonName))].join(', '); /* v1.6.5: show the roster name */
     const gut=(d&&d.roster&&who&&who!=='—')?nm+' · '+who:nm;
     const child=row.kind==='child';
     h+='<div class="npv-row'+(child?' child':'')+'" style="width:'+innerW+'px">'
@@ -7953,7 +7974,7 @@ function pmLateList(){
   const td=fmtDate(today());
   /* REV90: PM is a comma list ("Stan, Caroline") — match through roleList like every
      other reader, or multi-PM projects prompt nobody. */
-  return ST.projects.filter(p=>roleList(p.projectManager).includes(me)&&p.deadline&&p.deadline<td
+  return ST.projects.filter(p=>roleList(p.projectManager).map(canonName).includes(me)&&p.deadline&&p.deadline<td
     &&projectStatus(p)!=='complete');
 }
 function pmLatePaint(){
@@ -8209,7 +8230,7 @@ function buildMeetingSheet(){
   const wrap=document.createElement('div');wrap.className='meet-sheet';
   const projs=currentProjOrder().filter(p=>SHOW_STATUS.has(projectStatus(p)));
   const groups={};
-  for(const p of projs){const k=roleList(p.projectManager)[0]||'— No PM —';(groups[k]=groups[k]||[]).push(p);}
+  for(const p of projs){const k=canonName(roleList(p.projectManager)[0]||'')||'— No PM —';(groups[k]=groups[k]||[]).push(p);}
   const keys=Object.keys(groups).sort((a,b)=>a.localeCompare(b));
   const tbl=document.createElement('table');tbl.className='meet-table';
   const printedOn=today().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
