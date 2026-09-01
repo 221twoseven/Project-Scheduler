@@ -272,6 +272,36 @@ The Setup / Team / Departments / Agenda inspector is **not a sidebar**. It rende
 - **Collapse toggle** (owner request, 2026-08-28): a chevron button collapses the form so the chart takes the whole window; the footer bar stays, so nothing is stranded. Because it acts on the interface container, not the project, it is **not a footer button** — it sits in its own fixed bordered area at the dock's bottom-right corner, outside the footer's button row, present in both states (chevron flips down→up). The state is persisted per user in `localStorage` (`shopTimelineDockCollapsed`, alongside the dock height) and restored on the next load, holding across login sessions. Applies to the Gantt and Calendar alike (the dock is shared). Edits still happen in the edit-in-place popover (§6) while collapsed.
 - The edit-details modal (§6) and this panel share field components and layout rules — the modal is the timeline's portable version of the same inspector.
 
+## 7.6 Company Data pages — the master-data pattern (v1.7.0)
+
+People and Clients are **first-class pages** (`#/people`, `#/clients`), not management
+modals — the 2026-09-01 Master Data UX Refactor handoff
+(`docs/2026-09-01-Master-Data-UX-Refactor-Handoff.md`). This is the reusable pattern
+for every future company master-data section (departments, project types, holidays…):
+
+- **A place, not a dialog.** Each dataset gets a route on the project-page chrome
+  precedent: breadcrumb trail (`All Projects › People`) with the × exit, timeline-only
+  toolbar row hidden (`body.cd-route`), Esc walks home. The nav group is **Company
+  Data** (was Resources).
+- **Index → record → explicit edit.** The page is a searchable master/detail: a
+  compact list-table on the left (columns from the real data model), the selected
+  record on the right rendered **read-first** — fields as information, not form
+  controls. One intentional **Edit** action swaps the pane to the edit state
+  (Cancel/Save); **+ Add** opens the same editor blank. No batch-form editing of the
+  whole dataset.
+- **Record-level actions, consequences named.** Remove lives inside the edit state,
+  never as a casual per-row ×, and its confirm counts the record's live relationships
+  ("on 6 phases across 4 projects") before asking. A true Active/Archived lifecycle
+  waits on a status column (TODO §5).
+- **System-of-record cues, restrained.** The trail bar carries `N records ·
+  SharePoint` (or `· this browser only` when degraded); the toolbar sync pill stays
+  the authority on last-sync time. Relationship context (project counts, assignment
+  counts) renders only where derivable from data already in memory — never fabricated.
+- **Same visual system.** Existing tokens, compact density, no dashboard cards. The
+  pages read as authoritative through structure — location, read-first, explicit
+  edit — not visual weight. Persistence is untouched: edits clone the shared list,
+  swap one record, and ride the existing save paths.
+
 ## 8. Print & Meeting Sheet
 
 Print inherits the same tokens (the Quiet canvas is already print-friendly; vivid tints never print). Meeting Sheet stays the reference artifact: mono numerals, hairline rules, generous Notes column. Any new report copies its header block (TWOSEVEN — title · REV · printed date · count) verbatim.

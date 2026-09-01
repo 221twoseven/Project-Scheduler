@@ -68,11 +68,19 @@ setTimeout(()=>{
      E('(()=>{const rows=buildRows().rows;const iB=rows.findIndex(r=>r.groupKey==="Bolt");return rows.slice(0,iB).filter(r=>r.kind==="projHead").length===2;})()'));
   E('GROUP_BY=null;ST={...ST,projects:[]}');
 
-  sec('5 · Escape closes the Clients modal');
-  const co=doc.getElementById('clients-overlay');
-  co.classList.remove('hidden');
-  key('Escape');
-  ok('the Clients overlay hides like every other modal',co.classList.contains('hidden'));
+  sec('5 · Escape closes the Clients surface');
+  if(/renderCompanyPage/.test(src)){
+    /* v1.7.0: Clients is a page, not a modal — Escape walks back to the timeline. */
+    E("location.hash='#/clients';applyRoute()");
+    key('Escape');
+    E('applyRoute()');
+    ok('Escape leaves the Clients page for the timeline',E("ROUTE.view")==='timeline');
+  }else{
+    const co=doc.getElementById('clients-overlay');
+    co.classList.remove('hidden');
+    key('Escape');
+    ok('the Clients overlay hides like every other modal',co.classList.contains('hidden'));
+  }
 
   sec('6 · failed saves merge; success cannot mask a failure');
   E('spSync=async()=>{throw new Error("boom")}');

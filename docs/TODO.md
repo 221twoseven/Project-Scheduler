@@ -22,9 +22,11 @@ database is the breaking change the major number exists for. `APP_VER` in `index
 is the source of truth; keep `package.json` aligned.
 
 Last reviewed: 2026-09-01 — folded the **Master Data UX Refactor handoff** (2026-09-01)
-into §3 item 27 (Company Data: People and Clients become first-class pages) and refolded
-the ladder: item 27 proposed as v1.7.0 (pure UI/routing, no gates), permissions →
-v1.8.0, changelog → v1.9.0. Previous review 2026-08-31 — appended the owner's second
+into §3 item 27 and **shipped it the same day as v1.7.0** (owner: "Build"); permissions
+→ v1.8.0, changelog → v1.9.0. Same message: the owner lifted the schema gate (⚠ items
+are owner-applied list edits now, see the note above), confirmed both font licences,
+approved the `/preview/` state of the v1.6.x rounds, and added feedback-recipient
+assignment to the permissions scope (item 12). Previous review 2026-08-31 — appended the owner's second
 objective list (the 2026-08-31 brief, §3 items 14–26) and refolded the version ladder. Same day: v1.2.1–v1.6.0 all
 shipped to `development`; **owner called a PAUSE after v1.6.0 — hone the shipped
 batches before any new rung (permissions v1.7.0 is NOT started).** The owner's first
@@ -219,6 +221,14 @@ Owner's objective numbers in parentheses. Each batch: build on `development`, ve
       - Non-admins: no client list, no people edits, no department/phase edits;
         **Lock Dates on by default and the button hidden**; Project Edit fields
         render as plain text (not inputs/checkboxes) — visible, locked.
+      - **Feedback recipients (owner, 2026-09-01):** a second per-person checkbox —
+        who receives bug reports / feature requests (the owner, at minimum). **⚠
+        needs a `feedbackRecipient` column on the staff list — spec delivered
+        2026-09-01 (single line of text, exact lowercase-camel name, TWOSEVENINC
+        site); Robert creates it alongside `admin`.** Open decision: the delivery
+        mechanism — Graph `sendMail` from the submitter needs a new `Mail.Send`
+        delegated scope (Entra change, owner-consented) vs. SharePoint list alerts
+        (no code, but not app-managed). Decide when this batch starts.
       - ~~Owner's brief cut off at "This form is its own page with its own toolbar ("~~
         — **RESOLVED 2026-08-31: owner said disregard the incomplete sentence.** No
         own-page form requirement; scope is the roster checkbox + gating above.
@@ -321,7 +331,17 @@ rule §5); old data keeps reading fine.
 
 ### 2026-09-01 handoff — Company Data: People & Clients as pages (minor bump)
 
-- [ ] **27. (09-01 handoff) People and Clients become first-class application pages.**
+- [x] **27. (09-01 handoff) People and Clients become first-class application pages —
+      DONE 2026-09-01 (v1.7.0).** Shipped whole: `#/people` + `#/clients` on the
+      project-page chrome (trail bar, `cd-route` hides the timeline toolbar row, Esc
+      walks home), read-first master/detail with an explicit Edit state, record-level
+      Add/Edit/Remove (Remove confirms with live relationship counts), Resources →
+      Company Data, save paths untouched. Suite `tests/test-v170.js` (39 checks);
+      test66/69/70/90 branched on the `renderCompanyPage` marker. Design-Language
+      §7.6 records the reusable pattern. Record:
+      `docs/Milestones/2026-09-01-v170-company-data.md`. Ceilings ledgered in §7
+      (no per-record URLs; no lifecycle column yet; client selection keyed by name).
+      Original scope below.
       The core move:
       **modal → batch form → save/cancel** becomes **persistent location → record
       index → selected record → explicit edit state**. This is a presentation /
@@ -432,7 +452,7 @@ rule §5); old data keeps reading fine.
 | v1.6.4 | ✅ Shipped 2026-09-01 — third review round: the Summary/Dashboard place follows the person into the Projects lens (toggle hidden while a person is on; flat treatment stays dept-only) |
 | v1.6.5 | ✅ Shipped 2026-09-01 — legacy person strings resolve to roster people (`canonName` in `barCrew`): dept lanes merge, person filter/dashboards find legacy-named work, overbooking sees through old strings; stored values never rewritten |
 | v1.6.6 | ✅ Shipped 2026-09-01 — Filters dropdown revision: Person radios stay in the menu inside a Summary (switch/clear in place; Everyone = the × exit), one menu-wide "Show everything" reset replaces the status-scoped Show all / Clear all pair |
-| v1.7.0 | 27 (Company Data: People & Clients pages) — no gates; proposed to run before permissions so item 12 gates pages, not modals |
+| v1.7.0 | ✅ Shipped 2026-09-01 — 27 (Company Data: People & Clients as read-first pages; Resources → Company Data; modals retired) |
 | v1.8.0 | 12 (permissions) ⚠ |
 | v1.9.0 | 26 (change log) ⚠ — after permissions |
 | v2.0.0 | 13 (single source of truth) ⚠ — likely several minors along the way (one per absorbed store), with v2.0.0 as the cutover declaration |
@@ -455,6 +475,9 @@ rule §5); old data keeps reading fine.
   cannot see personal lists. (Owner had strays in My Lists, 2026-08-31.)
 - Candidate new column: `admin` on the staff list (§3 item 12) — **spec delivered
   2026-09-01; Robert creates it** (single line of text, exact name `admin`).
+- Candidate new column: `feedbackRecipient` on the staff list (§3 item 12's
+  who-receives-feedback checkbox, owner 2026-09-01) — same arrangement: single line
+  of text, exact name `feedbackRecipient`; Robert creates it alongside `admin`.
 - Candidate new column: a lifecycle/`status` column (Active/Inactive/Archived) on
   `ShopTimeline_Staff` and `ShopTimeline_Clients` (§3 item 27's archive-not-delete
   model) — additive; Robert applies it when item 27's lifecycle pass is designed
@@ -552,14 +575,19 @@ these are the ones still open, plus new deferrals as they happen.
 - [ ] Optional 60-second explainer video/page — never scoped. Gate: an owner brief.
 
 **Pre-merge audit (REV90/91):**
-- [ ] Staff and Clients modals discard in-progress edits on Escape/backdrop with no
+- [x] Staff and Clients modals discard in-progress edits on Escape/backdrop with no
       confirm (the task modal snapshot-compares). Gate: someone loses edits.
+      **Closed 2026-09-01 (v1.7.0):** the modals are gone; the Company Data pages'
+      edit state confirms before discarding on Esc, Cancel-free row switches, and
+      + Add.
 - [ ] Calendar marker drag/click/delete block is a near-clone of the Gantt's —
       **gate fires with §3 item 8** (next touch of either handler: merge them).
 - [ ] `ROSTER_DEPTS` / `SM_DEPTS` duplicate the roster dept ids. Gate: next
       roster-department change.
-- [ ] `#tm-dl` datalist keeps its task-modal prefix while serving the staff modal.
-      Gate: next staff-modal edit.
+- [x] `#tm-dl` datalist keeps its task-modal prefix while serving the staff modal.
+      Gate: next staff-modal edit. **Gate fired 2026-09-01 (v1.7.0):** the staff
+      modal's replacement (the People page editor) was its only consumer — renamed
+      to a global `#cd-dl`.
 - [x] `tests/run.js` counts a self-skipped suite as "passed" — **closed 2026-08-28
       (v1.0.2):** the runner now prints a SKIP summary line naming self-skipped
       suites (gate fired when the batch registered `test-v102.js`).
@@ -645,6 +673,19 @@ these are the ones still open, plus new deferrals as they happen.
       isolating one status now means unchecking the rest by hand. Gate: someone
       missing it; fix is a per-item "only" affordance, not the confusing pair.
       (v1.6.6)
+- [ ] Company Data pages have no per-record URLs — `#/people/:id` lands on the page
+      without selecting; selection is page state. Gate: someone wants a linkable
+      person/client record. (v1.7.0, 2026-09-01)
+- [ ] No Active/Inactive/Archived lifecycle on people/clients — Remove is a real
+      delete behind a consequence-naming confirm (assignment/project counts). Gate:
+      the §5 status column (Robert applies it when that pass is designed).
+      (v1.7.0)
+- [ ] Client selection is keyed by name (clients carry no appId) — a concurrent
+      remote rename while selected drops the selection to the empty state on the
+      next repaint; self-heals on the next click. (v1.7.0)
+- [ ] A background poll defers entirely while a Company Data record is mid-edit
+      (CD_EDIT) — same trade as the REV98 popover entry above; the two share its
+      gate. (v1.7.0)
 
 **Deliberate design ceilings — no action planned, revisit only on real complaints:**
 12-slot palette repeats at 13+ visible projects (T2); quiet re-selection after a

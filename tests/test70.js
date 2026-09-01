@@ -35,10 +35,57 @@ const dom=boot(FILE,{data:{projects:[],tasks:[],staff:[],todos:[],teamMembers},t
 const win=dom.window;
 const E=s=>win.eval(s);
 
+const finish=()=>{
+  console.log('\n'+'-'.repeat(46));
+  console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
+  process.exit(fail?1:0);
+};
+
 setTimeout(()=>{
   /* Roster: Nick Barnes (no email — should backfill), Ana Diaz (ambiguous — should
      NOT), Kate Woo (has an email already — must not be overwritten). */
   E("PEOPLE=[{id:'a',name:'Nick Barnes',email:'',role:'',depts:['fab'],ooo:[]},{id:'b',name:'Ana Diaz',email:'',role:'',depts:['td'],ooo:[]},{id:'c',name:'Kate Woo',email:'kw@old.example',role:'',depts:['fab'],ooo:[]}];rebuildStaff();");
+  if(/renderCompanyPage/.test(src)){
+    /* v1.7.0: the staff editor is the People page's per-record edit state. The Team
+       datalist is global (#cd-dl); backfill applies to the record being edited. */
+    E("location.hash='#/people';applyRoute()");
+    E("CD_SEL=PEOPLE.find(p=>p.name==='Nick Barnes').id;cdPaintDetail();document.getElementById('cdd-edit').click();");
+    setTimeout(()=>{
+      sec('Team members load and feed the name datalist');
+      ok('members mapped and sorted',E("TM_MEMBERS.length")===5&&E("TM_MEMBERS[0].name")==='Ana Diaz');
+      ok('emails normalized to lowercase',E("TM_MEMBERS.some(m=>m.email==='nick@twoseven.net')"));
+      ok('datalist filled',E("document.querySelectorAll('#cd-dl option').length")===5);
+      ok('the name input suggests from it',E("document.getElementById('cde-name').getAttribute('list')")==='cd-dl');
+
+      sec('Backfill on edit: exact single match only');
+      ok('Nick got his email',E("CD_EDIT.email")==='nick@twoseven.net');
+      E("cdSavePerson();");
+      E("CD_SEL=PEOPLE.find(p=>p.name==='Ana Diaz').id;cdPaintDetail();document.getElementById('cdd-edit').click();");
+      setTimeout(()=>{
+        ok('ambiguous Ana stays empty',E("CD_EDIT.email")==='');
+        E("CD_EDIT=null;cdPaintDetail();");
+        E("CD_SEL=PEOPLE.find(p=>p.name==='Kate Woo').id;cdPaintDetail();document.getElementById('cdd-edit').click();");
+        setTimeout(()=>{
+          ok('Kate’s existing email untouched',E("CD_EDIT.email")==='kw@old.example');
+          E("CD_EDIT=null;cdPaintDetail();");
+
+          sec('Typing an exact member name fills the email live');
+          E("document.getElementById('cd-add').click();");
+          E("(function(){const nm=document.getElementById('cde-name');nm.value='Stan Fields';nm.dispatchEvent(new (window.Event)('input'));})();");
+          ok('a new person picked from the Team gets the email',E("CD_EDIT.email")==='stan@twoseven.net');
+          ok('and the email input shows it',E("document.getElementById('cde-email').value")==='stan@twoseven.net');
+
+          sec('Save keeps it all a normal roster save');
+          E("cdSavePerson();");
+          ok('saved people carry the filled emails',E("PEOPLE.find(p=>p.name==='Nick Barnes').email")==='nick@twoseven.net'&&
+             E("PEOPLE.find(p=>p.name==='Stan Fields').email")==='stan@twoseven.net');
+          ok('only explicitly added people joined (no auto-import of the Team)',E("PEOPLE.length")===4);
+          finish();
+        },400);
+      },400);
+    },500);
+    return;
+  }
   E("document.getElementById('mi-people').click();");
   setTimeout(()=>{
     sec('Team members load and feed the name datalist');
@@ -63,10 +110,7 @@ setTimeout(()=>{
     ok('saved people carry the filled emails',E("PEOPLE.find(p=>p.name==='Nick Barnes').email")==='nick@twoseven.net'&&
        E("PEOPLE.find(p=>p.name==='Stan Fields').email")==='stan@twoseven.net');
     ok('only explicitly added people joined (no auto-import of the Team)',E("PEOPLE.length")===4);
-
-    console.log('\n'+'-'.repeat(46));
-    console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-    process.exit(fail?1:0);
+    finish();
   },500);
 },1500);
 setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},20000);

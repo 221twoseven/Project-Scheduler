@@ -53,12 +53,24 @@ setTimeout(()=>{
   ok('me is not listed twice',arr.filter(x=>x.startsWith('Robert')).length===1,items);
 
   sec('People & Availability editor carries email and role');
-  E("document.getElementById('mi-people').click();");
-  ok('email + role inputs render per person',E("document.querySelectorAll('#st-list .st-meta input').length")===6,
-     E("document.querySelectorAll('#st-list .st-meta input').length"));
-  E("SM_PEOPLE[0].email=' ana@twoseven.net ';SM_PEOPLE[0].role=' Painter ';document.getElementById('st-save').click();");
-  ok('save trims and persists to PEOPLE',E("PEOPLE[0].email")==='ana@twoseven.net'&&E("PEOPLE[0].role")==='Painter',
-     E("JSON.stringify({e:PEOPLE[0].email,r:PEOPLE[0].role})"));
+  if(/renderCompanyPage/.test(src)){
+    /* v1.7.0: the editor is the People page's per-record edit state — same save path. */
+    E("location.hash='#/people';applyRoute()");
+    E("CD_SEL=PEOPLE[0].id;cdPaintDetail();document.getElementById('cdd-edit').click();");
+    ok('email + role inputs render in the edit state',
+       E("!!document.getElementById('cde-email')&&!!document.getElementById('cde-role')")===true);
+    E("CD_EDIT.email=' ana@twoseven.net ';CD_EDIT.role=' Painter ';cdSavePerson();");
+    ok('save trims and persists to PEOPLE',E("PEOPLE[0].email")==='ana@twoseven.net'&&E("PEOPLE[0].role")==='Painter',
+       E("JSON.stringify({e:PEOPLE[0].email,r:PEOPLE[0].role})"));
+    E("location.hash='#/';applyRoute()");
+  }else{
+    E("document.getElementById('mi-people').click();");
+    ok('email + role inputs render per person',E("document.querySelectorAll('#st-list .st-meta input').length")===6,
+       E("document.querySelectorAll('#st-list .st-meta input').length"));
+    E("SM_PEOPLE[0].email=' ana@twoseven.net ';SM_PEOPLE[0].role=' Painter ';document.getElementById('st-save').click();");
+    ok('save trims and persists to PEOPLE',E("PEOPLE[0].email")==='ana@twoseven.net'&&E("PEOPLE[0].role")==='Painter',
+       E("JSON.stringify({e:PEOPLE[0].email,r:PEOPLE[0].role})"));
+  }
 
   sec('Sticky lens');
   E("LENS='dept';saveUI();");
