@@ -152,6 +152,9 @@ body.me-dock-col #md-collapse svg{transform:rotate(180deg)}
 .md-tag{flex-shrink:0;font-size:11px;font-weight:700;letter-spacing:.06em;color:#1A7F4E;background:#DCF3E6;border-radius:6px;padding:0 5px}
 .md-empty{font-size:12px;color:#94A3B8;padding:6px 0}
 .md-more{font-size:11px;color:#94A3B8;padding:3px 0}
+/* v1.9.0 (owner ask): Milestones + Notes stack in one dock column; the second header
+   needs a top rule where the column boundary used to be. */
+.md-stack>h4:not(:first-child){border-top:1px solid #E2E8F0}
 @media (max-width:560px){.fg-2{grid-template-columns:1fr}.fg-3{grid-template-columns:1fr}}
 #sidebar{position:relative;width:300px;flex-shrink:0;display:flex;flex-direction:column;background:var(--side);border-right:1.5px solid var(--side-line);z-index:10}
 #sb-head{height:64px;flex-shrink:0;display:flex;align-items:center;gap:8px;padding:0 10px 0 14px;font-size:var(--fs-fine);font-weight:700;text-transform:uppercase;letter-spacing:.16em;color:var(--txt-micro);border-bottom:1px solid var(--side-line)}
@@ -1175,6 +1178,7 @@ body.cd-route #dash-bar{display:none!important}
       <div id="kbd-menu" class="tb-menu hidden"></div>
     </div>
     <span class="tb-spacer"></span>
+    <button id="tb-devview" class="t-btn hidden" title="Developer preview — see the app exactly as a non-admin viewer sees it">Viewer</button>
     <span id="tb-rev" title="App version — the build this tab is running">v</span>
     <span id="sync-pill" class="busy" title="Shows whether your changes are saved to SharePoint — click to retry after an error">● connecting…</span>
   </div>
@@ -1428,7 +1432,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.8.1'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.9.0'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -2039,13 +2043,21 @@ function fieldsToTask(f){const a=(f.department==='install'&&typeof f.assignee===
    doesn't have the columns yet never 400s on a save, and isAdmin() can tell "column
    absent" (legacy: everyone admin) from "flag off". */
 function flagTruthy(v){return v===true||v===1||/^(1|yes|true)$/i.test(String(v||''));}
+/* v1.9.0: the admin column grows a third value — 'dev' marks a DEVELOPER: a full admin
+   who also gets the toolbar Viewer toggle (preview the app as a non-admin). The value
+   is typed straight onto the list row by the owner; the People editor never writes it,
+   but a People-page save must not clobber it — personToFields writes 'dev' back while
+   the row stays admin, and drops it only on a deliberate admin demote. */
 function personToFields(p){const f={Title:p.name||'',depts:JSON.stringify(p.depts||[]),ooo:JSON.stringify(p.ooo||[]),email:p.email||'',phone:p.phone||'',role:p.role||'',appId:p.id};
-  if(p.admin!=null)f.admin=p.admin?'1':'';
+  if(p.admin!=null)f.admin=(p.developer&&p.admin)?'dev':(p.admin?'1':'');
   if(p.feedbackRecipient!=null)f.feedbackRecipient=p.feedbackRecipient?'1':'';
+  if(p.personalNotes!=null)f.personalNotes=p.personalNotes; /* v1.9.0 (item 30): tristate like the flags — omitted until the row carries it, so a site without the column never 400s */
   return f;}
 function fieldsToPerson(f){return{id:f.appId,name:f.Title||'',depts:safeArr(f.depts),ooo:safeArr(f.ooo),email:f.email||'',phone:f.phone||'',role:f.role||'',
-  admin:f.admin==null?null:flagTruthy(f.admin),
-  feedbackRecipient:f.feedbackRecipient==null?null:flagTruthy(f.feedbackRecipient)};}
+  admin:f.admin==null?null:(flagTruthy(f.admin)||/^dev/i.test(String(f.admin))),
+  developer:f.admin!=null&&/^dev/i.test(String(f.admin)),
+  feedbackRecipient:f.feedbackRecipient==null?null:flagTruthy(f.feedbackRecipient),
+  personalNotes:f.personalNotes==null?null:String(f.personalNotes)};}
 
 async function spLoadStaff(){
   await spSite();
@@ -2346,10 +2358,12 @@ async function spSyncClients(o,n){
   for(const c of o)if(c.spId&&!keep.has(c.spId))await gfetch(listUrl(LIST_CLIENTS)+'/items/'+c.spId,{method:'DELETE'});
 }
 
-function savePeople(np){
-  /* v1.8.0: viewers can't edit people. (v1.9.0's personal dashboard fields will add a
-     self-row-only exception here — TODO §3 item 30.) */
-  if(isViewer()){toast('View-only access — ask an admin to make changes.','err');return;}
+function savePeople(np,self){
+  /* v1.8.0: viewers can't edit people. v1.9.0 (item 30): `self` is the promised
+     self-row exception — the dashboard's User Notes field writes the caller's OWN
+     row past the guard. The flag trusts its one caller (the notes field), same
+     honest scope as the rest of v1.8.0: workflow protection, not security. */
+  if(isViewer()&&!self){toast('View-only access — ask an admin to make changes.','err');return;}
   const old=PEOPLE;PEOPLE=np;rebuildStaff();
   /* REV90: guarded — a quota/private-mode throw here used to abort before spSyncStaff */
   try{localStorage.setItem(PEOPLE_KEY,JSON.stringify(PEOPLE));}catch(e){}
@@ -2440,7 +2454,16 @@ function meName(){
    carries Sites.ReadWrite.All (recorded honestly in the milestone doc; the same trust
    model the shared Lists have always had). */
 function permsLive(){return PEOPLE.some(p=>p.admin!=null||p.feedbackRecipient!=null);}
+/* v1.9.0 (owner ask): the developer's viewer preview. A row whose admin column reads
+   'dev' is a developer — a full admin whose toolbar gains the Viewer toggle next to
+   the version number. While the toggle is on (per tab), isAdmin() answers false, so
+   EVERY door the real viewer experience closes closes here too. */
+let DEV_VIEW=false;
+try{DEV_VIEW=sessionStorage.getItem('shopTimelineDevView')==='1';}catch(e){}
+let DEV_LOCK0=null; /* DATE_LOCK as it stood when the preview switched on — restored on exit, since applyPerms only ever forces it ON for viewers */
+function isDeveloper(){const me=meName();const p=me?personByName(me):null;return !!(p&&p.developer);}
 function isAdmin(){
+  if(DEV_VIEW&&isDeveloper())return false; /* previewing the non-admin experience */
   if(!PEOPLE.length||PEOPLE.every(p=>p.admin==null))return true;
   const me=meName();const p=me?personByName(me):null;
   return !!(p&&p.admin);
@@ -2456,6 +2479,9 @@ function viewerLock(box){
 function applyPerms(){
   const v=isViewer();
   document.body.classList.toggle('viewer',v);
+  /* v1.9.0: the Viewer toggle lives on every route's toolbar, developers only. */
+  {const dv=document.getElementById('tb-devview');
+   if(dv){dv.classList.toggle('hidden',!isDeveloper());dv.classList.toggle('active',DEV_VIEW&&isDeveloper());}}
   if(v&&!DATE_LOCK){ /* Lock Dates on by default and the toggle hidden (owner spec) */
     DATE_LOCK=true;
     const ck=document.getElementById('lock-ck');if(ck)ck.checked=true;
@@ -2930,16 +2956,36 @@ function renderMeDock(){
     +'<span class="t">'+esc(per.name)+'</span>'
     +'<span class="sub">'+esc([per.role,deptLbl,per.email].filter(Boolean).join(' · ')||'Not on the staff list')+'</span>'
     +'<button class="ins-btn" id="md-collapse" title="'+(ME_DOCK_COL?'Expand the panel':'Collapse the panel')+'" aria-expanded="'+String(!ME_DOCK_COL)+'"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg></button></div>'
+    /* v1.9.0 (owner ask): Milestones + Notes stack in ONE column; User Notes — the
+       person's own scratch pad, stored on their staff row (item 30's personalNotes
+       column) — takes its own column at the far right. Personal by spec: the column
+       exists ONLY on your own dashboard, never on someone else's Summary. */
     +'<div class="ins-body">'
     +sec2('Working on',active.length+coming.length,cap([...active,...coming],barRow))
-    +sec2('Milestones',checkpoints.length,cap(checkpoints,evRow))
-    +sec2('Notes',tasks.length,cap(tasks,tkRow))
+    +'<div class="ins-sec md-stack">'
+      +'<h4>Milestones<span class="n">'+checkpoints.length+'</span></h4><div class="in">'+cap(checkpoints,evRow)+'</div>'
+      +'<h4>Notes<span class="n">'+tasks.length+'</span></h4><div class="in">'+cap(tasks,tkRow)+'</div>'
+    +'</div>'
     +sec2('Time off',ooo.length,cap(ooo,ooRow))
+    +(dashSelf()&&per.id
+      ?'<div class="ins-sec" data-sec="notes"><h4>User Notes</h4><div class="in">'
+        +'<textarea class="ins-notes" id="md-unotes" placeholder="Anything you want to keep next to your schedule — saved to your staff row.">'
+        +esc(per.personalNotes==null?'':per.personalNotes)+'</textarea>'
+      +'</div></div>'
+      :'')
     +'</div>';
   document.getElementById('md-collapse').addEventListener('click',()=>{
     ME_DOCK_COL=!ME_DOCK_COL;
     try{localStorage.setItem('shopTimelineMeDockCollapsed',ME_DOCK_COL?'1':'0');}catch(e){}
     renderMeDock();
+  });
+  /* Saves on blur (change), through the normal optimistic staff sync. `true` is
+     savePeople's v1.9.0 self-row exception — a viewer may write their OWN notes. */
+  const un=document.getElementById('md-unotes');
+  if(un)un.addEventListener('change',()=>{
+    const p0=PEOPLE.find(p=>p.id===per.id);
+    if(!p0||String(p0.personalNotes==null?'':p0.personalNotes)===un.value)return;
+    savePeople(PEOPLE.map(p=>p.id===per.id?{...p,personalNotes:un.value}:p),true);
   });
 }
 
@@ -4148,8 +4194,12 @@ function cdSavePerson(){
     depts:r.depts||[],
     ooo:(r.ooo||[]).filter(o=>o.start&&o.end).map(o=>o.end>=o.start?o:{...o,start:o.end,end:o.start}),
     /* v1.8.0: the flags ride through every save (tristate — null means the row never
-       carried the column and personToFields omits it). */
+       carried the column and personToFields omits it). v1.9.0: developer and
+       personalNotes ride along too — the People editor never touches either, but a
+       save here must not strip them off the row. */
     admin:r.admin==null?null:!!r.admin,
+    developer:!!r.developer,
+    personalNotes:r.personalNotes==null?null:r.personalNotes,
     feedbackRecipient:r.feedbackRecipient==null?null:!!r.feedbackRecipient};
   if(!per.name){toast('Give the person a name first.','err');return;}
   if(PEOPLE.some(x=>x.id!==per.id&&x.name.trim().toLowerCase()===per.name.toLowerCase())){
@@ -5325,6 +5375,11 @@ let NPV_FIT=null;
    (old integer steps still parse the same). */
 try{const f=parseFloat(localStorage.getItem('shopTimelineNpvFit'));if(f>=FIT_MIN&&f<=FIT_MAX)NPV_FIT=f;}catch(e){}
 let NPV_CAL_FOCUS=false; /* N16: calendar shows only the selected phase's bands */
+/* v1.9.0 (owner ask): live resize override — while an edge drag has left the grabbed
+   segment's home week, {key,s,e} makes npvPaintCalendar draw that phase (twins merged,
+   same key) at the snapped span, so the bar follows the pointer week to week. */
+let NPV_CAL_RZ=null;
+const npvCalKey=t=>t.department+'|'+(t.label||'')+'|'+t.startDate+'|'+t.endDate;
 let NPV_CAL_OPEN=new Set(); /* v1.0.4 (obj 8): calendar phases expanded (dept ids) — any
                                number at once, independent of the selection and of the
                                Gantt's NPV_OPEN; cleared by the legend-bar Collapse all */
@@ -6360,7 +6415,11 @@ function npvBindHost(host){
       }
       const x0=ev.clientX,y0=ev.clientY;
       const tip=document.getElementById('tooltip');
-      let moved=false,anchor=null,days=0,edgeD=null,bandGeo=null;
+      /* v1.9.0: row0/rzFollow — once the pointer leaves the grabbed segment's week row,
+         the px stretch below can't follow, so the drag switches to repainting the bands
+         at the snapped span (NPV_CAL_RZ) and stays in that mode for the rest of it. */
+      const row0=band.closest('.cal-wk'),rzKey=npvCalKey(t);
+      let moved=false,anchor=null,days=0,edgeD=null,bandGeo=null,rzFollow=false,rzLast='';
       const mv=e2=>{
         if(!moved){
           if(Math.abs(e2.clientX-x0)<3&&Math.abs(e2.clientY-y0)<3)return;
@@ -6376,7 +6435,7 @@ function npvBindHost(host){
            the week row; the day snap still happens on release (tint + tooltip keep
            showing the snapped result). Only the grabbed segment stretches live — the
            other week rows redraw on release. */
-        if(resize){
+        if(resize&&!rzFollow){
           if(!bandGeo){const r=band.getBoundingClientRect(),
             wr=(band.closest('.cal-wk')||band).getBoundingClientRect();
             bandGeo={w:r.width,left:r.left,rowL:wr.left,rowR:wr.right};}
@@ -6408,8 +6467,21 @@ function npvBindHost(host){
             tip.innerHTML='<div class="tt-title">'+fmtNice(fmtDate(edgeD))+'</div>';
             tip.classList.remove('hidden');posTooltip(e2);
           }
-          /* 3.5: the snap-resolved span tints live under the drag. */
           const ra=fmtDate(resize==='l'?edgeD:s0),rb=fmtDate(resize==='r'?edgeD:e0);
+          /* v1.9.0 (owner ask): the bar jumps to follow the pointer into previous or
+             subsequent weeks — the moment the drag leaves the grabbed segment's home
+             row, bands repaint (day-granular) at the snapped span, new week rows and
+             all. The tint below reapplies to the fresh cells in the same move. */
+          if(!rzFollow&&cel.closest('.cal-wk')!==row0){
+            rzFollow=true;band.style.width='';band.style.transform='';
+          }
+          if(rzFollow&&ra+'|'+rb!==rzLast){
+            rzLast=ra+'|'+rb;
+            NPV_CAL_RZ={key:rzKey,s:ra,e:rb};
+            npvRender();
+            host.querySelectorAll('.cal-band.ph[data-i="'+i+'"]').forEach(b=>b.classList.add('dragging'));
+          }
+          /* 3.5: the snap-resolved span tints live under the drag. */
           host.querySelectorAll('.cal-col[data-d]').forEach(cc=>
             cc.classList.toggle('rz',cc.dataset.d>=ra&&cc.dataset.d<=rb));
           return;
@@ -6428,8 +6500,11 @@ function npvBindHost(host){
         document.removeEventListener('mouseup',up);
         host.classList.remove('cal-dragging');band.classList.remove('dragging');
         /* v1.1.0 (obj 9): drop the live-follow geometry — the early-return paths below
-           (no-op drag, refused resize) never rebuild, so the band must snap back here. */
+           (no-op drag, refused resize) never rebuild, so the band must snap back here.
+           v1.9.0: same rule for the cross-week override — clear it and repaint the true
+           dates before any early return; a commit path rebuilds again right after. */
         band.style.width='';band.style.transform='';
+        if(rzFollow){NPV_CAL_RZ=null;npvRender();}
         document.body.style.userSelect='';document.body.style.cursor='';hideTooltip();
         host.querySelectorAll('.cal-col.rz').forEach(cc=>cc.classList.remove('rz'));
         /* No movement: the click handler selects/opens as before. A drag back to the
@@ -6773,7 +6848,9 @@ function npvPaintCalendar(lo,hi,dl){
      those empty weeks cost a lot of height once cells are square. */
   let lo2=parseDate(NPV_TASKS[0].startDate), hi2=lo2;
   for(const t of NPV_TASKS){
-    const a=parseDate(t.startDate),b=parseDate(t.endDate);
+    let a=parseDate(t.startDate),b=parseDate(t.endDate);
+    /* v1.9.0: a live resize can push past the painted weeks — rows follow the drag */
+    if(NPV_CAL_RZ&&npvCalKey(t)===NPV_CAL_RZ.key){a=parseDate(NPV_CAL_RZ.s);b=parseDate(NPV_CAL_RZ.e);}
     if(a<lo2)lo2=a; if(b>hi2)hi2=b;
   }
   for(const mk of marks){
@@ -6812,7 +6889,7 @@ function npvPaintCalendar(lo,hi,dl){
     const items=[];
     /* N16: "Selected only" filters the bands to the selected phase (and its roster
        twins); events and tasks stay for context. */
-    const calKey=t=>t.department+'|'+(t.label||'')+'|'+t.startDate+'|'+t.endDate;
+    const calKey=npvCalKey; /* v1.9.0: hoisted — the resize drag needs the same key */
     /* 3.5/I1: resolve the selection page-aware — a draft's PP_SEL is a stable key,
        so compare against the resolved bar's CURRENT id. */
     const selT0=PP_SEL?(NPV_LIVE?NPV_TASKS.find(z=>z.id===PP_SEL):ppDraftResolve(PP_SEL)):null;
@@ -6821,7 +6898,10 @@ function npvPaintCalendar(lo,hi,dl){
     const selKey=selBar?calKey(selBar):null;
     const seen={};
     NPV_TASKS.forEach((t,ti)=>{
-      const a=parseDate(t.startDate),b=parseDate(t.endDate);
+      let a=parseDate(t.startDate),b=parseDate(t.endDate);
+      /* v1.9.0: the dragged phase paints at the snapped span (keying on the STORED
+         dates, so roster twins still merge and the override hits them all). */
+      if(NPV_CAL_RZ&&calKey(t)===NPV_CAL_RZ.key){a=parseDate(NPV_CAL_RZ.s);b=parseDate(NPV_CAL_RZ.e);}
       if(b<c||a>wEnd)return;
       if(selKey&&calKey(t)!==selKey)return;
       /* REV56: same hierarchy the Gantt shows — a department's first bar is the
@@ -8331,7 +8411,12 @@ function enterDash(name){
   LENS='dept';PERSON=name;
   document.getElementById('btn-lens-dept').classList.add('active');
   document.getElementById('btn-lens-proj').classList.remove('active');
-  saveUI();updateFilterBadges();render();
+  saveUI();updateFilterBadges();
+  /* v1.9.0 (owner ask): My Dashboard is a NAVIGATION. From a project or Company Data
+     page the hash walks back to the timeline — applyRoute swaps the page and renders —
+     instead of quietly arming the dashboard behind the page on screen. */
+  if(typeof ROUTE!=='undefined'&&ROUTE&&ROUTE.view!=='timeline'){goTimeline();return;}
+  render();
 }
 function exitDash(){
   PERSON=null;
@@ -8362,6 +8447,17 @@ document.getElementById('btn-dash').addEventListener('click',ev=>{
   const open=m.classList.contains('hidden');closeMenus();if(open)m.classList.remove('hidden');
 });
 document.getElementById('dash-menu').addEventListener('click',ev=>ev.stopPropagation());
+/* v1.9.0: the developer's Viewer toggle — per tab, remembered across reloads in this
+   tab only. DATE_LOCK is restored on exit because applyPerms only forces it ON. */
+document.getElementById('tb-devview').addEventListener('click',()=>{
+  DEV_VIEW=!DEV_VIEW;
+  try{sessionStorage.setItem('shopTimelineDevView',DEV_VIEW?'1':'0');}catch(e){}
+  if(DEV_VIEW)DEV_LOCK0=DATE_LOCK;
+  else if(DEV_LOCK0!=null){DATE_LOCK=DEV_LOCK0;DEV_LOCK0=null;
+    const ck=document.getElementById('lock-ck');if(ck)ck.checked=DATE_LOCK;}
+  toast(DEV_VIEW?'Previewing as a viewer — every edit door is closed. Click Viewer again to return.':'Back to your admin view.');
+  render();
+});
 /* v1.2.0 (obj 1): the dashboard bar's two exits — the crumb and the × — both unwind
    to the full timeline, same as the project page's trail. */
 document.getElementById('db-all').addEventListener('click',()=>exitDash());
@@ -8799,6 +8895,7 @@ async function boot(){
     if(document.getElementById('npv-pop')||document.getElementById('npv-menu'))return; /* don't rebuild under an open editor/menu */
     if(CD_EDIT)return; /* v1.7.0: a Company Data record mid-edit — same defer as an open popover */
     if(document.activeElement&&document.activeElement.closest&&document.activeElement.closest('#page'))return;
+    if(document.activeElement&&document.activeElement.closest&&document.activeElement.closest('#me-dock'))return; /* v1.9.0: User Notes mid-type — a tick would rebuild the dock under the caret */
     POLL_N++;
     try{
       /* A5: re-attach the sample before comparing, or every tick would wipe it.

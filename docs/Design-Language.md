@@ -306,6 +306,19 @@ for every future company master-data section (departments, project types, holida
   outright. App-wide, the viewer role follows the same read-first grammar: locked
   fields flatten to information (`body.viewer` + disabled controls), admin-only
   chrome disappears rather than disabling, and every refusal toast says who to ask.
+- **The developer's Viewer toggle (v1.9.0).** A staff row whose admin column reads
+  `dev` is a *developer* — a full admin whose toolbar gains a **Viewer** button next
+  to the version number (top right, every route). One click previews the app exactly
+  as a non-admin sees it — `isAdmin()` answers false everywhere, so every real door
+  closes, including Lock Dates forcing on (restored on exit). The toggle lights while
+  active and is remembered per tab. The value is typed straight onto the list by the
+  owner; the People editor never assigns it, but People-page saves preserve it.
+- **My Dashboard dock columns (v1.9.0, owner ask):** Working on | Milestones +
+  Notes *stacked in one column* | Time off | **User Notes** — a personal multi-line
+  scratch pad at the far right, stored on the person's staff row (`personalNotes`)
+  and saved on blur through the normal staff sync. Personal by spec: the column
+  exists only on your OWN dashboard (viewers included — the one self-row exception
+  to the people-edit gate) and never appears on someone else's Summary.
 
 ## 8. Print & Meeting Sheet
 

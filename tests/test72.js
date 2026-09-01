@@ -53,8 +53,15 @@ const mkBand=id=>doc.querySelector('#npv-body .cal-band[data-mk-id="'+id+'"]');
 const drag=(el,cells)=>{
   el.dispatchEvent(new win.MouseEvent('mousedown',
     {bubbles:true,cancelable:true,button:0,clientX:100,clientY:100}));
-  cells.forEach((c,n)=>c.dispatchEvent(new win.MouseEvent('mousemove',
-    {bubbles:true,cancelable:true,clientX:120+n*10,clientY:100})));
+  cells.forEach((c,n)=>{
+    /* v1.9.0: a cross-week resize repaints the calendar mid-drag, detaching cells
+       captured before the drag — re-resolve by date, the way a real browser's
+       hit-test finds the fresh cell under the pointer. */
+    const t=c&&!c.isConnected&&c.dataset&&c.dataset.d
+      ?doc.querySelector('#npv-body .cal-col[data-d="'+c.dataset.d+'"]')||c:c;
+    t.dispatchEvent(new win.MouseEvent('mousemove',
+      {bubbles:true,cancelable:true,clientX:120+n*10,clientY:100}));
+  });
   doc.dispatchEvent(new win.MouseEvent('mouseup',{bubbles:true,cancelable:true,button:0}));
 };
 const clickOn=el=>{

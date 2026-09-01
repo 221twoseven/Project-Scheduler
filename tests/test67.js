@@ -11,6 +11,11 @@ const src=fs.readFileSync(FILE,'utf8');
 
 const V12=src.indexOf('dash-bar')>=0; /* v1.2.0: exits live on the dashboard bar */
 const V164=src.indexOf('dash-flat')>=0; /* v1.6.4: the panel follows the person into either lens */
+/* v1.9.0: Milestones + Notes stack in one column, and User Notes only exists on the
+   viewer's OWN dashboard — another person's Summary (this suite's Nick) shows three
+   sections: Working on | Milestones+Notes | Time off. */
+const V190=src.indexOf('md-stack')>=0;
+const SECN=V190?3:4, TK=V190?1:2, OFF=V190?2:3;
 if(!/me-dock/.test(src)){
   console.log('  SKIP  build predates the person panel (no me-dock) — nothing to assert');
   console.log('\n'+'-'.repeat(46));
@@ -60,7 +65,7 @@ setTimeout(()=>{
   sec('Panel appears with Departments lens + person filter');
   E("LENS='dept';PERSON='Nick';render();");
   ok('body gets me-dock-on',E("document.body.classList.contains('me-dock-on')"));
-  ok('four sections render',E("document.querySelectorAll('#me-dock .ins-sec').length")===4,
+  ok((V190?'three':'four')+' sections render',E("document.querySelectorAll('#me-dock .ins-sec').length")===SECN,
      E("document.querySelectorAll('#me-dock .ins-sec').length"));
   ok('header shows name, role, dept and email',
      E("document.querySelector('#me-dock .md-hd').textContent").includes('Nick')&&
@@ -79,12 +84,12 @@ setTimeout(()=>{
   ok('past checkpoints and other projects stay out',!cp.includes('Old checkpoint')&&!cp.includes('Madison review'));
 
   sec('Tasks: his open to-dos only');
-  const tk=E("document.querySelectorAll('#me-dock .ins-sec')[2].textContent");
+  const tk=E("document.querySelectorAll('#me-dock .ins-sec')["+TK+"].textContent");
   ok('his open task shows',tk.includes('Order steel'));
   ok('completed and other-people tasks stay out',!tk.includes('Done thing')&&!tk.includes('Not his task'));
 
   sec('Time off');
-  ok('the PTO range shows',E("document.querySelectorAll('#me-dock .ins-sec')[3].textContent").includes('PTO'));
+  ok('the PTO range shows',E("document.querySelectorAll('#me-dock .ins-sec')["+OFF+"].textContent").includes('PTO'));
 
   sec('Visibility rules');
   E("LENS='project';render();");

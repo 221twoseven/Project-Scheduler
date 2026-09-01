@@ -445,19 +445,24 @@ rule §5); old data keeps reading fine.
       staff lists reconcile and users are added. Robert runs it on `/preview/`.
       (Related later problem, owner-parked: name presentation on project-edit/
       subtask-edit pages.)
-- [ ] **30. (09-01 items 1–2) My Dashboard personal fields (proposed v1.9.0).**
+- [~] **30. (09-01 items 1–2) My Dashboard personal fields — HALF DONE 2026-09-01
+      (v1.9.0, via item 32).**
       Answer to the owner's question first: the greyed "Notes" panel on My Dashboard
       lists open **notes/to-dos assigned to you** (`ShopTimeline_Tasks2`) — it reads
       empty/grey when none. The ask is different and additive:
-      - **Personal notes to self:** one multi-line plain-text field, user-editable on
-        My Dashboard only; never shown on other people's Summary pages.
-      - **"Listening to:"** two single-line fields — line 1 helper "who/what",
+      - [x] **Personal notes to self — SHIPPED v1.9.0** as the dock's User Notes
+        column (item 32): multi-line, own dashboard only, never on other people's
+        Summary pages, saved on blur through `savePeople(list,true)` — the promised
+        self-row exception to the v1.8.0 viewer guard. ⚠ Needs the `personalNotes`
+        column (below) before a save can land; until then the first save surfaces
+        the normal sync-error toast.
+      - [ ] **"Listening to:"** two single-line fields — line 1 helper "who/what",
         line 2 helper "link" — edited on My Dashboard, displayed on Summary pages.
+        Still open (not in the 09-01 late asks); columns below.
       - Storage ⚠ (spec delivered 2026-09-01, Robert applies): three columns on
         `ShopTimeline_Staff` — `personalNotes` (multi-line, plain text),
         `listeningTo` (single line), `listeningLink` (single line). Save path is a
-        self-row-only PATCH (everyone may edit their OWN row's personal fields —
-        the v1.8.0 people-edit gate gets that one exception when this ships).
+        self-row-only PATCH (shipped for personalNotes in v1.9.0).
 - [x] **31. (09-01 sidebar feedback) ⇕ All levels + header parity — DONE 2026-09-01
       (v1.8.1).** Two items from the owner's screenshot message: (1) **⇕ All walks
       the view's expansion levels in series** — Projects lens + sort grouping is a
@@ -477,6 +482,30 @@ rule §5); old data keeps reading fine.
       Noted for later: the owner's screenshot shows a double
       DIOR group — two case-different client spellings on projects (data condition;
       fix the client field on the projects or a future scrub, not rendering).
+- [x] **32. (09-01 late-evening handoff) Four owner asks — DONE 2026-09-01 (v1.9.0).**
+      1. **Calendar edge-resize follows the pointer across week rows.** The v1.1.0
+         px-for-px stretch was clamped to the grabbed segment's own week; only the
+         cell tint crossed rows. Now the moment the drag leaves the home row the
+         bands repaint live at the snapped span (`NPV_CAL_RZ` override in
+         `npvPaintCalendar`, day-granular, twins merged) — the bar jumps week to
+         week under the mouse, both directions, new week rows included. Within the
+         home row the smooth px stretch is unchanged. Ceiling ledgered in §7
+         (can't extend past the last painted week — no cells below to hover).
+      2. **My Dashboard dock re-layout:** Milestones + Notes stacked in one column;
+         **User Notes** (item 30's personalNotes half — see item 30) in its own
+         column at the far right.
+      3. **Developer Viewer toggle:** admin column value `dev` = developer (a full
+         admin); their toolbar gains a Viewer button next to the version number that
+         previews the app exactly as a non-admin viewer sees it (per-tab, Lock Dates
+         restored on exit). Owner types the value straight onto the list — the
+         People editor never assigns it, but People-page saves preserve it
+         (`personToFields` writes `dev` back while the row stays admin). Ledger
+         note in §7 on the demote/re-promote path.
+      4. **My Dashboard is a navigation:** entered from a Company Data or project
+         page, `enterDash` walks the hash back to `#/` (applyRoute renders) instead
+         of arming the dashboard behind the page on screen.
+      Suite: `tests/test-v190.js` (36 checks). Record:
+      `docs/Milestones/2026-09-01-v190-owner-asks.md`.
 
 - [ ] **13. (Obj 4) Reconcile and absorb the 14 disparate data stores.** The app
       becomes the company's singular source of truth (the v1 "north star", now
@@ -562,7 +591,8 @@ rule §5); old data keeps reading fine.
 | v1.7.2 | ✅ Shipped 2026-09-01 — 28 (evening-handoff quick wins: wordmark, dept-lens sort hide, coach copy, year drag-zoom) + 29 (`scrubLegacyNames()` — the v1.6.5 scrub, GO'd) |
 | v1.8.0 | ✅ Shipped 2026-09-01 — 12 (permissions: admin/viewer roles + feedback-recipient mail via Graph sendMail) |
 | v1.8.1 | ✅ Shipped 2026-09-01 — 31 (⇕ All walks expansion levels; sort-group headers = dept-header style) + test-v171 gate fix (feature-tied, not version-tied) |
-| v1.9.0 | 30 (My Dashboard personal notes + Listening to) ⚠ — three staff columns, spec delivered |
+| v1.9.0 | ✅ Shipped 2026-09-01 — 32 (late-evening owner asks: calendar resize follows across weeks, dock re-layout + User Notes = item 30's personalNotes half, developer Viewer toggle, My Dashboard navigates) ⚠ `personalNotes` column |
+| v1.9.x | 30 second half (Listening to: two fields on Summary pages) ⚠ — `listeningTo`/`listeningLink` columns, spec delivered |
 | v1.10.0 | 26 (change log) ⚠ — after permissions |
 | v2.0.0 | 13 (single source of truth) ⚠ — likely several minors along the way (one per absorbed store), with v2.0.0 as the cutover declaration |
 
@@ -587,15 +617,20 @@ rule §5); old data keeps reading fine.
   **CREATED 2026-09-01 (Robert)**; `1` on his row for the first two. The app reads
   and writes `phone` as of v1.7.1 (field mappers + People page). ~~Verify the
   phone column's internal name is exactly `phone`~~ — **VERIFIED 2026-09-01
-  (Robert): internal name is `phone`.**
+  (Robert): internal name is `phone`.** **v1.9.0 (no schema change): the admin
+  column accepts a third VALUE, `dev` = developer (admin + the Viewer preview
+  toggle) — Robert types it onto his own row directly on the list.**
 - Entra: `Mail.Send` (Delegated) joins the app registration for §3 item 12's
   feedback mail — owner-executed + admin consent; **DONE 2026-09-01 (Robert:
   set up + admin-consented).** The app requests the scope on its own silent token
   (v1.8.0), so a consent gap degrades to "report filed, mail skipped". ⚠
-- Candidate new columns for §3 item 30 (spec delivered 2026-09-01, Robert applies
-  before v1.9.0 ships): on `ShopTimeline_Staff` — `personalNotes` (multi-line,
-  plain text), `listeningTo` (single line), `listeningLink` (single line). All
-  additive; app reads/writes them only on the signed-in user's own row. ⚠
+- Candidate new columns for §3 item 30 (spec delivered 2026-09-01, Robert applies):
+  on `ShopTimeline_Staff` — `personalNotes` (multi-line, plain text), `listeningTo`
+  (single line), `listeningLink` (single line). All additive; app reads/writes them
+  only on the signed-in user's own row. **v1.9.0 ships the `personalNotes`
+  reader/writer (tristate — a site without the column never 400s on OTHER saves,
+  but a User Notes save itself needs the column).** `listeningTo`/`listeningLink`
+  wait on item 30's second half. ⚠
 - Candidate new column: a lifecycle/`status` column (Active/Inactive/Archived) on
   `ShopTimeline_Staff` and `ShopTimeline_Clients` (§3 item 27's archive-not-delete
   model) — additive; Robert applies it when item 27's lifecycle pass is designed
@@ -835,6 +870,25 @@ these are the ones still open, plus new deferrals as they happen.
 - [ ] Feedback mail rides silent-token-only — if a user's Mail.Send consent is
       somehow missing, the mail is skipped without a popup (report still filed,
       toast says which). Gate: recipients report gaps. (v1.8.0)
+- [ ] The calendar resize-follow can't extend past the LAST painted week — there
+      are no day cells below the final row to hover (the calendar paints only the
+      weeks the job touches + deadline). Long extensions belong to the Gantt or
+      the inspector's date fields. Gate: someone reaching for it on the calendar.
+      (v1.9.0, 2026-09-01)
+- [ ] Cross-week resize feedback is day-granular (repaint per day crossed); the
+      smooth px-for-px stretch lives only inside the home week, and once the drag
+      has left it the whole drag stays repaint-mode even back home. Cosmetic.
+      Gate: someone noticing. (v1.9.0)
+- [ ] Demoting a developer's admin checkbox drops the `dev` value (deliberate);
+      re-checking Admin writes plain `1` — the owner re-types `dev` on the list
+      to restore the toggle. Gate: it happening often enough to annoy. (v1.9.0)
+- [ ] The Viewer preview is honest to a fault: while it's on, the developer IS a
+      viewer — their own edits (beyond User Notes) are refused until toggled back.
+      Deliberate; that's what "preview the real thing" means. (v1.9.0)
+- [ ] User Notes saves need the `personalNotes` column on `ShopTimeline_Staff`
+      (§5 spec, Robert applies) — before it exists the first save surfaces the
+      normal staff sync-error toast (localStorage copy still holds locally).
+      Gate: column created. (v1.9.0)
 
 **Deliberate design ceilings — no action planned, revisit only on real complaints:**
 12-slot palette repeats at 13+ visible projects (T2); quiet re-selection after a
