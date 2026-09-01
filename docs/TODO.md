@@ -39,7 +39,11 @@ report ("legacy person IDs assigned, authenticated IDs not") shipped as **v1.6.5
 `canonName()` resolves legacy abbreviated crew/role strings ("Davis S.", bare first
 names) to roster people inside `barCrew()` — lanes merge, dashboards/filters find
 legacy work, overbooking stops skipping them; stored values untouched. Record:
-`docs/Milestones/2026-09-01-v165-legacy-person-ids.md`.
+`docs/Milestones/2026-09-01-v165-legacy-person-ids.md`. The owner's follow-up on the
+Filters dropdown shipped as **v1.6.6**: the Person radios stay in the menu inside a
+Summary (switch or clear the person right there — the v1.2.2 hide reversed), and the
+status-scoped Show all / Clear all pair became one menu-wide **Show everything**
+reset. Record: `docs/Milestones/2026-09-01-v166-filter-dropdown.md`.
 
 ---
 
@@ -354,6 +358,7 @@ rule §5); old data keeps reading fine.
 | v1.6.3 | ✅ Shipped 2026-08-31 — project-Gantt scroll fallout: step buttons anchor today, sticky axis gutter mask, weekend webs moved under the rows with the §2.4 hatch (they painted OVER the bars) |
 | v1.6.4 | ✅ Shipped 2026-09-01 — third review round: the Summary/Dashboard place follows the person into the Projects lens (toggle hidden while a person is on; flat treatment stays dept-only) |
 | v1.6.5 | ✅ Shipped 2026-09-01 — legacy person strings resolve to roster people (`canonName` in `barCrew`): dept lanes merge, person filter/dashboards find legacy-named work, overbooking sees through old strings; stored values never rewritten |
+| v1.6.6 | ✅ Shipped 2026-09-01 — Filters dropdown revision: Person radios stay in the menu inside a Summary (switch/clear in place; Everyone = the × exit), one menu-wide "Show everything" reset replaces the status-scoped Show all / Clear all pair |
 | v1.7.0 | 12 (permissions) ⚠ |
 | v1.8.0 | 26 (change log) ⚠ — after permissions |
 | v2.0.0 | 13 (single source of truth) ⚠ — likely several minors along the way (one per absorbed store), with v2.0.0 as the cutover declaration |
@@ -550,6 +555,15 @@ these are the ones still open, plus new deferrals as they happen.
 - [ ] Two roster people sharing a first name + surname initial keep legacy strings
       unmerged (deliberate ambiguity rule — never guess identity). Gate: it happens
       on the real roster; fix is a manual data correction, not code. (v1.6.5)
+- [ ] "Show everything" clears the person (exits the summary like the ×) while the
+      toolbar Clear filters still keeps it (the v1.2.2 ruling) — a deliberate
+      asymmetry: the menu button is the owner-specified full-list reset, the toolbar
+      button keeps the dashboard-safe behavior. Gate: the owner asking for the two
+      to align either way. (v1.6.6, 2026-09-01)
+- [ ] The status section lost its "Clear all" (hide everything, then tick one) —
+      isolating one status now means unchecking the rest by hand. Gate: someone
+      missing it; fix is a per-item "only" affordance, not the confusing pair.
+      (v1.6.6)
 
 **Deliberate design ceilings — no action planned, revisit only on real complaints:**
 12-slot palette repeats at 13+ visible projects (T2); quiet re-selection after a

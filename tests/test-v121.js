@@ -106,8 +106,14 @@ function main(){
   ok('the person does not count as an active filter', E('activeFilterCount()')===0);
   ok('no "Person:" chip renders', !qa('#filter-chips .f-chip').some(c=>/Person:/.test(c.textContent)));
   ok('Clear filters stays hidden', q('#btn-reset').classList.contains('hidden'));
-  ok('the Person section is CSS-hidden on the dashboard',
-     /body\.dash-on #fm-person-sec,body\.dash-on #person-menu\{display:none\}/.test(src));
+  /* v1.6.6 reversed the section hide: the Person radios stay in the Filters menu
+     inside a summary so the person can be switched or cleared there. */
+  if(src.indexOf('fm-showall')>=0)
+    ok('the Person section STAYS in the Filters menu (v1.6.6)',
+       !/body\.dash-on #fm-person-sec/.test(src));
+  else
+    ok('the Person section is CSS-hidden on the dashboard',
+       /body\.dash-on #fm-person-sec,body\.dash-on #person-menu\{display:none\}/.test(src));
   E("CLIENT_FILTER.add('C');updateFilterBadges()");
   ok('a client filter surfaces Clear filters again', !q('#btn-reset').classList.contains('hidden'));
   q('#btn-reset').click();

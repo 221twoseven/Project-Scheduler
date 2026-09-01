@@ -115,8 +115,9 @@ body.dash-on .sb-lens{display:none}
 body.dash-flat #sb-all{display:none}
 body.dash-flat .sb-chev{visibility:hidden}
 /* v1.2.2: the dashboard is a place, not a filtered view — the person "filter" that
-   powers it never presents as one. Filters offers status + client only here. */
-body.dash-on #fm-person-sec,body.dash-on #person-menu{display:none}
+   powers it never chips or counts. v1.6.6 (owner review): the Person section STAYS
+   in the Filters menu while inside, so the person can be switched or cleared
+   (Everyone) without hunting for the × — the old display:none hide is gone. */
 .sb-dash-lbl{display:none}
 body.dash-on #sb-head .sb-dash-lbl{display:block;flex:1;font-size:var(--fs-fine);font-weight:700;letter-spacing:.16em;color:var(--txt-micro)}
 body.me-dock-on.me-dock-col #main{bottom:45px}
@@ -1147,6 +1148,7 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
     <div class="sf-wrap">
       <button id="btn-filters" class="t-btn" title="Filter the board by status, client or person">Filters <svg class="ico-s" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 6 8 9.5 11.5 6"/></svg></button>
       <div id="filters-menu" class="tb-menu hidden">
+        <div class="sm-btns"><button id="fm-showall" class="sm-all" title="Clear every filter — status, client and person — so every project shows">Show everything</button></div>
         <div class="sm-sec">Status</div>
         <div id="status-menu"></div>
         <div class="sm-sec">Client</div>
@@ -1397,7 +1399,7 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.6.5'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.6.6'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -7711,7 +7713,11 @@ function buildPersonMenu(){
   const mk=(label,val)=>{
     const l=document.createElement('label');l.className='sm-item';
     const c=document.createElement('input');c.type='radio';c.name='person-pick';c.checked=(PERSON===val);
-    c.addEventListener('change',()=>{PERSON=val;saveUI();closeMenus();updateFilterBadges();render();});
+    c.addEventListener('change',()=>{
+      /* v1.6.6: Everyone leaves a summary the same way the × does (lens restored);
+         picking another name switches the summary in place. */
+      if(!val&&PERSON){closeMenus();exitDash();return;}
+      PERSON=val;saveUI();closeMenus();updateFilterBadges();render();});
     l.appendChild(c);l.appendChild(document.createTextNode(' '+label));
     m.appendChild(l);
   };
@@ -7752,13 +7758,9 @@ function buildStatusMenu(){
     l.appendChild(c);l.appendChild(document.createTextNode(' '+STATUS_LBL[st]));
     m.appendChild(l);
   }
-  const row=document.createElement('div');row.className='sm-btns';
-  const all=document.createElement('button');all.className='sm-all';all.textContent='Show all';all.title='Show projects of every status';
-  all.addEventListener('click',()=>{SHOW_STATUS=new Set(ALL_STATUSES);saveUI();buildStatusMenu();updateFilterBadges();render();});
-  const none=document.createElement('button');none.className='sm-all';none.textContent='Clear all';none.title='Hide every status, then tick the ones you want';
-  none.addEventListener('click',()=>{SHOW_STATUS=new Set();saveUI();buildStatusMenu();updateFilterBadges();render();});
-  row.appendChild(all);row.appendChild(none);
-  m.appendChild(row);
+  /* v1.6.6 (owner review): the status-scoped Show all / Clear all pair is gone —
+     "Clear all" read as clear-the-filters but actually hid every project. The one
+     menu-wide reset lives at the top of the dropdown (#fm-showall). */
 }
 /* Phase 2 (native direction) — Color by ▾ dropdown, was the Project/Team segmented toggle */
 function syncColorby(){const b=document.getElementById('colorby-v');if(b)b.textContent=COLOR_MODE==='entity'?'Team':'Project';}
@@ -7838,6 +7840,14 @@ function wireMenu(btnId,menuId){
   m.addEventListener('click',ev=>ev.stopPropagation());
 }
 document.getElementById('btn-filters').addEventListener('click',buildFiltersMenu);
+/* v1.6.6: the one menu-wide reset — every filter cleared, nothing hidden. Clearing
+   the person leaves a summary exactly like the × (lens restored). The menu stays
+   open so the cleared checkboxes read back as confirmation. */
+document.getElementById('fm-showall').addEventListener('click',()=>{
+  SHOW_STATUS=defaultShowStatus();CLIENT_FILTER.clear();
+  if(PERSON){exitDash();buildFiltersMenu();return;} /* exitDash saves, badges, renders */
+  saveUI();buildFiltersMenu();updateFilterBadges();render();
+});
 wireMenu('btn-filters','filters-menu');
 document.getElementById('btn-colorby').addEventListener('click',buildColorbyMenu);
 wireMenu('btn-colorby','colorby-menu');

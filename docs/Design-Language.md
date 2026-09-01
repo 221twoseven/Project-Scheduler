@@ -140,6 +140,15 @@ shows as a removable chip beside the button, the button carries a count
 (`Filters (2)`), and **Clear** appears only while a filter is on. The client
 picker lists only clients that have a project on the board, never the whole
 Clients master.
+**The menu's one reset is outcome-phrased (v1.6.6, owner review):** a single
+**Show everything** button at the top of the dropdown clears every filter —
+statuses restored, client picks cleared, person to Everyone (leaving a summary
+the way the × does). The old status-scoped "Show all / Clear all" pair is gone:
+"Clear all" read as clear-the-filters but actually hid every project. The Person
+radios stay in the menu inside a Summary/Dashboard (the v1.2.2 hide reversed), so
+the person can be switched in place or cleared there; the person still never
+chips or counts as a filter while the place is on, and the toolbar **Clear
+filters** still keeps it.
 **Separators and spacing carry the grouping — no eyebrow labels** (the category
 names are for maintainers, not printed in the UI; the shell relies on familiar
 controls rather than teaching users the app's taxonomy). **Views** is the named
