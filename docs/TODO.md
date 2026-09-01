@@ -458,6 +458,25 @@ rule §5); old data keeps reading fine.
         `listeningTo` (single line), `listeningLink` (single line). Save path is a
         self-row-only PATCH (everyone may edit their OWN row's personal fields —
         the v1.8.0 people-edit gate gets that one exception when this ships).
+- [x] **31. (09-01 sidebar feedback) ⇕ All levels + header parity — DONE 2026-09-01
+      (v1.8.1).** Two items from the owner's screenshot message: (1) **⇕ All walks
+      the view's expansion levels in series** — Projects lens + sort grouping is a
+      three-level cycle (all collapsed → groups open/projects closed → everything
+      open), two-level views toggle; mixed states resolve forward, so one
+      hand-opened row never flips the button (the reported inconsistency — with
+      groups collapsed the old button touched only project expansion and looked
+      dead). Fires the REV77 ledger gate. (2) **Sort-group headers = department
+      section headers** — same bar/hover/ink/count chip; the status sort keeps its
+      colored pill. Record:
+      `docs/Milestones/2026-09-01-v181-sidebar-headers-and-all-toggle.md`. Suite:
+      `tests/test-v181.js`. Third item (owner, same evening): **the My Dashboard
+      dock is drag-resizable like the project edit dock** — same grip pattern,
+      `--medock-h` drives dock + `#main` together, persisted per browser, collapse
+      chevron unchanged. Rode along: `test-v171`'s gate was version-tied
+      (`APP_VER='1.7`) and silently skipped at v1.8.0 — now feature-tied.
+      Noted for later: the owner's screenshot shows a double
+      DIOR group — two case-different client spellings on projects (data condition;
+      fix the client field on the projects or a future scrub, not rendering).
 
 - [ ] **13. (Obj 4) Reconcile and absorb the 14 disparate data stores.** The app
       becomes the company's singular source of truth (the v1 "north star", now
@@ -542,6 +561,7 @@ rule §5); old data keeps reading fine.
 | v1.7.1 | ✅ Shipped 2026-09-01 — fonts 6–7 (Brauer Neue title file + Bahnschrift `local()` app-wide) + the staff `phone` field (owner-created column) |
 | v1.7.2 | ✅ Shipped 2026-09-01 — 28 (evening-handoff quick wins: wordmark, dept-lens sort hide, coach copy, year drag-zoom) + 29 (`scrubLegacyNames()` — the v1.6.5 scrub, GO'd) |
 | v1.8.0 | ✅ Shipped 2026-09-01 — 12 (permissions: admin/viewer roles + feedback-recipient mail via Graph sendMail) |
+| v1.8.1 | ✅ Shipped 2026-09-01 — 31 (⇕ All walks expansion levels; sort-group headers = dept-header style) + test-v171 gate fix (feature-tied, not version-tied) |
 | v1.9.0 | 30 (My Dashboard personal notes + Listening to) ⚠ — three staff columns, spec delivered |
 | v1.10.0 | 26 (change log) ⚠ — after permissions |
 | v2.0.0 | 13 (single source of truth) ⚠ — likely several minors along the way (one per absorbed store), with v2.0.0 as the cutover declaration |
@@ -618,7 +638,9 @@ these are the ones still open, plus new deferrals as they happen.
       Gate: someone trips on it (REV76).
 - [ ] Very short projects render pill-only at Week zoom — intended per
       Design-Language §7. Gate: real complaints about lost labels (REV75).
-- [ ] Sidebar ⇕ All doesn't fold sort-group headers. Gate: PMs ask (REV77).
+- [x] Sidebar ⇕ All doesn't fold sort-group headers. Gate: PMs ask (REV77).
+      **Gate FIRED 2026-09-01 (owner feedback) — v1.8.1's level walk folds groups,
+      projects and phases in series (§3 item 31).**
 - [ ] Saved views don't capture sidebar width / gutter / scroll / linked-subtasks —
       workspace ergonomics, not "a view". Gate: someone misses one (REV79).
 - [ ] Saved views recall grouping, not per-person ordering — `sortIndex` is shared

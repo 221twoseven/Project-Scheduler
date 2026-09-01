@@ -103,11 +103,16 @@ body.pp-route .tb-timeline{display:none}
 
 /* ============ LAYOUT ============ */
 #main{position:fixed;top:92px;bottom:0;left:0;right:0;display:flex;overflow:hidden}
-/* REV67: person panel under the Departments lens (fixed height; resize later if asked) */
+/* REV67: person panel under the Departments lens. v1.8.1 (owner ask): height is
+   drag-resizable like the project edit dock — one --medock-h variable drives the
+   dock and #main's bottom together; the collapsed rules below still win. */
 #me-dock{display:none}
-body.me-dock-on #main{bottom:236px}
+body.me-dock-on #main{bottom:var(--medock-h,236px)}
 body.me-dock-on #me-dock{display:flex;flex-direction:column;position:fixed;left:0;right:0;bottom:0;
-  height:236px;background:var(--paper);border-top:1.5px solid #E2E8F0;z-index:20}
+  height:var(--medock-h,236px);background:var(--paper);border-top:1.5px solid #E2E8F0;z-index:20}
+#md-resize{position:absolute;top:-4px;left:0;right:0;height:8px;cursor:row-resize;z-index:30}
+#md-resize:hover{background:rgba(47,111,228,.3)}
+body.me-dock-col #md-resize{display:none}
 /* v1.2.0 (obj 1): the dashboard as its own place — trail bar fixed under the toolbar,
    lens toggles hidden, dock collapsible like the project page's (REV99 pattern).
    The mechanics stay the view filters underneath.
@@ -760,12 +765,13 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 
 
 /* ============ REV44: SORT GROUP HEADERS ============ */
-.sb-row.grp-head{background:#EDF2F7;border-bottom:1px solid #CBD6E4;border-top:1px solid #CBD6E4;
-  padding-left:12px;gap:8px;cursor:pointer}
-.sb-row.grp-head:hover{background:#E4EBF3}
-.sb-row.grp-head .sb-name{font-size:11px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;color:#475569}
-.sb-row.grp-head .sb-count{color:#94A3B8}
-.grp-pill{position:static!important;transform:none!important;font-size:var(--fs-fine);padding:2px 9px}
+/* v1.8.1 (owner ask): style parity — group headers wear exactly the Departments-lens
+   section-header treatment (same bar, hover, label ink, standard count chip). Only
+   the status sort's colored pill stays group-specific (identity, not decoration). */
+.sb-row.grp-head{background:#D6DFEB;border-bottom:1px solid #C2CFDF;font-size:var(--fs-fine);font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#57687F;cursor:pointer}
+.sb-row.grp-head:hover{background:#CCD8E7}
+.sb-row.grp-head .sb-name{font-size:var(--fs-fine);font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#57687F}
+.grp-pill{position:static!important;transform:none!important;font-size:var(--fs-fine);padding:2px 9px;text-transform:none;letter-spacing:0}
 
 /* ============ REV49: THE DASHBOARD ============ */
 /* Chart and inspector side by side and full height. The old layout stacked a chart over
@@ -1247,7 +1253,7 @@ body.cd-route #dash-bar{display:none!important}
         <button id="btn-lens-proj" class="t-btn active" title="Group the rows by project">Projects</button>
         <button id="btn-lens-dept" class="t-btn" title="Group the rows by department">Departments</button>
       </div>
-      <button id="sb-all" title="Collapse or expand every row at once"><svg class="ico-s" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 5.5 8 2l3.5 3.5M4.5 10.5 8 14l3.5-3.5"/></svg> All</button>
+      <button id="sb-all" title="Step every row through the view's levels — collapsed, groups, everything"><svg class="ico-s" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 5.5 8 2l3.5 3.5M4.5 10.5 8 14l3.5-3.5"/></svg> All</button>
     </div>
     <div id="side-rows"></div>
     <div id="sb-foot">
@@ -1422,7 +1428,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.8.0'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.8.1'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -2916,8 +2922,10 @@ function renderMeDock(){
   dk.innerHTML=
     /* v1.2.0: the trail (and the ×) moved to the #dash-bar up top — this header is
        the person summary plus the same collapse control the project page's dock has
-       (REV99 pattern), so the dock behaves like every other dock in the app. */
-    '<div class="md-hd">'
+       (REV99 pattern), so the dock behaves like every other dock in the app.
+       v1.8.1: and the same drag-resize grip (E1 pattern). */
+    '<div id="md-resize" title="Drag to resize the panel"></div>'
+    +'<div class="md-hd">'
     +'<span class="dot" style="background:'+hashColor(per.name)+'"></span>'
     +'<span class="t">'+esc(per.name)+'</span>'
     +'<span class="sub">'+esc([per.role,deptLbl,per.email].filter(Boolean).join(' · ')||'Not on the staff list')+'</span>'
@@ -5349,6 +5357,15 @@ try{DOCK_COLLAPSED=localStorage.getItem('shopTimelineDockCollapsed')==='1';}catc
    the project page's dock. FIT_MAIN is bound by the toolbar-fit IIFE below. */
 let ME_DOCK_COL=false;
 try{ME_DOCK_COL=localStorage.getItem('shopTimelineMeDockCollapsed')==='1';}catch(e){}
+/* v1.8.1: the dashboard dock height, persisted like the project dock's (E1). The
+   --medock-h variable drives #me-dock and #main's bottom together. */
+let ME_DOCK_H=236;
+try{const v=parseInt(localStorage.getItem('shopTimelineMeDockH'),10);if(v>0)ME_DOCK_H=Math.max(140,v);}catch(e){}
+document.documentElement.style.setProperty('--medock-h',ME_DOCK_H+'px');
+function setMeDockH(h){
+  ME_DOCK_H=Math.max(140,Math.min(Math.round(h),window.innerHeight-220));
+  document.documentElement.style.setProperty('--medock-h',ME_DOCK_H+'px');
+}
 let FIT_MAIN=()=>{};
 const NPV_ROWH=34;      /* must match .npv-row height in the stylesheet */
 let NPV_GEO=null;
@@ -7868,10 +7885,31 @@ document.getElementById('t-search').addEventListener('input',ev=>{
 });
 
 /* Collapse / expand all */
+/* v1.8.1 (owner ask): ⇕ All walks the view's expansion levels in series instead of a
+   blunt all-or-none. Projects lens with a sort grouping has THREE levels (group
+   headers → projects → phases): all collapsed → groups open / projects closed →
+   everything open → back. Ungrouped Projects and the Departments lens have two, so
+   the walk is a toggle. Mixed states resolve FORWARD — "expanded" is judged against
+   the whole visible board, so one hand-opened row finishes the level instead of
+   flipping the button into collapse-everything (the old inconsistency), and a
+   hand-collapsed group sends the walk to groups-open first. Fires the REV77 ledger
+   gate: the button now folds sort-group headers too. */
 document.getElementById('sb-all').addEventListener('click',()=>{
   if(LENS==='project'){
-    if(EXPANDED.size)EXPANDED.clear();
-    else ST.projects.forEach(p=>EXPANDED.add(p.id));
+    const projs=currentProjOrder().filter(p=>SHOW_STATUS.has(projectStatus(p))&&clientHit(p)&&projHasPerson(p));
+    if(GROUP_BY){
+      const keys=new Set(projs.map(groupKeyOf)),s=grpSet();
+      const groupsOpen=[...keys].every(k=>!s.has(k));
+      const allExpanded=projs.length>0&&projs.every(p=>EXPANDED.has(p.id));
+      if(!groupsOpen){keys.forEach(k=>s.delete(k));EXPANDED.clear();}      /* → level 1 */
+      else if(!allExpanded){projs.forEach(p=>EXPANDED.add(p.id));}         /* → level 2 */
+      else{keys.forEach(k=>s.add(k));EXPANDED.clear();}                    /* → all collapsed */
+      saveUI(); /* group collapse persists (B5); project expansion stays session-local */
+    }else{
+      const allExpanded=projs.length>0&&projs.every(p=>EXPANDED.has(p.id));
+      if(allExpanded)EXPANDED.clear();
+      else projs.forEach(p=>EXPANDED.add(p.id));
+    }
   }else{
     if(COLLAPSED.size)COLLAPSED.clear();
     else SECTIONS.forEach(s=>COLLAPSED.add(s.id));
@@ -8010,6 +8048,19 @@ function setDockCollapsed(collapsed,repaint){
     document.body.style.cursor='';document.body.style.userSelect='';
     try{localStorage.setItem('shopTimelineDockH',String(DOCK_H));}catch(e){}
     npvQueue();});
+})();
+/* v1.8.1: the dashboard dock resizes the same way (handle re-created each renderMeDock,
+   so the listeners live on document and key off the id — the E1 pattern above). */
+(function(){
+  let rs=null;
+  document.addEventListener('mousedown',ev=>{
+    if(!ev.target||ev.target.id!=='md-resize')return;
+    rs={sy:ev.clientY,oh:ME_DOCK_H};ev.preventDefault();
+    document.body.style.cursor='row-resize';document.body.style.userSelect='none';});
+  document.addEventListener('mousemove',ev=>{if(rs)setMeDockH(rs.oh+(rs.sy-ev.clientY));});
+  document.addEventListener('mouseup',()=>{if(!rs)return;rs=null;
+    document.body.style.cursor='';document.body.style.userSelect='';
+    try{localStorage.setItem('shopTimelineMeDockH',String(ME_DOCK_H));}catch(e){}});
 })();
 
 /* Dropping a project on empty sidebar space moves it to the end */

@@ -11,7 +11,9 @@ const fs=require('fs');
 const FILE=process.argv[2]||'index.html';
 const src=fs.readFileSync(FILE,'utf8');
 
-if(src.indexOf("APP_VER='1.7")<0||src.indexOf('cde-phone')<0){
+/* v1.8.1: gate on the FEATURE marker, not the version prefix — the old
+   APP_VER='1.7 check silently skipped this whole suite the moment v1.8.0 shipped. */
+if(src.indexOf('cde-phone')<0){
   console.log('test-v171: skipped — pre-v1.7.1 build ('+FILE+')');
   process.exit(0);
 }
