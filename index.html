@@ -104,13 +104,16 @@ body.me-dock-on #main{bottom:236px}
 body.me-dock-on #me-dock{display:flex;flex-direction:column;position:fixed;left:0;right:0;bottom:0;
   height:236px;background:var(--paper);border-top:1.5px solid #E2E8F0;z-index:20}
 /* v1.2.0 (obj 1): the dashboard as its own place — trail bar fixed under the toolbar,
-   lens toggles and row-collapse affordances hidden, dock collapsible like the project
-   page's (REV99 pattern). The mechanics stay the view filters underneath. */
+   lens toggles hidden, dock collapsible like the project page's (REV99 pattern).
+   The mechanics stay the view filters underneath.
+   v1.6.4: the place follows the person into either lens, so the toggle hides on
+   dash-on; only the dept reading is flat (dash-flat) — project rows keep their
+   carets and ⇕ All. */
 #dash-bar{position:fixed;left:0;right:0;z-index:60;background:#fff;border-bottom:1px solid #E2E8F0}
 body.pp-route #dash-bar{display:none!important}
 body.dash-on .sb-lens{display:none}
-body.dash-on #sb-all{display:none}
-body.dash-on .sb-chev{visibility:hidden}
+body.dash-flat #sb-all{display:none}
+body.dash-flat .sb-chev{visibility:hidden}
 /* v1.2.2: the dashboard is a place, not a filtered view — the person "filter" that
    powers it never presents as one. Filters offers status + client only here. */
 body.dash-on #fm-person-sec,body.dash-on #person-menu{display:none}
@@ -1394,7 +1397,7 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.6.3'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.6.4'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -2698,7 +2701,10 @@ function render(){
    their checkpoints, their tasks, their time off. Data is read-only here; editing
    stays in People & Availability and the Home modal. */
 /* v1.2.0 (obj 1): the same mechanics, presented as its own place. */
-function dashOn(){return LENS==='dept'&&!!PERSON&&!(typeof ROUTE!=='undefined'&&ROUTE&&ROUTE.view==='project');}
+/* v1.6.4 (owner review): the place follows the person into EITHER lens — a person
+   filter in the Projects lens is the same summary, project-grouped. The lens is
+   locked while inside (the toggle hides); exit and re-enter to regroup. */
+function dashOn(){return !!PERSON&&!(typeof ROUTE!=='undefined'&&ROUTE&&ROUTE.view==='project');}
 /* v1.6.2: the same view serves two readings — MY dashboard when the person is the
    signed-in identity, and a plain workload summary when it's someone else. Mechanics
    are identical; only the naming and the toolbar button's lit state differ. */
@@ -2706,6 +2712,7 @@ function dashSelf(){return dashOn()&&PERSON===(meName()||rememberedMe());}
 function renderDashBar(){
   const on=dashOn();
   document.body.classList.toggle('dash-on',on);
+  document.body.classList.toggle('dash-flat',on&&LENS==='dept'); /* only the dept reading flattens */
   const bar=document.getElementById('dash-bar');
   if(bar){bar.classList.toggle('hidden',!on);
     if(on){const nm=document.getElementById('db-name');

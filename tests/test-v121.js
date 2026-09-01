@@ -114,9 +114,16 @@ function main(){
   ok('Clear filters clears the client filter', E('CLIENT_FILTER.size')===0);
   ok('…but never exits the dashboard', E('dashOn()')===true&&E('PERSON')==='Nick');
   E("LENS='project';render()");
-  ok('on the Projects lens the same person IS a filter again',
-     qa('#filter-chips .f-chip').some(c=>/Person: Nick/.test(c.textContent))
-     &&!q('#btn-reset').classList.contains('hidden'));
+  /* v1.6.4 flipped this: the summary place follows the person into the Projects
+     lens, so the person never presents as a filter there either. */
+  if(src.indexOf('dash-flat')>=0)
+    ok('on the Projects lens the person is STILL the summary place (v1.6.4)',
+       !qa('#filter-chips .f-chip').some(c=>/Person: Nick/.test(c.textContent))
+       &&E('dashOn()')===true);
+  else
+    ok('on the Projects lens the same person IS a filter again',
+       qa('#filter-chips .f-chip').some(c=>/Person: Nick/.test(c.textContent))
+       &&!q('#btn-reset').classList.contains('hidden'));
   E("PERSON=null;saveUI();updateFilterBadges();render()");
 
   /* obj 12 — right-click menu, saved page then draft page (the REV49 lesson) */

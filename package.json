@@ -1,6 +1,6 @@
 ﻿{
   "name": "project-scheduler",
-  "version": "1.6.3",
+  "version": "1.6.4",
   "private": true,
   "description": "Timeline â€” single-file Gantt and scheduling dashboard for Twoseven, backed by SharePoint via Microsoft Graph.",
   "license": "SEE LICENSE IN LICENSE",

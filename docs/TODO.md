@@ -30,7 +30,11 @@ Record: `docs/Milestones/2026-08-31-v161-preview-polish.md`. The second review r
 (markers ✓, step zoom ✓, drag-zoom still juddery + three new asks) shipped as
 **v1.6.2**: same-frame header sync, project date-strip gesture parity, Summary·name
 for other people's plates, and the full-height Notes dock column. Record:
-`docs/Milestones/2026-08-31-v162-preview-polish-2.md`.
+`docs/Milestones/2026-08-31-v162-preview-polish-2.md`. The third round (2026-09-01:
+drag-zoom ✓, strip gesture ✓) shipped as **v1.6.4**: the Summary/Dashboard place
+follows the person into the Projects lens — the lens toggle hides whenever a person
+is on; only the dept reading stays flat (`dash-flat`). Record:
+`docs/Milestones/2026-09-01-v164-preview-polish-3.md`.
 
 ---
 
@@ -343,6 +347,7 @@ rule §5); old data keeps reading fine.
 | v1.6.1 | ✅ Shipped 2026-08-31 — the owner's ten-item `/preview/` punch list (see Last-reviewed note + milestone record) |
 | v1.6.2 | ✅ Shipped 2026-08-31 — second review round: header/canvas same-frame sync (drag-zoom judder), project date-strip pan/zoom parity (§7 gate half-fired), Summary·name for other people's plates, full-height Notes dock column |
 | v1.6.3 | ✅ Shipped 2026-08-31 — project-Gantt scroll fallout: step buttons anchor today, sticky axis gutter mask, weekend webs moved under the rows with the §2.4 hatch (they painted OVER the bars) |
+| v1.6.4 | ✅ Shipped 2026-09-01 — third review round: the Summary/Dashboard place follows the person into the Projects lens (toggle hidden while a person is on; flat treatment stays dept-only) |
 | v1.7.0 | 12 (permissions) ⚠ |
 | v1.8.0 | 26 (change log) ⚠ — after permissions |
 | v2.0.0 | 13 (single source of truth) ⚠ — likely several minors along the way (one per absorbed store), with v2.0.0 as the cutover declaration |
@@ -521,6 +526,10 @@ these are the ones still open, plus new deferrals as they happen.
       translucent today wash can slide over the name column. The axis is masked
       (v1.6.3); a full fix means restructuring the gutter stacking. Gate: someone
       notices it on a real job. (v1.6.3, 2026-08-31)
+- [ ] The Summary/Dashboard locks its lens — the Projects/Departments toggle hides
+      while a person is on, so regrouping the same person means exiting (×) and
+      re-entering from the other lens. Same trade My Dashboard made in v1.2.0.
+      Gate: someone asking to regroup in place. (v1.6.4, 2026-09-01)
 
 **Deliberate design ceilings — no action planned, revisit only on real complaints:**
 12-slot palette repeats at 13+ visible projects (T2); quiet re-selection after a

@@ -42,10 +42,13 @@ const q=s=>doc.querySelector(s);
 sec('source-level checks');
 ok('the dashboard bar hides on the project route (CSS)',
    /body\.pp-route #dash-bar\{display:none/.test(src));
-ok('lens toggles and ⇕ All hide in dashboard (CSS)',
-   /body\.dash-on \.sb-lens\{display:none\}/.test(src)&&/body\.dash-on #sb-all\{display:none\}/.test(src));
+/* v1.6.4: #sb-all/.sb-chev moved to dash-flat (the dept-only flat reading) —
+   the lens toggle still hides on dash-on itself. */
+ok('lens toggles hide in dashboard (CSS)',
+   /body\.dash-on \.sb-lens\{display:none\}/.test(src)
+   &&/body\.dash-(on|flat) #sb-all\{display:none\}/.test(src));
 ok('sidebar collapse carets hide in dashboard (CSS)',
-   /body\.dash-on \.sb-chev\{visibility:hidden\}/.test(src));
+   /body\.dash-(on|flat) \.sb-chev\{visibility:hidden\}/.test(src));
 
 setTimeout(()=>{
   E("PEOPLE=[{id:'a',name:'Nick',email:'',role:'Lead Fabricator',depts:['fab'],ooo:[]}];rebuildStaff();");

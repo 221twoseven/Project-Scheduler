@@ -13,6 +13,9 @@
       under the name column when the panel is scrolled.
    6) Weekend webs move into the z0 tint layer with the §2.4 hatch treatment —
       they used to paint ABOVE the rows, washing every bar that crossed a weekend.
+   v1.6.4 (third review round):
+   7) The Summary/Dashboard place follows the person into the Projects lens too —
+      the lens toggle hides whenever a person is on; only the dept reading is flat.
    Run: node tests/test-v162.js index.html  (or via tests/run.js) */
 const {boot}=require('./harness');
 const fs=require('fs');
@@ -71,6 +74,18 @@ function main(){
   ok('…the My Dashboard button stays dark', !q('#btn-dash').classList.contains('active'));
   ok('…and the sidebar label follows', q('#sb-head .sb-dash-lbl').textContent==='Summary');
   ok('the view mechanics are unchanged (still the dashboard machinery)', E('dashOn()')===true);
+
+  sec('v1.6.4 — the summary follows the person into the Projects lens');
+  E("LENS='project';saveUI();render()");
+  ok('project lens + person still presents as the summary place',
+     E('dashOn()')===true&&doc.body.classList.contains('dash-on'));
+  ok('…trail bar and sidebar label intact', q('#db-name').textContent==='Summary · Nick'
+     &&q('#sb-head .sb-dash-lbl').textContent==='Summary');
+  ok('…the person never counts as a filter here', E('activeFilterCount()')===0);
+  ok('…but the flat treatment stays dept-only (carets/⇕ All keep working)',
+     !doc.body.classList.contains('dash-flat'));
+  E("LENS='dept';render()");
+  ok('the dept reading flattens as before', doc.body.classList.contains('dash-flat'));
   E("PERSON=null;LENS='project';saveUI();render()");
 
   /* items 1 + 3 live on the project page */

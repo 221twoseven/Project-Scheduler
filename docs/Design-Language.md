@@ -109,6 +109,13 @@ sidebar lens toggles replaced by a "My Dashboard" label, no collapse affordances
 assigned phases paint flat), and the summary dock carrying the same collapse chevron
 as the project page's dock (its own persisted key). Exits: the crumb, the ×, or
 anything that clears the person filter.
+**The place follows the person into either lens (v1.6.4, owner review):** a person
+filter set from the Projects lens is the same Summary/Dashboard place, project-grouped
+— trail bar, label swap, dock, and the hidden lens toggle all apply whenever a person
+is on. Only the Departments reading paints flat (`dash-flat`); project-grouped rows
+keep their carets and expand as normal. The lens is locked while inside — regrouping
+means exiting and re-entering from the other lens. The My Dashboard toolbar button
+always lands on the dept (flat) reading.
 **Someone else's plate is a Summary (v1.6.2, owner review):** the same view serves two
 readings. When the filtered person is the signed-in identity it is *My Dashboard* —
 trail reads `My Dashboard · name`, the toolbar button lights, the sidebar label says

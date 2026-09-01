@@ -10,6 +10,7 @@ const FILE=process.argv[2]||'index.html';
 const src=fs.readFileSync(FILE,'utf8');
 
 const V12=src.indexOf('dash-bar')>=0; /* v1.2.0: exits live on the dashboard bar */
+const V164=src.indexOf('dash-flat')>=0; /* v1.6.4: the panel follows the person into either lens */
 if(!/me-dock/.test(src)){
   console.log('  SKIP  build predates the person panel (no me-dock) — nothing to assert');
   console.log('\n'+'-'.repeat(46));
@@ -87,7 +88,10 @@ setTimeout(()=>{
 
   sec('Visibility rules');
   E("LENS='project';render();");
-  ok('hidden in the project lens',!E("document.body.classList.contains('me-dock-on')"));
+  if(V164)ok('follows the person into the project lens (v1.6.4)',
+     E("document.body.classList.contains('me-dock-on')")
+     &&!E("document.body.classList.contains('dash-flat')"));
+  else ok('hidden in the project lens',!E("document.body.classList.contains('me-dock-on')"));
   E("LENS='dept';PERSON=null;render();");
   ok('hidden with no person picked',!E("document.body.classList.contains('me-dock-on')"));
   E("PERSON='Nick';render();document.getElementById('"+(V12?'db-x':'md-close')+"').click();");
