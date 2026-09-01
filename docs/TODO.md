@@ -21,7 +21,16 @@ single-source-of-truth milestone** (§3 item 13) — the app becoming the compan
 database is the breaking change the major number exists for. `APP_VER` in `index.html`
 is the source of truth; keep `package.json` aligned.
 
-Last reviewed: 2026-09-01 — folded the **Master Data UX Refactor handoff** (2026-09-01)
+Last reviewed: 2026-09-01 (evening handoff) — the owner's post-v1.7.1 message filed as
+§3 items 28–30: the four quick wins + the v1.6.5 scrub GO **shipped same day as
+v1.7.2** (wordmark TWOSEVEN INC., sort hidden in the dept lens, coach copy
+"department", drag-zoom out to a year, `scrubLegacyNames()` console pass); My
+Dashboard personal notes + "Listening to:" filed as item 30 (proposed v1.9.0 — three
+⚠ staff columns, spec delivered). Mail.Send confirmed consented and `phone` verified —
+**v1.8.0 (permissions + feedback mail) fully unblocked, the next batch**. The owner's
+merge-timing question ("are ducks in a row?") answered in the session report: merge
+v1.7.x → main now, before v1.8.0 soaks at `/preview/` (workflow drift heals on merge;
+sandbox needs the same `deploy-pages.yml` cherry-picked). Previous review 2026-09-01 — folded the **Master Data UX Refactor handoff** (2026-09-01)
 into §3 item 27 and **shipped it the same day as v1.7.0** (owner: "Build"); permissions
 → v1.8.0, changelog → v1.9.0. Same message: the owner lifted the schema gate (⚠ items
 are owner-applied list edits now, see the note above), confirmed both font licences,
@@ -230,8 +239,9 @@ Owner's objective numbers in parentheses. Each batch: build on `development`, ve
         CREATED 2026-09-01 (Robert), `1` on his row. Delivery DECIDED same day:
         Graph `sendMail` as the signed-in submitter** — needs the `Mail.Send`
         delegated permission added to the Entra app registration + admin consent
-        (spec delivered to Robert 2026-09-01; the app requests the scope when this
-        batch ships). ⚠ Entra — owner-executed, per CLAUDE.md.
+        (spec delivered to Robert 2026-09-01; **DONE 2026-09-01 — set up in Entra,
+        admin-consented**; the app requests the scope on its own token, the
+        TeamMember.Read.All pattern). ⚠ Entra — owner-executed, per CLAUDE.md.
       - ~~Owner's brief cut off at "This form is its own page with its own toolbar ("~~
         — **RESOLVED 2026-08-31: owner said disregard the incomplete sentence.** No
         own-page form requirement; scope is the roster checkbox + gating above.
@@ -402,7 +412,39 @@ rule §5); old data keeps reading fine.
         version: both pages feel like persistent company directories, editing is
         intentional, everything that worked still works.
 
-### The heavy lift — single source of truth (the v2.0.0 milestone)
+### 2026-09-01 evening handoff — quick wins + scrub + dashboard personal fields
+
+- [x] **28. (09-01 items 6–9) Four quick wins — DONE 2026-09-01 (v1.7.2):**
+      wordmark → **TWOSEVEN INC.** (toolbar + print title + meeting sheet — "this is
+      the company logo/wordmark"); **Sort controls hidden in the Departments lens**
+      (they order projects; dept rows are people lanes); coach step 1 says
+      "Department lens regroups everything by department." (owner wording — "crew"
+      is out); **drag-zoom max out extended 3 months → 1 year** (`FIT_MAX` 91→365,
+      both gestures; buttons still stop at 3-Mo). Record:
+      `docs/Milestones/2026-09-01-v172-quick-wins-and-scrub.md`. Suite:
+      `tests/test-v172.js`.
+- [x] **29. (09-01 item 5) v1.6.5 legacy-name data scrub — GO given, SHIPPED
+      2026-09-01 (v1.7.2)** as `scrubLegacyNames()`: console-run, dry-run by default
+      with a change report (console.table), `scrubLegacyNames(true)` applies through
+      the normal optimistic sync. Heals project roles, phase crews (all three stored
+      shapes), note assignees; never touches ambiguous/unknown strings or free-text
+      departments. **Stays in the app for re-runs** — the owner expects more edits as
+      staff lists reconcile and users are added. Robert runs it on `/preview/`.
+      (Related later problem, owner-parked: name presentation on project-edit/
+      subtask-edit pages.)
+- [ ] **30. (09-01 items 1–2) My Dashboard personal fields (proposed v1.9.0).**
+      Answer to the owner's question first: the greyed "Notes" panel on My Dashboard
+      lists open **notes/to-dos assigned to you** (`ShopTimeline_Tasks2`) — it reads
+      empty/grey when none. The ask is different and additive:
+      - **Personal notes to self:** one multi-line plain-text field, user-editable on
+        My Dashboard only; never shown on other people's Summary pages.
+      - **"Listening to:"** two single-line fields — line 1 helper "who/what",
+        line 2 helper "link" — edited on My Dashboard, displayed on Summary pages.
+      - Storage ⚠ (spec delivered 2026-09-01, Robert applies): three columns on
+        `ShopTimeline_Staff` — `personalNotes` (multi-line, plain text),
+        `listeningTo` (single line), `listeningLink` (single line). Save path is a
+        self-row-only PATCH (everyone may edit their OWN row's personal fields —
+        the v1.8.0 people-edit gate gets that one exception when this ships).
 
 - [ ] **13. (Obj 4) Reconcile and absorb the 14 disparate data stores.** The app
       becomes the company's singular source of truth (the v1 "north star", now
@@ -485,8 +527,10 @@ rule §5); old data keeps reading fine.
 | v1.6.6 | ✅ Shipped 2026-09-01 — Filters dropdown revision: Person radios stay in the menu inside a Summary (switch/clear in place; Everyone = the × exit), one menu-wide "Show everything" reset replaces the status-scoped Show all / Clear all pair |
 | v1.7.0 | ✅ Shipped 2026-09-01 — 27 (Company Data: People & Clients as read-first pages; Resources → Company Data; modals retired) |
 | v1.7.1 | ✅ Shipped 2026-09-01 — fonts 6–7 (Brauer Neue title file + Bahnschrift `local()` app-wide) + the staff `phone` field (owner-created column) |
-| v1.8.0 | 12 (permissions + feedback recipients) — columns created, Mail.Send spec delivered; buildable |
-| v1.9.0 | 26 (change log) ⚠ — after permissions |
+| v1.7.2 | ✅ Shipped 2026-09-01 — 28 (evening-handoff quick wins: wordmark, dept-lens sort hide, coach copy, year drag-zoom) + 29 (`scrubLegacyNames()` — the v1.6.5 scrub, GO'd) |
+| v1.8.0 | 12 (permissions + feedback recipients) — columns created, Mail.Send consented; in progress |
+| v1.9.0 | 30 (My Dashboard personal notes + Listening to) ⚠ — three staff columns, spec delivered |
+| v1.10.0 | 26 (change log) ⚠ — after permissions |
 | v2.0.0 | 13 (single source of truth) ⚠ — likely several minors along the way (one per absorbed store), with v2.0.0 as the cutover declaration |
 
 ## 5. Data / schema (⚠ all need approval — shared Lists)
@@ -508,13 +552,17 @@ rule §5); old data keeps reading fine.
   lists by name on the site and cannot see personal "My Lists".)
 - `admin`, `feedbackRecipient`, and `phone` columns on `ShopTimeline_Staff` —
   **CREATED 2026-09-01 (Robert)**; `1` on his row for the first two. The app reads
-  and writes `phone` as of v1.7.1 (field mappers + People page). **Verify the
-  phone column's internal name is exactly `phone`** (List settings → click the
-  column → the `Field=` value in the URL) — a mismatch would 400 every staff save
-  once a phone is entered.
+  and writes `phone` as of v1.7.1 (field mappers + People page). ~~Verify the
+  phone column's internal name is exactly `phone`~~ — **VERIFIED 2026-09-01
+  (Robert): internal name is `phone`.**
 - Entra: `Mail.Send` (Delegated) joins the app registration for §3 item 12's
-  feedback mail — owner-executed + admin consent; the app requests the scope when
-  that batch ships. ⚠
+  feedback mail — owner-executed + admin consent; **DONE 2026-09-01 (Robert:
+  set up + admin-consented).** The app requests the scope on its own silent token
+  (v1.8.0), so a consent gap degrades to "report filed, mail skipped". ⚠
+- Candidate new columns for §3 item 30 (spec delivered 2026-09-01, Robert applies
+  before v1.9.0 ships): on `ShopTimeline_Staff` — `personalNotes` (multi-line,
+  plain text), `listeningTo` (single line), `listeningLink` (single line). All
+  additive; app reads/writes them only on the signed-in user's own row. ⚠
 - Candidate new column: a lifecycle/`status` column (Active/Inactive/Archived) on
   `ShopTimeline_Staff` and `ShopTimeline_Clients` (§3 item 27's archive-not-delete
   model) — additive; Robert applies it when item 27's lifecycle pass is designed
@@ -696,13 +744,13 @@ these are the ones still open, plus new deferrals as they happen.
       while a person is on, so regrouping the same person means exiting (×) and
       re-entering from the other lens. Same trade My Dashboard made in v1.2.0.
       Gate: someone asking to regroup in place. (v1.6.4, 2026-09-01)
-- [ ] Legacy person strings are healed at compare/display time only — the stored
-      `projectManager`/`drafter`/`leadFab`/assignee values keep their old
-      abbreviations until someone next edits that project's Team boxes or that
-      task's crew (the editors resolve to roster names, so a save writes canonical).
-      A one-time data scrub of the shared-list values would finish the job at once
-      but is shared-data territory ⚠. Gate: the owner ordering the scrub.
-      (v1.6.5, 2026-09-01)
+- [x] Legacy person strings are healed at compare/display time only — the stored
+      values keep their old abbreviations until re-saved. Gate: the owner ordering
+      the scrub. **Gate FIRED 2026-09-01 (owner: "Do it") — v1.7.2 ships
+      `scrubLegacyNames()`** (console dry-run + apply with a change report; §3
+      item 29). Robert runs it on `/preview/`; it stays in the app for re-runs as
+      the staff lists reconcile — people not yet on the roster stay abbreviated
+      until a later pass. (v1.6.5 → v1.7.2)
 - [ ] `canonName` covers bar crews and role fields, not to-do assignees — a to-do
       stored with a legacy name still misses its person's dashboard Notes section.
       Gate: someone missing a to-do; fix is the same map in the me-dock/todo
@@ -732,6 +780,11 @@ these are the ones still open, plus new deferrals as they happen.
 - [ ] A background poll defers entirely while a Company Data record is mid-edit
       (CD_EDIT) — same trade as the REV98 popover entry above; the two share its
       gate. (v1.7.0)
+- [ ] Reaching the year-wide view is drag-only — the step buttons still stop at
+      3-Mo. Gate: someone asking for a "Year" button. (v1.7.2, 2026-09-01)
+- [ ] `scrubLegacyNames` heals only what the CURRENT roster resolves — reconciled
+      staff additions need a re-run (deliberate: parallel-run staffing, §3 item 13).
+      Gate: each staffing-reconciliation pass. (v1.7.2)
 
 **Deliberate design ceilings — no action planned, revisit only on real complaints:**
 12-slot palette repeats at 13+ visible projects (T2); quiet re-selection after a

@@ -162,6 +162,9 @@ body.me-dock-col #md-collapse svg{transform:rotate(180deg)}
 .crew-list input[type=checkbox]{width:13px;height:13px;padding:0;margin:0;accent-color:#3B7FD6;flex-shrink:0}
 .ins-crew{max-height:120px}
 #sb-foot{flex-shrink:0;display:flex;align-items:center;gap:6px;padding:8px 10px;border-top:1px solid var(--side-line);background:var(--side);flex-wrap:wrap;}
+/* v1.7.2 (09-01 item 7): sorting orders projects — in the Departments lens the rows are
+   people lanes, so the controls hide (the scroll pad reads the live footer height). */
+body.lens-dept #sb-foot{display:none}
 .sbf-lbl{font-size:var(--fs-micro);font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--txt-micro)}
 .sbf-btn{flex:1;background:#fff;border:1px solid var(--side-line);border-radius:6px;padding:5px 0;font-size:11px;font-weight:600;color:#475569;cursor:pointer;font-family:inherit}
 .sbf-btn:hover{background:#E8EEF7;color:#1E293B}
@@ -1116,7 +1119,7 @@ body.cd-route #dash-bar{display:none!important}
 <div id="toolbar">
   <div class="tb-row tb-global">
     <div class="t-brand">
-      <span class="tb-co">TWOSEVEN</span>
+      <span class="tb-co">TWOSEVEN INC.</span>
       <span class="tb-app">Shop Timeline</span>
     </div>
     <button id="btn-new-proj" class="t-btn accent" title="Create a new project (N)">+ New Project</button>
@@ -1171,7 +1174,7 @@ body.cd-route #dash-bar{display:none!important}
     <div class="tog-grp" id="tg-scale">
       <button id="btn-week" class="t-btn" title="One week fills the screen (W; + and − step the zoom)">Week</button>
       <button id="btn-month" class="t-btn active" title="One month fills the screen (M)">Month</button>
-      <button id="btn-month3" class="t-btn" title="Three months fill the screen — drag the date bar up or down to zoom anywhere between">3 Mo</button>
+      <button id="btn-month3" class="t-btn" title="Three months fill the screen — drag the date bar up or down to zoom anywhere from a week to a full year">3 Mo</button>
     </div>
     <div class="sf-wrap">
       <button id="btn-colorby" class="t-btn" title="Choose what the bar colors mean">Color by: <b id="colorby-v">Project</b> <svg class="ico-s" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 6 8 9.5 11.5 6"/></svg></button>
@@ -1404,7 +1407,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.7.1'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.7.2'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -1435,7 +1438,7 @@ let SIDE_W=300;
 const FIT_STEPS={week:7,month:30,month3:91};
 const ZOOM_STEPS=['week','month','month3'];
 const VIEW_BTN={week:'btn-week',month:'btn-month',month3:'btn-month3'};
-const FIT_MIN=7,FIT_MAX=91;
+const FIT_MIN=7,FIT_MAX=365; /* v1.7.2: the drag-zoom rides past 3-Mo out to a year (the buttons still stop at 91) */
 let FIT=30;      /* continuous days-on-screen; VIEW derives from it */
 let DW_PX=null;  /* px-per-day, cached once per render (dw() reads it) */
 function viewOf(fit){for(const k of ZOOM_STEPS)if(Math.abs(fit-FIT_STEPS[k])<.5)return k;return null;}
@@ -1570,6 +1573,57 @@ function canonName(s){
 }
 function oooFor(name){const p=personByName(name);return p?(p.ooo||[]):[];}
 function oooOverlaps(name,sIso,eIso){return oooFor(name).filter(o=>o.start&&o.end&&o.start<=eIso&&o.end>=sIso);}
+/* v1.7.2 (owner GO, 2026-09-01): the one-time data scrub the v1.6.5 ledger entry gated
+   on. canonName() has healed legacy person strings at compare/display time since v1.6.5;
+   the STORED values kept their old abbreviations until someone happened to re-save that
+   record. This rewrites the stored values themselves — projects' role fields, phase
+   crews, note assignees — through the normal optimistic save path (diff-synced to
+   SharePoint, undo toast, one retry). Run it from the browser console, signed in:
+     scrubLegacyNames()      → dry run: prints and returns the change report, writes nothing
+     scrubLegacyNames(true)  → applies the same changes via saveState
+   The v1.6.5 rule stands: ambiguous or unknown strings pass through untouched — never
+   guess identity. Free-text departments are skipped (their assignee is a label, not a
+   person). Expect to re-run this as the staff lists reconcile and new users land. */
+function scrubLegacyNames(apply){
+  const report=[];
+  const healArr=a=>{const h=a.map(x=>x==='Installation'?x:canonName(x));
+    return h.join('|')===a.join('|')?null:h;};
+  const healStr=s=>{const parts=String(s||'').split(',').map(x=>x.trim()).filter(Boolean);
+    const h=healArr(parts);return h?h.join(', '):null;};
+  const projects=ST.projects.map(p=>{
+    let q=p;
+    for(const f of ['projectManager','drafter','leadFab','fabricators','metalFab']){
+      const h=healStr(p[f]);
+      if(h!=null){if(q===p)q={...p};q[f]=h;
+        report.push({kind:'project',record:p.name,field:f,before:p[f],after:h});}
+    }
+    return q;
+  });
+  const tasks=ST.tasks.map(t=>{
+    const d=deptById(t.department);
+    if(d&&d.freeText)return t; /* assignee is the bar's label there, not a person */
+    const a=t.assignee,lbl=phaseLabel(t)+' · '+((projById(t.projectId)||{}).name||'—');
+    if(Array.isArray(a)){
+      const h=healArr(a);
+      if(h){report.push({kind:'phase',record:lbl,field:'crew',before:a.join(', '),after:h.join(', ')});return{...t,assignee:h};}
+    }else if(typeof a==='string'&&a.trim()){
+      const h=a.trim().startsWith('[')?(x=>x&&JSON.stringify(x))(healArr(safeArr(a))):healStr(a);
+      if(h!=null){report.push({kind:'phase',record:lbl,field:'crew',before:a,after:h});return{...t,assignee:h};}
+    }
+    return t;
+  });
+  const todos=(ST.todos||[]).map(t=>{
+    const w=Array.isArray(t.who)?t.who:[];
+    const h=healArr(w);
+    if(h){report.push({kind:'note',record:t.title,field:'who',before:w.join(', '),after:h.join(', ')});return{...t,who:h};}
+    return t;
+  });
+  if(console.table&&report.length)console.table(report);
+  console.log('scrubLegacyNames: '+report.length+' field'+(report.length===1?'':'s')+' to heal'
+    +(report.length&&!apply?' — dry run, nothing written. scrubLegacyNames(true) applies.':apply?' — applied.':'.'));
+  if(apply&&report.length)saveState({projects,tasks,todos});
+  return report;
+}
 /* Convert legacy roster-shaped staff (v22 and earlier) into people records */
 function rostersToPeople(st){
   const map={};
@@ -2718,6 +2772,7 @@ function render(){
      source of the editor's values, so a repaint mid-edit keeps everything typed. */
   if(typeof ROUTE!=='undefined'&&ROUTE&&(ROUTE.view==='people'||ROUTE.view==='clients')){document.body.classList.remove('me-dock-on');renderCompanyPage();return;}
   DW_PX=vpw()/FIT; /* v1.5.0: px-per-day follows the live viewport, once per render */
+  document.body.classList.toggle('lens-dept',LENS==='dept'); /* v1.7.2: sort is a Projects-lens concept */
   const{s,e}=computeRange();TL_S=s;TL_E=e;
   {const td=today();TODAY_X=(td>=TL_S&&td<=TL_E)?d2x(td):null;}
   computeConflicts();
@@ -4067,7 +4122,7 @@ function buildPrintSheet(sIso,eIso){
   /* Title */
   const title=document.createElement('div');title.className='p-title';
   const tm=document.createElement('span');tm.className='pt-main';
-  tm.textContent='TWOSEVEN — Shop Timeline · '+(LENS==='project'?'Projects':'Departments');
+  tm.textContent='TWOSEVEN INC. — Shop Timeline · '+(LENS==='project'?'Projects':'Departments');
   const ts=document.createElement('span');ts.className='pt-sub';
   ts.textContent='v'+APP_VER+' · '+fmtNice(sIso)+' → '+fmtNice(eIso)+' · printed '+today().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
   title.appendChild(tm);title.appendChild(ts);
@@ -5145,7 +5200,7 @@ let NPV_MODE='gantt';    /* 'gantt' | 'calendar' */
 let NPV_FIT=null;
 /* v1.6.2: a drag-set fit is continuous, so accept any stored value in the 7–91 range
    (old integer steps still parse the same). */
-try{const f=parseFloat(localStorage.getItem('shopTimelineNpvFit'));if(f>=7&&f<=91)NPV_FIT=f;}catch(e){}
+try{const f=parseFloat(localStorage.getItem('shopTimelineNpvFit'));if(f>=FIT_MIN&&f<=FIT_MAX)NPV_FIT=f;}catch(e){}
 let NPV_CAL_FOCUS=false; /* N16: calendar shows only the selected phase's bands */
 let NPV_CAL_OPEN=new Set(); /* v1.0.4 (obj 8): calendar phases expanded (dept ids) — any
                                number at once, independent of the selection and of the
@@ -8205,7 +8260,7 @@ document.getElementById('pmlate-later').addEventListener('click',
 const COACH_KEY='shopTimelineCoachSeen';
 const COACH_STEPS=[
   {sel:'#sidebar',t:'Every job, one list',
-   b:'Projects stack here with their job codes and deadlines. Click a row to open its phases, the eye spotlights one job, the pencil edits it — and the Departments lens regroups everything by crew.'},
+   b:'Projects stack here with their job codes and deadlines. Click a row to open its phases, the eye spotlights one job, the pencil edits it — and the Department lens regroups everything by department.'},
   {sel:'#gantt-scroll',t:'The timeline',
    b:'Each bar is a phase of work. Click one for its details, drag it to move, grab an edge to resize, right-click for more. Red bars are installs.'},
   /* v1.2.1 (08-31 obj 1): teach the date-bar pan — the least discoverable move on the view */
@@ -8415,7 +8470,7 @@ function buildMeetingSheet(){
   const keys=Object.keys(groups).sort((a,b)=>a.localeCompare(b));
   const tbl=document.createElement('table');tbl.className='meet-table';
   const printedOn=today().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
-  tbl.innerHTML='<thead><tr class="meet-title"><th colspan="7">TWOSEVEN — Shop Meeting Sheet'
+  tbl.innerHTML='<thead><tr class="meet-title"><th colspan="7">TWOSEVEN INC. — Shop Meeting Sheet'
     +'<span class="meet-sub">v'+APP_VER+' · printed '+esc(printedOn)+' · '+projs.length+' projects</span></th></tr>'
     +'<tr class="meet-cols"><th style="width:23%">Project</th><th style="width:9%">Status</th><th style="width:14%">Phase now</th><th style="width:16%">Timeline</th><th style="width:7%">Deadline</th><th style="width:5%">Days</th><th style="width:26%">Notes</th></tr></thead>';
   const tb=document.createElement('tbody');
