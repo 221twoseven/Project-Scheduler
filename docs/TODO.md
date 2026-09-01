@@ -27,7 +27,7 @@ v1.7.2** (wordmark TWOSEVEN INC., sort hidden in the dept lens, coach copy
 "department", drag-zoom out to a year, `scrubLegacyNames()` console pass); My
 Dashboard personal notes + "Listening to:" filed as item 30 (proposed v1.9.0 — three
 ⚠ staff columns, spec delivered). Mail.Send confirmed consented and `phone` verified —
-**v1.8.0 (permissions + feedback mail) fully unblocked, the next batch**. The owner's
+**v1.8.0 (permissions + feedback mail) SHIPPED the same session**. The owner's
 merge-timing question ("are ducks in a row?") answered in the session report: merge
 v1.7.x → main now, before v1.8.0 soaks at `/preview/` (workflow drift heals on merge;
 sandbox needs the same `deploy-pages.yml` cherry-picked). Previous review 2026-09-01 — folded the **Master Data UX Refactor handoff** (2026-09-01)
@@ -224,7 +224,20 @@ Owner's objective numbers in parentheses. Each batch: build on `development`, ve
 
 ### Permissions (minor bump, v2-gating)
 
-- [ ] **12. (Obj 3) Admin vs regular user permissions.**
+- [x] **12. (Obj 3) Admin vs regular user permissions — DONE 2026-09-01 (v1.8.0).**
+      Shipped exactly as scoped below: the `admin` column is the switch (no values
+      anywhere = legacy, everyone admin — keeps pre-v1.8.0 suites meaningful; any
+      value = only truthy rows are admins), viewers are read-only on shared data
+      (choke-point guards in saveState/savePeople/saveClients + door gating +
+      `viewerLock` flattening), Lock Dates forced on and hidden, People-page
+      checkboxes manage both flags (last admin can't be demoted), and feedback
+      reports mail every `feedbackRecipient` via Graph `sendMail` as the submitter
+      on a dedicated `Mail.Send` silent token. Record:
+      `docs/Milestones/2026-09-01-v180-permissions.md`. Suite: `tests/test-v180.js`.
+      **Rollout note: only Robert's row is flagged — everyone else becomes a viewer
+      the moment this build reaches them; flag the admins on the People page (shared
+      data — works from `/preview/` even while production runs older builds).**
+      Original scope:
       - Admin roster: a checkbox per person, populated from the same staff list
         People & Availability uses; admins can grant/revoke admin (checkbox inside
         People & Availability — after §3 item 27 lands, this surface is the People
@@ -528,7 +541,7 @@ rule §5); old data keeps reading fine.
 | v1.7.0 | ✅ Shipped 2026-09-01 — 27 (Company Data: People & Clients as read-first pages; Resources → Company Data; modals retired) |
 | v1.7.1 | ✅ Shipped 2026-09-01 — fonts 6–7 (Brauer Neue title file + Bahnschrift `local()` app-wide) + the staff `phone` field (owner-created column) |
 | v1.7.2 | ✅ Shipped 2026-09-01 — 28 (evening-handoff quick wins: wordmark, dept-lens sort hide, coach copy, year drag-zoom) + 29 (`scrubLegacyNames()` — the v1.6.5 scrub, GO'd) |
-| v1.8.0 | 12 (permissions + feedback recipients) — columns created, Mail.Send consented; in progress |
+| v1.8.0 | ✅ Shipped 2026-09-01 — 12 (permissions: admin/viewer roles + feedback-recipient mail via Graph sendMail) |
 | v1.9.0 | 30 (My Dashboard personal notes + Listening to) ⚠ — three staff columns, spec delivered |
 | v1.10.0 | 26 (change log) ⚠ — after permissions |
 | v2.0.0 | 13 (single source of truth) ⚠ — likely several minors along the way (one per absorbed store), with v2.0.0 as the cutover declaration |
@@ -785,6 +798,21 @@ these are the ones still open, plus new deferrals as they happen.
 - [ ] `scrubLegacyNames` heals only what the CURRENT roster resolves — reconciled
       staff additions need a re-run (deliberate: parallel-run staffing, §3 item 13).
       Gate: each staffing-reconciliation pass. (v1.7.2)
+- [ ] Viewer gating writes the flags as text `'1'`/`''` (matches the created
+      columns); a Yes/No boolean column would need the writer switched. Gate: the
+      first permissions save on `/preview/` 400ing. (v1.8.0, 2026-09-01)
+- [ ] A viewer can't seed the sample project (the teach-card seed rides the guarded
+      saveState) — only visible on a zero-project site. Gate: a real complaint.
+      (v1.8.0)
+- [ ] Viewer checkbox surfaces (crew, departments, pin) hide unchecked entries via
+      CSS `:has()` — very old browsers would show disabled boxes instead. Cosmetic.
+      Gate: someone on such a browser caring. (v1.8.0)
+- [ ] The PM late prompt skips viewers entirely — a non-admin PM never sees it
+      (they couldn't act on it). Gate: owner wanting a read-only nudge instead.
+      (v1.8.0)
+- [ ] Feedback mail rides silent-token-only — if a user's Mail.Send consent is
+      somehow missing, the mail is skipped without a popup (report still filed,
+      toast says which). Gate: recipients report gaps. (v1.8.0)
 
 **Deliberate design ceilings — no action planned, revisit only on real complaints:**
 12-slot palette repeats at 13+ visible projects (T2); quiet re-selection after a

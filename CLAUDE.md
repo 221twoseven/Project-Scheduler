@@ -60,7 +60,10 @@ The current infrastructure values (for reference — do not change without instr
 - Entra (public SPA / PKCE, single-tenant): Client ID `5ba3aabe-81f7-41c9-92a4-83a45d5407ab`,
   Tenant ID `70aa5330-416f-48cb-a64f-1a89f0196577`
 - Graph scopes: `User.Read`, `Sites.ReadWrite.All`, plus `TeamMember.Read.All`
-  (delegated, admin-consented 2026-08-25) for the staff picker's Team-membership read
+  (delegated, admin-consented 2026-08-25) for the staff picker's Team-membership read,
+  and `Mail.Send` (delegated, admin-consented 2026-09-01) for the feedback form's
+  mail-the-recipients send (v1.8.0; requested on its own silent token, so a consent
+  gap degrades to "report filed, mail skipped")
 
 ## Security
 

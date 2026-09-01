@@ -165,6 +165,21 @@ body.me-dock-col #md-collapse svg{transform:rotate(180deg)}
 /* v1.7.2 (09-01 item 7): sorting orders projects — in the Departments lens the rows are
    people lanes, so the controls hide (the scroll pad reads the live footer height). */
 body.lens-dept #sb-foot{display:none}
+/* v1.8.0 (§3 item 12): the viewer role. Admin-only chrome disappears, and locked edit
+   fields flatten so they read as plain text ("visible, locked") — checkbox groups show
+   only their checked names. Workflow protection, not security (milestone record). */
+body.viewer #btn-new-proj,body.viewer .lock-tog,body.viewer #mi-clients,
+body.viewer #tm-save,body.viewer #tm-del,body.viewer #tm-tnadd,body.viewer #task-overlay .tn-x,
+body.viewer [data-pop-del]{display:none}
+body.viewer #pp-insp input:disabled,body.viewer #pp-insp select:disabled,body.viewer #pp-insp textarea:disabled,
+body.viewer .npv-pop input:disabled,body.viewer .npv-pop select:disabled,body.viewer .npv-pop textarea:disabled,
+body.viewer #task-overlay input:disabled,body.viewer #task-overlay select:disabled,body.viewer #task-overlay textarea:disabled{
+  border-color:transparent;background:transparent;-webkit-appearance:none;appearance:none;color:inherit;opacity:1;cursor:default}
+body.viewer #pp-insp input[type=checkbox]:disabled,body.viewer .npv-pop input[type=checkbox]:disabled,
+body.viewer #task-overlay input[type=checkbox]:disabled{display:none}
+body.viewer #pp-insp label:has(>input[type=checkbox]:disabled:not(:checked)),
+body.viewer .npv-pop label:has(>input[type=checkbox]:disabled:not(:checked)),
+body.viewer #task-overlay label:has(>input[type=checkbox]:disabled:not(:checked)){display:none}
 .sbf-lbl{font-size:var(--fs-micro);font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--txt-micro)}
 .sbf-btn{flex:1;background:#fff;border:1px solid var(--side-line);border-radius:6px;padding:5px 0;font-size:11px;font-weight:600;color:#475569;cursor:pointer;font-family:inherit}
 .sbf-btn:hover{background:#E8EEF7;color:#1E293B}
@@ -1407,7 +1422,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.7.2'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.8.0'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -2012,8 +2027,19 @@ function fieldsToProj(f){return{id:f.appId,name:f.Title||'',client:f.client||'',
 function taskToFields(t){const d=deptById(t.department);return{Title:(d?d.name:t.department)||'Task',projectId:t.projectId,department:t.department,assignee:Array.isArray(t.assignee)?JSON.stringify(t.assignee):(t.assignee||''),startDate:t.startDate||null,endDate:t.endDate||null,estimatedDays:t.estimatedDays||1,ticketNodes:JSON.stringify(t.ticketNodes||[]),notes:t.notes||'',pinned:!!t.pinned,label:t.label||'',appId:t.id};}
 function fieldsToTask(f){const a=(f.department==='install'&&typeof f.assignee==='string'&&f.assignee.trim().startsWith('['))?safeArr(f.assignee):(f.assignee||'');return{id:f.appId,projectId:f.projectId,department:f.department,assignee:a,startDate:isoDay(f.startDate),endDate:isoDay(f.endDate),estimatedDays:Number(f.estimatedDays)||1,ticketNodes:safeArr(f.ticketNodes),notes:f.notes||'',pinned:!!f.pinned,label:f.label||''};}
 /* v1.7.1: phone rides the person record (column created by the owner 2026-09-01). */
-function personToFields(p){return{Title:p.name||'',depts:JSON.stringify(p.depts||[]),ooo:JSON.stringify(p.ooo||[]),email:p.email||'',phone:p.phone||'',role:p.role||'',appId:p.id};}
-function fieldsToPerson(f){return{id:f.appId,name:f.Title||'',depts:safeArr(f.depts),ooo:safeArr(f.ooo),email:f.email||'',phone:f.phone||'',role:f.role||''};}
+/* v1.8.0 (§3 item 12): the admin / feedbackRecipient flags. A flag is TRISTATE on the
+   person object: true/false once the row carries a column value, null when it never
+   did — null flags are OMITTED from the outgoing fields so a site whose staff list
+   doesn't have the columns yet never 400s on a save, and isAdmin() can tell "column
+   absent" (legacy: everyone admin) from "flag off". */
+function flagTruthy(v){return v===true||v===1||/^(1|yes|true)$/i.test(String(v||''));}
+function personToFields(p){const f={Title:p.name||'',depts:JSON.stringify(p.depts||[]),ooo:JSON.stringify(p.ooo||[]),email:p.email||'',phone:p.phone||'',role:p.role||'',appId:p.id};
+  if(p.admin!=null)f.admin=p.admin?'1':'';
+  if(p.feedbackRecipient!=null)f.feedbackRecipient=p.feedbackRecipient?'1':'';
+  return f;}
+function fieldsToPerson(f){return{id:f.appId,name:f.Title||'',depts:safeArr(f.depts),ooo:safeArr(f.ooo),email:f.email||'',phone:f.phone||'',role:f.role||'',
+  admin:f.admin==null?null:flagTruthy(f.admin),
+  feedbackRecipient:f.feedbackRecipient==null?null:flagTruthy(f.feedbackRecipient)};}
 
 async function spLoadStaff(){
   await spSite();
@@ -2262,6 +2288,9 @@ document.getElementById('sync-pill').addEventListener('click',()=>{
 /* Optimistic save: update screen instantly, sync to SharePoint in background */
 let ST_GEN=0;   /* REV90: bumped on every local ST mutation — the poll aborts if it moved mid-fetch */
 function saveState(s){
+  /* v1.8.0: the one choke point every shared-data edit funnels through — a door the
+     UI gating missed still can't write for a viewer. */
+  if(isViewer()){toast('View-only access — ask an admin to make changes.','err');render();return;}
   ST_GEN++;
   const old=ST;pushUndo(old);
   ST={projects:stampUpdated(s.projects,old.projects),tasks:stampUpdated(s.tasks,old.tasks),
@@ -2291,6 +2320,7 @@ async function loadClients(){
   }
 }
 function saveClients(nc){
+  if(isViewer()){toast('View-only access — ask an admin to make changes.','err');return;} /* v1.8.0 */
   const old=CLIENTS;CLIENTS=nc;
   try{localStorage.setItem(CLIENTS_KEY,JSON.stringify(CLIENTS));}catch(e){}
   if(!CLIENTS_OK){toast('Clients saved in this browser only — they won\'t sync to your teammates until the ShopTimeline_Clients list is reachable.','err');return;}
@@ -2311,6 +2341,9 @@ async function spSyncClients(o,n){
 }
 
 function savePeople(np){
+  /* v1.8.0: viewers can't edit people. (v1.9.0's personal dashboard fields will add a
+     self-row-only exception here — TODO §3 item 30.) */
+  if(isViewer()){toast('View-only access — ask an admin to make changes.','err');return;}
   const old=PEOPLE;PEOPLE=np;rebuildStaff();
   /* REV90: guarded — a quota/private-mode throw here used to abort before spSyncStaff */
   try{localStorage.setItem(PEOPLE_KEY,JSON.stringify(PEOPLE));}catch(e){}
@@ -2390,6 +2423,38 @@ function meName(){
   if(!p){const nm=String(ACCOUNT.name||'').trim().toLowerCase();
     if(nm)p=PEOPLE.find(x=>x.name.trim().toLowerCase()===nm);}
   return p?p.name:null;
+}
+/* ===== v1.8.0 (§3 item 12): admin vs regular users ===== */
+/* The staff list's admin column is the switch: while NO roster row carries a value
+   (column absent / legacy data), everyone is admin — the pre-permissions world, which
+   also keeps every pre-v1.8.0 test suite meaningful. Once any row carries a value,
+   only truthy rows are admins; everyone else (unmatched sign-ins included — the same
+   email-then-name identity chain My Dashboard uses) is a viewer: read-only on shared
+   data. UI gating is workflow protection, NOT security — every signed-in token still
+   carries Sites.ReadWrite.All (recorded honestly in the milestone doc; the same trust
+   model the shared Lists have always had). */
+function permsLive(){return PEOPLE.some(p=>p.admin!=null||p.feedbackRecipient!=null);}
+function isAdmin(){
+  if(!PEOPLE.length||PEOPLE.every(p=>p.admin==null))return true;
+  const me=meName();const p=me?personByName(me):null;
+  return !!(p&&p.admin);
+}
+function isViewer(){return !isAdmin();}
+function feedbackRecipients(){return PEOPLE.filter(p=>p.feedbackRecipient&&String(p.email||'').includes('@')).map(p=>p.email.trim());}
+/* Read-only presentation — fields visible, locked ("Project Edit fields render as
+   plain text"). CSS under body.viewer flattens the disabled controls. */
+function viewerLock(box){
+  if(!isViewer()||!box)return;
+  box.querySelectorAll('input,select,textarea').forEach(el=>{el.disabled=true;el.tabIndex=-1;});
+}
+function applyPerms(){
+  const v=isViewer();
+  document.body.classList.toggle('viewer',v);
+  if(v&&!DATE_LOCK){ /* Lock Dates on by default and the toggle hidden (owner spec) */
+    DATE_LOCK=true;
+    const ck=document.getElementById('lock-ck');if(ck)ck.checked=true;
+  }
+  document.body.classList.toggle('dates-locked',DATE_LOCK);
 }
 function projMatch(p){
   if(!FILTER)return true;
@@ -2767,6 +2832,7 @@ function computeRange(){
 }
 
 function render(){
+  applyPerms(); /* v1.8.0: the viewer body class + forced date lock, on every route */
   if(typeof ROUTE!=='undefined'&&ROUTE&&ROUTE.view==='project'){document.body.classList.remove('me-dock-on');if(!PP_QUIET){PP_KEEP=true;renderProjectPage();}return;} /* 3.5/I13: a data repaint of the page on screen keeps its working state */
   /* v1.7.0: a data repaint of a Company Data page — the edit buffer (CD_EDIT) is the
      source of the editor's values, so a repaint mid-edit keeps everything typed. */
@@ -3508,6 +3574,7 @@ function makeTaskBar(t,row,lane,labelMode){
    capped at the bar's outer thirds so a move zone always survives in the middle. */
 function edgeZone(w,base){return w&&w<60?Math.min(12,Math.round(w/3)):base;}
 function startDrag(ev,taskId,bar,row){
+  if(isViewer())return; /* v1.8.0: no drags — a click still opens the (locked) modal */
   const rect=bar.getBoundingClientRect(),relX=ev.clientX-rect.left,w=rect.width;
   const hz=edgeZone(w,9);
   let type=relX<=hz?'resize-l':relX>=w-hz?'resize-r':'move';
@@ -3762,6 +3829,7 @@ function openTaskModal(taskId,prefill){
   renderTnList();
   document.getElementById('tm-del').classList.toggle('hidden',!t);
   document.getElementById('task-overlay').classList.remove('hidden');
+  viewerLock(document.getElementById('task-overlay')); /* v1.8.0: visible, locked */
   TM_SNAP=tmSnap();
 }
 /* N2: what the modal's form serializes to — compared on close to catch silent discards. */
@@ -3852,6 +3920,13 @@ function cdDeptLbl(id){const m=SM_DEPTS.find(x=>x[0]===id);return m?m[1]:id;}
 
 function renderCompanyPage(){
   const isPeople=ROUTE.view==='people';
+  /* v1.8.0: no client list for viewers — the page bounces home (menu entry is hidden,
+     this catches direct hashes and a roster that loads after the route). */
+  if(!isPeople&&isViewer()){
+    ROUTE={view:'timeline',id:null,creating:false};
+    toast('The client list is admin-only.','err');
+    location.hash='#/';return;
+  }
   const pg=document.getElementById('page');
   const ok=isPeople?STAFF_OK:CLIENTS_OK;
   const n=isPeople?PEOPLE.length:CLIENTS.length;
@@ -3866,7 +3941,7 @@ function renderCompanyPage(){
    +'<button class="pg-x" id="cd-x" title="Close — back to the timeline (Esc)">&times;</button></div>';
   h+='<div class="cd-head"><h2>'+(isPeople?'People':'Clients')+'</h2>'
    +'<span class="cd-sub">'+(isPeople?'The company roster — roles, departments and availability':'The company client directory and job-code aliases')+'</span>'
-   +'<button class="btn btn-primary" id="cd-add">+ Add '+(isPeople?'person':'client')+'</button></div>';
+   +(isAdmin()?'<button class="btn btn-primary" id="cd-add">+ Add '+(isPeople?'person':'client')+'</button>':'')+'</div>';
   h+='<div class="cd-body"><div class="cd-list"><div class="cd-tools">'
    +'<input id="cd-q" type="text" placeholder="Search '+(isPeople?'people':'clients')+'…">'
    +(isPeople?'<select id="cd-dept" title="Show one department"><option value="all">All departments</option>'
@@ -3880,7 +3955,8 @@ function renderCompanyPage(){
   if(ds)ds.addEventListener('change',()=>{CD_DEPT=ds.value;cdPaintRows();});
   document.getElementById('cd-back').addEventListener('click',goTimeline);
   document.getElementById('cd-x').addEventListener('click',goTimeline);
-  document.getElementById('cd-add').addEventListener('click',()=>{
+  const addBtn=document.getElementById('cd-add');
+  if(addBtn)addBtn.addEventListener('click',()=>{
     if(CD_EDIT&&!confirm('Discard the changes to this record?'))return;
     CD_EDIT=isPeople?{id:genId(),name:'',depts:[],ooo:[],email:'',phone:'',role:'',_new:true}
                     :{name:'',alias:'',_new:true};
@@ -3943,9 +4019,16 @@ function cdPaintDetail(){
      +'</dd></div>'
      +'<div class="cdd-f"><dt>On the schedule</dt><dd>'
        +(asn.phases?('On '+asn.phases+' phase'+(asn.phases===1?'':'s')+' across '+asn.projects+' project'+(asn.projects===1?'':'s')+(asn.active?' · '+asn.active+' running today':'')):'No phases assigned')
-     +'</dd></div></dl>'
-     +'<div class="cdd-foot"><span style="flex:1"></span><button class="btn btn-primary" id="cdd-edit">Edit</button></div></div>';
-    document.getElementById('cdd-edit').addEventListener('click',()=>{
+     +'</dd></div>'
+     /* v1.8.0: the flags read as information once the columns are live */
+     +(permsLive()?'<div class="cdd-f"><dt>Permissions</dt><dd>'
+       +([per.admin?'Admin':'',per.feedbackRecipient?'Receives feedback':''].filter(Boolean).join(' · ')||'—')
+     +'</dd></div>':'')
+     +'</dl>'
+     +'<div class="cdd-foot"><span style="flex:1"></span>'
+     +(isAdmin()?'<button class="btn btn-primary" id="cdd-edit">Edit</button>':'')+'</div></div>';
+    const ed=document.getElementById('cdd-edit');
+    if(ed)ed.addEventListener('click',()=>{
       CD_EDIT=JSON.parse(JSON.stringify(per));cdPaintDetail();
       loadTeamMembers().then(cdApplyTeam);
     });
@@ -3959,8 +4042,10 @@ function cdPaintDetail(){
      +'<div class="cdd-f"><dt>Projects</dt><dd>'
        +(use.total?(use.total+' total'+(use.current?' · '+use.current+' current':'')):'None on the board')
      +'</dd></div></dl>'
-     +'<div class="cdd-foot"><span style="flex:1"></span><button class="btn btn-primary" id="cdd-edit">Edit</button></div></div>';
-    document.getElementById('cdd-edit').addEventListener('click',()=>{
+     +'<div class="cdd-foot"><span style="flex:1"></span>'
+     +(isAdmin()?'<button class="btn btn-primary" id="cdd-edit">Edit</button>':'')+'</div></div>';
+    const ed=document.getElementById('cdd-edit');
+    if(ed)ed.addEventListener('click',()=>{
       CD_EDIT={...cl,_orig:cl.name};cdPaintDetail();
     });
   }
@@ -3976,6 +4061,12 @@ function cdPaintEditor(el,isPeople){
      +'<div class="cd-fg"><label>Role / title</label><input id="cde-role" type="text"></div>'
      +'<div class="cd-fg"><label>Departments</label><div class="cd-depts" id="cde-depts"></div></div>'
      +'<div class="cd-fg"><label>Out of office</label><div id="cde-ooo"></div><button class="tn-add" id="cde-ooo-add">+ Out of office</button></div>'
+     /* v1.8.0: permission flags — shown only once the columns carry values (permsLive),
+        so a site without the columns can't produce a save the list would 400 on. */
+     +(permsLive()?'<div class="cd-fg"><label>Permissions</label><div class="cd-depts">'
+       +'<label><input type="checkbox" id="cde-admin"> Admin — full edit access</label>'
+       +'<label><input type="checkbox" id="cde-fbr"> Receives bug reports &amp; ideas</label>'
+       +'</div></div>':'')
      +'<div class="cdd-foot">'
      +(r._new?'':'<button class="btn btn-ghost cd-del" id="cde-del">Remove person…</button>')
      +'<span style="flex:1"></span>'
@@ -4014,6 +4105,10 @@ function cdPaintEditor(el,isPeople){
       });
     };
     paintOoo();
+    const ad=document.getElementById('cde-admin');
+    if(ad){ad.checked=!!r.admin;ad.addEventListener('change',()=>{r.admin=ad.checked;});}
+    const fb=document.getElementById('cde-fbr');
+    if(fb){fb.checked=!!r.feedbackRecipient;fb.addEventListener('change',()=>{r.feedbackRecipient=fb.checked;});}
     document.getElementById('cde-ooo-add').addEventListener('click',()=>{r.ooo=r.ooo||[];r.ooo.push({id:genId(),start:'',end:'',note:''});paintOoo();});
     document.getElementById('cde-cancel').addEventListener('click',()=>{CD_EDIT=null;cdPaintDetail();});
     document.getElementById('cde-save').addEventListener('click',cdSavePerson);
@@ -4043,10 +4138,18 @@ function cdSavePerson(){
   const r=CD_EDIT;if(!r)return;
   const per={id:r.id,name:(r.name||'').trim(),email:(r.email||'').trim(),phone:(r.phone||'').trim(),role:(r.role||'').trim(),
     depts:r.depts||[],
-    ooo:(r.ooo||[]).filter(o=>o.start&&o.end).map(o=>o.end>=o.start?o:{...o,start:o.end,end:o.start})};
+    ooo:(r.ooo||[]).filter(o=>o.start&&o.end).map(o=>o.end>=o.start?o:{...o,start:o.end,end:o.start}),
+    /* v1.8.0: the flags ride through every save (tristate — null means the row never
+       carried the column and personToFields omits it). */
+    admin:r.admin==null?null:!!r.admin,
+    feedbackRecipient:r.feedbackRecipient==null?null:!!r.feedbackRecipient};
   if(!per.name){toast('Give the person a name first.','err');return;}
   if(PEOPLE.some(x=>x.id!==per.id&&x.name.trim().toLowerCase()===per.name.toLowerCase())){
     toast('Two people share the name "'+per.name+'" — please make names unique.','err');return;}
+  /* v1.8.0: the last admin can't be demoted — that would lock the whole app read-only. */
+  {const live=PEOPLE.find(x=>x.id===per.id);
+   if(live&&live.admin&&!per.admin&&!PEOPLE.some(x=>x.id!==per.id&&x.admin)){
+     toast('You can\'t remove the last admin — make someone else an admin first.','err');return;}}
   const list=PEOPLE.some(x=>x.id===per.id)?PEOPLE.map(x=>x.id===per.id?per:x):[...PEOPLE,per];
   CD_EDIT=null;CD_SEL=per.id;
   savePeople(list); /* re-renders the page through render() */
@@ -4311,6 +4414,13 @@ function ppColor(p){return p&&p.id?projColor(p.id):'#94A3B8';}
 
 function renderProjectPage(){
   const isNew=ROUTE.creating;
+  /* v1.8.0: creating projects is admin-only — covers the button, the N key and a
+     direct #/project/new hash (also a roster that loads after the route). */
+  if(isNew&&isViewer()){
+    ROUTE={view:'timeline',id:null,creating:false};
+    toast('Creating projects is admin-only.','err');
+    location.hash='#/';return;
+  }
   /* Clear the draft BEFORE anything reads it, or a second new project inherits the
      first. 3.5/I13: the same working state must not leak into a SAVED page either —
      a leftover manual placement, row order or subtask line from a cancelled draft
@@ -4388,16 +4498,18 @@ function renderProjectPage(){
    + '<div class="ins-wrap" id="pp-insp"></div>';
 
   h+='<div class="dash-foot">'
-   /* Left: passive status — reads as state, not a control. */
-   + (isNew?'':'<span class="pg-auto"><b>&#10003;</b> Changes saved</span>')
+   /* Left: passive status — reads as state, not a control. v1.8.0: for a viewer the
+      honest state is view-only, not "changes saved". */
+   + (isNew?'':(isViewer()?'<span class="pg-auto">View only — ask an admin to edit</span>'
+                          :'<span class="pg-auto"><b>&#10003;</b> Changes saved</span>'))
    /* Right: actions on the project, weakest→strongest. Delete is a subdued destructive
       (red only on hover) that confirms; Mark complete is the secondary workflow step;
       Done is the primary exit and the most frequent action. Shortcuts moved to
       Help ▾ / the ? overlay — it's app help, not a project action.
       REV87: manual complete writes the shared status column's 'complete' value. */
    + '<div class="foot-actions">'
-   + (isNew?'':'<button class="btn btn-del" id="pp-del" title="Delete this project and everything on it">Delete project</button>')
-   + (isNew?'':'<button class="btn btn-ghost" id="pp-complete"></button>')
+   + ((isNew||isViewer())?'':'<button class="btn btn-del" id="pp-del" title="Delete this project and everything on it">Delete project</button>')
+   + ((isNew||isViewer())?'':'<button class="btn btn-ghost" id="pp-complete"></button>')
    + '<button class="btn '+(isNew?'btn-ghost':'btn-primary')+'" id="pp-cancel" title="'+(isNew?'Leave without creating the project':'Go back to the timeline — changes are already saved')+'">'+(isNew?'Cancel':'Done')+'</button>'
    + (isNew?'<button class="btn btn-primary" id="pp-save" title="Create the project with the schedule shown">Create project</button>':'')
    + '</div></div>'
@@ -4888,7 +5000,7 @@ function ppInspector(){
      + (sel.pinned?' checked':'')+'> 📌 Pin dates — the bar refuses drags and resizes</label></div>';
     /* N11 said adds live on right-click; the +Subtask/+Event/+Task buttons duplicated
        that and are gone. Keyboard S/E/T still works. */
-    f+='<div class="ins-acts">'
+    if(!isViewer())f+='<div class="ins-acts">'
      + '<button class="ins-btn" id="ins-dup" title="Copy this phase as a new bar">Duplicate</button>'
      + '<button class="ins-btn dngr" id="ins-del" title="Delete this phase">Delete</button></div>';
     h+=ppSec('phase','This phase',f,null,true);
@@ -4927,13 +5039,14 @@ function ppInspector(){
         + '<div class="pg-rbox" id="'+r[0]+'"></div></div>').join('')+'</div>',null,false);
     h+=ppSec('depts','Departments',
       '<div class="pg-depts" id="pp-depts"></div>'
-      + '<div class="ins-note">Right-click the chart to add one where you want it.</div>',
+      + (isViewer()?'':'<div class="ins-note">Right-click the chart to add one where you want it.</div>'),
       null,false);
     h+=ppAgendaHTML(p,null);
     h+='</div>';
   }
   box.innerHTML=h;
   ppBindInspector(p,sel);
+  viewerLock(box); /* v1.8.0: fields render as information for viewers */
 }
 
 /* One agenda. Everything dated on the job in one chronological list, undated first so it
@@ -4960,11 +5073,13 @@ function ppAgendaHTML(p,onlyDept){
   /* v1.4.0 (08-31 objs 3/6): a milestone row is date | name | phase; a note row is
      date | name only. The type datalist, milestone notes and note who/phase inputs
      are gone (stored fields untouched; old data still reads). */
-  let body='<div class="ag-add">'
+  /* v1.8.0: adding is admin-only; a viewer's empty state skips the how-to-add copy */
+  let body=isViewer()?'':'<div class="ag-add">'
    + '<button class="ins-btn" data-ag="ev" title="Add a dated milestone - an approval, release, or hold (E)">+ Milestone <kbd>E</kbd></button>'
    + '<button class="ins-btn" data-ag="tk" title="Add a dated note (T)">+ Note <kbd>T</kbd></button></div>';
   if(!shown.length){
-    body+='<div class="ag-empty">No milestones or notes yet.<br>Right-click the chart on the day '
+    body+=isViewer()?'<div class="ag-empty">No milestones or notes yet.</div>'
+     :'<div class="ag-empty">No milestones or notes yet.<br>Right-click the chart on the day '
      + 'it happens, or use the buttons above.</div>';
   }else{
     body+='<div class="ag">';
@@ -4975,7 +5090,7 @@ function ppAgendaHTML(p,onlyDept){
        + '<input type="date" data-f="'+(ev?'date':'due')+'" value="'+esc(r.date||'')+'" title="Date">'
        + '<input class="nm" data-f="'+(ev?'name':'title')+'" value="'+esc(r.nm||'')+'"'
        +   (ev?' placeholder="Client approval"':' placeholder="Order acrylic"')+'>'
-       + '<button class="del" title="Remove">&times;</button>'
+       + (isViewer()?'':'<button class="del" title="Remove">&times;</button>')
        + (ev?'<select data-f="dept" title="The phase this rides on">'+deptOptions(r.dept)+'</select>':'')
        + '</div>';
     }
@@ -6113,6 +6228,7 @@ function npvBindHost(host){
     /* Double-click a title to rename it in place, like a folder in Explorer. Delegated
        on the host so it survives every re-render (bands/gutters are rewritten each paint). */
     host.addEventListener('dblclick',ev=>{
+      if(isViewer())return; /* v1.8.0: rename + blank-space create are edits */
       const tg=ev.target;if(!tg||!tg.closest)return;
       /* Double-click is a rename intent; close the popover the paired single-clicks opened
          (calendar bands select-and-open on click) so the rename box stands alone. */
@@ -6154,6 +6270,7 @@ function npvBindHost(host){
          a plain click opens the agenda editor. Same cell-date machinery as bars. */
       const mkEl=ev.target.closest('.cal-band.ev,.cal-band.tk');
       if(mkEl){
+        if(isViewer())return; /* v1.8.0: marker drag + editor are edits (hover titles remain) */
         ev.preventDefault();
         const id=mkEl.dataset.mkId,k=mkEl.dataset.mkK,d0=mkEl.dataset.mkDate;
         if(!id)return;
@@ -6212,7 +6329,7 @@ function npvBindHost(host){
          forward to a workday and the end back, and the nesting clamp holds. */
       const hdl=ev.target.closest('.cal-hdl');
       const resize=hdl?(hdl.classList.contains('r')?'r':'l'):'';
-      const locked=!!resize&&(DATE_LOCK||!!t.pinned);
+      const locked=isViewer()||(!!resize&&(DATE_LOCK||!!t.pinned)); /* v1.8.0: viewers never mutate */
       const s0=parseDate(t.startDate),e0=parseDate(t.endDate);
       const twins=NPV_TASKS.filter(z=>z.department===t.department&&(z.label||'')===(t.label||'')
         &&z.startDate===t.startDate&&z.endDate===t.endDate);
@@ -6304,7 +6421,8 @@ function npvBindHost(host){
         if(resize){
           if(locked||!edgeD){
             /* 3.5/I14: same courtesy as the Gantt — a refused resize says why. */
-            if(locked)toast(t.pinned?'📌 Pinned — untick Pin in the phase panel to resize it'
+            if(locked)toast(isViewer()?'View-only access — ask an admin to change the schedule'
+                            :t.pinned?'📌 Pinned — untick Pin in the phase panel to resize it'
                                     :'Lock dates is on — unlock it to resize');
             return;
           }
@@ -6384,6 +6502,7 @@ function npvBindHost(host){
       if(hv)hv.remove();if(hc)hc.remove();
     });
     host.addEventListener('contextmenu',ev=>{
+      if(isViewer()){ev.preventDefault();return;} /* v1.8.0: every entry is an edit */
       if(NPV_MODE==='calendar'){
         /* REV53: parity with the Gantt — a phase band gets the bar menu, empty space
            gets the create menu seeded with the cell's date. REV72: marker bands
@@ -7024,6 +7143,7 @@ function npvPopRender(){
     npvPopPosition(el,NPV_POP.x,NPV_POP.y);
     npvPopBindMark(el,NPV_POP.kind,NPV_POP.id);
   }
+  viewerLock(el); /* v1.8.0: the in-place editor reads as information for viewers */
   if(NPV_POP._new){
     NPV_POP._new=false;
     const n=el.querySelector('[data-f="label"],[data-f="name"],[data-f="title"]');
@@ -7159,7 +7279,7 @@ function npvBindDrag(){
   /* REV50: events and tasks move by dragging, same as bars. A click renames in place. */
   host.querySelectorAll('.npv-ev,.npv-tk').forEach(mk=>{
     mk.addEventListener('mousedown',ev=>{
-      if(ev.button!==0||!NPV_GEO)return;
+      if(ev.button!==0||!NPV_GEO||isViewer())return; /* v1.8.0: drag + editor are edits */
       ev.preventDefault();ev.stopPropagation();
       npvBlur();
       const id=mk.dataset.mkId,k=mk.dataset.mkK,d0=mk.dataset.mkDate;
@@ -7220,7 +7340,7 @@ function npvBindDrag(){
       const resize=ev.target.classList.contains('npv-hdl')
         ?(ev.target.classList.contains('r')?'r':'l'):'';
       /* Locked: the drag is swallowed but a click still selects, like the timeline. */
-      const locked=!!resize&&(DATE_LOCK||!!t.pinned);
+      const locked=isViewer()||(!!resize&&(DATE_LOCK||!!t.pinned)); /* v1.8.0: viewers never mutate */
       const x0=ev.clientX,y0=ev.clientY;
       let moved=false; /* ≥3px pointer travel — the §6 click/drag disambiguator */
       const s0=parseDate(t.startDate),e0=parseDate(t.endDate);
@@ -7293,7 +7413,8 @@ function npvBindDrag(){
         if(locked||!days){
           npvRender();
           /* 3.5/I14: a refused resize says WHY instead of silently snapping back. */
-          if(locked)toast(t.pinned?'📌 Pinned — untick Pin in the phase panel to resize it'
+          if(locked)toast(isViewer()?'View-only access — ask an admin to change the schedule'
+                          :t.pinned?'📌 Pinned — untick Pin in the phase panel to resize it'
                                   :'Lock dates is on — unlock it to resize');
           return;
         }
@@ -7528,6 +7649,9 @@ document.addEventListener('keydown',ev=>{
     if(k==='?'){toggleKbdMenu();ev.preventDefault();return;}
     if(k==='g'||k==='G'){NPV_MODE='gantt';npvRender();ev.preventDefault();return;}
     if(k==='c'||k==='C'){NPV_MODE='calendar';npvRender();ev.preventDefault();return;}
+    /* v1.8.0: the view keys above stay for viewers; the edit keys below are admin-only */
+    if(isViewer()&&(/^[etsr]$/i.test(k)||k==='Delete'||k==='Backspace'
+       ||(ev.shiftKey&&(k==='ArrowLeft'||k==='ArrowRight'))))return;
     if(k==='e'||k==='E'){npvCreateEvent(dept,day);ev.preventDefault();return;}
     if(k==='t'||k==='T'){npvCreateTask(dept,day);ev.preventDefault();return;}
     if(k==='s'||k==='S'){if(dept)npvCreateSubtask(dept,day||fmtDate(new Date()));ev.preventDefault();return;}
@@ -7733,7 +7857,9 @@ document.getElementById('btn-lens-dept').addEventListener('click',()=>{if(LENS==
   document.getElementById('btn-lens-dept').classList.add('active');document.getElementById('btn-lens-proj').classList.remove('active');
   saveUI();render();});
 document.getElementById('btn-new-proj').addEventListener('click',()=>openProjModal(null));
-document.getElementById('lock-ck').addEventListener('change',ev=>{DATE_LOCK=ev.target.checked;document.body.classList.toggle('dates-locked',DATE_LOCK);});
+document.getElementById('lock-ck').addEventListener('change',ev=>{
+  if(isViewer()){ev.target.checked=true;return;} /* v1.8.0: forced on for viewers */
+  DATE_LOCK=ev.target.checked;document.body.classList.toggle('dates-locked',DATE_LOCK);});
 
 /* Search */
 document.getElementById('t-search').addEventListener('input',ev=>{
@@ -8225,6 +8351,7 @@ function pmLatePaint(){
   }).join('');
 }
 function pmLateShow(){
+  if(isViewer())return; /* v1.8.0: a viewer can't act on the prompt */
   const td=fmtDate(today());
   try{if(localStorage.getItem(PMLATE_KEY)===td)return;}catch(e){}
   if(!pmLateList().length)return;
@@ -8411,8 +8538,33 @@ async function sendFeedback(){
       name:document.getElementById('fb-name').value.trim(),
       email:document.getElementById('fb-email').value.trim(),
       description:desc+extra,appVersion:APP_VER,appId:genId()}})});
+    /* v1.8.0 (§3 item 12): the report also mails everyone flagged feedbackRecipient on
+       the staff list — Graph sendMail AS THE SIGNED-IN SUBMITTER, on its own Mail.Send
+       delegated token (the TeamMember.Read.All pattern: no consent / no token → the
+       mail is skipped and the report is already safely on the list). */
+    let mailed=false;
+    const rcpt=feedbackRecipients();
+    if(rcpt.length){
+      try{
+        const mt=(await PCA.acquireTokenSilent({scopes:['Mail.Send'],account:ACCOUNT})).accessToken;
+        const mr=await fetch('https://graph.microsoft.com/v1.0/me/sendMail',{method:'POST',
+          headers:{Authorization:'Bearer '+mt,'Content-Type':'application/json'},
+          body:JSON.stringify({message:{
+            subject:'[Shop Timeline] '+(kind==='bug'?'Bug':'Feature')+' — '+desc.slice(0,80),
+            body:{contentType:'Text',content:
+              (kind==='bug'?'Bug report':'Feature request')+' from '
+              +document.getElementById('fb-name').value.trim()
+              +' <'+document.getElementById('fb-email').value.trim()+'> · app v'+APP_VER
+              +'\n\n'+desc+extra
+              +'\n\nAlso filed on the ShopTimeline_Feedback list.'},
+            toRecipients:rcpt.map(a=>({emailAddress:{address:a}}))},
+            saveToSentItems:true})});
+        mailed=mr.ok;
+        if(!mr.ok)console.warn('feedback mail failed: '+mr.status);
+      }catch(e){console.warn('feedback mail skipped:',e&&e.message);}
+    }
     closeFeedback();
-    toast('Thanks — the report is filed.');
+    toast(mailed?'Thanks — the report is filed and emailed to the team.':'Thanks — the report is filed.');
   }catch(e){
     console.error(e);
     toast('Could not reach the ShopTimeline_Feedback list — check it lives on the TWOSEVENINC site (Site contents), not My Lists.','err');

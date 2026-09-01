@@ -301,6 +301,11 @@ for every future company master-data section (departments, project types, holida
   pages read as authoritative through structure — location, read-first, explicit
   edit — not visual weight. Persistence is untouched: edits clone the shared list,
   swap one record, and ride the existing save paths.
+- **Edit affordances are role-gated (v1.8.0).** For non-admins the pages keep their
+  read modes but render no + Add / Edit / Remove; the Clients page is admin-only
+  outright. App-wide, the viewer role follows the same read-first grammar: locked
+  fields flatten to information (`body.viewer` + disabled controls), admin-only
+  chrome disappears rather than disabling, and every refusal toast says who to ask.
 
 ## 8. Print & Meeting Sheet
 

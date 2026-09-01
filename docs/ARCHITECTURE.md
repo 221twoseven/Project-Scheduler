@@ -31,7 +31,10 @@ Microsoft Graph  v1.0  ──►  SharePoint site  /sites/TWOSEVENINC
   browser SPA).
 - Config lives in a handful of constants: `CLIENT_ID`, `TENANT_ID`, authority
   `https://login.microsoftonline.com/<tenant>`, `redirectUri` computed from the current
-  URL (hash/query stripped), scopes `['User.Read','Sites.ReadWrite.All']`.
+  URL (hash/query stripped), scopes `['User.Read','Sites.ReadWrite.All']`. Two
+  side-scopes ride their own `acquireTokenSilent` requests so missing consent degrades
+  instead of blocking sign-in: `TeamMember.Read.All` (staff-picker suggestions) and
+  `Mail.Send` (v1.8.0 feedback mail).
 - Flow: `spInit()` → `loginPopup` (or a cached account); `spToken()` →
   `acquireTokenSilent`, falling back to `acquireTokenPopup`. Token cache is
   `sessionStorage`.
