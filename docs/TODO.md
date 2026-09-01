@@ -4,8 +4,12 @@
 when the v1 backlog was retired to
 [`docs/Archive/TODO-v1-Archive.md`](Archive/TODO-v1-Archive.md) with everything closed
 except the entries carried into §2 and §7 below. Anything touching **SharePoint schema**
-or **Entra/auth** is marked ⚠ and needs explicit approval first (shared with a separately
-maintained colleague app — see `CLAUDE.md`).
+or **Entra/auth** is marked ⚠ (shared with a separately maintained colleague app — see
+`CLAUDE.md`). **Process change (owner, 2026-09-01): ⚠ items are not gates.** Schema
+changes don't wait for a formal approval cycle — deliver Robert the exact spec (list,
+column name, type) and he applies the list edit himself; the app never writes schema.
+Additive-only and the colleague-app awareness rule still stand. Same spirit for missing
+info generally: prompt for what's needed instead of parking the item.
 
 **Workflow (standing):** all work batches land on the `development` branch and are
 viewable at `/preview/` before a manual, deliberate merge to `main` (production).
@@ -17,8 +21,11 @@ single-source-of-truth milestone** (§3 item 13) — the app becoming the compan
 database is the breaking change the major number exists for. `APP_VER` in `index.html`
 is the source of truth; keep `package.json` aligned.
 
-Last reviewed: 2026-08-31 — appended the owner's second objective list (the 2026-08-31
-brief, §3 items 14–26) and refolded the version ladder. Same day: v1.2.1–v1.6.0 all
+Last reviewed: 2026-09-01 — folded the **Master Data UX Refactor handoff** (2026-09-01)
+into §3 item 27 (Company Data: People and Clients become first-class pages) and refolded
+the ladder: item 27 proposed as v1.7.0 (pure UI/routing, no gates), permissions →
+v1.8.0, changelog → v1.9.0. Previous review 2026-08-31 — appended the owner's second
+objective list (the 2026-08-31 brief, §3 items 14–26) and refolded the version ladder. Same day: v1.2.1–v1.6.0 all
 shipped to `development`; **owner called a PAUSE after v1.6.0 — hone the shipped
 batches before any new rung (permissions v1.7.0 is NOT started).** The owner's first
 `/preview/` review of those batches came back the same day as a ten-item punch list —
@@ -136,17 +143,17 @@ Owner's objective numbers in parentheses. Each batch: build on `development`, ve
 ### Fonts (patch/minor — one licensing check first)
 
 - [ ] **6. (Obj 10) Brauer Neue for the app title (TWOSEVEN).** TTF/OTF on hand;
-      `@font-face` + one `font-family` rule on the title. **Gate before commit: the
-      repo is PUBLIC — committing a licensed font file publishes it for download.
-      Confirm the licence permits web embedding/self-hosting first** (or subset the
-      file to the title glyphs, which most licences treat kindly). The font file must
-      also join the deploy allowlist in `.github/workflows/deploy-pages.yml`.
+      `@font-face` + one `font-family` rule on the title. **Licence CONFIRMED
+      2026-09-01 (owner): permits use — gate cleared.** Waiting only on the file:
+      Robert drops the TTF/OTF into a repo `fonts/` folder (or hands it over), then
+      it's a wire-up patch. The font file must also join the deploy allowlist in
+      `.github/workflows/deploy-pages.yml`.
 - [ ] **7. (Obj 11) Bahnschrift app-wide, if practical.** Regular weight TTF only, no
-      italics. Same public-repo licence gate — but Bahnschrift ships with Windows 10+,
-      so the lazy first rung is `font-family: Bahnschrift, <current stack>` via
-      `local()` with **no committed file** (covers every shop Windows machine free);
-      commit the TTF only if Mac/mobile coverage proves needed and the licence allows.
-      Verify weight/spacing at the app's small sizes before going global.
+      italics. **Licence CONFIRMED 2026-09-01 (owner).** Bahnschrift ships with
+      Windows 10+, so the first rung needs NO file at all: `font-family: Bahnschrift,
+      <current stack>` via `local()` (covers every shop Windows machine free); commit
+      the TTF only if Mac/mobile coverage proves needed. Verify weight/spacing at the
+      app's small sizes before going global. Fully unblocked — ride the next patch.
 
 ### Calendar interaction features (minor bumps)
 
@@ -203,8 +210,11 @@ Owner's objective numbers in parentheses. Each batch: build on `development`, ve
 - [ ] **12. (Obj 3) Admin vs regular user permissions.**
       - Admin roster: a checkbox per person, populated from the same staff list
         People & Availability uses; admins can grant/revoke admin (checkbox inside
-        People & Availability). **⚠ needs an `admin` column on the staff list** —
-        approval + colleague-app check first.
+        People & Availability — after §3 item 27 lands, this surface is the People
+        page's edit state). **⚠ needs an `admin` column on the staff list — spec
+        delivered 2026-09-01 (single line of text named exactly `admin`, lowercase,
+        on `ShopTimeline_Staff`, TWOSEVENINC site); Robert creates it.** Additive,
+        so the colleague app is unaffected (it ignores unknown columns).
       - Admins: full access as the app is today.
       - Non-admins: no client list, no people edits, no department/phase edits;
         **Lock Dates on by default and the button hidden**; Project Edit fields
@@ -301,12 +311,73 @@ rule §5); old data keeps reading fine.
 
 - [ ] **26. (08-31 obj 13) Project Edit change log.** Admin-viewable (needs §3
       item 12 permissions first). Two surfaces: a **global changelog** in the
-      Resources dropdown, and a **project-specific changelog** on the project edit
-      page (that project's changes only). **Owner rulings 2026-08-31:** the list is
+      Resources dropdown (→ the Company Data group once §3 item 27 renames it), and
+      a **project-specific changelog** on the project edit page (that project's
+      changes only). **Owner rulings 2026-08-31:** the list is
       approved — app-side `ShopTimeline_Changelog` (additive; field spec delivered
       2026-08-31, chat + §5); and "replaces the dock" means a SECOND collapsible
       edit dock with the changelog as contents, footer toggle, **only one dock
       viewable at a time** (not the REV99 dock's removal).
+
+### 2026-09-01 handoff — Company Data: People & Clients as pages (minor bump)
+
+- [ ] **27. (09-01 handoff) People and Clients become first-class application pages.**
+      The core move:
+      **modal → batch form → save/cancel** becomes **persistent location → record
+      index → selected record → explicit edit state**. This is a presentation /
+      interaction / routing refactor — **no schema changes**, all SharePoint
+      persistence and current behavior preserved. **Full handoff committed 2026-09-01:
+      `docs/2026-09-01-Master-Data-UX-Refactor-Handoff.md`** (staff names in its
+      examples are fake — owner confirmed).
+      - **Routing:** extend the REV35 hash router (`ROUTE`/`parseRoute`,
+        `index.html` ~4011) with `#/people` and `#/clients` views on the
+        project-page precedent: trail bar (`All Projects › People`), timeline-only
+        toolbar controls hidden, obvious route back to `#/`. Per-record URLs
+        (`#/people/:id`) only if they fall out cleanly — a master/detail selection
+        state inside the page is acceptable; don't over-engineer the router.
+      - **Naming:** Resources menu group → **Company Data**; "People &
+        Availability" → **People** (availability becomes information belonging to
+        a person, not a peer nav concept). Future master-data sections
+        (Departments, Project Types, Holidays…) join this group — it is the UX
+        shell the §3 item 13 consolidation absorbs stores into.
+      - **Read mode vs edit mode (critical):** default record presentation is
+        read-oriented — fields render as information ("the company record for X"),
+        NOT as always-editable form controls moved onto a page. An explicit Edit
+        action enters edit state (inline in the detail pane or a scoped modal —
+        implementer's choice); Cancel/Save exit it. Add Person / Add Client may
+        stay modals: **the entity gets a page, the action may get a modal.**
+      - **Index views:** searchable/filterable list-tables (columns from the
+        existing data model — name/role/departments/availability for people,
+        client/alias for clients), record count + the existing sync indicator as
+        system-of-record cues ("18 people · SharePoint · Synced 11:48"). Desktop:
+        master/detail side by side; narrow viewport: selection transitions to the
+        detail view (no cramped two-column squeeze).
+      - **Record-level actions,** not batch-list editing: Add / Edit per record.
+        Archive/Deactivate lifecycle (Active/Inactive/Archived) **needs a status
+        column on the shared staff/clients lists ⚠ — NOT in this pass.** First
+        pass: no casual per-row × delete buttons in the new UI; keep existing
+        delete paths where they exist, behind intent + confirm. Ledger the
+        lifecycle gap in §7 when the batch ships.
+      - **Relationship context** only where derivable reliably from data already
+        in memory (client → project counts via the existing client/project link;
+        person → assignment counts via the v1.6.5 `canonName` machinery). Don't
+        fabricate; leave the layout room for richer relational panels later.
+        Deactivation guards ("assigned to 6 active projects — reassign first")
+        ride the lifecycle column, not this pass.
+      - **Before refactoring:** inventory the People/Client modals' state,
+        SharePoint read/write paths, temp/copy state before Save, and every
+        consumer of these datasets elsewhere in the app (staff picker, filters,
+        dashboards, crew chips…). Nothing regresses — availability management
+        included.
+      - **Visual:** existing design system only — compact, information-dense; no
+        dashboard cards, oversized headings, or a separate Company Data look.
+        Authority comes from structure and interaction, not visual weight.
+      - **Interactions with other items:** §3 item 12's admin checkbox lands on
+        the People page (refactor first = permissions gate pages, not modals);
+        item 26's "global changelog in the Resources dropdown" surface becomes
+        the Company Data group. Acceptance criteria in the handoff; the short
+        version: both pages feel like persistent company directories, editing is
+        intentional, everything that worked still works.
 
 ### The heavy lift — single source of truth (the v2.0.0 milestone)
 
@@ -335,7 +406,9 @@ rule §5); old data keeps reading fine.
       department/logistics calendars. Everything here is ⚠ by definition — per-store
       approval, colleague-app check, and dual-run before any store is retired.
       **v2.0.0 ships when the app is the declared master and the manual stores are
-      frozen or retired.**
+      frozen or retired.** The §3 item 27 Company Data pages are the UX shell this
+      work lands in — each absorbed store becomes a section under Company Data,
+      using the People/Clients page pattern.
 
 ## 4. Version ladder (proposed — adjust as batches actually land)
 
@@ -359,8 +432,9 @@ rule §5); old data keeps reading fine.
 | v1.6.4 | ✅ Shipped 2026-09-01 — third review round: the Summary/Dashboard place follows the person into the Projects lens (toggle hidden while a person is on; flat treatment stays dept-only) |
 | v1.6.5 | ✅ Shipped 2026-09-01 — legacy person strings resolve to roster people (`canonName` in `barCrew`): dept lanes merge, person filter/dashboards find legacy-named work, overbooking sees through old strings; stored values never rewritten |
 | v1.6.6 | ✅ Shipped 2026-09-01 — Filters dropdown revision: Person radios stay in the menu inside a Summary (switch/clear in place; Everyone = the × exit), one menu-wide "Show everything" reset replaces the status-scoped Show all / Clear all pair |
-| v1.7.0 | 12 (permissions) ⚠ |
-| v1.8.0 | 26 (change log) ⚠ — after permissions |
+| v1.7.0 | 27 (Company Data: People & Clients pages) — no gates; proposed to run before permissions so item 12 gates pages, not modals |
+| v1.8.0 | 12 (permissions) ⚠ |
+| v1.9.0 | 26 (change log) ⚠ — after permissions |
 | v2.0.0 | 13 (single source of truth) ⚠ — likely several minors along the way (one per absorbed store), with v2.0.0 as the cutover declaration |
 
 ## 5. Data / schema (⚠ all need approval — shared Lists)
@@ -379,8 +453,12 @@ rule §5); old data keeps reading fine.
 - **Verify before first use:** both new lists must live on the TWOSEVENINC site
   (Site contents), not "My Lists" — the app resolves lists by name on the site and
   cannot see personal lists. (Owner had strays in My Lists, 2026-08-31.)
-- Candidate new column: `admin` on the staff list (§3 item 12) — still needs the
-  colleague-app check.
+- Candidate new column: `admin` on the staff list (§3 item 12) — **spec delivered
+  2026-09-01; Robert creates it** (single line of text, exact name `admin`).
+- Candidate new column: a lifecycle/`status` column (Active/Inactive/Archived) on
+  `ShopTimeline_Staff` and `ShopTimeline_Clients` (§3 item 27's archive-not-delete
+  model) — additive; Robert applies it when item 27's lifecycle pass is designed
+  (exact spec to be delivered with that batch). Item 27's first pass ships without it.
 - **Non-change to note:** the Checkpoint→Milestone / Task→Note renames (§3 items
   21–22) are UI copy only — stored field names do not change.
 - Everything in §3 item 13's inventory.
@@ -518,7 +596,10 @@ these are the ones still open, plus new deferrals as they happen.
       the buttons snap to named steps. Cosmetic. Gate: someone caring. (v1.5.0)
 - [ ] Font files & licences (§3 items 6–7): nothing committed until the licence
       check passes; Bahnschrift starts as `local()`-only. Gate: licence confirmed /
-      non-Windows coverage demanded. (2026-08-28)
+      non-Windows coverage demanded. (2026-08-28) **Gate half-fired 2026-09-01:
+      licences CONFIRMED (owner) — Brauer Neue awaits the file upload; the
+      `local()`-only start for Bahnschrift stands until non-Windows coverage is
+      demanded (that half stays open).**
 - [ ] Vivid shows no non-working-day marker on the canvas at all (holidays
       included) — the obj-13 ruling makes the month colour king; weekends stay
       visible in the Day/2-Day header and everywhere in Quiet. Gate: someone
@@ -578,7 +659,12 @@ today left-of-center — on first load and on every arrival at the timeline via 
 
 ### Legend
 
-- ⚠ Needs explicit approval — touches shared SharePoint schema or Entra/auth config.
+- ⚠ Touches shared SharePoint schema or Entra/auth config. **Not a gate (owner,
+  2026-09-01):** deliver Robert the exact spec and he applies the list edit;
+  additive-only and colleague-app awareness still apply. Entra/auth changes still
+  need explicit instruction (CLAUDE.md).
 - (Obj N) = the owner's objective numbering from the 2026-08-28 v2 brief.
 - (08-31 obj N) = the owner's numbering from the 2026-08-31 brief (a separate list —
   the two briefs' numbers do not correspond).
+- (09-01 handoff) = the 2026-09-01 "Master Data UX Refactor" handoff (unnumbered —
+  a single scoped objective, §3 item 27).
