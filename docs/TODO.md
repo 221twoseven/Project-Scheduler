@@ -626,6 +626,27 @@ rule §5); old data keeps reading fine.
       developer already on a project page skips the slides (mid-demo restarts).
       Copy channel: `Copy-Coach-and-Helpers.md` §0. Suite `tests/test-v1160.js`.
 
+- [x] **40. (09-02 evening, six People-page asks) — DONE 2026-09-02 (v1.17.0).**
+      1. **HR title prefixes hidden on display** ("SFAB1 - Seasonal Fabricator" →
+         "Seasonal Fabricator"): `cdTitle()` strips a leading all-caps/digit code
+         + hyphen on the index and record pane; the STORED role keeps the prefix
+         (the editor shows it raw). Real hyphenated titles (Co-Director) untouched.
+      2. **Driver column** (⚠ §5 `driver` column): ✓ on the index, Yes/— on the
+         record, checkbox in the editor; tristate mappers, rides merges.
+      3. **Permission filter** beside the department filter (Everyone / Admins /
+         Developers / Feedback recipients / Viewers); renders once the flag
+         columns are live. Admins include developers; Viewers = no admin flag.
+      4. **Resizable index columns + list/detail split**: drag grips on the
+         header cells pin a column's width; a drag bar between the panes resizes
+         the split. Both remembered per browser (`shopTimelineCdColW`/`CdListW`).
+      5. **Idle "table jump" root-caused**: ANY dirty data poll repaints the whole
+         Company Data page, which reset both panes' scroll to the top. The repaint
+         now carries the index and record scroll positions across.
+      6. **↑↓ walk the index selection** (People AND Clients; clamps at the ends,
+         keeps the row in view; taught in the Help ▸ shortcuts popover).
+      Suite `tests/test-v1170.js` (27); test-v1100's index check branches on the
+      `cd-drv` marker.
+
 - [ ] **13. (Obj 4) Reconcile and absorb the 14 disparate data stores.** The app
       becomes the company's singular source of truth (the v1 "north star", now
       scoped). **Strategy before code:** the first deliverable is
@@ -772,10 +793,13 @@ rule §5); old data keeps reading fine.
 - **Employee Contacts (HR list) — READ-ONLY standing rule (v1.13.0):** the app reads
   it for the People-page import and never writes it or touches its schema; Pay Type
   and PersonalEmail are never read at all.
-- `nickname` column on `ShopTimeline_Staff` (§3 item 38) — **spec delivered
-  2026-09-02, Robert creates:** single-line text, additive, tristate in the app
-  (other saves never 400 without it; a nickname save itself needs it). Display-only:
-  how the name reads app-wide; identity stays the full name. ⚠
+- `nickname` column on `ShopTimeline_Staff` (§3 item 38) — spec delivered
+  2026-09-02 — **CREATED 2026-09-02 (Robert).**
+- `driver` column on `ShopTimeline_Staff` (§3 item 40) — **spec delivered
+  2026-09-02, Robert creates:** single-line text, values `1`/empty. Additive,
+  tristate in the app (other saves never 400 without it; a save that touches the
+  editor's Driver checkbox parks with the named-field toast until it exists).
+  Reads as a ✓ column on the People index and a Yes/— row on the record. ⚠
 - Candidate new column: a lifecycle/`status` column (Active/Inactive/Archived) on
   `ShopTimeline_Staff` and `ShopTimeline_Clients` (§3 item 27's archive-not-delete
   model) — additive; Robert applies it when item 27's lifecycle pass is designed

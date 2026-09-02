@@ -1151,7 +1151,19 @@ body.cd-route #dash-bar{display:none!important}
 .cd-list{width:56%;min-width:320px;max-width:820px;border-right:1px solid #E2E8F0;display:flex;flex-direction:column;min-height:0}
 .cd-cols{display:grid;gap:4px 12px;align-items:center;padding:6px 14px 4px;
   font-size:var(--fs-fine);font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#94A3B8;border-bottom:1px solid #EDF1F7}
-.cd-cols,.cd-row.pp6{grid-template-columns:minmax(0,1.05fr) minmax(0,.9fr) minmax(0,.7fr) minmax(0,1.15fr) minmax(52px,auto) auto}
+/* v1.17.0: each column reads its width from a var so the header grips can resize
+   it — unset vars fall back to the flexible fr defaults.
+   ponytail: a drag pins ONE column to px; the untouched fr columns share the rest —
+   no full colgroup model, add one only if that ever fights the user. */
+.cd-cols,.cd-row.pp7{grid-template-columns:
+  var(--cdc1,minmax(0,1.05fr)) var(--cdc2,minmax(0,.9fr)) var(--cdc3,minmax(0,.7fr))
+  var(--cdc4,minmax(0,1.15fr)) var(--cdc5,minmax(52px,auto)) var(--cdc6,auto) var(--cdc7,auto)}
+.cd-cols span{position:relative;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.cd-grip{position:absolute;right:0;top:0;bottom:0;width:9px;cursor:col-resize;z-index:2}
+.cd-grip:hover{border-right:2px solid #B9C6D8}
+.cd-drv{font-size:12px;color:#1AA59C;font-weight:700}
+#cd-split{flex:0 0 6px;margin-left:-3px;cursor:col-resize}
+#cd-split:hover{background:#E2E8F0}
 .cd-perm{font-family:var(--mono);font-size:var(--fs-fine);font-weight:700;letter-spacing:.06em;color:#3B6FB5;background:#EAF1FB;border-radius:5px;padding:0 4px;margin-right:3px}
 .cd-perm.dev{color:#7C4FB0;background:#F2EBFA}
 .cdd-nick{font-weight:500;color:#7488A3;font-size:.92em}
@@ -1200,7 +1212,7 @@ body.cd-route #dash-bar{display:none!important}
 .cd-ooo-row input[type=text]{flex:1;width:auto;max-width:220px;font-family:inherit;font-size:12px;padding:4px 6px;border:1px solid #CBD6E4;border-radius:6px;color:#33415A}
 .cd-del{color:#94A3B8;margin-right:auto}
 .cd-del:hover{color:#CE4242;border-color:#CE4242}
-@media(max-width:900px){.cd-body{flex-direction:column}.cd-list{width:auto;max-width:none;border-right:none;border-bottom:1px solid #E2E8F0;max-height:45vh}}
+@media(max-width:900px){.cd-body{flex-direction:column}.cd-list{width:auto!important;max-width:none;border-right:none;border-bottom:1px solid #E2E8F0;max-height:45vh}#cd-split{display:none}}
 /* v1.11.0: the dev App Settings page */
 .as-body{max-width:620px;padding:0 26px 40px;overflow-y:auto}
 .as-body h3{font-size:var(--fs-fine);font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:var(--txt-micro);margin:26px 0 8px}
@@ -1528,7 +1540,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.16.0'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.17.0'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -2177,6 +2189,7 @@ function personToFields(p){const f={Title:p.name||'',depts:JSON.stringify(p.dept
   if(p.personalNotes!=null)f.personalNotes=p.personalNotes; /* v1.9.0 (item 30): tristate like the flags — omitted until the row carries it, so a site without the column never 400s */
   if(p.status!=null)f.status=p.status; /* v1.13.0: lifecycle, vocabulary = Employee Contacts' Status (Active/Off Payroll/Terminated/Archived) */
   if(p.nickname!=null)f.nickname=p.nickname; /* v1.15.0: how the name reads everywhere (display only) */
+  if(p.driver!=null)f.driver=p.driver?'1':''; /* v1.17.0: drives for the company — same tristate rule */
   /* v1.12.0 (item 30 second half): the "Listening to" quartet — same tristate rule. */
   if(p.listeningTo!=null)f.listeningTo=p.listeningTo;
   if(p.listeningLink!=null)f.listeningLink=p.listeningLink;
@@ -2190,6 +2203,7 @@ function fieldsToPerson(f){return{id:f.appId,name:f.Title||'',depts:safeArr(f.de
   personalNotes:f.personalNotes==null?null:String(f.personalNotes),
   status:f.status==null?null:String(f.status),
   nickname:f.nickname==null?null:String(f.nickname),
+  driver:f.driver==null?null:flagTruthy(f.driver),
   listeningTo:f.listeningTo==null?null:String(f.listeningTo),
   listeningLink:f.listeningLink==null?null:String(f.listeningLink),
   listeningVerb:f.listeningVerb==null?null:String(f.listeningVerb),
@@ -4283,7 +4297,39 @@ const SM_DEPTS=(()=>{const seen=new Set(),out=[];
   for(const d of DEPTS){if(d.freeText)continue;const id=pdCanon(d.id);
     if(seen.has(id))continue;seen.add(id);out.push([id,PD_LBL[id]||d.name]);}
   return out;})();
-let CD_Q='',CD_DEPT='all',CD_SEL=null,CD_EDIT=null;
+let CD_Q='',CD_DEPT='all',CD_PF='all',CD_SEL=null,CD_EDIT=null;
+/* v1.17.0 (owner): HR titles arrive as "SFAB1 - Seasonal Fabricator" — hide the code
+   prefix wherever the People page DISPLAYS a title; the stored value keeps it. */
+const cdTitle=t=>String(t||'').replace(/^[A-Z0-9]{2,}(\s+-\s*|\s*-\s+)/,'');
+/* v1.17.0: remembered pane/column sizes (per browser, like the dock heights) */
+let CD_LISTW=null,CD_COLW=null;
+try{CD_LISTW=parseInt(localStorage.getItem('shopTimelineCdListW'),10)||null;
+    CD_COLW=JSON.parse(localStorage.getItem('shopTimelineCdColW')||'null');}catch(e){}
+function cdApplySizes(){
+  const list=document.querySelector('.cd-list');if(!list)return;
+  if(CD_LISTW){list.style.width=CD_LISTW+'px';list.style.maxWidth='none';}
+  if(CD_COLW&&ROUTE.view==='people')CD_COLW.forEach((w,i)=>{if(w)list.style.setProperty('--cdc'+(i+1),w+'px');});
+}
+function cdColDrag(e,sp,i){
+  e.preventDefault();
+  const list=document.querySelector('.cd-list');if(!list)return;
+  const w0=sp.offsetWidth,x0=e.clientX;
+  const mv=ev=>{const w=Math.max(36,w0+ev.clientX-x0);
+    CD_COLW=CD_COLW||[];CD_COLW[i]=w;list.style.setProperty('--cdc'+(i+1),w+'px');};
+  const up=()=>{document.removeEventListener('mousemove',mv);document.removeEventListener('mouseup',up);
+    try{localStorage.setItem('shopTimelineCdColW',JSON.stringify(CD_COLW));}catch(err){}};
+  document.addEventListener('mousemove',mv);document.addEventListener('mouseup',up);
+}
+function cdSplitDrag(e){
+  e.preventDefault();
+  const list=document.querySelector('.cd-list');if(!list)return;
+  const body=list.parentElement,x0=e.clientX,w0=list.getBoundingClientRect().width;
+  const mv=ev=>{CD_LISTW=Math.round(Math.max(320,Math.min(body.clientWidth-280,w0+ev.clientX-x0)));
+    list.style.width=CD_LISTW+'px';list.style.maxWidth='none';};
+  const up=()=>{document.removeEventListener('mousemove',mv);document.removeEventListener('mouseup',up);
+    try{localStorage.setItem('shopTimelineCdListW',String(CD_LISTW));}catch(err){}};
+  document.addEventListener('mousemove',mv);document.addEventListener('mouseup',up);
+}
 
 function goPeople(){location.hash='#/people';}
 function goClients(){location.hash='#/clients';}
@@ -4462,6 +4508,10 @@ function cdDeptLbl(id){const m=SM_DEPTS.find(x=>x[0]===pdCanon(id));return m?m[1
 
 function renderCompanyPage(){
   const isPeople=ROUTE.view==='people';
+  /* v1.17.0 (owner: "the table jumped while I sat idle"): a data poll repaints this
+     whole page — carry the two panes' scroll positions across the rebuild. */
+  const sc0=document.getElementById('cd-rows'),st0=sc0?sc0.scrollTop:0;
+  const dt0=document.getElementById('cd-detail'),dst0=dt0?dt0.scrollTop:0;
   /* v1.8.0: no client list for viewers — the page bounces home (menu entry is hidden,
      this catches direct hashes and a roster that loads after the route). */
   if(!isPeople&&isViewer()){
@@ -4489,15 +4539,29 @@ function renderCompanyPage(){
    +'<input id="cd-q" type="text" placeholder="Search '+(isPeople?'people':'clients')+'…">'
    +(isPeople?'<select id="cd-dept" title="Show one department"><option value="all">All departments</option>'
       +SM_DEPTS.map(d=>'<option value="'+d[0]+'"'+(CD_DEPT===d[0]?' selected':'')+'>'+esc(d[1])+'</option>').join('')+'</select>':'')
+   /* v1.17.0: slice by permission level (only once the flag columns are live) */
+   +(isPeople&&permsLive()?'<select id="cd-perm" title="Show one permission level">'
+      +'<option value="all">Everyone</option><option value="admin">Admins</option>'
+      +'<option value="dev">Developers</option><option value="fb">Feedback recipients</option>'
+      +'<option value="viewer">Viewers</option></select>':'')
    +'</div>'
-   +(isPeople?'<div class="cd-cols"><span>Name</span><span>Title</span><span>Phone</span><span>Email</span><span>Perms</span><span>Status</span></div>':'')
+   +(isPeople?'<div class="cd-cols"><span>Name</span><span>Title</span><span>Phone</span><span>Email</span><span>Perms</span><span>Driver</span><span>Status</span></div>':'')
    +'<div class="cd-rows" id="cd-rows"></div></div>'
+   +'<div id="cd-split" title="Drag to resize the two panes"></div>'
    +'<div class="cd-detail" id="cd-detail"></div></div></div>';
   pg.innerHTML=h;
   const q=document.getElementById('cd-q');q.value=CD_Q;
   q.addEventListener('input',()=>{CD_Q=q.value;cdPaintRows();});
   const ds=document.getElementById('cd-dept');
   if(ds)ds.addEventListener('change',()=>{CD_DEPT=ds.value;cdPaintRows();});
+  const pf=document.getElementById('cd-perm');
+  if(pf){pf.value=CD_PF;pf.addEventListener('change',()=>{CD_PF=pf.value;cdPaintRows();});}
+  /* v1.17.0: pane split + header column grips */
+  document.getElementById('cd-split').addEventListener('mousedown',cdSplitDrag);
+  document.querySelectorAll('.cd-cols>span').forEach((sp,i)=>{
+    const g=document.createElement('span');g.className='cd-grip';g.title='Drag to resize this column';
+    g.addEventListener('mousedown',e=>cdColDrag(e,sp,i));sp.appendChild(g);});
+  cdApplySizes();
   document.getElementById('cd-back').addEventListener('click',goTimeline);
   document.getElementById('cd-x').addEventListener('click',goTimeline);
   const impBtn=document.getElementById('cd-import');
@@ -4512,6 +4576,8 @@ function renderCompanyPage(){
     const f=document.querySelector('#cd-detail input');if(f)f.focus();
   });
   cdPaintRows();cdPaintDetail();
+  const sc1=document.getElementById('cd-rows');if(sc1)sc1.scrollTop=st0;
+  const dt1=document.getElementById('cd-detail');if(dt1)dt1.scrollTop=dst0;
 }
 
 function cdPaintRows(){
@@ -4525,6 +4591,9 @@ function cdPaintRows(){
        pane lists them) to make the glanceable four fit. */
     rows=[...PEOPLE].sort((a,b)=>a.name.localeCompare(b.name))
      .filter(p=>CD_DEPT==='all'||(p.depts||[]).map(pdCanon).includes(CD_DEPT))
+     /* v1.17.0: the permission slice — admins include developers; viewer = no admin flag */
+     .filter(p=>CD_PF==='all'||!permsLive()
+       ||(CD_PF==='admin'?p.admin:CD_PF==='dev'?p.developer:CD_PF==='fb'?p.feedbackRecipient:!p.admin))
      .filter(p=>!qq||[p.name,p.role,p.email,p.phone].some(v=>String(v||'').toLowerCase().includes(qq)))
      .map(p=>{const av=cdAvail(p);
        const perm=permsLive()
@@ -4532,12 +4601,13 @@ function cdPaintRows(){
            :p.admin?'<span class="cd-perm" title="Admin — full edit access">ADMIN</span>':'')
           +(p.feedbackRecipient?'<span class="cd-perm" title="Receives bug reports and ideas">FB</span>':'')
          :'';
-       return '<div class="cd-row pp6'+(CD_SEL===p.id?' sel':'')+'" data-id="'+esc(p.id)+'">'
+       return '<div class="cd-row pp7'+(CD_SEL===p.id?' sel':'')+'" data-id="'+esc(p.id)+'">'
         +'<b>'+esc(p.name)+(p.nickname&&p.nickname.trim()?' <span class="cdd-nick">&ldquo;'+esc(p.nickname.trim())+'&rdquo;</span>':'')+'</b>'
-        +'<span class="cd-mut">'+esc(p.role||'')+'</span>'
+        +'<span class="cd-mut">'+esc(cdTitle(p.role))+'</span>'
         +'<span class="cd-mut">'+esc(p.phone||'')+'</span>'
         +'<span class="cd-mut">'+esc(p.email||'')+'</span>'
         +'<span>'+perm+'</span>'
+        +'<span class="cd-drv">'+(p.driver?'✓':'')+'</span>'
         +'<span class="cd-avail'+(av.now?' away':'')+'">'+esc(av.txt)+'</span></div>';});
   }else{
     rows=[...CLIENTS].sort((a,b)=>a.name.localeCompare(b.name))
@@ -4545,7 +4615,7 @@ function cdPaintRows(){
      .map(c=>'<div class="cd-row cl'+(CD_SEL===c.name?' sel':'')+'" data-id="'+esc(c.name)+'">'
         +'<b>'+esc(c.name)+'</b><span class="cd-mut">'+esc(c.alias||'')+'</span><span></span></div>');
   }
-  box.innerHTML=rows.join('')||'<div class="cd-empty">'+(qq||CD_DEPT!=='all'?'No matches.':'Nothing here yet — add the first one.')+'</div>';
+  box.innerHTML=rows.join('')||'<div class="cd-empty">'+(qq||CD_DEPT!=='all'||CD_PF!=='all'?'No matches.':'Nothing here yet — add the first one.')+'</div>';
   box.querySelectorAll('.cd-row').forEach(r=>r.addEventListener('click',()=>{
     if(CD_EDIT&&!confirm('Discard the changes to this record?'))return;
     CD_EDIT=null;CD_SEL=r.dataset.id;
@@ -4568,11 +4638,13 @@ function cdPaintDetail(){
     const upcoming=(per.ooo||[]).filter(o=>o.start&&o.end&&o.end>=t0).sort((a,b)=>String(a.start).localeCompare(String(b.start)));
     el.innerHTML='<div class="cdd"><div class="cdd-hd"><h3>'+esc(per.name)
      +(per.nickname&&per.nickname.trim()?' <span class="cdd-nick">&ldquo;'+esc(per.nickname.trim())+'&rdquo;</span>':'')+'</h3>'
-     +(per.role?'<div class="cdd-role">'+esc(per.role)+'</div>':'')+'</div><dl>'
+     +(per.role?'<div class="cdd-role">'+esc(cdTitle(per.role))+'</div>':'')+'</div><dl>'
      +'<div class="cdd-f"><dt>Work email</dt><dd>'+(per.email?esc(per.email):'—')+'</dd></div>'
      +'<div class="cdd-f"><dt>Phone</dt><dd>'+(per.phone?esc(per.phone):'—')+'</dd></div>'
      /* v1.13.0: employment status, mirrored from Employee Contacts (read as information) */
      +(per.status?'<div class="cdd-f"><dt>Status</dt><dd>'+esc(per.status)+'</dd></div>':'')
+     /* v1.17.0: driver flag reads as information, like status */
+     +(per.driver!=null?'<div class="cdd-f"><dt>Driver</dt><dd>'+(per.driver?'Yes':'—')+'</dd></div>':'')
      +'<div class="cdd-f"><dt>Departments</dt><dd>'+([...new Set((per.depts||[]).map(pdCanon))].map(d=>esc(cdDeptLbl(d))).join(' · ')||'—')+'</dd></div>'
      +'<div class="cdd-f"><dt>Availability</dt><dd>'
        +'<span class="cd-avail'+(av.now?' away':'')+'">'+esc(av.now?av.txt:'Available')+'</span>'
@@ -4621,6 +4693,10 @@ function cdPaintEditor(el,isPeople){
      +'<div class="cd-fg"><label>Work email</label><input id="cde-email" type="email" placeholder="Work email (for &quot;me&quot; features)"></div>'
      +'<div class="cd-fg"><label>Phone</label><input id="cde-phone" type="tel"></div>'
      +'<div class="cd-fg"><label>Role / title</label><input id="cde-role" type="text"></div>'
+     /* v1.17.0: driver flag (⚠ needs the `driver` staff column; a save touching it
+        parks with the named-field toast until the column exists) */
+     +'<div class="cd-fg"><label>Driver</label><div class="cd-depts">'
+       +'<label><input type="checkbox" id="cde-driver"> Drives for the company</label></div></div>'
      +'<div class="cd-fg"><label>Departments</label><div class="cd-depts" id="cde-depts"></div></div>'
      +'<div class="cd-fg"><label>Out of office</label><div id="cde-ooo"></div><button class="tn-add" id="cde-ooo-add">+ Out of office</button></div>'
      /* v1.8.0: permission flags — shown only once the columns carry values (permsLive),
@@ -4680,6 +4756,8 @@ function cdPaintEditor(el,isPeople){
     if(ad){ad.checked=!!r.admin;ad.addEventListener('change',()=>{r.admin=ad.checked;});}
     const fb=document.getElementById('cde-fbr');
     if(fb){fb.checked=!!r.feedbackRecipient;fb.addEventListener('change',()=>{r.feedbackRecipient=fb.checked;});}
+    const dv=document.getElementById('cde-driver');
+    if(dv){dv.checked=!!r.driver;dv.addEventListener('change',()=>{r.driver=dv.checked;});}
     document.getElementById('cde-ooo-add').addEventListener('click',()=>{r.ooo=r.ooo||[];r.ooo.push({id:genId(),start:'',end:'',note:''});paintOoo();});
     document.getElementById('cde-cancel').addEventListener('click',()=>{CD_EDIT=null;cdPaintDetail();});
     document.getElementById('cde-save').addEventListener('click',cdSavePerson);
@@ -4735,6 +4813,7 @@ function cdSavePerson(){
     personalNotes:r.personalNotes==null?null:r.personalNotes,
     status:r.status==null?null:r.status,
     nickname:r.nickname==null?null:String(r.nickname).trim(),
+    driver:r.driver==null?null:!!r.driver,
     listeningTo:r.listeningTo==null?null:r.listeningTo,
     listeningLink:r.listeningLink==null?null:r.listeningLink,
     listeningVerb:r.listeningVerb==null?null:r.listeningVerb,
@@ -4777,6 +4856,7 @@ function cdMergePerson(keepId,dupId){
     ooo:[...(keep.ooo||[]),...(dup.ooo||[])],
     admin:(keep.admin||dup.admin)?true:(keep.admin==null&&dup.admin==null?null:false),
     developer:!!(keep.developer||dup.developer),
+    driver:(keep.driver||dup.driver)?true:(keep.driver==null&&dup.driver==null?null:false),
     feedbackRecipient:(keep.feedbackRecipient||dup.feedbackRecipient)?true
       :(keep.feedbackRecipient==null&&dup.feedbackRecipient==null?null:false)};
   CD_EDIT=null;CD_SEL=keep.id;
@@ -8389,6 +8469,16 @@ document.addEventListener('keydown',ev=>{
   if(typing||ev.ctrlKey||ev.metaKey||ev.altKey)return;
   const anyModal=[...document.querySelectorAll('.overlay')].some(o=>!o.classList.contains('hidden'));
   if(anyModal)return;
+  /* v1.17.0 (owner): ↑↓ walk the People/Clients index selection */
+  if((ev.key==='ArrowDown'||ev.key==='ArrowUp')&&(ROUTE.view==='people'||ROUTE.view==='clients')&&!CD_EDIT){
+    const rows=[...document.querySelectorAll('#cd-rows .cd-row')];
+    if(!rows.length)return;
+    const i=rows.findIndex(r=>r.dataset.id===String(CD_SEL));
+    rows[ev.key==='ArrowDown'?Math.min(rows.length-1,i+1):Math.max(0,i<0?0:i-1)].click();
+    const sel=document.querySelector('#cd-rows .cd-row.sel');
+    if(sel&&sel.scrollIntoView)sel.scrollIntoView({block:'nearest'});
+    ev.preventDefault();return;
+  }
   const k=ev.key.toLowerCase();
   if(k==='n'){openProjModal(null);return;}
   if(ROUTE.view!=='timeline')return; /* N15/v1.7.0: the keys below drive main-timeline controls hidden on the project AND Company Data pages */
@@ -9333,7 +9423,7 @@ const KBD_TL=[['N','New project'],['/','Search'],['T','Center on today'],['G','G
 const KBD_PP=[['S','New subtask'],['E','New milestone'],['T','New note'],['R','Rename selected'],
   ['↑ ↓','Move selection'],['⇧ ← →','Nudge a day'],['⌘ Z','Undo'],['Del','Delete selected'],
   ['G / C','Gantt or Calendar'],['Esc','Deselect, then leave']];
-const KBD_CD=[['N','New project'],['⌘ Z','Undo'],['Esc','Back to the timeline']]; /* v1.7.0 */
+const KBD_CD=[['N','New project'],['↑ ↓','Move selection'],['⌘ Z','Undo'],['Esc','Back to the timeline']]; /* v1.7.0; ↑↓ v1.17.0 */
 function openKbdMenu(){
   closeMenus();
   const m=document.getElementById('kbd-menu');

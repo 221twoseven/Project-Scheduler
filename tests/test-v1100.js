@@ -97,9 +97,13 @@ function main(){
   win.dispatchEvent(new win.Event('hashchange'));
   setTimeout(()=>{
     ok('…from the People page', E('ROUTE.view')==='people');
-    ok('the people index carries the at-a-glance columns (v1.14.0)',
-       [...doc.querySelectorAll('.cd-cols span')].map(s=>s.textContent).join(',')==='Name,Title,Phone,Email,Perms,Status'
-       &&doc.querySelector('.cd-row.pp6').children.length===6);
+    /* v1.17.0 grew a Driver column (and header grips ride inside the spans — select
+       direct children only); branch on its marker so both builds assert their shape. */
+    const v17=src.indexOf('cd-drv')>=0;
+    ok('the people index carries the at-a-glance columns (v1.14.0'+(v17?' + v1.17.0)':')'),
+       [...doc.querySelectorAll('.cd-cols>span')].map(s=>s.textContent).join(',')
+         ===(v17?'Name,Title,Phone,Email,Perms,Driver,Status':'Name,Title,Phone,Email,Perms,Status')
+       &&doc.querySelector('.cd-row.'+(v17?'pp7':'pp6')).children.length===(v17?7:6));
     doc.getElementById('tb-home').click();
     win.dispatchEvent(new win.Event('hashchange'));
     setTimeout(()=>{

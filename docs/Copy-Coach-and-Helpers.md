@@ -82,6 +82,7 @@ Inline helper notes on this page:
 |---|---|
 | Name | Name — suggests from the company Team |
 | Nickname | Optional — how their name reads everywhere in the app |
+| Driver checkbox (editor) | Drives for the company |
 | Work email | Work email (for "me" features) |
 | Search box | Search people… / Search clients… |
 | Client alias | 2–3 letter job-code prefix |
