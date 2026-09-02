@@ -705,6 +705,7 @@ rule §5); old data keeps reading fine.
 | v1.13.1 | ✅ Shipped 2026-09-02 — Pages-deploy fix: the Listening-to anchor's URL is a DOM property, not a literal href the referenced-assets guard reads as a missing file |
 | v1.14.0 | ✅ Shipped 2026-09-02 — 37 (afternoon review: EC import resolves display names, one tour count, thought icon on the User Notes bar, Not me toggle, DFAB/Finishing people-dept consolidation, at-a-glance people columns) |
 | v1.15.0 | ✅ Shipped 2026-09-02 — 38 (pre-presentation round: stuck-dock fix, editor grid, nickname ⚠, merge-duplicate tool, listening position, copy inventory) |
+| v1.15.1 | ✅ Shipped 2026-09-02 — the owner's copy revision (docs/Copy-Coach-and-Helpers.md) applied: tour bodies, phase-notes placeholder, sign-in card. The 08-28 coach-copy hold is LIFTED — the doc is the editing channel now |
 | v1.16.0 | 26 (change log) ⚠ — after permissions |
 | v2.0.0 | 13 (single source of truth) ⚠ — likely several minors along the way (one per absorbed store), with v2.0.0 as the cutover declaration |
 

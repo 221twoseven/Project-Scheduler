@@ -1,4 +1,4 @@
-# Copy inventory — coach marks & helper text (v1.15.0, 2026-09-02)
+# Copy inventory — coach marks & helper text (v1.15.1, 2026-09-02 — owner revision APPLIED)
 
 Every piece of instructional copy in the app, organized so you can edit language in
 place. **How to use this:** change any "current text" line here (or mark it up
@@ -15,13 +15,13 @@ run across both halves (7 here + 6 on the project page = 13).
 
 | # | Highlights | Title | Body |
 |---|---|---|---|
-| 1 | The project list (sidebar) | Every job, one list | Projects stack here with their job codes and deadlines. Click a row to open its phases, the eye spotlights one job, the pencil edits it — and the Department lens regroups everything by department. |
+| 1 | The project list (sidebar) | Every job, one list | Projects stack here with their job codes and deadlines. Click a row to open its phases, the eye spotlights one job, the pencil edits it. The Department lens regroups everything by Department. |
 | 2 | The timeline canvas | The timeline | Each bar is a phase of work. Click one for its details, drag it to move, grab an edge to resize, right-click for more. Red bars are installs. |
-| 3 | The numbered date bar | Slide through time | Click and drag the numbered date bar left or right to move the timeline. The Today button (or T) brings you back to today, and G jumps to any date. |
-| 4 | The search box | Find things fast | Type here (or press /) to show only matching projects and phases. Filters narrows the view by status, client or person — Clear filters brings everything back. |
-| 5 | My Dashboard button | Your plate | One click shows just your own work — your phases, milestones, notes and time off. |
+| 3 | The numbered date bar | Slide through time | Click and drag the numbered date bar left or right to move the timeline, up and down to zoom in or out. The Today button (or T) brings you back to today, and G jumps to any date. |
+| 4 | The search box | Find things fast | Type here (or press /) to show only matching projects and phases. Filters narrows the view by status, client or person. Clear filters brings everything back. |
+| 5 | My Dashboard button | Your plate | One click shows just your own work: phases, milestones, notes, time off, and a section for notes-to-self. |
 | 6 | Help button | When you forget | Help holds the colour legend, every keyboard shortcut, and this tour — open it any time. |
-| 7 | + New Project button (the hand-off step — only this button is clickable) | Start a project | Name it, pick its departments and set the install deadline — the schedule builds itself backward from that date. Click + New Project now to continue the tour on the project page. |
+| 7 | + New Project button (the hand-off step — only this button is clickable) | Start a project | Name it, pick its departments and set the install deadline; the schedule builds itself backward from that date. Click + New Project now to continue the tour on the project page. *(the tour card renders plain text — bold isn't available there)* |
 
 ## 2. The tour — project page (continues as steps 8–13)
 
@@ -31,13 +31,13 @@ instead (so a full run is 6 steps, never both).
 
 | # | Highlights | Title | Body |
 |---|---|---|---|
-| 8 | The breadcrumb trail | Where you are | All Projects, this job, and the phase when one is selected. Click a crumb to step back out — Esc, Done and the × do the same. |
-| 9 | The header strip (client · code · install) | The job at a glance | Client, job code, install date and days out. These update as you edit — the warning appears if work runs past the install. |
+| 8 | The breadcrumb trail | Where you are | All Projects, this job, and the phase when one is selected. Click a crumb to step back out. Esc, Done and the × do the same. |
+| 9 | The header strip (client · code · install) | The job at a glance | Client, job code, install date and days out. These update as you edit. A warning appears if work runs past the install. |
 | 10 | The schedule (Gantt/calendar) | The schedule | Every bar is a phase of work. Click one to edit it below, drag to move, grab an edge to resize, right-click to add a subtask, milestone or note. The calendar shows one band per phase — click a band to open it and see its subtasks. |
 | 11 | The Gantt/Calendar toggle | Two views of the same dates | Gantt for the whole job at once, Calendar for week-by-week. G and C switch from the keyboard. |
-| 12 | The bottom editor dock | The editor | With nothing selected you edit the project here — Setup, Team, Departments, Agenda. Select a phase and this becomes that phase's form. |
-| 13a | Create project button (drafts only) | Nothing is real yet | This page is a draft kept in this tab — it survives a refresh. Create project files it to SharePoint; Cancel or the × walks away clean. |
-| 13b | The ✓ Changes saved tag (saved pages only) | Everything saves itself | Edits file to SharePoint as you make them — the pill in the toolbar shows sync. Done just takes you back to the timeline. |
+| 12 | The bottom editor dock | The editor | With nothing selected you edit the project here — Setup, Team, Departments, Milestones and Notes. Select a phase and this becomes that phase's form. |
+| 13a | Create project button (drafts only) | Nothing is real yet | This page is a draft kept in this tab. Drafts survive a page refresh. Create project files it to SharePoint. Cancel or the × closes without saving. |
+| 13b | The ✓ Changes saved tag (saved pages only) | Everything saves itself | Edits file to SharePoint as you make them. The pill in the toolbar shows sync. Done takes you back to the timeline. |
 
 Tour buttons: **Skip tour** · **Back** · **Next** (hidden on step 7, where the body
 asks for the real click).
@@ -51,7 +51,7 @@ asks for the real click).
 | Job code | H1-2049 |
 | Phase name (in the phase form; shows the department name until you type) | *(the department's own name, e.g. "Technical Design")* |
 | Free-text "Other" phase name | Process name (e.g. Vacuum Former) / process name |
-| Phase notes | Anything the shop needs to know |
+| Phase notes | Anything we shouldn't forget |
 | Milestone name (agenda row) | Client approval |
 | Note text (agenda row) | Order acrylic |
 
@@ -82,7 +82,7 @@ Page subtitles: "The company roster — roles, departments and availability" /
 | Thought-cloud popover: title field | Title |
 | Thought-cloud popover: link field | Link (optional) |
 | Thought-cloud popover: checkbox | Show on my Summary |
-| Thought-cloud button hover | What you're listening to, reading or thinking about — shown in the header of your Summary page |
+| Thought-cloud button hover | ❝ ❞ |
 | Empty dock section | Nothing here right now. |
 
 ## 6. Toolbar & search
@@ -90,7 +90,7 @@ Page subtitles: "The company roster — roles, departments and availability" /
 | Where | Text |
 |---|---|
 | Global search box | Search  / |
-| Sign-in card | The shared shop schedule — every project, phase and deadline in one place. Sign in with your work account to see it. |
+| Sign-in card | The shared shop schedule: every project, phase and deadline in one place. Sign in with your work account to see it. |
 | Empty board card | Create your first project and the schedule builds itself backward from the deadline. Press N or use + New Project. |
 | All-hidden card | The status filter is hiding every project. Click Clear filters in the toolbar to see them again. |
 | No-match search card | The search filter matches no project or phase. Click Clear filters in the toolbar to see everything again. |

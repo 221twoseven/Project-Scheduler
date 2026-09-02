@@ -1505,7 +1505,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.15.0'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.15.1'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -3266,7 +3266,7 @@ function renderEmptyState(){
   let html;
   if(!ACCOUNT){
     html='<div class="es-big">Shop Timeline</div>'
-      +'<div class="es-sub">The shared shop schedule — every project, phase and deadline in one place.<br>Sign in with your work account to see it.</div>'
+      +'<div class="es-sub">The shared shop schedule: every project, phase and deadline in one place.<br>Sign in with your work account to see it.</div>'
       +'<button class="btn btn-primary" id="es-signin" style="margin-top:14px">Sign in with Microsoft</button>';
   }else if(!ST.projects.length){
     html='<div class="es-big">Nothing scheduled yet</div>'
@@ -5587,7 +5587,7 @@ function ppInspector(){
     /* v1.6.2: a third dock column — the agenda's width split in half, the right half
        all notes. Same data-f commit path as before, just more room to write. */
     h+=ppSec('notes','Notes',
-      '<textarea class="ins-notes" data-f="notes" placeholder="Anything the shop needs to know">'
+      '<textarea class="ins-notes" data-f="notes" placeholder="Anything we shouldn\'t forget">'
       +esc(sel.notes||'')+'</textarea>');
     h+='</div>';
   }else{
@@ -9085,24 +9085,25 @@ document.getElementById('pmlate-later').addEventListener('click',
    DOM are dropped, so older builds and partial views degrade to a shorter tour. */
 const COACH_KEY='shopTimelineCoachSeen';
 const COACH_STEPS=[
+  /* Copy: owner revision 2026-09-02 (docs/Copy-Coach-and-Helpers.md) */
   {sel:'#sidebar',t:'Every job, one list',
-   b:'Projects stack here with their job codes and deadlines. Click a row to open its phases, the eye spotlights one job, the pencil edits it — and the Department lens regroups everything by department.'},
+   b:'Projects stack here with their job codes and deadlines. Click a row to open its phases, the eye spotlights one job, the pencil edits it. The Department lens regroups everything by Department.'},
   {sel:'#gantt-scroll',t:'The timeline',
    b:'Each bar is a phase of work. Click one for its details, drag it to move, grab an edge to resize, right-click for more. Red bars are installs.'},
   /* v1.2.1 (08-31 obj 1): teach the date-bar pan — the least discoverable move on the view */
   {sel:'#gantt-hdr',t:'Slide through time',
-   b:'Click and drag the numbered date bar left or right to move the timeline. The Today button (or T) brings you back to today, and G jumps to any date.'},
+   b:'Click and drag the numbered date bar left or right to move the timeline, up and down to zoom in or out. The Today button (or T) brings you back to today, and G jumps to any date.'},
   {sel:'#t-search',t:'Find things fast',
-   b:'Type here (or press /) to show only matching projects and phases. Filters narrows the view by status, client or person — Clear filters brings everything back.'},
+   b:'Type here (or press /) to show only matching projects and phases. Filters narrows the view by status, client or person. Clear filters brings everything back.'},
   {sel:'#btn-dash',t:'Your plate',
-   b:'One click shows just your own work — your phases, milestones, notes and time off.'},
+   b:'One click shows just your own work: phases, milestones, notes, time off, and a section for notes-to-self.'},
   {sel:'#btn-help',t:'When you forget',
    b:'Help holds the colour legend, every keyboard shortcut, and this tour — open it any time.'},
   /* v1.10.0 (owner ask 09-02): the two tours are ONE tour — the last home step hands
      off by having the user actually click + New Project; the project-page tour picks
      up there (chain: coachShow wires the click-through, coachNext presses it). */
   {sel:'#btn-new-proj',t:'Start a project',chain:true,
-   b:'Name it, pick its departments and set the install deadline — the schedule builds itself backward from that date. Click + New Project now to continue the tour on the project page.'}
+   b:'Name it, pick its departments and set the install deadline; the schedule builds itself backward from that date. Click + New Project now to continue the tour on the project page.'}
 ];
 /* REV86: ONE shared tour for the project pages (owner decision 2026-08-27) — the
    REV82 convergence made New Project and Project Edit near-identical, so one step
@@ -9110,20 +9111,21 @@ const COACH_STEPS=[
    target isn't in the DOM, so the draft sees the Create step (#pp-save) and the
    saved page sees the autosave step (.pg-auto). */
 const COACH_PP_STEPS=[
+  /* Copy: owner revision 2026-09-02 (docs/Copy-Coach-and-Helpers.md) */
   {sel:'.pg-trail',t:'Where you are',
-   b:'All Projects, this job, and the phase when one is selected. Click a crumb to step back out — Esc, Done and the × do the same.'},
+   b:'All Projects, this job, and the phase when one is selected. Click a crumb to step back out. Esc, Done and the × do the same.'},
   {sel:'#pp-meta',t:'The job at a glance',
-   b:'Client, job code, install date and days out. These update as you edit — the warning appears if work runs past the install.'},
+   b:'Client, job code, install date and days out. These update as you edit. A warning appears if work runs past the install.'},
   {sel:'.npv-swrap',t:'The schedule',
    b:'Every bar is a phase of work. Click one to edit it below, drag to move, grab an edge to resize, right-click to add a subtask, milestone or note. The calendar shows one band per phase — click a band to open it and see its subtasks.'},
   {sel:'.npv-modes',t:'Two views of the same dates',
    b:'Gantt for the whole job at once, Calendar for week-by-week. G and C switch from the keyboard.'},
   {sel:'#pp-insp',t:'The editor',
-   b:'With nothing selected you edit the project here — Setup, Team, Departments, Agenda. Select a phase and this becomes that phase’s form.'},
+   b:'With nothing selected you edit the project here — Setup, Team, Departments, Milestones and Notes. Select a phase and this becomes that phase’s form.'},
   {sel:'#pp-save',t:'Nothing is real yet',
-   b:'This page is a draft kept in this tab — it survives a refresh. Create project files it to SharePoint; Cancel or the × walks away clean.'},
+   b:'This page is a draft kept in this tab. Drafts survive a page refresh. Create project files it to SharePoint. Cancel or the × closes without saving.'},
   {sel:'.pg-auto',t:'Everything saves itself',
-   b:'Edits file to SharePoint as you make them — the pill in the toolbar shows sync. Done just takes you back to the timeline.'}
+   b:'Edits file to SharePoint as you make them. The pill in the toolbar shows sync. Done takes you back to the timeline.'}
 ];
 /* v1.14.0 (owner): the chained tour reads as ONE tour — "STEP n OF total" counts
    across both pages. The chain always lands on a DRAFT, which shows every project

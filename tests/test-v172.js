@@ -32,7 +32,8 @@ ok('toolbar wordmark reads TWOSEVEN INC.', src.indexOf('<span class="tb-co">TWOS
    || /<button id="tb-home" class="tb-co"[^>]*>TWOSEVEN INC\.<\/button>/.test(src));
 ok('print title carries the full wordmark', src.indexOf("'TWOSEVEN INC. — Shop Timeline · '")>=0);
 ok('meeting sheet carries the full wordmark', src.indexOf('TWOSEVEN INC. — Shop Meeting Sheet')>=0);
-ok('coach step says department, not crew', src.indexOf('Department lens regroups everything by department.')>=0
+/* v1.15.1 owner copy pass capitalized "by Department." — accept either case */
+ok('coach step says department, not crew', /Department lens regroups everything by [Dd]epartment\./.test(src)
    && src.indexOf('regroups everything by crew')<0);
 ok('sort footer hides in the dept lens (CSS)', /body\.lens-dept #sb-foot\{display:none\}/.test(src));
 
