@@ -1478,7 +1478,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.13.0'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.13.1'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -3110,10 +3110,13 @@ function renderMeDock(){
     /* v1.12.0 (item 30 second half, exp.listening): the personal line — SUMMARY view
        only (someone else reading this person's plate), never on your own dashboard;
        empty title or the Show checkbox off auto-hide it. */
+    /* The link is assigned as a DOM property below, NOT concatenated into this
+       string — the deploy guard greps index.html for quoted src/href values and
+       would read the JS expression as a missing local file (v1.13.1 deploy fix). */
     +(CFG['exp.listening']&&!dashSelf()&&per.listeningShow&&String(per.listeningTo||'').trim()
       ?'<span class="md-listen">'+esc(per.listeningVerb||'listening to')+': '
         +(String(per.listeningLink||'').trim()
-          ?'<a href="'+esc(/^https?:\/\//i.test(per.listeningLink)?per.listeningLink:'https://'+per.listeningLink)+'" target="_blank" rel="noopener">'+esc(per.listeningTo)+'</a>'
+          ?'<a target="_blank" rel="noopener">'+esc(per.listeningTo)+'</a>'
           :esc(per.listeningTo))+'</span>'
       :'')
     +'<button class="ins-btn" id="md-collapse" title="'+(ME_DOCK_COL?'Expand the panel':'Collapse the panel')+'" aria-expanded="'+String(!ME_DOCK_COL)+'"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg></button></div>'
@@ -3148,6 +3151,8 @@ function renderMeDock(){
         +'<label><input id="lt-show" type="checkbox"'+(per.listeningShow?' checked':'')+'> Show on my Summary</label>'
       +'</div>'
       :'');
+  {const la=dk.querySelector('.md-listen a');
+   if(la)la.href=/^https?:\/\//i.test(per.listeningLink)?per.listeningLink:'https://'+per.listeningLink;}
   document.getElementById('md-collapse').addEventListener('click',()=>{
     ME_DOCK_COL=!ME_DOCK_COL;
     try{localStorage.setItem('shopTimelineMeDockCollapsed',ME_DOCK_COL?'1':'0');}catch(e){}
