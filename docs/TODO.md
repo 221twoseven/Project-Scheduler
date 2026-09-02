@@ -583,6 +583,35 @@ rule §5); old data keeps reading fine.
         Perms · Status/availability) with a header row and a wider pane; checkbox
         sets (departments, permissions) render as tidy stacked grids.
 
+- [x] **38. (09-02 evening review) Pre-presentation round — DONE 2026-09-02
+      (v1.15.0).**
+      - **Stuck-dock bug FIXED at the funnel** (owner report: Summary + Not me +
+        New Project left the summary dock painted under the draft): NOT
+        Not-me-specific — ANY project page opened from an active dashboard/Summary
+        kept the stale dock, latent since v1.7.0 (applyRoute's project branch never
+        dropped `me-dock-on`; the Company-Data branch always did). One line at
+        applyRoute fixes every door; the dock re-arms on return to the timeline.
+      - **People editor cleaned up:** the real culprit behind the ragged checkbox
+        layout was `.cd-fg input{width:100%}` stretching the CHECKBOXES themselves —
+        pinned to 14px (the .crew-list trick) inside an intentional fixed-column
+        grid, one line per label.
+      - **Nickname** (⚠ §5 column): optional per-person field; when set it is how
+        the name READS everywhere (`dispName` at bar crew chips, dept-lens lanes,
+        Summary/dashboard headers and trail, person filter + dashboard menus,
+        People page shows it quoted next to the full name). Identity — stored
+        names, canonName, joins, `meName()` — stays the full roster name.
+      - **Merge duplicate…** in the People editor footer: fold one roster entry
+        into the open record — every stored assignment string rewrites to the kept
+        name (the scrub walkers, generalized to `scrubNames(mapFn)`), missing
+        contact/flag fields backfill, the duplicate row is removed; one confirm
+        names the rewrite count. For the Sean Hong / Seungwoo (Sean) Hong and
+        Davis Smith / R. Davis Smith pairs the EC import surfaced.
+      - **Listening-to line hugs the collapse chevron** (the two competing auto
+        margins had floated it mid-header).
+      - **Copy inventory delivered:** `docs/Copy-Coach-and-Helpers.md` — every
+        coach-mark and helper/placeholder string, organized by surface for
+        owner line edits.
+
 - [ ] **13. (Obj 4) Reconcile and absorb the 14 disparate data stores.** The app
       becomes the company's singular source of truth (the v1 "north star", now
       scoped). **Strategy before code:** the first deliverable is
@@ -675,7 +704,8 @@ rule §5); old data keeps reading fine.
 | v1.13.0 | ✅ Shipped 2026-09-02 — 36 (People page mirrors Employee Contacts, read-only import) ⚠ `status` column |
 | v1.13.1 | ✅ Shipped 2026-09-02 — Pages-deploy fix: the Listening-to anchor's URL is a DOM property, not a literal href the referenced-assets guard reads as a missing file |
 | v1.14.0 | ✅ Shipped 2026-09-02 — 37 (afternoon review: EC import resolves display names, one tour count, thought icon on the User Notes bar, Not me toggle, DFAB/Finishing people-dept consolidation, at-a-glance people columns) |
-| v1.15.0 | 26 (change log) ⚠ — after permissions |
+| v1.15.0 | ✅ Shipped 2026-09-02 — 38 (pre-presentation round: stuck-dock fix, editor grid, nickname ⚠, merge-duplicate tool, listening position, copy inventory) |
+| v1.16.0 | 26 (change log) ⚠ — after permissions |
 | v2.0.0 | 13 (single source of truth) ⚠ — likely several minors along the way (one per absorbed store), with v2.0.0 as the cutover declaration |
 
 ## 5. Data / schema (⚠ all need approval — shared Lists)
@@ -726,6 +756,10 @@ rule §5); old data keeps reading fine.
 - **Employee Contacts (HR list) — READ-ONLY standing rule (v1.13.0):** the app reads
   it for the People-page import and never writes it or touches its schema; Pay Type
   and PersonalEmail are never read at all.
+- `nickname` column on `ShopTimeline_Staff` (§3 item 38) — **spec delivered
+  2026-09-02, Robert creates:** single-line text, additive, tristate in the app
+  (other saves never 400 without it; a nickname save itself needs it). Display-only:
+  how the name reads app-wide; identity stays the full name. ⚠
 - Candidate new column: a lifecycle/`status` column (Active/Inactive/Archived) on
   `ShopTimeline_Staff` and `ShopTimeline_Clients` (§3 item 27's archive-not-delete
   model) — additive; Robert applies it when item 27's lifecycle pass is designed
@@ -1041,6 +1075,16 @@ these are the ones still open, plus new deferrals as they happen.
 - [ ] The people index drops the Departments column to fit the at-a-glance four —
       the dept filter and the record pane still carry them. Gate: someone missing
       it at a glance. (v1.14.0)
+- [ ] Nicknames cover the prominent display surfaces (bar chips, lanes, summary
+      chrome, person menus, People page) — deeper spots (meeting sheet groups,
+      conflict warnings, changelog `who`) still print full names. Gate: a nickname
+      user reading one and caring. (v1.15.0, 2026-09-02)
+- [ ] Merge duplicate can't be un-merged automatically (the confirm says so) — the
+      rewrite rides the normal undo stack for THIS session only; the removed row
+      needs re-adding by hand if merged wrong. Gate: a real mis-merge. (v1.15.0)
+- [ ] Merge matches stored strings by EXACT name only — abbreviations of the
+      duplicate ("Seungwoo H.") that canonName can't resolve stay behind; run
+      `scrubLegacyNames(true)` after merging to sweep those. (v1.15.0)
 
 **Deliberate design ceilings — no action planned, revisit only on real complaints:**
 12-slot palette repeats at 13+ visible projects (T2); quiet re-selection after a

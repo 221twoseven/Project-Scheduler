@@ -237,8 +237,51 @@ function stageImport(){
        E("JSON.stringify(PEOPLE)").indexOf('NOPE')<0);
     ok('nothing ever writes to the Employee Contacts list',
        (win.__spCalls||[]).every(c=>!(/Employee/.test(c.url)&&c.method!=='GET')));
-    stageTour();
+    stage15();
   },500);
+}
+
+function stage15(){
+  sec('v1.15.0 — nickname: display everywhere, identity untouched');
+  const rt=JSON.parse(E("JSON.stringify(fieldsToPerson(personToFields({id:'x',name:'A',email:'',phone:'',role:'',depts:[],ooo:[],admin:null,nickname:'Ace'})))"));
+  ok('nickname survives the mapper round trip (tristate)', rt.nickname==='Ace'
+     &&JSON.parse(E("JSON.stringify(personToFields({id:'y',name:'B',email:'',phone:'',role:'',depts:[],ooo:[],admin:null,nickname:null}))")).nickname===undefined);
+  E("PEOPLE.find(p=>p.name==='Sam').nickname='Sammy'");
+  ok('dispName reads the nickname; canonical name stays the identity',
+     E("dispName('Sam')")==='Sammy'&&E("canonName('Sam')")==='Sam');
+  ok('bar crew chips show the nickname',
+     E("assigneeText(ST.tasks[0])")==='Sammy');
+  E("PEOPLE.find(p=>p.name==='Sam').nickname=null");
+
+  sec('v1.15.0 — merge duplicate: assignments rewritten, fields backfilled, row gone');
+  E("PEOPLE.push({id:'dupX',name:'Samuel (Sam) Q',depts:['fab'],ooo:[],email:'samq@x.co',phone:'555-9',role:'Fabricator',admin:null})");
+  E("ST.tasks.push({id:'tmX',projectId:'p1',department:'fab',assignee:'Samuel (Sam) Q',startDate:'"+D(2)+"',endDate:'"+D(4)+"',estimatedDays:2,ticketNodes:[],notes:'',pinned:false,label:''})");
+  E("cdMergePerson(PEOPLE.find(p=>p.name==='Kim').id,'dupX')"); /* harness confirm = yes */
+  ok('the stored assignment now carries the kept name',
+     E("ST.tasks.find(t=>t.id==='tmX').assignee")==='Kim');
+  ok('the duplicate row is gone and fields backfilled',
+     E("!PEOPLE.some(p=>p.id==='dupX')")
+     &&E("PEOPLE.find(p=>p.name==='Kim').phone")==='555-9'
+     &&E("PEOPLE.find(p=>p.name==='Kim').role")==='Fabricator');
+
+  sec('v1.15.0 — a project page opened from an active Summary drops the dock');
+  E("enterDash('Pat')");
+  ok('the dock is up on the Summary', doc.body.classList.contains('me-dock-on'));
+  win.location.hash='#/project/p1';
+  win.dispatchEvent(new win.Event('hashchange'));
+  setTimeout(()=>{
+    ok('…and gone on the project page (the stuck-dock bug)',
+       E('ROUTE.view')==='project'&&!doc.body.classList.contains('me-dock-on'));
+    win.location.hash='#/';
+    win.dispatchEvent(new win.Event('hashchange'));
+    setTimeout(()=>{
+      ok('…and back when the timeline returns', doc.body.classList.contains('me-dock-on'));
+      E('exitDash()');
+      ok('the listening line hugs the collapse chevron (CSS sibling rule)',
+         /\.md-listen\+#md-collapse\{margin-left:10px\}/.test(src));
+      stageTour();
+    },300);
+  },300);
 }
 
 function stageTour(){

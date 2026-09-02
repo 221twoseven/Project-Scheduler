@@ -166,6 +166,10 @@ body.me-dock-col #md-collapse svg{transform:rotate(180deg)}
 /* v1.12.0 (exp.listening): the personal line in the dock header (Summary view only) —
    right-justified dark grey text — and the own-dashboard thought-cloud editor. */
 .md-listen{margin-left:auto;font-size:11.5px;color:#5B6B84;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:38%;flex-shrink:1}
+/* v1.15.0 (owner): the line hugs the collapse chevron — with the line present, ONLY
+   it takes the auto margin (two auto margins would split the space and float it
+   mid-header, the reported look). */
+.md-listen+#md-collapse{margin-left:10px}
 .md-listen a{color:inherit;text-decoration:underline}
 /* v1.14.0: the thought cloud sits ON the User Notes header bar, right-justified;
    its popover anchors to that section. */
@@ -1142,6 +1146,11 @@ body.cd-route #dash-bar{display:none!important}
 .cd-cols,.cd-row.pp6{grid-template-columns:minmax(0,1.05fr) minmax(0,.9fr) minmax(0,.7fr) minmax(0,1.15fr) minmax(52px,auto) auto}
 .cd-perm{font-family:var(--mono);font-size:var(--fs-fine);font-weight:700;letter-spacing:.06em;color:#3B6FB5;background:#EAF1FB;border-radius:5px;padding:0 4px;margin-right:3px}
 .cd-perm.dev{color:#7C4FB0;background:#F2EBFA}
+.cdd-nick{font-weight:500;color:#7488A3;font-size:.92em}
+/* v1.15.0: the merge-duplicate inline picker in the editor footer */
+#cde-merge-ui{display:inline-flex;gap:6px;align-items:center}
+#cde-merge-ui.hidden{display:none}
+#cde-merge-sel{font-family:inherit;font-size:12px;padding:4px 6px;border:1px solid #CBD6E4;border-radius:6px;color:#33415A;max-width:230px}
 .cd-tools{display:flex;gap:8px;padding:10px 14px;border-bottom:1px solid #EDF2F7}
 .cd-tools input,.cd-tools select{font-family:inherit;font-size:12px;padding:5px 8px;border:1px solid #CBD6E4;border-radius:6px;color:#33415A;min-width:0}
 .cd-tools input{flex:1}
@@ -1169,10 +1178,15 @@ body.cd-route #dash-bar{display:none!important}
 .cd-fg{margin-top:12px}
 .cd-fg label{display:block;font-size:var(--fs-micro);font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#A3B1C4;margin-bottom:3px}
 .cd-fg input{width:100%;max-width:420px;font-family:inherit;font-size:12.5px;padding:6px 9px;border:1px solid #CBD6E4;border-radius:6px;color:#16202E}
-/* v1.14.0 (owner): checkbox sets read as tidy stacked columns, not a free wrap */
-.cd-depts{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px 16px}
-.cd-depts label{display:flex;align-items:center;gap:5px;font-size:12.5px;color:#33415A;
-  text-transform:none;letter-spacing:0;font-weight:400;margin-bottom:0}
+/* v1.14.0/v1.15.0 (owner): checkbox sets are an intentional grid — fixed-width
+   columns, checkbox leading, one line per label (no ragged wraps). */
+.cd-depts{display:grid;grid-template-columns:repeat(auto-fill,minmax(176px,1fr));gap:8px 18px}
+.cd-depts label{display:flex;align-items:center;gap:7px;font-size:12.5px;color:#33415A;
+  text-transform:none;letter-spacing:0;font-weight:400;margin-bottom:0;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+/* the .cd-fg input{width:100%} rule would stretch the CHECKBOX itself across the
+   whole label (the ragged pre-v1.15.0 look) — pin it (the .crew-list trick). */
+.cd-depts label input[type=checkbox]{width:14px;height:14px;padding:0;margin:0;accent-color:#3B7FD6;flex-shrink:0}
 .cd-ooo-row{display:flex;gap:6px;align-items:center;margin-top:5px}
 .cd-ooo-row input[type=date]{width:130px;font-family:inherit;font-size:12px;padding:4px 6px;border:1px solid #CBD6E4;border-radius:6px;color:#33415A}
 .cd-ooo-row input[type=text]{flex:1;width:auto;max-width:220px;font-family:inherit;font-size:12px;padding:4px 6px;border:1px solid #CBD6E4;border-radius:6px;color:#33415A}
@@ -1491,7 +1505,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.14.0'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.15.0'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -1625,7 +1639,7 @@ function phaseLabel(t){
   if(d&&d.freeText)return t.assignee||'Other';
   return d?d.name:t.department;
 }
-function assigneeText(t){return [...new Set(crewOf(t).map(canonName))].join(', ')||(isInstall(t)?'Crew TBD':'');}
+function assigneeText(t){return [...new Set(crewOf(t).map(canonName))].map(dispName).join(', ')||(isInstall(t)?'Crew TBD':'');}
 /* Stable identity colors per department for "Team" color mode */
 const DEPT_COLORS={pm:'#567693',vinyl:'#D92871',othunit7:'#647590',td:'#9050C3',othoffice:'#637590',print:'#C04485',cnc:'#BE531B',beamsaw:'#936E12','3dprint':'#268449',laser:'#CE4242',other:'#63758F',fab:'#2B73CF',metal:'#8B5E3C',softgoods:'#C0487B',electrical:'#876511',othshop:'#6A7866',prefinish:'#2F7E8C',finish:'#148079',othfinish:'#657589',install:'#5A5DEC',logistics:'#4E7D5B'};
 /* v1.4.0: TN_TARGETS retired — milestone names are plain text now (08-31 obj 3) */
@@ -1659,6 +1673,13 @@ function canonName(s){
   }
   return hit.length===1?hit[0].name:s;
 }
+/* v1.15.0 (owner): an entered NICKNAME is how the person reads everywhere the app
+   DISPLAYS people; identity (stored names, canonName, joins, filters) stays the full
+   roster name. Display-time only — nothing stored changes shape. */
+function dispName(n){
+  const p=personByName(n)||personByName(canonName(n));
+  return (p&&p.nickname&&String(p.nickname).trim())||n;
+}
 function oooFor(name){const p=personByName(name);return p?(p.ooo||[]):[];}
 function oooOverlaps(name,sIso,eIso){return oooFor(name).filter(o=>o.start&&o.end&&o.start<=eIso&&o.end>=sIso);}
 /* v1.7.2 (owner GO, 2026-09-01): the one-time data scrub the v1.6.5 ledger entry gated
@@ -1672,9 +1693,12 @@ function oooOverlaps(name,sIso,eIso){return oooFor(name).filter(o=>o.start&&o.en
    The v1.6.5 rule stands: ambiguous or unknown strings pass through untouched — never
    guess identity. Free-text departments are skipped (their assignee is a label, not a
    person). Expect to re-run this as the staff lists reconcile and new users land. */
-function scrubLegacyNames(apply){
+/* v1.15.0: the scrub's walkers, generalized — mapFn decides what a stored person
+   string becomes. scrubLegacyNames feeds it canonName; the People-page merge feeds
+   it an exact old-name → new-name pair. */
+function scrubNames(mapFn,apply){
   const report=[];
-  const healArr=a=>{const h=a.map(x=>x==='Installation'?x:canonName(x));
+  const healArr=a=>{const h=a.map(x=>x==='Installation'?x:mapFn(x));
     return h.join('|')===a.join('|')?null:h;};
   const healStr=s=>{const parts=String(s||'').split(',').map(x=>x.trim()).filter(Boolean);
     const h=healArr(parts);return h?h.join(', '):null;};
@@ -1707,9 +1731,13 @@ function scrubLegacyNames(apply){
     return t;
   });
   if(console.table&&report.length)console.table(report);
+  if(apply&&report.length)saveState({projects,tasks,todos});
+  return report;
+}
+function scrubLegacyNames(apply){
+  const report=scrubNames(canonName,apply);
   console.log('scrubLegacyNames: '+report.length+' field'+(report.length===1?'':'s')+' to heal'
     +(report.length&&!apply?' — dry run, nothing written. scrubLegacyNames(true) applies.':apply?' — applied.':'.'));
-  if(apply&&report.length)saveState({projects,tasks,todos});
   return report;
 }
 /* Convert legacy roster-shaped staff (v22 and earlier) into people records */
@@ -2125,6 +2153,7 @@ function personToFields(p){const f={Title:p.name||'',depts:JSON.stringify(p.dept
   if(p.feedbackRecipient!=null)f.feedbackRecipient=p.feedbackRecipient?'1':'';
   if(p.personalNotes!=null)f.personalNotes=p.personalNotes; /* v1.9.0 (item 30): tristate like the flags — omitted until the row carries it, so a site without the column never 400s */
   if(p.status!=null)f.status=p.status; /* v1.13.0: lifecycle, vocabulary = Employee Contacts' Status (Active/Off Payroll/Terminated/Archived) */
+  if(p.nickname!=null)f.nickname=p.nickname; /* v1.15.0: how the name reads everywhere (display only) */
   /* v1.12.0 (item 30 second half): the "Listening to" quartet — same tristate rule. */
   if(p.listeningTo!=null)f.listeningTo=p.listeningTo;
   if(p.listeningLink!=null)f.listeningLink=p.listeningLink;
@@ -2137,6 +2166,7 @@ function fieldsToPerson(f){return{id:f.appId,name:f.Title||'',depts:safeArr(f.de
   feedbackRecipient:f.feedbackRecipient==null?null:flagTruthy(f.feedbackRecipient),
   personalNotes:f.personalNotes==null?null:String(f.personalNotes),
   status:f.status==null?null:String(f.status),
+  nickname:f.nickname==null?null:String(f.nickname),
   listeningTo:f.listeningTo==null?null:String(f.listeningTo),
   listeningLink:f.listeningLink==null?null:String(f.listeningLink),
   listeningVerb:f.listeningVerb==null?null:String(f.listeningVerb),
@@ -3075,7 +3105,7 @@ function renderDashBar(){
   const bar=document.getElementById('dash-bar');
   if(bar){bar.classList.toggle('hidden',!on);
     if(on){const nm=document.getElementById('db-name');
-      if(nm)nm.textContent=(dashSelf()?'My Dashboard · ':'Summary · ')+PERSON;}}
+      if(nm)nm.textContent=(dashSelf()?'My Dashboard · ':'Summary · ')+dispName(PERSON);}}
   const sl=document.querySelector('#sb-head .sb-dash-lbl');
   if(sl)sl.textContent=dashSelf()?'My Dashboard':'Summary';
   updateFilterBadges(); /* v1.2.2: the person chip/count flips with the dash state */
@@ -3127,7 +3157,7 @@ function renderMeDock(){
     '<div id="md-resize" title="Drag to resize the panel"></div>'
     +'<div class="md-hd">'
     +'<span class="dot" style="background:'+hashColor(per.name)+'"></span>'
-    +'<span class="t">'+esc(per.name)+'</span>'
+    +'<span class="t">'+esc((per.nickname&&per.nickname.trim())||per.name)+'</span>'
     +'<span class="sub">'+esc([per.role,deptLbl,per.email].filter(Boolean).join(' · ')||'Not on the staff list')+'</span>'
     /* v1.12.0 (item 30 second half, exp.listening): the personal line — SUMMARY view
        only (someone else reading this person's plate), never on your own dashboard;
@@ -3364,7 +3394,7 @@ function renderSidebar(){
       /* v1.3.0 (08-31 obj 9): two-line lane identity — name over department — and the
          freed right side lists the lane's assignments with dates, current work first. */
       const col=document.createElement('span');col.className='sb-2l';
-      const nm=document.createElement('span');nm.className='sb-name';nm.textContent=r.label;col.appendChild(nm);
+      const nm=document.createElement('span');nm.className='sb-name';nm.textContent=dispName(r.label);col.appendChild(nm);
       const dnm=(deptById(r.dept)||{}).name||r.dept;
       if(r.label!==dnm){const su=document.createElement('span');su.className='sb-sub';su.textContent=dnm;col.appendChild(su);}
       row.appendChild(col);
@@ -4446,7 +4476,8 @@ function cdPaintRows(){
           +(p.feedbackRecipient?'<span class="cd-perm" title="Receives bug reports and ideas">FB</span>':'')
          :'';
        return '<div class="cd-row pp6'+(CD_SEL===p.id?' sel':'')+'" data-id="'+esc(p.id)+'">'
-        +'<b>'+esc(p.name)+'</b><span class="cd-mut">'+esc(p.role||'')+'</span>'
+        +'<b>'+esc(p.name)+(p.nickname&&p.nickname.trim()?' <span class="cdd-nick">&ldquo;'+esc(p.nickname.trim())+'&rdquo;</span>':'')+'</b>'
+        +'<span class="cd-mut">'+esc(p.role||'')+'</span>'
         +'<span class="cd-mut">'+esc(p.phone||'')+'</span>'
         +'<span class="cd-mut">'+esc(p.email||'')+'</span>'
         +'<span>'+perm+'</span>'
@@ -4478,7 +4509,8 @@ function cdPaintDetail(){
     const asn=cdAssignments(per.name);
     const t0=fmtDate(today());
     const upcoming=(per.ooo||[]).filter(o=>o.start&&o.end&&o.end>=t0).sort((a,b)=>String(a.start).localeCompare(String(b.start)));
-    el.innerHTML='<div class="cdd"><div class="cdd-hd"><h3>'+esc(per.name)+'</h3>'
+    el.innerHTML='<div class="cdd"><div class="cdd-hd"><h3>'+esc(per.name)
+     +(per.nickname&&per.nickname.trim()?' <span class="cdd-nick">&ldquo;'+esc(per.nickname.trim())+'&rdquo;</span>':'')+'</h3>'
      +(per.role?'<div class="cdd-role">'+esc(per.role)+'</div>':'')+'</div><dl>'
      +'<div class="cdd-f"><dt>Work email</dt><dd>'+(per.email?esc(per.email):'—')+'</dd></div>'
      +'<div class="cdd-f"><dt>Phone</dt><dd>'+(per.phone?esc(per.phone):'—')+'</dd></div>'
@@ -4528,6 +4560,7 @@ function cdPaintEditor(el,isPeople){
   if(isPeople){
     el.innerHTML='<div class="cdd"><div class="cdd-hd"><h3>'+(r._new?'New person':esc(r.name))+'</h3></div>'
      +'<div class="cd-fg"><label>Name</label><input id="cde-name" type="text" list="cd-dl" placeholder="Name — suggests from the company Team"></div>'
+     +'<div class="cd-fg"><label>Nickname</label><input id="cde-nick" type="text" placeholder="Optional — how their name reads everywhere in the app"></div>'
      +'<div class="cd-fg"><label>Work email</label><input id="cde-email" type="email" placeholder="Work email (for &quot;me&quot; features)"></div>'
      +'<div class="cd-fg"><label>Phone</label><input id="cde-phone" type="tel"></div>'
      +'<div class="cd-fg"><label>Role / title</label><input id="cde-role" type="text"></div>'
@@ -4541,12 +4574,19 @@ function cdPaintEditor(el,isPeople){
        +'</div></div>':'')
      +'<div class="cdd-foot">'
      +(r._new?'':'<button class="btn btn-ghost cd-del" id="cde-del">Remove person…</button>')
+     /* v1.15.0 (owner): fold a duplicate roster entry into this one — their stored
+        assignments are rewritten to this name, missing fields backfill, the
+        duplicate row goes away. */
+     +(r._new?'':'<button class="btn btn-ghost" id="cde-merge" title="Two roster entries are the same human — fold the other one into this record">Merge duplicate…</button>'
+       +'<span id="cde-merge-ui" class="hidden"><select id="cde-merge-sel"></select>'
+       +'<button class="btn btn-primary" id="cde-merge-go">Merge</button></span>')
      +'<span style="flex:1"></span>'
      +'<button class="btn btn-ghost" id="cde-cancel">Cancel</button>'
      +'<button class="btn btn-primary" id="cde-save">Save</button></div></div>';
-    const nm=document.getElementById('cde-name'),em=document.getElementById('cde-email'),ro=document.getElementById('cde-role'),ph=document.getElementById('cde-phone');
-    nm.value=r.name||'';em.value=r.email||'';ro.value=r.role||'';ph.value=r.phone||'';
+    const nm=document.getElementById('cde-name'),em=document.getElementById('cde-email'),ro=document.getElementById('cde-role'),ph=document.getElementById('cde-phone'),nk=document.getElementById('cde-nick');
+    nm.value=r.name||'';em.value=r.email||'';ro.value=r.role||'';ph.value=r.phone||'';nk.value=r.nickname||'';
     ph.addEventListener('input',()=>{r.phone=ph.value;});
+    nk.addEventListener('input',()=>{r.nickname=nk.value;});
     nm.addEventListener('input',()=>{r.name=nm.value;
       /* picking (or typing) an exact Team member fills their email if it's empty */
       const m=(TM_MEMBERS||[]).find(x=>x.email&&x.name.toLowerCase()===nm.value.trim().toLowerCase());
@@ -4588,6 +4628,22 @@ function cdPaintEditor(el,isPeople){
     document.getElementById('cde-save').addEventListener('click',cdSavePerson);
     const del=document.getElementById('cde-del');
     if(del)del.addEventListener('click',cdRemovePerson);
+    /* v1.15.0: the merge flow — the button reveals a picker of the other people,
+       Merge runs the reconcile (see cdMergePerson). */
+    const mg=document.getElementById('cde-merge');
+    if(mg)mg.addEventListener('click',()=>{
+      const ui=document.getElementById('cde-merge-ui'),sel=document.getElementById('cde-merge-sel');
+      if(!ui.classList.contains('hidden')){ui.classList.add('hidden');return;}
+      sel.innerHTML='<option value="">Fold in which duplicate?</option>'
+        +PEOPLE.filter(p=>p.id!==r.id).sort((a,b)=>a.name.localeCompare(b.name))
+          .map(p=>'<option value="'+esc(p.id)+'">'+esc(p.name)+'</option>').join('');
+      ui.classList.remove('hidden');
+    });
+    const mgo=document.getElementById('cde-merge-go');
+    if(mgo)mgo.addEventListener('click',()=>{
+      const id=document.getElementById('cde-merge-sel').value;
+      if(id)cdMergePerson(r.id,id);
+    });
   }else{
     el.innerHTML='<div class="cdd"><div class="cdd-hd"><h3>'+(r._new?'New client':esc(r._orig))+'</h3></div>'
      +'<div class="cd-fg"><label>Client name</label><input id="cde-name" type="text"></div>'
@@ -4621,6 +4677,7 @@ function cdSavePerson(){
     developer:!!r.developer,
     personalNotes:r.personalNotes==null?null:r.personalNotes,
     status:r.status==null?null:r.status,
+    nickname:r.nickname==null?null:String(r.nickname).trim(),
     listeningTo:r.listeningTo==null?null:r.listeningTo,
     listeningLink:r.listeningLink==null?null:r.listeningLink,
     listeningVerb:r.listeningVerb==null?null:r.listeningVerb,
@@ -4637,6 +4694,37 @@ function cdSavePerson(){
   CD_EDIT=null;CD_SEL=per.id;
   savePeople(list); /* re-renders the page through render() */
   toast(per.name+' saved');
+}
+/* v1.15.0 (owner): two roster entries are the same human ("Sean Hong" and
+   "Seungwoo (Sean) Hong") — usually an HR-import name meeting a hand-typed one.
+   Keep the OPEN record, fold the picked duplicate in: every stored reference to the
+   duplicate's name (project roles, phase crews, note assignees) is rewritten to the
+   kept name through the scrub walkers, missing contact/flag fields backfill from
+   the duplicate, and its row leaves the roster. One confirm names the blast radius. */
+function cdMergePerson(keepId,dupId){
+  const keep=PEOPLE.find(p=>p.id===keepId),dup=PEOPLE.find(p=>p.id===dupId);
+  if(!keep||!dup||keep.id===dup.id)return;
+  const map=x=>String(x).trim()===dup.name.trim()?keep.name:x;
+  const rep=scrubNames(map,false); /* dry run for the count */
+  if(!confirm('Fold "'+dup.name+'" into "'+keep.name+'"?\n\n'
+    +(rep.length?rep.length+' stored assignment field'+(rep.length===1?'':'s')+' will be rewritten to "'+keep.name+'".\n':'No stored assignments carry "'+dup.name+'".\n')
+    +'Missing contact details on "'+keep.name+'" fill in from the duplicate, and its roster row is removed.\n\nThis can\'t be un-merged automatically.'))return;
+  if(rep.length)scrubNames(map,true);
+  const take=(a,b)=>String(a||'').trim()?a:(b==null?a:b);
+  const merged={...keep,
+    email:take(keep.email,dup.email),phone:take(keep.phone,dup.phone),
+    role:take(keep.role,dup.role),nickname:take(keep.nickname,dup.nickname),
+    status:keep.status!=null?keep.status:dup.status,
+    personalNotes:take(keep.personalNotes,dup.personalNotes),
+    depts:[...new Set([...(keep.depts||[]),...(dup.depts||[])].map(pdCanon))],
+    ooo:[...(keep.ooo||[]),...(dup.ooo||[])],
+    admin:(keep.admin||dup.admin)?true:(keep.admin==null&&dup.admin==null?null:false),
+    developer:!!(keep.developer||dup.developer),
+    feedbackRecipient:(keep.feedbackRecipient||dup.feedbackRecipient)?true
+      :(keep.feedbackRecipient==null&&dup.feedbackRecipient==null?null:false)};
+  CD_EDIT=null;CD_SEL=keep.id;
+  savePeople(PEOPLE.filter(p=>p.id!==dup.id).map(p=>p.id===keep.id?merged:p));
+  toast('Merged "'+dup.name+'" into "'+keep.name+'"'+(rep.length?' — '+rep.length+' assignment field'+(rep.length===1?'':'s')+' rewritten.':'.'));
 }
 function cdRemovePerson(){
   const r=CD_EDIT;if(!r||r._new)return;
@@ -4841,6 +4929,12 @@ function applyRoute(){
     ROUTE=r;
     document.body.classList.add('pp-route');
     document.body.classList.remove('cd-route');
+    /* v1.15.0 (owner bug report): arriving from an ACTIVE dashboard/Summary left the
+       stale dock painted under the project page — the people/settings branch below
+       always dropped it, this branch never did (latent since v1.7.0; every door to a
+       project page funnels through here, so this is the one fix). The dock re-arms
+       on the way back to the timeline (render → renderMeDock, PERSON is still set). */
+    document.body.classList.remove('me-dock-on');
     mn.classList.add('hidden');pg.classList.remove('hidden');
     renderProjectPage();
   }else if(r.view==='people'||r.view==='clients'||r.view==='settings'){
@@ -8645,9 +8739,9 @@ function buildPersonMenu(){
   };
   mk('Everyone',null);
   const me=meName();
-  if(me)mk(me+' (me)',me);
+  if(me)mk(dispName(me)+' (me)',me);
   const names=[...new Set(PEOPLE.map(p=>p.name))].filter(n=>n!==me).sort((a,b)=>a.localeCompare(b));
-  for(const n of names)mk(n,n);
+  for(const n of names)mk(dispName(n),n);
   if(!names.length){const d=document.createElement('div');d.className='sm-item';d.textContent='No people yet — add them under Company Data › People';m.appendChild(d);}
 }
 /* Phase 3: client filter section — checkboxes for every client with a project on the
@@ -8875,7 +8969,7 @@ function buildDashMenu(){
   note.textContent='Who are you? Remembered on this device.';m.appendChild(note);
   const names=[...new Set(PEOPLE.map(p=>p.name))].sort((a,b)=>a.localeCompare(b));
   for(const n of names){
-    const it=document.createElement('div');it.className='sm-item';it.textContent=n;
+    const it=document.createElement('div');it.className='sm-item';it.textContent=dispName(n);
     it.addEventListener('click',()=>{try{localStorage.setItem(ME_KEY,n);}catch(e){}closeMenus();enterDash(n);});
     m.appendChild(it);
   }
