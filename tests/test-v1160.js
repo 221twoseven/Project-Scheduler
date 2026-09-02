@@ -40,8 +40,9 @@ function main(){
   sec('source markers');
   ok('slides overlay uses the standard modal chrome', src.indexOf('id="demo-modal"')>=0&&/<div class="modal" id="demo-modal">/.test(src));
   ok('titles wear the Brauer face', /#demo-modal h3\{font-family:'Brauer Neue'/.test(src));
+  /* v1.18.0 added !DEV_VIEW to the gate (the Non-admin preview gets the plain tour) */
   ok('mi-tour gates the slides on developer, off project pages',
-     /isDeveloper\(\)&&ROUTE\.view!=='project'\)\{demoStart\(\);return;\}/.test(src));
+     /isDeveloper\(\)&&(!DEV_VIEW&&)?ROUTE\.view!=='project'\)\{demoStart\(\);return;\}/.test(src));
   ok('first-visit auto-run still starts the plain tour', /setTimeout\(coachStart,700\)/.test(src));
 
   E('coachEnd()'); /* the first-visit auto tour may be up — clear the deck */
