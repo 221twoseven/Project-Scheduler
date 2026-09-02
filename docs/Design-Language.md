@@ -313,12 +313,39 @@ for every future company master-data section (departments, project types, holida
   closes, including Lock Dates forcing on (restored on exit). The toggle lights while
   active and is remembered per tab. The value is typed straight onto the list by the
   owner; the People editor never assigns it, but People-page saves preserve it.
-- **My Dashboard dock columns (v1.9.0, owner ask):** Working on | Milestones +
-  Notes *stacked in one column* | Time off | **User Notes** — a personal multi-line
-  scratch pad at the far right, stored on the person's staff row (`personalNotes`)
-  and saved on blur through the normal staff sync. Personal by spec: the column
-  exists only on your OWN dashboard (viewers included — the one self-row exception
-  to the people-edit gate) and never appears on someone else's Summary.
+- **My Dashboard dock columns (v1.9.0; re-laid v1.10.0, owner ask):** Working on +
+  Time off *stacked in one column* | Milestones | Notes | **User Notes** — a personal
+  multi-line scratch pad at the far right, stored on the person's staff row
+  (`personalNotes`) and saved on blur through the normal staff sync. Personal by
+  spec: the column exists only on your OWN dashboard (viewers included — the one
+  self-row exception to the people-edit gate) and never appears on someone else's
+  Summary.
+- **Granular viewer grants (v1.11.0, owner ask).** The viewer role stays the default,
+  but each edit door can be opened app-wide from **Help ▸ App settings** — a
+  developer-only page on this same chrome (`#/settings`; non-devs bounce home).
+  Switches live on the app-side `ShopTimeline_Config` list (key/value; browser-local
+  with an inline warning until the list exists) and are read at sign-in. In code the
+  question is always `vcan('project'|'phases'|'subtasks'|'milestones'|'notes')`;
+  granted chrome re-appears via `body.vg-*` classes and locked boxes pass their door
+  to `viewerLock(box, kind)` — agenda rows grade themselves by row kind. Defaults all
+  OFF (owner: non-admins stay mostly gated).
+- **Signed-in identity in the chrome (v1.10.0).** The top-right global row reads
+  `[Viewer] · name DEV|ADMIN · version · sync pill`. The chip shows the account's
+  REAL access and does not flip while the Viewer preview is on (the lit Viewer button
+  already carries that state). The TWOSEVEN INC. wordmark is a button: one click goes
+  home from any route (draft pages keep their discard confirm).
+- **One tour, chained (v1.10.0, owner ask).** The home tour's last step highlights
+  **+ New Project** and asks for a real click — the overlay turns click-through for
+  that one target (`#coach.chain`; a capture guard swallows everything else, Enter
+  presses the button) — and the project-page tour continues on the draft that opens.
+  Viewers skip the chain step (the button is hidden for them).
+- **"Listening to" (v1.12.0, experimental — `exp.listening`).** A personal line in
+  the dock header, SUMMARY view only: right-justified muted text
+  `listening to|reading|thinking about: Title`, title hyperlinked when a link is set.
+  Edited on your own dashboard through a thought-cloud icon against the dock's
+  bottom-right margin — a field-sized popover that commits once, on close, through
+  the self-row staff save. Empty title or Show off = hidden; the whole feature sits
+  behind the App-settings switch.
 
 ## 8. Print & Meeting Sheet
 

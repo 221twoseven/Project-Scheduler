@@ -15,7 +15,10 @@ const V164=src.indexOf('dash-flat')>=0; /* v1.6.4: the panel follows the person 
    viewer's OWN dashboard — another person's Summary (this suite's Nick) shows three
    sections: Working on | Milestones+Notes | Time off. */
 const V190=src.indexOf('md-stack')>=0;
-const SECN=V190?3:4, TK=V190?1:2, OFF=V190?2:3;
+/* v1.10.0 (09-02 owner ask): the stack is Working on + Time off; Milestones and Notes
+   are back in their own columns. Another person's Summary: stack | Milestones | Notes. */
+const V1100=src.indexOf('md-listen')>=0;
+const SECN=V190?3:4, TK=V1100?2:V190?1:2, OFF=V1100?0:V190?2:3;
 if(!/me-dock/.test(src)){
   console.log('  SKIP  build predates the person panel (no me-dock) — nothing to assert');
   console.log('\n'+'-'.repeat(46));

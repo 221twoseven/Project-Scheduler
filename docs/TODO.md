@@ -21,7 +21,14 @@ single-source-of-truth milestone** (§3 item 13) — the app becoming the compan
 database is the breaking change the major number exists for. `APP_VER` in `index.html`
 is the source of truth; keep `package.json` aligned.
 
-Last reviewed: 2026-09-01 (evening handoff) — the owner's post-v1.7.1 message filed as
+Last reviewed: 2026-09-02 — the owner's nine-item morning brief filed as §3 items
+33–36 and the item-30 close-out; **all shipped same day as v1.10.0–v1.13.0** (dock
+re-layout + comprehensive departments + Logistics + wordmark-home + signed-in badge +
+chained tours; dev App Settings + granular viewer grants; Listening-to; Employee
+Contacts import). Owner actions open: create `ShopTimeline_Config` (§5), the
+`status` column and the four listening columns on `ShopTimeline_Staff` (§5), then
+re-run the People-page import. The change log slides to v1.14.0. Previous review
+2026-09-01 (evening handoff) — the owner's post-v1.7.1 message filed as
 §3 items 28–30: the four quick wins + the v1.6.5 scrub GO **shipped same day as
 v1.7.2** (wordmark TWOSEVEN INC., sort hidden in the dept lens, coach copy
 "department", drag-zoom out to a year, `scrubLegacyNames()` console pass); My
@@ -445,8 +452,11 @@ rule §5); old data keeps reading fine.
       staff lists reconcile and users are added. Robert runs it on `/preview/`.
       (Related later problem, owner-parked: name presentation on project-edit/
       subtask-edit pages.)
-- [~] **30. (09-01 items 1–2) My Dashboard personal fields — HALF DONE 2026-09-01
-      (v1.9.0, via item 32).**
+- [x] **30. (09-01 items 1–2) My Dashboard personal fields — DONE: personalNotes
+      2026-09-01 (v1.9.0, via item 32); "Listening to" 2026-09-02 (v1.12.0, revised
+      09-02 spec — verb select [listening to|reading|thinking about], optional link,
+      show/hide checkbox, thought-cloud popover editor, Summary-header display,
+      behind the `exp.listening` dev switch).**
       Answer to the owner's question first: the greyed "Notes" panel on My Dashboard
       lists open **notes/to-dos assigned to you** (`ShopTimeline_Tasks2`) — it reads
       empty/grey when none. The ask is different and additive:
@@ -456,13 +466,13 @@ rule §5); old data keeps reading fine.
         self-row exception to the v1.8.0 viewer guard. ⚠ Needs the `personalNotes`
         column (below) before a save can land; until then the first save surfaces
         the normal sync-error toast.
-      - [ ] **"Listening to:"** two single-line fields — line 1 helper "who/what",
-        line 2 helper "link" — edited on My Dashboard, displayed on Summary pages.
-        Still open (not in the 09-01 late asks); columns below.
-      - Storage ⚠ (spec delivered 2026-09-01, Robert applies): three columns on
-        `ShopTimeline_Staff` — `personalNotes` (multi-line, plain text),
-        `listeningTo` (single line), `listeningLink` (single line). Save path is a
-        self-row-only PATCH (shipped for personalNotes in v1.9.0).
+      - [x] **"Listening to:" — SHIPPED 2026-09-02 (v1.12.0)** to the owner's revised
+        spec (a popover editor + verb + show/hide, not the original two dock fields);
+        displayed in the Summary dock header, experimental (`exp.listening`).
+      - Storage ⚠ (spec revised 2026-09-02, Robert applies): FIVE columns on
+        `ShopTimeline_Staff` — `personalNotes` (multi-line, plain text; v1.9.0),
+        `listeningTo`, `listeningLink`, `listeningVerb` (single line) and
+        `listeningShow` (single line, `1`/empty). Save path is a self-row-only PATCH.
 - [x] **31. (09-01 sidebar feedback) ⇕ All levels + header parity — DONE 2026-09-01
       (v1.8.1).** Two items from the owner's screenshot message: (1) **⇕ All walks
       the view's expansion levels in series** — Projects lens + sort grouping is a
@@ -513,6 +523,41 @@ rule §5); old data keeps reading fine.
       rest of the render (before the chart paint and `viewerLock`). One guard at
       the shared binding site fixes every path; regression staged in test-v190
       (viewer + project + agenda rows → chart painted, fields disabled).
+
+### 2026-09-02 brief — nine owner asks (all shipped same day)
+
+- [x] **33. (09-02 items 1, 2, 3, 5, 7, 8) Quick batch — DONE 2026-09-02 (v1.10.0).**
+      My Dashboard dock re-laid (Time off stacks under Working on; Milestones and
+      Notes back in their own columns); People-page department checkboxes/filter use
+      the COMPREHENSIVE `DEPTS` list (SM_DEPTS now derived — the REV90 dup-ids ledger
+      gate fired) with **Logistics added as its own department** (DEPTS + GROUPS +
+      dept-lens section + team color); the TWOSEVEN INC. wordmark navigates home from
+      any route; the top right shows the signed-in name with a DEV/ADMIN chip (real
+      access, not the preview state); and the home tour CHAINS into the project tour —
+      its last step has the user actually click + New Project (overlay click-through,
+      capture-guarded) and the project tour continues on the draft.
+- [x] **34. (09-02 item 6) Backend permission toggles + dev App Settings page — DONE
+      2026-09-02 (v1.11.0).** Help ▸ App settings (`#/settings`, developers only)
+      hosts app-wide switches on the app-side `ShopTimeline_Config` list ⚠(§5,
+      app-only, owner creates; browser-local fallback with an inline warning until
+      then). viewer.* grants open single edit doors for non-admins via `vcan()`:
+      project settings, phases (incl. Lock Dates back), subtasks, milestones, notes —
+      defaults all OFF per the owner ("leave non-admin mostly gated for now").
+- [x] **35. (09-02 item 9) "Listening to" — DONE 2026-09-02 (v1.12.0), see item 30.**
+- [x] **36. (09-02 item 4) People page mirrors Employee Contacts — DONE 2026-09-02
+      (v1.13.0).** Admin-only "Import from Employee Contacts" on the People page:
+      reads the HR list (READ-ONLY, tolerant field-name resolution, HR-sensitive
+      columns never read), joins on work email (name fallback), one confirm applies —
+      active newcomers added (title→role, phone, mapped department), matched people
+      updated with HR as master for title/phone/status (curated depts and non-blank
+      emails kept), non-active rows never create people, nothing auto-removed.
+      Employment `status` (⚠ §5 column, vocabulary = the HR Status values) is probed
+      live and silently waits until the column exists. Re-run the import any time —
+      it's idempotent ("roster already mirrors" when clean). **M365 pairing note
+      (owner question answered 2026-09-02):** any TwoSeven M365 login can open the
+      app (single-tenant Entra); identity pairs by work email via `meName()`, so one
+      import run makes every Employee-Contacts email pair with a roster row —
+      unmatched sign-ins remain viewers with an unresolved dashboard.
 
 - [ ] **13. (Obj 4) Reconcile and absorb the 14 disparate data stores.** The app
       becomes the company's singular source of truth (the v1 "north star", now
@@ -600,8 +645,11 @@ rule §5); old data keeps reading fine.
 | v1.8.1 | ✅ Shipped 2026-09-01 — 31 (⇕ All walks expansion levels; sort-group headers = dept-header style) + test-v171 gate fix (feature-tied, not version-tied) |
 | v1.9.0 | ✅ Shipped 2026-09-01 — 32 (late-evening owner asks: calendar resize follows across weeks, dock re-layout + User Notes = item 30's personalNotes half, developer Viewer toggle, My Dashboard navigates) ⚠ `personalNotes` column |
 | v1.9.1 | ✅ Shipped 2026-09-02 — v1.8.0 latent bug the Viewer toggle exposed: a viewer opening any project WITH a milestone/note crashed the page render (empty chart, fields never locked) — the agenda-row × is not rendered for viewers but ppBindInspector grabbed it unguarded; guard added, regression checks in test-v190 (41) |
-| v1.9.x | 30 second half (Listening to: two fields on Summary pages) ⚠ — `listeningTo`/`listeningLink` columns, spec delivered |
-| v1.10.0 | 26 (change log) ⚠ — after permissions |
+| v1.10.0 | ✅ Shipped 2026-09-02 — 33 (09-02 quick batch: dock re-layout, comprehensive departments + Logistics, wordmark home, signed-in DEV/ADMIN badge, chained tours) |
+| v1.11.0 | ✅ Shipped 2026-09-02 — 34 (dev App Settings page + granular viewer grants on `ShopTimeline_Config` ⚠) |
+| v1.12.0 | ✅ Shipped 2026-09-02 — 30 second half / 35 (Listening to, revised spec; experimental) ⚠ four staff columns |
+| v1.13.0 | ✅ Shipped 2026-09-02 — 36 (People page mirrors Employee Contacts, read-only import) ⚠ `status` column |
+| v1.14.0 | 26 (change log) ⚠ — after permissions |
 | v2.0.0 | 13 (single source of truth) ⚠ — likely several minors along the way (one per absorbed store), with v2.0.0 as the cutover declaration |
 
 ## 5. Data / schema (⚠ all need approval — shared Lists)
@@ -632,13 +680,26 @@ rule §5); old data keeps reading fine.
   feedback mail — owner-executed + admin consent; **DONE 2026-09-01 (Robert:
   set up + admin-consented).** The app requests the scope on its own silent token
   (v1.8.0), so a consent gap degrades to "report filed, mail skipped". ⚠
-- Candidate new columns for §3 item 30 (spec delivered 2026-09-01, Robert applies):
-  on `ShopTimeline_Staff` — `personalNotes` (multi-line, plain text), `listeningTo`
-  (single line), `listeningLink` (single line). All additive; app reads/writes them
-  only on the signed-in user's own row. **v1.9.0 ships the `personalNotes`
-  reader/writer (tristate — a site without the column never 400s on OTHER saves,
-  but a User Notes save itself needs the column).** `listeningTo`/`listeningLink`
-  wait on item 30's second half. ⚠
+- Columns for §3 item 30 (spec REVISED 2026-09-02, Robert applies): on
+  `ShopTimeline_Staff` — `personalNotes` (multi-line, plain text; v1.9.0 writer) plus
+  the v1.12.0 quartet, all single-line text: `listeningTo`, `listeningLink`,
+  `listeningVerb`, `listeningShow` (`1`/empty). All additive, tristate in the app —
+  a site without them never 400s on OTHER saves, but the feature's own first save
+  needs them. App reads/writes them only on the signed-in user's own row. ⚠
+- `ShopTimeline_Config` (§3 item 34) — **spec delivered 2026-09-02, Robert creates:**
+  app-only list, Title (= setting key) plus ONE single-line text column named
+  `value`. Holds the dev App Settings switches (viewer permission grants +
+  experimental features); read by everyone at sign-in, written only from the dev
+  page. Until it exists, settings stay browser-local (inline warning on the page). ⚠
+- `status` column on `ShopTimeline_Staff` (§3 items 27/36) — **spec delivered
+  2026-09-02, Robert creates:** single-line text, vocabulary EXACTLY Employee
+  Contacts' Status values (Active / Off Payroll / Terminated / Archived — the
+  2026-09-01 don't-invent-a-third-vocabulary ruling). The v1.13.0 import probes for
+  it live and starts syncing it the run after it exists; it reads as information on
+  the People page. ⚠
+- **Employee Contacts (HR list) — READ-ONLY standing rule (v1.13.0):** the app reads
+  it for the People-page import and never writes it or touches its schema; Pay Type
+  and PersonalEmail are never read at all.
 - Candidate new column: a lifecycle/`status` column (Active/Inactive/Archived) on
   `ShopTimeline_Staff` and `ShopTimeline_Clients` (§3 item 27's archive-not-delete
   model) — additive; Robert applies it when item 27's lifecycle pass is designed
@@ -745,8 +806,11 @@ these are the ones still open, plus new deferrals as they happen.
       + Add.
 - [ ] Calendar marker drag/click/delete block is a near-clone of the Gantt's —
       **gate fires with §3 item 8** (next touch of either handler: merge them).
-- [ ] `ROSTER_DEPTS` / `SM_DEPTS` duplicate the roster dept ids. Gate: next
-      roster-department change.
+- [x] `ROSTER_DEPTS` / `SM_DEPTS` duplicate the roster dept ids. Gate: next
+      roster-department change. **Gate FIRED 2026-09-02 (v1.10.0, Logistics +
+      comprehensive People-page list):** `SM_DEPTS` is now derived from `DEPTS`
+      (minus free-text buckets) and can't drift; `ROSTER_DEPTS` stays the separate
+      project-team trio by design.
 - [x] `#tm-dl` datalist keeps its task-modal prefix while serving the staff modal.
       Gate: next staff-modal edit. **Gate fired 2026-09-01 (v1.7.0):** the staff
       modal's replacement (the People page editor) was its only consumer — renamed
@@ -897,6 +961,41 @@ these are the ones still open, plus new deferrals as they happen.
       (§5 spec, Robert applies) — before it exists the first save surfaces the
       normal staff sync-error toast (localStorage copy still holds locally).
       Gate: column created. (v1.9.0)
+- [ ] The saveState choke point opens WHOLESALE for a viewer once ANY viewer.* grant
+      is on — the UI doors carry the per-kind granularity (a granted viewer who found
+      an ungated door could write past their grant; same workflow-not-security
+      posture as v1.8.0). Gate: a partially-granted viewer actually reaching an
+      ungranted door; fix is kind-tagged diffs at the choke point. (v1.11.0,
+      2026-09-02)
+- [ ] The right-click create menu opens on the PHASES grant only — a milestones- or
+      notes-only viewer adds via the dock buttons/keyboard, not right-click (the
+      menu builders offer phase/subtask creation and aren't filtered per-entry yet).
+      Gate: the first narrow grant actually flipped on for real users. (v1.11.0)
+- [ ] Config is read at sign-in, never re-polled — a flipped grant reaches users on
+      their next reload (deliberate: no extra Graph call per 90s tick, the
+      polling-cost rule). Gate: the lag biting someone in practice. (v1.11.0)
+- [ ] The App Settings entry and page stay reachable while the Viewer preview is ON
+      (isDeveloper isn't isAdmin-gated) — the preview is faithful for permissions,
+      not for developer chrome, same as the Viewer button itself staying visible.
+      Deliberate. (v1.11.0)
+- [ ] The thought-cloud popover commits on CLOSE — a repaint landing mid-edit (a
+      background sync elsewhere) closes it uncommitted. Rare on an idle dashboard.
+      Gate: someone actually loses an entry; fix is commit-per-field. (v1.12.0,
+      2026-09-02)
+- [ ] The Listening-to feature needs its four §5 columns — before they exist the
+      popover's first save surfaces the staff sync-error toast (same shape as the
+      personalNotes entry above). Gate: columns created. (v1.12.0)
+- [ ] The Employee Contacts import maps departments by exact name/group match + a
+      small alias table — unrecognized strings (e.g. "Warehouse") are reported and
+      left unset, never guessed. Gate: real HR dept strings that should map; fix is
+      one alias line each. (v1.13.0, 2026-09-02)
+- [ ] Import matching is email-first, exact-name fallback — a person whose HR email
+      and roster email differ AND whose names don't match exactly gets ADDED as a
+      duplicate rather than merged (deliberate: never guess identity, the v1.6.5
+      rule). Gate: it happens; fix is a manual merge then re-run. (v1.13.0)
+- [ ] `status` never drives behavior yet — it reads as information on the People
+      page; the archive/deactivate lifecycle (hide from pickers, deactivation
+      guards) remains the §3 item 27 lifecycle pass. Gate: that pass. (v1.13.0)
 
 **Deliberate design ceilings — no action planned, revisit only on real complaints:**
 12-slot palette repeats at 13+ visible projects (T2); quiet re-selection after a
@@ -920,3 +1019,5 @@ today left-of-center — on first load and on every arrival at the timeline via 
   the two briefs' numbers do not correspond).
 - (09-01 handoff) = the 2026-09-01 "Master Data UX Refactor" handoff (unnumbered —
   a single scoped objective, §3 item 27).
+- (09-02 item N) = the owner's numbering from the 2026-09-02 nine-item morning brief
+  (§3 items 33–36; its item 9 revised §3 item 30's Listening-to spec).

@@ -69,8 +69,11 @@ function main(){
 
   sec('the Viewer toggle: developers preview the non-admin app');
   ok('the toggle shows for the developer', !doc.getElementById('tb-devview').classList.contains('hidden'));
+  /* v1.10.0 inserted the signed-in #tb-user badge between the toggle and the version */
+  const nxt=doc.getElementById('tb-devview').nextElementSibling;
   ok('…and sits in the global toolbar row next to the version number',
-     doc.getElementById('tb-devview').nextElementSibling===doc.getElementById('tb-rev'));
+     nxt===doc.getElementById('tb-rev')||(nxt===doc.getElementById('tb-user')
+       &&nxt.nextElementSibling===doc.getElementById('tb-rev')));
   ok('admin before the toggle', E('isAdmin()')===true);
   E('DATE_LOCK=false');
   doc.getElementById('tb-devview').click();
@@ -83,10 +86,14 @@ function main(){
   E("enterDash('Sam')");
   ok('the dashboard dock is on', doc.body.classList.contains('me-dock-on'));
   const stack=doc.querySelector('#me-dock .md-stack');
-  ok('Milestones + Notes stack in ONE column', !!stack
-     &&stack.querySelectorAll('h4').length===2
-     &&/Milestones/.test(stack.querySelectorAll('h4')[0].textContent)
-     &&/Notes/.test(stack.querySelectorAll('h4')[1].textContent));
+  /* v1.10.0 (09-02 owner ask): the stack now holds Working on + Time off; Milestones
+     and Notes went back to their own columns. */
+  const V1100=src.indexOf('md-listen')>=0;
+  ok(V1100?'Working on + Time off stack in ONE column':'Milestones + Notes stack in ONE column',
+     !!stack&&stack.querySelectorAll('h4').length===2
+     &&(V1100
+       ?/Working on/.test(stack.querySelectorAll('h4')[0].textContent)&&/Time off/.test(stack.querySelectorAll('h4')[1].textContent)
+       :/Milestones/.test(stack.querySelectorAll('h4')[0].textContent)&&/Notes/.test(stack.querySelectorAll('h4')[1].textContent)));
   const secs=doc.querySelectorAll('#me-dock .ins-body>.ins-sec');
   ok('User Notes is the far-right column', secs.length===4
      &&/User Notes/.test(secs[3].querySelector('h4').textContent)
