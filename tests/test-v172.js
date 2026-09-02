@@ -27,7 +27,9 @@ const D=n=>{const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()+n);
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
 
 sec('source: copy + wordmark');
-ok('toolbar wordmark reads TWOSEVEN INC.', src.indexOf('<span class="tb-co">TWOSEVEN INC.</span>')>=0);
+/* v1.10.0 made the wordmark a home-navigation button — accept either element */
+ok('toolbar wordmark reads TWOSEVEN INC.', src.indexOf('<span class="tb-co">TWOSEVEN INC.</span>')>=0
+   || /<button id="tb-home" class="tb-co"[^>]*>TWOSEVEN INC\.<\/button>/.test(src));
 ok('print title carries the full wordmark', src.indexOf("'TWOSEVEN INC. — Shop Timeline · '")>=0);
 ok('meeting sheet carries the full wordmark', src.indexOf('TWOSEVEN INC. — Shop Meeting Sheet')>=0);
 ok('coach step says department, not crew', src.indexOf('Department lens regroups everything by department.')>=0
