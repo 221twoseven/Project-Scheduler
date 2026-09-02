@@ -706,6 +706,7 @@ rule §5); old data keeps reading fine.
 | v1.14.0 | ✅ Shipped 2026-09-02 — 37 (afternoon review: EC import resolves display names, one tour count, thought icon on the User Notes bar, Not me toggle, DFAB/Finishing people-dept consolidation, at-a-glance people columns) |
 | v1.15.0 | ✅ Shipped 2026-09-02 — 38 (pre-presentation round: stuck-dock fix, editor grid, nickname ⚠, merge-duplicate tool, listening position, copy inventory) |
 | v1.15.1 | ✅ Shipped 2026-09-02 — the owner's copy revision (docs/Copy-Coach-and-Helpers.md) applied: tour bodies, phase-notes placeholder, sign-in card. The 08-28 coach-copy hold is LIFTED — the doc is the editing channel now |
+| v1.15.2 | ✅ Shipped 2026-09-02 — staff-sync resilience (owner report: name edits/merges reverted minutes later): one bad row (a save carrying a not-yet-created column, e.g. `nickname`) no longer strands the rows behind it; a failed staff save parks for pill retry, the staff poll defers while parked, closing the tab warns |
 | v1.16.0 | 26 (change log) ⚠ — after permissions |
 | v2.0.0 | 13 (single source of truth) ⚠ — likely several minors along the way (one per absorbed store), with v2.0.0 as the cutover declaration |
 
@@ -1086,6 +1087,14 @@ these are the ones still open, plus new deferrals as they happen.
 - [ ] Merge matches stored strings by EXACT name only — abbreviations of the
       duplicate ("Seungwoo H.") that canonName can't resolve stay behind; run
       `scrubLegacyNames(true)` after merging to sweep those. (v1.15.0)
+- [ ] A parked staff save (PENDING_STAFF) retries only via the pill click — no
+      automatic replay, and OTHER staff saves during the park sync their own diffs
+      while the pill stays on "not saved" until the park clears. Gate: the manual
+      retry proving annoying in practice. (v1.15.2, 2026-09-02)
+- [ ] spSyncClients keeps the old stop-at-first-failure shape — clients have no
+      tristate columns, so the missing-column failure mode doesn't apply there.
+      Gate: a real stranded-clients report; fix is the same per-row pattern.
+      (v1.15.2)
 
 **Deliberate design ceilings — no action planned, revisit only on real complaints:**
 12-slot palette repeats at 13+ visible projects (T2); quiet re-selection after a

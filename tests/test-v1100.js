@@ -264,6 +264,35 @@ function stage15(){
      &&E("PEOPLE.find(p=>p.name==='Kim').phone")==='555-9'
      &&E("PEOPLE.find(p=>p.name==='Kim').role")==='Fabricator');
 
+  sec('v1.15.2 — a bad staff row can\'t strand the rest or lose edits to the poll');
+  const f0=win.fetch;let tripped=false;
+  win.fetch=async(u,i)=>{
+    if(!tripped&&/ShopTimeline_Staff\/items\/sp0\/fields/.test(String(u))&&i&&i.method==='PATCH'){
+      tripped=true;
+      return{ok:false,status:400,json:async()=>({}),text:async()=>'Field nickname is not recognized'};
+    }
+    return f0(u,i);};
+  E("savePeople(PEOPLE.map(p=>({...p,role:(p.role||'')+'!'})))"); /* touch every row; sp0 (Sam) fails once */
+  setTimeout(()=>{
+    ok('rows behind the failure still saved',
+       (win.__spCalls||[]).some(c=>c.method==='PATCH'&&/ShopTimeline_Staff\/items\/sp1\/fields/.test(c.url)));
+    ok('the failed row parks for retry and the pill says so',
+       E('!!PENDING_STAFF')&&/staff not saved/.test(doc.getElementById('sync-pill').textContent));
+    ok('the local edit survives (nothing reverted on screen)',
+       /!$/.test(E("PEOPLE.find(p=>p.name==='Sam').role")));
+    const patches0=(win.__spCalls||[]).filter(c=>c.method==='PATCH'&&/ShopTimeline_Staff\/items\/sp0\/fields/.test(c.url)).length;
+    doc.getElementById('sync-pill').click(); /* the 400 tripped once — retry succeeds */
+    setTimeout(()=>{
+      ok('the pill retry replays the parked row and clears the park',
+         E('PENDING_STAFF===null')
+         &&(win.__spCalls||[]).filter(c=>c.method==='PATCH'&&/ShopTimeline_Staff\/items\/sp0\/fields/.test(c.url)).length>patches0);
+      win.fetch=f0;
+      stage15c();
+    },350);
+  },350);
+}
+
+function stage15c(){
   sec('v1.15.0 — a project page opened from an active Summary drops the dock');
   E("enterDash('Pat')");
   ok('the dock is up on the Summary', doc.body.classList.contains('me-dock-on'));

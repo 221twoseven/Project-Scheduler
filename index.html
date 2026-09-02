@@ -1505,7 +1505,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.15.1'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.15.2'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -2183,12 +2183,24 @@ async function spLoadStaff(){
 async function spSyncStaff(olds,news){
   await spSite();
   const om=new Map(olds.map(x=>[x.id,x])),nm=new Map(news.map(x=>[x.id,x]));
+  /* v1.15.2 (owner report: edits/merges reverted minutes later): one bad row —
+     usually a save carrying a column the list doesn't have yet — used to throw out
+     of this loop and STRAND every row (and removal) behind it; the staff poll then
+     restored server truth over the optimistic list. Now every row is attempted,
+     failures aggregate into one error the caller parks for retry. */
+  const errs=[];
   for(const[id,n]of nm){
-    const o=om.get(id);
-    if(!o&&!SP_IDS.staff[id]){const r=await gfetch(listUrl(LIST_STAFF)+'/items',{method:'POST',body:JSON.stringify({fields:personToFields(n)})});SP_IDS.staff[id]=r.id;}
-    else if(!o||JSON.stringify(o)!==JSON.stringify(n)){await gfetch(listUrl(LIST_STAFF)+'/items/'+SP_IDS.staff[id]+'/fields',{method:'PATCH',body:JSON.stringify(personToFields(n))});}
+    try{
+      const o=om.get(id);
+      if(!o&&!SP_IDS.staff[id]){const r=await gfetch(listUrl(LIST_STAFF)+'/items',{method:'POST',body:JSON.stringify({fields:personToFields(n)})});SP_IDS.staff[id]=r.id;}
+      else if(!o||JSON.stringify(o)!==JSON.stringify(n)){await gfetch(listUrl(LIST_STAFF)+'/items/'+SP_IDS.staff[id]+'/fields',{method:'PATCH',body:JSON.stringify(personToFields(n))});}
+    }catch(e){errs.push((n.name||id)+': '+((e&&e.message)||e));}
   }
-  for(const[id]of om)if(!nm.has(id)){await gfetch(listUrl(LIST_STAFF)+'/items/'+SP_IDS.staff[id],{method:'DELETE'});delete SP_IDS.staff[id];}
+  for(const[id]of om)if(!nm.has(id)){
+    try{await gfetch(listUrl(LIST_STAFF)+'/items/'+SP_IDS.staff[id],{method:'DELETE'});delete SP_IDS.staff[id];}
+    catch(e){errs.push('removing '+((om.get(id)||{}).name||id)+': '+((e&&e.message)||e));}
+  }
+  if(errs.length)throw new Error(errs.length+' staff row'+(errs.length===1?'':'s')+' didn\'t save — '+errs[0]+(errs.length>1?' (+'+(errs.length-1)+' more in the console)':''));
 }
 
 async function spLoad(){
@@ -2414,6 +2426,7 @@ function syncNow(oldST,newST){
 let PENDING_SYNC=null;
 document.getElementById('sync-pill').addEventListener('click',()=>{
   if(PENDING_SYNC){const p=PENDING_SYNC;PENDING_SYNC=null;syncNow(p.oldST,p.newST);}
+  if(PENDING_STAFF)retryStaffSync(); /* v1.15.2: parked staff rows replay too */
 });
 
 /* Optimistic save: update screen instantly, sync to SharePoint in background */
@@ -2486,9 +2499,30 @@ function savePeople(np,self){
   render();
   if(!STAFF_OK){toast('Staff saved in this browser only — it won\'t sync to your teammates until SharePoint is reachable again.','err');return;}
   setSync('busy');
+  /* v1.15.2: the staff sync joins the poll guard (SYNCING) so a mid-flight tick
+     can't clobber the optimistic list, and a FAILED sync parks the diff base —
+     the staff poll defers while it's parked and the sync pill replays it. */
+  SYNCING++;
   spSyncStaff(old,PEOPLE)
-    .then(()=>setSync('ok','synced '+stamp()))
-    .catch(e=>{console.error(e);setSync('err','staff not saved');toast('Couldn\'t save the staff list to SharePoint. Try saving again in a moment.','err',null,e.message);});
+    .then(()=>{SYNCING--;
+      if(PENDING_STAFF)setSync('err','staff not saved — click to retry'); /* an earlier failure is still parked */
+      else setSync('ok','synced '+stamp());})
+    .catch(e=>{SYNCING--;console.error(e);
+      PENDING_STAFF={old:(PENDING_STAFF&&PENDING_STAFF.old)||old};
+      setSync('err','staff not saved — click to retry');
+      toast('Couldn\'t save some of the staff list to SharePoint. Your edits are still on screen — click "staff not saved" at the top right to retry.','err',null,e.message);});
+}
+let PENDING_STAFF=null; /* {old}: the diff base from the first failed staff sync */
+function retryStaffSync(){
+  if(!PENDING_STAFF)return;
+  const p=PENDING_STAFF;PENDING_STAFF=null;
+  setSync('busy');SYNCING++;
+  spSyncStaff(p.old,PEOPLE)
+    .then(()=>{SYNCING--;setSync('ok','synced '+stamp());})
+    .catch(e=>{SYNCING--;console.error(e);
+      PENDING_STAFF={old:p.old};
+      setSync('err','staff not saved — click to retry');
+      toast('Still couldn\'t save the staff list — the error names the field: create any missing column on ShopTimeline_Staff, then click retry again.','err',null,e.message);});
 }
 /* V4/B6: the view snapshot — every piece of timeline state a saved view captures.
    viewState() reads it, applyViewState() writes it (state + the matching controls).
@@ -4966,7 +5000,7 @@ window.addEventListener('hashchange',applyRoute);
    REV90: same warning while a save is in flight or failed — the optimistic UI already
    said "done", so closing the tab would lose the change silently. */
 window.addEventListener('beforeunload',ev=>{
-  if(ppDraftDirty()||SYNCING||PENDING_SYNC){ev.preventDefault();ev.returnValue='';}
+  if(ppDraftDirty()||SYNCING||PENDING_SYNC||PENDING_STAFF){ev.preventDefault();ev.returnValue='';} /* v1.15.2: parked staff edits count too */
 });
 
 function ppProject(){
@@ -9515,8 +9549,10 @@ async function boot(){
       /* REV90: a remote refresh invalidates every local snapshot — ⌘Z across it would
          diff against teammates' rows and physically DELETE them from SharePoint. */
       if(JSON.stringify(fresh)!==JSON.stringify({projects:ST.projects,tasks:ST.tasks,todos:ST.todos||[],events:ST.events||[]})){ST=fresh;dirty=true;UNDO_STACK.length=0;}
-      /* Staff changes rarely — poll it every other tick to halve that list's Graph calls. */
-      if(STAFF_OK&&POLL_N%2===0){
+      /* Staff changes rarely — poll it every other tick to halve that list's Graph calls.
+         v1.15.2: never while a failed staff save is parked — the poll used to restore
+         server truth over the user's unsaved edits ("my merges reverted"). */
+      if(STAFF_OK&&POLL_N%2===0&&!PENDING_STAFF){
         const fp=await spLoadStaff();
         if(JSON.stringify(fp)!==JSON.stringify(PEOPLE)){PEOPLE=fp;rebuildStaff();localStorage.setItem(PEOPLE_KEY,JSON.stringify(PEOPLE));dirty=true;}
       }
