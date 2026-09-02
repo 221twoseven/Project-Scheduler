@@ -1432,7 +1432,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.9.0'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.9.1'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -5254,7 +5254,11 @@ function ppBindInspector(p,sel){
   }));
   box.querySelectorAll('.ag-i').forEach(row=>{
     const id=row.dataset.agId,k=row.dataset.agK;
-    row.querySelector('.del').addEventListener('click',ev=>{
+    /* v1.9.1: viewers get no × on agenda rows (v1.8.0) — the unguarded lookup threw
+       here and killed the whole page render for any viewer opening a project that has
+       a milestone or note (empty chart, fields never locked). */
+    const del=row.querySelector('.del');
+    if(del)del.addEventListener('click',ev=>{
       ev.stopPropagation();
       if(NPV_LIVE){if(k==='ev')liveDeleteEvent(id);else liveDeleteTodo(id);}
       else{

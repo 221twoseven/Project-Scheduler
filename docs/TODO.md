@@ -504,8 +504,15 @@ rule §5); old data keeps reading fine.
       4. **My Dashboard is a navigation:** entered from a Company Data or project
          page, `enterDash` walks the hash back to `#/` (applyRoute renders) instead
          of arming the dashboard behind the page on screen.
-      Suite: `tests/test-v190.js` (36 checks). Record:
+      Suite: `tests/test-v190.js` (41 checks — extended by v1.9.1). Record:
       `docs/Milestones/2026-09-01-v190-owner-asks.md`.
+      **v1.9.1 follow-up (2026-09-02, owner report from the Viewer toggle):** a
+      viewer opening any project WITH a milestone/note got an empty schedule and
+      unlocked dock fields — a LATENT v1.8.0 bug: viewer agenda rows render no
+      delete ×, but `ppBindInspector` bound it unguarded, and the throw killed the
+      rest of the render (before the chart paint and `viewerLock`). One guard at
+      the shared binding site fixes every path; regression staged in test-v190
+      (viewer + project + agenda rows → chart painted, fields disabled).
 
 - [ ] **13. (Obj 4) Reconcile and absorb the 14 disparate data stores.** The app
       becomes the company's singular source of truth (the v1 "north star", now
@@ -592,6 +599,7 @@ rule §5); old data keeps reading fine.
 | v1.8.0 | ✅ Shipped 2026-09-01 — 12 (permissions: admin/viewer roles + feedback-recipient mail via Graph sendMail) |
 | v1.8.1 | ✅ Shipped 2026-09-01 — 31 (⇕ All walks expansion levels; sort-group headers = dept-header style) + test-v171 gate fix (feature-tied, not version-tied) |
 | v1.9.0 | ✅ Shipped 2026-09-01 — 32 (late-evening owner asks: calendar resize follows across weeks, dock re-layout + User Notes = item 30's personalNotes half, developer Viewer toggle, My Dashboard navigates) ⚠ `personalNotes` column |
+| v1.9.1 | ✅ Shipped 2026-09-02 — v1.8.0 latent bug the Viewer toggle exposed: a viewer opening any project WITH a milestone/note crashed the page render (empty chart, fields never locked) — the agenda-row × is not rendered for viewers but ppBindInspector grabbed it unguarded; guard added, regression checks in test-v190 (41) |
 | v1.9.x | 30 second half (Listening to: two fields on Summary pages) ⚠ — `listeningTo`/`listeningLink` columns, spec delivered |
 | v1.10.0 | 26 (change log) ⚠ — after permissions |
 | v2.0.0 | 13 (single source of truth) ⚠ — likely several minors along the way (one per absorbed store), with v2.0.0 as the cutover declaration |

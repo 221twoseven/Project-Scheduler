@@ -38,7 +38,10 @@ const projects=[{appId:'p1',Title:'Alpha',client:'Acme',jobCode:'J1',deadline:D(
 const tasks=[{appId:'t1',projectId:'p1',department:'fab',assignee:'Sam',
   startDate:D(0),endDate:D(4),estimatedDays:5,ticketNodes:'[]',notes:'',pinned:false,label:''}];
 
-const dom=boot(FILE,{data:{projects,tasks,staff,todos:[]},todosList:true});
+const todos=[{appId:'k1',Title:'Order steel',projectId:'p1',department:'fab',assignees:'[]',
+  dueDate:D(3),startDate:null,progress:'notstarted',priority:'medium',notes:'',createdBy:'',
+  completedOn:null,completedBy:'',sortIndex:0}];
+const dom=boot(FILE,{data:{projects,tasks,staff,todos},todosList:true});
 const win=dom.window,doc=win.document,E=s=>win.eval(s);
 
 setTimeout(main,1300);
@@ -104,6 +107,27 @@ function main(){
   ok('…while the plain guard still blocks a viewer', (()=>{ /* same list back = a people edit attempt */
      E('savePeople(PEOPLE.map(p=>({...p,role:"X"})))');
      return E("PEOPLE.find(p=>p.name==='Sam').role")!=='X';})());
+
+  /* v1.9.1 regression: a viewer opening a project WITH agenda rows must still render.
+     v1.8.0 dropped the × from viewer agenda rows but ppBindInspector grabbed it
+     unguarded — the throw left an empty chart and unlocked fields. */
+  win.location.hash='#/project/p1';
+  win.dispatchEvent(new win.Event('hashchange'));
+  setTimeout(stage1b,400);
+}
+
+function stage1b(){
+  sec('viewer preview: a project with agenda rows still renders locked (v1.9.1)');
+  ok('the project page is up', E('ROUTE.view')==='project');
+  ok('the agenda lists the note row', !!doc.querySelector('#pp-insp .ag-i'));
+  ok('…without a delete × for the viewer', !doc.querySelector('#pp-insp .ag-i .del'));
+  ok('the chart painted (the render survived the binding pass)',
+     doc.getElementById('npv-body').childElementCount>0);
+  ok('viewerLock reached the fields (they render disabled)',
+     [...doc.querySelectorAll('#pp-insp input')].length>0
+     &&[...doc.querySelectorAll('#pp-insp input')].every(i=>i.disabled));
+  win.location.hash='#/';
+  win.dispatchEvent(new win.Event('hashchange'));
   setTimeout(stage2,400);
 }
 
