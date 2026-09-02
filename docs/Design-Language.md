@@ -342,10 +342,24 @@ for every future company master-data section (departments, project types, holida
 - **"Listening to" (v1.12.0, experimental — `exp.listening`).** A personal line in
   the dock header, SUMMARY view only: right-justified muted text
   `listening to|reading|thinking about: Title`, title hyperlinked when a link is set.
-  Edited on your own dashboard through a thought-cloud icon against the dock's
-  bottom-right margin — a field-sized popover that commits once, on close, through
-  the self-row staff save. Empty title or Show off = hidden; the whole feature sits
-  behind the App-settings switch.
+  Edited on your own dashboard through a thought-cloud icon on the User Notes
+  header bar, right-justified (v1.14.0) — a field-sized popover anchored to that
+  section that commits once, on close, through the self-row staff save. Empty title
+  or Show off = hidden; the whole feature sits behind the App-settings switch.
+- **"Not me" (v1.14.0).** The Viewer toggle's sibling: a developer-only, per-tab
+  preview that flips only `dashSelf()`, so the developer's own Summary renders
+  exactly as everyone else sees it (User Notes hidden, the personal line visible).
+  Permissions and identity stay the developer's own — it previews the reading, not
+  another user's session.
+- **People departments are coarser than phase departments (v1.14.0).** The People
+  page speaks a canonical people list (`pdCanon`): DFAB folds the machine-level
+  Digital Fab depts, Finishing folds Pre-Finishing + Painting. Phase departments,
+  the dept lens and stored task rows keep their machine-level ids; legacy people
+  ids read as their canon and heal on save.
+- **People index at-a-glance (v1.14.0):** Name · Title · Phone · Email · Perms ·
+  Status columns under a micro-caps header row; permission chips (DEV / ADMIN / FB)
+  use the token type ramp; checkbox sets render as stacked auto-fill grids, never a
+  free wrap.
 
 ## 8. Print & Meeting Sheet
 

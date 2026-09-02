@@ -167,10 +167,14 @@ body.me-dock-col #md-collapse svg{transform:rotate(180deg)}
    right-justified dark grey text — and the own-dashboard thought-cloud editor. */
 .md-listen{margin-left:auto;font-size:11.5px;color:#5B6B84;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:38%;flex-shrink:1}
 .md-listen a{color:inherit;text-decoration:underline}
-#md-thought{position:absolute;right:10px;bottom:8px;z-index:25;background:none;border:1px solid transparent;border-radius:6px;color:#94A3B8;cursor:pointer;padding:4px;line-height:0}
+/* v1.14.0: the thought cloud sits ON the User Notes header bar, right-justified;
+   its popover anchors to that section. */
+#me-dock .ins-sec[data-sec=notes]{position:relative}
+#me-dock .ins-sec[data-sec=notes] h4{display:flex;align-items:center}
+#md-thought{margin-left:auto;background:none;border:1px solid transparent;border-radius:6px;color:#94A3B8;cursor:pointer;padding:2px 4px;line-height:0}
 #md-thought:hover{color:var(--acc);border-color:#CBD6E4}
-#md-thought svg{width:16px;height:16px;display:block}
-#md-tpop{position:absolute;right:10px;bottom:36px;z-index:40;background:#fff;border:1px solid #CBD5E1;border-radius:10px;box-shadow:0 8px 24px rgba(15,23,42,.18);padding:10px;display:flex;flex-direction:column;gap:6px;width:232px}
+#md-thought svg{width:15px;height:15px;display:block}
+#md-tpop{position:absolute;right:8px;top:28px;z-index:40;background:#fff;border:1px solid #CBD5E1;border-radius:10px;box-shadow:0 8px 24px rgba(15,23,42,.18);padding:10px;display:flex;flex-direction:column;gap:6px;width:232px}
 #md-tpop.hidden{display:none}
 #md-tpop select,#md-tpop input[type=text],#md-tpop input[type=url]{font-family:inherit;font-size:12px;padding:5px 7px;border:1px solid #CBD6E4;border-radius:6px;color:#33415A;width:100%}
 #md-tpop label{display:flex;gap:6px;align-items:center;font-size:11.5px;color:#5B6B84;cursor:pointer}
@@ -1130,7 +1134,14 @@ body.cd-route #dash-bar{display:none!important}
 .cd-sub{font-size:12px;color:#7488A3}
 .cd-head .btn{margin-left:auto}
 .cd-body{flex:1;display:flex;min-height:0}
-.cd-list{width:44%;min-width:320px;max-width:560px;border-right:1px solid #E2E8F0;display:flex;flex-direction:column;min-height:0}
+/* v1.14.0: the people index carries at-a-glance columns (title/phone/email/perms) —
+   the pane earns more width for them. */
+.cd-list{width:56%;min-width:320px;max-width:820px;border-right:1px solid #E2E8F0;display:flex;flex-direction:column;min-height:0}
+.cd-cols{display:grid;gap:4px 12px;align-items:center;padding:6px 14px 4px;
+  font-size:var(--fs-fine);font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#94A3B8;border-bottom:1px solid #EDF1F7}
+.cd-cols,.cd-row.pp6{grid-template-columns:minmax(0,1.05fr) minmax(0,.9fr) minmax(0,.7fr) minmax(0,1.15fr) minmax(52px,auto) auto}
+.cd-perm{font-family:var(--mono);font-size:var(--fs-fine);font-weight:700;letter-spacing:.06em;color:#3B6FB5;background:#EAF1FB;border-radius:5px;padding:0 4px;margin-right:3px}
+.cd-perm.dev{color:#7C4FB0;background:#F2EBFA}
 .cd-tools{display:flex;gap:8px;padding:10px 14px;border-bottom:1px solid #EDF2F7}
 .cd-tools input,.cd-tools select{font-family:inherit;font-size:12px;padding:5px 8px;border:1px solid #CBD6E4;border-radius:6px;color:#33415A;min-width:0}
 .cd-tools input{flex:1}
@@ -1158,7 +1169,8 @@ body.cd-route #dash-bar{display:none!important}
 .cd-fg{margin-top:12px}
 .cd-fg label{display:block;font-size:var(--fs-micro);font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#A3B1C4;margin-bottom:3px}
 .cd-fg input{width:100%;max-width:420px;font-family:inherit;font-size:12.5px;padding:6px 9px;border:1px solid #CBD6E4;border-radius:6px;color:#16202E}
-.cd-depts{display:flex;gap:14px;flex-wrap:wrap}
+/* v1.14.0 (owner): checkbox sets read as tidy stacked columns, not a free wrap */
+.cd-depts{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px 16px}
 .cd-depts label{display:flex;align-items:center;gap:5px;font-size:12.5px;color:#33415A;
   text-transform:none;letter-spacing:0;font-weight:400;margin-bottom:0}
 .cd-ooo-row{display:flex;gap:6px;align-items:center;margin-top:5px}
@@ -1224,6 +1236,7 @@ body.cd-route #dash-bar{display:none!important}
     </div>
     <span class="tb-spacer"></span>
     <button id="tb-devview" class="t-btn hidden" title="Developer preview — see the app exactly as a non-admin viewer sees it">Viewer</button>
+    <button id="tb-notme" class="t-btn hidden" title="Developer preview — browse as if you were someone else: your own Summary shows exactly as other people see it (User Notes hidden, the Listening-to line visible)">Not me</button>
     <span id="tb-user" class="hidden" title="Who you're signed in as"></span>
     <span id="tb-rev" title="App version — the build this tab is running">v</span>
     <span id="sync-pill" class="busy" title="Shows whether your changes are saved to SharePoint — click to retry after an error">● connecting…</span>
@@ -1478,7 +1491,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.13.1'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.14.0'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -2613,6 +2626,9 @@ function applyPerms(){
   /* v1.9.0: the Viewer toggle lives on every route's toolbar, developers only. */
   {const dv=document.getElementById('tb-devview');
    if(dv){dv.classList.toggle('hidden',!isDeveloper());dv.classList.toggle('active',DEV_VIEW&&isDeveloper());}}
+  /* v1.14.0: the "Not me" identity preview rides the same developer gate. */
+  {const nm=document.getElementById('tb-notme');
+   if(nm){nm.classList.toggle('hidden',!isDeveloper());nm.classList.toggle('active',DEV_NOTME&&isDeveloper());}}
   /* v1.10.0 (owner ask 09-02): the signed-in name next to the status pill, with a
      DEV / ADMIN chip. The chip reads the account's REAL access — it doesn't flip
      while the Viewer preview is on (the lit Viewer button already says that). */
@@ -3045,7 +3061,13 @@ function dashOn(){return !!PERSON&&!(typeof ROUTE!=='undefined'&&ROUTE&&ROUTE.vi
 /* v1.6.2: the same view serves two readings — MY dashboard when the person is the
    signed-in identity, and a plain workload summary when it's someone else. Mechanics
    are identical; only the naming and the toolbar button's lit state differ. */
-function dashSelf(){return dashOn()&&PERSON===(meName()||rememberedMe());}
+/* v1.14.0 (owner): the developer's "Not me" preview — while on, your own summary
+   reads as ANOTHER person's Summary (dashSelf answers false), so the dev can see
+   what everyone else sees. Per-tab, like the Viewer toggle; identity/permissions
+   stay yours — only the self-reading flips. */
+let DEV_NOTME=false;
+try{DEV_NOTME=sessionStorage.getItem('shopTimelineDevNotMe')==='1';}catch(e){}
+function dashSelf(){return dashOn()&&!(DEV_NOTME&&isDeveloper())&&PERSON===(meName()||rememberedMe());}
 function renderDashBar(){
   const on=dashOn();
   document.body.classList.toggle('dash-on',on);
@@ -3095,7 +3117,7 @@ function renderMeDock(){
     +'<span class="md-when">'+(t.due?fmtNice(t.due):'no date')+'</span></div>';
   const ooRow=o=>'<div class="md-row"><span class="md-main">'+esc(o.note||'Out of office')+'</span>'
     +'<span class="md-when">'+fmtNice(o.start)+' → '+fmtNice(o.end)+'</span></div>';
-  const deptLbl=(per.depts||[]).map(d=>{const m=SM_DEPTS.find(x=>x[0]===d);return m?m[1]:d;}).join(', ');
+  const deptLbl=[...new Set((per.depts||[]).map(pdCanon))].map(d=>{const m=SM_DEPTS.find(x=>x[0]===d);return m?m[1]:d;}).join(', ');
   const sec2=(title,n,inner)=>'<div class="ins-sec"><h4>'+title+'<span class="n">'+n+'</span></h4><div class="in">'+inner+'</div></div>';
   dk.innerHTML=
     /* v1.2.0: the trail (and the ×) moved to the #dash-bar up top — this header is
@@ -3132,25 +3154,30 @@ function renderMeDock(){
     +'</div>'
     +sec2('Milestones',checkpoints.length,cap(checkpoints,evRow))
     +sec2('Notes',tasks.length,cap(tasks,tkRow))
+    /* v1.12.0 thought-cloud editor; v1.14.0 (owner): it lives ON the User Notes
+       header bar, right-justified, with its popover anchored to that section. It
+       commits ONCE, when it closes. */
     +(dashSelf()&&per.id
-      ?'<div class="ins-sec" data-sec="notes"><h4>User Notes</h4><div class="in">'
+      ?'<div class="ins-sec" data-sec="notes"><h4>User Notes'
+        +(CFG['exp.listening']
+          ?'<button id="md-thought" title="What you\'re listening to, reading or thinking about — shown in the header of your Summary page">'
+            +'<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.3 10.8A2.6 2.6 0 0 1 3.8 6.2a3.3 3.3 0 0 1 6.4-1 2.7 2.7 0 0 1 2 5.6z"/><circle cx="4.7" cy="12.7" r=".9"/><circle cx="3" cy="14.4" r=".55"/></svg></button>'
+          :'')
+        +'</h4>'
+        +(CFG['exp.listening']
+          ?'<div id="md-tpop" class="hidden">'
+            +'<select id="lt-verb" title="How the line reads">'+['listening to','reading','thinking about'].map(v=>'<option'+((per.listeningVerb||'listening to')===v?' selected':'')+'>'+v+'</option>').join('')+'</select>'
+            +'<input id="lt-title" type="text" placeholder="Title" value="'+esc(per.listeningTo==null?'':per.listeningTo)+'">'
+            +'<input id="lt-link" type="url" placeholder="Link (optional)" value="'+esc(per.listeningLink==null?'':per.listeningLink)+'">'
+            +'<label><input id="lt-show" type="checkbox"'+(per.listeningShow?' checked':'')+'> Show on my Summary</label>'
+          +'</div>'
+          :'')
+        +'<div class="in">'
         +'<textarea class="ins-notes" id="md-unotes" placeholder="Anything you want to keep next to your schedule — saved to your staff row.">'
         +esc(per.personalNotes==null?'':per.personalNotes)+'</textarea>'
       +'</div></div>'
       :'')
-    +'</div>'
-    /* v1.12.0: the thought-cloud editor — own dashboard only, bottom-right margin.
-       One small popover holds every field; it commits ONCE, when it closes. */
-    +(CFG['exp.listening']&&dashSelf()&&per.id
-      ?'<button id="md-thought" title="What you\'re listening to, reading or thinking about — shown in the header of your Summary page">'
-        +'<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.3 10.8A2.6 2.6 0 0 1 3.8 6.2a3.3 3.3 0 0 1 6.4-1 2.7 2.7 0 0 1 2 5.6z"/><circle cx="4.7" cy="12.7" r=".9"/><circle cx="3" cy="14.4" r=".55"/></svg></button>'
-      +'<div id="md-tpop" class="hidden">'
-        +'<select id="lt-verb" title="How the line reads">'+['listening to','reading','thinking about'].map(v=>'<option'+((per.listeningVerb||'listening to')===v?' selected':'')+'>'+v+'</option>').join('')+'</select>'
-        +'<input id="lt-title" type="text" placeholder="Title" value="'+esc(per.listeningTo==null?'':per.listeningTo)+'">'
-        +'<input id="lt-link" type="url" placeholder="Link (optional)" value="'+esc(per.listeningLink==null?'':per.listeningLink)+'">'
-        +'<label><input id="lt-show" type="checkbox"'+(per.listeningShow?' checked':'')+'> Show on my Summary</label>'
-      +'</div>'
-      :'');
+    +'</div>';
   {const la=dk.querySelector('.md-listen a');
    if(la)la.href=/^https?:\/\//i.test(per.listeningLink)?per.listeningLink:'https://'+per.listeningLink;}
   document.getElementById('md-collapse').addEventListener('click',()=>{
@@ -4155,11 +4182,20 @@ document.getElementById('tm-del').addEventListener('click',()=>{
    are unchanged — a save clones the shared list, swaps one record, and funnels
    through savePeople()/saveClients() exactly as the batch modals did. */
 /* v1.10.0 (owner ask 09-02): the People page offers the COMPREHENSIVE department
-   list — the same DEPTS the project-edit phase picker uses — not a 3-dept subset.
-   Derived, so the two can never drift again (fires the REV90 §7 ledger gate on the
-   duplicated dept ids). Free-text "Other" buckets aren't departments a person can
-   belong to. */
-const SM_DEPTS=DEPTS.filter(d=>!d.freeText).map(d=>[d.id,d.name]);
+   list — derived from the same DEPTS the phase picker uses, so the two can never
+   drift (fires the REV90 §7 ledger gate). Free-text "Other" buckets aren't
+   departments a person can belong to.
+   v1.14.0 (owner 09-02 PM): a PERSON's department is coarser than a phase's — the
+   machine-level Digital Fab depts read as ONE "DFAB", Pre-Finishing + Painting as
+   ONE "Finishing". pdCanon folds legacy stored ids into the canonical people ids;
+   PHASE departments (DEPTS) are untouched — shared task rows keep their ids. */
+const PD_ALIAS={cnc:'dfab',beamsaw:'dfab','3dprint':'dfab',laser:'dfab',print:'dfab',prefinish:'finish'};
+const pdCanon=id=>PD_ALIAS[id]||id;
+const PD_LBL={dfab:'DFAB',finish:'Finishing'};
+const SM_DEPTS=(()=>{const seen=new Set(),out=[];
+  for(const d of DEPTS){if(d.freeText)continue;const id=pdCanon(d.id);
+    if(seen.has(id))continue;seen.add(id);out.push([id,PD_LBL[id]||d.name]);}
+  return out;})();
 let CD_Q='',CD_DEPT='all',CD_SEL=null,CD_EDIT=null;
 
 function goPeople(){location.hash='#/people';}
@@ -4225,17 +4261,19 @@ function ecNorm(k){return String(k).toLowerCase().replace(/_x0020_/g,'').replace
 function ecField(map,names){for(const n of names){const v=map[n];if(v!=null&&String(v).trim()!=='')return String(v).trim();}return '';}
 function ecDept(s){
   const n=String(s||'').trim().toLowerCase();if(!n)return null;
-  const d=DEPTS.find(x=>!x.freeText&&x.name.toLowerCase()===n);if(d)return d.id;
-  const g=GROUPS.find(x=>x.label.toLowerCase()===n);if(g)return grpDepts(g.id)[0];
+  const d=DEPTS.find(x=>!x.freeText&&x.name.toLowerCase()===n);if(d)return pdCanon(d.id);
+  const g=GROUPS.find(x=>x.label.toLowerCase()===n);if(g)return pdCanon(grpDepts(g.id)[0]);
   const alias={'installation':'install','installs':'install','installers':'install',
     'fabrication':'fab','shop':'fab','main shop':'fab','wood shop':'fab','woodshop':'fab',
     'office':'pm','project management':'pm','pm':'pm','administration':'pm','admin':'pm',
     'design':'td','drafting':'td','engineering':'td',
     'paint':'finish','painting':'finish',
     'metal':'metal','welding':'metal',
-    'digital fabrication':'cnc','digital fab':'cnc',
+    'digital fabrication':'dfab','digital fab':'dfab','dfab':'dfab',
     'soft goods':'softgoods','sewing':'softgoods'};
-  return alias[n]||null;
+  /* v1.14.0: person departments are the coarse people list (DFAB, Finishing…) */
+  const hit=alias[n]||null;
+  return hit?pdCanon(hit):null;
 }
 async function cdImportEC(btn){
   if(btn.disabled)return;btn.disabled=true;
@@ -4246,16 +4284,33 @@ async function cdImportEC(btn){
     /* status only syncs once the owner-created column exists — probe, don't 400 */
     let hasStatus=false;
     try{const cols=await gpageAll(listUrl(LIST_STAFF)+'/columns');hasStatus=cols.some(c=>c.name==='status');}catch(e){}
+    /* v1.14.0 (owner report: nothing autofilled): SharePoint INTERNAL names rarely
+       match the display names on old lists (columns created from grid views come
+       back as field_3, OData_x005f… and worse) — item fields key on internals, so
+       matching internals alone read every data column as empty. Resolve through the
+       list's column definitions: displayName → internal, then read by BOTH. */
+    let ecCols=[];
+    try{ecCols=await gpageAll(listUrl(encodeURIComponent(LIST_EC))+'/columns');}catch(e){}
+    const disp={};for(const c of ecCols)if(c.name&&c.displayName)disp[ecNorm(c.name)]=ecNorm(c.displayName);
+    console.log('[import] Employee Contacts columns (internal → display):',
+      ecCols.map(c=>c.name+' → '+c.displayName));
     const recs=rows.map(it=>{
-      const m={};for(const k in it.fields)m[ecNorm(k)]=it.fields[k];
-      return{name:ecField(m,['employeename','title']),
-        status:ecField(m,['status']),
+      const m={};
+      for(const k in it.fields){const nk=ecNorm(k);
+        if(m[nk]==null)m[nk]=it.fields[k];
+        const dk=disp[nk];if(dk&&m[dk]==null)m[dk]=it.fields[k];}
+      return{name:ecField(m,['employeename','title','name']),
+        status:ecField(m,['status','employmentstatus']),
         email:ecField(m,['email','workemail']).toLowerCase(),
         phone:ecField(m,['primaryphone','phone','mobilephone']),
-        title:ecField(m,['currenttitle','jobtitle']),
+        title:ecField(m,['currenttitle','jobtitle','position']),
         dept:ecField(m,['department'])};
     }).filter(r=>r.name);
     if(!recs.length){toast('Employee Contacts returned no rows with a name — nothing to import.','err');return;}
+    if(recs.every(r=>!r.title&&!r.phone&&!r.status&&!r.dept&&!r.email)){
+      toast('Employee Contacts rows were found but none of the expected columns (Status, Email, Primary Phone, Current Title, Department) could be read — the column list is in the browser console (F12).','err');
+      return;
+    }
     const adds=[],updates=[],skipped=[],unmapped=[];
     for(const r of recs){
       const match=(r.email&&PEOPLE.find(p=>String(p.email||'').trim().toLowerCase()===r.email))
@@ -4278,7 +4333,7 @@ async function cdImportEC(btn){
       }
     }
     console.log('[import] Employee Contacts →',{adds,updates,skipped,unmapped});
-    if(!adds.length&&!updates.length){toast('The roster already mirrors Employee Contacts — nothing to change.');return;}
+    if(!adds.length&&!updates.length){toast('The roster already mirrors Employee Contacts — nothing to change. (Row-by-row detail is in the browser console — F12.)');return;}
     const cap=(a,n)=>a.slice(0,n).join('\n  ')+(a.length>n?'\n  …and '+(a.length-n)+' more':'');
     const msg='Mirror Employee Contacts into the roster?\n\n'
       +(adds.length?'ADD '+adds.length+' active employee'+(adds.length===1?'':'s')+':\n  '+cap(adds.map(a=>a.name+(a.role?' — '+a.role:'')),12)+'\n\n':'')
@@ -4316,7 +4371,7 @@ function cdClientProjects(name){
   const all=(ST.projects||[]).filter(p=>(p.client||'').trim()===name);
   return{total:all.length,current:all.filter(p=>projectStatus(p)!=='complete').length};
 }
-function cdDeptLbl(id){const m=SM_DEPTS.find(x=>x[0]===id);return m?m[1]:id;}
+function cdDeptLbl(id){const m=SM_DEPTS.find(x=>x[0]===pdCanon(id));return m?m[1]:id;}
 
 function renderCompanyPage(){
   const isPeople=ROUTE.view==='people';
@@ -4347,7 +4402,9 @@ function renderCompanyPage(){
    +'<input id="cd-q" type="text" placeholder="Search '+(isPeople?'people':'clients')+'…">'
    +(isPeople?'<select id="cd-dept" title="Show one department"><option value="all">All departments</option>'
       +SM_DEPTS.map(d=>'<option value="'+d[0]+'"'+(CD_DEPT===d[0]?' selected':'')+'>'+esc(d[1])+'</option>').join('')+'</select>':'')
-   +'</div><div class="cd-rows" id="cd-rows"></div></div>'
+   +'</div>'
+   +(isPeople?'<div class="cd-cols"><span>Name</span><span>Title</span><span>Phone</span><span>Email</span><span>Perms</span><span>Status</span></div>':'')
+   +'<div class="cd-rows" id="cd-rows"></div></div>'
    +'<div class="cd-detail" id="cd-detail"></div></div></div>';
   pg.innerHTML=h;
   const q=document.getElementById('cd-q');q.value=CD_Q;
@@ -4376,13 +4433,23 @@ function cdPaintRows(){
   const qq=CD_Q.trim().toLowerCase();
   let rows;
   if(isPeople){
+    /* v1.14.0 (owner): at-a-glance columns — title, phone, email, permissions.
+       Departments left the row (the filter above still slices by them; the record
+       pane lists them) to make the glanceable four fit. */
     rows=[...PEOPLE].sort((a,b)=>a.name.localeCompare(b.name))
-     .filter(p=>CD_DEPT==='all'||(p.depts||[]).includes(CD_DEPT))
-     .filter(p=>!qq||[p.name,p.role,p.email].some(v=>String(v||'').toLowerCase().includes(qq)))
+     .filter(p=>CD_DEPT==='all'||(p.depts||[]).map(pdCanon).includes(CD_DEPT))
+     .filter(p=>!qq||[p.name,p.role,p.email,p.phone].some(v=>String(v||'').toLowerCase().includes(qq)))
      .map(p=>{const av=cdAvail(p);
-       return '<div class="cd-row'+(CD_SEL===p.id?' sel':'')+'" data-id="'+esc(p.id)+'">'
+       const perm=permsLive()
+         ?(p.developer?'<span class="cd-perm dev" title="Developer — full admin + the preview toggles">DEV</span>'
+           :p.admin?'<span class="cd-perm" title="Admin — full edit access">ADMIN</span>':'')
+          +(p.feedbackRecipient?'<span class="cd-perm" title="Receives bug reports and ideas">FB</span>':'')
+         :'';
+       return '<div class="cd-row pp6'+(CD_SEL===p.id?' sel':'')+'" data-id="'+esc(p.id)+'">'
         +'<b>'+esc(p.name)+'</b><span class="cd-mut">'+esc(p.role||'')+'</span>'
-        +'<span class="cd-mut">'+esc((p.depts||[]).map(cdDeptLbl).join(', '))+'</span>'
+        +'<span class="cd-mut">'+esc(p.phone||'')+'</span>'
+        +'<span class="cd-mut">'+esc(p.email||'')+'</span>'
+        +'<span>'+perm+'</span>'
         +'<span class="cd-avail'+(av.now?' away':'')+'">'+esc(av.txt)+'</span></div>';});
   }else{
     rows=[...CLIENTS].sort((a,b)=>a.name.localeCompare(b.name))
@@ -4417,7 +4484,7 @@ function cdPaintDetail(){
      +'<div class="cdd-f"><dt>Phone</dt><dd>'+(per.phone?esc(per.phone):'—')+'</dd></div>'
      /* v1.13.0: employment status, mirrored from Employee Contacts (read as information) */
      +(per.status?'<div class="cdd-f"><dt>Status</dt><dd>'+esc(per.status)+'</dd></div>':'')
-     +'<div class="cdd-f"><dt>Departments</dt><dd>'+((per.depts||[]).map(d=>esc(cdDeptLbl(d))).join(' · ')||'—')+'</dd></div>'
+     +'<div class="cdd-f"><dt>Departments</dt><dd>'+([...new Set((per.depts||[]).map(pdCanon))].map(d=>esc(cdDeptLbl(d))).join(' · ')||'—')+'</dd></div>'
      +'<div class="cdd-f"><dt>Availability</dt><dd>'
        +'<span class="cd-avail'+(av.now?' away':'')+'">'+esc(av.now?av.txt:'Available')+'</span>'
        +(upcoming.length?upcoming.map(o=>'<div class="cdd-ooo"><span>'+fmtNice(o.start)+' – '+fmtNice(o.end)+'</span>'+(o.note?'<span class="n">'+esc(o.note)+'</span>':'')+'</div>').join(''):'<div class="cdd-ooo"><span class="n">No upcoming time off</span></div>')
@@ -4489,10 +4556,12 @@ function cdPaintEditor(el,isPeople){
     const dp=document.getElementById('cde-depts');
     for(const[did,lbl]of SM_DEPTS){
       const lb=document.createElement('label');
-      const ck=document.createElement('input');ck.type='checkbox';ck.checked=(r.depts||[]).includes(did);
+      /* v1.14.0: checkboxes speak canonical people-dept ids — legacy stored ids
+         (cnc, prefinish, …) read as their canon and are rewritten on toggle. */
+      const ck=document.createElement('input');ck.type='checkbox';ck.checked=(r.depts||[]).map(pdCanon).includes(did);
       ck.addEventListener('change',()=>{r.depts=r.depts||[];
-        if(ck.checked){if(!r.depts.includes(did))r.depts.push(did);}
-        else r.depts=r.depts.filter(x=>x!==did);});
+        if(ck.checked){if(!r.depts.map(pdCanon).includes(did))r.depts.push(did);}
+        else r.depts=r.depts.filter(x=>pdCanon(x)!==did);});
       lb.appendChild(ck);lb.appendChild(document.createTextNode(lbl));
       dp.appendChild(lb);
     }
@@ -4542,7 +4611,7 @@ function cdPaintEditor(el,isPeople){
 function cdSavePerson(){
   const r=CD_EDIT;if(!r)return;
   const per={id:r.id,name:(r.name||'').trim(),email:(r.email||'').trim(),phone:(r.phone||'').trim(),role:(r.role||'').trim(),
-    depts:r.depts||[],
+    depts:[...new Set((r.depts||[]).map(pdCanon))], /* v1.14.0: saves heal legacy machine-level ids */
     ooo:(r.ooo||[]).filter(o=>o.start&&o.end).map(o=>o.end>=o.start?o:{...o,start:o.end,end:o.start}),
     /* v1.8.0: the flags ride through every save (tristate — null means the row never
        carried the column and personToFields omits it). v1.9.0: developer and
@@ -8832,6 +8901,14 @@ document.getElementById('tb-devview').addEventListener('click',()=>{
   toast(DEV_VIEW?'Previewing as a viewer — every edit door is closed. Click Viewer again to return.':'Back to your admin view.');
   render();
 });
+/* v1.14.0: the "Not me" preview — flips only dashSelf(), so your Summary renders
+   the way it does for everyone else (per tab, like the Viewer toggle). */
+document.getElementById('tb-notme').addEventListener('click',()=>{
+  DEV_NOTME=!DEV_NOTME;
+  try{sessionStorage.setItem('shopTimelineDevNotMe',DEV_NOTME?'1':'0');}catch(e){}
+  toast(DEV_NOTME?'Browsing as someone else — your own Summary now reads the way others see it. Click Not me again to return.':'Back to being yourself.');
+  render();
+});
 /* v1.2.0 (obj 1): the dashboard bar's two exits — the crumb and the × — both unwind
    to the full timeline, same as the project page's trail. */
 document.getElementById('db-all').addEventListener('click',()=>exitDash());
@@ -8954,6 +9031,10 @@ const COACH_PP_STEPS=[
   {sel:'.pg-auto',t:'Everything saves itself',
    b:'Edits file to SharePoint as you make them — the pill in the toolbar shows sync. Done just takes you back to the timeline.'}
 ];
+/* v1.14.0 (owner): the chained tour reads as ONE tour — "STEP n OF total" counts
+   across both pages. The chain always lands on a DRAFT, which shows every project
+   step except the saved-page autosave one, so the second half's length is known. */
+const COACH_PP_DRAFT_N=COACH_PP_STEPS.filter(s=>s.sel!=='.pg-auto').length;
 let COACH=null; /* null = off; else {steps,i} */
 /* v1.10.0: chain-step wiring — the overlay lets clicks through, a capture guard
    swallows everything except the highlighted target (and the card), and clicking the
@@ -8982,14 +9063,16 @@ function coachShow(){
   if(s.chain){
     document.getElementById('coach').classList.add('chain');
     const el=document.querySelector(s.sel);
-    const fn=()=>{coachEnd();setTimeout(()=>coachStart(COACH_PP_STEPS),450);};
+    /* the project half continues the count where the home half leaves off */
+    const fn=()=>{const b=COACH?COACH.steps.length:0;
+      coachEnd();setTimeout(()=>coachStart(COACH_PP_STEPS,b),450);};
     el.addEventListener('click',fn);
     COACH_CHAIN={el,fn,sel:s.sel};
   }
   const pad=6;
   hole.style.left=(r.left-pad)+'px';hole.style.top=(r.top-pad)+'px';
   hole.style.width=(r.width+pad*2)+'px';hole.style.height=(r.height+pad*2)+'px';
-  document.getElementById('coach-step').textContent='STEP '+(COACH.i+1)+' OF '+COACH.steps.length;
+  document.getElementById('coach-step').textContent='STEP '+((COACH.base||0)+COACH.i+1)+' OF '+(COACH.total||COACH.steps.length);
   document.getElementById('coach-title').textContent=s.t;
   document.getElementById('coach-body').textContent=s.b;
   document.getElementById('coach-back').disabled=COACH.i===0;
@@ -9004,14 +9087,17 @@ function coachShow(){
   else ct=Math.max(12,r.top+pad+12);
   card.style.left=cl+'px';card.style.top=ct+'px';
 }
-function coachStart(stepList){
+function coachStart(stepList,base){
   /* Chain steps ask the user to press an edit door — viewers don't have it (the
      button is display:none under body.viewer), so their tour simply ends a step
      earlier. */
   const steps=(stepList||COACH_STEPS).filter(s=>document.querySelector(s.sel)&&!(s.chain&&isViewer()));
   if(!steps.length)return;
   try{localStorage.setItem(COACH_KEY,'1');}catch(e){} /* even an abandoned tour never nags twice */
-  COACH={steps,i:0};
+  /* v1.14.0: one continuous count across the chained halves — `base` is how many
+     steps the previous half showed; a surviving chain step promises the draft half. */
+  COACH={steps,i:0,base:base||0,
+    total:(base||0)+steps.length+(steps.some(s=>s.chain)?COACH_PP_DRAFT_N:0)};
   closeMenus();
   document.getElementById('coach').classList.remove('hidden');
   coachShow();

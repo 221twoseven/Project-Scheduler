@@ -48,9 +48,16 @@ setTimeout(main,1300);
 
 function main(){
   sec('v1.10.0 — departments: one comprehensive list + Logistics');
-  ok('SM_DEPTS derives from DEPTS (no free-text buckets)',
-     E('SM_DEPTS.length')===E("DEPTS.filter(d=>!d.freeText).length")
-     &&E("SM_DEPTS.every(m=>{const d=deptById(m[0]);return d&&d.name===m[1];})"));
+  /* v1.14.0: people departments are the COARSE list — DFAB folds the machine-level
+     Digital Fab depts, Finishing folds Pre-Finishing + Painting (pdCanon). */
+  ok('SM_DEPTS derives from DEPTS (canonical, no free-text buckets)',
+     E('SM_DEPTS.length')===E("new Set(DEPTS.filter(d=>!d.freeText).map(d=>pdCanon(d.id))).size")
+     &&E("SM_DEPTS.every(m=>m[0]===pdCanon(m[0]))"));
+  ok('DFAB and Finishing fold their machine-level depts',
+     E("SM_DEPTS.some(m=>m[0]==='dfab'&&m[1]==='DFAB')")
+     &&E("SM_DEPTS.some(m=>m[0]==='finish'&&m[1]==='Finishing')")
+     &&E("pdCanon('cnc')")==='dfab'&&E("pdCanon('prefinish')")==='finish'
+     &&E("SM_DEPTS.every(m=>!['cnc','beamsaw','3dprint','laser','print','prefinish'].includes(m[0]))"));
   ok('Logistics is a department, group and lens section',
      E("!!deptById('logistics')")&&E("GROUPS.some(g=>g.id==='logi')")
      &&E("SECTIONS.some(s=>s.kind==='dept'&&s.id==='logistics')"));
@@ -60,9 +67,9 @@ function main(){
   const tu=doc.getElementById('tb-user');
   ok('the name shows', !tu.classList.contains('hidden')&&/Sam/.test(tu.textContent));
   ok('the developer wears a DEV chip', !!tu.querySelector('.tb-acc.dev'));
-  ok('it sits between the Viewer toggle and the version',
-     doc.getElementById('tb-devview').nextElementSibling===tu
-     &&tu.nextElementSibling===doc.getElementById('tb-rev'));
+  ok('it sits in the dev cluster ahead of the version number',
+     tu.nextElementSibling===doc.getElementById('tb-rev')
+     &&doc.getElementById('tb-devview').parentElement===tu.parentElement);
 
   sec('v1.10.0 — dock re-layout: Time off under Working on, own columns back');
   E("enterDash('Sam')");
@@ -75,12 +82,24 @@ function main(){
      &&/Milestones/.test(h4(secs[1]))&&/Notes/.test(h4(secs[2]))&&/User Notes/.test(h4(secs[3])));
   E('exitDash()');
 
+  sec('v1.14.0 — Not me: your own Summary as others see it');
+  E('DEV_NOTME=true');
+  E("enterDash('Sam')");
+  ok('dashSelf answers false and User Notes hides while Not me is on',
+     E('dashSelf()')===false&&!doc.getElementById('md-unotes')
+     &&/Summary · Sam/.test(doc.getElementById('db-name').textContent));
+  ok('the toggle rides the dev cluster', !doc.getElementById('tb-notme').classList.contains('hidden'));
+  E('DEV_NOTME=false');E('exitDash()');
+
   sec('v1.10.0 — the wordmark goes home');
   ok('the wordmark is a button', doc.getElementById('tb-home').tagName==='BUTTON');
   win.location.hash='#/people';
   win.dispatchEvent(new win.Event('hashchange'));
   setTimeout(()=>{
     ok('…from the People page', E('ROUTE.view')==='people');
+    ok('the people index carries the at-a-glance columns (v1.14.0)',
+       [...doc.querySelectorAll('.cd-cols span')].map(s=>s.textContent).join(',')==='Name,Title,Phone,Email,Perms,Status'
+       &&doc.querySelector('.cd-row.pp6').children.length===6);
     doc.getElementById('tb-home').click();
     win.dispatchEvent(new win.Event('hashchange'));
     setTimeout(()=>{
@@ -228,6 +247,10 @@ function stageTour(){
      E("COACH_STEPS[COACH_STEPS.length-1].sel")==='#btn-new-proj'
      &&E("COACH_STEPS[COACH_STEPS.length-1].chain")===true);
   E('coachStart()');
+  const homeN=E('COACH.steps.length');
+  ok('one continuous count across both halves (v1.14.0)',
+     E('COACH.total')===homeN+E('COACH_PP_DRAFT_N')
+     &&doc.getElementById('coach-step').textContent==='STEP 1 OF '+E('COACH.total'));
   E('COACH.i=COACH.steps.length-1;coachShow()');
   ok('the chain step: overlay class on, Next hidden by it',
      doc.getElementById('coach').classList.contains('chain'));
@@ -239,6 +262,8 @@ function stageTour(){
        E('COACH!==null')&&E("COACH.steps[0].sel")==='.pg-trail'
        &&!doc.getElementById('coach').classList.contains('hidden')
        &&!doc.getElementById('coach').classList.contains('chain'));
+    ok('…continuing the count where the home half stopped (v1.14.0)',
+       doc.getElementById('coach-step').textContent==='STEP '+(homeN+1)+' OF '+E('COACH.total'));
     E('coachEnd()');
     console.log('\ntest-v1100: '+pass+' passed, '+fail+' failed');
     process.exit(fail?1:0);

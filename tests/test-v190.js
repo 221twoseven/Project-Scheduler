@@ -69,11 +69,14 @@ function main(){
 
   sec('the Viewer toggle: developers preview the non-admin app');
   ok('the toggle shows for the developer', !doc.getElementById('tb-devview').classList.contains('hidden'));
-  /* v1.10.0 inserted the signed-in #tb-user badge between the toggle and the version */
-  const nxt=doc.getElementById('tb-devview').nextElementSibling;
-  ok('…and sits in the global toolbar row next to the version number',
-     nxt===doc.getElementById('tb-rev')||(nxt===doc.getElementById('tb-user')
-       &&nxt.nextElementSibling===doc.getElementById('tb-rev')));
+  /* v1.10.0 added #tb-user, v1.14.0 #tb-notme — the toggle leads the dev cluster
+     that ends at the version number; walk the chain instead of pinning a neighbor */
+  ok('…and sits in the global toolbar row next to the version number',(()=>{
+     let el=doc.getElementById('tb-devview');
+     for(let i=0;i<4&&el;i++){el=el.nextElementSibling;
+       if(el===doc.getElementById('tb-rev'))return true;
+       if(el&&el.id!=='tb-notme'&&el.id!=='tb-user')return false;}
+     return false;})());
   ok('admin before the toggle', E('isAdmin()')===true);
   E('DATE_LOCK=false');
   doc.getElementById('tb-devview').click();

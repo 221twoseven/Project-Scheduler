@@ -559,6 +559,30 @@ rule §5); old data keeps reading fine.
       import run makes every Employee-Contacts email pair with a roster row —
       unmatched sign-ins remain viewers with an unresolved dashboard.
 
+- [x] **37. (09-02 afternoon review) Fixes + follow-ups on the morning batch — DONE
+      2026-09-02 (v1.14.0).** From the owner's live test of v1.10–13 on /preview/:
+      - **Import actually autofills now** (the owner's report: "already mirrors —
+        nothing changed"): the HR list's INTERNAL column names don't match their
+        display names (grid-created columns come back as `field_N`), so the v1.13.0
+        matcher read every data column as empty. The import now fetches the EC
+        list's column definitions and resolves display name → internal, reading by
+        both; a loud toast fires when rows exist but no expected column resolves,
+        and the column map always prints to the console.
+      - **One tour, one count:** "STEP n OF total" counts across both chained
+        halves (home 7 + draft 6 = 13; the second half continues at STEP 8).
+      - **Thought-cloud icon** moved onto the User Notes header bar,
+        right-justified; the popover anchors to that section.
+      - **"Not me" toggle** (dev-only, next to Viewer, per tab): flips `dashSelf()`
+        so the developer's own Summary renders exactly as others see it (User Notes
+        hidden, Listening-to line visible); identity/permissions stay theirs.
+      - **People departments consolidated:** CNC/Beamsaw/3D Printing/Lasercutting/
+        Printing fold into **DFAB**, Pre-Finishing/Painting into **Finishing** —
+        people-list only (`pdCanon`; PHASE departments untouched, shared task rows
+        keep their ids); legacy stored ids read as their canon and heal on save.
+      - **People index gets at-a-glance columns** (Name · Title · Phone · Email ·
+        Perms · Status/availability) with a header row and a wider pane; checkbox
+        sets (departments, permissions) render as tidy stacked grids.
+
 - [ ] **13. (Obj 4) Reconcile and absorb the 14 disparate data stores.** The app
       becomes the company's singular source of truth (the v1 "north star", now
       scoped). **Strategy before code:** the first deliverable is
@@ -649,7 +673,9 @@ rule §5); old data keeps reading fine.
 | v1.11.0 | ✅ Shipped 2026-09-02 — 34 (dev App Settings page + granular viewer grants on `ShopTimeline_Config` ⚠) |
 | v1.12.0 | ✅ Shipped 2026-09-02 — 30 second half / 35 (Listening to, revised spec; experimental) ⚠ four staff columns |
 | v1.13.0 | ✅ Shipped 2026-09-02 — 36 (People page mirrors Employee Contacts, read-only import) ⚠ `status` column |
-| v1.14.0 | 26 (change log) ⚠ — after permissions |
+| v1.13.1 | ✅ Shipped 2026-09-02 — Pages-deploy fix: the Listening-to anchor's URL is a DOM property, not a literal href the referenced-assets guard reads as a missing file |
+| v1.14.0 | ✅ Shipped 2026-09-02 — 37 (afternoon review: EC import resolves display names, one tour count, thought icon on the User Notes bar, Not me toggle, DFAB/Finishing people-dept consolidation, at-a-glance people columns) |
+| v1.15.0 | 26 (change log) ⚠ — after permissions |
 | v2.0.0 | 13 (single source of truth) ⚠ — likely several minors along the way (one per absorbed store), with v2.0.0 as the cutover declaration |
 
 ## 5. Data / schema (⚠ all need approval — shared Lists)
@@ -996,6 +1022,25 @@ these are the ones still open, plus new deferrals as they happen.
 - [ ] `status` never drives behavior yet — it reads as information on the People
       page; the archive/deactivate lifecycle (hide from pickers, deactivation
       guards) remains the §3 item 27 lifecycle pass. Gate: that pass. (v1.13.0)
+- [ ] Any JS-built `src="`/`href="` string literal in index.html trips the Pages
+      deploy's referenced-assets guard (it greps the whole file as markup) — build
+      such attributes as DOM properties instead (the v1.13.1 lesson). Gate: next
+      time it bites, consider teaching the guard to skip concatenations. (v1.13.1)
+- [ ] The chained tour's combined total assumes the second half lands on a DRAFT
+      (COACH_PP_DRAFT_N) — if a draft ever drops another tour target, the count
+      would run one high. Cosmetic. Gate: someone notices. (v1.14.0, 2026-09-02)
+- [ ] "Not me" flips only `dashSelf()` — permissions, identity chain and the PM
+      prompt stay the developer's own (deliberate: it previews the SUMMARY reading,
+      not another user's whole session). Gate: a preview need beyond the Summary.
+      (v1.14.0)
+- [ ] People-dept consolidation is presentation + people-data canon only — phase
+      departments, the dept lens and task rows keep machine-level ids; a person
+      stored with a legacy machine id heals on their next People-page save, not
+      via a scrub. Gate: legacy ids lingering long enough to bother a filter.
+      (v1.14.0)
+- [ ] The people index drops the Departments column to fit the at-a-glance four —
+      the dept filter and the record pane still carry them. Gate: someone missing
+      it at a glance. (v1.14.0)
 
 **Deliberate design ceilings — no action planned, revisit only on real complaints:**
 12-slot palette repeats at 13+ visible projects (T2); quiet re-selection after a
