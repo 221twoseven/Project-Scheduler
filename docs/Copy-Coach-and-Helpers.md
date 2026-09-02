@@ -83,6 +83,8 @@ Inline helper notes on this page:
 | Name | Name — suggests from the company Team |
 | Nickname | Optional — how their name reads everywhere in the app |
 | Driver checkbox (editor) | Drives for the company |
+| Availability radios (editor) | Available / Not available / Out of office — automatic, from the date ranges below |
+| Time-off field label + add button (editor) | Out of office / + Out of office *(owner ruling 2026-09-02: keep this name)* |
 | Work email | Work email (for "me" features) |
 | Search box | Search people… / Search clients… |
 | Client alias | 2–3 letter job-code prefix |

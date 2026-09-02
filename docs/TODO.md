@@ -650,6 +650,24 @@ rule §5); old data keeps reading fine.
       0px; rebuilt as header-row `<i>` elements with a visible divider (owner
       report; regression-gated in test-v1170, now 28). `driver` column CREATED.**
 
+- [x] **41. (09-02 late) Availability tri-state + Admin/Non-admin toggle — DONE
+      2026-09-02 (v1.18.0).**
+      1. **Availability radios in the People editor** (freelancers aren't active
+         year-round): Available / Not available are manual (new ⚠ §5
+         `availability` staff column); Out of office is automatic — checked and
+         disabled while a date range covers today, and it outranks the manual
+         flag. The Status column follows: "Not available" reads grey, OOO amber.
+      2. **The dev Viewer toggle reads as the view you're IN**: label "Admin" by
+         default, "Non-admin" while previewing (same mechanics, `#tb-devview`).
+         The preview now also hides Help ▸ App settings — menus read exactly as a
+         non-dev sees them — and the dev demo-preamble slides step aside too.
+      3. Rode along: `renderCompanyPage` runs `applyPerms` at the door (a DIRECT
+         #/people load left the dev cluster + Help entries stale until the next
+         repaint); the Driver ✓ centers under its header. Time-off entry stays
+         the editor's "Out of office" ranges (owner ruling: keep the name;
+         manual today, ties into the company time-off calendar under item 13).
+      Suite `tests/test-v1180.js` (19).
+
 - [ ] **13. (Obj 4) Reconcile and absorb the 14 disparate data stores.** The app
       becomes the company's singular source of truth (the v1 "north star", now
       scoped). **Strategy before code:** the first deliverable is
@@ -801,6 +819,12 @@ rule §5); old data keeps reading fine.
 - `driver` column on `ShopTimeline_Staff` (§3 item 40) — spec delivered
   2026-09-02 — **CREATED 2026-09-02 (Robert).** Reads as a ✓ column on the People
   index, a Yes/— row on the record, and a checkbox in the editor.
+- `availability` column on `ShopTimeline_Staff` (§3 item 41) — **spec delivered
+  2026-09-02, Robert creates:** single-line text, values `available` /
+  `unavailable` (empty = available). Manual flag for freelancers, set by the
+  People editor's Availability radios; an active OOO range always outranks it.
+  Additive, tristate (other saves never 400 without it; a save after touching
+  the radios parks with the named-field toast until it exists). ⚠
 - Candidate new column: a lifecycle/`status` column (Active/Inactive/Archived) on
   `ShopTimeline_Staff` and `ShopTimeline_Clients` (§3 item 27's archive-not-delete
   model) — additive; Robert applies it when item 27's lifecycle pass is designed

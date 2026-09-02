@@ -1166,7 +1166,8 @@ body.cd-route #dash-bar{display:none!important}
 .cd-grip{position:absolute;top:0;bottom:0;width:11px;cursor:col-resize;z-index:2}
 .cd-grip::after{content:'';position:absolute;left:5px;top:3px;bottom:3px;width:1px;background:#D8E2EF}
 .cd-grip:hover::after{left:4px;width:3px;background:#94A3B8}
-.cd-drv{font-size:12px;color:#1AA59C;font-weight:700}
+.cd-drv{text-align:center} /* v1.18.0 (owner): the ✓ sits centered under the Driver header */
+.cd-row .cd-drv{font-size:12px;color:#1AA59C;font-weight:700}
 #cd-split{flex:0 0 6px;margin-left:-3px;cursor:col-resize}
 #cd-split:hover{background:#E2E8F0}
 .cd-perm{font-family:var(--mono);font-size:var(--fs-fine);font-weight:700;letter-spacing:.06em;color:#3B6FB5;background:#EAF1FB;border-radius:5px;padding:0 4px;margin-right:3px}
@@ -1189,6 +1190,9 @@ body.cd-route #dash-bar{display:none!important}
 .cd-row .cd-mut{font-size:11.5px;color:#7488A3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .cd-avail{font-size:var(--fs-fine);font-weight:600;color:#1AA59C;white-space:nowrap}
 .cd-avail.away{color:#B7791F}
+.cd-avail.off{color:#94A3B8} /* v1.18.0: manually Not available (freelancers off-roster) */
+.cd-avset{grid-template-columns:1fr;gap:5px}
+.cd-avset .n{color:#94A3B8;font-size:11.5px}
 .cd-detail{flex:1;overflow-y:auto;padding:18px 26px;min-width:0}
 .cd-empty{color:#94A3B8;font-size:12.5px;padding:26px 14px;text-align:center}
 .cdd-hd h3{margin:0;font-size:16px;color:#16202E}
@@ -1211,7 +1215,7 @@ body.cd-route #dash-bar{display:none!important}
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 /* the .cd-fg input{width:100%} rule would stretch the CHECKBOX itself across the
    whole label (the ragged pre-v1.15.0 look) — pin it (the .crew-list trick). */
-.cd-depts label input[type=checkbox]{width:14px;height:14px;padding:0;margin:0;accent-color:#3B7FD6;flex-shrink:0}
+.cd-depts label input[type=checkbox],.cd-depts label input[type=radio]{width:14px;height:14px;padding:0;margin:0;accent-color:#3B7FD6;flex-shrink:0}
 .cd-ooo-row{display:flex;gap:6px;align-items:center;margin-top:5px}
 .cd-ooo-row input[type=date]{width:130px;font-family:inherit;font-size:12px;padding:4px 6px;border:1px solid #CBD6E4;border-radius:6px;color:#33415A}
 .cd-ooo-row input[type=text]{flex:1;width:auto;max-width:220px;font-family:inherit;font-size:12px;padding:4px 6px;border:1px solid #CBD6E4;border-radius:6px;color:#33415A}
@@ -1274,7 +1278,7 @@ body.cd-route #dash-bar{display:none!important}
       <div id="kbd-menu" class="tb-menu hidden"></div>
     </div>
     <span class="tb-spacer"></span>
-    <button id="tb-devview" class="t-btn hidden" title="Developer preview — see the app exactly as a non-admin viewer sees it">Viewer</button>
+    <button id="tb-devview" class="t-btn hidden" title="Developer preview — the label is the view you're in; click to switch between your admin view and the non-admin experience">Admin</button>
     <button id="tb-notme" class="t-btn hidden" title="Developer preview — browse as if you were someone else: your own Summary shows exactly as other people see it (User Notes hidden, the Listening-to line visible)">Not me</button>
     <span id="tb-user" class="hidden" title="Who you're signed in as"></span>
     <span id="tb-rev" title="App version — the build this tab is running">v</span>
@@ -1545,7 +1549,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.17.1'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.18.0'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -2195,6 +2199,7 @@ function personToFields(p){const f={Title:p.name||'',depts:JSON.stringify(p.dept
   if(p.status!=null)f.status=p.status; /* v1.13.0: lifecycle, vocabulary = Employee Contacts' Status (Active/Off Payroll/Terminated/Archived) */
   if(p.nickname!=null)f.nickname=p.nickname; /* v1.15.0: how the name reads everywhere (display only) */
   if(p.driver!=null)f.driver=p.driver?'1':''; /* v1.17.0: drives for the company — same tristate rule */
+  if(p.availability!=null)f.availability=p.availability; /* v1.18.0: manual available/unavailable (freelancers); OOO ranges override */
   /* v1.12.0 (item 30 second half): the "Listening to" quartet — same tristate rule. */
   if(p.listeningTo!=null)f.listeningTo=p.listeningTo;
   if(p.listeningLink!=null)f.listeningLink=p.listeningLink;
@@ -2209,6 +2214,7 @@ function fieldsToPerson(f){return{id:f.appId,name:f.Title||'',depts:safeArr(f.de
   status:f.status==null?null:String(f.status),
   nickname:f.nickname==null?null:String(f.nickname),
   driver:f.driver==null?null:flagTruthy(f.driver),
+  availability:f.availability==null?null:String(f.availability),
   listeningTo:f.listeningTo==null?null:String(f.listeningTo),
   listeningLink:f.listeningLink==null?null:String(f.listeningLink),
   listeningVerb:f.listeningVerb==null?null:String(f.listeningVerb),
@@ -2731,7 +2737,9 @@ function applyPerms(){
   document.body.classList.toggle('viewer',v);
   /* v1.9.0: the Viewer toggle lives on every route's toolbar, developers only. */
   {const dv=document.getElementById('tb-devview');
-   if(dv){dv.classList.toggle('hidden',!isDeveloper());dv.classList.toggle('active',DEV_VIEW&&isDeveloper());}}
+   if(dv){dv.classList.toggle('hidden',!isDeveloper());dv.classList.toggle('active',DEV_VIEW&&isDeveloper());
+     /* v1.18.0 (owner): the label reads as the view you're IN — Admin by default */
+     dv.textContent=(DEV_VIEW&&isDeveloper())?'Non-admin':'Admin';}}
   /* v1.14.0: the "Not me" identity preview rides the same developer gate. */
   {const nm=document.getElementById('tb-notme');
    if(nm){nm.classList.toggle('hidden',!isDeveloper());nm.classList.toggle('active',DEV_NOTME&&isDeveloper());}}
@@ -2753,8 +2761,9 @@ function applyPerms(){
   /* v1.11.0: grant classes let CSS re-open specific admin-only chrome per door. */
   for(const m of CFG_META)if(m[0].indexOf('viewer.')===0)
     document.body.classList.toggle('vg-'+m[0].slice(7),v&&!!CFG[m[0]]);
-  /* v1.11.0: Help ▸ App settings — developers only. */
-  {const mi=document.getElementById('mi-appset');if(mi)mi.classList.toggle('hidden',!isDeveloper());}
+  /* v1.11.0: Help ▸ App settings — developers only. v1.18.0: the Non-admin preview
+     hides it too (owner: the menus must read exactly as a non-dev sees them). */
+  {const mi=document.getElementById('mi-appset');if(mi)mi.classList.toggle('hidden',!isDeveloper()||DEV_VIEW);}
   if(v&&!vcan('phases')&&!DATE_LOCK){ /* Lock Dates on by default and the toggle hidden (owner spec); the phases grant hands the toggle back */
     DATE_LOCK=true;
     const ck=document.getElementById('lock-ck');if(ck)ck.checked=true;
@@ -4501,10 +4510,13 @@ function cdAvail(per){
   const t=fmtDate(today());
   const cur=(per.ooo||[]).find(o=>o.start&&o.end&&o.start<=t&&t<=o.end);
   if(cur)return{now:true,txt:'Away until '+fmtNice(cur.end)};
+  /* v1.18.0 (owner): manual flag for freelancers — an active OOO range outranks it */
+  if(per.availability==='unavailable')return{now:true,off:true,txt:'Not available'};
   const nx=(per.ooo||[]).filter(o=>o.start&&o.start>t).sort((a,b)=>a.start.localeCompare(b.start))[0];
   if(nx)return{now:false,txt:'OOO '+fmtNice(nx.start)+' – '+fmtNice(nx.end)};
   return{now:false,txt:'Available'};
 }
+const cdAvailCls=av=>av.off?' off':av.now?' away':'';
 /* Relationship context, derived from data already in memory (nothing fabricated):
    phases whose crew resolves to this person (v1.6.5 canonName machinery). */
 function cdAssignments(name){
@@ -4520,6 +4532,10 @@ function cdClientProjects(name){
 function cdDeptLbl(id){const m=SM_DEPTS.find(x=>x[0]===pdCanon(id));return m?m[1]:id;}
 
 function renderCompanyPage(){
+  /* v1.18.0: a DIRECT #/people or #/clients load routes here without render()'s
+     perms pass — the dev cluster, user chip and Help entries sat stale until the
+     next repaint. applyPerms is cheap and idempotent; run it at the door. */
+  applyPerms();
   const isPeople=ROUTE.view==='people';
   /* v1.17.0 (owner: "the table jumped while I sat idle"): a data poll repaints this
      whole page — carry the two panes' scroll positions across the rebuild. */
@@ -4558,7 +4574,7 @@ function renderCompanyPage(){
       +'<option value="dev">Developers</option><option value="fb">Feedback recipients</option>'
       +'<option value="viewer">Viewers</option></select>':'')
    +'</div>'
-   +(isPeople?'<div class="cd-cols"><span>Name</span><span>Title</span><span>Phone</span><span>Email</span><span>Perms</span><span>Driver</span><span>Status</span></div>':'')
+   +(isPeople?'<div class="cd-cols"><span>Name</span><span>Title</span><span>Phone</span><span>Email</span><span>Perms</span><span class="cd-drv">Driver</span><span>Status</span></div>':'')
    +'<div class="cd-rows" id="cd-rows"></div></div>'
    +'<div id="cd-split" title="Drag to resize the two panes"></div>'
    +'<div class="cd-detail" id="cd-detail"></div></div></div>';
@@ -4623,7 +4639,7 @@ function cdPaintRows(){
         +'<span class="cd-mut">'+esc(p.email||'')+'</span>'
         +'<span>'+perm+'</span>'
         +'<span class="cd-drv">'+(p.driver?'✓':'')+'</span>'
-        +'<span class="cd-avail'+(av.now?' away':'')+'">'+esc(av.txt)+'</span></div>';});
+        +'<span class="cd-avail'+cdAvailCls(av)+'">'+esc(av.txt)+'</span></div>';});
   }else{
     rows=[...CLIENTS].sort((a,b)=>a.name.localeCompare(b.name))
      .filter(c=>!qq||[c.name,c.alias].some(v=>String(v||'').toLowerCase().includes(qq)))
@@ -4662,7 +4678,7 @@ function cdPaintDetail(){
      +(per.driver!=null?'<div class="cdd-f"><dt>Driver</dt><dd>'+(per.driver?'Yes':'—')+'</dd></div>':'')
      +'<div class="cdd-f"><dt>Departments</dt><dd>'+([...new Set((per.depts||[]).map(pdCanon))].map(d=>esc(cdDeptLbl(d))).join(' · ')||'—')+'</dd></div>'
      +'<div class="cdd-f"><dt>Availability</dt><dd>'
-       +'<span class="cd-avail'+(av.now?' away':'')+'">'+esc(av.now?av.txt:'Available')+'</span>'
+       +'<span class="cd-avail'+cdAvailCls(av)+'">'+esc(av.now?av.txt:'Available')+'</span>'
        +(upcoming.length?upcoming.map(o=>'<div class="cdd-ooo"><span>'+fmtNice(o.start)+' – '+fmtNice(o.end)+'</span>'+(o.note?'<span class="n">'+esc(o.note)+'</span>':'')+'</div>').join(''):'<div class="cdd-ooo"><span class="n">No upcoming time off</span></div>')
      +'</dd></div>'
      +'<div class="cdd-f"><dt>On the schedule</dt><dd>'
@@ -4713,6 +4729,15 @@ function cdPaintEditor(el,isPeople){
      +'<div class="cd-fg"><label>Driver</label><div class="cd-depts">'
        +'<label><input type="checkbox" id="cde-driver"> Drives for the company</label></div></div>'
      +'<div class="cd-fg"><label>Departments</label><div class="cd-depts" id="cde-depts"></div></div>'
+     /* v1.18.0 (owner): manual availability for freelancers; the OOO radio is
+        display-only — an active date range below selects it automatically. */
+     +'<div class="cd-fg"><label>Availability</label><div class="cd-depts cd-avset">'
+       +'<label><input type="radio" name="cde-av" id="cde-av-a" value="available"> Available</label>'
+       +'<label><input type="radio" name="cde-av" id="cde-av-u" value="unavailable"> Not available</label>'
+       +'<label><input type="radio" name="cde-av" id="cde-av-o" disabled> Out of office <span class="n">— automatic, from the date ranges below</span></label>'
+     +'</div></div>'
+     /* Manual entry for now; ties into the company time-off calendar later (item 13).
+        Owner ruling 2026-09-02: the label STAYS "Out of office". */
      +'<div class="cd-fg"><label>Out of office</label><div id="cde-ooo"></div><button class="tn-add" id="cde-ooo-add">+ Out of office</button></div>'
      /* v1.8.0: permission flags — shown only once the columns carry values (permsLive),
         so a site without the columns can't produce a save the list would 400 on. */
@@ -4753,20 +4778,35 @@ function cdPaintEditor(el,isPeople){
       lb.appendChild(ck);lb.appendChild(document.createTextNode(lbl));
       dp.appendChild(lb);
     }
+    /* v1.18.0: keep the radios honest — an active OOO range selects the automatic
+       option; otherwise the manual choice (default Available) shows. */
+    const avSync=()=>{
+      const t=fmtDate(today());
+      const oooNow=(r.ooo||[]).some(o=>o.start&&o.end&&o.start<=t&&t<=o.end);
+      const a=document.getElementById('cde-av-a'),u=document.getElementById('cde-av-u'),o=document.getElementById('cde-av-o');
+      if(!a)return;
+      if(oooNow){o.checked=true;a.checked=false;u.checked=false;}
+      else{o.checked=false;(r.availability==='unavailable'?u:a).checked=true;}
+    };
     const paintOoo=()=>{
       const box=document.getElementById('cde-ooo');box.innerHTML='';
       (r.ooo||[]).forEach((o,oi)=>{
         const row=document.createElement('div');row.className='cd-ooo-row';
-        const s=document.createElement('input');s.type='date';s.value=o.start||'';s.addEventListener('change',()=>{o.start=s.value;});
-        const e=document.createElement('input');e.type='date';e.value=o.end||'';e.addEventListener('change',()=>{o.end=e.value;});
+        const s=document.createElement('input');s.type='date';s.value=o.start||'';s.addEventListener('change',()=>{o.start=s.value;avSync();});
+        const e=document.createElement('input');e.type='date';e.value=o.end||'';e.addEventListener('change',()=>{o.end=e.value;avSync();});
         const nt=document.createElement('input');nt.type='text';nt.placeholder='note (optional)';nt.value=o.note||'';nt.addEventListener('input',()=>{o.note=nt.value;});
         const x=document.createElement('button');x.className='tn-x';x.textContent='✕';x.title='Remove this range';
-        x.addEventListener('click',()=>{r.ooo.splice(oi,1);paintOoo();});
+        x.addEventListener('click',()=>{r.ooo.splice(oi,1);paintOoo();avSync();});
         row.appendChild(s);row.appendChild(e);row.appendChild(nt);row.appendChild(x);
         box.appendChild(row);
       });
     };
     paintOoo();
+    avSync();
+    for(const id of['cde-av-a','cde-av-u']){
+      const el=document.getElementById(id);
+      el.addEventListener('change',()=>{if(el.checked)r.availability=el.value;});
+    }
     const ad=document.getElementById('cde-admin');
     if(ad){ad.checked=!!r.admin;ad.addEventListener('change',()=>{r.admin=ad.checked;});}
     const fb=document.getElementById('cde-fbr');
@@ -4829,6 +4869,7 @@ function cdSavePerson(){
     status:r.status==null?null:r.status,
     nickname:r.nickname==null?null:String(r.nickname).trim(),
     driver:r.driver==null?null:!!r.driver,
+    availability:r.availability==null?null:r.availability,
     listeningTo:r.listeningTo==null?null:r.listeningTo,
     listeningLink:r.listeningLink==null?null:r.listeningLink,
     listeningVerb:r.listeningVerb==null?null:r.listeningVerb,
@@ -4872,6 +4913,7 @@ function cdMergePerson(keepId,dupId){
     admin:(keep.admin||dup.admin)?true:(keep.admin==null&&dup.admin==null?null:false),
     developer:!!(keep.developer||dup.developer),
     driver:(keep.driver||dup.driver)?true:(keep.driver==null&&dup.driver==null?null:false),
+    availability:keep.availability!=null?keep.availability:dup.availability,
     feedbackRecipient:(keep.feedbackRecipient||dup.feedbackRecipient)?true
       :(keep.feedbackRecipient==null&&dup.feedbackRecipient==null?null:false)};
   CD_EDIT=null;CD_SEL=keep.id;
@@ -9154,7 +9196,7 @@ document.getElementById('tb-devview').addEventListener('click',()=>{
   if(DEV_VIEW)DEV_LOCK0=DATE_LOCK;
   else if(DEV_LOCK0!=null){DATE_LOCK=DEV_LOCK0;DEV_LOCK0=null;
     const ck=document.getElementById('lock-ck');if(ck)ck.checked=DATE_LOCK;}
-  toast(DEV_VIEW?'Previewing as a viewer — every edit door is closed. Click Viewer again to return.':'Back to your admin view.');
+  toast(DEV_VIEW?'Previewing as a non-admin — every edit door is closed. Click Non-admin to return.':'Back to your admin view.');
   render();
 });
 /* v1.14.0: the "Not me" preview — flips only dashSelf(), so your Summary renders
@@ -9425,8 +9467,9 @@ document.addEventListener('keydown',ev=>{
 },true);
 document.getElementById('mi-tour').addEventListener('click',()=>{
   /* a developer already ON a project page skips the slides — mid-demo restarts
-     shouldn't replay the preamble over the project tour */
-  if(isDeveloper()&&ROUTE.view!=='project'){demoStart();return;}
+     shouldn't replay the preamble over the project tour. v1.18.0: the Non-admin
+     preview gets the plain tour too (the view must read exactly as others see it). */
+  if(isDeveloper()&&!DEV_VIEW&&ROUTE.view!=='project'){demoStart();return;}
   tourStart();
 });
 /* v1.6.1: keyboard shortcuts are a Help popover like the Legend — same tb-menu
