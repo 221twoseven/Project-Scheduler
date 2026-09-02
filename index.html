@@ -48,6 +48,8 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);font-size:var(--fs
    font file (licence confirmed 2026-09-01); everything else stays on --sans. */
 @font-face{font-family:'Brauer Neue';src:url('fonts/BrNStdBd.otf') format('opentype');font-weight:800;font-style:normal;font-display:swap}
 .tb-co{font-family:'Brauer Neue',var(--sans);font-size:13px;font-weight:800;letter-spacing:.24em;color:#fff}
+/* v1.10.0 (owner ask 09-02): the wordmark is a button — click goes home (Global Gantt) */
+button.tb-co{background:none;border:0;padding:0;cursor:pointer}
 .tb-app{font-size:var(--fs-fine);font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:#8CA0BF}
 .t-btn{display:inline-flex;align-items:center;justify-content:center;gap:4px;height:28px;background:rgba(255,255,255,.06);color:rgba(255,255,255,.9);border:1px solid rgba(255,255,255,.13);border-radius:6px;padding:0 12px;font-size:var(--fs-label);font-weight:500;cursor:pointer;font-family:inherit;transition:background .12s,color .12s;white-space:nowrap}
 .ico{width:16px;height:16px;flex:none;vertical-align:-3px}
@@ -88,6 +90,12 @@ body.pp-route .tb-timeline{display:none}
 #t-search::placeholder{color:#8CA0BF}
 #t-search:focus{border-color:rgba(96,150,240,.7);background:rgba(255,255,255,.1)}
 #tb-rev{font-family:var(--mono);font-size:var(--fs-fine);letter-spacing:.04em;color:#8CA0BF;white-space:nowrap;user-select:none;margin-right:10px}
+/* v1.10.0 (owner ask 09-02): who's signed in, next to the status pill — with an
+   ADMIN / DEV chip when the account has elevated access. */
+#tb-user{font-size:var(--fs-fine);color:rgba(255,255,255,.75);white-space:nowrap;user-select:none;margin-right:10px;display:inline-flex;align-items:center;gap:6px}
+#tb-user.hidden{display:none}
+.tb-acc{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.08em;padding:1px 5px;border-radius:5px;color:#9DC1F2;border:1px solid rgba(157,193,242,.4)}
+.tb-acc.dev{color:#D8B4F0;border-color:rgba(216,180,240,.45)}
 #sync-pill{display:inline-flex;align-items:center;height:24px;font-family:var(--mono);font-size:var(--fs-fine);letter-spacing:.04em;padding:0 8px;border-radius:20px;white-space:nowrap;border:1px solid transparent;user-select:none}
 #sync-pill.ok{color:#7BD8A0;border-color:rgba(123,216,160,.3);background:rgba(50,160,95,.12)}
 #sync-pill.busy{color:#F7CE68;border-color:rgba(247,206,104,.3);background:rgba(240,168,20,.1)}
@@ -1062,6 +1070,11 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
    toolbar (100) and menus (900) but below toasts (1000) so sync errors stay visible. */
 #coach{position:fixed;inset:0;z-index:950;overflow:hidden}
 #coach.hidden{display:none}
+/* v1.10.0: a chain step ("click + New Project to continue") lets the pointer through
+   to the page — a capture guard swallows every click except the highlighted button. */
+#coach.chain{pointer-events:none}
+#coach.chain #coach-card{pointer-events:auto}
+#coach.chain #coach-next{display:none}
 #coach-hole{position:absolute;border-radius:10px;box-shadow:0 0 0 9999px rgba(13,19,29,.55);outline:2px solid var(--acc);outline-offset:2px;transition:left .18s ease-out,top .18s ease-out,width .18s ease-out,height .18s ease-out}
 #coach-card{position:absolute;width:300px;background:#fff;border:1.5px solid #CBD5E1;border-radius:var(--r-l);box-shadow:0 10px 30px rgba(15,23,42,.25);padding:14px 16px;cursor:default;transition:left .18s ease-out,top .18s ease-out}
 #coach-step{font-family:var(--mono);font-size:var(--fs-fine);font-weight:600;letter-spacing:.1em;color:#7488A3}
@@ -1143,7 +1156,7 @@ body.cd-route #dash-bar{display:none!important}
 <div id="toolbar">
   <div class="tb-row tb-global">
     <div class="t-brand">
-      <span class="tb-co">TWOSEVEN INC.</span>
+      <button id="tb-home" class="tb-co" title="Back to the full timeline">TWOSEVEN INC.</button>
       <span class="tb-app">Shop Timeline</span>
     </div>
     <button id="btn-new-proj" class="t-btn accent" title="Create a new project (N)">+ New Project</button>
@@ -1179,6 +1192,7 @@ body.cd-route #dash-bar{display:none!important}
     </div>
     <span class="tb-spacer"></span>
     <button id="tb-devview" class="t-btn hidden" title="Developer preview — see the app exactly as a non-admin viewer sees it">Viewer</button>
+    <span id="tb-user" class="hidden" title="Who you're signed in as"></span>
     <span id="tb-rev" title="App version — the build this tab is running">v</span>
     <span id="sync-pill" class="busy" title="Shows whether your changes are saved to SharePoint — click to retry after an error">● connecting…</span>
   </div>
@@ -1432,7 +1446,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.9.1'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.10.0'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -1501,6 +1515,8 @@ const DEPTS=[
   {id:'othfinish', name:'Other (Finishing)', freeText:true, est:3, grp:'finish'},
   /* 5 · INSTALLATION */
   {id:'install',   name:'Installation',  est:2, grp:'install'},
+  /* 6 · LOGISTICS — its own department (owner ask 09-02, v1.10.0) */
+  {id:'logistics', name:'Logistics',     est:2, grp:'logi'},
 ];
 const DEPT_IDX=Object.fromEntries(DEPTS.map((d,i)=>[d.id,i]));
 const deptById=id=>DEPTS[DEPT_IDX[id]];
@@ -1513,6 +1529,7 @@ const GROUPS=[
   {id:'unit7',     label:'Unit 7'},
   {id:'finish',    label:'Finishing'},
   {id:'install',   label:'Installation'},
+  {id:'logi',      label:'Logistics'},
 ];
 const grpDepts=g=>DEPTS.filter(d=>d.grp===g).map(d=>d.id);
 /* Departments a brand-new project starts with, before anyone edits the checklist. */
@@ -1531,6 +1548,7 @@ const SECTIONS=[
   {kind:'group',id:'unit7',  label:'Unit 7',              depts:grpDepts('unit7')},
   {kind:'group',id:'finishing',label:'Finishing',         depts:grpDepts('finish')},
   {kind:'dept', id:'install'},
+  {kind:'dept', id:'logistics'},
 ];
 
 const MONTH_HSL=[[214,40,57],[265,36,59],[145,40,46],[177,43,44],[25,66,54],[44,68,49],[11,60,57],[338,50,57],[79,36,43],[34,60,47],[208,26,51],[240,40,53]];
@@ -1564,7 +1582,7 @@ function phaseLabel(t){
 }
 function assigneeText(t){return [...new Set(crewOf(t).map(canonName))].join(', ')||(isInstall(t)?'Crew TBD':'');}
 /* Stable identity colors per department for "Team" color mode */
-const DEPT_COLORS={pm:'#567693',vinyl:'#D92871',othunit7:'#647590',td:'#9050C3',othoffice:'#637590',print:'#C04485',cnc:'#BE531B',beamsaw:'#936E12','3dprint':'#268449',laser:'#CE4242',other:'#63758F',fab:'#2B73CF',metal:'#8B5E3C',softgoods:'#C0487B',electrical:'#876511',othshop:'#6A7866',prefinish:'#2F7E8C',finish:'#148079',othfinish:'#657589',install:'#5A5DEC'};
+const DEPT_COLORS={pm:'#567693',vinyl:'#D92871',othunit7:'#647590',td:'#9050C3',othoffice:'#637590',print:'#C04485',cnc:'#BE531B',beamsaw:'#936E12','3dprint':'#268449',laser:'#CE4242',other:'#63758F',fab:'#2B73CF',metal:'#8B5E3C',softgoods:'#C0487B',electrical:'#876511',othshop:'#6A7866',prefinish:'#2F7E8C',finish:'#148079',othfinish:'#657589',install:'#5A5DEC',logistics:'#4E7D5B'};
 /* v1.4.0: TN_TARGETS retired — milestone names are plain text now (08-31 obj 3) */
 
 /* ===================== STATE ===================== */
@@ -2482,6 +2500,21 @@ function applyPerms(){
   /* v1.9.0: the Viewer toggle lives on every route's toolbar, developers only. */
   {const dv=document.getElementById('tb-devview');
    if(dv){dv.classList.toggle('hidden',!isDeveloper());dv.classList.toggle('active',DEV_VIEW&&isDeveloper());}}
+  /* v1.10.0 (owner ask 09-02): the signed-in name next to the status pill, with a
+     DEV / ADMIN chip. The chip reads the account's REAL access — it doesn't flip
+     while the Viewer preview is on (the lit Viewer button already says that). */
+  {const tu=document.getElementById('tb-user');
+   if(tu){
+     const nm=meName()||(ACCOUNT?ACCOUNT.name:'');
+     if(!nm){tu.classList.add('hidden');tu.innerHTML='';}
+     else{
+       const p=personByName(nm);
+       const badge=isDeveloper()?'<span class="tb-acc dev">DEV</span>'
+         :(p&&p.admin&&permsLive()?'<span class="tb-acc">ADMIN</span>':'');
+       tu.innerHTML=esc(nm)+badge;
+       tu.classList.remove('hidden');
+     }
+   }}
   if(v&&!DATE_LOCK){ /* Lock Dates on by default and the toggle hidden (owner spec) */
     DATE_LOCK=true;
     const ck=document.getElementById('lock-ck');if(ck)ck.checked=true;
@@ -2956,17 +2989,18 @@ function renderMeDock(){
     +'<span class="t">'+esc(per.name)+'</span>'
     +'<span class="sub">'+esc([per.role,deptLbl,per.email].filter(Boolean).join(' · ')||'Not on the staff list')+'</span>'
     +'<button class="ins-btn" id="md-collapse" title="'+(ME_DOCK_COL?'Expand the panel':'Collapse the panel')+'" aria-expanded="'+String(!ME_DOCK_COL)+'"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg></button></div>'
-    /* v1.9.0 (owner ask): Milestones + Notes stack in ONE column; User Notes — the
-       person's own scratch pad, stored on their staff row (item 30's personalNotes
-       column) — takes its own column at the far right. Personal by spec: the column
-       exists ONLY on your own dashboard, never on someone else's Summary. */
+    /* v1.10.0 (owner ask 09-02): Time off stacks UNDER Working on; Milestones and
+       Notes are back in their own columns. User Notes — the person's own scratch pad,
+       stored on their staff row (item 30's personalNotes column) — keeps the far
+       right. Personal by spec: that column exists ONLY on your own dashboard, never
+       on someone else's Summary. */
     +'<div class="ins-body">'
-    +sec2('Working on',active.length+coming.length,cap([...active,...coming],barRow))
     +'<div class="ins-sec md-stack">'
-      +'<h4>Milestones<span class="n">'+checkpoints.length+'</span></h4><div class="in">'+cap(checkpoints,evRow)+'</div>'
-      +'<h4>Notes<span class="n">'+tasks.length+'</span></h4><div class="in">'+cap(tasks,tkRow)+'</div>'
+      +'<h4>Working on<span class="n">'+(active.length+coming.length)+'</span></h4><div class="in">'+cap([...active,...coming],barRow)+'</div>'
+      +'<h4>Time off<span class="n">'+ooo.length+'</span></h4><div class="in">'+cap(ooo,ooRow)+'</div>'
     +'</div>'
-    +sec2('Time off',ooo.length,cap(ooo,ooRow))
+    +sec2('Milestones',checkpoints.length,cap(checkpoints,evRow))
+    +sec2('Notes',tasks.length,cap(tasks,tkRow))
     +(dashSelf()&&per.id
       ?'<div class="ins-sec" data-sec="notes"><h4>User Notes</h4><div class="in">'
         +'<textarea class="ins-notes" id="md-unotes" placeholder="Anything you want to keep next to your schedule — saved to your staff row.">'
@@ -3941,7 +3975,12 @@ document.getElementById('tm-del').addEventListener('click',()=>{
    read-first, and an explicit edit state in the detail pane. The persistence paths
    are unchanged — a save clones the shared list, swaps one record, and funnels
    through savePeople()/saveClients() exactly as the batch modals did. */
-const SM_DEPTS=[['pm','Proj Mgmt'],['td','Tech Design'],['fab','Main Shop']];
+/* v1.10.0 (owner ask 09-02): the People page offers the COMPREHENSIVE department
+   list — the same DEPTS the project-edit phase picker uses — not a 3-dept subset.
+   Derived, so the two can never drift again (fires the REV90 §7 ledger gate on the
+   duplicated dept ids). Free-text "Other" buckets aren't departments a person can
+   belong to. */
+const SM_DEPTS=DEPTS.filter(d=>!d.freeText).map(d=>[d.id,d.name]);
 let CD_Q='',CD_DEPT='all',CD_SEL=null,CD_EDIT=null;
 
 function goPeople(){location.hash='#/people';}
@@ -8466,6 +8505,13 @@ document.getElementById('tb-devview').addEventListener('click',()=>{
    to the full timeline, same as the project page's trail. */
 document.getElementById('db-all').addEventListener('click',()=>exitDash());
 document.getElementById('db-x').addEventListener('click',()=>exitDash());
+/* v1.10.0 (owner ask 09-02): the wordmark goes home — the full timeline, dashboard
+   and person summary included. */
+document.getElementById('tb-home').addEventListener('click',()=>{
+  if(dashOn()){exitDash();return;}
+  if(ROUTE.view!=='timeline'){goTimeline();return;}
+  if(PERSON)exitDash();
+});
 wireMenu('btn-print','print-menu');
 wireMenu('btn-resources','resources-menu');
 buildLegend();
@@ -8548,10 +8594,13 @@ const COACH_STEPS=[
    b:'Type here (or press /) to show only matching projects and phases. Filters narrows the view by status, client or person — Clear filters brings everything back.'},
   {sel:'#btn-dash',t:'Your plate',
    b:'One click shows just your own work — your phases, milestones, notes and time off.'},
-  {sel:'#btn-new-proj',t:'Start a project',
-   b:'Name it, pick its departments and set the install deadline — the schedule builds itself backward from that date. Nothing is saved until you press Create.'},
   {sel:'#btn-help',t:'When you forget',
-   b:'Help holds the colour legend, every keyboard shortcut, and this tour — open it any time.'}
+   b:'Help holds the colour legend, every keyboard shortcut, and this tour — open it any time.'},
+  /* v1.10.0 (owner ask 09-02): the two tours are ONE tour — the last home step hands
+     off by having the user actually click + New Project; the project-page tour picks
+     up there (chain: coachShow wires the click-through, coachNext presses it). */
+  {sel:'#btn-new-proj',t:'Start a project',chain:true,
+   b:'Name it, pick its departments and set the install deadline — the schedule builds itself backward from that date. Click + New Project now to continue the tour on the project page.'}
 ];
 /* REV86: ONE shared tour for the project pages (owner decision 2026-08-27) — the
    REV82 convergence made New Project and Project Edit near-identical, so one step
@@ -8575,13 +8624,37 @@ const COACH_PP_STEPS=[
    b:'Edits file to SharePoint as you make them — the pill in the toolbar shows sync. Done just takes you back to the timeline.'}
 ];
 let COACH=null; /* null = off; else {steps,i} */
+/* v1.10.0: chain-step wiring — the overlay lets clicks through, a capture guard
+   swallows everything except the highlighted target (and the card), and clicking the
+   target ends this tour and starts the project-page one where it left the user. */
+let COACH_CHAIN=null; /* {el,fn,sel} while a chain step shows */
+function coachUnchain(){
+  if(COACH_CHAIN){COACH_CHAIN.el.removeEventListener('click',COACH_CHAIN.fn);COACH_CHAIN=null;}
+  document.getElementById('coach').classList.remove('chain');
+}
+function coachChainGuard(ev){
+  if(!COACH_CHAIN)return;
+  if(ev.target.closest&&(ev.target.closest('#coach-card')||ev.target.closest(COACH_CHAIN.sel)))return;
+  ev.stopPropagation();ev.preventDefault();
+}
+document.addEventListener('mousedown',coachChainGuard,true);
+document.addEventListener('click',coachChainGuard,true);
 function coachEnd(){
+  coachUnchain();
   COACH=null;document.getElementById('coach').classList.add('hidden');
   try{localStorage.setItem(COACH_KEY,'1');}catch(e){}
 }
 function coachShow(){
+  coachUnchain();
   const s=COACH.steps[COACH.i],r=document.querySelector(s.sel).getBoundingClientRect();
   const hole=document.getElementById('coach-hole'),card=document.getElementById('coach-card');
+  if(s.chain){
+    document.getElementById('coach').classList.add('chain');
+    const el=document.querySelector(s.sel);
+    const fn=()=>{coachEnd();setTimeout(()=>coachStart(COACH_PP_STEPS),450);};
+    el.addEventListener('click',fn);
+    COACH_CHAIN={el,fn,sel:s.sel};
+  }
   const pad=6;
   hole.style.left=(r.left-pad)+'px';hole.style.top=(r.top-pad)+'px';
   hole.style.width=(r.width+pad*2)+'px';hole.style.height=(r.height+pad*2)+'px';
@@ -8601,7 +8674,10 @@ function coachShow(){
   card.style.left=cl+'px';card.style.top=ct+'px';
 }
 function coachStart(stepList){
-  const steps=(stepList||COACH_STEPS).filter(s=>document.querySelector(s.sel));
+  /* Chain steps ask the user to press an edit door — viewers don't have it (the
+     button is display:none under body.viewer), so their tour simply ends a step
+     earlier. */
+  const steps=(stepList||COACH_STEPS).filter(s=>document.querySelector(s.sel)&&!(s.chain&&isViewer()));
   if(!steps.length)return;
   try{localStorage.setItem(COACH_KEY,'1');}catch(e){} /* even an abandoned tour never nags twice */
   COACH={steps,i:0};
@@ -8609,7 +8685,10 @@ function coachStart(stepList){
   document.getElementById('coach').classList.remove('hidden');
   coachShow();
 }
-function coachNext(){if(!COACH)return;if(COACH.i>=COACH.steps.length-1){coachEnd();return;}COACH.i++;coachShow();}
+function coachNext(){if(!COACH)return;
+  const s=COACH.steps[COACH.i];
+  if(s.chain){const el=document.querySelector(s.sel);if(el)el.click();return;} /* Enter = press the highlighted button */
+  if(COACH.i>=COACH.steps.length-1){coachEnd();return;}COACH.i++;coachShow();}
 function coachBack(){if(!COACH||!COACH.i)return;COACH.i--;coachShow();}
 /* Phase 4: Help is a menu now. "Take a tour" keeps the route-aware behaviour —
    project pages get their own shared tour in place (REV86). */
