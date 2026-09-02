@@ -160,9 +160,22 @@ body.me-dock-col #md-collapse svg{transform:rotate(180deg)}
 .md-tag{flex-shrink:0;font-size:11px;font-weight:700;letter-spacing:.06em;color:#1A7F4E;background:#DCF3E6;border-radius:6px;padding:0 5px}
 .md-empty{font-size:12px;color:#94A3B8;padding:6px 0}
 .md-more{font-size:11px;color:#94A3B8;padding:3px 0}
-/* v1.9.0 (owner ask): Milestones + Notes stack in one dock column; the second header
-   needs a top rule where the column boundary used to be. */
+/* v1.9.0 (owner ask): stacked dock column (v1.10.0: Working on + Time off); the second
+   header needs a top rule where the column boundary used to be. */
 .md-stack>h4:not(:first-child){border-top:1px solid #E2E8F0}
+/* v1.12.0 (exp.listening): the personal line in the dock header (Summary view only) —
+   right-justified dark grey text — and the own-dashboard thought-cloud editor. */
+.md-listen{margin-left:auto;font-size:11.5px;color:#5B6B84;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:38%;flex-shrink:1}
+.md-listen a{color:inherit;text-decoration:underline}
+#md-thought{position:absolute;right:10px;bottom:8px;z-index:25;background:none;border:1px solid transparent;border-radius:6px;color:#94A3B8;cursor:pointer;padding:4px;line-height:0}
+#md-thought:hover{color:var(--acc);border-color:#CBD6E4}
+#md-thought svg{width:16px;height:16px;display:block}
+#md-tpop{position:absolute;right:10px;bottom:36px;z-index:40;background:#fff;border:1px solid #CBD5E1;border-radius:10px;box-shadow:0 8px 24px rgba(15,23,42,.18);padding:10px;display:flex;flex-direction:column;gap:6px;width:232px}
+#md-tpop.hidden{display:none}
+#md-tpop select,#md-tpop input[type=text],#md-tpop input[type=url]{font-family:inherit;font-size:12px;padding:5px 7px;border:1px solid #CBD6E4;border-radius:6px;color:#33415A;width:100%}
+#md-tpop label{display:flex;gap:6px;align-items:center;font-size:11.5px;color:#5B6B84;cursor:pointer}
+#md-tpop label input{width:12px;height:12px;accent-color:#3B7FD6;flex-shrink:0}
+body.me-dock-col #md-thought,body.me-dock-col #md-tpop{display:none}
 @media (max-width:560px){.fg-2{grid-template-columns:1fr}.fg-3{grid-template-columns:1fr}}
 #sidebar{position:relative;width:300px;flex-shrink:0;display:flex;flex-direction:column;background:var(--side);border-right:1.5px solid var(--side-line);z-index:10}
 #sb-head{height:64px;flex-shrink:0;display:flex;align-items:center;gap:8px;padding:0 10px 0 14px;font-size:var(--fs-fine);font-weight:700;text-transform:uppercase;letter-spacing:.16em;color:var(--txt-micro);border-bottom:1px solid var(--side-line)}
@@ -1465,7 +1478,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.11.0'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.12.0'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -2093,12 +2106,21 @@ function personToFields(p){const f={Title:p.name||'',depts:JSON.stringify(p.dept
   if(p.admin!=null)f.admin=(p.developer&&p.admin)?'dev':(p.admin?'1':'');
   if(p.feedbackRecipient!=null)f.feedbackRecipient=p.feedbackRecipient?'1':'';
   if(p.personalNotes!=null)f.personalNotes=p.personalNotes; /* v1.9.0 (item 30): tristate like the flags — omitted until the row carries it, so a site without the column never 400s */
+  /* v1.12.0 (item 30 second half): the "Listening to" quartet — same tristate rule. */
+  if(p.listeningTo!=null)f.listeningTo=p.listeningTo;
+  if(p.listeningLink!=null)f.listeningLink=p.listeningLink;
+  if(p.listeningVerb!=null)f.listeningVerb=p.listeningVerb;
+  if(p.listeningShow!=null)f.listeningShow=p.listeningShow?'1':'';
   return f;}
 function fieldsToPerson(f){return{id:f.appId,name:f.Title||'',depts:safeArr(f.depts),ooo:safeArr(f.ooo),email:f.email||'',phone:f.phone||'',role:f.role||'',
   admin:f.admin==null?null:(flagTruthy(f.admin)||/^dev/i.test(String(f.admin))),
   developer:f.admin!=null&&/^dev/i.test(String(f.admin)),
   feedbackRecipient:f.feedbackRecipient==null?null:flagTruthy(f.feedbackRecipient),
-  personalNotes:f.personalNotes==null?null:String(f.personalNotes)};}
+  personalNotes:f.personalNotes==null?null:String(f.personalNotes),
+  listeningTo:f.listeningTo==null?null:String(f.listeningTo),
+  listeningLink:f.listeningLink==null?null:String(f.listeningLink),
+  listeningVerb:f.listeningVerb==null?null:String(f.listeningVerb),
+  listeningShow:f.listeningShow==null?null:flagTruthy(f.listeningShow)};}
 
 async function spLoadStaff(){
   await spSite();
@@ -3078,6 +3100,15 @@ function renderMeDock(){
     +'<span class="dot" style="background:'+hashColor(per.name)+'"></span>'
     +'<span class="t">'+esc(per.name)+'</span>'
     +'<span class="sub">'+esc([per.role,deptLbl,per.email].filter(Boolean).join(' · ')||'Not on the staff list')+'</span>'
+    /* v1.12.0 (item 30 second half, exp.listening): the personal line — SUMMARY view
+       only (someone else reading this person's plate), never on your own dashboard;
+       empty title or the Show checkbox off auto-hide it. */
+    +(CFG['exp.listening']&&!dashSelf()&&per.listeningShow&&String(per.listeningTo||'').trim()
+      ?'<span class="md-listen">'+esc(per.listeningVerb||'listening to')+': '
+        +(String(per.listeningLink||'').trim()
+          ?'<a href="'+esc(/^https?:\/\//i.test(per.listeningLink)?per.listeningLink:'https://'+per.listeningLink)+'" target="_blank" rel="noopener">'+esc(per.listeningTo)+'</a>'
+          :esc(per.listeningTo))+'</span>'
+      :'')
     +'<button class="ins-btn" id="md-collapse" title="'+(ME_DOCK_COL?'Expand the panel':'Collapse the panel')+'" aria-expanded="'+String(!ME_DOCK_COL)+'"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg></button></div>'
     /* v1.10.0 (owner ask 09-02): Time off stacks UNDER Working on; Milestones and
        Notes are back in their own columns. User Notes — the person's own scratch pad,
@@ -3097,7 +3128,19 @@ function renderMeDock(){
         +esc(per.personalNotes==null?'':per.personalNotes)+'</textarea>'
       +'</div></div>'
       :'')
-    +'</div>';
+    +'</div>'
+    /* v1.12.0: the thought-cloud editor — own dashboard only, bottom-right margin.
+       One small popover holds every field; it commits ONCE, when it closes. */
+    +(CFG['exp.listening']&&dashSelf()&&per.id
+      ?'<button id="md-thought" title="What you\'re listening to, reading or thinking about — shown in the header of your Summary page">'
+        +'<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.3 10.8A2.6 2.6 0 0 1 3.8 6.2a3.3 3.3 0 0 1 6.4-1 2.7 2.7 0 0 1 2 5.6z"/><circle cx="4.7" cy="12.7" r=".9"/><circle cx="3" cy="14.4" r=".55"/></svg></button>'
+      +'<div id="md-tpop" class="hidden">'
+        +'<select id="lt-verb" title="How the line reads">'+['listening to','reading','thinking about'].map(v=>'<option'+((per.listeningVerb||'listening to')===v?' selected':'')+'>'+v+'</option>').join('')+'</select>'
+        +'<input id="lt-title" type="text" placeholder="Title" value="'+esc(per.listeningTo==null?'':per.listeningTo)+'">'
+        +'<input id="lt-link" type="url" placeholder="Link (optional)" value="'+esc(per.listeningLink==null?'':per.listeningLink)+'">'
+        +'<label><input id="lt-show" type="checkbox"'+(per.listeningShow?' checked':'')+'> Show on my Summary</label>'
+      +'</div>'
+      :'');
   document.getElementById('md-collapse').addEventListener('click',()=>{
     ME_DOCK_COL=!ME_DOCK_COL;
     try{localStorage.setItem('shopTimelineMeDockCollapsed',ME_DOCK_COL?'1':'0');}catch(e){}
@@ -3111,7 +3154,41 @@ function renderMeDock(){
     if(!p0||String(p0.personalNotes==null?'':p0.personalNotes)===un.value)return;
     savePeople(PEOPLE.map(p=>p.id===per.id?{...p,personalNotes:un.value}:p),true);
   });
+  /* v1.12.0: thought-cloud popover — toggled by its button, committed when it
+     closes (outside click or the button again), same self-row savePeople path.
+     ponytail: a mid-edit repaint from another save closes the popover uncommitted —
+     rare on an idle dashboard; commit-per-field if anyone actually loses an entry. */
+  const th=document.getElementById('md-thought');
+  if(th){
+    const tp=document.getElementById('md-tpop');
+    LT_COMMIT=()=>{
+      const p0=PEOPLE.find(p=>p.id===per.id);if(!p0)return;
+      const nv={listeningVerb:document.getElementById('lt-verb').value,
+        listeningTo:document.getElementById('lt-title').value.trim(),
+        listeningLink:document.getElementById('lt-link').value.trim(),
+        listeningShow:document.getElementById('lt-show').checked};
+      if(String(p0.listeningVerb==null?'listening to':p0.listeningVerb)===nv.listeningVerb
+        &&String(p0.listeningTo==null?'':p0.listeningTo)===nv.listeningTo
+        &&String(p0.listeningLink==null?'':p0.listeningLink)===nv.listeningLink
+        &&(!!p0.listeningShow)===nv.listeningShow)return;
+      savePeople(PEOPLE.map(p=>p.id===per.id?{...p,...nv}:p),true);
+    };
+    th.addEventListener('click',ev=>{ev.stopPropagation();
+      if(tp.classList.contains('hidden')){tp.classList.remove('hidden');document.getElementById('lt-title').focus();}
+      else{tp.classList.add('hidden');LT_COMMIT();}});
+    tp.addEventListener('mousedown',ev=>ev.stopPropagation());
+    if(!LT_BOUND){
+      LT_BOUND=true;
+      document.addEventListener('mousedown',ev=>{
+        const p=document.getElementById('md-tpop');
+        if(!p||p.classList.contains('hidden'))return;
+        if(ev.target.closest&&(ev.target.closest('#md-tpop')||ev.target.closest('#md-thought')))return;
+        p.classList.add('hidden');if(LT_COMMIT)LT_COMMIT();
+      });
+    }
+  }
 }
+let LT_BOUND=false,LT_COMMIT=null; /* v1.12.0: one document listener for the thought popover */
 
 /* Always shows a card when the canvas has no visible projects: signed out → the
    sign-in call to action; empty → the teach card; all filtered out → how to unhide. */
@@ -4371,6 +4448,10 @@ function cdSavePerson(){
     admin:r.admin==null?null:!!r.admin,
     developer:!!r.developer,
     personalNotes:r.personalNotes==null?null:r.personalNotes,
+    listeningTo:r.listeningTo==null?null:r.listeningTo,
+    listeningLink:r.listeningLink==null?null:r.listeningLink,
+    listeningVerb:r.listeningVerb==null?null:r.listeningVerb,
+    listeningShow:r.listeningShow==null?null:!!r.listeningShow,
     feedbackRecipient:r.feedbackRecipient==null?null:!!r.feedbackRecipient};
   if(!per.name){toast('Give the person a name first.','err');return;}
   if(PEOPLE.some(x=>x.id!==per.id&&x.name.trim().toLowerCase()===per.name.toLowerCase())){
