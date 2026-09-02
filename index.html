@@ -1478,7 +1478,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.12.0'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.13.0'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -1989,6 +1989,11 @@ const LIST_FEEDBACK='ShopTimeline_Feedback';
    App Settings page. App-only, additive; owner creates it (Title = key, plus one
    single-line text column `value`). Missing list = settings stay browser-local. */
 const LIST_CONFIG='ShopTimeline_Config';
+/* v1.13.0 (owner ask 09-02): the HR manager's Employee Contacts list — READ-ONLY
+   REFERENCE, never written, never schema-touched (item 13 ruling). The People-page
+   import mirrors its non-sensitive columns into ShopTimeline_Staff; the HR-sensitive
+   ones (Pay Type, PersonalEmail) are never even read. */
+const LIST_EC='Employee Contacts';
 const SCOPES=['User.Read','Sites.ReadWrite.All'];
 let PCA=null,ACCOUNT=null,SITE_ID=null;
 let SP_IDS={proj:{},task:{},staff:{},todo:{},event:{}};   /* our appId -> SharePoint item id */
@@ -2106,6 +2111,7 @@ function personToFields(p){const f={Title:p.name||'',depts:JSON.stringify(p.dept
   if(p.admin!=null)f.admin=(p.developer&&p.admin)?'dev':(p.admin?'1':'');
   if(p.feedbackRecipient!=null)f.feedbackRecipient=p.feedbackRecipient?'1':'';
   if(p.personalNotes!=null)f.personalNotes=p.personalNotes; /* v1.9.0 (item 30): tristate like the flags — omitted until the row carries it, so a site without the column never 400s */
+  if(p.status!=null)f.status=p.status; /* v1.13.0: lifecycle, vocabulary = Employee Contacts' Status (Active/Off Payroll/Terminated/Archived) */
   /* v1.12.0 (item 30 second half): the "Listening to" quartet — same tristate rule. */
   if(p.listeningTo!=null)f.listeningTo=p.listeningTo;
   if(p.listeningLink!=null)f.listeningLink=p.listeningLink;
@@ -2117,6 +2123,7 @@ function fieldsToPerson(f){return{id:f.appId,name:f.Title||'',depts:safeArr(f.de
   developer:f.admin!=null&&/^dev/i.test(String(f.admin)),
   feedbackRecipient:f.feedbackRecipient==null?null:flagTruthy(f.feedbackRecipient),
   personalNotes:f.personalNotes==null?null:String(f.personalNotes),
+  status:f.status==null?null:String(f.status),
   listeningTo:f.listeningTo==null?null:String(f.listeningTo),
   listeningLink:f.listeningLink==null?null:String(f.listeningLink),
   listeningVerb:f.listeningVerb==null?null:String(f.listeningVerb),
@@ -4197,6 +4204,92 @@ function renderAppSettings(){
   }));
 }
 
+/* ===== v1.13.0 (owner ask 09-02): mirror Employee Contacts → ShopTimeline_Staff =====
+   The HR list is the identity master (item 13 ruling); this import is the app-side
+   half of the parallel-run: READ the HR list (never write it), join on work email
+   (the app's identity chain) with an exact-name fallback, then
+   - ADD active employees the roster doesn't have (title→role, phone, email, mapped dept)
+   - UPDATE matched people: EC wins on title/phone/status; email backfills only when
+     blank; departments fill only when the person has NONE set (curated depts win)
+   - non-active EC rows never create people; existing people get the status written,
+     nothing is removed (retiring someone stays a human call on this page)
+   HR-sensitive columns (Pay Type, PersonalEmail) are never read. Everything lands
+   through the normal savePeople dry-run→confirm, so one Cancel aborts the lot.
+   `status` rides only once the ShopTimeline_Staff column exists (probed live). */
+function ecNorm(k){return String(k).toLowerCase().replace(/_x0020_/g,'').replace(/[\s_]/g,'');}
+function ecField(map,names){for(const n of names){const v=map[n];if(v!=null&&String(v).trim()!=='')return String(v).trim();}return '';}
+function ecDept(s){
+  const n=String(s||'').trim().toLowerCase();if(!n)return null;
+  const d=DEPTS.find(x=>!x.freeText&&x.name.toLowerCase()===n);if(d)return d.id;
+  const g=GROUPS.find(x=>x.label.toLowerCase()===n);if(g)return grpDepts(g.id)[0];
+  const alias={'installation':'install','installs':'install','installers':'install',
+    'fabrication':'fab','shop':'fab','main shop':'fab','wood shop':'fab','woodshop':'fab',
+    'office':'pm','project management':'pm','pm':'pm','administration':'pm','admin':'pm',
+    'design':'td','drafting':'td','engineering':'td',
+    'paint':'finish','painting':'finish',
+    'metal':'metal','welding':'metal',
+    'digital fabrication':'cnc','digital fab':'cnc',
+    'soft goods':'softgoods','sewing':'softgoods'};
+  return alias[n]||null;
+}
+async function cdImportEC(btn){
+  if(btn.disabled)return;btn.disabled=true;
+  try{
+    let rows;
+    try{rows=await gpageAll(listUrl(encodeURIComponent(LIST_EC))+'/items?expand=fields&$top=999');}
+    catch(e){toast('Couldn\'t read the Employee Contacts list — check it lives on the TWOSEVENINC site and you can open it there.','err',null,e.message);return;}
+    /* status only syncs once the owner-created column exists — probe, don't 400 */
+    let hasStatus=false;
+    try{const cols=await gpageAll(listUrl(LIST_STAFF)+'/columns');hasStatus=cols.some(c=>c.name==='status');}catch(e){}
+    const recs=rows.map(it=>{
+      const m={};for(const k in it.fields)m[ecNorm(k)]=it.fields[k];
+      return{name:ecField(m,['employeename','title']),
+        status:ecField(m,['status']),
+        email:ecField(m,['email','workemail']).toLowerCase(),
+        phone:ecField(m,['primaryphone','phone','mobilephone']),
+        title:ecField(m,['currenttitle','jobtitle']),
+        dept:ecField(m,['department'])};
+    }).filter(r=>r.name);
+    if(!recs.length){toast('Employee Contacts returned no rows with a name — nothing to import.','err');return;}
+    const adds=[],updates=[],skipped=[],unmapped=[];
+    for(const r of recs){
+      const match=(r.email&&PEOPLE.find(p=>String(p.email||'').trim().toLowerCase()===r.email))
+        ||PEOPLE.find(p=>p.name.trim().toLowerCase()===r.name.toLowerCase());
+      if(!match){
+        if(!/^active$/i.test(r.status)){skipped.push(r.name+' ('+(r.status||'no status')+')');continue;}
+        const d=ecDept(r.dept);
+        if(r.dept&&!d)unmapped.push(r.name+' — "'+r.dept+'"');
+        adds.push({id:genId(),name:r.name,email:r.email,phone:r.phone,role:r.title,
+          depts:d?[d]:[],ooo:[],...(hasStatus?{status:r.status}:{})});
+      }else{
+        const ch={};
+        if(r.title&&r.title!==(match.role||''))ch.role=r.title;
+        if(r.phone&&r.phone!==(match.phone||''))ch.phone=r.phone;
+        if(r.email&&!String(match.email||'').trim())ch.email=r.email;
+        if(hasStatus&&r.status&&r.status!==(match.status||''))ch.status=r.status;
+        if(!(match.depts||[]).length){const d=ecDept(r.dept);
+          if(d)ch.depts=[d];else if(r.dept)unmapped.push(r.name+' — "'+r.dept+'"');}
+        if(Object.keys(ch).length)updates.push({id:match.id,name:match.name,ch});
+      }
+    }
+    console.log('[import] Employee Contacts →',{adds,updates,skipped,unmapped});
+    if(!adds.length&&!updates.length){toast('The roster already mirrors Employee Contacts — nothing to change.');return;}
+    const cap=(a,n)=>a.slice(0,n).join('\n  ')+(a.length>n?'\n  …and '+(a.length-n)+' more':'');
+    const msg='Mirror Employee Contacts into the roster?\n\n'
+      +(adds.length?'ADD '+adds.length+' active employee'+(adds.length===1?'':'s')+':\n  '+cap(adds.map(a=>a.name+(a.role?' — '+a.role:'')),12)+'\n\n':'')
+      +(updates.length?'UPDATE '+updates.length+' (title / phone / status from HR):\n  '+cap(updates.map(u=>u.name+' ('+Object.keys(u.ch).join(', ')+')'),12)+'\n\n':'')
+      +(skipped.length?'Skipped (not Active on the HR list): '+skipped.length+'\n':'')
+      +(unmapped.length?'Department not recognized (left for you to set):\n  '+cap(unmapped,8)+'\n':'')
+      +(hasStatus?'':'\nNote: employment status will sync once the status column exists on ShopTimeline_Staff.\n')
+      +'\nThe Employee Contacts list itself is never changed. Full detail is in the console.';
+    if(!confirm(msg))return;
+    const upById=new Map(updates.map(u=>[u.id,u.ch]));
+    savePeople([...PEOPLE.map(p=>upById.has(p.id)?{...p,...upById.get(p.id)}:p),...adds]);
+    CD_SEL=null;
+    toast('Imported from Employee Contacts: '+adds.length+' added, '+updates.length+' updated.');
+  }finally{btn.disabled=false;}
+}
+
 /* Current-vs-upcoming availability, from the person's OOO ranges. */
 function cdAvail(per){
   const t=fmtDate(today());
@@ -4243,6 +4336,7 @@ function renderCompanyPage(){
    +'<button class="pg-x" id="cd-x" title="Close — back to the timeline (Esc)">&times;</button></div>';
   h+='<div class="cd-head"><h2>'+(isPeople?'People':'Clients')+'</h2>'
    +'<span class="cd-sub">'+(isPeople?'The company roster — roles, departments and availability':'The company client directory and job-code aliases')+'</span>'
+   +(isPeople&&isAdmin()?'<button class="btn" id="cd-import" title="Mirror the HR Employee Contacts list into this roster — adds active employees, refreshes titles and phone numbers. The HR list is never changed.">Import from Employee Contacts</button>':'')
    +(isAdmin()?'<button class="btn btn-primary" id="cd-add">+ Add '+(isPeople?'person':'client')+'</button>':'')+'</div>';
   h+='<div class="cd-body"><div class="cd-list"><div class="cd-tools">'
    +'<input id="cd-q" type="text" placeholder="Search '+(isPeople?'people':'clients')+'…">'
@@ -4257,6 +4351,8 @@ function renderCompanyPage(){
   if(ds)ds.addEventListener('change',()=>{CD_DEPT=ds.value;cdPaintRows();});
   document.getElementById('cd-back').addEventListener('click',goTimeline);
   document.getElementById('cd-x').addEventListener('click',goTimeline);
+  const impBtn=document.getElementById('cd-import');
+  if(impBtn)impBtn.addEventListener('click',()=>cdImportEC(impBtn));
   const addBtn=document.getElementById('cd-add');
   if(addBtn)addBtn.addEventListener('click',()=>{
     if(CD_EDIT&&!confirm('Discard the changes to this record?'))return;
@@ -4314,6 +4410,8 @@ function cdPaintDetail(){
      +(per.role?'<div class="cdd-role">'+esc(per.role)+'</div>':'')+'</div><dl>'
      +'<div class="cdd-f"><dt>Work email</dt><dd>'+(per.email?esc(per.email):'—')+'</dd></div>'
      +'<div class="cdd-f"><dt>Phone</dt><dd>'+(per.phone?esc(per.phone):'—')+'</dd></div>'
+     /* v1.13.0: employment status, mirrored from Employee Contacts (read as information) */
+     +(per.status?'<div class="cdd-f"><dt>Status</dt><dd>'+esc(per.status)+'</dd></div>':'')
      +'<div class="cdd-f"><dt>Departments</dt><dd>'+((per.depts||[]).map(d=>esc(cdDeptLbl(d))).join(' · ')||'—')+'</dd></div>'
      +'<div class="cdd-f"><dt>Availability</dt><dd>'
        +'<span class="cd-avail'+(av.now?' away':'')+'">'+esc(av.now?av.txt:'Available')+'</span>'
@@ -4448,6 +4546,7 @@ function cdSavePerson(){
     admin:r.admin==null?null:!!r.admin,
     developer:!!r.developer,
     personalNotes:r.personalNotes==null?null:r.personalNotes,
+    status:r.status==null?null:r.status,
     listeningTo:r.listeningTo==null?null:r.listeningTo,
     listeningLink:r.listeningLink==null?null:r.listeningLink,
     listeningVerb:r.listeningVerb==null?null:r.listeningVerb,
