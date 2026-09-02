@@ -184,9 +184,14 @@ body.lens-dept #sb-foot{display:none}
 /* v1.8.0 (§3 item 12): the viewer role. Admin-only chrome disappears, and locked edit
    fields flatten so they read as plain text ("visible, locked") — checkbox groups show
    only their checked names. Workflow protection, not security (milestone record). */
-body.viewer #btn-new-proj,body.viewer .lock-tog,body.viewer #mi-clients,
-body.viewer #tm-save,body.viewer #tm-del,body.viewer #tm-tnadd,body.viewer #task-overlay .tn-x,
-body.viewer [data-pop-del]{display:none}
+body.viewer #btn-new-proj,body.viewer #mi-clients,
+body.viewer:not(.vg-phases) .lock-tog,
+body.viewer:not(.vg-subtasks) #tm-save,body.viewer:not(.vg-subtasks) #tm-del,
+body.viewer:not(.vg-subtasks) #tm-tnadd,body.viewer:not(.vg-subtasks) #task-overlay .tn-x,
+/* v1.11.0: each popover's Delete follows ITS door — the popover carries data-kind */
+body.viewer:not(.vg-phases) #npv-pop[data-kind=phase] [data-pop-del],
+body.viewer:not(.vg-milestones) #npv-pop[data-kind=ev] [data-pop-del],
+body.viewer:not(.vg-notes) #npv-pop[data-kind=tk] [data-pop-del]{display:none}
 body.viewer #pp-insp input:disabled,body.viewer #pp-insp select:disabled,body.viewer #pp-insp textarea:disabled,
 body.viewer .npv-pop input:disabled,body.viewer .npv-pop select:disabled,body.viewer .npv-pop textarea:disabled,
 body.viewer #task-overlay input:disabled,body.viewer #task-overlay select:disabled,body.viewer #task-overlay textarea:disabled{
@@ -1149,6 +1154,19 @@ body.cd-route #dash-bar{display:none!important}
 .cd-del{color:#94A3B8;margin-right:auto}
 .cd-del:hover{color:#CE4242;border-color:#CE4242}
 @media(max-width:900px){.cd-body{flex-direction:column}.cd-list{width:auto;max-width:none;border-right:none;border-bottom:1px solid #E2E8F0;max-height:45vh}}
+/* v1.11.0: the dev App Settings page */
+.as-body{max-width:620px;padding:0 26px 40px;overflow-y:auto}
+.as-body h3{font-size:var(--fs-fine);font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:var(--txt-micro);margin:26px 0 8px}
+.as-src{font-size:12px;color:#5B7C99;background:#F1F6FB;border:1px solid #D8E2EF;border-radius:8px;padding:8px 12px;margin-top:14px}
+.as-src.warn{color:#8A5A18;background:#FCF4E4;border-color:#EAD199}
+.as-src code{font-family:var(--mono);font-size:11px}
+.as-note{font-size:12px;color:#7488A3;margin-bottom:10px}
+.as-row{display:flex;align-items:flex-start;gap:10px;padding:9px 10px;border:1px solid #E2E8F0;border-radius:8px;margin-bottom:6px;cursor:pointer;background:#fff}
+.as-row:hover{border-color:#CBD6E4}
+.as-row input[type=checkbox]{width:14px;height:14px;margin-top:2px;accent-color:#3B7FD6;flex-shrink:0}
+.as-txt{display:flex;flex-direction:column;gap:2px}
+.as-txt b{font-size:12.5px;color:#1E293B;font-weight:600}
+.as-txt span{font-size:11.5px;color:#7488A3}
 </style>
 </head>
 <body>
@@ -1185,6 +1203,7 @@ body.cd-route #dash-bar{display:none!important}
         <div class="sm-item" id="mi-shortcuts" title="Every keyboard shortcut on this view">Keyboard shortcuts</div>
         <div class="sm-item" id="mi-legend" title="What the colors, patterns and markers mean">Legend</div>
         <div class="sm-item" id="mi-report" title="File a bug or ask for a feature — lands on SharePoint with your name attached">Report a bug or idea</div>
+        <div class="sm-item hidden" id="mi-appset" title="Developer switches — viewer permission grants and experimental features">App settings</div>
         <div class="sm-note">Shop Timeline · v<span id="tb-rev-num"></span></div>
       </div>
       <div id="legend-menu" class="tb-menu hidden"></div>
@@ -1446,7 +1465,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.10.0'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.11.0'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -1953,6 +1972,10 @@ const LIST_CLIENTS='ShopTimeline_Clients';
    appVersion, appId. Screenshots go to the site's default document library (Graph
    v1.0 has no list-item attachment API) and the item links to them. */
 const LIST_FEEDBACK='ShopTimeline_Feedback';
+/* v1.11.0 (owner ask 09-02): app-wide settings — key/value rows edited on the dev
+   App Settings page. App-only, additive; owner creates it (Title = key, plus one
+   single-line text column `value`). Missing list = settings stay browser-local. */
+const LIST_CONFIG='ShopTimeline_Config';
 const SCOPES=['User.Read','Sites.ReadWrite.All'];
 let PCA=null,ACCOUNT=null,SITE_ID=null;
 let SP_IDS={proj:{},task:{},staff:{},todo:{},event:{}};   /* our appId -> SharePoint item id */
@@ -2325,8 +2348,11 @@ document.getElementById('sync-pill').addEventListener('click',()=>{
 let ST_GEN=0;   /* REV90: bumped on every local ST mutation — the poll aborts if it moved mid-fetch */
 function saveState(s){
   /* v1.8.0: the one choke point every shared-data edit funnels through — a door the
-     UI gating missed still can't write for a viewer. */
-  if(isViewer()){toast('View-only access — ask an admin to make changes.','err');render();return;}
+     UI gating missed still can't write for a viewer.
+     ponytail (v1.11.0): any viewer grant opens this choke point wholesale — the UI
+     doors carry the per-kind granularity; split the diff by kind here only if a
+     partially-granted viewer ever reaches an ungranted door. */
+  if(isViewer()&&!vgrantAny()){toast('View-only access — ask an admin to make changes.','err');render();return;}
   ST_GEN++;
   const old=ST;pushUndo(old);
   ST={projects:stampUpdated(s.projects,old.projects),tasks:stampUpdated(s.tasks,old.tasks),
@@ -2488,11 +2514,69 @@ function isAdmin(){
 }
 function isViewer(){return !isAdmin();}
 function feedbackRecipients(){return PEOPLE.filter(p=>p.feedbackRecipient&&String(p.email||'').includes('@')).map(p=>p.email.trim());}
+/* ===== v1.11.0 (owner ask 09-02): app settings — granular viewer grants ===== */
+/* CFG is app-wide configuration, read by everyone at load and edited only on the
+   developer's App Settings page (Help ▸ App settings). Stored on the app-side
+   ShopTimeline_Config list (Title = key, value = '1'/''); while the list doesn't
+   exist the page still works but settings stay in THIS browser only (the
+   Staff/Tasks2 degrade pattern). viewer.* grants open one edit door for non-admins
+   while everything else stays locked — defaults all OFF (owner: "leave non-admin
+   mostly gated for now").
+   ponytail: grants are read at load, not re-polled — a flipped toggle reaches users
+   on their next reload; add CFG to the 90s poll only if that lag ever bites. */
+const CFG_META=[
+  ['viewer.project',   'Project settings',  'Non-admins can edit project setup, team and departments on the project page'],
+  ['viewer.phases',    'Phase edits',       'Non-admins can move, resize, rename, add and delete phases (and unlock dates)'],
+  ['viewer.subtasks',  'Subtasks',          'Non-admins can add and edit subtasks in the task editor'],
+  ['viewer.milestones','Milestones',        'Non-admins can add, edit and delete milestones'],
+  ['viewer.notes',     'Notes',             'Non-admins can add, edit and delete dated notes'],
+  ['exp.listening',    'Listening to (experimental)','The personal "listening to / reading / thinking about" line on Summary pages'],
+];
+const CFG_DEFAULTS=Object.fromEntries(CFG_META.map(m=>[m[0],false]));
+let CFG={...CFG_DEFAULTS},CFG_OK=false,SP_CFG_IDS={};
+const CFG_KEY='shopTimelineCfg';
+async function loadConfig(){
+  try{
+    const r=await gpageAll(listUrl(LIST_CONFIG)+'/items?expand=fields&$top=200');
+    CFG={...CFG_DEFAULTS};SP_CFG_IDS={};
+    for(const it of r){const k=it.fields.Title;if(!(k in CFG_DEFAULTS))continue;
+      SP_CFG_IDS[k]=it.id;CFG[k]=String(it.fields.value||'')==='1';}
+    CFG_OK=true;
+  }catch(e){
+    CFG_OK=false;
+    try{Object.assign(CFG,JSON.parse(localStorage.getItem(CFG_KEY)||'{}'));}catch(e2){}
+  }
+}
+function saveConfigKey(k,v){
+  CFG[k]=!!v;
+  try{localStorage.setItem(CFG_KEY,JSON.stringify(CFG));}catch(e){}
+  if(CFG_OK){
+    setSync('busy');
+    (SP_CFG_IDS[k]
+      ?gfetch(listUrl(LIST_CONFIG)+'/items/'+SP_CFG_IDS[k]+'/fields',{method:'PATCH',body:JSON.stringify({value:v?'1':''})})
+      :gfetch(listUrl(LIST_CONFIG)+'/items',{method:'POST',body:JSON.stringify({fields:{Title:k,value:v?'1':''}})}).then(r=>{SP_CFG_IDS[k]=r.id;}))
+    .then(()=>setSync('ok','synced '+stamp()))
+    .catch(e=>{console.error(e);setSync('err','setting not saved');
+      toast('Couldn\'t save the setting to SharePoint — it\'s applied in this browser only for now.','err',null,e.message);});
+  }else{
+    toast('Saved in this browser only — create the ShopTimeline_Config list to share settings with everyone.','err');
+  }
+  applyPerms();
+}
+/* Can the signed-in user pass this edit door? Admins always; viewers when granted. */
+function vcan(k){return isAdmin()||!!CFG['viewer.'+k];}
+function vgrantAny(){return CFG_META.some(m=>m[0].indexOf('viewer.')===0&&CFG[m[0]]);}
 /* Read-only presentation — fields visible, locked ("Project Edit fields render as
-   plain text"). CSS under body.viewer flattens the disabled controls. */
-function viewerLock(box){
+   plain text"). CSS under body.viewer flattens the disabled controls.
+   v1.11.0: `kind` names the door a box belongs to — a granted kind skips the lock;
+   agenda rows inside a box grade themselves by their own row kind. */
+function viewerLock(box,kind){
   if(!isViewer()||!box)return;
-  box.querySelectorAll('input,select,textarea').forEach(el=>{el.disabled=true;el.tabIndex=-1;});
+  box.querySelectorAll('input,select,textarea').forEach(el=>{
+    const ag=el.closest?el.closest('.ag-i'):null;
+    const k=ag?(ag.dataset.agK==='ev'?'milestones':'notes'):kind;
+    if(k&&vcan(k))return;
+    el.disabled=true;el.tabIndex=-1;});
 }
 function applyPerms(){
   const v=isViewer();
@@ -2515,7 +2599,12 @@ function applyPerms(){
        tu.classList.remove('hidden');
      }
    }}
-  if(v&&!DATE_LOCK){ /* Lock Dates on by default and the toggle hidden (owner spec) */
+  /* v1.11.0: grant classes let CSS re-open specific admin-only chrome per door. */
+  for(const m of CFG_META)if(m[0].indexOf('viewer.')===0)
+    document.body.classList.toggle('vg-'+m[0].slice(7),v&&!!CFG[m[0]]);
+  /* v1.11.0: Help ▸ App settings — developers only. */
+  {const mi=document.getElementById('mi-appset');if(mi)mi.classList.toggle('hidden',!isDeveloper());}
+  if(v&&!vcan('phases')&&!DATE_LOCK){ /* Lock Dates on by default and the toggle hidden (owner spec); the phases grant hands the toggle back */
     DATE_LOCK=true;
     const ck=document.getElementById('lock-ck');if(ck)ck.checked=true;
   }
@@ -2902,6 +2991,7 @@ function render(){
   /* v1.7.0: a data repaint of a Company Data page — the edit buffer (CD_EDIT) is the
      source of the editor's values, so a repaint mid-edit keeps everything typed. */
   if(typeof ROUTE!=='undefined'&&ROUTE&&(ROUTE.view==='people'||ROUTE.view==='clients')){document.body.classList.remove('me-dock-on');renderCompanyPage();return;}
+  if(typeof ROUTE!=='undefined'&&ROUTE&&ROUTE.view==='settings'){document.body.classList.remove('me-dock-on');renderAppSettings();return;} /* v1.11.0 */
   DW_PX=vpw()/FIT; /* v1.5.0: px-per-day follows the live viewport, once per render */
   document.body.classList.toggle('lens-dept',LENS==='dept'); /* v1.7.2: sort is a Projects-lens concept */
   const{s,e}=computeRange();TL_S=s;TL_E=e;
@@ -3662,7 +3752,7 @@ function makeTaskBar(t,row,lane,labelMode){
    capped at the bar's outer thirds so a move zone always survives in the middle. */
 function edgeZone(w,base){return w&&w<60?Math.min(12,Math.round(w/3)):base;}
 function startDrag(ev,taskId,bar,row){
-  if(isViewer())return; /* v1.8.0: no drags — a click still opens the (locked) modal */
+  if(!vcan('phases'))return; /* v1.8.0: no viewer drags (v1.11.0: unless granted) — a click still opens the modal */
   const rect=bar.getBoundingClientRect(),relX=ev.clientX-rect.left,w=rect.width;
   const hz=edgeZone(w,9);
   let type=relX<=hz?'resize-l':relX>=w-hz?'resize-r':'move';
@@ -3917,7 +4007,7 @@ function openTaskModal(taskId,prefill){
   renderTnList();
   document.getElementById('tm-del').classList.toggle('hidden',!t);
   document.getElementById('task-overlay').classList.remove('hidden');
-  viewerLock(document.getElementById('task-overlay')); /* v1.8.0: visible, locked */
+  viewerLock(document.getElementById('task-overlay'),'subtasks'); /* v1.8.0: visible, locked (v1.11.0: unless the subtasks grant is on) */
   TM_SNAP=tmSnap();
 }
 /* N2: what the modal's form serializes to — compared on close to catch silent discards. */
@@ -3987,6 +4077,48 @@ function goPeople(){location.hash='#/people';}
 function goClients(){location.hash='#/clients';}
 document.getElementById('mi-people').addEventListener('click',()=>{closeMenus();goPeople();});
 document.getElementById('mi-clients').addEventListener('click',()=>{closeMenus();goClients();});
+document.getElementById('mi-appset').addEventListener('click',()=>{closeMenus();location.hash='#/settings';});
+
+/* ===== v1.11.0 (owner ask 09-02): the developer App Settings page ===== */
+/* Help ▸ App settings, developers only (menu entry hidden otherwise; a direct hash
+   bounces home — same catch the client page uses for viewers). Toggles write
+   through saveConfigKey: shared via ShopTimeline_Config when it exists, this
+   browser only until then. */
+function renderAppSettings(){
+  if(!isDeveloper()){
+    ROUTE={view:'timeline',id:null,creating:false};
+    toast('App settings are developer-only.','err');
+    location.hash='#/';return;
+  }
+  const pg=document.getElementById('page');
+  const row=m=>'<label class="as-row"><input type="checkbox" data-cfg="'+m[0]+'"'+(CFG[m[0]]?' checked':'')+'>'
+    +'<span class="as-txt"><b>'+esc(m[1])+'</b><span>'+esc(m[2])+'</span></span></label>';
+  let h='<div class="pg dash">';
+  h+='<div class="dash-top"><nav class="pg-trail">'
+   +'<button class="pg-cr" id="cd-back" title="Back to the timeline (Esc)">All Projects</button>'
+   +'<span class="pg-sep">&rsaquo;</span>'
+   +'<span class="pg-cr cur">App settings</span></nav>'
+   +'<button class="pg-x" id="cd-x" title="Close — back to the timeline (Esc)">&times;</button></div>';
+  h+='<div class="cd-head"><h2>App settings</h2>'
+   +'<span class="cd-sub">Developer switches. Everyone reads these at sign-in — a change reaches users on their next reload.</span></div>';
+  h+='<div class="as-body">'
+   +'<div class="as-src'+(CFG_OK?'':' warn')+'">'+(CFG_OK
+      ?'Shared with everyone via the ShopTimeline_Config list.'
+      :'ShopTimeline_Config list not found — these switches apply in THIS browser only. Create the list on the site (Title = key, plus one single-line text column named <code>value</code>) to share them.')+'</div>'
+   +'<h3>Viewer permissions</h3>'
+   +'<div class="as-note">Each switch opens one edit door for non-admin users. All off = the v1.8.0 read-only viewer.</div>'
+   +CFG_META.filter(m=>m[0].indexOf('viewer.')===0).map(row).join('')
+   +'<h3>Experimental</h3>'
+   +CFG_META.filter(m=>m[0].indexOf('exp.')===0).map(row).join('')
+   +'</div></div>';
+  pg.innerHTML=h;
+  document.getElementById('cd-back').addEventListener('click',goTimeline);
+  document.getElementById('cd-x').addEventListener('click',goTimeline);
+  pg.querySelectorAll('[data-cfg]').forEach(ck=>ck.addEventListener('change',()=>{
+    saveConfigKey(ck.dataset.cfg,ck.checked);
+    toast((CFG[ck.dataset.cfg]?'On: ':'Off: ')+CFG_META.find(m=>m[0]===ck.dataset.cfg)[1]);
+  }));
+}
 
 /* Current-vs-upcoming availability, from the person's OOO ranges. */
 function cdAvail(per){
@@ -4425,6 +4557,7 @@ function parseHash(){
      on the page too — per-record URLs are a ledgered later, not a 404. */
   if(h==='people'||h.indexOf('people/')===0)return{view:'people',id:null,creating:false};
   if(h==='clients'||h.indexOf('clients/')===0)return{view:'clients',id:null,creating:false};
+  if(h==='settings')return{view:'settings',id:null,creating:false}; /* v1.11.0: dev App Settings */
   return{view:'timeline',id:null,creating:false};
 }
 function goProject(id){location.hash='#/project/'+(id?encodeURIComponent(id):'new');}
@@ -4456,16 +4589,17 @@ function applyRoute(){
     document.body.classList.remove('cd-route');
     mn.classList.add('hidden');pg.classList.remove('hidden');
     renderProjectPage();
-  }else if(r.view==='people'||r.view==='clients'){
+  }else if(r.view==='people'||r.view==='clients'||r.view==='settings'){
     /* v1.7.0: a Company Data page — the project page's chrome pattern (own location,
-       #main hidden, timeline toolbar row gone), read-first master/detail inside. */
+       #main hidden, timeline toolbar row gone), read-first master/detail inside.
+       v1.11.0: the dev App Settings page rides the same chrome. */
     if(ROUTE.view!==r.view){CD_Q='';CD_DEPT='all';CD_SEL=null;CD_EDIT=null;}
     ROUTE=r;
     document.body.classList.remove('pp-route');
     document.body.classList.add('cd-route');
     document.body.classList.remove('me-dock-on');
     mn.classList.add('hidden');pg.classList.remove('hidden');
-    renderCompanyPage();
+    if(r.view==='settings')renderAppSettings();else renderCompanyPage();
   }else{
     document.body.classList.remove('pp-route');
     document.body.classList.remove('cd-route');
@@ -4597,7 +4731,7 @@ function renderProjectPage(){
   h+='<div class="dash-foot">'
    /* Left: passive status — reads as state, not a control. v1.8.0: for a viewer the
       honest state is view-only, not "changes saved". */
-   + (isNew?'':(isViewer()?'<span class="pg-auto">View only — ask an admin to edit</span>'
+   + (isNew?'':((isViewer()&&!vgrantAny())?'<span class="pg-auto">View only — ask an admin to edit</span>'
                           :'<span class="pg-auto"><b>&#10003;</b> Changes saved</span>'))
    /* Right: actions on the project, weakest→strongest. Delete is a subdued destructive
       (red only on hover) that confirms; Mark complete is the secondary workflow step;
@@ -5097,7 +5231,7 @@ function ppInspector(){
      + (sel.pinned?' checked':'')+'> 📌 Pin dates — the bar refuses drags and resizes</label></div>';
     /* N11 said adds live on right-click; the +Subtask/+Event/+Task buttons duplicated
        that and are gone. Keyboard S/E/T still works. */
-    if(!isViewer())f+='<div class="ins-acts">'
+    if(vcan('phases'))f+='<div class="ins-acts">'
      + '<button class="ins-btn" id="ins-dup" title="Copy this phase as a new bar">Duplicate</button>'
      + '<button class="ins-btn dngr" id="ins-del" title="Delete this phase">Delete</button></div>';
     h+=ppSec('phase','This phase',f,null,true);
@@ -5136,14 +5270,14 @@ function ppInspector(){
         + '<div class="pg-rbox" id="'+r[0]+'"></div></div>').join('')+'</div>',null,false);
     h+=ppSec('depts','Departments',
       '<div class="pg-depts" id="pp-depts"></div>'
-      + (isViewer()?'':'<div class="ins-note">Right-click the chart to add one where you want it.</div>'),
+      + (vcan('phases')?'<div class="ins-note">Right-click the chart to add one where you want it.</div>':''),
       null,false);
     h+=ppAgendaHTML(p,null);
     h+='</div>';
   }
   box.innerHTML=h;
   ppBindInspector(p,sel);
-  viewerLock(box); /* v1.8.0: fields render as information for viewers */
+  viewerLock(box,sel?'phases':'project'); /* v1.8.0: fields render as information for viewers (v1.11.0: the section's grant unlocks it; agenda rows self-grade) */
 }
 
 /* One agenda. Everything dated on the job in one chronological list, undated first so it
@@ -5170,12 +5304,13 @@ function ppAgendaHTML(p,onlyDept){
   /* v1.4.0 (08-31 objs 3/6): a milestone row is date | name | phase; a note row is
      date | name only. The type datalist, milestone notes and note who/phase inputs
      are gone (stored fields untouched; old data still reads). */
-  /* v1.8.0: adding is admin-only; a viewer's empty state skips the how-to-add copy */
-  let body=isViewer()?'':'<div class="ag-add">'
-   + '<button class="ins-btn" data-ag="ev" title="Add a dated milestone - an approval, release, or hold (E)">+ Milestone <kbd>E</kbd></button>'
-   + '<button class="ins-btn" data-ag="tk" title="Add a dated note (T)">+ Note <kbd>T</kbd></button></div>';
+  /* v1.8.0: adding is admin-only; a viewer's empty state skips the how-to-add copy.
+     v1.11.0: each add button follows its own grant. */
+  const agAdd=(vcan('milestones')?'<button class="ins-btn" data-ag="ev" title="Add a dated milestone - an approval, release, or hold (E)">+ Milestone <kbd>E</kbd></button>':'')
+   + (vcan('notes')?'<button class="ins-btn" data-ag="tk" title="Add a dated note (T)">+ Note <kbd>T</kbd></button>':'');
+  let body=agAdd?'<div class="ag-add">'+agAdd+'</div>':'';
   if(!shown.length){
-    body+=isViewer()?'<div class="ag-empty">No milestones or notes yet.</div>'
+    body+=!agAdd?'<div class="ag-empty">No milestones or notes yet.</div>'
      :'<div class="ag-empty">No milestones or notes yet.<br>Right-click the chart on the day '
      + 'it happens, or use the buttons above.</div>';
   }else{
@@ -5187,7 +5322,7 @@ function ppAgendaHTML(p,onlyDept){
        + '<input type="date" data-f="'+(ev?'date':'due')+'" value="'+esc(r.date||'')+'" title="Date">'
        + '<input class="nm" data-f="'+(ev?'name':'title')+'" value="'+esc(r.nm||'')+'"'
        +   (ev?' placeholder="Client approval"':' placeholder="Order acrylic"')+'>'
-       + (isViewer()?'':'<button class="del" title="Remove">&times;</button>')
+       + (vcan(ev?'milestones':'notes')?'<button class="del" title="Remove">&times;</button>':'')
        + (ev?'<select data-f="dept" title="The phase this rides on">'+deptOptions(r.dept)+'</select>':'')
        + '</div>';
     }
@@ -6343,7 +6478,7 @@ function npvBindHost(host){
     /* Double-click a title to rename it in place, like a folder in Explorer. Delegated
        on the host so it survives every re-render (bands/gutters are rewritten each paint). */
     host.addEventListener('dblclick',ev=>{
-      if(isViewer())return; /* v1.8.0: rename + blank-space create are edits */
+      if(!vcan('phases'))return; /* v1.8.0: rename + blank-space create are edits (v1.11.0: phase grant opens them) */
       const tg=ev.target;if(!tg||!tg.closest)return;
       /* Double-click is a rename intent; close the popover the paired single-clicks opened
          (calendar bands select-and-open on click) so the rename box stands alone. */
@@ -6385,7 +6520,7 @@ function npvBindHost(host){
          a plain click opens the agenda editor. Same cell-date machinery as bars. */
       const mkEl=ev.target.closest('.cal-band.ev,.cal-band.tk');
       if(mkEl){
-        if(isViewer())return; /* v1.8.0: marker drag + editor are edits (hover titles remain) */
+        if(!vcan(mkEl.dataset.mkK==='ev'?'milestones':'notes'))return; /* v1.8.0: marker drag + editor are edits (hover titles remain) */
         ev.preventDefault();
         const id=mkEl.dataset.mkId,k=mkEl.dataset.mkK,d0=mkEl.dataset.mkDate;
         if(!id)return;
@@ -6444,7 +6579,7 @@ function npvBindHost(host){
          forward to a workday and the end back, and the nesting clamp holds. */
       const hdl=ev.target.closest('.cal-hdl');
       const resize=hdl?(hdl.classList.contains('r')?'r':'l'):'';
-      const locked=isViewer()||(!!resize&&(DATE_LOCK||!!t.pinned)); /* v1.8.0: viewers never mutate */
+      const locked=!vcan('phases')||(!!resize&&(DATE_LOCK||!!t.pinned)); /* v1.8.0: viewers never mutate (v1.11.0: unless granted) */
       const s0=parseDate(t.startDate),e0=parseDate(t.endDate);
       const twins=NPV_TASKS.filter(z=>z.department===t.department&&(z.label||'')===(t.label||'')
         &&z.startDate===t.startDate&&z.endDate===t.endDate);
@@ -6556,7 +6691,7 @@ function npvBindHost(host){
         if(resize){
           if(locked||!edgeD){
             /* 3.5/I14: same courtesy as the Gantt — a refused resize says why. */
-            if(locked)toast(isViewer()?'View-only access — ask an admin to change the schedule'
+            if(locked)toast(!vcan('phases')?'View-only access — ask an admin to change the schedule'
                             :t.pinned?'📌 Pinned — untick Pin in the phase panel to resize it'
                                     :'Lock dates is on — unlock it to resize');
             return;
@@ -6637,7 +6772,10 @@ function npvBindHost(host){
       if(hv)hv.remove();if(hc)hc.remove();
     });
     host.addEventListener('contextmenu',ev=>{
-      if(isViewer()){ev.preventDefault();return;} /* v1.8.0: every entry is an edit */
+      /* v1.8.0: every entry is an edit. ponytail (v1.11.0): the menu opens on the
+         PHASES grant only — its builders offer phase/subtask creation; filter the
+         entries per-grant if a milestones/notes-only grant is ever flipped on. */
+      if(!vcan('phases')){ev.preventDefault();return;}
       if(NPV_MODE==='calendar'){
         /* REV53: parity with the Gantt — a phase band gets the bar menu, empty space
            gets the create menu seeded with the cell's date. REV72: marker bands
@@ -7270,6 +7408,7 @@ function npvPopRender(){
     el.addEventListener('mousedown',e=>e.stopPropagation());
     el.addEventListener('contextmenu',e=>{e.preventDefault();e.stopPropagation();});
   }
+  el.dataset.kind=NPV_POP.kind; /* v1.11.0: CSS grades the delete button by door */
   if(NPV_POP.kind==='phase'){
     const sel=ppSelected();
     if(!sel){npvPopClose();return;}
@@ -7283,7 +7422,7 @@ function npvPopRender(){
     npvPopPosition(el,NPV_POP.x,NPV_POP.y);
     npvPopBindMark(el,NPV_POP.kind,NPV_POP.id);
   }
-  viewerLock(el); /* v1.8.0: the in-place editor reads as information for viewers */
+  viewerLock(el,NPV_POP.kind==='phase'?'phases':NPV_POP.kind==='ev'?'milestones':'notes'); /* v1.8.0: reads as information for viewers */
   if(NPV_POP._new){
     NPV_POP._new=false;
     const n=el.querySelector('[data-f="label"],[data-f="name"],[data-f="title"]');
@@ -7419,7 +7558,7 @@ function npvBindDrag(){
   /* REV50: events and tasks move by dragging, same as bars. A click renames in place. */
   host.querySelectorAll('.npv-ev,.npv-tk').forEach(mk=>{
     mk.addEventListener('mousedown',ev=>{
-      if(ev.button!==0||!NPV_GEO||isViewer())return; /* v1.8.0: drag + editor are edits */
+      if(ev.button!==0||!NPV_GEO||!vcan(mk.dataset.mkK==='ev'?'milestones':'notes'))return; /* v1.8.0: drag + editor are edits */
       ev.preventDefault();ev.stopPropagation();
       npvBlur();
       const id=mk.dataset.mkId,k=mk.dataset.mkK,d0=mk.dataset.mkDate;
@@ -7480,7 +7619,7 @@ function npvBindDrag(){
       const resize=ev.target.classList.contains('npv-hdl')
         ?(ev.target.classList.contains('r')?'r':'l'):'';
       /* Locked: the drag is swallowed but a click still selects, like the timeline. */
-      const locked=isViewer()||(!!resize&&(DATE_LOCK||!!t.pinned)); /* v1.8.0: viewers never mutate */
+      const locked=!vcan('phases')||(!!resize&&(DATE_LOCK||!!t.pinned)); /* v1.8.0: viewers never mutate (v1.11.0: unless granted) */
       const x0=ev.clientX,y0=ev.clientY;
       let moved=false; /* ≥3px pointer travel — the §6 click/drag disambiguator */
       const s0=parseDate(t.startDate),e0=parseDate(t.endDate);
@@ -7553,7 +7692,7 @@ function npvBindDrag(){
         if(locked||!days){
           npvRender();
           /* 3.5/I14: a refused resize says WHY instead of silently snapping back. */
-          if(locked)toast(isViewer()?'View-only access — ask an admin to change the schedule'
+          if(locked)toast(!vcan('phases')?'View-only access — ask an admin to change the schedule'
                           :t.pinned?'📌 Pinned — untick Pin in the phase panel to resize it'
                                   :'Lock dates is on — unlock it to resize');
           return;
@@ -7756,8 +7895,9 @@ document.addEventListener('keydown',ev=>{
       if(PP_SEL){ppSelect(null);ev.preventDefault();return;}
       ev.preventDefault();goTimeline();return;
     }
-    /* v1.7.0: the Company Data pages — menu, typing, open editor, then the page. */
-    if(ROUTE.view==='people'||ROUTE.view==='clients'){
+    /* v1.7.0: the Company Data pages — menu, typing, open editor, then the page.
+       v1.11.0: App Settings walks home the same way (CD_EDIT is never set there). */
+    if(ROUTE.view==='people'||ROUTE.view==='clients'||ROUTE.view==='settings'){
       if(document.querySelector('.tb-menu:not(.hidden)')){closeMenus();ev.preventDefault();return;}
       if(typing){ev.target.blur();return;}
       if(CD_EDIT){if(confirm('Discard the changes to this record?')){CD_EDIT=null;cdPaintDetail();}ev.preventDefault();return;}
@@ -7789,9 +7929,15 @@ document.addEventListener('keydown',ev=>{
     if(k==='?'){toggleKbdMenu();ev.preventDefault();return;}
     if(k==='g'||k==='G'){NPV_MODE='gantt';npvRender();ev.preventDefault();return;}
     if(k==='c'||k==='C'){NPV_MODE='calendar';npvRender();ev.preventDefault();return;}
-    /* v1.8.0: the view keys above stay for viewers; the edit keys below are admin-only */
-    if(isViewer()&&(/^[etsr]$/i.test(k)||k==='Delete'||k==='Backspace'
-       ||(ev.shiftKey&&(k==='ArrowLeft'||k==='ArrowRight'))))return;
+    /* v1.8.0: the view keys above stay for viewers; the edit keys below are admin-only.
+       v1.11.0: each key follows its door's grant — E milestone, T note, S subtask,
+       R/Del/nudge phase. */
+    if(isViewer()){
+      const need=/^e$/i.test(k)?'milestones':/^t$/i.test(k)?'notes':/^s$/i.test(k)?'subtasks'
+        :(/^r$/i.test(k)||k==='Delete'||k==='Backspace'
+          ||(ev.shiftKey&&(k==='ArrowLeft'||k==='ArrowRight')))?'phases':null;
+      if(need&&!vcan(need))return;
+    }
     if(k==='e'||k==='E'){npvCreateEvent(dept,day);ev.preventDefault();return;}
     if(k==='t'||k==='T'){npvCreateTask(dept,day);ev.preventDefault();return;}
     if(k==='s'||k==='S'){if(dept)npvCreateSubtask(dept,day||fmtDate(new Date()));ev.preventDefault();return;}
@@ -7998,7 +8144,7 @@ document.getElementById('btn-lens-dept').addEventListener('click',()=>{if(LENS==
   saveUI();render();});
 document.getElementById('btn-new-proj').addEventListener('click',()=>openProjModal(null));
 document.getElementById('lock-ck').addEventListener('change',ev=>{
-  if(isViewer()){ev.target.checked=true;return;} /* v1.8.0: forced on for viewers */
+  if(isViewer()&&!vcan('phases')){ev.target.checked=true;return;} /* v1.8.0: forced on for viewers; the phases grant hands the toggle back */
   DATE_LOCK=ev.target.checked;document.body.classList.toggle('dates-locked',DATE_LOCK);});
 
 /* Search */
@@ -8712,7 +8858,7 @@ function openKbdMenu(){
   closeMenus();
   const m=document.getElementById('kbd-menu');
   const v=(typeof ROUTE!=='undefined'&&ROUTE)?ROUTE.view:'timeline';
-  const keys=v==='project'?KBD_PP:(v==='people'||v==='clients')?KBD_CD:KBD_TL;
+  const keys=v==='project'?KBD_PP:(v==='people'||v==='clients'||v==='settings')?KBD_CD:KBD_TL;
   m.innerHTML='<div class="lg-sec">Keyboard shortcuts</div><div class="ks-g">'
     +keys.map(k=>'<div><kbd>'+k[0]+'</kbd>'+k[1]+'</div>').join('')+'</div>';
   m.classList.remove('hidden');
@@ -8953,6 +9099,7 @@ async function boot(){
   rebuildStaff();
   /* N3: the client roster, same graceful-degrade idea (quiet at load, warn on save). */
   if(ACCOUNT)await loadClients();
+  if(ACCOUNT)await loadConfig(); /* v1.11.0: app-wide settings — grants apply from first render */
 }
 (async()=>{
   await boot();
