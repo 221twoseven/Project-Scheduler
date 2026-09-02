@@ -97,6 +97,12 @@ function main(){
       ok('…and the outgoing Graph PATCH carries driver:"1"', patched);
 
       sec('resizable columns and split (the testable core)');
+      /* v1.17.1 regression gate: the grips must be <i> CHILDREN OF THE HEADER ROW —
+         as spans inside the cells, the `.cd-cols span` rule out-specified `.cd-grip`
+         and collapsed every grip to 0px wide (owner: "columns are not resizeable"). */
+      ok('grips are header-row <i> elements, never cell spans',
+         doc.querySelectorAll('.cd-cols>i.cd-grip').length===7
+         &&doc.querySelectorAll('.cd-cols span .cd-grip').length===0);
       const sp=doc.querySelector('.cd-cols>span');
       E("cdColDrag(new MouseEvent('mousedown',{clientX:100}),document.querySelector('.cd-cols>span'),0)");
       doc.dispatchEvent(new win.MouseEvent('mousemove',{clientX:160}));

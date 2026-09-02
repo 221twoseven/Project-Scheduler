@@ -37,6 +37,18 @@ Suite `tests/test-v1170.js` (27 checks) — includes a Graph round-trip assert t
 a save writes `driver:'1'` on the outgoing PATCH. `test-v1100`'s index check now
 branches on the `cd-drv` marker (7 columns on v1.17.0+, 6 before).
 
+## v1.17.1 (same evening — owner: "columns are not resizeable")
+
+They weren't: the v1.17.0 grips were `<span>`s inside the header cells, and the
+`.cd-cols span` rule out-specified `.cd-grip` — `position:relative` beat
+`absolute` and every grip collapsed to 0px wide, so there was nothing to grab.
+The original check called `cdColDrag()` programmatically and never exercised the
+real hit target — lesson recorded. Grips are now `<i>` elements on the header row
+itself (full header height, always-visible divider line, darker on hover), seated
+at each column edge by `cdGripSync()` and tracking live during the drag. Verified
+this time with real mouse drags in a browser (column 243px, split 866px, both
+persisted). Regression check added to test-v1170 (28).
+
 ## Known ceilings
 
 - Column resize pins ONE column to px while the untouched columns share the rest

@@ -644,8 +644,11 @@ rule §5); old data keeps reading fine.
          now carries the index and record scroll positions across.
       6. **↑↓ walk the index selection** (People AND Clients; clamps at the ends,
          keeps the row in view; taught in the Help ▸ shortcuts popover).
-      Suite `tests/test-v1170.js` (27); test-v1100's index check branches on the
-      `cd-drv` marker.
+      Suite `tests/test-v1170.js`; test-v1100's index check branches on the
+      `cd-drv` marker. **v1.17.1 (same evening): the grips were real-mouse-dead —
+      a CSS specificity bug (`.cd-cols span` beat `.cd-grip`) collapsed them to
+      0px; rebuilt as header-row `<i>` elements with a visible divider (owner
+      report; regression-gated in test-v1170, now 28). `driver` column CREATED.**
 
 - [ ] **13. (Obj 4) Reconcile and absorb the 14 disparate data stores.** The app
       becomes the company's singular source of truth (the v1 "north star", now
@@ -795,11 +798,9 @@ rule §5); old data keeps reading fine.
   and PersonalEmail are never read at all.
 - `nickname` column on `ShopTimeline_Staff` (§3 item 38) — spec delivered
   2026-09-02 — **CREATED 2026-09-02 (Robert).**
-- `driver` column on `ShopTimeline_Staff` (§3 item 40) — **spec delivered
-  2026-09-02, Robert creates:** single-line text, values `1`/empty. Additive,
-  tristate in the app (other saves never 400 without it; a save that touches the
-  editor's Driver checkbox parks with the named-field toast until it exists).
-  Reads as a ✓ column on the People index and a Yes/— row on the record. ⚠
+- `driver` column on `ShopTimeline_Staff` (§3 item 40) — spec delivered
+  2026-09-02 — **CREATED 2026-09-02 (Robert).** Reads as a ✓ column on the People
+  index, a Yes/— row on the record, and a checkbox in the editor.
 - Candidate new column: a lifecycle/`status` column (Active/Inactive/Archived) on
   `ShopTimeline_Staff` and `ShopTimeline_Clients` (§3 item 27's archive-not-delete
   model) — additive; Robert applies it when item 27's lifecycle pass is designed

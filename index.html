@@ -1158,9 +1158,14 @@ body.cd-route #dash-bar{display:none!important}
 .cd-cols,.cd-row.pp7{grid-template-columns:
   var(--cdc1,minmax(0,1.05fr)) var(--cdc2,minmax(0,.9fr)) var(--cdc3,minmax(0,.7fr))
   var(--cdc4,minmax(0,1.15fr)) var(--cdc5,minmax(52px,auto)) var(--cdc6,auto) var(--cdc7,auto)}
-.cd-cols span{position:relative;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
-.cd-grip{position:absolute;right:0;top:0;bottom:0;width:9px;cursor:col-resize;z-index:2}
-.cd-grip:hover{border-right:2px solid #B9C6D8}
+/* v1.17.1: the grips live on the HEADER ROW as <i> elements — v1.17.0 had them as
+   spans inside the cells, where the `.cd-cols span` rule out-specified `.cd-grip`
+   and collapsed them to 0px (nothing to grab). Full header height, visible line. */
+.cd-cols{position:relative}
+.cd-cols span{min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.cd-grip{position:absolute;top:0;bottom:0;width:11px;cursor:col-resize;z-index:2}
+.cd-grip::after{content:'';position:absolute;left:5px;top:3px;bottom:3px;width:1px;background:#D8E2EF}
+.cd-grip:hover::after{left:4px;width:3px;background:#94A3B8}
 .cd-drv{font-size:12px;color:#1AA59C;font-weight:700}
 #cd-split{flex:0 0 6px;margin-left:-3px;cursor:col-resize}
 #cd-split:hover{background:#E2E8F0}
@@ -1540,7 +1545,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.17.0'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.17.1'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -4309,13 +4314,21 @@ function cdApplySizes(){
   const list=document.querySelector('.cd-list');if(!list)return;
   if(CD_LISTW){list.style.width=CD_LISTW+'px';list.style.maxWidth='none';}
   if(CD_COLW&&ROUTE.view==='people')CD_COLW.forEach((w,i)=>{if(w)list.style.setProperty('--cdc'+(i+1),w+'px');});
+  cdGripSync();
+}
+/* v1.17.1: seat each grip at its column's right edge (they track live during a drag) */
+function cdGripSync(){
+  const hdr=document.querySelector('.cd-cols');if(!hdr)return;
+  const sps=[...hdr.children].filter(el=>el.tagName==='SPAN');
+  [...hdr.querySelectorAll('.cd-grip')].forEach((g,i)=>{
+    const sp=sps[i];if(sp)g.style.left=(sp.offsetLeft+sp.offsetWidth-4)+'px';});
 }
 function cdColDrag(e,sp,i){
   e.preventDefault();
   const list=document.querySelector('.cd-list');if(!list)return;
   const w0=sp.offsetWidth,x0=e.clientX;
   const mv=ev=>{const w=Math.max(36,w0+ev.clientX-x0);
-    CD_COLW=CD_COLW||[];CD_COLW[i]=w;list.style.setProperty('--cdc'+(i+1),w+'px');};
+    CD_COLW=CD_COLW||[];CD_COLW[i]=w;list.style.setProperty('--cdc'+(i+1),w+'px');cdGripSync();};
   const up=()=>{document.removeEventListener('mousemove',mv);document.removeEventListener('mouseup',up);
     try{localStorage.setItem('shopTimelineCdColW',JSON.stringify(CD_COLW));}catch(err){}};
   document.addEventListener('mousemove',mv);document.addEventListener('mouseup',up);
@@ -4556,11 +4569,13 @@ function renderCompanyPage(){
   if(ds)ds.addEventListener('change',()=>{CD_DEPT=ds.value;cdPaintRows();});
   const pf=document.getElementById('cd-perm');
   if(pf){pf.value=CD_PF;pf.addEventListener('change',()=>{CD_PF=pf.value;cdPaintRows();});}
-  /* v1.17.0: pane split + header column grips */
+  /* v1.17.0: pane split + header column grips (v1.17.1: grips are <i> children of
+     the header row, positioned at each column edge by cdGripSync — see the CSS note) */
   document.getElementById('cd-split').addEventListener('mousedown',cdSplitDrag);
-  document.querySelectorAll('.cd-cols>span').forEach((sp,i)=>{
-    const g=document.createElement('span');g.className='cd-grip';g.title='Drag to resize this column';
-    g.addEventListener('mousedown',e=>cdColDrag(e,sp,i));sp.appendChild(g);});
+  const hdr=document.querySelector('.cd-cols');
+  if(hdr)[...hdr.children].filter(el=>el.tagName==='SPAN').forEach((sp,i)=>{
+    const g=document.createElement('i');g.className='cd-grip';g.title='Drag to resize this column';
+    g.addEventListener('mousedown',e=>cdColDrag(e,sp,i));hdr.appendChild(g);});
   cdApplySizes();
   document.getElementById('cd-back').addEventListener('click',goTimeline);
   document.getElementById('cd-x').addEventListener('click',goTimeline);
