@@ -492,6 +492,9 @@ rule §5); old data keeps reading fine.
       Noted for later: the owner's screenshot shows a double
       DIOR group — two case-different client spellings on projects (data condition;
       fix the client field on the projects or a future scrub, not rendering).
+      **Resolved 2026-09-02: owner checked the clients list and sees no double DIOR
+      group — condition no longer reproduces (likely healed by intervening client
+      edits). Closed unless it reappears.**
 - [x] **32. (09-01 late-evening handoff) Four owner asks — DONE 2026-09-01 (v1.9.0).**
       1. **Calendar edge-resize follows the pointer across week rows.** The v1.1.0
          px-for-px stretch was clamped to the grabbed segment's own week; only the
@@ -611,6 +614,17 @@ rule §5); old data keeps reading fine.
       - **Copy inventory delivered:** `docs/Copy-Coach-and-Helpers.md` — every
         coach-mark and helper/placeholder string, organized by surface for
         owner line edits.
+
+- [x] **39. (09-02 demo prep) Demo preamble slides, developer-only — DONE 2026-09-02
+      (v1.16.0).** For the 09-03 live demo the owner presents without slides but
+      wants on-screen text for the preamble. A developer's Help ▸ Take a tour now
+      opens four modal "slides" (standard `.overlay/.modal` chrome, Brauer Neue
+      titles, step counter, Skip/Back/Next, ← → Enter Esc keys) distilled from the
+      preamble script: planning-tool-to-hub, enter-it-once, who it's for, what it
+      isn't. The last button is **Start the tour** and runs the normal chained tour.
+      Everyone else's Help ▸ Tour and the first-visit auto-run are untouched; a
+      developer already on a project page skips the slides (mid-demo restarts).
+      Copy channel: `Copy-Coach-and-Helpers.md` §0. Suite `tests/test-v1160.js`.
 
 - [ ] **13. (Obj 4) Reconcile and absorb the 14 disparate data stores.** The app
       becomes the company's singular source of truth (the v1 "north star", now

@@ -1111,6 +1111,14 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 .coach-btns .t-btn:disabled{opacity:.4;cursor:default}
 .coach-btns .t-btn.accent{background:var(--acc);border-color:var(--acc-deep);color:#fff;margin-left:auto}
 #coach-skip{margin-right:auto}
+/* v1.16.0: demo preamble — developer-only intro "slides" shown before the tour.
+   The standard .overlay/.modal chrome; only the type is tuned for reading aloud. */
+#demo-modal{width:560px}
+#demo-step{font-family:var(--mono);font-size:var(--fs-fine);font-weight:600;letter-spacing:.1em;color:#7488A3;padding:22px 24px 0}
+#demo-modal h3{font-family:'Brauer Neue',var(--sans);font-weight:800;letter-spacing:.04em;font-size:21px;padding-top:6px}
+#demo-body{font-size:15px;line-height:1.55;color:#33415A;padding-bottom:12px}
+#demo-body p{margin:0 0 10px}
+#demo-body b{color:var(--ink)}
 
 /* ============ PRINT ============ */
 @media print{
@@ -1499,13 +1507,28 @@ body.cd-route #dash-bar{display:none!important}
     </div>
   </div>
 </div>
+<!-- v1.16.0: DEMO PREAMBLE — developer-only intro slides before the tour -->
+<div id="demo-overlay" class="overlay hidden">
+  <div class="modal" id="demo-modal">
+    <div id="demo-step"></div>
+    <h3 id="demo-title"></h3>
+    <div class="modal-body" id="demo-body"></div>
+    <div class="m-actions">
+      <button id="demo-skip" class="btn btn-ghost" title="Close — Help brings this back any time">Skip</button>
+      <div class="m-right">
+        <button id="demo-back" class="btn btn-ghost">Back</button>
+        <button id="demo-next" class="btn btn-primary">Next</button>
+      </div>
+    </div>
+  </div>
+</div>
 <div id="toasts"></div>
 <div id="print-root"></div>
 
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.15.2'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.16.0'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -9239,11 +9262,67 @@ function coachNext(){if(!COACH)return;
 function coachBack(){if(!COACH||!COACH.i)return;COACH.i--;coachShow();}
 /* Phase 4: Help is a menu now. "Take a tour" keeps the route-aware behaviour —
    project pages get their own shared tour in place (REV86). */
-document.getElementById('mi-tour').addEventListener('click',()=>{
+function tourStart(){
   if(ROUTE.view==='project'){coachStart(COACH_PP_STEPS);return;}
   /* v1.7.0: no Company Data tour — head home first, then run the app tour. */
   if(ROUTE.view!=='timeline'){goTimeline();setTimeout(()=>coachStart(),350);return;}
   coachStart();
+}
+/* v1.16.0: DEMO PREAMBLE (owner, for the 2026-09-03 live demo) — a developer's
+   Help ▸ Take a tour opens four modal "slides" of framing first, then runs the
+   normal chained tour. Everyone else's tour is untouched, and so is the
+   first-visit auto-run. Copy lives in docs/Copy-Coach-and-Helpers.md §0. */
+const DEMO_SLIDES=[
+  {t:'From planning tool to hub',
+   b:'<p>The Scheduler began as a Gantt planning tool: enter projects, assign people, see workload across a department.</p>'+
+     '<p>The work since has turned it into a company-wide system. The Gantt chart is still the center — but underneath it is a <b>shared source of truth</b> for our project, client, personnel, availability and scheduling data.</p>'},
+  {t:'Enter it once',
+   b:'<p>Today the information that runs our projects is spread across PM spreadsheets, staffing and time-off documents, Teams lists, Excel workbooks and SharePoint lists — much of it entered four or five times just to stay current.</p>'+
+     '<p>This isn’t another document on the pile: the app is connected to our company data in Microsoft 365. <b>Enter information once, maintain it in one place, and it becomes useful everywhere.</b> A PM changes a project date — it’s the same date on every schedule, calendar and dashboard.</p>'},
+  {t:'Who it’s for',
+   b:'<p><b>Management</b> — the company-wide view: what’s happening, what’s coming, where resources are committed, where we may have capacity or staffing issues.</p>'+
+     '<p><b>Project Managers</b> — where a project enters the schedule: the timeline, milestones and dates other departments plan around.</p>'+
+     '<p><b>Technical Design</b> — a planning and working tool: what we’re responsible for, when, and how it’s distributed.</p>'+
+     '<p><b>Shop &amp; production</b> — visibility: what’s coming, when it moves through the shop, who’s involved.</p>'+
+     '<p>These aren’t four separate schedules — everyone sees <b>different views of the same information</b>.</p>'},
+  {t:'What it isn’t',
+   b:'<p>This is not an ERP, and it doesn’t replace estimating, accounting, purchasing or HR. You’ll see personnel and project information only as far as it affects planning and scheduling — no budgets, no purchase orders.</p>'+
+     '<p>It exists to answer four questions: <b>What are we working on? When is it happening? Who is working on it? And what does everyone need to know to plan around it?</b></p>'+
+     '<p>Rather than tour features in the abstract, let’s walk through the app the way you’ll actually use it.</p>'}
+];
+let DEMO_I=-1; /* -1 = closed */
+function demoShow(){
+  const s=DEMO_SLIDES[DEMO_I];
+  document.getElementById('demo-step').textContent=(DEMO_I+1)+' / '+DEMO_SLIDES.length;
+  document.getElementById('demo-title').textContent=s.t;
+  document.getElementById('demo-body').innerHTML=s.b;
+  document.getElementById('demo-back').disabled=DEMO_I===0;
+  document.getElementById('demo-next').textContent=DEMO_I===DEMO_SLIDES.length-1?'Start the tour':'Next';
+}
+function demoEnd(go){
+  DEMO_I=-1;document.getElementById('demo-overlay').classList.add('hidden');
+  if(go)tourStart();
+}
+function demoStart(){DEMO_I=0;closeMenus();document.getElementById('demo-overlay').classList.remove('hidden');demoShow();}
+document.getElementById('demo-next').addEventListener('click',()=>{
+  if(DEMO_I>=DEMO_SLIDES.length-1){demoEnd(true);return;}
+  DEMO_I++;demoShow();});
+document.getElementById('demo-back').addEventListener('click',()=>{if(DEMO_I>0){DEMO_I--;demoShow();}});
+document.getElementById('demo-skip').addEventListener('click',()=>demoEnd(false));
+/* capture: while the slides are up they own the keys — nothing behind them reacts */
+document.addEventListener('keydown',ev=>{
+  if(DEMO_I<0)return;
+  if(ev.key==='Escape')demoEnd(false);
+  else if(ev.key==='ArrowRight'||ev.key==='Enter')document.getElementById('demo-next').click();
+  else if(ev.key==='ArrowLeft')document.getElementById('demo-back').click();
+  else return;
+  ev.preventDefault();ev.stopPropagation();
+},true);
+document.getElementById('mi-tour').addEventListener('click',()=>{
+  /* a developer already ON a project page skips the slides — mid-demo restarts
+     shouldn't replay the preamble over the project tour */
+  if(isDeveloper()&&ROUTE.view!=='project'){demoStart();return;}
+  tourStart();
 });
 /* v1.6.1: keyboard shortcuts are a Help popover like the Legend — same tb-menu
    machinery, so opening one mutes the other and outside-click/Esc close both.

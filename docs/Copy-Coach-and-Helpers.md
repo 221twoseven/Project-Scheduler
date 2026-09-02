@@ -1,4 +1,4 @@
-# Copy inventory — coach marks & helper text (v1.15.1, 2026-09-02 — owner revision APPLIED)
+# Copy inventory — coach marks & helper text (v1.16.0, 2026-09-02 — owner revision APPLIED)
 
 Every piece of instructional copy in the app, organized so you can edit language in
 place. **How to use this:** change any "current text" line here (or mark it up
@@ -7,6 +7,21 @@ swap is mechanical. Character counts aren't hard limits, but tour bodies read be
 under ~220 characters and placeholders under ~60.
 
 ---
+
+## 0. Demo preamble slides (developer login only — v1.16.0)
+
+Shown only when a **developer** opens Help ▸ Take a tour (everyone else goes straight
+to the tour, unchanged). Four modal slides distilled from the 09-03 demo preamble;
+the last button reads **Start the tour** and runs the normal chained tour. Bold
+below renders bold in the slide. Buttons: **Skip** · **Back** · **Next**. Keys:
+← → / Enter advance, Esc closes.
+
+| # | Title | Body |
+|---|---|---|
+| 1 | From planning tool to hub | The Scheduler began as a Gantt planning tool: enter projects, assign people, see workload across a department. ¶ The work since has turned it into a company-wide system. The Gantt chart is still the center — but underneath it is a **shared source of truth** for our project, client, personnel, availability and scheduling data. |
+| 2 | Enter it once | Today the information that runs our projects is spread across PM spreadsheets, staffing and time-off documents, Teams lists, Excel workbooks and SharePoint lists — much of it entered four or five times just to stay current. ¶ This isn't another document on the pile: the app is connected to our company data in Microsoft 365. **Enter information once, maintain it in one place, and it becomes useful everywhere.** A PM changes a project date — it's the same date on every schedule, calendar and dashboard. |
+| 3 | Who it's for | **Management** — the company-wide view: what's happening, what's coming, where resources are committed, where we may have capacity or staffing issues. ¶ **Project Managers** — where a project enters the schedule: the timeline, milestones and dates other departments plan around. ¶ **Technical Design** — a planning and working tool: what we're responsible for, when, and how it's distributed. ¶ **Shop & production** — visibility: what's coming, when it moves through the shop, who's involved. ¶ These aren't four separate schedules — everyone sees **different views of the same information**. |
+| 4 | What it isn't | This is not an ERP, and it doesn't replace estimating, accounting, purchasing or HR. You'll see personnel and project information only as far as it affects planning and scheduling — no budgets, no purchase orders. ¶ It exists to answer four questions: **What are we working on? When is it happening? Who is working on it? And what does everyone need to know to plan around it?** ¶ Rather than tour features in the abstract, let's walk through the app the way you'll actually use it. |
 
 ## 1. The tour — home page (Global Gantt)
 
