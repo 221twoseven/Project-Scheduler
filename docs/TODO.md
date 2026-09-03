@@ -21,7 +21,16 @@ single-source-of-truth milestone** (§3 item 13) — the app becoming the compan
 database is the breaking change the major number exists for. `APP_VER` in `index.html`
 is the source of truth; keep `package.json` aligned.
 
-Last reviewed: 2026-09-02 — the owner's nine-item morning brief filed as §3 items
+Last reviewed: 2026-09-02 (evening) — a repo-wide audit + high-effort code review of
+the whole `main...development` span surfaced 16 confirmed defects; **all 16 shipped as
+v1.18.1** (permission doors actually per-kind, staff-poll race closed, client/config
+retry parks, CD_EDIT exit leak, v1-era zoom migration, Everything-view client reset,
+nickname search, test-runner skip detector + mojibake repair — record:
+`docs/Milestones/2026-09-02-v1181-audit-fixes.md`). One owner action open from it:
+**merge the one-file PR aligning `main`'s `deploy-pages.yml`** (the font
+sparse-checkout lines) before or with the next promotion — until then a push to
+`main` republishes `/preview/` without the wordmark font. `package.json` re-aligned
+to `APP_VER` (had drifted since v1.15.2). Previous review 2026-09-02 — the owner's nine-item morning brief filed as §3 items
 33–36 and the item-30 close-out; **all shipped same day as v1.10.0–v1.13.0** (dock
 re-layout + comprehensive departments + Logistics + wordmark-home + signed-in badge +
 chained tours; dev App Settings + granular viewer grants; Listening-to; Employee

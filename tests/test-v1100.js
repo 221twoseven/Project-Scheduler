@@ -261,8 +261,6 @@ function stage15(){
   E("PEOPLE.push({id:'dupX',name:'Samuel (Sam) Q',depts:['fab'],ooo:[],email:'samq@x.co',phone:'555-9',role:'Fabricator',admin:null})");
   E("ST.tasks.push({id:'tmX',projectId:'p1',department:'fab',assignee:'Samuel (Sam) Q',startDate:'"+D(2)+"',endDate:'"+D(4)+"',estimatedDays:2,ticketNodes:[],notes:'',pinned:false,label:''})");
   E("cdMergePerson(PEOPLE.find(p=>p.name==='Kim').id,'dupX')"); /* harness confirm = yes */
-  ok('the stored assignment now carries the kept name',
-     E("ST.tasks.find(t=>t.id==='tmX').assignee")==='Kim');
   ok('the duplicate row is gone and fields backfilled',
      E("!PEOPLE.some(p=>p.id==='dupX')")
      &&E("PEOPLE.find(p=>p.name==='Kim').phone")==='555-9'
@@ -278,6 +276,11 @@ function stage15(){
     return f0(u,i);};
   E("savePeople(PEOPLE.map(p=>({...p,role:(p.role||'')+'!'})))"); /* touch every row; sp0 (Sam) fails once */
   setTimeout(()=>{
+    /* v1.18.1: the merge scrub waits for the roster sync to land (a failed staff PATCH
+       used to leave assignments renamed while both rows persisted on SharePoint), so
+       the assignment assertion moved behind the sync tick. */
+    ok('the stored assignment carries the kept name once the roster sync lands',
+       E("ST.tasks.find(t=>t.id==='tmX').assignee")==='Kim');
     ok('rows behind the failure still saved',
        (win.__spCalls||[]).some(c=>c.method==='PATCH'&&/ShopTimeline_Staff\/items\/sp1\/fields/.test(c.url)));
     ok('the failed row parks for retry and the pill says so',

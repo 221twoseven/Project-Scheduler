@@ -84,6 +84,7 @@ const SUITES = [
   'test-v1160.js',
   'test-v1170.js',
   'test-v1180.js',
+  'test-v1181.js',
 ];
 
 const repoRoot = path.resolve(__dirname, '..');
@@ -102,7 +103,15 @@ for (const suite of SUITES) {
   process.stdout.write(r.stdout || '');
   process.stderr.write(r.stderr || '');
   if (r.status !== 0) failed++;
-  else if (/skipped —|skipped -/.test(r.stdout || '')) skipped.push(suite);
+  /* Suites self-skip in two voices: "skipped —" and "  SKIP  build predates …".
+     The old regex knew only the first, so 23 suites could go dark and still count
+     as passes — the exact silent-disable this detector exists to catch. A suite
+     that printed PASS lines only skipped a section, not itself (test49's REV56
+     note), so it stays out of the dark-suite list.
+     ponytail: still prose-matching stdout; an exit-code protocol (exit 2 = skipped)
+     is the root fix if a third message style ever appears. */
+  else if (/skipped\s*[—-]|(^|\n)\s*SKIP\b/.test(r.stdout || '')
+           && !/(^|\n)\s*PASS\b/.test(r.stdout || '')) skipped.push(suite);
 }
 
 console.log('\n' + '='.repeat(46));

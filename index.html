@@ -207,7 +207,7 @@ body.lens-dept #sb-foot{display:none}
    only their checked names. Workflow protection, not security (milestone record). */
 body.viewer #btn-new-proj,body.viewer #mi-clients,
 body.viewer:not(.vg-phases) .lock-tog,
-body.viewer:not(.vg-subtasks) #tm-save,body.viewer:not(.vg-subtasks) #tm-del,
+body.viewer:not(.vg-subtasks):not(.vg-phases) #tm-save,body.viewer:not(.vg-phases) #tm-del,
 body.viewer:not(.vg-subtasks) #tm-tnadd,body.viewer:not(.vg-subtasks) #task-overlay .tn-x,
 /* v1.11.0: each popover's Delete follows ITS door — the popover carries data-kind */
 body.viewer:not(.vg-phases) #npv-pop[data-kind=phase] [data-pop-del],
@@ -1410,7 +1410,7 @@ body.cd-route #dash-bar{display:none!important}
       <span class="pin-track"><span class="pin-thumb"></span></span>
       <span class="pin-lbl">📌 Pin dates — protect from dragging</span>
     </label>
-    <div class="fg"><label>Milestones</label>
+    <div class="fg" data-vk="subtasks"><label>Milestones</label>
       <div class="tn-list" id="tm-tnlist"></div>
       <button class="tn-add" id="tm-tnadd" type="button">+ Add milestone</button>
     </div>
@@ -1549,7 +1549,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.18.0'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.18.1'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -1586,7 +1586,11 @@ let DW_PX=null;  /* px-per-day, cached once per render (dw() reads it) */
 function viewOf(fit){for(const k of ZOOM_STEPS)if(Math.abs(fit-FIT_STEPS[k])<.5)return k;return null;}
 /* Old stored/saved-view step names → the closest new feel (Day was ~a month across
    a 1200px screen; Week/Month showed a season or more). */
-const VIEW_MIG={days:'month',day2:'month',weeks:'month3'};
+const VIEW_MIG={days:'month',day2:'month',weeks:'month3',month:'month3'};
+/* ^ v1 stored no fit, so its names arrive bare. v1's 'month' was 5px/day — the WIDEST
+   scale — and collides with the new 'month' step name (30 days ≈ 40px/day, v1's most
+   zoomed-in); unmapped, an upgrade silently reopened a season-wide view at max zoom.
+   Only fit-less (v1-era) snapshots take this path — current builds always persist fit. */
 function vpw(){const el=document.getElementById('gantt-scroll');return (el&&el.clientWidth)||1200;}
 
 const DEPTS=[
@@ -2475,6 +2479,8 @@ let PENDING_SYNC=null;
 document.getElementById('sync-pill').addEventListener('click',()=>{
   if(PENDING_SYNC){const p=PENDING_SYNC;PENDING_SYNC=null;syncNow(p.oldST,p.newST);}
   if(PENDING_STAFF)retryStaffSync(); /* v1.15.2: parked staff rows replay too */
+  if(PENDING_CLIENTS)retryClientSync();
+  if(PENDING_CFG)retryConfigSync();
 });
 
 /* Optimistic save: update screen instantly, sync to SharePoint in background */
@@ -2522,7 +2528,23 @@ function saveClients(nc){
   setSync('busy');
   spSyncClients(old,CLIENTS)
     .then(()=>setSync('ok','synced '+stamp()))
-    .catch(e=>{console.error(e);setSync('err','clients not saved');toast('Couldn\'t save the client list to SharePoint. Try saving again in a moment.','err',null,e.message);});
+    .catch(e=>{console.error(e);
+      /* Park the diff base so the pill's "click to retry" is real for clients too —
+         it used to say retry and do nothing for this kind. */
+      PENDING_CLIENTS={old:(PENDING_CLIENTS&&PENDING_CLIENTS.old)||old};
+      setSync('err','clients not saved — click to retry');
+      toast('Couldn\'t save the client list to SharePoint. Your change is still on screen — click "clients not saved" at the top right to retry.','err',null,e.message);});
+}
+let PENDING_CLIENTS=null; /* {old}: the diff base from the first failed client sync */
+function retryClientSync(){
+  if(!PENDING_CLIENTS)return;
+  const p=PENDING_CLIENTS;PENDING_CLIENTS=null;
+  setSync('busy');
+  spSyncClients(p.old,CLIENTS)
+    .then(()=>setSync('ok','synced '+stamp()))
+    .catch(e=>{console.error(e);PENDING_CLIENTS={old:p.old};
+      setSync('err','clients not saved — click to retry');
+      toast('Still couldn\'t save the client list — click "clients not saved" to retry again.','err',null,e.message);});
 }
 async function spSyncClients(o,n){
   const om=new Map(o.filter(c=>c.spId).map(c=>[c.spId,c]));
@@ -2540,35 +2562,40 @@ function savePeople(np,self){
      self-row exception — the dashboard's User Notes field writes the caller's OWN
      row past the guard. The flag trusts its one caller (the notes field), same
      honest scope as the rest of v1.8.0: workflow protection, not security. */
-  if(isViewer()&&!self){toast('View-only access — ask an admin to make changes.','err');return;}
+  if(isViewer()&&!self){toast('View-only access — ask an admin to make changes.','err');return Promise.resolve(false);}
+  PEOPLE_GEN++; /* the staff poll aborts if this moved during its fetch (the ST_GEN pattern) */
   const old=PEOPLE;PEOPLE=np;rebuildStaff();
   /* REV90: guarded — a quota/private-mode throw here used to abort before spSyncStaff */
   try{localStorage.setItem(PEOPLE_KEY,JSON.stringify(PEOPLE));}catch(e){}
   render();
-  if(!STAFF_OK){toast('Staff saved in this browser only — it won\'t sync to your teammates until SharePoint is reachable again.','err');return;}
+  if(!STAFF_OK){toast('Staff saved in this browser only — it won\'t sync to your teammates until SharePoint is reachable again.','err');return Promise.resolve(true);}
   setSync('busy');
   /* v1.15.2: the staff sync joins the poll guard (SYNCING) so a mid-flight tick
      can't clobber the optimistic list, and a FAILED sync parks the diff base —
-     the staff poll defers while it's parked and the sync pill replays it. */
+     the staff poll defers while it's parked and the sync pill replays it.
+     Resolves true when THIS save landed, so callers (the merge) can sequence on it. */
   SYNCING++;
-  spSyncStaff(old,PEOPLE)
+  return spSyncStaff(old,PEOPLE)
     .then(()=>{SYNCING--;
       if(PENDING_STAFF)setSync('err','staff not saved — click to retry'); /* an earlier failure is still parked */
-      else setSync('ok','synced '+stamp());})
+      else setSync('ok','synced '+stamp());
+      return true;})
     .catch(e=>{SYNCING--;console.error(e);
-      PENDING_STAFF={old:(PENDING_STAFF&&PENDING_STAFF.old)||old};
+      PENDING_STAFF={old:(PENDING_STAFF&&PENDING_STAFF.old)||old,after:PENDING_STAFF&&PENDING_STAFF.after};
       setSync('err','staff not saved — click to retry');
-      toast('Couldn\'t save some of the staff list to SharePoint. Your edits are still on screen — click "staff not saved" at the top right to retry.','err',null,e.message);});
+      toast('Couldn\'t save some of the staff list to SharePoint. Your edits are still on screen — click "staff not saved" at the top right to retry.','err',null,e.message);
+      return false;});
 }
-let PENDING_STAFF=null; /* {old}: the diff base from the first failed staff sync */
+let PENDING_STAFF=null; /* {old, after?}: diff base from the first failed staff sync, plus an optional continuation the retry runs on success (the merge's scrub) */
+let PEOPLE_GEN=0; /* bumped on every local PEOPLE mutation — the staff poll aborts if it moved mid-fetch */
 function retryStaffSync(){
   if(!PENDING_STAFF)return;
   const p=PENDING_STAFF;PENDING_STAFF=null;
   setSync('busy');SYNCING++;
   spSyncStaff(p.old,PEOPLE)
-    .then(()=>{SYNCING--;setSync('ok','synced '+stamp());})
+    .then(()=>{SYNCING--;setSync('ok','synced '+stamp());if(p.after)p.after();})
     .catch(e=>{SYNCING--;console.error(e);
-      PENDING_STAFF={old:p.old};
+      PENDING_STAFF={old:p.old,after:p.after};
       setSync('err','staff not saved — click to retry');
       toast('Still couldn\'t save the staff list — the error names the field: create any missing column on ShopTimeline_Staff, then click retry again.','err',null,e.message);});
 }
@@ -2710,12 +2737,20 @@ function saveConfigKey(k,v){
       ?gfetch(listUrl(LIST_CONFIG)+'/items/'+SP_CFG_IDS[k]+'/fields',{method:'PATCH',body:JSON.stringify({value:v?'1':''})})
       :gfetch(listUrl(LIST_CONFIG)+'/items',{method:'POST',body:JSON.stringify({fields:{Title:k,value:v?'1':''}})}).then(r=>{SP_CFG_IDS[k]=r.id;}))
     .then(()=>setSync('ok','synced '+stamp()))
-    .catch(e=>{console.error(e);setSync('err','setting not saved');
-      toast('Couldn\'t save the setting to SharePoint — it\'s applied in this browser only for now.','err',null,e.message);});
+    .catch(e=>{console.error(e);
+      PENDING_CFG={...(PENDING_CFG||{}),[k]:v}; /* park the key so the pill can replay it */
+      setSync('err','setting not saved — click to retry');
+      toast('Couldn\'t save the setting to SharePoint — it\'s applied in this browser only for now. Click "setting not saved" at the top right to retry.','err',null,e.message);});
   }else{
     toast('Saved in this browser only — create the ShopTimeline_Config list to share settings with everyone.','err');
   }
   applyPerms();
+}
+let PENDING_CFG=null; /* {key:value}: settings whose SharePoint write failed */
+function retryConfigSync(){
+  if(!PENDING_CFG)return;
+  const p=PENDING_CFG;PENDING_CFG=null;
+  for(const k in p)saveConfigKey(k,p[k]); /* replays each failed key; a re-failure re-parks it */
 }
 /* Can the signed-in user pass this edit door? Admins always; viewers when granted. */
 function vcan(k){return isAdmin()||!!CFG['viewer.'+k];}
@@ -2728,7 +2763,8 @@ function viewerLock(box,kind){
   if(!isViewer()||!box)return;
   box.querySelectorAll('input,select,textarea').forEach(el=>{
     const ag=el.closest?el.closest('.ag-i'):null;
-    const k=ag?(ag.dataset.agK==='ev'?'milestones':'notes'):kind;
+    const vk=el.closest?el.closest('[data-vk]'):null; /* a sub-section may belong to a different door */
+    const k=ag?(ag.dataset.agK==='ev'?'milestones':'notes'):(vk?vk.dataset.vk:kind);
     if(k&&vcan(k))return;
     el.disabled=true;el.tabIndex=-1;});
 }
@@ -2779,7 +2815,9 @@ function taskMatch(t){
   const p=projById(t.projectId);
   if(p&&projMatch(p))return true;
   const dn=deptById(t.department)?.name||'';
-  return (assigneeText(t)+' '+dn).toLowerCase().includes(FILTER);
+  /* assigneeText renders nicknames (v1.15.0) — search the roster names too, or typing
+     the full name the People page shows ("Seungwoo Hong") stops matching his phases. */
+  return (assigneeText(t)+' '+crewOf(t).map(canonName).join(' ')+' '+dn).toLowerCase().includes(FILTER);
 }
 /* Dim (don't remove) non-matching rows/bars so layout stays put */
 let SPOT=new Set(); /* spotlighted project ids — everything else dims */
@@ -3214,7 +3252,7 @@ function renderMeDock(){
   const myProj=new Set(mine.map(t=>t.projectId));
   const checkpoints=(ST.events||[]).filter(e=>e.date&&e.date>=t0&&myProj.has(e.projectId))
     .sort((a,b)=>a.date.localeCompare(b.date));
-  const tasks=(ST.todos||[]).filter(t=>!t.completedOn&&(t.who||[]).includes(PERSON))
+  const tasks=(ST.todos||[]).filter(t=>!t.completedOn&&(t.who||[]).map(canonName).includes(PERSON)) /* legacy who entries ("Sam S.") resolve like every other person join */
     .sort((a,b)=>String(a.due||'9999').localeCompare(String(b.due||'9999')));
   const ooo=oooFor(PERSON).filter(o=>o.end&&o.end>=t0).sort((a,b)=>String(a.start).localeCompare(String(b.start)));
   const pn=id=>{const p=projById(id);return p?p.name:'—';};
@@ -4237,8 +4275,12 @@ function openTaskModal(taskId,prefill){
   TM_NODES=(t&&t.ticketNodes)?t.ticketNodes.map(n=>({...n})):[];
   renderTnList();
   document.getElementById('tm-del').classList.toggle('hidden',!t);
-  document.getElementById('task-overlay').classList.remove('hidden');
-  viewerLock(document.getElementById('task-overlay'),'subtasks'); /* v1.8.0: visible, locked (v1.11.0: unless the subtasks grant is on) */
+  const tov=document.getElementById('task-overlay');
+  tov.classList.remove('hidden');
+  /* viewerLock disables fields but nothing un-disables them — a grant flipped mid-session
+     (the dev Viewer toggle) left the modal locked on its next open. Reset, then lock. */
+  tov.querySelectorAll('input,select,textarea').forEach(el=>{el.disabled=false;el.removeAttribute('tabindex');});
+  viewerLock(tov,'phases'); /* v1.8.0: visible, locked. The phase's own fields follow the PHASES door; only the Milestones block (data-vk) rides the subtasks grant — the whole-box 'subtasks' kind let that grant move dates and delete phases */
   TM_SNAP=tmSnap();
 }
 /* N2: what the modal's form serializes to — compared on close to catch silent discards. */
@@ -4285,6 +4327,7 @@ document.getElementById('tm-save').addEventListener('click',()=>{
 
 document.getElementById('tm-del').addEventListener('click',()=>{
   if(!EDIT_TASK_ID)return;
+  if(!vcan('phases')){toast('View-only access — ask an admin to change the schedule','err');return;} /* belt for the CSS gate */
   if(!confirm('Delete this phase?'))return;
   saveState({...ST,tasks:ST.tasks.filter(x=>x.id!==EDIT_TASK_ID)});
   closeTaskModal(true);
@@ -4347,7 +4390,8 @@ function cdSplitDrag(e){
   const list=document.querySelector('.cd-list');if(!list)return;
   const body=list.parentElement,x0=e.clientX,w0=list.getBoundingClientRect().width;
   const mv=ev=>{CD_LISTW=Math.round(Math.max(320,Math.min(body.clientWidth-280,w0+ev.clientX-x0)));
-    list.style.width=CD_LISTW+'px';list.style.maxWidth='none';};
+    list.style.width=CD_LISTW+'px';list.style.maxWidth='none';
+    cdGripSync();}; /* the pane resize reflows every fr column — reseat the grips or they strand at stale x */
   const up=()=>{document.removeEventListener('mousemove',mv);document.removeEventListener('mouseup',up);
     try{localStorage.setItem('shopTimelineCdListW',String(CD_LISTW));}catch(err){}};
   document.addEventListener('mousemove',mv);document.addEventListener('mouseup',up);
@@ -4392,8 +4436,15 @@ function renderAppSettings(){
    +CFG_META.filter(m=>m[0].indexOf('exp.')===0).map(row).join('')
    +'</div></div>';
   pg.innerHTML=h;
-  document.getElementById('cd-back').addEventListener('click',goTimeline);
-  document.getElementById('cd-x').addEventListener('click',goTimeline);
+  /* Both exits honour a mid-edit buffer the way Esc does — leaving via × used to
+     discard the typed record silently AND strand CD_EDIT set on the timeline, where
+     it short-circuits every poll tick until a Company Data page was revisited. */
+  const cdExit=()=>{
+    if(CD_EDIT&&!confirm('Discard the changes to this record?'))return;
+    CD_EDIT=null;goTimeline();
+  };
+  document.getElementById('cd-back').addEventListener('click',cdExit);
+  document.getElementById('cd-x').addEventListener('click',cdExit);
   pg.querySelectorAll('[data-cfg]').forEach(ck=>ck.addEventListener('change',()=>{
     saveConfigKey(ck.dataset.cfg,ck.checked);
     toast((CFG[ck.dataset.cfg]?'On: ':'Off: ')+CFG_META.find(m=>m[0]===ck.dataset.cfg)[1]);
@@ -4593,8 +4644,15 @@ function renderCompanyPage(){
     const g=document.createElement('i');g.className='cd-grip';g.title='Drag to resize this column';
     g.addEventListener('mousedown',e=>cdColDrag(e,sp,i));hdr.appendChild(g);});
   cdApplySizes();
-  document.getElementById('cd-back').addEventListener('click',goTimeline);
-  document.getElementById('cd-x').addEventListener('click',goTimeline);
+  /* Both exits honour a mid-edit buffer the way Esc does — leaving via × used to
+     discard the typed record silently AND strand CD_EDIT set on the timeline, where
+     it short-circuits every poll tick until a Company Data page was revisited. */
+  const cdExit=()=>{
+    if(CD_EDIT&&!confirm('Discard the changes to this record?'))return;
+    CD_EDIT=null;goTimeline();
+  };
+  document.getElementById('cd-back').addEventListener('click',cdExit);
+  document.getElementById('cd-x').addEventListener('click',cdExit);
   const impBtn=document.getElementById('cd-import');
   if(impBtn)impBtn.addEventListener('click',()=>cdImportEC(impBtn));
   const addBtn=document.getElementById('cd-add');
@@ -4901,7 +4959,6 @@ function cdMergePerson(keepId,dupId){
   if(!confirm('Fold "'+dup.name+'" into "'+keep.name+'"?\n\n'
     +(rep.length?rep.length+' stored assignment field'+(rep.length===1?'':'s')+' will be rewritten to "'+keep.name+'".\n':'No stored assignments carry "'+dup.name+'".\n')
     +'Missing contact details on "'+keep.name+'" fill in from the duplicate, and its roster row is removed.\n\nThis can\'t be un-merged automatically.'))return;
-  if(rep.length)scrubNames(map,true);
   const take=(a,b)=>String(a||'').trim()?a:(b==null?a:b);
   const merged={...keep,
     email:take(keep.email,dup.email),phone:take(keep.phone,dup.phone),
@@ -4917,8 +4974,20 @@ function cdMergePerson(keepId,dupId){
     feedbackRecipient:(keep.feedbackRecipient||dup.feedbackRecipient)?true
       :(keep.feedbackRecipient==null&&dup.feedbackRecipient==null?null:false)};
   CD_EDIT=null;CD_SEL=keep.id;
-  savePeople(PEOPLE.filter(p=>p.id!==dup.id).map(p=>p.id===keep.id?merged:p));
-  toast('Merged "'+dup.name+'" into "'+keep.name+'"'+(rep.length?' — '+rep.length+' assignment field'+(rep.length===1?'':'s')+' rewritten.':'.'));
+  /* The scrub rewrites shared assignment data to the kept name — run it only once the
+     roster change actually lands, or a failed staff PATCH leaves assignments renamed
+     while both roster rows persist on SharePoint (half-merged, no rollback). A parked
+     failure carries the scrub as its retry continuation.
+     ponytail: parks live in memory only — a reload mid-park still drops the scrub;
+     persist parks across reloads if that ever bites. */
+  const scrub=()=>{
+    if(rep.length)scrubNames(map,true);
+    toast('Merged "'+dup.name+'" into "'+keep.name+'"'+(rep.length?' — '+rep.length+' assignment field'+(rep.length===1?'':'s')+' rewritten.':'.'));
+  };
+  savePeople(PEOPLE.filter(p=>p.id!==dup.id).map(p=>p.id===keep.id?merged:p)).then(ok=>{
+    if(ok)scrub();
+    else if(PENDING_STAFF)PENDING_STAFF.after=scrub;
+  });
 }
 function cdRemovePerson(){
   const r=CD_EDIT;if(!r||r._new)return;
@@ -5101,6 +5170,7 @@ function goTimeline(){location.hash='#/';}
 
 function applyRoute(){
   const r=parseHash();
+  applyPerms(); /* every route's door — booting straight onto a project page used to skip the viewer/dev chrome entirely (render() runs it too, but the project branch below never reaches render) */
   /* N2: every exit from an unsaved draft funnels through the hash — Esc, Cancel, the
      back button, browser Back. One confirm here covers them all. Saved pages autosave. */
   if(ROUTE.creating&&!(r.view==='project'&&r.creating)&&ppDraftDirty()
@@ -5121,6 +5191,7 @@ function applyRoute(){
     if(r.creating&&ROUTE.creating)PP_KEEP=true;
     if(!r.creating&&!ROUTE.creating&&ROUTE.view==='project'&&r.id===ROUTE.id)PP_KEEP=true;
     ROUTE=r;
+    CD_EDIT=null; /* leaving a Company Data page for a project page drops the edit buffer — a stale one blocks the poll forever */
     document.body.classList.add('pp-route');
     document.body.classList.remove('cd-route');
     /* v1.15.0 (owner bug report): arriving from an ACTIVE dashboard/Summary left the
@@ -5147,6 +5218,7 @@ function applyRoute(){
     document.body.classList.remove('cd-route');
     if(r.view==='project'&&!exists&&ST.projects.length)toast('That project no longer exists.','err');
     ROUTE={view:'timeline',id:null,creating:false};
+    CD_EDIT=null; /* same drop on the timeline exit (back button, breadcrumb) */
     pg.classList.add('hidden');pg.innerHTML='';mn.classList.remove('hidden');
     render();
     /* Arriving at the timeline — first load, or back from a project via Done / the
@@ -5160,7 +5232,7 @@ window.addEventListener('hashchange',applyRoute);
    REV90: same warning while a save is in flight or failed — the optimistic UI already
    said "done", so closing the tab would lose the change silently. */
 window.addEventListener('beforeunload',ev=>{
-  if(ppDraftDirty()||SYNCING||PENDING_SYNC||PENDING_STAFF){ev.preventDefault();ev.returnValue='';} /* v1.15.2: parked staff edits count too */
+  if(ppDraftDirty()||SYNCING||PENDING_SYNC||PENDING_STAFF||PENDING_CLIENTS||PENDING_CFG){ev.preventDefault();ev.returnValue='';} /* v1.15.2: parked staff edits count too; parked client/setting writes joined them */
 });
 
 function ppProject(){
@@ -6577,6 +6649,9 @@ function npvCreateSubtask(dept,date,newDept,name,popAt){
   const p=ppProject();if(!p)return;
   const kids=NPV_TASKS.filter(t=>t.department===dept);
   const sib=kids[0];
+  /* No parent bar means this creates the department's PRIMARY bar — a phase, not a
+     subtask — so it rides the phases door (the S key maps to 'subtasks'). */
+  if(!sib&&isViewer()&&!vcan('phases')){toast('View-only access — ask an admin to change the schedule','err');return;}
   /* REV56: a subtask is born distinct — named, half its parent's length, and nested
      inside the parent's window when it starts there — never an exact copy of the
      primary bar (a full-window copy would also be frozen by the nesting clamp). */
@@ -7667,8 +7742,11 @@ function npvPaintCalendar(lo,hi,dl){
       const i=diffDays(c,d);
       /* REV72: markers carry their identity so they drag/click/delete like the
          Gantt's diamonds. v1.6.1: a milestone on a phase leads with the phase name. */
-      const pfx=mk.k==='ev'&&mk.dept?(((deptById(mk.dept)||{}).name||'')+': '):'';
-      items.push({s:i,e:i,txt:pfx+mk.nm,col:'',kind:mk.k,id:mk.id,date:mk.date});
+      /* Same fallbacks as the Gantt diamonds — an unnamed marker used to render a bare
+         "Fabrication: " band, and an unknown dept a bare ": ". */
+      const dn=mk.k==='ev'&&mk.dept?((deptById(mk.dept)||{}).name||''):'';
+      const nm=mk.nm||(mk.k==='ev'?'Untitled milestone':'Untitled note');
+      items.push({s:i,e:i,txt:(dn?dn+': ':'')+nm,col:'',kind:mk.k,id:mk.id,date:mk.date});
     }
 
     /* v1.6.1: markers sit at the bottom of the week — phases keep the top rows, a
@@ -9081,6 +9159,7 @@ const VIEWS_KEY='shopTimelineViews_v1';
 function loadViews(){try{const v=JSON.parse(localStorage.getItem(VIEWS_KEY));if(Array.isArray(v))return v;}catch(e){}return null;}
 function saveViews(v){try{localStorage.setItem(VIEWS_KEY,JSON.stringify(v));}catch(e){}}
 function defaultViewState(){return{lens:'project',group:'',status:[...ALL_STATUSES],person:'',search:'',
+  client:[], /* absent, "Everything" left a live client filter applied — applyViewState only resets what the snapshot carries */
   color:'project',view:'month',fit:30,density:'comfortable',tint:false,collapsedGroups:{},collapsedDepts:[]};}
 /* First run seeds two starters. Seeding happens on first menu open, not at boot, so
    the REV66 identity chain has had a chance to resolve who "me" is. */
@@ -9214,9 +9293,10 @@ document.getElementById('db-x').addEventListener('click',()=>exitDash());
 /* v1.10.0 (owner ask 09-02): the wordmark goes home — the full timeline, dashboard
    and person summary included. */
 document.getElementById('tb-home').addEventListener('click',()=>{
-  if(dashOn()){exitDash();return;}
-  if(ROUTE.view!=='timeline'){goTimeline();return;}
+  /* Drop the person summary on ANY route — dashOn() is false off the timeline, so the
+     old first branch never fired there and "home" landed back on the filtered dashboard. */
   if(PERSON)exitDash();
+  if(ROUTE.view!=='timeline')goTimeline();
 });
 wireMenu('btn-print','print-menu');
 wireMenu('btn-resources','resources-menu');
@@ -9780,8 +9860,13 @@ async function boot(){
          v1.15.2: never while a failed staff save is parked — the poll used to restore
          server truth over the user's unsaved edits ("my merges reverted"). */
       if(STAFF_OK&&POLL_N%2===0&&!PENDING_STAFF){
+        const pg=PEOPLE_GEN;
         const fp=await spLoadStaff();
-        if(JSON.stringify(fp)!==JSON.stringify(PEOPLE)){PEOPLE=fp;rebuildStaff();localStorage.setItem(PEOPLE_KEY,JSON.stringify(PEOPLE));dirty=true;}
+        /* Re-check AFTER the await (the REV90 lesson, missed here in v1.15.2): a
+           savePeople that started — or finished — during this round-trip must not be
+           clobbered by the pre-save snapshot ("my merges reverted"). */
+        if(pg===PEOPLE_GEN&&!SYNCING&&!PENDING_STAFF
+           &&JSON.stringify(fp)!==JSON.stringify(PEOPLE)){PEOPLE=fp;rebuildStaff();localStorage.setItem(PEOPLE_KEY,JSON.stringify(PEOPLE));dirty=true;}
       }
       if(dirty){if(ROUTE.view==='project'){PP_KEEP=true;renderProjectPage();}else render();}
       setSync('ok','synced '+stamp());
