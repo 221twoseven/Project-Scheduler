@@ -772,7 +772,12 @@ rule §5); old data keeps reading fine.
 | v1.15.0 | ✅ Shipped 2026-09-02 — 38 (pre-presentation round: stuck-dock fix, editor grid, nickname ⚠, merge-duplicate tool, listening position, copy inventory) |
 | v1.15.1 | ✅ Shipped 2026-09-02 — the owner's copy revision (docs/Copy-Coach-and-Helpers.md) applied: tour bodies, phase-notes placeholder, sign-in card. The 08-28 coach-copy hold is LIFTED — the doc is the editing channel now |
 | v1.15.2 | ✅ Shipped 2026-09-02 — staff-sync resilience (owner report: name edits/merges reverted minutes later): one bad row (a save carrying a not-yet-created column, e.g. `nickname`) no longer strands the rows behind it; a failed staff save parks for pill retry, the staff poll defers while parked, closing the tab warns |
-| v1.16.0 | 26 (change log) ⚠ — after permissions |
+| v1.16.0 | ✅ Shipped 2026-09-02 — 39 (demo preamble slides, developer-only, for the 09-03 live demo) |
+| v1.17.0 | ✅ Shipped 2026-09-02 — 40 (six People-page asks: title prefixes hidden, driver column ⚠, permission filter, resizable columns + split, poll scroll fix, ↑↓ selection) + v1.17.1 grip fix same evening |
+| v1.18.0 | ✅ Shipped 2026-09-02 — 41 (availability tri-state ⚠ `availability` column + the Admin/Non-admin toggle relabel; applyPerms at the renderCompanyPage door) |
+| v1.18.1 | ✅ Shipped 2026-09-02 — September audit round: 16 confirmed review findings fixed. Promoted to main with everything before it via PR #32 (2026-09-02) |
+| v1.18.2 | ✅ Shipped 2026-09-02 — owner's preamble copy revision applied (`docs/Copy-Demo-Preamble.md` is the editing channel) + preamble titles drop Brauer Neue for the tour heading font. Pushed to main directly (owner call); main = development |
+| v1.19.0 | 26 (change log) — unblocked: permissions shipped v1.8.0, `ShopTimeline_Changelog` created 2026-08-31; the build itself is still pending |
 | v2.0.0 | 13 (single source of truth) ⚠ — likely several minors along the way (one per absorbed store), with v2.0.0 as the cutover declaration |
 
 ## 5. Data / schema (⚠ all need approval — shared Lists)
