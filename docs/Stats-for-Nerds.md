@@ -70,13 +70,13 @@ Layered, all already shipped:
 4. Deletes run **children-first, project last** (v1.18.3), so even a request queue
    killed mid-flight can't strand orphan rows behind a deleted project.
 
-## 4. Rendering cost (the "hundreds of thousands per render" question)
+## 4. Rendering cost is local, not server traffic
 
-A bug report once cited an enormous per-render count. Whatever it measured, **it
-was not network traffic** — a render makes zero requests; it's pure local DOM work
-in that one browser. Profiler tallies (function calls, style recalcs, node reads)
-in the tens or hundreds of thousands per paint are normal for any canvas-dense UI,
-don't touch M365, and don't grow with user count.
+Drawing the timeline happens entirely inside the viewer's browser — **a render
+makes zero network requests**; it's pure local DOM work in that one browser.
+Browser profilers report very large per-paint tallies (function calls, style
+recalcs, node reads) for any canvas-dense UI; those numbers describe normal local
+CPU work, don't touch M365, and don't grow with user count.
 
 The measured reality: **~14–21 ms per frame during the heaviest gesture**
 (continuous drag-zoom) at 14 projects in a real browser — comfortable 60 fps
