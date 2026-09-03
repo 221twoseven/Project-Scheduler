@@ -685,6 +685,17 @@ rule §5); old data keeps reading fine.
          manual today, ties into the company time-off calendar under item 13).
       Suite `tests/test-v1180.js` (19).
 
+- [x] **42. (09-02 night, owner report) Orphaned "TBD" lane in the dept lens — DONE
+      2026-09-02 (v1.18.3).** A phase row survived its parent project's deletion
+      (crew string "TBD" → phantom lane, label "?", click → "That project no longer
+      exists"). Cleaned live via console (`saveState` filtering
+      `t=>projById(t.projectId)`). Root cause: `spSync` queued the project-row
+      DELETE before its task DELETEs, so a run dying mid-queue orphaned the
+      children. Fix: DELETEs run after all upserts, children before the project —
+      a mid-queue death now leaves a visibly incomplete project, never an orphan.
+      Record: `docs/Milestones/2026-09-02-v1183-child-first-deletes.md`. Suite:
+      `tests/test-v1183.js`.
+
 - [ ] **13. (Obj 4) Reconcile and absorb the 14 disparate data stores.** The app
       becomes the company's singular source of truth (the v1 "north star", now
       scoped). **Strategy before code:** the first deliverable is
@@ -785,6 +796,7 @@ rule §5); old data keeps reading fine.
 | v1.18.0 | ✅ Shipped 2026-09-02 — 41 (availability tri-state ⚠ `availability` column + the Admin/Non-admin toggle relabel; applyPerms at the renderCompanyPage door) |
 | v1.18.1 | ✅ Shipped 2026-09-02 — September audit round: 16 confirmed review findings fixed. Promoted to main with everything before it via PR #32 (2026-09-02) |
 | v1.18.2 | ✅ Shipped 2026-09-02 — owner's preamble copy revision applied (`docs/Copy-Demo-Preamble.md` is the editing channel) + preamble titles drop Brauer Neue for the tour heading font. Pushed to main directly (owner call); main = development |
+| v1.18.3 | ✅ Shipped 2026-09-02 — 42 (child-first deletes in spSync: a mid-queue failure can no longer orphan task/todo/event rows behind a deleted project — the live "TBD lane" orphan's root cause) |
 | v1.19.0 | 26 (change log) — unblocked: permissions shipped v1.8.0, `ShopTimeline_Changelog` created 2026-08-31; the build itself is still pending |
 | v2.0.0 | 13 (single source of truth) ⚠ — likely several minors along the way (one per absorbed store), with v2.0.0 as the cutover declaration |
 
@@ -1184,6 +1196,14 @@ these are the ones still open, plus new deferrals as they happen.
       automatic replay, and OTHER staff saves during the park sync their own diffs
       while the pill stays on "not saved" until the park clears. Gate: the manual
       retry proving annoying in practice. (v1.15.2, 2026-09-02)
+- [ ] Child-first deletes (v1.18.3) close the orphan window for THIS app's writes
+      only — the shared Lists have other writers (the colleague app, hand edits),
+      so an orphaned task can still arrive from outside. Deliberate: `visTasks`
+      keeps rendering tasks whose project is missing (the `!p||` branch), so an
+      orphan surfaces as an odd dept-lens lane instead of rotting invisibly; the
+      console one-liner in the v1.18.3 milestone record cleans one up. Gate: a
+      second real orphan appearing; fix would be an admin-visible orphan warning
+      at load. (v1.18.3, 2026-09-02)
 - [ ] spSyncClients keeps the old stop-at-first-failure shape — clients have no
       tristate columns, so the missing-column failure mode doesn't apply there.
       Gate: a real stranded-clients report; fix is the same per-row pattern.

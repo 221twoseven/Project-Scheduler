@@ -1549,7 +1549,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.18.2'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.18.3'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -2331,7 +2331,7 @@ async function spSync(oldST,newST){
   /* anything on a sample project stays out of SharePoint — including subtasks,
      tasks and events a user adds to it later (membership is by projectId) */
   oldST=stripSample(oldST);newST=stripSample(newST);
-  const jobs=[];
+  const jobs=[],dels=[];
   const plan=(kind,list,toFields,olds,news)=>{
     const om=new Map(olds.map(x=>[x.id,x])),nm=new Map(news.map(x=>[x.id,x]));
     for(const[id,n]of nm){
@@ -2341,13 +2341,19 @@ async function spSync(oldST,newST){
       if(!o&&!SP_IDS[kind][id]){jobs.push(async()=>{const r=await gfetch(listUrl(list)+'/items',{method:'POST',body:JSON.stringify({fields:toFields(n)})});SP_IDS[kind][id]=r.id;});}
       else if(!o||JSON.stringify(o)!==JSON.stringify(n)){jobs.push(async()=>{await gfetch(listUrl(list)+'/items/'+SP_IDS[kind][id]+'/fields',{method:'PATCH',body:JSON.stringify(toFields(n))});});}
     }
-    for(const[id]of om)if(!nm.has(id))jobs.push(async()=>{await gfetch(listUrl(list)+'/items/'+SP_IDS[kind][id],{method:'DELETE'});delete SP_IDS[kind][id];});
+    /* v1.18.3: DELETEs run after every upsert, children before the project (unshift per
+       kind + projects planned first = reverse kind order). A run that dies mid-queue
+       (closed tab, network drop, throttle past the retry) must never leave task/todo/
+       event rows orphaned behind an already-deleted project — the failure mode becomes
+       a visibly incomplete project you re-delete, not an invisible orphan lane. */
+    for(const[id]of om)if(!nm.has(id))dels.unshift(async()=>{await gfetch(listUrl(list)+'/items/'+SP_IDS[kind][id],{method:'DELETE'});delete SP_IDS[kind][id];});
   };
   plan('proj',LIST_PROJECTS,projToFields,oldST.projects,newST.projects);
   plan('task',LIST_TASKS,taskToFields,oldST.tasks,newST.tasks);
   if(TODOS_OK)plan('todo',LIST_TODOS,todoToFields,oldST.todos||[],newST.todos||[]);
   if(EVENTS_OK)plan('event',LIST_EVENTS,eventToFields,oldST.events||[],newST.events||[]);
   for(const j of jobs)await j();
+  for(const j of dels)await j();
 }
 
 /* ===================== TOASTS + SYNC STATUS ===================== */

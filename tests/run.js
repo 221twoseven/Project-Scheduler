@@ -85,6 +85,7 @@ const SUITES = [
   'test-v1170.js',
   'test-v1180.js',
   'test-v1181.js',
+  'test-v1183.js',
 ];
 
 const repoRoot = path.resolve(__dirname, '..');
