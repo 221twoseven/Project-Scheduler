@@ -816,7 +816,7 @@ rule §5); old data keeps reading fine.
   feedback mail — owner-executed + admin consent; **DONE 2026-09-01 (Robert:
   set up + admin-consented).** The app requests the scope on its own silent token
   (v1.8.0), so a consent gap degrades to "report filed, mail skipped". ⚠
-- Columns for §3 item 30 (spec REVISED 2026-09-02, Robert applies): on
+- Columns for §3 item 30 — **CREATED 2026-09-02, late (Robert), all five**: on
   `ShopTimeline_Staff` — `personalNotes` (multi-line, plain text; v1.9.0 writer) plus
   the v1.12.0 quartet, all single-line text: `listeningTo`, `listeningLink`,
   `listeningVerb`, `listeningShow` (`1`/empty). All additive, tristate in the app —
@@ -827,8 +827,8 @@ rule §5); old data keeps reading fine.
   `value`. Holds the dev App Settings switches (viewer permission grants +
   experimental features); read by everyone at sign-in, written only from the dev
   page. Until it exists, settings stay browser-local (inline warning on the page). ⚠
-- `status` column on `ShopTimeline_Staff` (§3 items 27/36) — **spec delivered
-  2026-09-02, Robert creates:** single-line text, vocabulary EXACTLY Employee
+- `status` column on `ShopTimeline_Staff` (§3 items 27/36) — **CREATED 2026-09-02,
+  late (Robert)** (re-run the People-page import to start syncing it): single-line text, vocabulary EXACTLY Employee
   Contacts' Status values (Active / Off Payroll / Terminated / Archived — the
   2026-09-01 don't-invent-a-third-vocabulary ruling). The v1.13.0 import probes for
   it live and starts syncing it the run after it exists; it reads as information on
@@ -841,8 +841,8 @@ rule §5); old data keeps reading fine.
 - `driver` column on `ShopTimeline_Staff` (§3 item 40) — spec delivered
   2026-09-02 — **CREATED 2026-09-02 (Robert).** Reads as a ✓ column on the People
   index, a Yes/— row on the record, and a checkbox in the editor.
-- `availability` column on `ShopTimeline_Staff` (§3 item 41) — **spec delivered
-  2026-09-02, Robert creates:** single-line text, values `available` /
+- `availability` column on `ShopTimeline_Staff` (§3 item 41) — **CREATED
+  2026-09-02, late (Robert):** single-line text, values `available` /
   `unavailable` (empty = available). Manual flag for freelancers, set by the
   People editor's Availability radios; an active OOO range always outranks it.
   Additive, tristate (other saves never 400 without it; a save after touching
@@ -1110,10 +1110,11 @@ these are the ones still open, plus new deferrals as they happen.
 - [ ] The Viewer preview is honest to a fault: while it's on, the developer IS a
       viewer — their own edits (beyond User Notes) are refused until toggled back.
       Deliberate; that's what "preview the real thing" means. (v1.9.0)
-- [ ] User Notes saves need the `personalNotes` column on `ShopTimeline_Staff`
+- [x] User Notes saves need the `personalNotes` column on `ShopTimeline_Staff`
       (§5 spec, Robert applies) — before it exists the first save surfaces the
       normal staff sync-error toast (localStorage copy still holds locally).
-      Gate: column created. (v1.9.0)
+      Gate: column created. (v1.9.0) **Gate FIRED 2026-09-02 (late): column
+      created (Robert).**
 - [ ] The saveState choke point opens WHOLESALE for a viewer once ANY viewer.* grant
       is on — the UI doors carry the per-kind granularity (a granted viewer who found
       an ungated door could write past their grant; same workflow-not-security
@@ -1135,9 +1136,10 @@ these are the ones still open, plus new deferrals as they happen.
       background sync elsewhere) closes it uncommitted. Rare on an idle dashboard.
       Gate: someone actually loses an entry; fix is commit-per-field. (v1.12.0,
       2026-09-02)
-- [ ] The Listening-to feature needs its four §5 columns — before they exist the
+- [x] The Listening-to feature needs its four §5 columns — before they exist the
       popover's first save surfaces the staff sync-error toast (same shape as the
-      personalNotes entry above). Gate: columns created. (v1.12.0)
+      personalNotes entry above). Gate: columns created. (v1.12.0) **Gate FIRED
+      2026-09-02 (late): all four created (Robert).**
 - [ ] The Employee Contacts import maps departments by exact name/group match + a
       small alias table — unrecognized strings (e.g. "Warehouse") are reported and
       left unset, never guessed. Gate: real HR dept strings that should map; fix is
