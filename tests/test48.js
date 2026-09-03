@@ -1,4 +1,4 @@
-/* Canvas create menu + full-height subtask bars.
+﻿/* Canvas create menu + full-height subtask bars.
    Run: node test48.js Timeline_48.html */
 const {boot}=require('./harness');
 const fs=require('fs');
@@ -8,7 +8,7 @@ const src=fs.readFileSync(FILE,'utf8');
    parent's length (see test56); older builds borrow the neighbours' average. */
 const R56=src.indexOf('npv-env')>=0;
 /* REV57 / N11: right-click menus are add-only; left-click never opens a create menu and
-   right-click never changes the selection. (The old inline name field is retired — a New
+   right-click never changes the selection. (The old inline name field is retired â€” a New
    action now opens the edit popover, sniffed here to gate the new-build branches.) */
 const N11=/npvEditPop/.test(src);
 
@@ -39,7 +39,7 @@ const byAct=a=>menu()&&menu().querySelector('button[data-act="'+a+'"]');
 const click=el=>el&&el.dispatchEvent(new win.MouseEvent('click',{bubbles:true}));
 
 /* npvHit reads clientX/clientY against the body's box. jsdom reports a zero box, so
-   coordinates are supplied relative to that origin — the same arithmetic the browser does. */
+   coordinates are supplied relative to that origin â€” the same arithmetic the browser does. */
 function at(px,py,type,button){
   const host=doc.getElementById('npv-body');
   const r=host.getBoundingClientRect();
@@ -52,7 +52,9 @@ function leftClick(px,py){at(px,py,'mousedown',0);at(px,py,'click',0);}
 function rightClick(px,py){return at(px,py,'contextmenu',2);}
 const GUT=()=>E('NPV_GUT'), DW=()=>E('NPV_GEO.dw'), RH=()=>E('NPV_ROWH');
 const colOf=iso=>E("diffDays(NPV_GEO.lo,parseDate('"+iso+"'))");
-const rowOfDept=d=>E("NPV_PLAN.findIndex(r=>r.dept==='"+d+"')");
+/* 09-03: the Milestones + Notes rows lead the chart (NPV_TOP) â€” dept rows sit below them */
+const TOPR=src.indexOf('NPV_TOP=')>=0?2:0;
+const rowOfDept=d=>E("NPV_PLAN.findIndex(r=>r.dept==='"+d+"')")+TOPR;
 
 setTimeout(()=>{
   E('NPV_OPEN=new Set();LINK_SUBS=true;');
@@ -188,14 +190,14 @@ function stage3(){
 
 function stage4(){
   sec('empty space below the rows');
-  const y=E('NPV_PLAN.length')*RH()+8, x=GUT()+colOf('2026-08-26')*DW()+2;
+  const y=(E('NPV_PLAN.length')+TOPR)*RH()+8, x=GUT()+colOf('2026-08-26')*DW()+2;
   rightClick(x,y);
   setTimeout(()=>{
     ok('a menu opened', !!menu());
     ok('it offers an event and a task', !!byAct('ev')&&!!byAct('tk'));
     ok('it offers no subtask, there being no department', !byAct('sub'), items().join(' | '));
     /* v1.2.1 (08-31 obj 12): "Add a phase" left the right-click menu; its surviving
-       door is the calendar double-click, which opens the same picker page directly —
+       door is the calendar double-click, which opens the same picker page directly â€”
        open it that way and keep asserting the whole create flow. */
     if(src.indexOf('data-act="depts"')<0){
       ok('it no longer offers to add a department (v1.2.1 obj 12)', !byAct('depts'));
@@ -232,7 +234,7 @@ function stage4(){
 
 function stage5(){
   sec('an event created below the rows belongs to no department');
-  const y=E('NPV_PLAN.length')*RH()+8, x=GUT()+colOf('2026-08-26')*DW()+2;
+  const y=(E('NPV_PLAN.length')+TOPR)*RH()+8, x=GUT()+colOf('2026-08-26')*DW()+2;
   rightClick(x,y);
   setTimeout(()=>{
     click(byAct('ev'));
@@ -309,3 +311,4 @@ function done(){
   process.exit(fail?1:0);
 }
 setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},35000);
+

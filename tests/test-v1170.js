@@ -39,7 +39,7 @@ function main(){
   ok('renderCompanyPage carries scroll across the repaint',
      /const sc0=document\.getElementById\('cd-rows'\),st0=sc0\?sc0\.scrollTop:0;/.test(src)
      &&src.indexOf("sc1.scrollTop=st0")>=0);
-  ok('KBD popover teaches the arrows', /\['↑ ↓','Move selection'\],\['⌘ Z','Undo'\],\['Esc','Back to the timeline'\]/.test(src));
+  ok('KBD popover teaches the arrows', /\['↑ ↓','Move selection'\],\['⌘ Z','Undo'\],(\['⌘ Y','Redo'\],)?\['Esc','Back to the timeline'\]/.test(src)); /* v1.20.0 added Redo */
   ok('driver rides the tristate mappers',
      src.indexOf("if(p.driver!=null)f.driver=p.driver?'1':''")>=0
      &&src.indexOf("driver:f.driver==null?null:flagTruthy(f.driver)")>=0);
