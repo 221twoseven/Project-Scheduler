@@ -800,6 +800,7 @@ rule §5); old data keeps reading fine.
 | v1.18.2 | ✅ Shipped 2026-09-02 — owner's preamble copy revision applied (`docs/Copy-Demo-Preamble.md` is the editing channel) + preamble titles drop Brauer Neue for the tour heading font. Pushed to main directly (owner call); main = development |
 | v1.18.3 | ✅ Shipped 2026-09-02 — 42 (child-first deletes in spSync: a mid-queue failure can no longer orphan task/todo/event rows behind a deleted project — the live "TBD lane" orphan's root cause) |
 | v1.19.0 | ✅ Shipped 2026-09-02 — 26 (change log): saves write `ShopTimeline_Changelog`; global `#/changelog` page + second project-page dock (one viewable at a time), both admin-only |
+| v1.19.1 | ✅ Shipped 2026-09-03 — tour step 8 fix: `.pg-trail` also matches the hidden dashboard bar first in DOM order, so the coach card landed ON the real breadcrumb bar; step targets now resolve visible-first (`coachEl`) |
 | v2.0.0 | 13 (single source of truth) ⚠ — likely several minors along the way (one per absorbed store), with v2.0.0 as the cutover declaration |
 
 ## 5. Data / schema (⚠ all need approval — shared Lists)

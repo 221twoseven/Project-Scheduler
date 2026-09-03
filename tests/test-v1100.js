@@ -343,6 +343,14 @@ function stageTour(){
        &&!doc.getElementById('coach').classList.contains('chain'));
     ok('…continuing the count where the home half stopped (v1.14.0)',
        doc.getElementById('coach-step').textContent==='STEP '+(homeN+1)+' OF '+E('COACH.total'));
+    /* v1.19.1: .pg-trail also lives on the hidden dashboard bar earlier in the DOM —
+       step targets must resolve through the visible-first coachEl, not querySelector
+       (jsdom has no layout, so assert the mechanism + its fallback, not geometry). */
+    ok('step targets resolve visible-first (coachEl, v1.19.1)',
+       src.indexOf('coachEl(s.sel).getBoundingClientRect()')>=0
+       &&src.indexOf('els.find(el=>el.getClientRects&&el.getClientRects().length)||els[0]')>=0);
+    ok('coachEl falls back to the first match when nothing reports a rect',
+       E("coachEl('.pg-trail')!==null"));
     E('coachEnd()');
     console.log('\ntest-v1100: '+pass+' passed, '+fail+' failed');
     process.exit(fail?1:0);

@@ -1569,7 +1569,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.19.0'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.19.1'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -9664,13 +9664,23 @@ function coachEnd(){
   COACH=null;document.getElementById('coach').classList.add('hidden');
   try{localStorage.setItem(COACH_KEY,'1');}catch(e){}
 }
+/* v1.19.1: several surfaces share a step's selector (.pg-trail lives on the hidden
+   dashboard bar, Company Data AND the project page) — querySelector took the first
+   in DOM order, a hidden one, so step 8's hole spotlit nothing and the card landed
+   at the origin ON TOP of the real breadcrumb bar. Prefer the first VISIBLE match;
+   fall back to the first match so jsdom (no layout, zero rects everywhere) keeps
+   the old behavior. */
+function coachEl(sel){
+  const els=[...document.querySelectorAll(sel)];
+  return els.find(el=>el.getClientRects&&el.getClientRects().length)||els[0]||null;
+}
 function coachShow(){
   coachUnchain();
-  const s=COACH.steps[COACH.i],r=document.querySelector(s.sel).getBoundingClientRect();
+  const s=COACH.steps[COACH.i],r=coachEl(s.sel).getBoundingClientRect();
   const hole=document.getElementById('coach-hole'),card=document.getElementById('coach-card');
   if(s.chain){
     document.getElementById('coach').classList.add('chain');
-    const el=document.querySelector(s.sel);
+    const el=coachEl(s.sel);
     /* the project half continues the count where the home half leaves off */
     const fn=()=>{const b=COACH?COACH.steps.length:0;
       coachEnd();setTimeout(()=>coachStart(COACH_PP_STEPS,b),450);};
@@ -9699,7 +9709,7 @@ function coachStart(stepList,base){
   /* Chain steps ask the user to press an edit door — viewers don't have it (the
      button is display:none under body.viewer), so their tour simply ends a step
      earlier. */
-  const steps=(stepList||COACH_STEPS).filter(s=>document.querySelector(s.sel)&&!(s.chain&&isViewer()));
+  const steps=(stepList||COACH_STEPS).filter(s=>coachEl(s.sel)&&!(s.chain&&isViewer()));
   if(!steps.length)return;
   try{localStorage.setItem(COACH_KEY,'1');}catch(e){} /* even an abandoned tour never nags twice */
   /* v1.14.0: one continuous count across the chained halves — `base` is how many
