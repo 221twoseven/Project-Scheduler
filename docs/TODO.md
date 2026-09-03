@@ -930,6 +930,10 @@ these are the ones still open, plus new deferrals as they happen.
       keying on account username (REV87).
 - [ ] Project-page tour is Help-only, no first-visit auto-run. Gate: owner wanting
       auto-run for new hires (REV86).
+- [ ] Home-tour seen-flag is per-browser localStorage (`shopTimelineCoachSeen`), not
+      per-person — a machine/browser switch replays the auto-run once. **Owner ruling
+      2026-09-02: leave it — most people don't change machines or browsers often.**
+      Gate: repeat-tour complaints; fix = a seen flag on the staff row (⚠ column).
 - [x] Settings → Density alias retirement — **closed by REV95** (Settings menu
       retired entirely).
 - [x] Where/Style/Filter eyebrow labels hidden below 1400px — **moot since REV92**
