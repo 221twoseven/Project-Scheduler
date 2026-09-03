@@ -26,10 +26,10 @@ the whole `main...development` span surfaced 16 confirmed defects; **all 16 ship
 v1.18.1** (permission doors actually per-kind, staff-poll race closed, client/config
 retry parks, CD_EDIT exit leak, v1-era zoom migration, Everything-view client reset,
 nickname search, test-runner skip detector + mojibake repair — record:
-`docs/Milestones/2026-09-02-v1181-audit-fixes.md`). One owner action open from it:
-**merge the one-file PR aligning `main`'s `deploy-pages.yml`** (the font
-sparse-checkout lines) before or with the next promotion — until then a push to
-`main` republishes `/preview/` without the wordmark font. `package.json` re-aligned
+`docs/Milestones/2026-09-02-v1181-audit-fixes.md`). The one owner action from it is
+**DONE — verified 2026-09-02 (late): `deploy-pages.yml` is byte-identical on `main`,
+`development`, and `sandbox`, and the latest Deploy Pages runs are green on both
+deploying branches (§7 entry closed).** `package.json` re-aligned
 to `APP_VER` (had drifted since v1.15.2). Previous review 2026-09-02 — the owner's nine-item morning brief filed as §3 items
 33–36 and the item-30 close-out; **all shipped same day as v1.10.0–v1.13.0** (dock
 re-layout + comprehensive departments + Logistics + wordmark-home + signed-in badge +
@@ -1009,12 +1009,14 @@ these are the ones still open, plus new deferrals as they happen.
       to Segoe/system faces. Also deliberate: only the ONE Brauer file is
       committed; the other five weights sit uncommitted in the local `fonts/`
       folder (the public repo publishes only what the site uses).
-- [ ] The fonts deploy-allowlist edit lives only on `development` until the next
+- [x] The fonts deploy-allowlist edit lives only on `development` until the next
       main/sandbox sync — the workflow must be identical on all three branches, so
       **a push to `main` or `sandbox` before v1.7.1 reaches them fails the Pages
       deploy at the guard step** (non-destructive: the old site stays up). Gate:
       the next merge to main carries `.github/workflows/deploy-pages.yml`; sandbox
-      needs the same file cherry-picked. (v1.7.1, 2026-09-01)
+      needs the same file cherry-picked. (v1.7.1, 2026-09-01) **CLOSED 2026-09-02:
+      PR #32 carried the workflow to `main`, sandbox synced — verified byte-identical
+      on all three branches; Deploy Pages green on `main` and `development`.**
 - [ ] Vivid shows no non-working-day marker on the canvas at all (holidays
       included) — the obj-13 ruling makes the month colour king; weekends stay
       visible in the Day/2-Day header and everywhere in Quiet. Gate: someone
