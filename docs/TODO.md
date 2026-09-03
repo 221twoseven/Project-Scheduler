@@ -1235,6 +1235,21 @@ these are the ones still open, plus new deferrals as they happen.
 - [ ] The changelog dock has no drag-resize handle — it reuses the edit dock's
       persisted height; its collapse is per-visit, not persisted. Gate: someone
       dragging for it. (v1.19.0)
+- [ ] Open Issues has no resolved/closed state — ShopTimeline_Feedback carries no
+      status column, so every filed report lists forever. Gate: the list needing
+      triage; fix is a ⚠ additive `status` column spec for Robert. (v1.20.0,
+      2026-09-03)
+- [ ] People/Clients edits stay outside the undo/redo system — they ride their own
+      Save-with-confirm paths (savePeople etc.), not saveState. Gate: someone
+      reaching for ⌘Z on the People page. (v1.20.0)
+- [ ] Holiday name pills render on the two Gantt surfaces + date-header tooltip;
+      the month-calendar view greys holidays but shows no name. Gate: someone
+      missing it there. (v1.20.0)
+- [ ] Draft redo snapshots the whole draft-mutable state (NPV_MANUAL/LINES/EVENTS/
+      TODOS/ORDER) rather than inverting each reverser — a toast-button Undo
+      doesn't feed the redo stack (only ⌘Z does). Gate: someone noticing. (v1.20.0)
+- [ ] RELEASE_NOTES is a hand-curated const in index.html — add an entry per
+      release; nothing generates it. Gate: it going stale twice. (v1.20.0)
 
 **Deliberate design ceilings — no action planned, revisit only on real complaints:**
 12-slot palette repeats at 13+ visible projects (T2); quiet re-selection after a

@@ -1,6 +1,6 @@
-/* REV56: project-page subtask hierarchy (TODO §3 item 5 — the owner's notes).
+﻿/* REV56: project-page subtask hierarchy (TODO Â§3 item 5 â€” the owner's notes).
    The synthetic summary bar is retired: a department's primary bar (first in display
-   order) IS the parent row — full colour, drag, resize, select — and only the other
+   order) IS the parent row â€” full colour, drag, resize, select â€” and only the other
    bars nest under it, so the primary is never re-listed as its own subtask. Subtasks
    render in a lighter shade of the parent's hue, are born named and half the parent's
    window (never an exact copy), and a subtask nested inside its parent treats the
@@ -14,7 +14,7 @@ const FILE=process.argv[2]||'index.html';
 const src=fs.readFileSync(FILE,'utf8');
 
 if(src.indexOf('npv-env')<0){
-  console.log('  SKIP  build predates REV56 (summary-bar model — see test47)');
+  console.log('  SKIP  build predates REV56 (summary-bar model â€” see test47)');
   console.log('\n'+'-'.repeat(46));
   console.log('  0 passed, 0 failed   ['+FILE+']');
   process.exit(0);
@@ -51,10 +51,10 @@ const q=s=>doc.querySelector(s);
 const qa=s=>[...doc.querySelectorAll(s)];
 const mouse=(el,t,x,y)=>el.dispatchEvent(new win.MouseEvent(t,{bubbles:true,clientX:x,clientY:y,button:0}));
 const dmouse=(t,x,y)=>doc.dispatchEvent(new win.MouseEvent(t,{bubbles:true,clientX:x,clientY:y,button:0}));
-const rows=()=>qa('#npv-body > .npv-row');
+const rows=()=>qa('#npv-body > .npv-row:not(.extra)'); /* 09-03: Milestones/Notes lead rows excluded */
 const dates=id=>E("(function(){var t=ST.tasks.find(x=>x.id==='"+id+"');return t.startDate+'/'+t.endDate;})()");
 const drag=(el,px)=>{mouse(el,'mousedown',100,10);dmouse('mousemove',100+px,10);dmouse('mouseup',100+px,10);};
-/* jsdom may keep hex or normalize to rgb() — compare colours in one shape. */
+/* jsdom may keep hex or normalize to rgb() â€” compare colours in one shape. */
 const rgb=h=>{const n=parseInt(h.slice(1),16);return 'rgb('+((n>>16)&255)+', '+((n>>8)&255)+', '+(n&255)+')';};
 const norm=s=>String(s||'').trim().toLowerCase();
 const sameCol=(got,hex)=>norm(got)===norm(hex)||norm(got)===norm(rgb(hex));
@@ -67,7 +67,7 @@ setTimeout(()=>{
 },1300);
 
 function stage1(){
-  sec('the parent row IS the primary bar — no synthetic summary');
+  sec('the parent row IS the primary bar â€” no synthetic summary');
   ok('the summary bar class is retired from the stylesheet', src.indexOf('.npv-bar.sum{')<0);
   ok('three drawn rows: one parent, two leaves', rows().length===3, rows().length+' rows');
   ok('technical design is a parent', E("NPV_PLAN.some(r=>r.kind==='parent'&&r.dept==='td')"));
@@ -92,7 +92,7 @@ function stage1(){
   ok('the count badge counts subtasks, not every bar',
      (q('.npv-row.parent .npv-n')||{}).textContent==='2');
 
-  sec('expanding lists only the subtasks — the primary is not re-listed');
+  sec('expanding lists only the subtasks â€” the primary is not re-listed');
   E("NPV_OPEN.add('td');npvRender();");
   setTimeout(()=>{
     const kids=qa('.npv-row.child .npv-bar');
@@ -160,7 +160,7 @@ function stage3(){
 }
 
 function stage4(){
-  sec('a new subtask is born distinct — named, nested, half the parent');
+  sec('a new subtask is born distinct â€” named, nested, half the parent');
   const f=dates('f1').split('/');
   E("npvCreateSubtask('fab','"+f[0]+"')");
   setTimeout(()=>{
@@ -286,3 +286,4 @@ function done(){
   process.exit(fail?1:0);
 }
 setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},40000);
+

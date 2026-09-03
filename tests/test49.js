@@ -1,15 +1,15 @@
-/* The project dashboard. Run: node test49.js Timeline_49.html */
+﻿/* The project dashboard. Run: node test49.js Timeline_49.html */
 const {boot}=require('./harness');
 const FILE=process.argv[2]||'Timeline_49.html';
 
-/* The frozen REV50 reference predates E1 (bottom dock) — same convention as
+/* The frozen REV50 reference predates E1 (bottom dock) â€” same convention as
    test-b1.js: E1-only assertions are skipped on pre-E1 builds. */
 const E1=require('fs').readFileSync(FILE,'utf8').indexOf('pp-dock')>=0;
 /* REV56 replaced the synthetic summary bar with the primary bar as the parent row;
    the summary-bar assertions only apply to older builds (test56 owns the new model). */
 const SUMBAR=require('fs').readFileSync(FILE,'utf8').indexOf('npv-env')<0;
 /* REV57 / N11: right-click menus are add-only (rename/duplicate/delete live in the
-   inspector). The old inline name field is retired — a left-click now opens an edit
+   inspector). The old inline name field is retired â€” a left-click now opens an edit
    popover and a New action opens it on the fresh item; sniffed here to gate that branch. */
 const N11=/npvEditPop/.test(require('fs').readFileSync(FILE,'utf8'));
 
@@ -110,7 +110,7 @@ function stage2(){
     ok('the selected bar is ringed', !!q('#npv-body .npv-bar.pick'));
     ok('its row is highlighted', !!q('#npv-body .npv-row.pickrow'));
     ok('the inspector switched to the phase', !!doc.getElementById('ins-name'));
-    /* Whichever bar was clicked — with a department collapsed the first drawn bar is a
+    /* Whichever bar was clicked â€” with a department collapsed the first drawn bar is a
        leaf from another department, so assert against the selection, not a guess. */
     ok('the name field carries that phase\'s own label',
        doc.getElementById('ins-name').value===(E("(ppSelected()||{}).label")||''),
@@ -165,7 +165,7 @@ function stage3(){
 
     const n0=E('ST.tasks.length');
     if(N11){
-      /* Duplicate moved to the inspector — the left-click path. */
+      /* Duplicate moved to the inspector â€” the left-click path. */
       E('npvCloseMenu();ppSelect(NPV_TASKS[0].id);');
       click(doc.getElementById('ins-dup'));
     }else{
@@ -195,7 +195,7 @@ function stage4(){
   E("NPV_OPEN=new Set();npvRebuild();ppSelect(null,true);");
   setTimeout(()=>{
     if(!SUMBAR){
-      console.log('  SKIP  REV56 has no summary bar — the parent row is the primary bar (test56)');
+      console.log('  SKIP  REV56 has no summary bar â€” the parent row is the primary bar (test56)');
       gutterSection();
       return;
     }
@@ -217,7 +217,7 @@ function stage4(){
 function gutterSection(){
   setTimeout(()=>{
     sec('right-click a row gutter');
-    const gut=q('#npv-body .npv-gut');
+    const gut=q('#npv-body .npv-gut[data-dept]');
     const ev2=new win.MouseEvent('contextmenu',{bubbles:true,cancelable:true,clientX:40,clientY:20,button:2});
     gut.dispatchEvent(ev2);
     setTimeout(()=>{
@@ -271,7 +271,7 @@ function stage5(){
                   const sheet=km||doc.getElementById('pp-ks');
                   ok('? opens the shortcuts surface',
                      sheet&&!sheet.classList.contains('hidden'));
-                  if(km)ok('…listing the project-page keys',/New subtask/.test(km.textContent));
+                  if(km)ok('â€¦listing the project-page keys',/New subtask/.test(km.textContent));
                   key('Escape');
                   setTimeout(()=>{
                     ok('escape closes it',
@@ -359,3 +359,4 @@ function done(){
   process.exit(fail?1:0);
 }
 setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},40000);
+

@@ -139,7 +139,8 @@ function stage3(){
 function stage4(){
   sec('double-click a gutter title renames it in place (Explorer-style)');
   E('ppSelect(null,true);');
-  const gut=q('#npv-body .npv-row .npv-gut');
+  /* 09-03: the Milestones/Notes rows lead the chart — rename targets a DEPT gutter */
+  const gut=q('#npv-body .npv-row .npv-gut[data-dept]')||q('#npv-body .npv-row .npv-gut');
   gut.dispatchEvent(new win.MouseEvent('dblclick',{bubbles:true,cancelable:true}));
   setTimeout(()=>{
     const inp=q('#npv-body .npv-rename');

@@ -299,6 +299,18 @@ body.compact .sb-chip{line-height:1.2;padding:.5px 6px}
 
 /* ============ CANVAS ============ */
 .bg-col{position:absolute;top:0;pointer-events:none;z-index:0}
+/* v1.20.0: Open Issues / Release Notes / dev Reports pages (Company Data chrome) */
+.fb-pane{padding:16px 22px;overflow-y:auto}
+.fb-pane .fb-h{margin:0 0 10px;font-size:15px;color:#1E293B}
+.rn-list{padding:6px 0}
+.rn-ver{padding:10px 22px;border-bottom:1px solid #EEF2F7}
+.rn-hd{display:flex;align-items:baseline;gap:10px;font-size:13px;color:#1E293B}
+.rn-notes{margin:6px 0 0;padding-left:18px;font-size:12.5px;color:#33415A;line-height:1.5}
+/* Holiday name pill — the TODAY-pill anatomy in the quiet weekend grey (§2.4). Sits
+   centered on its day column at the top of the canvas, under the today line's z. */
+.hol-tag{position:absolute;top:3px;transform:translateX(-50%);font-family:var(--mono);
+  font-size:var(--fs-fine);font-weight:700;letter-spacing:.1em;color:#fff;background:#94A3B8;
+  border-radius:3px;padding:1px 5px;white-space:nowrap;z-index:5;pointer-events:none}
 .wknd-col{position:absolute;top:0;pointer-events:none;z-index:1;background-color:#EEF1F5;
   background-image:repeating-linear-gradient(45deg,rgba(100,116,139,.044) 0 4px,transparent 4px 8px)}
 /* v1.0.2: Vivid months shows the month colour uninterrupted — no grey weekend/holiday
@@ -1265,6 +1277,8 @@ body.cd-route #dash-bar{display:none!important}
       <span class="tb-app">Shop Timeline</span>
     </div>
     <button id="btn-new-proj" class="t-btn accent" title="Create a new project (N)">+ New Project</button>
+    <button id="btn-undo" class="t-btn" title="Undo"><svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7h6.5a3.5 3.5 0 0 1 0 7H6"/><path d="M6 4 3 7l3 3"/></svg></button>
+    <button id="btn-redo" class="t-btn" title="Redo"><svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 7H6.5a3.5 3.5 0 0 0 0 7H10"/><path d="M10 4l3 3-3 3"/></svg></button>
     <div class="sf-wrap">
       <button id="btn-dash" class="t-btn" title="Your dashboard — your schedule, milestones, notes and time off"><svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="5" r="2.5"/><path d="M3 13.5c.6-3 2.5-4.5 5-4.5s4.4 1.5 5 4.5"/></svg> My Dashboard</button>
       <div id="dash-menu" class="tb-menu hidden"></div>
@@ -1291,7 +1305,10 @@ body.cd-route #dash-bar{display:none!important}
         <div class="sm-item" id="mi-shortcuts" title="Every keyboard shortcut on this view">Keyboard shortcuts</div>
         <div class="sm-item" id="mi-legend" title="What the colors, patterns and markers mean">Legend</div>
         <div class="sm-item" id="mi-report" title="File a bug or ask for a feature — lands on SharePoint with your name attached">Report a bug or idea</div>
+        <div class="sm-item" id="mi-relnotes" title="What changed in each version, in plain language">Release notes</div>
+        <div class="sm-item" id="mi-issues" title="Reports and requests that are in — and the form to file a new one">Open issues</div>
         <div class="sm-item hidden" id="mi-appset" title="Developer switches — viewer permission grants and experimental features">App settings</div>
+        <div class="sm-item hidden" id="mi-reports" title="Developer view — every bug report and feature request in full, as mailed">Bug reports (dev)</div>
         <div class="sm-note">Shop Timeline · v<span id="tb-rev-num"></span></div>
       </div>
       <div id="legend-menu" class="tb-menu hidden"></div>
@@ -1451,29 +1468,8 @@ body.cd-route #dash-bar{display:none!important}
      page. Add/edit live in the pages' detail pane; nothing modal remains here. -->
 
 <!-- v1.6.0 (v2 obj 2): BUG REPORT / FEATURE REQUEST -->
-<div id="fb-overlay" class="overlay hidden">
-  <div class="modal" id="fb-modal">
-    <h3>Report a bug or request a feature</h3>
-    <div class="modal-body">
-      <div class="hint">Reports land in the ShopTimeline_Feedback list on SharePoint with your name attached, so whoever picks it up can ask questions.</div>
-      <div class="fg"><label>Name</label><input id="fb-name" type="text"></div>
-      <div class="fg"><label>Email</label><input id="fb-email" type="email"></div>
-      <div class="fg"><label>Kind</label><div id="fb-kind">
-        <label><input type="radio" name="fb-kind" value="bug" checked> Bug</label>
-        <label><input type="radio" name="fb-kind" value="feature"> Feature request</label>
-      </div></div>
-      <div class="fg"><label>What happened / what do you need?</label><textarea id="fb-desc" rows="5" placeholder="What you did, what you expected, what you got instead"></textarea></div>
-      <div class="fg"><label>Screenshot (optional)</label><input id="fb-shot" type="file" accept="image/*"></div>
-    </div>
-    <div class="m-actions">
-      <span></span>
-      <div class="m-right">
-        <button id="fb-cancel" class="btn btn-ghost">Cancel</button>
-        <button id="fb-send" class="btn btn-primary">Send report</button>
-      </div>
-    </div>
-  </div>
-</div>
+<!-- v1.20.0: the bug-report modal became the left pane of the Open Issues page
+     (#/issues, renderIssues) — same fb-* field ids, same sendFeedback path. -->
 
 <!-- REV87: PM LATE-PROJECT PROMPT -->
 <div id="pmlate-overlay" class="overlay hidden">
@@ -1569,7 +1565,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.19.2'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.20.0'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -1856,26 +1852,28 @@ function timeAgo(iso){
 }
 
 /* ===================== HOLIDAYS / WORKING DAYS ===================== */
-const HOL_CACHE={};
+const HOL_CACHE={},HOL_NAMES={};
 function observed(d){const w=d.getDay();if(w===6)return addDays(d,-1);if(w===0)return addDays(d,1);return d;}
 function nthDow(y,m,dow,n){const d=new Date(y,m,1);let c=0;while(true){if(d.getDay()===dow){c++;if(c===n)return new Date(d);}d.setDate(d.getDate()+1);}}
 function lastDow(y,m,dow){const d=new Date(y,m+1,0);while(d.getDay()!==dow)d.setDate(d.getDate()-1);return new Date(d);}
 function holidaysFor(y){
   if(HOL_CACHE[y])return HOL_CACHE[y];
-  const s=new Set();
+  const s=new Set(),names=HOL_NAMES[y]={};
+  const add=(d,nm)=>{s.add(fmtDate(d));names[fmtDate(d)]=nm;};
   /* REV90: observed New Year can land in the neighbouring year (Jan 1 on a Saturday
      observes Fri Dec 31 of y-1; on a Sunday, Mon Jan 2). isWorking(d) looks up
      d's OWN year, so each year's set must carry only dates inside that year —
      including next year's New Year when it observes back into this December. */
-  const d1=observed(new Date(y,0,1));if(d1.getFullYear()===y)s.add(fmtDate(d1));
-  const d2=observed(new Date(y+1,0,1));if(d2.getFullYear()===y)s.add(fmtDate(d2));
-  s.add(fmtDate(lastDow(y,4,1)));
-  s.add(fmtDate(observed(new Date(y,6,4))));
-  s.add(fmtDate(nthDow(y,8,1,1)));
-  s.add(fmtDate(nthDow(y,10,4,4)));
-  s.add(fmtDate(observed(new Date(y,11,25))));
+  const d1=observed(new Date(y,0,1));if(d1.getFullYear()===y)add(d1,"New Year's Day");
+  const d2=observed(new Date(y+1,0,1));if(d2.getFullYear()===y)add(d2,"New Year's Day");
+  add(lastDow(y,4,1),'Memorial Day');
+  add(observed(new Date(y,6,4)),'Independence Day');
+  add(nthDow(y,8,1,1),'Labor Day');
+  add(nthDow(y,10,4,4),'Thanksgiving');
+  add(observed(new Date(y,11,25)),'Christmas');
   HOL_CACHE[y]=s;return s;
 }
+function holidayName(d){const y=d.getFullYear();holidaysFor(y);return (HOL_NAMES[y]||{})[fmtDate(d)]||'';}
 function isWorking(d){const w=d.getDay();if(w===0||w===6)return false;return !holidaysFor(d.getFullYear()).has(fmtDate(d));}
 function prevWorkingBefore(d){let e=addDays(d,-1);while(!isWorking(e))e=addDays(e,-1);return e;}
 function backN(end,n){let s=new Date(end);for(let i=1;i<n;i++)s=prevWorkingBefore(s);return s;}
@@ -2447,8 +2445,12 @@ function setSync(state,msg){
 function stamp(){return new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});}
 
 /* ===================== UNDO ===================== */
-const UNDO_STACK=[];
+const UNDO_STACK=[],REDO_STACK=[];
 function pushUndo(s){UNDO_STACK.push(s);if(UNDO_STACK.length>20)UNDO_STACK.shift();}
+/* The poll's remote-change test, minus the volatile audit stamps — SharePoint echoes
+   updatedBy/updatedAt back differently after every save, and comparing them wiped the
+   undo stack within 90s of any edit ("Nothing to undo" right after doing something). */
+function stripStamps(st){return JSON.stringify(st,(k,v)=>k==='updatedBy'||k==='updatedAt'?undefined:v);}
 /* Stamp whoever's signed in + right now onto anything new or changed, so the tooltip is
    accurate immediately rather than waiting on the next background poll (POLL_MS). SharePoint's own real
    value (from graphWho/graphWhen above) overwrites this the next time spLoad() runs. */
@@ -2462,10 +2464,8 @@ function stampUpdated(newList,oldList){
     return n;
   });
 }
-function undo(){
-  if(!UNDO_STACK.length){toast('Nothing to undo');return;}
+function applySnap(prev,verb){
   ST_GEN++;
-  const prev=UNDO_STACK.pop();
   const old=ST;
   ST={projects:stampUpdated(prev.projects,old.projects),tasks:stampUpdated(prev.tasks,old.tasks),
       todos:prev.todos!==undefined?prev.todos:(old.todos||[]),
@@ -2474,7 +2474,17 @@ function undo(){
       events:prev.events!==undefined?prev.events:(old.events||[])};
   render();
   syncNow(old,ST);
-  toast('Undone');
+  toast(verb);
+  return old;
+}
+function undo(){
+  if(!UNDO_STACK.length){toast('Nothing to undo');return;}
+  REDO_STACK.push(applySnap(UNDO_STACK.pop(),'Undone'));
+  if(REDO_STACK.length>20)REDO_STACK.shift();
+}
+function redo(){
+  if(!REDO_STACK.length){toast('Nothing to redo');return;}
+  pushUndo(applySnap(REDO_STACK.pop(),'Redone'));
 }
 
 /* Push a diff to SharePoint with status pill + one retry.
@@ -2528,7 +2538,7 @@ function saveState(s){
      partially-granted viewer ever reaches an ungranted door. */
   if(isViewer()&&!vgrantAny()){toast('View-only access — ask an admin to make changes.','err');render();return;}
   ST_GEN++;
-  const old=ST;pushUndo(old);
+  const old=ST;pushUndo(old);REDO_STACK.length=0; /* a fresh edit invalidates the redo branch */
   ST={projects:stampUpdated(s.projects,old.projects),tasks:stampUpdated(s.tasks,old.tasks),
       todos:s.todos!==undefined?s.todos:(old.todos||[]),
       events:s.events!==undefined?s.events:(old.events||[])};
@@ -2835,6 +2845,7 @@ function applyPerms(){
   /* v1.11.0: Help ▸ App settings — developers only. v1.18.0: the Non-admin preview
      hides it too (owner: the menus must read exactly as a non-dev sees them). */
   {const mi=document.getElementById('mi-appset');if(mi)mi.classList.toggle('hidden',!isDeveloper()||DEV_VIEW);}
+  {const mi=document.getElementById('mi-reports');if(mi)mi.classList.toggle('hidden',!isDeveloper()||DEV_VIEW);} /* v1.20.0: dev-only full reports page */
   if(v&&!vcan('phases')&&!DATE_LOCK){ /* Lock Dates on by default and the toggle hidden (owner spec); the phases grant hands the toggle back */
     DATE_LOCK=true;
     const ck=document.getElementById('lock-ck');if(ck)ck.checked=true;
@@ -3051,7 +3062,12 @@ function laneRowsForSection(sec){
      ghost pattern). Bars with no crew and no project team fall to the '—' lane. */
   const rosterLanes=(did,rosterKey,dtasks)=>{
     const names=new Set(STAFF[rosterKey]||[]);
-    const crews=new Map(dtasks.map(t=>[t.id,barCrew(t).filter(n=>n&&n!=='—')]));
+    /* A lane here belongs only to this department's own people (Company Data → People) —
+       crew from another department no longer earns a lane; their bar files under the
+       first member who IS here, else the '—' lane. Names without a People record keep
+       a lane so legacy data stays visible. */
+    const inDept=n=>{const per=personByName(n);return !per||(per.depts||[]).map(pdCanon).includes(pdCanon(did));};
+    const crews=new Map(dtasks.map(t=>[t.id,barCrew(t).filter(n=>n&&n!=='—'&&inDept(n))]));
     dtasks.forEach(t=>{const c=crews.get(t.id);if(c.length)c.forEach(n=>names.add(n));else names.add('—');});
     const ks=[...names];if(!ks.length)ks.push('—');
     for(const k of ks){
@@ -3226,6 +3242,7 @@ function render(){
   if(typeof ROUTE!=='undefined'&&ROUTE&&(ROUTE.view==='people'||ROUTE.view==='clients')){document.body.classList.remove('me-dock-on');renderCompanyPage();return;}
   if(typeof ROUTE!=='undefined'&&ROUTE&&ROUTE.view==='settings'){document.body.classList.remove('me-dock-on');renderAppSettings();return;} /* v1.11.0 */
   if(typeof ROUTE!=='undefined'&&ROUTE&&ROUTE.view==='changelog'){document.body.classList.remove('me-dock-on');return;} /* v1.19.0: the log isn't ST data — a repaint would only wipe the filter box */
+  if(typeof ROUTE!=='undefined'&&ROUTE&&(ROUTE.view==='releases'||ROUTE.view==='issues'||ROUTE.view==='reports')){document.body.classList.remove('me-dock-on');return;} /* v1.20.0: none are ST data — a repaint would wipe a half-typed report */
   DW_PX=vpw()/FIT; /* v1.5.0: px-per-day follows the live viewport, once per render */
   document.body.classList.toggle('lens-dept',LENS==='dept'); /* v1.7.2: sort is a Projects-lens concept */
   const{s,e}=computeRange();TL_S=s;TL_E=e;
@@ -3756,7 +3773,8 @@ function buildHeaderInto(hdr,DW_){
       /* narrow day cells are too tight for a number each — Mondays only (§7) */
       if(DW_>=25||cur.getDay()===1)dc.textContent=cur.getDate();
       if(cur.getTime()===td.getTime())dc.classList.add('is-today');
-      if(!isWorking(cur))dc.classList.add('is-wknd');
+      if(!isWorking(cur)){dc.classList.add('is-wknd');
+        const hn=holidayName(cur);if(hn)dc.title=hn;}
       dRow.appendChild(dc);cur=addDays(cur,1);
     }
   }else{
@@ -3803,6 +3821,14 @@ function buildCanvasBgInto(canvas,totalW,DW_){
     if(off&&!runS)runS=new Date(d);
     if(!off)flush(d);
     d=addDays(d,1);
+  }
+  /* Each holiday wears its name as a discrete pill at the top of its grey column. */
+  let hd=new Date(TL_S);
+  while(hd<=TL_E){
+    const hn=holidayName(hd);
+    if(hn){const tag=document.createElement('div');tag.className='hol-tag';
+      tag.style.left=(d2x(hd)+DW_/2)+'px';tag.textContent=hn;bgFrag.appendChild(tag);}
+    hd=addDays(hd,1);
   }
   canvas.appendChild(bgFrag);
 }
@@ -4239,8 +4265,8 @@ function tmAssigneeUI(deptId,current){
     return;
   }
   /* Every department takes a crew of any size. Install picks from the whole staff;
-     everyone else culls to the selected project's team (falling back to the roster,
-     then the whole staff). */
+     everyone else culls to the department's own people (falling back to the project
+     team, the roster, then the whole staff). */
   sel.classList.add('hidden');txt.classList.add('hidden');crew.classList.remove('hidden');
   const p=projById(document.getElementById('tm-project').value);
   let checked=crewOf({assignee:current}).map(canonName).filter(n=>personByName(n));
@@ -4251,8 +4277,9 @@ function tmAssigneeUI(deptId,current){
     return;
   }
   lbl.textContent='Crew';
+  const dp=deptPeople(deptId);
   const team=p?projTeam(p):[];
-  buildCrewList(checked,team.length?team:(d&&d.roster?(STAFF[d.roster]||[]):null));
+  buildCrewList(checked,dp.length?dp:(team.length?team:(d&&d.roster?(STAFF[d.roster]||[]):null)));
 }
 function tmAssigneeValue(){
   const dept=document.getElementById('tm-dept').value;
@@ -4385,6 +4412,11 @@ document.getElementById('tm-del').addEventListener('click',()=>{
    PHASE departments (DEPTS) are untouched — shared task rows keep their ids. */
 const PD_ALIAS={cnc:'dfab',beamsaw:'dfab','3dprint':'dfab',laser:'dfab',print:'dfab',prefinish:'finish'};
 const pdCanon=id=>PD_ALIAS[id]||id;
+/* People tagged with a phase's department (person depts are the coarse pdCanon ids).
+   Empty when nobody carries the tag — callers fall back to their old, wider pool. */
+function deptPeople(deptId){const id=pdCanon(deptId);
+  return PEOPLE.filter(p=>(p.depts||[]).map(pdCanon).includes(id)).map(p=>p.name)
+    .sort((a,b)=>a.localeCompare(b));}
 const PD_LBL={dfab:'DFAB',finish:'Finishing'};
 const SM_DEPTS=(()=>{const seen=new Set(),out=[];
   for(const d of DEPTS){if(d.freeText)continue;const id=pdCanon(d.id);
@@ -5359,6 +5391,9 @@ function parseHash(){
   if(h==='clients'||h.indexOf('clients/')===0)return{view:'clients',id:null,creating:false};
   if(h==='settings')return{view:'settings',id:null,creating:false}; /* v1.11.0: dev App Settings */
   if(h==='changelog')return{view:'changelog',id:null,creating:false}; /* v1.19.0 (§3 item 26) */
+  if(h==='releases')return{view:'releases',id:null,creating:false}; /* v1.20.0: Help ▸ Release notes */
+  if(h==='issues')return{view:'issues',id:null,creating:false};     /* v1.20.0: Help ▸ Open issues (report form + list) */
+  if(h==='reports')return{view:'reports',id:null,creating:false};   /* v1.20.0: dev-only full reports */
   return{view:'timeline',id:null,creating:false};
 }
 function goProject(id){location.hash='#/project/'+(id?encodeURIComponent(id):'new');}
@@ -5398,7 +5433,8 @@ function applyRoute(){
     document.body.classList.remove('me-dock-on');
     mn.classList.add('hidden');pg.classList.remove('hidden');
     renderProjectPage();
-  }else if(r.view==='people'||r.view==='clients'||r.view==='settings'||r.view==='changelog'){
+  }else if(r.view==='people'||r.view==='clients'||r.view==='settings'||r.view==='changelog'
+         ||r.view==='releases'||r.view==='issues'||r.view==='reports'){
     /* v1.7.0: a Company Data page — the project page's chrome pattern (own location,
        #main hidden, timeline toolbar row gone), read-first master/detail inside.
        v1.11.0: the dev App Settings page rides the same chrome. v1.19.0: the changelog too. */
@@ -5408,7 +5444,12 @@ function applyRoute(){
     document.body.classList.add('cd-route');
     document.body.classList.remove('me-dock-on');
     mn.classList.add('hidden');pg.classList.remove('hidden');
-    if(r.view==='settings')renderAppSettings();else if(r.view==='changelog')renderChangelog();else renderCompanyPage();
+    if(r.view==='settings')renderAppSettings();
+    else if(r.view==='changelog')renderChangelog();
+    else if(r.view==='releases')renderReleases();
+    else if(r.view==='issues')renderIssues();
+    else if(r.view==='reports')renderReports();
+    else renderCompanyPage();
   }else{
     document.body.classList.remove('pp-route');
     document.body.classList.remove('cd-route');
@@ -5473,7 +5514,7 @@ function renderProjectPage(){
   const keepSel=PP_KEEP?PP_SEL:null;
   if(!PP_KEEP){
     NPV_MANUAL={};NPV_TASKS=[];NPV_ALL=[];NPV_ORDER=[];NPV_ORDER_DIRTY=false;
-    NPV_EVENTS=[];NPV_TODOS=[];NPV_LINES=[];NPV_UNDO=[];NPV_CAL_OPEN=new Set();
+    NPV_EVENTS=[];NPV_TODOS=[];NPV_LINES=[];NPV_UNDO=[];NPV_REDO=[];NPV_CAL_OPEN=new Set();
     PP_CLOG=false; /* v1.19.0: arriving fresh always shows the edit dock */
     if(isNew){
       NPV_MODE='gantt';
@@ -6042,12 +6083,14 @@ function ppInspector(){
      + (NPV_LIVE?'':' disabled title="Until the project is created, departments are chosen in the checklist"')
      + '>'+deptOptions(sel.department)+'</select></div>';
     /* Crew sits on its own line above the dates. Every bar takes a crew of any size —
-       checkboxes culled to the project team (install pulls from the whole staff), plus
-       anyone already on the bar. Empty is fine: an unowned phase umbrella is implicitly
-       covered by the project team. */
+       checkboxes culled to the department's own people (install pulls from the whole
+       staff; a dept nobody is tagged with falls back to the project team, then the
+       whole staff), plus anyone already on the bar. Empty is fine: an unowned phase
+       umbrella is implicitly covered by the project team. */
     if(!(d.freeText)){
       const crew=crewOf(sel);
-      const pool=sel.department==='install'?allPeople():(projTeam(p).length?projTeam(p):allPeople());
+      const dp=sel.department==='install'?[]:deptPeople(sel.department);
+      const pool=dp.length?dp:(sel.department==='install'?allPeople():(projTeam(p).length?projTeam(p):allPeople()));
       f+='<div class="ins-f"><label>Crew</label><div class="crew-list ins-crew" id="ins-crew">'
        + [...new Set([...pool,...crew])].map(n=>'<label><input type="checkbox" value="'+esc(n)+'"'
          +(crew.indexOf(n)>=0?' checked':'')+'>'+esc(n)+'</label>').join('')
@@ -6408,11 +6451,32 @@ let PP_KEEP=false;       /* set when a redraw must not wipe the draft */
 /* 3.5/I10: the draft's undo stack — reversers for mutations that live outside ST
    (manual placements, lines). ⌘Z pops it while a draft is open; each undo toast's
    button runs the same reverser and removes it from the stack. */
-let NPV_UNDO=[];
+let NPV_UNDO=[],NPV_REDO=[];
 function npvToastU(msg,cb){
   NPV_UNDO.push(cb);if(NPV_UNDO.length>20)NPV_UNDO.shift();
+  NPV_REDO.length=0; /* a fresh draft edit invalidates the redo branch */
   toast(msg,null,()=>{const i=NPV_UNDO.indexOf(cb);if(i>=0)NPV_UNDO.splice(i,1);cb();});
 }
+/* Draft redo: reversers are one-way closures, so redo works by snapshot — the whole
+   draft-mutable state is small JSON. Every reverser touches these globals by name. */
+function npvDraftSnap(){return JSON.stringify({m:NPV_MANUAL,l:NPV_LINES,e:NPV_EVENTS,t:NPV_TODOS,o:NPV_ORDER});}
+function npvDraftRestore(s){const x=JSON.parse(s);
+  NPV_MANUAL=x.m;NPV_LINES=x.l;NPV_EVENTS=x.e;NPV_TODOS=x.t;NPV_ORDER=x.o;npvRebuild();}
+function npvUndoStep(){
+  if(!NPV_UNDO.length){toast('Nothing to undo');return;}
+  const snap=npvDraftSnap();
+  NPV_UNDO.pop()();
+  NPV_REDO.push(snap);if(NPV_REDO.length>20)NPV_REDO.shift();
+}
+function npvRedoStep(){
+  if(!NPV_REDO.length){toast('Nothing to redo');return;}
+  const cur=npvDraftSnap();
+  npvDraftRestore(NPV_REDO.pop());
+  NPV_UNDO.push(()=>npvDraftRestore(cur));if(NPV_UNDO.length>20)NPV_UNDO.shift();
+}
+/* One pair of doors for the buttons and the hotkeys — a draft walks its own stacks. */
+function appUndo(){if(ROUTE.creating){npvUndoStep();return;}undo();}
+function appRedo(){if(ROUTE.creating){npvRedoStep();return;}redo();}
 let NPV_ORDER_DIRTY=false;
 let NPV_OPEN=new Set();   /* departments expanded to show their subtasks */
 let NPV_PLAN=[];          /* the row plan actually drawn: parent / child / leaf */
@@ -6442,6 +6506,7 @@ function setMeDockH(h){
 }
 let FIT_MAIN=()=>{};
 const NPV_ROWH=34;      /* must match .npv-row height in the stylesheet */
+const NPV_TOP=2;        /* leading marker rows: Milestones (0) and Notes (1) — owner ask 09-03 */
 let NPV_GEO=null;
 let NPV_RAF=null;
 let NPV_GUT=150;                             /* left gutter width — the column edge drags */
@@ -6636,7 +6701,7 @@ function npvHit(ev){
   const day=Math.max(0,Math.min(NPV_GEO.span-1,di));
   const ri=Math.floor(py/NPV_ROWH);
   return {date:fmtDate(addDays(NPV_GEO.lo,day)),ri:ri,
-          row:(ri>=0&&ri<NPV_PLAN.length)?NPV_PLAN[ri]:null};
+          row:(ri>=NPV_TOP&&ri-NPV_TOP<NPV_PLAN.length)?NPV_PLAN[ri-NPV_TOP]:null};
 }
 /* REV53 — the calendar's counterpart. Weeks stack and month headers interleave, so
    there is no linear axis to do arithmetic against; instead every day cell carries its
@@ -7134,9 +7199,13 @@ function npvRender(){
   const axEl=document.getElementById('npv-axis');
   axEl.innerHTML=ax;axEl.style.width=innerW+'px';
 
-  /* rows */
+  /* rows — the marker rows lead (owner ask 09-03): Milestones on row 0, Notes on
+     row 1, phases below. NPV_TOP offsets every y↔row computation. */
   NPV_PLAN=npvRowPlan();
-  let h='';
+  let h='<div class="npv-row extra" style="width:'+innerW+'px">'
+   + '<div class="npv-gut" title="Milestones on this job — right-click the chart on the day it happens">Milestones</div></div>'
+   + '<div class="npv-row extra" style="width:'+innerW+'px">'
+   + '<div class="npv-gut" title="Notes on this job — one row, whatever the phase">Notes</div></div>';
   const barFor=(t,i,cls)=>{
     const nm=phaseLabel(t);
     const a=parseDate(t.startDate),b=parseDate(t.endDate);
@@ -7186,31 +7255,14 @@ function npvRender(){
      + '</div>';
   }
 
-  /* Checkpoints ride the row of their phase; one pointing at a department that isn't on
-     this job gets an extra row at the bottom so it can never silently vanish. Tasks all
-     share their own row — they're job to-dos, not phase geometry. */
+  /* Milestones and notes each live on their own leading row (owner ask 09-03) —
+     they no longer ride phase rows, so nothing can silently vanish and the two
+     rows are always where you left them: the top. */
   const marks=npvMarkers();
-  /* Row positions come from the plan now — a collapsed department is one row, not one
-     per subtask, and a marker pinned to a task index would drift down the chart. */
-  const rowOf={};
-  NPV_PLAN.forEach((r,i)=>{if(rowOf[r.dept]===undefined)rowOf[r.dept]=i;});
-  const orphans=marks.filter(mk=>mk.k==='ev'&&rowOf[mk.dept]===undefined);
-  const taskMarks=marks.filter(mk=>mk.k==='tk');
-  if(orphans.length){
-    h+='<div class="npv-row extra" style="width:'+innerW+'px">'
-     + '<div class="npv-gut" title="Milestones pointing at a department this job '
-     + 'doesn\'t use">Milestones</div></div>';
-  }
-  if(taskMarks.length){
-    h+='<div class="npv-row extra" style="width:'+innerW+'px">'
-     + '<div class="npv-gut" title="Notes on this job — one row, whatever the phase">Notes</div></div>';
-  }
-  const orphanRow=NPV_PLAN.length;
-  const taskRow=NPV_PLAN.length+(orphans.length?1:0);
   for(const mk of marks){
     const d=parseDate(mk.date);
     if(d<lo||d>hi)continue;
-    const ri=mk.k==='tk'?taskRow:(rowOf[mk.dept]===undefined?orphanRow:rowOf[mk.dept]);
+    const ri=mk.k==='ev'?0:1;
     const left=x(d)+Math.floor(dwv/2);
     const top=ri*NPV_ROWH+(mk.k==='ev'?9.5:9);
     const cls=mk.k==='ev'?'npv-ev':('npv-tk'+(mk.pr==='high'||mk.pr==='urgent'?' hi':''));
@@ -7224,6 +7276,11 @@ function npvRender(){
   /* Weekend columns moved into the tint layer below (v1.6.2) — see the CSS note. */
   h+='<div class="npv-today" style="left:'+x(td)+'px;width:'+dwv+'px"></div>';
   h+='<div class="npv-dl" style="left:'+(x(dl)+dwv)+'px"></div>';
+  /* Holiday name pills — same .hol-tag the global canvas wears. */
+  {let hp=new Date(lo);
+   while(hp<=hi){const hn=holidayName(hp);
+     if(hn)h+='<div class="hol-tag" style="left:'+(x(hp)+dwv/2)+'px">'+esc(hn)+'</div>';
+     hp=addDays(hp,1);}}
   /* Tint sits in its own layer appended last so it can't shift the rows' nth-child
      zebra, and is held under them by z-index rather than document order. */
   {
@@ -8065,7 +8122,7 @@ function npvBindReorder(){
 
       const rowUnder=cy=>{
         const r=host.getBoundingClientRect();
-        const i=Math.floor((cy-r.top)/NPV_ROWH);
+        const i=Math.floor((cy-r.top)/NPV_ROWH)-NPV_TOP; /* the marker rows lead */
         return Math.max(0,Math.min(NPV_PLAN.length-1,i));
       };
       const mv=e2=>{
@@ -8077,7 +8134,7 @@ function npvBindReorder(){
         const lastRow=NPV_PLAN.length-1-[...NPV_PLAN].reverse().findIndex(r2=>r2.dept===over);
         const below=NPV_ORDER.indexOf(over)>NPV_ORDER.indexOf(dept);
         drop.style.display='block';
-        drop.style.top=((below?lastRow+1:firstRow)*NPV_ROWH-1)+'px';
+        drop.style.top=(((below?lastRow+1:firstRow)+NPV_TOP)*NPV_ROWH-1)+'px';
       };
       const up=()=>{
         document.removeEventListener('mousemove',mv);
@@ -8745,26 +8802,28 @@ document.addEventListener('keydown',ev=>{
     }
     /* v1.7.0: the Company Data pages — menu, typing, open editor, then the page.
        v1.11.0: App Settings walks home the same way (CD_EDIT is never set there). */
-    if(ROUTE.view==='people'||ROUTE.view==='clients'||ROUTE.view==='settings'||ROUTE.view==='changelog'){
+    if(ROUTE.view==='people'||ROUTE.view==='clients'||ROUTE.view==='settings'||ROUTE.view==='changelog'
+     ||ROUTE.view==='releases'||ROUTE.view==='issues'||ROUTE.view==='reports'){
       if(document.querySelector('.tb-menu:not(.hidden)')){closeMenus();ev.preventDefault();return;}
       if(typing){ev.target.blur();return;}
       if(CD_EDIT){if(confirm('Discard the changes to this record?')){CD_EDIT=null;cdPaintDetail();}ev.preventDefault();return;}
       ev.preventDefault();goTimeline();return;
     }
     closeTaskModal();
-    document.getElementById('fb-overlay').classList.add('hidden');
     document.getElementById('print-overlay').classList.add('hidden');
     document.getElementById('meet-overlay').classList.add('hidden');
     document.getElementById('pmlate-overlay').classList.add('hidden');
     closeMenus();
     return;
   }
-  if((ev.ctrlKey||ev.metaKey)&&ev.key.toLowerCase()==='z'&&!typing){
+  /* Undo/redo hotkeys: ⌘/Ctrl+Z undoes; ⌘/Ctrl+Y or ⌘/Ctrl+Shift+Z redoes.
+     3.5/I10: a draft walks its own reverser stacks (its mutations never reach ST) —
+     and never falls through to the timeline's stack, which would silently undo an
+     unrelated earlier edit from the draft page. */
+  if((ev.ctrlKey||ev.metaKey)&&!typing&&(ev.key.toLowerCase()==='z'||ev.key.toLowerCase()==='y')){
     ev.preventDefault();
-    /* 3.5/I10: on a draft, ⌘Z walks the draft's own reversers (its mutations never
-       reach ST); everywhere else it pops the ST snapshot stack as before. */
-    if(ROUTE.creating&&NPV_UNDO.length){NPV_UNDO.pop()();return;}
-    undo();return;
+    if(ev.key.toLowerCase()==='y'||ev.shiftKey)appRedo();else appUndo();
+    return;
   }
 
   /* REV49 — the dashboard keyboard. Every one of these is also a menu item or a button,
@@ -8824,6 +8883,7 @@ document.addEventListener('keydown',ev=>{
         /* REV90: a reverser like the drag path pushes — ⌘Z undoes keyboard nudges too */
         NPV_UNDO.push(()=>{if(prevM===undefined)delete NPV_MANUAL[mk];else NPV_MANUAL[mk]=prevM;npvRebuild();});
         if(NPV_UNDO.length>20)NPV_UNDO.shift();
+        NPV_REDO.length=0;
       }
       npvRebuild();ppSelect(PP_SEL||k0,true);
       ev.preventDefault();return;
@@ -8876,6 +8936,11 @@ function scrollTodayLeft(){
   sc.scrollLeft=Math.max(0,d2x(today())-dw()*1.5);
 }
 document.getElementById('btn-today').addEventListener('click',scrollToToday);
+/* Undo/redo toolbar buttons — one pair, live on every page; tooltip names the hotkey. */
+{const mod=/Mac|iP/.test(navigator.platform)?'⌘':'Ctrl+';
+ const bu=document.getElementById('btn-undo'),br=document.getElementById('btn-redo');
+ bu.title='Undo ('+mod+'Z)';br.title='Redo ('+mod+'Y)';
+ bu.addEventListener('click',appUndo);br.addEventListener('click',appRedo);}
 
 /* B3: Go to date — reached by G, a month-name click, or the ? legend (§6 three paths).
    Reuses the .tb-menu machinery, so one-at-a-time, outside click and Escape all hold. */
@@ -9794,17 +9859,17 @@ document.getElementById('mi-tour').addEventListener('click',()=>{
    machinery, so opening one mutes the other and outside-click/Esc close both.
    Content is route-aware: the timeline's keys or the project page's. */
 const KBD_TL=[['N','New project'],['/','Search'],['T','Center on today'],['G','Go to date'],
-  ['W','Week scale'],['M','Month scale'],['+ −','Step the zoom'],['⌘ Z','Undo'],
+  ['W','Week scale'],['M','Month scale'],['+ −','Step the zoom'],['⌘ Z','Undo'],['⌘ Y','Redo'],
   ['Esc','Close / clear'],['?','This list']];
 const KBD_PP=[['S','New subtask'],['E','New milestone'],['T','New note'],['R','Rename selected'],
-  ['↑ ↓','Move selection'],['⇧ ← →','Nudge a day'],['⌘ Z','Undo'],['Del','Delete selected'],
+  ['↑ ↓','Move selection'],['⇧ ← →','Nudge a day'],['⌘ Z','Undo'],['⌘ Y','Redo'],['Del','Delete selected'],
   ['G / C','Gantt or Calendar'],['Esc','Deselect, then leave']];
-const KBD_CD=[['N','New project'],['↑ ↓','Move selection'],['⌘ Z','Undo'],['Esc','Back to the timeline']]; /* v1.7.0; ↑↓ v1.17.0 */
+const KBD_CD=[['N','New project'],['↑ ↓','Move selection'],['⌘ Z','Undo'],['⌘ Y','Redo'],['Esc','Back to the timeline']]; /* v1.7.0; ↑↓ v1.17.0 */
 function openKbdMenu(){
   closeMenus();
   const m=document.getElementById('kbd-menu');
   const v=(typeof ROUTE!=='undefined'&&ROUTE)?ROUTE.view:'timeline';
-  const keys=v==='project'?KBD_PP:(v==='people'||v==='clients'||v==='settings')?KBD_CD:KBD_TL;
+  const keys=v==='project'?KBD_PP:(v==='people'||v==='clients'||v==='settings'||v==='releases'||v==='issues'||v==='reports')?KBD_CD:KBD_TL;
   m.innerHTML='<div class="lg-sec">Keyboard shortcuts</div><div class="ks-g">'
     +keys.map(k=>'<div><kbd>'+k[0]+'</kbd>'+k[1]+'</div>').join('')+'</div>';
   m.classList.remove('hidden');
@@ -9822,18 +9887,155 @@ document.getElementById('mi-legend').addEventListener('click',()=>{closeMenus();
 document.getElementById('legend-menu').addEventListener('click',ev=>ev.stopPropagation());
 
 /* ===== v1.6.0 (v2 obj 2): BUG REPORT / FEATURE REQUEST ===== */
+/* v1.20.0: the report form lives on the Open Issues page now (left pane). Opening
+   "Report a bug or idea" lands there with the description focused. applyRoute() runs
+   synchronously so the form exists the moment this returns (the browser's own
+   hashchange then repaints once more, before anything is typed — harmless). */
 function openFeedback(){
   closeMenus();
   if(!ACCOUNT){toast('Sign in first — reports carry your name.','err');return;}
-  document.getElementById('fb-name').value=meName()||ACCOUNT.name||'';
-  document.getElementById('fb-email').value=ACCOUNT.username||'';
-  document.getElementById('fb-desc').value='';
-  document.getElementById('fb-shot').value='';
-  document.querySelector('#fb-kind input[value="bug"]').checked=true;
-  document.getElementById('fb-overlay').classList.remove('hidden');
-  document.getElementById('fb-desc').focus();
+  location.hash='#/issues';applyRoute();
+  const d=document.getElementById('fb-desc');if(d)d.focus();
 }
-function closeFeedback(){document.getElementById('fb-overlay').classList.add('hidden');}
+/* On success the page stays put: the form clears and the list refreshes. */
+function closeFeedback(){
+  const d=document.getElementById('fb-desc'),s=document.getElementById('fb-shot');
+  if(d)d.value='';if(s)s.value='';
+  fbPaintList(true);
+}
+/* ===== The feedback list, read back (v1.20.0) — feeds Open Issues + the dev page ===== */
+let FB_CACHE=null,FB_AT=0;
+async function fbFetch(force){
+  if(!force&&FB_CACHE&&Date.now()-FB_AT<60000)return FB_CACHE;
+  await spSite();
+  const r=await gpageAll(listUrl(LIST_FEEDBACK)+'/items?expand=fields&$top=2000');
+  const rows=r.map(it=>{const f=it.fields||{};return{
+    at:it.createdDateTime||f.Created||'',kind:f.kind||'bug',title:f.Title||'',
+    name:f.name||'',email:f.email||'',description:f.description||'',appVersion:f.appVersion||''};});
+  rows.sort((a,b)=>a.at>b.at?-1:a.at<b.at?1:0);
+  FB_CACHE=rows;FB_AT=Date.now();
+  return rows;
+}
+/* The public Open Issues list: kind + a one-line summary + when. Deliberately vague —
+   no names, no full descriptions; those live on the dev page and the email. */
+function fbPaintList(force){
+  const el=document.getElementById('fb-list');
+  if(!el)return;
+  if(!el.firstChild)el.innerHTML='<div class="clog-empty">Loading…</div>';
+  fbFetch(force).then(rows=>{
+    const el2=document.getElementById('fb-list');
+    if(!el2)return;
+    if(!rows.length){el2.innerHTML='<div class="clog-empty">Nothing filed yet — be the first.</div>';return;}
+    el2.innerHTML=rows.map(r=>{
+      const t=String(r.title||'').replace(/^(Bug|Feature)\s+—\s+/,'');
+      return '<div class="clog-row">'
+        +'<span class="cd-perm" title="'+(r.kind==='bug'?'Bug report':'Feature request')+'">'+(r.kind==='bug'?'BUG':'IDEA')+'</span>'
+        +'<div class="clog-what"><b>'+esc(t)+'</b></div>'
+        +'<span class="clog-when">'+esc(clogWhen(r.at))+'</span></div>';
+    }).join('');
+  }).catch(()=>{
+    const el2=document.getElementById('fb-list');
+    if(el2)el2.innerHTML='<div class="clog-empty">Couldn’t reach the ShopTimeline_Feedback list.</div>';
+  });
+}
+/* The report form's HTML — the retired modal's body, verbatim ids so sendFeedback
+   and every existing test path keep working. */
+function fbFormHtml(){
+  return '<div class="hint">Reports land in the ShopTimeline_Feedback list on SharePoint with your name attached, so whoever picks it up can ask questions. It also emails the team.</div>'
+   +'<div class="fg"><label>Name</label><input id="fb-name" type="text"></div>'
+   +'<div class="fg"><label>Email</label><input id="fb-email" type="email"></div>'
+   +'<div class="fg"><label>Kind</label><div id="fb-kind">'
+   +'<label><input type="radio" name="fb-kind" value="bug" checked> Bug</label> '
+   +'<label><input type="radio" name="fb-kind" value="feature"> Feature request</label>'
+   +'</div></div>'
+   +'<div class="fg"><label>What happened / what do you need?</label><textarea id="fb-desc" rows="6" placeholder="What you did, what you expected, what you got instead"></textarea></div>'
+   +'<div class="fg"><label>Screenshot (optional)</label><input id="fb-shot" type="file" accept="image/*"></div>'
+   +'<div class="m-actions"><span></span><div class="m-right">'
+   +'<button id="fb-send" class="btn btn-primary">Send report</button></div></div>';
+}
+/* One shared page shell — the Company Data chrome (trail, ×, head), body supplied. */
+function helpPageShell(title,sub,body){
+  const pg=document.getElementById('page');
+  pg.innerHTML='<div class="pg dash">'
+   +'<div class="dash-top"><nav class="pg-trail">'
+   +'<button class="pg-cr" id="cd-back" title="Back to the timeline (Esc)">All Projects</button>'
+   +'<span class="pg-sep">&rsaquo;</span>'
+   +'<span class="pg-cr cur">'+esc(title)+'</span></nav>'
+   +'<button class="pg-x" id="cd-x" title="Close — back to the timeline (Esc)">&times;</button></div>'
+   +'<div class="cd-head"><h2>'+esc(title)+'</h2><span class="cd-sub">'+esc(sub)+'</span></div>'
+   +body+'</div>';
+  document.getElementById('cd-back').addEventListener('click',goTimeline);
+  document.getElementById('cd-x').addEventListener('click',goTimeline);
+}
+/* Help ▸ Open issues — the report form (left) beside the open-issue list (right). */
+function renderIssues(){
+  applyPerms();
+  helpPageShell('Open Issues','Bug reports and feature requests as they come in — file a new one on the left.',
+    '<div class="cd-body"><div class="cd-list"><div class="fb-pane">'
+    +'<h3 class="fb-h">Report a bug or request a feature</h3>'+fbFormHtml()+'</div></div>'
+    +'<div class="cd-detail"><div class="clog-list" id="fb-list"></div></div></div>');
+  const nm=document.getElementById('fb-name'),em=document.getElementById('fb-email');
+  if(ACCOUNT){nm.value=meName()||ACCOUNT.name||'';em.value=ACCOUNT.username||'';}
+  document.getElementById('fb-send').addEventListener('click',sendFeedback);
+  fbPaintList();
+}
+/* Help ▸ Bug reports (dev) — the same list in full: exactly what the email carries. */
+function renderReports(){
+  applyPerms();
+  if(!isDeveloper()){
+    ROUTE={view:'timeline',id:null,creating:false};
+    toast('The full reports page is developer-only.','err');
+    location.hash='#/';return;
+  }
+  helpPageShell('Bug Reports & Feature Requests','Every report in full — reporter, version, description. Developer view; the team sees the concise Open Issues list.',
+    '<div class="clog-list" id="fbr-list"><div class="clog-empty">Loading…</div></div>');
+  fbFetch(true).then(rows=>{
+    const el=document.getElementById('fbr-list');
+    if(!el)return;
+    if(!rows.length){el.innerHTML='<div class="clog-empty">Nothing filed yet.</div>';return;}
+    el.innerHTML=rows.map(r=>'<div class="clog-row">'
+      +'<span class="clog-when">'+esc(clogWhen(r.at))+'</span>'
+      +'<span class="cd-perm">'+(r.kind==='bug'?'BUG':'IDEA')+'</span>'
+      +'<div class="clog-what"><b>'+esc(String(r.title||'').replace(/^(Bug|Feature)\s+—\s+/,''))+'</b>'
+      +' <span class="clog-field">'+esc((r.name||'—')+(r.email?' <'+r.email+'>':'')+(r.appVersion?' · v'+r.appVersion:''))+'</span>'
+      +(r.description?'<div class="clog-det">'+esc(r.description)+'</div>':'')
+      +'</div></div>').join('');
+  }).catch(()=>{
+    const el=document.getElementById('fbr-list');
+    if(el)el.innerHTML='<div class="clog-empty">Couldn’t reach the ShopTimeline_Feedback list.</div>';
+  });
+}
+/* ===== Help ▸ Release notes (v1.20.0) — plain-language, per version, newest first.
+   Curated by hand: add an entry here with each release. ===== */
+const RELEASE_NOTES=[
+ {v:'1.20.0',d:'Sep 3, 2026',n:['Crew pickers only offer people from that phase’s department.',
+   'Holidays are named on the calendar with a small pill, and the schedule already plans around them.',
+   'Undo and redo everywhere: the ↩ ↪ toolbar buttons, Ctrl+Z / Ctrl+Y (⌘ on Mac).',
+   'Milestones and Notes moved to the top rows of the project chart.',
+   'New Help pages: Release notes and Open issues (with the report form built in).']},
+ {v:'1.19',d:'Sep 2, 2026',n:['A changelog: every recorded change to every project — who, when, what.',
+   'Nicknames show everywhere a name is displayed (set them on the People page).']},
+ {v:'1.18',d:'Sep 2, 2026',n:['Availability on the People page (freelancers can be marked Not available).',
+   'Admins can preview the app exactly as non-admins see it.']},
+ {v:'1.17',d:'Sep 2, 2026',n:['People page: at-a-glance columns, filters by department and permission, resizable panes.']},
+ {v:'1.16',d:'Sep 2, 2026',n:['A short intro before the guided tour: what the Shop Timeline is and who it’s for.']},
+ {v:'1.14–1.15',d:'Sep 2, 2026',n:['Nicknames on people records; duplicate people can be merged.',
+   'A person’s department list is simpler — machine-level splits folded into DFAB and Finishing.']},
+ {v:'1.10–1.13',d:'Sep 2, 2026',n:['Logistics is its own department.','Dashboard layout refinements and a round of owner-requested fixes.']},
+ {v:'1.9',d:'Sep 1, 2026',n:['My Dashboard: personal notes, milestones and time off in one place.']},
+ {v:'1.8',d:'Sep 1, 2026',n:['Accounts: view-only by default, with admin roles managed on the People page.',
+   'Bug reports email the team as well as landing on SharePoint.']},
+ {v:'1.7',d:'Sep 1, 2026',n:['Company Data pages: People and Clients, imported from the HR contact list and the client master.']},
+ {v:'1.5–1.6',d:'Aug 31, 2026',n:['Smooth zoom from a week to a full year (drag the date bar).','The bug report / feature request form.']},
+ {v:'1.0–1.4',d:'Aug 31, 2026',n:['First company release: the shared timeline, project pages, calendar view, milestones and notes.']},
+];
+function renderReleases(){
+  applyPerms();
+  helpPageShell('Release Notes','What changed in each version, in plain language. Newest first.',
+    '<div class="clog-list rn-list">'+RELEASE_NOTES.map(r=>
+      '<div class="rn-ver"><div class="rn-hd"><b>v'+esc(r.v)+'</b><span class="clog-when">'+esc(r.d)+'</span></div>'
+      +'<ul class="rn-notes">'+r.n.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul></div>').join('')+'</div>');
+}
 async function sendFeedback(){
   const desc=document.getElementById('fb-desc').value.trim();
   if(!desc){toast('Say a few words about it first.','err');document.getElementById('fb-desc').focus();return;}
@@ -9893,9 +10095,10 @@ async function sendFeedback(){
   }finally{btn.disabled=false;btn.textContent='Send report';}
 }
 document.getElementById('mi-report').addEventListener('click',openFeedback);
-document.getElementById('fb-cancel').addEventListener('click',closeFeedback);
-document.getElementById('fb-send').addEventListener('click',sendFeedback);
-document.getElementById('fb-overlay').addEventListener('click',ev=>{if(ev.target.id==='fb-overlay')closeFeedback();});
+document.getElementById('mi-relnotes').addEventListener('click',()=>{closeMenus();location.hash='#/releases';});
+document.getElementById('mi-issues').addEventListener('click',()=>{closeMenus();location.hash='#/issues';});
+document.getElementById('mi-reports').addEventListener('click',()=>{closeMenus();location.hash='#/reports';});
+/* fb-send binds per render inside renderIssues — the form lives on the page now */
 document.getElementById('coach').addEventListener('click',coachNext);
 document.getElementById('coach-card').addEventListener('click',ev=>ev.stopPropagation());
 document.getElementById('coach-skip').addEventListener('click',coachEnd);
@@ -10092,8 +10295,12 @@ async function boot(){
       if(!TODOS_OK&&(ST.todos||[]).length&&!(fresh.todos||[]).length)fresh.todos=ST.todos;
       if(!EVENTS_OK&&(ST.events||[]).length&&!(fresh.events||[]).length)fresh.events=ST.events;
       /* REV90: a remote refresh invalidates every local snapshot — ⌘Z across it would
-         diff against teammates' rows and physically DELETE them from SharePoint. */
-      if(JSON.stringify(fresh)!==JSON.stringify({projects:ST.projects,tasks:ST.tasks,todos:ST.todos||[],events:ST.events||[]})){ST=fresh;dirty=true;UNDO_STACK.length=0;}
+         diff against teammates' rows and physically DELETE them from SharePoint.
+         v1.20: only a real DATA change wipes the stacks — SharePoint echoing back our
+         own save's updatedBy/updatedAt used to clear history on every tick. */
+      const wipe=stripStamps(fresh)!==stripStamps({projects:ST.projects,tasks:ST.tasks,todos:ST.todos||[],events:ST.events||[]});
+      if(JSON.stringify(fresh)!==JSON.stringify({projects:ST.projects,tasks:ST.tasks,todos:ST.todos||[],events:ST.events||[]})){ST=fresh;dirty=true;
+        if(wipe){UNDO_STACK.length=0;REDO_STACK.length=0;}}
       /* Staff changes rarely — poll it every other tick to halve that list's Graph calls.
          v1.15.2: never while a failed staff save is parked — the poll used to restore
          server truth over the user's unsaved edits ("my merges reverted"). */
