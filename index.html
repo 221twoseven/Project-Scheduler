@@ -305,8 +305,10 @@ body.compact .sb-chip{line-height:1.2;padding:.5px 6px}
 /* ============ CANVAS ============ */
 .bg-col{position:absolute;top:0;pointer-events:none;z-index:0}
 /* v1.20.0: Open Issues / Release Notes / dev Reports pages (Company Data chrome) */
-.fb-pane{padding:16px 22px;overflow-y:auto}
-.fb-pane .fb-h{margin:0 0 10px;font-size:15px;color:#1E293B}
+.fb-pane{flex:1;min-height:0;padding:16px 22px;overflow-y:auto}
+/* v1.20.4: per-column headings on Open Issues — the right pane becomes a flex column
+   so its cd-head stays fixed while the list scrolls under it. */
+.cd-detail-hd{display:flex;flex-direction:column;padding:0;overflow:hidden}
 .rn-list{padding:6px 0}
 .rn-ver{padding:10px 22px;border-bottom:1px solid #EEF2F7}
 .rn-hd{display:flex;align-items:baseline;gap:10px;font-size:13px;color:#1E293B}
@@ -1307,9 +1309,9 @@ body.cd-route #dash-bar{display:none!important}
         <div class="sm-item" id="mi-tour" title="A guided tour of the page you're on">Take a tour</div>
         <div class="sm-item" id="mi-shortcuts" title="Every keyboard shortcut on this view">Keyboard shortcuts</div>
         <div class="sm-item" id="mi-legend" title="What the colors, patterns and markers mean">Legend</div>
-        <div class="sm-item" id="mi-report" title="File a bug or ask for a feature — lands on SharePoint with your name attached">Report a bug or idea</div>
+        <div class="sm-item" id="mi-report" title="File a bug or ask for a feature, and see what's already been reported — lands on SharePoint with your name attached">Report a bug or idea</div>
         <div class="sm-item" id="mi-relnotes" title="What changed in each version, in plain language">Release notes</div>
-        <div class="sm-item" id="mi-issues" title="Reports and requests that are in — and the form to file a new one">Open issues</div>
+        <div class="sm-item" id="mi-repo" title="Open the source code on GitHub in a new tab">Repository ↗</div>
         <div class="sm-item hidden" id="mi-appset" title="Developer switches — viewer permission grants and experimental features">App settings</div>
         <div class="sm-item hidden" id="mi-reports" title="Developer view — every bug report and feature request in full, as mailed">Bug reports (dev)</div>
         <div class="sm-note">Shop Timeline · v<span id="tb-rev-num"></span></div>
@@ -1573,7 +1575,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.20.3'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.20.5'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -9975,8 +9977,9 @@ function fbFormHtml(){
    +'<div class="m-actions"><span></span><div class="m-right">'
    +'<button id="fb-send" class="btn btn-primary">Send report</button></div></div>';
 }
-/* One shared page shell — the Company Data chrome (trail, ×, head), body supplied. */
-function helpPageShell(title,sub,body){
+/* One shared page shell — the Company Data chrome (trail, ×, head), body supplied.
+   noHead skips the page-wide cd-head for pages that carry per-column headings. */
+function helpPageShell(title,sub,body,noHead){
   const pg=document.getElementById('page');
   pg.innerHTML='<div class="pg dash">'
    +'<div class="dash-top"><nav class="pg-trail">'
@@ -9984,18 +9987,23 @@ function helpPageShell(title,sub,body){
    +'<span class="pg-sep">&rsaquo;</span>'
    +'<span class="pg-cr cur">'+esc(title)+'</span></nav>'
    +'<button class="pg-x" id="cd-x" title="Close — back to the timeline (Esc)">&times;</button></div>'
-   +'<div class="cd-head"><h2>'+esc(title)+'</h2><span class="cd-sub">'+esc(sub)+'</span></div>'
+   +(noHead?'':'<div class="cd-head"><h2>'+esc(title)+'</h2><span class="cd-sub">'+esc(sub)+'</span></div>')
    +body+'</div>';
   document.getElementById('cd-back').addEventListener('click',goTimeline);
   document.getElementById('cd-x').addEventListener('click',goTimeline);
 }
-/* Help ▸ Open issues — the report form (left) beside the open-issue list (right). */
+/* Help ▸ Open issues — two columns, each with its OWN heading (owner ask): the report
+   form (left) beside the open-issue list (right). No page-wide header. */
 function renderIssues(){
   applyPerms();
-  helpPageShell('Open Issues','Bug reports and feature requests as they come in — file a new one on the left.',
-    '<div class="cd-body"><div class="cd-list"><div class="fb-pane">'
-    +'<h3 class="fb-h">Report a bug or request a feature</h3>'+fbFormHtml()+'</div></div>'
-    +'<div class="cd-detail"><div class="clog-list" id="fb-list"></div></div></div>');
+  const colHd=(t,s)=>'<div class="cd-head"><h2>'+esc(t)+'</h2><span class="cd-sub">'+esc(s)+'</span></div>';
+  helpPageShell('Open Issues',null,
+    '<div class="cd-body">'
+    +'<div class="cd-list">'+colHd('Report a bug or request a feature','Lands on SharePoint with your name attached, and emails the team.')
+      +'<div class="fb-pane">'+fbFormHtml()+'</div></div>'
+    +'<div class="cd-detail cd-detail-hd">'+colHd('Open issues','Bug reports and feature requests still open, newest first.')
+      +'<div class="clog-list" id="fb-list"></div></div>'
+    +'</div>',true);
   const nm=document.getElementById('fb-name'),em=document.getElementById('fb-email');
   if(ACCOUNT){nm.value=meName()||ACCOUNT.name||'';em.value=ACCOUNT.username||'';}
   document.getElementById('fb-send').addEventListener('click',sendFeedback);
@@ -10055,6 +10063,8 @@ async function fbSetStatus(spId,status,btn){
 /* ===== Help ▸ Release notes (v1.20.0) — plain-language, per version, newest first.
    Curated by hand: add an entry here with each release. ===== */
 const RELEASE_NOTES=[
+ {v:'1.20.5',d:'Sep 3, 2026',n:['Added a Repository link to the Help menu — opens the source code on GitHub.']},
+ {v:'1.20.4',d:'Sep 3, 2026',n:['Tidied the Help menu — “Report a bug or idea” already shows the open issues, so the duplicate “Open issues” entry is gone.']},
  {v:'1.20.3',d:'Sep 3, 2026',n:['Undo/redo moved to the end of the top row, next to Help, and made a little smaller.',
    'Refreshed the browser-tab favicon.']},
  {v:'1.20.2',d:'Sep 3, 2026',n:['The undo/redo arrows are now the TWOSEVEN brand swoosh.',
@@ -10150,8 +10160,13 @@ async function sendFeedback(){
 }
 document.getElementById('mi-report').addEventListener('click',openFeedback);
 document.getElementById('mi-relnotes').addEventListener('click',()=>{closeMenus();location.hash='#/releases';});
-document.getElementById('mi-issues').addEventListener('click',()=>{closeMenus();location.hash='#/issues';});
 document.getElementById('mi-reports').addEventListener('click',()=>{closeMenus();location.hash='#/reports';});
+/* v1.20.5: Repository link — opens the public GitHub repo in a new tab. Built with
+   window.open (NOT an anchor) so the Pages deploy's referenced-assets guard, which
+   greps index.html for quoted src/href attributes, never sees it (v1.13.1 rule). */
+document.getElementById('mi-repo').addEventListener('click',()=>{closeMenus();window.open('https://github.com/221twoseven/Project-Scheduler','_blank','noopener');});
+/* v1.20.4: the "Open issues" menu item is gone — "Report a bug or idea" already
+   opens #/issues (the form beside the open-issue list). The #/issues route stays. */
 /* fb-send binds per render inside renderIssues — the form lives on the page now */
 document.getElementById('coach').addEventListener('click',coachNext);
 document.getElementById('coach-card').addEventListener('click',ev=>ev.stopPropagation());
