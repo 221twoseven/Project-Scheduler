@@ -68,7 +68,7 @@ function stage1(){
   ok('STATUS_LBL reads Design / Fabrication',
      E("STATUS_LBL['in-design']")==='Design'&&E("STATUS_LBL['in-fabrication']")==='Fabrication');
   ok('stored keys are untouched', /'in-design'/.test(src)&&/'in-fabrication'/.test(src));
-  ok('the orphan agenda row is titled Events/Checkpoints', />(Events|Checkpoints)<\/div>/.test(src));
+  ok('the orphan agenda row is titled Events/Checkpoints/Milestones', />(Events|Checkpoints|Milestones)<\/div>/.test(src));
 
   sec('N15 — the main-timeline toolbar mutes on the project page');
   ok('the page stamps body.pp-route', doc.body.classList.contains('pp-route'));

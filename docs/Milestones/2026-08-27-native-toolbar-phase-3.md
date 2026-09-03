@@ -5,7 +5,7 @@ direction · **Branch:** development (pending promotion to main)
 
 ## What changed
 
-Phase 3 of `docs/Toolbar-Native-Direction.md` — **consolidate the filters**, and
+Phase 3 of `docs/Archive/Toolbar-Native-Direction.md` — **consolidate the filters**, and
 add a new **Client** filter.
 
 - **One `Filters ▾` menu.** The separate Status and Person buttons are gone;

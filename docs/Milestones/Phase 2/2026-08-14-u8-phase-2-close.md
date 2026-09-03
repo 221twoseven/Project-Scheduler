@@ -1,6 +1,6 @@
 # Phase 2 closed — the visual system pass (U8)
 
-**Date:** 2026-08-14 · **Branch:** development · **App REV:** 52 · **Brief:** `docs/Phase-2-Task-Briefs.md` U8
+**Date:** 2026-08-14 · **Branch:** development · **App REV:** 52 · **Brief:** `docs/Archive/Phase-2-Task-Briefs.md` U8
 
 Phase 2 rebuilt how the Timeline *looks and reads*: one type scale, one quiet
 canvas, one honest color system, one icon language. Phase 1 fixed what things

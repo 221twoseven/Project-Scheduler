@@ -1,6 +1,6 @@
 # Calendar live resize + Phase 3.5 small closeouts (REV83) — 2026-08-26
 
-Three Phase 3.5 punch-list items in one small pass (`docs/TODO.md` §6). PR:
+Three Phase 3.5 punch-list items in one small pass (`docs/Archive/TODO-v1-Archive.md` §6). PR:
 [#27](https://github.com/221twoseven/Project-Scheduler/pull/27).
 
 **Calendar drag-resize live feedback.** Resizing a phase band from its edge handle
@@ -23,7 +23,7 @@ stops at "Red bars are installs."; the legend screen's matching line was scoped
 honestly to bars ("no other bar is ever red").
 
 **Parity audit §4 verified closed.** The audit's deferred click-behavior rows
-(`docs/Phase-3.5-Parity-Audit.md` §4) were re-checked against the REV82 build:
+(`docs/Archive/Phase-3.5-Parity-Audit.md` §4) were re-checked against the REV82 build:
 every row was already converged by REV81/82 — they were symptoms of the same roots
 (draft selection, the I8 bug, the I5 Link gate) the earlier fixes hit. The one
 survivor is **double-click**, unbound on both pages: an open owner decision

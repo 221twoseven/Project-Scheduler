@@ -141,7 +141,7 @@ function stage3(){
 
     /* Renaming happens inline in the agenda row. The checkpoint-editor agenda (post-REV50)
        renders a permanent name input; the reference build opens one on click. */
-    const NEWAG=/ag-dl/.test(src);
+    const NEWAG=src.indexOf('<input class="nm"')>=0; /* the new agenda's name is a permanent INPUT; the reference renders a span and opens one on click */
     click(doc.querySelector('#pp-insp .ag-i .nm'));
     setTimeout(()=>{
       const inp=NEWAG?doc.querySelector('#pp-insp .ag-i input.nm')
@@ -231,3 +231,5 @@ function done(){
   process.exit(fail?1:0);
 }
 setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},25000);
+
+

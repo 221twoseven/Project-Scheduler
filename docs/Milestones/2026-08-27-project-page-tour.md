@@ -1,7 +1,7 @@
 # The project pages get the coach-mark tour (REV86) — 2026-08-27
 
 The last implementation item from the Phase 3.5 punch list that had its decision
-(`docs/TODO.md` §6; owner ruling 2026-08-27: **one shared tour**, not two). PR:
+(`docs/Archive/TODO-v1-Archive.md` §6; owner ruling 2026-08-27: **one shared tour**, not two). PR:
 [#28](https://github.com/221twoseven/Project-Scheduler/pull/28) (rides the
 REV84/85 branch).
 

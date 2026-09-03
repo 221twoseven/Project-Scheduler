@@ -1,6 +1,6 @@
 # The completion flow (REV87) — 2026-08-27
 
-The last build item on the Phase 3.5 punch list (`docs/TODO.md` §6; green-lit
+The last build item on the Phase 3.5 punch list (`docs/Archive/TODO-v1-Archive.md` §6; green-lit
 by the owner 2026-08-27, both halves). PR:
 [#28](https://github.com/221twoseven/Project-Scheduler/pull/28) (rides the
 REV84–86 branch).

@@ -1,7 +1,7 @@
 # Four Phase 3.5 decisions land + the × exit ships (REV85) — 2026-08-27
 
 The four decision-gated Phase 3.5 punch-list items got their rulings today
-(recorded in `docs/TODO.md` §6 and the docs each one touches). PR:
+(recorded in `docs/Archive/TODO-v1-Archive.md` §6 and the docs each one touches). PR:
 [#28](https://github.com/221twoseven/Project-Scheduler/pull/28) (rides the
 REV84 branch).
 

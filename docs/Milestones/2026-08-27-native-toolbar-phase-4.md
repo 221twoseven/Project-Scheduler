@@ -5,7 +5,7 @@ direction · **Branch:** development (pending promotion to main) · **Final phas
 
 ## What changed
 
-Phase 4 of `docs/Toolbar-Native-Direction.md` — **application-bar cleanup**, the
+Phase 4 of `docs/Archive/Toolbar-Native-Direction.md` — **application-bar cleanup**, the
 last planned step.
 
 - **Resources ▾ replaces Settings.** The old Settings menu held People &

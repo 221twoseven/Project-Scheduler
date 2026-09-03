@@ -22,6 +22,8 @@ if(!/btn-help/.test(src)){
 let pass=0,fail=0;
 const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
+/* v1.10.0: the last home step chains into the project tour instead of reading Done */
+const V1100=src.indexOf('coachUnchain')>=0;
 
 /* First boot: fresh browser (coachFirstRun leaves the seen flag unset) */
 const dom=boot(FILE,{coachFirstRun:true,data:{projects:[],tasks:[],todos:[]}});
@@ -33,8 +35,9 @@ setTimeout(()=>{
   sec('First run: the tour auto-opens once');
   ok('the tour is up',!E("document.getElementById('coach').classList.contains('hidden')"));
   ok('the seen flag is set immediately',E("localStorage.getItem(COACH_KEY)")==='1');
+  /* v1.14.0: the chained tour counts BOTH halves — the label totals COACH.total */
   ok('it starts at step 1 and Back is disabled',
-     E("document.getElementById('coach-step').textContent")==='STEP 1 OF '+E("COACH.steps.length")
+     E("document.getElementById('coach-step').textContent")==='STEP 1 OF '+(V1100?E('COACH.total'):E("COACH.steps.length"))
      &&E("document.getElementById('coach-back').disabled")===true);
   ok('every declared step has a live target',E("COACH.steps.length")===E("COACH_STEPS.length"));
 
@@ -55,9 +58,20 @@ setTimeout(()=>{
 
   sec('The last step finishes; Escape and Skip end early');
   E("COACH.i=COACH.steps.length-1;coachShow();");
-  ok('the last button reads Done',E("document.getElementById('coach-next').textContent")==='Done');
-  E("document.getElementById('coach-next').click()");
-  ok('Done closes the tour',E("COACH===null")&&E("document.getElementById('coach').classList.contains('hidden')"));
+  if(V1100){
+    /* v1.10.0: the last home step CHAINS into the project tour — Next hides, the
+       overlay lets the + New Project click through. Ending it here without clicking
+       keeps this suite on the timeline; the chain itself is test-v1100's job. */
+    ok('the chain step hides Next and arms the click-through',
+       E("document.getElementById('coach').classList.contains('chain')")
+       &&E("COACH.steps[COACH.i].chain===true"));
+    E('coachEnd()');
+    ok('ending clears the chain wiring',E("COACH===null")&&!E("document.getElementById('coach').classList.contains('chain')"));
+  }else{
+    ok('the last button reads Done',E("document.getElementById('coach-next').textContent")==='Done');
+    E("document.getElementById('coach-next').click()");
+    ok('Done closes the tour',E("COACH===null")&&E("document.getElementById('coach').classList.contains('hidden')"));
+  }
 
   sec('Help replays it any time');
   E("document.getElementById('mi-tour').click()");

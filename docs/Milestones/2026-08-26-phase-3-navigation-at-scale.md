@@ -1,7 +1,7 @@
 # Phase 3 — Navigation at scale (B3, B5, B6) — 2026-08-25/26
 
 **What this is.** The complete third phase of the UX plan in
-`docs/UX-Audit-and-Strategy.md`, delivered from the owner's five task briefs
+`docs/Archive/UX-Audit-and-Strategy.md`, delivered from the owner's five task briefs
 (`Phase-3-Task-Briefs.md`, V1–V5) over 2026-08-25/26, REV 74→79 on `development`.
 One-file records for each task live in [`Phase 3/`](Phase%203/). Phase 1 fixed what
 things *do*, Phase 2 fixed what they *say at a glance* — Phase 3 makes the timeline
@@ -62,14 +62,14 @@ each merged by the owner. Promotion of the whole phase to `main` happens once, w
 this close-out (V5) merges, per the PR #15 pattern.
 
 **Follow-ups.** Per-task ceilings live in each `Phase 3/` record and are mirrored in
-the deferred ledger, `docs/TODO.md` §7 (jump memory, popover anchor math, the ⇕ All
+the deferred ledger, `docs/Archive/TODO-v1-Archive.md` §7 (jump memory, popover anchor math, the ⇕ All
 button vs group headers, what a view deliberately doesn't capture). Phase 4 was
 **rescoped at this close** — coach marks (REV74) shipped ahead of it, so the first-run
-hint bar is recommended dropped; see the strategy doc §5 and `docs/TODO.md` §6.
+hint bar is recommended dropped; see the strategy doc §5 and `docs/Archive/TODO-v1-Archive.md` §6.
 
 **Post-close review (2026-08-26).** The owner's review of the REV79 build added a
 **Phase 3.5** punch list (window parity, timeline navigation polish, toolbar
 regrouping, calendar feedback, coach-mark fixes, a completion flow) — see
-`docs/TODO.md` §6. It lands on `development` before the promotion PR
+`docs/Archive/TODO-v1-Archive.md` §6. It lands on `development` before the promotion PR
 ([#23](https://github.com/221twoseven/Project-Scheduler/pull/23), REV74–79)
 merges, riding the same PR.

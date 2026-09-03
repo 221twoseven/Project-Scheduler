@@ -21,8 +21,10 @@ Project rules and context for working in this repository. Read this before makin
 - **`docs/Design-Language.md` — the design system. Read it before any change that
   touches appearance or interaction.** If a change contradicts it, either follow the
   doc or update the doc in the same PR — never silently diverge.
-- **`docs/UX-Audit-and-Strategy.md` — the current UX plan.** Findings, phases, and
-  the finding→fix index. Task briefs reference its IDs (C1, B2, E3, …).
+- **`docs/TODO.md` — the working backlog (v2.0.0 track).** Objectives, versioning
+  ladder, and the deferred/skipped ledger. The completed v1 backlog and all retired
+  planning docs (UX audit, task briefs, proposals) live in **`docs/Archive/`** —
+  history and rationale, not current state.
 
 ## Branches
 
@@ -58,7 +60,10 @@ The current infrastructure values (for reference — do not change without instr
 - Entra (public SPA / PKCE, single-tenant): Client ID `5ba3aabe-81f7-41c9-92a4-83a45d5407ab`,
   Tenant ID `70aa5330-416f-48cb-a64f-1a89f0196577`
 - Graph scopes: `User.Read`, `Sites.ReadWrite.All`, plus `TeamMember.Read.All`
-  (delegated, admin-consented 2026-08-25) for the staff picker's Team-membership read
+  (delegated, admin-consented 2026-08-25) for the staff picker's Team-membership read,
+  and `Mail.Send` (delegated, admin-consented 2026-09-01) for the feedback form's
+  mail-the-recipients send (v1.8.0; requested on its own silent token, so a consent
+  gap degrades to "report filed, mail skipped")
 
 ## Security
 
@@ -74,7 +79,8 @@ The current infrastructure values (for reference — do not change without instr
   jsdom with MSAL and `fetch` stubbed, recording every Graph request so persistence is
   asserted on the actual outgoing request bodies.
 - **Run the tests after implementation changes.** `tests/run.js` aggregates every suite
-  (behaviour suites `test46`–`test90`, `test-label`, plus the Phase 1–4 UX/design suites);
+  (behaviour suites `test46`–`test92`, `test-label`, the Phase 1–4 UX/design suites, and
+  per-release suites like `test-v102`);
   see `tests/README.md`. Validate company changes against `index.html`, and the frozen
   baseline with `test:ref`:
 

@@ -38,7 +38,7 @@ const data={projects,tasks,staff:[],todos:[]};
 
 /* The crunch snapshot, as a literal, reused by the reload and link boots below. */
 const CRUNCH={lens:'project',group:'pm',status:['in-fabrication','in-design'],person:'',
-  search:'',color:'project',view:'month',density:'compact',tint:false,
+  search:'',color:'project',view:'week',density:'compact',tint:false,
   collapsedGroups:{},collapsedDepts:[]};
 
 const dom=boot(FILE,{data});
@@ -50,8 +50,8 @@ const rowOf=nm=>[...doc.querySelectorAll('#views-menu .vw-row')].find(r=>r.query
 
 setTimeout(()=>{
   sec('refactor is behavior-neutral — boot lands on the pre-V4 defaults');
-  ok('lens project / view days / density comfortable',
-     E("LENS")==='project'&&E('VIEW')==='days'&&E('DENSITY')==='comfortable');
+  ok('lens project / view month / density comfortable',
+     E("LENS")==='project'&&E('VIEW')==='month'&&E('DENSITY')==='comfortable'); /* v1.5.0: month is the boot step (same 40px/day feel the old Day had) */
   ok('no grouping, no person, no tint',E('GROUP_BY')===null&&E('PERSON')===null&&E('TINT')===false);
   ok('all statuses shown',E('SHOW_STATUS.size')===E('ALL_STATUSES.length'));
   ok('viewState()→applyViewState() round-trips',
@@ -59,22 +59,22 @@ setTimeout(()=>{
        return E('JSON.stringify(viewState())')===a;})());
 
   sec('acceptance — save "Install crunch", switch away, reapply → identical render');
-  E("SHOW_STATUS=new Set(['in-fabrication','in-design']);GROUP_BY='pm';setView('month');applyDensity('compact');saveUI();render();");
+  E("SHOW_STATUS=new Set(['in-fabrication','in-design']);GROUP_BY='pm';setView('week');zoomSettle();applyDensity('compact');saveUI();render();"); /* v1.6.1: setView animates � settle before snapshotting */
   const rowsBefore=E('ROWS.length');
   const sideBefore=doc.getElementById('side-rows').innerHTML;
   const barsBefore=doc.querySelectorAll('#gantt-canvas .job-bar').length;
   E("saveViews([{name:'Install crunch',state:viewState()}]);");
   E("applyViewState(defaultViewState());saveUI();render();");
-  ok('switched away (defaults again)',E('VIEW')==='days'&&E('DENSITY')==='comfortable'&&E('GROUP_BY')===null
+  ok('switched away (defaults again)',E('VIEW')==='month'&&E('DENSITY')==='comfortable'&&E('GROUP_BY')===null
      &&E('SHOW_STATUS.size')===E('ALL_STATUSES.length'));
   click(doc.getElementById('btn-views'));
   ok('the saved view is listed',menuNames().indexOf('Install crunch')>=0,menuNames().join(','));
   click(rowOf('Install crunch').querySelector('.vw-name'));
   ok('menu closed on apply',doc.getElementById('views-menu').classList.contains('hidden'));
-  ok('state restored: Month + Compact + group PM + 2 statuses',
-     E('VIEW')==='month'&&E('DENSITY')==='compact'&&E("GROUP_BY")==='pm'&&E('SHOW_STATUS.size')===2);
-  ok('toolbar follows: Month active, body.compact',
-     doc.getElementById('btn-month').classList.contains('active')&&doc.body.classList.contains('compact'));
+  ok('state restored: Week + Compact + group PM + 2 statuses',
+     E('VIEW')==='week'&&E('DENSITY')==='compact'&&E("GROUP_BY")==='pm'&&E('SHOW_STATUS.size')===2);
+  ok('toolbar follows: Week active, body.compact',
+     doc.getElementById('btn-week').classList.contains('active')&&doc.body.classList.contains('compact'));
   ok('identical render: same rows',E('ROWS.length')===rowsBefore,rowsBefore+' -> '+E('ROWS.length'));
   ok('identical render: sidebar markup byte-equal',doc.getElementById('side-rows').innerHTML===sideBefore);
   ok('identical render: same bar count',doc.querySelectorAll('#gantt-canvas .job-bar').length===barsBefore);
@@ -116,8 +116,8 @@ function bootLaunch(){
   setTimeout(()=>{
     sec('launch view honored on reload');
     ok('boot lands on the crunch state',
-       E2('VIEW')==='month'&&E2('DENSITY')==='compact'&&E2("GROUP_BY")==='pm'&&E2('SHOW_STATUS.size')===2);
-    ok('toolbar reflects it',w.document.getElementById('btn-month').classList.contains('active'));
+       E2('VIEW')==='week'&&E2('DENSITY')==='compact'&&E2("GROUP_BY")==='pm'&&E2('SHOW_STATUS.size')===2);
+    ok('toolbar reflects it',w.document.getElementById('btn-week').classList.contains('active'));
     bootLink();
   },1300);
 }
@@ -129,7 +129,7 @@ function bootLink(){
   const w=dom3.window,E3=s=>w.eval(s);
   setTimeout(()=>{
     sec('#view= link — read on load, never auto-saved');
-    ok('link state applied',E3('VIEW')==='month'&&E3('DENSITY')==='compact'&&E3("GROUP_BY")==='pm');
+    ok('link state applied',E3('VIEW')==='week'&&E3('DENSITY')==='compact'&&E3("GROUP_BY")==='pm');
     ok('hash cleaned from the address bar',w.location.hash==='');
     ok('nothing auto-saved as a view',w.localStorage.getItem('shopTimelineViews_v1')===null);
     done();
@@ -142,3 +142,4 @@ function done(){
   process.exit(fail?1:0);
 }
 setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},25000);
+

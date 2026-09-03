@@ -63,20 +63,58 @@ const SUITES = [
   'test-c3-status.js',
   'test-client-filter.js',
   'test-cb.js',
+  'test-v102.js',
+  'test-v120.js',
+  'test-v121.js',
+  'test-v130.js',
+  'test-v140.js',
+  'test-v150.js',
+  'test-v160.js',
+  'test-v161.js',
+  'test-v162.js',
+  'test-v165.js',
+  'test-v166.js',
+  'test-v170.js',
+  'test-v171.js',
+  'test-v172.js',
+  'test-v180.js',
+  'test-v181.js',
+  'test-v190.js',
+  'test-v1100.js',
+  'test-v1160.js',
+  'test-v1170.js',
+  'test-v1180.js',
+  'test-v1181.js',
 ];
 
 const repoRoot = path.resolve(__dirname, '..');
 const target = process.argv[2] || 'index.html';
 const targetAbs = path.resolve(repoRoot, target);
 
+/* A suite that feature-sniffs and opts out prints "skipped —" and exits 0. Count
+   those separately, so a typo'd sniff can't silently disable a suite forever
+   (deferred-ledger item, closed v1.0.2). */
 let failed = 0;
+const skipped = [];
 for (const suite of SUITES) {
   const r = spawnSync(process.execPath, [path.join(__dirname, suite), targetAbs], {
-    stdio: 'inherit',
+    encoding: 'utf8',
   });
+  process.stdout.write(r.stdout || '');
+  process.stderr.write(r.stderr || '');
   if (r.status !== 0) failed++;
+  /* Suites self-skip in two voices: "skipped —" and "  SKIP  build predates …".
+     The old regex knew only the first, so 23 suites could go dark and still count
+     as passes — the exact silent-disable this detector exists to catch. A suite
+     that printed PASS lines only skipped a section, not itself (test49's REV56
+     note), so it stays out of the dark-suite list.
+     ponytail: still prose-matching stdout; an exit-code protocol (exit 2 = skipped)
+     is the root fix if a third message style ever appears. */
+  else if (/skipped\s*[—-]|(^|\n)\s*SKIP\b/.test(r.stdout || '')
+           && !/(^|\n)\s*PASS\b/.test(r.stdout || '')) skipped.push(suite);
 }
 
 console.log('\n' + '='.repeat(46));
 console.log(`  ${SUITES.length - failed}/${SUITES.length} suites passed   [${target}]`);
+if (skipped.length) console.log(`  SKIP  ${skipped.length} suite(s) self-skipped on this build: ${skipped.join(', ')}`);
 process.exit(failed ? 1 : 0);

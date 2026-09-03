@@ -1,7 +1,7 @@
 # Phase 3 — Claude Code Handoff Pack (Navigation at Scale)
 
 **August 26, 2026 · for `development` (post-REV74, `index.html` ~7,151 lines) · run briefs in order, one session + one PR each.**
-Specs: `docs/Design-Language.md` (by §) · findings: `docs/UX-Audit-and-Strategy.md` · this pack answers `docs/TODO.md` §6's "needs task briefs from the owner."
+Specs: `docs/Design-Language.md` (by §) · findings: `docs/Archive/UX-Audit-and-Strategy.md` · this pack answers `docs/TODO.md` §6's "needs task briefs from the owner."
 
 ---
 
@@ -51,7 +51,7 @@ Standing rules per brief (once): *read `CLAUDE.md` + `docs/Design-Language.md` +
 
 ### V5 — Phase 3 close + Phase 4 rescope
 
-> Close the phase. (1) Evidence: before/after screenshot set — dense timeline at each zoom step, Compact vs Comfortable, a saved view applying — and the `docs/Milestones/` record naming B3, B5, B6 shipped. (2) Update `docs/UX-Audit-and-Strategy.md`: mark Phase 3 complete; rewrite the Phase 4 section against reality — **coach marks shipped early (REV74)**, so reassess: the first-run hint bar is likely redundant (recommend: drop), the `?` shortcuts sheet on the main timeline and the sample-project onboarding (A5, using `seed()` through the normal create path) remain, and A2's remaining sliver is hover affordances only. (3) Update `docs/TODO.md` §6 accordingly and pull anything Phase 3 deferred into the §7 polish-pass convention.
+> Close the phase. (1) Evidence: before/after screenshot set — dense timeline at each zoom step, Compact vs Comfortable, a saved view applying — and the `docs/Milestones/` record naming B3, B5, B6 shipped. (2) Update `docs/Archive/UX-Audit-and-Strategy.md`: mark Phase 3 complete; rewrite the Phase 4 section against reality — **coach marks shipped early (REV74)**, so reassess: the first-run hint bar is likely redundant (recommend: drop), the `?` shortcuts sheet on the main timeline and the sample-project onboarding (A5, using `seed()` through the normal create path) remain, and A2's remaining sliver is hover affordances only. (3) Update `docs/TODO.md` §6 accordingly and pull anything Phase 3 deferred into the §7 polish-pass convention.
 > **Acceptance:** the strategy doc reads true start to finish; TODO §6 contains only the rescoped Phase 4; the milestone record is management-readable.
 
 ---

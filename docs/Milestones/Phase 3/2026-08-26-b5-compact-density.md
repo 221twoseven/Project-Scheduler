@@ -53,7 +53,7 @@ group collapse folds whole books of work out of the way.
   floor, one-screen acceptance, persistence, collapse/expand, per-mode keying, reload
   survival). `tests/test46.js` gained the three-density drift assertions. Both skip
   on the frozen REV50 reference.
-- Known ceilings / follow-ups (mirrored in `docs/TODO.md` §7):
+- Known ceilings / follow-ups (mirrored in `docs/Archive/TODO-v1-Archive.md` §7):
   - 30 *uncollapsed* Compact rows are 960px — borderline one screen on a 1080p laptop
     with the toolbar; a collapsed group or a filter gives the slack. §4's 32px row and
     24px hit floor win over squeezing further.

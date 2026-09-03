@@ -100,11 +100,11 @@ setTimeout(()=>{
   press('t');
   ok('the T key does the same',Math.abs(sc.scrollLeft-center(iso(D0)))<1);
 
-  sec('discoverable from the ? legend (three-path rule)');
-  const lg=doc.getElementById('lg-goto');
-  ok('the legend carries a Go to date entry',!!lg);
-  click(lg);
-  ok('it opens the popover',open());
+  /* v1.6.1: the legend's Navigate section retired — Go to date keeps its G-key and
+     month-name-click paths (asserted above), and the legend is just a legend again. */
+  sec('the legend no longer carries navigation entries');
+  ok('no Go to date button in the legend',!doc.getElementById('lg-goto'));
+  ok('no Keyboard shortcuts button in the legend',!doc.getElementById('lg-keys'));
 
   /* Returning from a project (Done / breadcrumb / Back = goTimeline → '#/') must land on
      today's default view, not the far-left earliest date the fresh render sits at. */

@@ -7,7 +7,7 @@
 The timeline toolbar row (row 2) had view styles, data filters, and actions
 interleaved — the owner's note: "there has to be a better way of organizing and
 grouping these buttons and controls." The design pass
-(`docs/Toolbar-Grouping-Proposal.md`) offered three options; the owner picked
+(`docs/Archive/Toolbar-Grouping-Proposal.md`) offered three options; the owner picked
 **Option A** (2026-08-27): recluster in place, nothing goes behind a menu.
 
 The row now reads in four groups, each answering one question:

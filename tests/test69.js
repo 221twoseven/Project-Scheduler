@@ -59,23 +59,44 @@ setTimeout(()=>{
 
       win.location.hash='#/';
       setTimeout(()=>{
-        sec('Settings → Clients manager');
-        E("document.getElementById('mi-clients').click();");
-        ok('modal opens with the current list',!E("document.getElementById('clients-overlay').classList.contains('hidden')")&&
-           E("document.querySelectorAll('#cl-list .st-person').length")===3);
-        ok('offline note hidden while the list is reachable',E("document.getElementById('cl-local-note').classList.contains('hidden')"));
-        E("CM_CLIENTS.push({name:' Bergdorf ',alias:'ber'});document.getElementById('cl-save').click();");
-        ok('save trims, uppercases the alias and lands in CLIENTS',
-           E("JSON.stringify(CLIENTS.map(c=>c.name+':'+c.alias))").includes('Bergdorf:BER'));
+        const v170=/renderCompanyPage/.test(src);
+        if(v170){
+          /* v1.7.0: the manager is the Clients page — same saveClients() path. */
+          sec('Company Data › Clients page');
+          E("location.hash='#/clients';applyRoute()");
+          ok('the page opens with the current list',E("ROUTE.view")==='clients'&&
+             E("document.querySelectorAll('.cd-row').length")===3);
+          ok('the source cue reads SharePoint while the list is reachable',
+             E("document.querySelector('.cd-src').textContent").includes('SharePoint'));
+          E("CD_EDIT={name:' Bergdorf ',alias:'ber',_new:true};cdSaveClient();");
+          ok('save trims, uppercases the alias and lands in CLIENTS',
+             E("JSON.stringify(CLIENTS.map(c=>c.name+':'+c.alias))").includes('Bergdorf:BER'));
+        }else{
+          sec('Settings → Clients manager');
+          E("document.getElementById('mi-clients').click();");
+          ok('modal opens with the current list',!E("document.getElementById('clients-overlay').classList.contains('hidden')")&&
+             E("document.querySelectorAll('#cl-list .st-person').length")===3);
+          ok('offline note hidden while the list is reachable',E("document.getElementById('cl-local-note').classList.contains('hidden')"));
+          E("CM_CLIENTS.push({name:' Bergdorf ',alias:'ber'});document.getElementById('cl-save').click();");
+          ok('save trims, uppercases the alias and lands in CLIENTS',
+             E("JSON.stringify(CLIENTS.map(c=>c.name+':'+c.alias))").includes('Bergdorf:BER'));
+        }
         setTimeout(()=>{
           const post=E("JSON.stringify((__spCalls||[]).filter(c=>c.url.includes('ShopTimeline_Clients')&&c.method==='POST').map(c=>c.body))");
           ok('the new client POSTs Title + field_2',post.includes('Bergdorf')&&post.includes('field_2'),post);
 
           sec('Duplicate names are rejected');
-          E("document.getElementById('mi-clients').click();CM_CLIENTS.push({name:'cartier',alias:'CA2'});document.getElementById('cl-save').click();");
-          ok('save refuses and keeps the modal open',!E("document.getElementById('clients-overlay').classList.contains('hidden')")&&
-             E("CLIENTS.filter(c=>c.name.toLowerCase()==='cartier').length")===1);
-          E("document.getElementById('cl-cancel').click();");
+          if(v170){
+            E("CD_EDIT={name:'cartier',alias:'CA2',_new:true};cdSaveClient();");
+            ok('save refuses and keeps the editor open',E("!!CD_EDIT")===true&&
+               E("CLIENTS.filter(c=>c.name.toLowerCase()==='cartier').length")===1);
+            E("CD_EDIT=null;cdPaintDetail();");
+          }else{
+            E("document.getElementById('mi-clients').click();CM_CLIENTS.push({name:'cartier',alias:'CA2'});document.getElementById('cl-save').click();");
+            ok('save refuses and keeps the modal open',!E("document.getElementById('clients-overlay').classList.contains('hidden')")&&
+               E("CLIENTS.filter(c=>c.name.toLowerCase()==='cartier').length")===1);
+            E("document.getElementById('cl-cancel').click();");
+          }
 
           sec('Offline degrade');
           E("CLIENTS_OK=false;saveClients([{name:'LocalOnly',alias:'LO'}]);");

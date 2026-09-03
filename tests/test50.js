@@ -103,8 +103,14 @@ function stage2(){
   E("NPV_EVENTS[NPV_EVENTS.length-1].name='Client review';npvRebuild();");
   setTimeout(()=>{
     const lbl=q('#npv-body .npv-evlbl');
-    ok('a label chip renders beside the diamond', !!lbl&&/Client review/.test(lbl.textContent),
-       lbl?lbl.textContent:'(none)');
+    /* v1.4.0 (08-31 obj 4): label chips retired — the name lives in the hover title. */
+    if(/\.npv-evlbl\{/.test(src))
+      ok('a label chip renders beside the diamond', !!lbl&&/Client review/.test(lbl.textContent),
+         lbl?lbl.textContent:'(none)');
+    else{
+      ok('no label chip renders (v1.4.0 obj 4)', !lbl);
+      ok('the diamond title carries the name', /Client review/.test((q('#npv-body .npv-ev')||{title:''}).title));
+    }
     ok('the diamond carries its id, kind and date',
        (()=>{const m=q('#npv-body .npv-ev');
          return m&&m.dataset.mkId&&m.dataset.mkK==='ev'&&m.dataset.mkDate;})());
@@ -130,7 +136,7 @@ function stage2(){
       setTimeout(()=>{
         /* The checkpoint-editor agenda (post-REV50) renders a permanent name input;
            the reference build opens one on click. */
-        const NEWAG=/ag-dl/.test(src);
+        const NEWAG=src.indexOf('<input class="nm"')>=0; /* the new agenda's name is a permanent INPUT; the reference renders a span */
         const inp=NEWAG?q('#pp-insp .ag-i input.nm'):q('#pp-insp .ag-i input');
         ok('the agenda opened with an inline editor', !!inp);
         if(inp){
@@ -266,3 +272,4 @@ function done(){
   process.exit(fail?1:0);
 }
 setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},40000);
+

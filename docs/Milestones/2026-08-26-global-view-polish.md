@@ -1,10 +1,10 @@
 # Global-view polish — Phase 3.5 opener (REV80) — 2026-08-26
 
 **What this is.** The first slice of **Phase 3.5** — the owner's review adjustments
-(`docs/TODO.md` §6) that gate the Phase 3 promotion
+(`docs/Archive/TODO-v1-Archive.md` §6) that gate the Phase 3 promotion
 ([PR #23](https://github.com/221twoseven/Project-Scheduler/pull/23)). Four
 main-timeline items, plus the New Project ↔ Project Edit **parity audit** the same
-review asked for (`docs/Phase-3.5-Parity-Audit.md` — diff list delivered, fixes
+review asked for (`docs/Archive/Phase-3.5-Parity-Audit.md` — diff list delivered, fixes
 await the owner's picks). PR:
 [#24](https://github.com/221twoseven/Project-Scheduler/pull/24).
 
@@ -44,7 +44,7 @@ opens the goto popover; the toolbar padding rule exists). `tests/test-contrast.j
 keeps guarding the 4.5:1 floor and its fallback-grey list was updated; the
 deuteranopia suite (`test-cb.js`) passes on the darker palette unchanged.
 
-**Known ceilings / follow-ups** (ledgered in `docs/TODO.md` §7):
+**Known ceilings / follow-ups** (ledgered in `docs/Archive/TODO-v1-Archive.md` §7):
 
 - The white-text rule covers the **bar palettes** (identity, department, install,
   fallback grey). The project page's light **subtask shades** (`kidShade()`) still

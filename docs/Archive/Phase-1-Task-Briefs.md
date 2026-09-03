@@ -1,7 +1,7 @@
 # Phase 1 — Claude Code Handoff Pack
 
 **August 12, 2026 · for `development` branch · run briefs in order, one session + one PR each.**
-Companion docs (commit these first — see the CLAUDE.md diff below): `docs/UX-Audit-and-Strategy.md`, `docs/Design-Language.md`.
+Companion docs (commit these first — see the CLAUDE.md diff below): `docs/Archive/UX-Audit-and-Strategy.md`, `docs/Design-Language.md`.
 
 ---
 
@@ -19,7 +19,7 @@ Apply to `CLAUDE.md` on `development`:
 +- **`docs/Design-Language.md` — the design system. Read it before any change that
 +  touches appearance or interaction.** If a change contradicts it, either follow the
 +  doc or update the doc in the same PR — never silently diverge.
-+- **`docs/UX-Audit-and-Strategy.md` — the current UX plan.** Findings, phases, and
++- **`docs/Archive/UX-Audit-and-Strategy.md` — the current UX plan.** Findings, phases, and
 +  the finding→fix index. Task briefs reference its IDs (C1, B2, E3, …).
 
  ## Branches
@@ -46,7 +46,7 @@ Paste each brief as the opening prompt of a fresh Claude Code session on `develo
 
 ### T1 — Label-contrast utility + palette regression test (C4) — *foundation, do first*
 
-> Implement finding C4 from `docs/UX-Audit-and-Strategy.md` per `docs/Design-Language.md` §2.5.
+> Implement finding C4 from `docs/Archive/UX-Audit-and-Strategy.md` per `docs/Design-Language.md` §2.5.
 > Add a `labelColor(bg)` function (WCAG relative luminance; returns `var(--ink)` or `#FFFFFF`) near the COLORS section (~line 1763). Apply it everywhere a label sits on a colored fill: timeline `.job-bar` text, project-page `.npv-bar` text, status pills, sidebar color chips if any carry text. Remove hand-picked per-bar text colors.
 > Add `tests/test-contrast.js`: iterate `PCOLS`, `DEPT_COLORS`, `INSTALL_RED`, and the status-pill palette; assert every (fill, labelColor(fill)) pair ≥ 4.5:1. Wire it into the `npm test` script.
 > **Acceptance:** no bar or pill anywhere renders white-on-light or dark-on-dark; the new test fails if a future palette edit regresses contrast.

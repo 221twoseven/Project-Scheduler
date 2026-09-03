@@ -30,7 +30,9 @@ Each visual channel encodes exactly one thing:
 | **Red `#CE4242`** | Installation only (existing rule — keep absolute) | Anything else; late-ness uses the marker system, not bar color |
 | **Canvas background** | Calendar time (workday/weekend/month), *quietly* | Data of any kind |
 
-Consequences: forecast and on-hold bars keep their **project's hue** and signal status by treatment — forecast = 40% opacity + dashed outline; on-hold = 55% desaturation + diagonal hatch; estimating keeps its current stripe (it already follows the rule). The gray/gold hue-theft overrides are retired.
+Consequences: on-hold bars keep their **project's hue** and signal status by treatment — on-hold = 55% desaturation + diagonal hatch; estimating keeps its current stripe (it already follows the rule). The gray/gold hue-theft overrides are retired.
+
+**The one exception (v1.2.1, owner rule 2026-08-31): forecast projects are uncolored.** A penciled-in job renders `FORECAST_GREY #6B7484` everywhere it draws — bars (summary and task, in both color modes, install bars included), sidebar dot, dashed outline — on top of its existing 40% opacity + dashed-edge treatment. Its palette slot stays reserved, so no other project's color moves when the status firms up and the hue returns.
 
 ### 2.2 Identity palette (projects)
 
@@ -66,6 +68,12 @@ Default ("Quiet" — new): workdays `#FCFDFE`; weekends/holidays `#EEF1F5` with 
 
 The current saturated month-band look remains available behind the existing **Tint** toggle (relabel: "Vivid months"), preserving continuity for users who navigate by it.
 
+**Vivid shows the month colour uninterrupted (v1.0.2, owner objective 13):** weekend/holiday
+columns paint no grey strips or hatch in Vivid — on the main timeline and project Gantt the
+overlays are hidden, and on the project calendar weekend cells take the month tint like
+weekdays. Quiet mode keeps the grey weekend treatment above; at Day/2-Day zoom the date
+header still marks weekends in both modes.
+
 Month **header** bands may keep a stronger version of their hue (they're outside the data area), but capped at the header: `hsl(h, 30%, 88%)` fill with `hsl(h, 35%, 30%)` text rather than today's mid-saturation fills.
 
 ### 2.5 Text on color — the label function
@@ -92,7 +100,36 @@ No hand-picked per-bar text colors. Pills use the same rule. A jsdom test (`test
 ### 2.6 Chrome (toolbar & sidebar)
 
 Existing tokens are good — codify them as the only chrome colors:
-`--ink #0D131D`, `--ink-2 #141C29`, `--chrome-line #232F42`, accent `--acc #2F6FE4` / `--acc-deep #1D5AC9`, warn `--warn #F0A814`, danger `--late #DC2626`, sidebar `--side #EDF1F7` / `--side-line #C9D4E3`, paper `--paper #F5F7FA`. New UI must draw from these; no ad-hoc hex in new code (a grep-able rule a reviewer can enforce).
+`--ink #0D131D`, `--ink-2 #141C29`, `--chrome-line #3A4A66`, accent `--acc #2F6FE4` / `--acc-deep #1D5AC9`, warn `--warn #F0A814`, danger `--late #DC2626`, sidebar `--side #EDF1F7` / `--side-line #C9D4E3`, paper `--paper #F5F7FA`. New UI must draw from these; no ad-hoc hex in new code (a grep-able rule a reviewer can enforce).
+
+**My Dashboard is its own place (v1.2.0, owner objective 1):** mechanically it stays
+the Departments lens + person filter, but it presents like a page — a project-style
+trail bar (`All Projects › My Dashboard · name`, × exit) fixed under the toolbar, the
+sidebar lens toggles replaced by a "My Dashboard" label, no collapse affordances (all
+assigned phases paint flat), and the summary dock carrying the same collapse chevron
+as the project page's dock (its own persisted key). Exits: the crumb, the ×, or
+anything that clears the person filter.
+**The place follows the person into either lens (v1.6.4, owner review):** a person
+filter set from the Projects lens is the same Summary/Dashboard place, project-grouped
+— trail bar, label swap, dock, and the hidden lens toggle all apply whenever a person
+is on. Only the Departments reading paints flat (`dash-flat`); project-grouped rows
+keep their carets and expand as normal. The lens is locked while inside — regrouping
+means exiting and re-entering from the other lens. The My Dashboard toolbar button
+always lands on the dept (flat) reading.
+**Someone else's plate is a Summary (v1.6.2, owner review):** the same view serves two
+readings. When the filtered person is the signed-in identity it is *My Dashboard* —
+trail reads `My Dashboard · name`, the toolbar button lights, the sidebar label says
+My Dashboard. When it is anyone else it is a workload summary — trail reads
+`Summary · name`, the button stays dark, the sidebar label says Summary. Mechanics,
+dock, and filter behavior are identical in both readings.
+
+**The mellowed bar (v1.0.2, owner objective 12):** the toolbar no longer paints the
+near-black ink gradient — it owns a soft slate-navy pair, `#2A3850 → #202C41`, with a
+`#141D2C` bottom edge and a lighter shadow. `--ink`/`--ink-2` keep their original values
+(they also serve text and the `labelColor()` ink candidate); `--chrome-line` was lifted
+to `#3A4A66` to stay visible on the lighter bar. Secondary bar text (`.tb-app`, the
+version pill, the search placeholder) sits at `#8CA0BF`, button text at
+`rgba(255,255,255,.9)` — all ≥4.5:1 on the new fills.
 
 **Toolbar grouping rule (native direction — supersedes the REV88 eyebrow model;
 see `Toolbar-Native-Direction.md`):** every row-2 control sits with the question
@@ -103,6 +140,15 @@ shows as a removable chip beside the button, the button carries a count
 (`Filters (2)`), and **Clear** appears only while a filter is on. The client
 picker lists only clients that have a project on the board, never the whole
 Clients master.
+**The menu's one reset is outcome-phrased (v1.6.6, owner review):** a single
+**Show everything** button at the top of the dropdown clears every filter —
+statuses restored, client picks cleared, person to Everyone (leaving a summary
+the way the × does). The old status-scoped "Show all / Clear all" pair is gone:
+"Clear all" read as clear-the-filters but actually hid every project. The Person
+radios stay in the menu inside a Summary/Dashboard (the v1.2.2 hide reversed), so
+the person can be switched in place or cleared there; the person still never
+chips or counts as a filter while the place is on, and the toolbar **Clear
+filters** still keeps it.
 **Separators and spacing carry the grouping — no eyebrow labels** (the category
 names are for maintainers, not printed in the UI; the shell relies on familiar
 controls rather than teaching users the app's taxonomy). **Views** is the named
@@ -121,7 +167,7 @@ visible segmented control (it is the most-touched, with D/W/+/− keys).
 
 ## 3. Typography
 
-Families stay: `--sans` (Segoe UI stack) for prose/labels, `--mono` (Cascadia stack) for codes, dates, numbers, REV chips. Mono is a brand asset here — anything that would appear on a work order (job codes, dates, day counts) is mono.
+Families: `--sans` (Bahnschrift-led via `local()` since v1.7.1 — Windows ships it; other platforms fall through to the Segoe UI stack) for prose/labels, `--mono` (Cascadia stack) for codes, dates, numbers, REV chips. Mono is a brand asset here — anything that would appear on a work order (job codes, dates, day counts) is mono. **The wordmark** — the toolbar title reading `TWOSEVEN INC.` (v1.7.2; the company logo/wordmark) — is the one surface set in **Brauer Neue Std Bold** (`fonts/BrNStdBd.otf`, the single committed weight, licence confirmed 2026-09-01); everything else stays on the two families above.
 
 **Scale — four working sizes + one micro:**
 
@@ -154,11 +200,29 @@ Inline SVG, 16×16 viewBox, 1.5px stroke, `currentColor` — pasted literally in
 
 ## 6. Interaction patterns
 
+> **Terminology (v1.4.0, owner 08-31 brief):** the UI now says **Milestone** where it
+> said Checkpoint, and **Note** where it said Task (the dated to-do — phase bars were
+> never "Tasks" in the UI). A milestone edits as date + plain-text name + phase (the
+> type dropdown and notes field are retired); a note edits as date + single-line text
+> only (phase and who retired from its editors). On the project **Gantt** the
+> milestone/note markers carry no inline label — the hover title names them, click
+> opens the edit popover. Stored SharePoint fields keep their old names. Sections
+> below keep historical wording ("checkpoint", "event", "task") where they narrate
+> past decisions.
+>
+> **Calendar markers (v1.6.1, owner review 08-31):** on the project **calendar**,
+> milestones and notes render as plain text behind a small indicator glyph — no fill
+> band. A milestone is ink text behind the yellow diamond; a note is grey text behind
+> the white circle (the Gantt's own glyphs). A milestone on a phase leads with the
+> phase (department) name as a prefix, long text wraps, and marker rows justify to
+> the **bottom** of each week row while phase bands keep the top. Verbs are
+> unchanged: drag moves, click edits, right-click deletes.
+
 **The three-path rule.** Every action is reachable three ways: pointer (visible button/menu), context menu (right-click), keyboard (shortcut shown in the menu). The project page already lives by this; it becomes app-wide law. Anything drag-only (bar move/resize, OOO ranges) gets a click-editable equivalent (inspector fields or popover with date inputs).
 
-**Click hierarchy on the timeline.** Single **left-click on a bar opens its edit-details modal** — the primary read/edit path. Drag moves; edge-drag resizes; right-click opens the context menu. Disambiguation: the modal opens on mouse-up only if total pointer travel is under ~3px; any real drag suppresses it. Click on empty canvas deselects; double-click on empty canvas is reserved (no action yet — don't spend it casually). Double-click on a phase bar on the **main timeline** stays unbound (single-click already opens the modal, and the verb stays reserved). On the **project pages**, double-click a phase/subtask **title** to rename it in place (owner request 2026-08-27 — this binds the project-page double-click the earlier ruling had reserved; see the edit-popover amendment under N11 below).
+**Click hierarchy on the timeline.** Single **left-click on a bar opens its edit-details modal** — the primary read/edit path. **Departments-lens exception (v1.3.0, owner objective 08-31/5): there a phase click navigates to the project edit page instead** — the inspector is the edit surface; the modal stays the Projects-lens path. Drag moves; edge-drag resizes; right-click opens the context menu. Disambiguation: the modal opens on mouse-up only if total pointer travel is under ~3px; any real drag suppresses it. Click on empty canvas deselects; double-click on empty canvas is reserved (no action yet — don't spend it casually; the **project calendar** spent its own in v1.1.0 — see the calendar rules under N11 below). Double-click on a phase bar on the **main timeline** stays unbound (single-click already opens the modal, and the verb stays reserved). On the **project pages**, double-click a phase/subtask **title** to rename it in place (owner request 2026-08-27 — this binds the project-page double-click the earlier ruling had reserved; see the edit-popover amendment under N11 below).
 
-**Click hierarchy on the project page (N11).** The two buttons never overlap in meaning: **left-click only selects and edits** (a bar selects into the inspector — on a draft, opens its popover; empty canvas deselects), and **right-click only adds** — every context menu on the chart offers add-new actions (subtask, event, task) seeded with the clicked day. *(The inline name field this originally described is retired — see the edit-popover amendment below; a New action now opens the popover on the fresh item.)* Opening either surface closes the other, and right-click no longer changes the selection. Rename, duplicate and delete live in the inspector (with R and Del as the keyboard paths) — destructive and edit actions deliberately have **no context-menu path on this chart**; the right-click is reserved for creation. The calendar follows the same rule (this supersedes REV53's left-click create menu on empty cells). Calendar phase bands also **drag to move and resize from edge handles** (REV71/72) — same 3px click/drag disambiguation, workday snap and Protect-dates lock as the Gantt; merged "+N" bands move and resize as one, and a handle only exists on a band segment holding the phase's true start/end (a week-clipped edge is not grabbable). Checkpoint/task bands carry the Gantt diamonds' verbs: drag moves, click opens the edit popover (see amendment below), right-click deletes. **The calendar collapses each phase by default (REV84):** one band per phase (the +N roster merge intact); left-clicking a phase band selects it — opening the bottom phase editor — and brings that phase's subtask bands into view; deselecting collapses them again. This expansion follows the selection only and is independent of the Gantt's ▸ expand state.
+**Click hierarchy on the project page (N11).** The two buttons never overlap in meaning: **left-click only selects and edits** (a bar selects into the inspector — on a draft, opens its popover; empty canvas deselects), and **right-click only adds** — every context menu on the chart offers add-new actions (subtask, event, task) seeded with the clicked day. *(The inline name field this originally described is retired — see the edit-popover amendment below; a New action now opens the popover on the fresh item.)* Opening either surface closes the other, and right-click no longer changes the selection. Rename, duplicate and delete live in the inspector (with R and Del as the keyboard paths) — destructive and edit actions deliberately have **no context-menu path on this chart**; the right-click is reserved for creation. The calendar follows the same rule (this supersedes REV53's left-click create menu on empty cells). Calendar phase bands also **drag to move and resize from edge handles** (REV71/72) — same 3px click/drag disambiguation, workday snap and Protect-dates lock as the Gantt; merged "+N" bands move and resize as one, and a handle only exists on a band segment holding the phase's true start/end (a week-clipped edge is not grabbable). **A resize follows the pointer live (v1.1.0, owner objective 9):** the grabbed edge tracks the mouse px-for-px (clamped to its week row) while the REV83 day tint and tooltip show the snapped result, and the full-day snap still owns the outcome on release. Only the grabbed segment stretches live — a multi-week phase's other rows redraw on release. **Double-click on blank calendar space creates a phase (v1.1.0, owner objective 7):** it opens the "Add a phase" department picker at the pointer (a phase needs a department — the same list the right-click menu offers), seeded with that day; the fresh phase arrives selected with its edit popover open on the name field. This spends the reserved blank-space double-click on the calendar only — the Gantt's stays reserved. Checkpoint/task bands carry the Gantt diamonds' verbs: drag moves, click opens the edit popover (see amendment below), right-click deletes. **The calendar collapses each phase by default (REV84):** one band per phase (the +N roster merge intact); left-clicking a phase band selects it — opening the bottom phase editor — and brings that phase's subtask bands into view; deselecting collapses them again. This expansion follows the selection only and is independent of the Gantt's ▸ expand state. **On the calendar, blank space never deselects (v1.0.3, owner revision of obj 8):** the expanded phase persists — a blank click only dismisses an open popover/menu — and the phase collapses when its **parent band** is clicked a second time (the department's first bar, the REV56 positional parent). Re-clicking a selected *subtask* band just reopens its editor. Esc, the breadcrumb and the × still peel the selection as before; the Gantt keeps its empty-canvas deselect. **Phases multi-expand (v1.0.4, second owner revision):** expansion is its own per-phase state (`NPV_CAL_OPEN`), not a shadow of the selection — clicking another phase expands it *without* collapsing the first, any number can be open at once, deselecting collapses nothing, and creating/duplicating a subtask expands its phase on both surfaces. The reset is a **Collapse all** button in the legend bar against the right margin (calendar mode only). The calendar's expansion stays independent of the Gantt's ▸ state.
 
 **Edit-in-place popover (owner request, 2026-08-27).** The N11 split above is refined, not replaced — right-click still only adds, left-click still selects — and **editing** now happens in **one edit-in-place popover** shared by all four item types (phase, subtask, checkpoint, task) on both the Gantt and the calendar. Right-click keeps its limited add menu and does *not* open the popover; the popover is the left-click / double-click editor.
 
@@ -190,9 +254,9 @@ Inline SVG, 16×16 viewBox, 1.5px stroke, `currentColor` — pasted literally in
 - **Bar anatomy:** [status pill][name · code][chips PM/D/F] left-aligned, ellipsis in that reverse order (chips drop first, then code, pill and name survive longest). Min renderable width shows pill only; below that, a 4px identity-colored tick.
 - **Today** is the strongest line on the canvas. Deadline markers are per-project flags (▸ pennant at header + dotted drop-line at 60% opacity), visually distinct from Today and from install red.
 - **Weekends/holidays** never disappear at any zoom; they compress.
-- **Zoom** steps (shipped REV75, B3): **Day 40 / 2-Day 20 / Week 14 / Month 5 px per day** — Day and Week are the original Days/Weeks scales, unchanged, so those two steps render pixel-identical to pre-B3 builds. `D`/`W` jump straight to Day/Week, `+`/`−` step in and out, and the chosen step persists per user (in `UI_KEY`). All densities keep the bar-anatomy rules above; the axis header shows month names only at Month step, and day numbers on Mondays only at 2-Day.
-- **Go to date** (shipped REV76, B3 navigation half): one small popover — a native date input plus quick picks (Today, +1 mo, +3 mo, Next install) — reached three ways per §6: the `G` key, a click on any month name in the axis header (pointer cursor + underline on hover), or the "Go to date…" entry in the `?` legend. Choosing a date centers it in the viewport, smooth unless `prefers-reduced-motion` (the T6 rule). The **Today button and `T` center today** the same way; the **default view parks today left-of-center to read forward** — on first load *and* whenever the app arrives at the timeline via routing (Done, the breadcrumb, Back), rather than the far-left earliest date a fresh render otherwise lands on (owner request, 2026-08-28). The popover rides the toolbar-menu machinery: one open at a time, Escape or outside click closes.
-- **Legend:** a `?` popover (toolbar, right side) documents: status treatments, red = install, chip letters, marker shapes — plus the Go to date entry above. One screen, no scrolling.
+- **Zoom** (v1.5.0, owner objective 08-31/7 — supersedes the B3 fixed px-per-day steps): three **viewport-fitting** steps — **Week / Month / 3-Month** put 7 / 30 / 91 days across the visible canvas, so "Week" always means one week on screen whatever the window size. px-per-day derives from the live viewport each render. `W`/`M` jump to Week/Month, `+`/`−` step in and out, and the fit persists per user (in `UI_KEY`; old stored step names migrate — Day/2-Day→Month, Week→3-Month). **The date bar zooms as well as pans:** a drag that starts more vertical than horizontal (a 45° split — the axis locks for the drag) slides the fit *continuously* anywhere between Week and a full year (365 days — v1.7.2, owner request; the buttons still stop at 3-Month), anchored on the date under the pointer; drag up to come closer. Below ~8px/day the header's month row alone carries time, per the degradation ladder below. A drag-set fit between steps highlights no button. The axis header follows px-per-day, not the step name: ≥25px/day numbers every day, 18–25 numbers Mondays only, below that week cells label themselves down to ~8px/day, then the month row alone carries time. All densities keep the bar-anatomy rules above. **The project page carries the same steps plus Fit** (whole job across the panel — its historical scale and still the default), Gantt mode only; the choice persists per browser. **Its date strip drives the same gestures as the global header (v1.6.2, owner request):** drag left/right pans, drag up/down zooms continuously across the same Week-to-year range (same 45° axis pick), anchored on the date under the pointer; a drag-set fit is a float that lights no step button, persists per browser, and the Fit button returns to whole-job. **Step zooms scale about Today (v1.6.1, owner review):** the buttons and W/M/+/− hold Today's on-screen position fixed while the scale animates briefly (~180ms; instant under `prefers-reduced-motion`) — never a re-render followed by a scroll-back. When today is off-screen the anchor is the date mid-viewport. The drag gesture keeps its own anchor: the date under the pointer.
+- **Go to date** (shipped REV76, B3 navigation half): one small popover — a native date input plus quick picks (Today, +1 mo, +3 mo, Next install) — reached by the `G` key or a click on any month name in the axis header (pointer cursor + underline on hover). *(v1.6.1: the "Go to date…" legend entry retired — the legend is a legend again; §6's rule holds via the pointer + keyboard paths.)* Choosing a date centers it in the viewport, smooth unless `prefers-reduced-motion` (the T6 rule). The **Today button and `T` center today** the same way; the **default view parks today left-of-center to read forward** — on first load *and* whenever the app arrives at the timeline via routing (Done, the breadcrumb, Back), rather than the far-left earliest date a fresh render otherwise lands on (owner request, 2026-08-28). The popover rides the toolbar-menu machinery: one open at a time, Escape or outside click closes.
+- **Legend:** a popover under Help documents: status treatments, red = install, chip letters, marker shapes. One screen, no scrolling, nothing but the legend (v1.6.1: its Navigate entries retired). **Keyboard shortcuts are a sibling popover** under the same Help menu (route-aware: timeline keys or project-page keys; `?` toggles it) — the two share the toolbar-menu machinery, so opening one mutes the other.
 
 ---
 
@@ -208,9 +272,98 @@ The Setup / Team / Departments / Agenda inspector is **not a sidebar**. It rende
 - **Collapse toggle** (owner request, 2026-08-28): a chevron button collapses the form so the chart takes the whole window; the footer bar stays, so nothing is stranded. Because it acts on the interface container, not the project, it is **not a footer button** — it sits in its own fixed bordered area at the dock's bottom-right corner, outside the footer's button row, present in both states (chevron flips down→up). The state is persisted per user in `localStorage` (`shopTimelineDockCollapsed`, alongside the dock height) and restored on the next load, holding across login sessions. Applies to the Gantt and Calendar alike (the dock is shared). Edits still happen in the edit-in-place popover (§6) while collapsed.
 - The edit-details modal (§6) and this panel share field components and layout rules — the modal is the timeline's portable version of the same inspector.
 
+## 7.6 Company Data pages — the master-data pattern (v1.7.0)
+
+People and Clients are **first-class pages** (`#/people`, `#/clients`), not management
+modals — the 2026-09-01 Master Data UX Refactor handoff
+(`docs/2026-09-01-Master-Data-UX-Refactor-Handoff.md`). This is the reusable pattern
+for every future company master-data section (departments, project types, holidays…):
+
+- **A place, not a dialog.** Each dataset gets a route on the project-page chrome
+  precedent: breadcrumb trail (`All Projects › People`) with the × exit, timeline-only
+  toolbar row hidden (`body.cd-route`), Esc walks home. The nav group is **Company
+  Data** (was Resources).
+- **Index → record → explicit edit.** The page is a searchable master/detail: a
+  compact list-table on the left (columns from the real data model), the selected
+  record on the right rendered **read-first** — fields as information, not form
+  controls. One intentional **Edit** action swaps the pane to the edit state
+  (Cancel/Save); **+ Add** opens the same editor blank. No batch-form editing of the
+  whole dataset.
+- **Record-level actions, consequences named.** Remove lives inside the edit state,
+  never as a casual per-row ×, and its confirm counts the record's live relationships
+  ("on 6 phases across 4 projects") before asking. A true Active/Archived lifecycle
+  waits on a status column (TODO §5).
+- **System-of-record cues, restrained.** The trail bar carries `N records ·
+  SharePoint` (or `· this browser only` when degraded); the toolbar sync pill stays
+  the authority on last-sync time. Relationship context (project counts, assignment
+  counts) renders only where derivable from data already in memory — never fabricated.
+- **Same visual system.** Existing tokens, compact density, no dashboard cards. The
+  pages read as authoritative through structure — location, read-first, explicit
+  edit — not visual weight. Persistence is untouched: edits clone the shared list,
+  swap one record, and ride the existing save paths.
+- **Edit affordances are role-gated (v1.8.0).** For non-admins the pages keep their
+  read modes but render no + Add / Edit / Remove; the Clients page is admin-only
+  outright. App-wide, the viewer role follows the same read-first grammar: locked
+  fields flatten to information (`body.viewer` + disabled controls), admin-only
+  chrome disappears rather than disabling, and every refusal toast says who to ask.
+- **The developer's Viewer toggle (v1.9.0).** A staff row whose admin column reads
+  `dev` is a *developer* — a full admin whose toolbar gains a **Viewer** button next
+  to the version number (top right, every route). One click previews the app exactly
+  as a non-admin sees it — `isAdmin()` answers false everywhere, so every real door
+  closes, including Lock Dates forcing on (restored on exit). The toggle lights while
+  active and is remembered per tab. The value is typed straight onto the list by the
+  owner; the People editor never assigns it, but People-page saves preserve it.
+- **My Dashboard dock columns (v1.9.0; re-laid v1.10.0, owner ask):** Working on +
+  Time off *stacked in one column* | Milestones | Notes | **User Notes** — a personal
+  multi-line scratch pad at the far right, stored on the person's staff row
+  (`personalNotes`) and saved on blur through the normal staff sync. Personal by
+  spec: the column exists only on your OWN dashboard (viewers included — the one
+  self-row exception to the people-edit gate) and never appears on someone else's
+  Summary.
+- **Granular viewer grants (v1.11.0, owner ask).** The viewer role stays the default,
+  but each edit door can be opened app-wide from **Help ▸ App settings** — a
+  developer-only page on this same chrome (`#/settings`; non-devs bounce home).
+  Switches live on the app-side `ShopTimeline_Config` list (key/value; browser-local
+  with an inline warning until the list exists) and are read at sign-in. In code the
+  question is always `vcan('project'|'phases'|'subtasks'|'milestones'|'notes')`;
+  granted chrome re-appears via `body.vg-*` classes and locked boxes pass their door
+  to `viewerLock(box, kind)` — agenda rows grade themselves by row kind. Defaults all
+  OFF (owner: non-admins stay mostly gated).
+- **Signed-in identity in the chrome (v1.10.0).** The top-right global row reads
+  `[Viewer] · name DEV|ADMIN · version · sync pill`. The chip shows the account's
+  REAL access and does not flip while the Viewer preview is on (the lit Viewer button
+  already carries that state). The TWOSEVEN INC. wordmark is a button: one click goes
+  home from any route (draft pages keep their discard confirm).
+- **One tour, chained (v1.10.0, owner ask).** The home tour's last step highlights
+  **+ New Project** and asks for a real click — the overlay turns click-through for
+  that one target (`#coach.chain`; a capture guard swallows everything else, Enter
+  presses the button) — and the project-page tour continues on the draft that opens.
+  Viewers skip the chain step (the button is hidden for them).
+- **"Listening to" (v1.12.0, experimental — `exp.listening`).** A personal line in
+  the dock header, SUMMARY view only: right-justified muted text
+  `listening to|reading|thinking about: Title`, title hyperlinked when a link is set.
+  Edited on your own dashboard through a thought-cloud icon on the User Notes
+  header bar, right-justified (v1.14.0) — a field-sized popover anchored to that
+  section that commits once, on close, through the self-row staff save. Empty title
+  or Show off = hidden; the whole feature sits behind the App-settings switch.
+- **"Not me" (v1.14.0).** The Viewer toggle's sibling: a developer-only, per-tab
+  preview that flips only `dashSelf()`, so the developer's own Summary renders
+  exactly as everyone else sees it (User Notes hidden, the personal line visible).
+  Permissions and identity stay the developer's own — it previews the reading, not
+  another user's session.
+- **People departments are coarser than phase departments (v1.14.0).** The People
+  page speaks a canonical people list (`pdCanon`): DFAB folds the machine-level
+  Digital Fab depts, Finishing folds Pre-Finishing + Painting. Phase departments,
+  the dept lens and stored task rows keep their machine-level ids; legacy people
+  ids read as their canon and heal on save.
+- **People index at-a-glance (v1.14.0):** Name · Title · Phone · Email · Perms ·
+  Status columns under a micro-caps header row; permission chips (DEV / ADMIN / FB)
+  use the token type ramp; checkbox sets render as stacked auto-fill grids, never a
+  free wrap.
+
 ## 8. Print & Meeting Sheet
 
-Print inherits the same tokens (the Quiet canvas is already print-friendly; vivid tints never print). Meeting Sheet stays the reference artifact: mono numerals, hairline rules, generous Notes column. Any new report copies its header block (TWOSEVEN — title · REV · printed date · count) verbatim.
+Print inherits the same tokens (the Quiet canvas is already print-friendly; vivid tints never print). Meeting Sheet stays the reference artifact: mono numerals, hairline rules, generous Notes column. Any new report copies its header block (TWOSEVEN INC. — title · REV · printed date · count) verbatim.
 
 ---
 

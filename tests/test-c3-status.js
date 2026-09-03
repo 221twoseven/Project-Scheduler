@@ -1,6 +1,8 @@
 /* C3 / Design-Language §2.1: status = pattern + pill on the project's own hue.
-   Forecast keeps its identity color (no grayscale), complete dims + ✓, on-hold
-   desaturates without recoloring, and the ? legend explains all five encodings.
+   Complete dims + ✓, on-hold desaturates without recoloring, and the ? legend
+   explains all five encodings. Forecast: identity color through v1.2.0; from
+   v1.2.1 (08-31 obj 11) forecast is the one exception — uncolored (FORECAST_GREY).
+   The bar checks compare against projColor, which carries the rule either way.
    Run: node tests/test-c3-status.js index.html */
 const {boot}=require('./harness');
 const fs=require('fs');
@@ -87,8 +89,10 @@ setTimeout(()=>{
      &&!menu.classList.contains('hidden'));
   const sw=[...menu.querySelectorAll('.job-bar[data-st]')];
   ok('every status has a live swatch',sw.length===E('ALL_STATUSES').length,sw.length+' swatches');
+  /* v1.2.1: the forecast swatch is grey like its real bars; every other swatch keeps the hue */
+  const V121=src.indexOf('FORECAST_GREY')>=0;
   ok('swatches are drawn from the same CSS (real .job-bar elements, project hue)',
-     sw.every(s=>norm(s.style.background)===norm(E('PCOLS[0]'))));
+     sw.every(s=>norm(s.style.background)===norm(V121&&s.dataset.st==='forecast'?E('FORECAST_GREY'):E('PCOLS[0]'))));
   ok('red = installation is documented',
      [...menu.querySelectorAll('.lg-bar')].some(s=>norm(s.style.background)===norm(E('INSTALL_RED'))));
   const chips=[...menu.querySelectorAll('.role-tag')].map(c=>c.textContent);

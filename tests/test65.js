@@ -3,7 +3,9 @@
    - Project lens: only projects the person is on (explicit crew, or implicit via the
      project team on an unowned umbrella); expanded subtask rows filter the same way.
    - Departments lens: only the person's lanes survive; empty sections drop.
-   - Reset (toolbar Clear filters AND the in-canvas Reset the view) clears the person.
+   - Reset (toolbar Clear filters AND the in-canvas Reset the view) clears the person —
+     except on My Dashboard (dept lens + person), where the person is the view, not a
+     filter, and resets keep it (v1.2.2).
    - The pick persists in the UI prefs and restores on load.
    - A person with nothing scheduled gets an explanatory empty-state card.
    Skips on builds that predate the person filter.
@@ -12,6 +14,7 @@ const {boot}=require('./harness');
 const fs=require('fs');
 const FILE=process.argv[2]||'index.html';
 const src=fs.readFileSync(FILE,'utf8');
+const V164=src.indexOf('dash-flat')>=0; /* v1.6.4: any person filter IS the summary place */
 
 if(!/btn-filters/.test(src)){
   console.log('  SKIP  build predates the consolidated Filters menu (no btn-filters) — nothing to assert');
@@ -56,7 +59,9 @@ setTimeout(()=>{
      E("document.querySelectorAll('#person-menu .sm-item').length")===7,
      E("document.querySelectorAll('#person-menu .sm-item').length"));
   E("PERSON='Peter';updateFilterBadges();");
-  ok('a Person chip appears and Filters lights up',
+  if(V164)ok('no Person chip — a person is the summary place, not a filter (v1.6.4)',
+     E("!document.getElementById('filter-chips').textContent.includes('Person: Peter')&&!document.getElementById('btn-filters').classList.contains('active')"));
+  else ok('a Person chip appears and Filters lights up',
      E("document.getElementById('filter-chips').textContent.includes('Person: Peter')&&document.getElementById('btn-filters').classList.contains('active')"));
 
   sec('Project lens: only the person’s projects and bars');
@@ -84,9 +89,23 @@ setTimeout(()=>{
      E("ROWS.filter(r=>r.kind==='deptHead').every(r=>r.count>0)"));
 
   sec('Reset paths clear the person');
+  /* v1.2.2: dept lens + person IS My Dashboard — there the person isn't a filter,
+     so Clear filters keeps it; on the Projects lens it clears as always. */
   E("document.getElementById('btn-reset').click();");
-  ok('toolbar Clear filters clears the pick',E('PERSON===null'));
-  ok('all projects come back',(E("LENS='project';render();"),E("ROWS.filter(r=>r.kind==='projHead').length")===2));
+  ok('on the dashboard, Clear filters keeps the person',E("PERSON==='Nick'"));
+  E("LENS='project';render();document.getElementById('btn-reset').click();");
+  if(V164){
+    /* v1.6.4: the summary place follows the person into the Projects lens, so
+       Clear filters keeps the person there too; the × is the exit. */
+    ok('toolbar Clear filters keeps the person on the Projects lens too (v1.6.4)',
+       E("PERSON==='Nick'"));
+    E("document.getElementById('db-x').click();");
+    ok('all projects come back once the × exits',
+       E('PERSON===null')&&E("ROWS.filter(r=>r.kind==='projHead').length")===2);
+  } else {
+    ok('toolbar Clear filters clears the pick on the Projects lens',E('PERSON===null'));
+    ok('all projects come back',E("ROWS.filter(r=>r.kind==='projHead').length")===2);
+  }
 
   sec('Persistence');
   E("PERSON='Peter';saveUI();");

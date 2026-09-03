@@ -7,8 +7,16 @@ const fs=require('fs');
 const FILE=process.argv[2]||'index.html';
 
 /* The frozen REV50 reference predates B3 — same convention as test-b1.js. */
-if(fs.readFileSync(FILE,'utf8').indexOf('ZOOM_STEPS')<0){
+const src0=fs.readFileSync(FILE,'utf8');
+if(src0.indexOf('ZOOM_STEPS')<0){
   console.log('test-b3-zoom: skipped — no ZOOM_STEPS in '+FILE+' (pre-B3 build)');
+  process.exit(0);
+}
+/* v1.5.0 (08-31 obj 7) replaced the B3 fixed px-per-day steps with viewport-fitting
+   Week/Month/3-Month — this suite's model no longer exists; test-v150.js covers the
+   new one (steps, keyboard, persistence, edge chips, drag-zoom). */
+if(src0.indexOf('FIT_STEPS')>=0){
+  console.log('test-b3-zoom: skipped — v1.5.0+ build ('+FILE+'), superseded by test-v150');
   process.exit(0);
 }
 
@@ -21,10 +29,16 @@ const proj=(id,name,dl)=>({appId:id,Title:name,client:'',jobCode:id.toUpperCase(
   leadFab:'Nick',activeDepartments:JSON.stringify(['pm','fab']),createdAt:'2026-07-01'});
 const task=(id,pid,s,e)=>({appId:id,projectId:pid,department:'fab',assignee:'Nick',
   startDate:s,endDate:e,estimatedDays:5,ticketNodes:'[]',notes:'',pinned:false,label:''});
-/* p1 spans ~6 months, p2 is 3 days (tick-width at Month), p3 is 10 days (pill-only). */
-const projects=[proj('p1','Long Haul','2026-12-20'),proj('p2','Quick Hit','2026-09-01'),
+/* p1 spans ~6 months, p2 is 3 days (tick-width at Month), p3 is 10 days (pill-only).
+   v1.2.2: a row whose bars all wrapped before today earns no left edge chip, so p2's
+   dates ride the real clock (a week out) instead of aging into the past. */
+const D=n=>{const d=new Date();d.setDate(d.getDate()+n);return d;};
+const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const lbl=d=>d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+const t2s=D(7),t2e=D(9);
+const projects=[proj('p1','Long Haul','2026-12-20'),proj('p2','Quick Hit',iso(D(14))),
                 proj('p3','Mid Range','2026-10-01')];
-const tasks=[task('t1','p1','2026-07-01','2026-12-10'),task('t2','p2','2026-08-24','2026-08-26'),
+const tasks=[task('t1','p1','2026-07-01','2026-12-10'),task('t2','p2',iso(t2s),iso(t2e)),
              task('t3','p3','2026-09-14','2026-09-23')];
 
 const dom=boot(FILE,{data:{projects,tasks,staff:[],todos:[]}});
@@ -108,11 +122,11 @@ setTimeout(()=>{
   sc.scrollLeft=0;E('updateEdgeIndicators()');
   const chipR=doc.querySelector('.edge-ind[data-key="Pp2"]');
   ok('an off-right bar gets a right chip',chipR&&chipR.dataset.side==='r');
-  ok('the chip names the bar\'s near (start) edge',chipR&&chipR.textContent==='Aug 24',chipR&&chipR.textContent);
+  ok('the chip names the bar\'s near (start) edge',chipR&&chipR.textContent===lbl(t2s),chipR&&chipR.textContent);
   sc.scrollLeft=2000;E('updateEdgeIndicators()');
   const chipL=doc.querySelector('.edge-ind[data-key="Pp2"]');
   ok('scrolled past it, the chip flips to the left edge',chipL&&chipL.dataset.side==='l');
-  ok('and names the end edge',chipL&&chipL.textContent==='Aug 26',chipL&&chipL.textContent);
+  ok('and names the end edge',chipL&&chipL.textContent===lbl(t2e),chipL&&chipL.textContent);
 
   done();
 },1300);

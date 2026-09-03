@@ -20,7 +20,7 @@ in the existing row height.
 
 ## Why it mattered
 
-This was finding **B2** in `docs/UX-Audit-and-Strategy.md`: at the old default
+This was finding **B2** in `docs/Archive/UX-Audit-and-Strategy.md`: at the old default
 width the row showed a color dot, one letter of the name, the job code, and a
 cut-off date. The project *name* — the thing people actually scan for — was
 the first thing to disappear. Now every project is identifiable by name at the
