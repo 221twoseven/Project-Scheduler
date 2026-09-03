@@ -23,3 +23,7 @@ Desktop.ini
 *.log
 npm-debug.log*
 tmp/
+
+# Licensed font weights the site doesn't use stay local (TODO ledger: only BrNStdBd.otf is published)
+fonts/*
+!fonts/BrNStdBd.otf
