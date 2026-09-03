@@ -39,7 +39,10 @@ setTimeout(main,1300);
 function main(){
   sec('source markers');
   ok('slides overlay uses the standard modal chrome', src.indexOf('id="demo-modal"')>=0&&/<div class="modal" id="demo-modal">/.test(src));
-  ok('titles wear the Brauer face', /#demo-modal h3\{font-family:'Brauer Neue'/.test(src));
+  /* v1.18.2: titles dropped Brauer Neue to match the tour-card heading font —
+     the h3 must inherit .modal h3 (no font-family/weight override of its own) */
+  ok('titles wear the tour heading face (no Brauer override)',
+     /#demo-modal h3\{font-size:21px/.test(src) && !/#demo-modal h3\{[^}]*font-family/.test(src));
   /* v1.18.0 added !DEV_VIEW to the gate (the Non-admin preview gets the plain tour) */
   ok('mi-tour gates the slides on developer, off project pages',
      /isDeveloper\(\)&&(!DEV_VIEW&&)?ROUTE\.view!=='project'\)\{demoStart\(\);return;\}/.test(src));

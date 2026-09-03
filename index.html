@@ -1115,7 +1115,7 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
    The standard .overlay/.modal chrome; only the type is tuned for reading aloud. */
 #demo-modal{width:560px}
 #demo-step{font-family:var(--mono);font-size:var(--fs-fine);font-weight:600;letter-spacing:.1em;color:#7488A3;padding:22px 24px 0}
-#demo-modal h3{font-family:'Brauer Neue',var(--sans);font-weight:800;letter-spacing:.04em;font-size:21px;padding-top:6px}
+#demo-modal h3{font-size:21px;padding-top:6px}
 #demo-body{font-size:15px;line-height:1.55;color:#33415A;padding-bottom:12px}
 #demo-body p{margin:0 0 10px}
 #demo-body b{color:var(--ink)}
@@ -1549,7 +1549,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.18.1'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.18.2'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -9500,22 +9500,22 @@ function tourStart(){
    normal chained tour. Everyone else's tour is untouched, and so is the
    first-visit auto-run. Copy lives in docs/Copy-Coach-and-Helpers.md §0. */
 const DEMO_SLIDES=[
-  {t:'From planning tool to hub',
-   b:'<p>The Scheduler began as a Gantt planning tool: enter projects, assign people, see workload across a department.</p>'+
-     '<p>The work since has turned it into a company-wide system. The Gantt chart is still the center — but underneath it is a <b>shared source of truth</b> for our project, client, personnel, availability and scheduling data.</p>'},
+  {t:'Two Seven: Shop Timeline',
+   b:'<p>The Shop Timeline is a Gantt planning app, project calendar, and forecasting tool. You can create and manage project schedules, teams and departments with it.</p>'+
+     '<p>The Shop Timeline is a company-wide system. It is a <b>shared source of truth</b> for our project, client, personnel, availability and scheduling data previously spread across several documents.</p>'},
   {t:'Enter it once',
-   b:'<p>Today the information that runs our projects is spread across PM spreadsheets, staffing and time-off documents, Teams lists, Excel workbooks and SharePoint lists — much of it entered four or five times just to stay current.</p>'+
-     '<p>This isn’t another document on the pile: the app is connected to our company data in Microsoft 365. <b>Enter information once, maintain it in one place, and it becomes useful everywhere.</b> A PM changes a project date — it’s the same date on every schedule, calendar and dashboard.</p>'},
+   b:'<p>The Shop Timeline is intended to put project tracking information in one place that’s visible to project contributors.</p>'+
+     '<p>This app is connected to our company data in Microsoft 365. <b>Enter information once, maintain it in one place, and it becomes useful everywhere.</b></p>'+
+     '<p>When a project date changes, it changes on every schedule, calendar and dashboard.</p>'},
   {t:'Who it’s for',
    b:'<p><b>Management</b> — the company-wide view: what’s happening, what’s coming, where resources are committed, where we may have capacity or staffing issues.</p>'+
      '<p><b>Project Managers</b> — where a project enters the schedule: the timeline, milestones and dates other departments plan around.</p>'+
-     '<p><b>Technical Design</b> — a planning and working tool: what we’re responsible for, when, and how it’s distributed.</p>'+
+     '<p><b>Design</b> — a planning and working tool: what we’re responsible for, when, and how it’s distributed.</p>'+
      '<p><b>Shop &amp; production</b> — visibility: what’s coming, when it moves through the shop, who’s involved.</p>'+
-     '<p>These aren’t four separate schedules — everyone sees <b>different views of the same information</b>.</p>'},
-  {t:'What it isn’t',
-   b:'<p>This is not an ERP, and it doesn’t replace estimating, accounting, purchasing or HR. You’ll see personnel and project information only as far as it affects planning and scheduling — no budgets, no purchase orders.</p>'+
-     '<p>It exists to answer four questions: <b>What are we working on? When is it happening? Who is working on it? And what does everyone need to know to plan around it?</b></p>'+
-     '<p>Rather than tour features in the abstract, let’s walk through the app the way you’ll actually use it.</p>'}
+     '<p>These aren’t four separate schedules. Everyone sees <b>different views of the same information</b>.</p>'},
+  {t:'What it is/isn’t',
+   b:'<p>This is not an ERP (Enterprise Resource Planner). It does not replace estimating, accounting, purchasing or HR systems.</p>'+
+     '<p>It exists to answer four questions: <b>What are we working on? When is it happening? Who is working on it? What does everyone need to know to plan around it?</b></p>'}
 ];
 let DEMO_I=-1; /* -1 = closed */
 function demoShow(){
