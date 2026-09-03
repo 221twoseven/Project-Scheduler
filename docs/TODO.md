@@ -123,8 +123,16 @@ The full story lives in the archive, `docs/Milestones/`, and `docs/Handoff-Notes
       strings and the comment now say Resources (the Settings menu retired in
       REV95). Rode the quick-wins batch
       (`docs/Milestones/Quick-Wins-v102/2026-08-28-v102-quick-wins.md`).
-- [ ] **Shared shop-terminal account — paid licence?** A business call, not a code
-      task. Owner decides. (Carried from v1 §9.)
+- [ ] **Shared shop-terminal account — future `terminal` permission type.** Owner
+      ruling 2026-09-02: a ways off — necessity gets established after rollout and
+      real use proves it. The wiring can exist meanwhile, and partly already does
+      (the person filter and the third-party Summary view were built with this in
+      mind). Precedent: the company already runs non-person M365 accounts (shared
+      software-licence logins, the 3D-print lab's "slicer computer"), so a shop
+      terminal would likely be another such account. When it happens it becomes a
+      FOURTH account type — `terminal`, alongside admin / non-admin / dev — with
+      its own dashboard view. Not designed yet; needs shop feedback to develop.
+      (Carried from v1 §9; the old "paid licence?" framing is folded into this.)
 - [ ] **Coach-mark copy revision — ON HOLD (owner, 2026-08-28):** "leave coach mark
       copy alone for now." The extraction list was delivered 2026-08-28 (chat); the
       swap happens whenever the owner sends revised copy. This is §3 item 5.
