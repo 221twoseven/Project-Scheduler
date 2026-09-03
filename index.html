@@ -1569,7 +1569,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.19.1'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.19.2'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -2825,7 +2825,7 @@ function applyPerms(){
        const p=personByName(nm);
        const badge=isDeveloper()?'<span class="tb-acc dev">DEV</span>'
          :(p&&p.admin&&permsLive()?'<span class="tb-acc">ADMIN</span>':'');
-       tu.innerHTML=esc(nm)+badge;
+       tu.innerHTML=esc(dispName(nm))+badge; /* v1.19.2: nickname everywhere */
        tu.classList.remove('hidden');
      }
    }}
@@ -3960,9 +3960,9 @@ function makeSummaryBar(p,s,e,row){
     let inner='<span class="sum-pill">'+esc(STATUS_LBL[st])+'</span>';
     if(w>=BAR_W_PILL)inner+=esc(p.name)+(w>=BAR_W_CODE&&p.jobCode?' · '+esc(p.jobCode):'');
     if(w>=BAR_W_CHIPS)inner+=[
-      p.projectManager&&('<span class="role-tag">PM</span>'+esc(roleList(p.projectManager).map(canonName).join(', '))),
-      p.drafter&&('<span class="role-tag">D</span>'+esc(roleList(p.drafter).map(canonName).join(', '))),
-      p.leadFab&&('<span class="role-tag">F</span>'+esc(roleList(p.leadFab).map(canonName).join(', ')))
+      p.projectManager&&('<span class="role-tag">PM</span>'+esc(roleList(p.projectManager).map(canonName).map(dispName).join(', '))),
+      p.drafter&&('<span class="role-tag">D</span>'+esc(roleList(p.drafter).map(canonName).map(dispName).join(', '))),
+      p.leadFab&&('<span class="role-tag">F</span>'+esc(roleList(p.leadFab).map(canonName).map(dispName).join(', ')))
     ].filter(Boolean).join('');
     lbl.innerHTML=inner;
     bar.appendChild(lbl);
@@ -4170,20 +4170,20 @@ function showTooltipTask(t,ev,hiNode){
     +'<div class="tt-dim">'+fmtNice(t.startDate)+' → '+fmtNice(t.endDate)+' · '+days+'d</div>'
     +(t.notes?'<div class="tt-notes">'+esc(t.notes)+'</div>':'')
     +(CONFLICTS.has(t.id)?(()=>{const n=Math.max(1,conflictCount(t));
-      return '<div class="tt-warn">⚠ '+esc(barCrew(t).join(', ')||'Crew')+' is on '+n+' other job'+(n===1?'':'s')+' during this window</div>';})():'')
-    +barCrew(t).map(n=>oooOverlaps(n,t.startDate,t.endDate).map(o=>'<div class="tt-warn">✈ '+esc(n)+' is out '+fmtNice(o.start)+' → '+fmtNice(o.end)+(o.note?' ('+esc(o.note)+')':'')+'</div>').join('')).join('')
+      return '<div class="tt-warn">⚠ '+esc(barCrew(t).map(dispName).join(', ')||'Crew')+' is on '+n+' other job'+(n===1?'':'s')+' during this window</div>';})():'')
+    +barCrew(t).map(n=>oooOverlaps(n,t.startDate,t.endDate).map(o=>'<div class="tt-warn">✈ '+esc(dispName(n))+' is out '+fmtNice(o.start)+' → '+fmtNice(o.end)+(o.note?' ('+esc(o.note)+')':'')+'</div>').join('')).join('')
     +tn
-    +((t.updatedBy||t.updatedAt)?'<div class="tt-dim tt-upd">Updated by '+esc(t.updatedBy||'—')+(t.updatedAt?' · '+esc(timeAgo(t.updatedAt)):'')+'</div>':'')
+    +((t.updatedBy||t.updatedAt)?'<div class="tt-dim tt-upd">Updated by '+esc(t.updatedBy?dispName(t.updatedBy):'—')+(t.updatedAt?' · '+esc(timeAgo(t.updatedAt)):'')+'</div>':'')
     +'<div><span class="tt-badge">'+esc(STATUS_LBL[p?projectStatus(p):'estimating'])+'</span></div>';
   el.classList.remove('hidden');posTooltip(ev);
 }
 function showTooltipProj(p,s,e,ev){
   const el=document.getElementById('tooltip');
-  const upd=(p.updatedBy||p.updatedAt)?'<div class="tt-dim tt-upd">Updated by '+esc(p.updatedBy||'—')+(p.updatedAt?' · '+esc(timeAgo(p.updatedAt)):'')+'</div>':'';
+  const upd=(p.updatedBy||p.updatedAt)?'<div class="tt-dim tt-upd">Updated by '+esc(p.updatedBy?dispName(p.updatedBy):'—')+(p.updatedAt?' · '+esc(timeAgo(p.updatedAt)):'')+'</div>':'';
   el.innerHTML='<div class="tt-title">'+esc(p.name)+'</div>'
     +'<div class="tt-dim">'+esc(p.client||'')+(p.jobCode?' · '+esc(p.jobCode):'')+'</div>'
     +'<div class="tt-dim">'+fmtNice(fmtDate(s))+' → '+fmtNice(fmtDate(e))+' · deadline '+fmtNice(p.deadline)+(projectStatus(p)!=='complete'?' ('+(diffDays(today(),parseDate(p.deadline))>=0?diffDays(today(),parseDate(p.deadline))+'d left':Math.abs(diffDays(today(),parseDate(p.deadline)))+'d over')+')':'')+'</div>'
-    +'<div class="tt-dim">PM '+esc(roleList(p.projectManager).map(canonName).join(', ')||'—')+' · D '+esc(roleList(p.drafter).map(canonName).join(', ')||'—')+' · F '+esc(roleList(p.leadFab).map(canonName).join(', ')||'—')+(p.fabricators?' · Crew '+esc(roleList(p.fabricators).map(canonName).join(', ')):'')+'</div>'
+    +'<div class="tt-dim">PM '+esc(roleList(p.projectManager).map(canonName).map(dispName).join(', ')||'—')+' · D '+esc(roleList(p.drafter).map(canonName).map(dispName).join(', ')||'—')+' · F '+esc(roleList(p.leadFab).map(canonName).map(dispName).join(', ')||'—')+(p.fabricators?' · Crew '+esc(roleList(p.fabricators).map(canonName).map(dispName).join(', ')):'')+'</div>'
     +upd
     +'<div><span class="tt-badge">'+esc(STATUS_LBL[projectStatus(p)])+'</span></div>';
   el.classList.remove('hidden');posTooltip(ev);
@@ -4207,7 +4207,7 @@ function fillRoleChecks(elId,names,currentStr){
   for(const n of all){
     const lb=document.createElement('label');
     const ck=document.createElement('input');ck.type='checkbox';ck.value=n;ck.checked=sel.has(n);
-    lb.appendChild(ck);lb.appendChild(document.createTextNode(n));
+    lb.appendChild(ck);lb.appendChild(document.createTextNode(dispName(n))); /* v1.19.2: nickname everywhere (owner); the VALUE stays the full name — identity never changes shape */
     el.appendChild(lb);
   }
 }
@@ -4219,12 +4219,12 @@ function openProjModal(projId){
 /* ===================== TASK MODAL ===================== */
 function buildCrewList(checked,pool){
   const box=document.getElementById('tm-crew');box.innerHTML='';
-  const names=[...new Set([...((pool&&pool.length)?pool:PEOPLE.map(p=>p.name)),...checked])].sort((a,b)=>a.localeCompare(b));
+  const names=[...new Set([...((pool&&pool.length)?pool:PEOPLE.map(p=>p.name)),...checked])].sort((a,b)=>dispName(a).localeCompare(dispName(b)));
   if(!names.length){box.innerHTML='<div class="tn-empty">No staff yet — add people under Company Data &rsaquo; People.</div>';return;}
   for(const n of names){
     const l=document.createElement('label');
     const c=document.createElement('input');c.type='checkbox';c.value=n;c.checked=checked.includes(n);
-    l.appendChild(c);l.appendChild(document.createTextNode(n));box.appendChild(l);
+    l.appendChild(c);l.appendChild(document.createTextNode(dispName(n)));box.appendChild(l); /* v1.19.2: display nickname, store full name */
   }
 }
 function tmAssigneeUI(deptId,current){
@@ -4573,7 +4573,7 @@ function clogRowsHtml(rows,showProject){
   return rows.map(r=>{
     const p=showProject&&r.projectId?projById(r.projectId):null;
     return '<div class="clog-row"><span class="clog-when">'+esc(clogWhen(r.at))+'</span>'
-      +'<span class="clog-who" title="'+esc(r.who)+'">'+esc(r.who||'—')+'</span>'
+      +'<span class="clog-who" title="'+esc(r.who)+'">'+esc(r.who?dispName(r.who):'—')+'</span>' /* v1.19.2: nickname everywhere; the title attr keeps the full stored name */
       +'<div class="clog-what"><b>'+esc(r.title)+'</b>'
       +(showProject&&r.projectId&&r.title.indexOf('Project ')!==0?' <span class="clog-proj">· '+esc(p?p.name:'(deleted project)')+'</span>':'')
       +' <span class="clog-field">'+esc(r.field)+'</span>'
@@ -8291,7 +8291,7 @@ function npvPopPhaseHTML(sel){
     const pool=sel.department==='install'?allPeople():(projTeam(p).length?projTeam(p):allPeople());
     h+='<div class="ins-f"><label>Crew</label><div class="crew-list ins-crew" data-pop-crew>'
      +[...new Set([...pool,...crew])].map(n=>'<label><input type="checkbox" value="'+esc(n)+'"'
-       +(crew.indexOf(n)>=0?' checked':'')+'>'+esc(n)+'</label>').join('')
+       +(crew.indexOf(n)>=0?' checked':'')+'>'+esc(dispName(n))+'</label>').join('') /* v1.19.2: display nickname, store full name */
      +'</div></div>';
   }
   h+='<div class="ins-row pop-dates">'
@@ -9950,7 +9950,7 @@ function buildMeetingSheet(){
   const tb=document.createElement('tbody');
   for(const k of keys){
     const gr=document.createElement('tr');gr.className='meet-pm';
-    gr.innerHTML='<td colspan="7">'+esc(k)+' · '+groups[k].length+' project'+(groups[k].length>1?'s':'')+'</td>';
+    gr.innerHTML='<td colspan="7">'+esc(dispName(k))+' · '+groups[k].length+' project'+(groups[k].length>1?'s':'')+'</td>'; /* v1.19.2: nickname everywhere (group KEY stays canonical) */
     tb.appendChild(gr);
     const rows=[...groups[k]].sort((a,b)=>String(a.deadline||'9999').localeCompare(String(b.deadline||'9999')));
     for(const p of rows){

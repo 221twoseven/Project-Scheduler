@@ -1186,10 +1186,16 @@ these are the ones still open, plus new deferrals as they happen.
 - [ ] The people index drops the Departments column to fit the at-a-glance four —
       the dept filter and the record pane still carry them. Gate: someone missing
       it at a glance. (v1.14.0)
-- [ ] Nicknames cover the prominent display surfaces (bar chips, lanes, summary
+- [x] Nicknames cover the prominent display surfaces (bar chips, lanes, summary
       chrome, person menus, People page) — deeper spots (meeting sheet groups,
       conflict warnings, changelog `who`) still print full names. Gate: a nickname
-      user reading one and caring. (v1.15.0, 2026-09-02)
+      user reading one and caring. (v1.15.0, 2026-09-02) **Gate FIRED 2026-09-02
+      (owner: "Nickname needs to display everywhere") — v1.19.2 sweeps every
+      remaining display surface through dispName: Team role checkboxes, crew
+      pickers (modal + popover), tooltip conflict/OOO/roles/Updated-by lines,
+      sidebar role tags, meeting-sheet PM groups, changelog `who`, the signed-in
+      toolbar chip. Stored values, checkbox VALUES and identity joins stay full
+      names; the People page keeps showing both (it's where nicknames are set).
 - [ ] Merge duplicate can't be un-merged automatically (the confirm says so) — the
       rewrite rides the normal undo stack for THIS session only; the removed row
       needs re-adding by hand if merged wrong. Gate: a real mis-merge. (v1.15.0)
