@@ -29,7 +29,8 @@ ok('screenshots route through the site drive, not item attachments',
 setTimeout(()=>{
   sec('the form lives on the Open Issues page and prefills from the account');
   ok('the Help menu offers the report item', !!q('#mi-report'));
-  ok('the Help menu offers Open issues and Release notes', !!q('#mi-issues')&&!!q('#mi-relnotes'));
+  ok('the Help menu offers Release notes', !!q('#mi-relnotes'));
+  ok('the redundant Open issues item is gone (Report opens the same page)', !q('#mi-issues'));
   click(q('#mi-report'));
   ok('the report item lands on the Open Issues page', win.location.hash==='#/issues'&&!!q('#fb-desc'), win.location.hash);
   ok('the issues list pane renders beside the form', !!q('#fb-list'));
