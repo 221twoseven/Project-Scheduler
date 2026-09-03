@@ -369,15 +369,17 @@ rule §5); old data keeps reading fine.
 
 ### 2026-08-31 brief — change log (minor bump, after permissions ⚠)
 
-- [ ] **26. (08-31 obj 13) Project Edit change log.** Admin-viewable (needs §3
-      item 12 permissions first). Two surfaces: a **global changelog** in the
-      Resources dropdown (→ the Company Data group once §3 item 27 renames it), and
-      a **project-specific changelog** on the project edit page (that project's
-      changes only). **Owner rulings 2026-08-31:** the list is
-      approved — app-side `ShopTimeline_Changelog` (additive; field spec delivered
-      2026-08-31, chat + §5); and "replaces the dock" means a SECOND collapsible
-      edit dock with the changelog as contents, footer toggle, **only one dock
-      viewable at a time** (not the REV99 dock's removal).
+- [x] **26. (08-31 obj 13) Project Edit change log — DONE 2026-09-02 (v1.19.0).**
+      Admin-viewable, both surfaces as ruled: the **global changelog** under
+      Company Data ▸ Changelog (`#/changelog`, filterable, newest first), and the
+      **project-specific changelog** on the project edit page as a SECOND
+      collapsible dock — footer Changelog button, only one dock viewable at a
+      time (owner ruling 2026-08-31; the REV99 dock stays). Write side: every
+      landed save (syncNow's success path) diffs old→new state and POSTs one row
+      per changed record to `ShopTimeline_Changelog` (who, at, field, old→new
+      detail, projectId); creating/deleting a project logs one row, not one per
+      child; >20 rows in one save collapse to a Bulk-change summary row. History
+      starts 2026-09-02 — nothing backfills earlier edits. Suite `test-v1190`.
 
 ### 2026-09-01 handoff — Company Data: People & Clients as pages (minor bump)
 
@@ -797,7 +799,7 @@ rule §5); old data keeps reading fine.
 | v1.18.1 | ✅ Shipped 2026-09-02 — September audit round: 16 confirmed review findings fixed. Promoted to main with everything before it via PR #32 (2026-09-02) |
 | v1.18.2 | ✅ Shipped 2026-09-02 — owner's preamble copy revision applied (`docs/Copy-Demo-Preamble.md` is the editing channel) + preamble titles drop Brauer Neue for the tour heading font. Pushed to main directly (owner call); main = development |
 | v1.18.3 | ✅ Shipped 2026-09-02 — 42 (child-first deletes in spSync: a mid-queue failure can no longer orphan task/todo/event rows behind a deleted project — the live "TBD lane" orphan's root cause) |
-| v1.19.0 | 26 (change log) — unblocked: permissions shipped v1.8.0, `ShopTimeline_Changelog` created 2026-08-31; the build itself is still pending |
+| v1.19.0 | ✅ Shipped 2026-09-02 — 26 (change log): saves write `ShopTimeline_Changelog`; global `#/changelog` page + second project-page dock (one viewable at a time), both admin-only |
 | v2.0.0 | 13 (single source of truth) ⚠ — likely several minors along the way (one per absorbed store), with v2.0.0 as the cutover declaration |
 
 ## 5. Data / schema (⚠ all need approval — shared Lists)
@@ -812,7 +814,8 @@ rule §5); old data keeps reading fine.
   columns, no schema impact.
 - `ShopTimeline_Changelog` (§3 item 26) — **APPROVED + CREATED 2026-08-31**, same
   arrangement. All single-line text except `detail` (multi-line, plain text):
-  Title, projectId, who, at, field, detail (multi-line), appId.
+  Title, projectId, who, at, field, detail (multi-line), appId. **The app writes
+  and reads it as of v1.19.0 (2026-09-02).**
 - ~~Verify before first use: both new lists must live on the TWOSEVENINC site~~ —
   **VERIFIED 2026-09-01 (Robert): `ShopTimeline_Feedback` and
   `ShopTimeline_Changelog` both live on the TWOSEVENINC site.** (The app resolves
@@ -1208,6 +1211,23 @@ these are the ones still open, plus new deferrals as they happen.
       tristate columns, so the missing-column failure mode doesn't apply there.
       Gate: a real stranded-clients report; fix is the same per-row pattern.
       (v1.15.2)
+- [ ] The changelog logs the project save path only (projects/phases/notes/
+      milestones via saveState→syncNow) — staff, client and config edits ride
+      other save paths and are NOT logged. Deliberate: item 26 is the Project
+      Edit change log. Gate: the owner asking who changed the roster. (v1.19.0,
+      2026-09-02)
+- [ ] Changelog reads are on-demand with a 60s cache, never polled (the
+      polling-cost rule) — a teammate's edit shows on the next open, the fetch is
+      one `$top=2000` page, and the surfaces cap at the latest 500 (global) / 300
+      (per-project) rows. Gate: the list outgrowing one page; fix is paging by
+      `at` or an indexed projectId filter. (v1.19.0, 2026-09-02)
+- [ ] A save that lands but whose changelog POST fails loses those rows silently
+      (console only) — deliberate: history must never block or fail a save, and a
+      write retry would double-log on partial failure. Gate: real gaps mattering
+      in practice. (v1.19.0)
+- [ ] The changelog dock has no drag-resize handle — it reuses the edit dock's
+      persisted height; its collapse is per-visit, not persisted. Gate: someone
+      dragging for it. (v1.19.0)
 
 **Deliberate design ceilings — no action planned, revisit only on real complaints:**
 12-slot palette repeats at 13+ visible projects (T2); quiet re-selection after a
