@@ -1235,10 +1235,22 @@ these are the ones still open, plus new deferrals as they happen.
 - [ ] The changelog dock has no drag-resize handle — it reuses the edit dock's
       persisted height; its collapse is per-visit, not persisted. Gate: someone
       dragging for it. (v1.19.0)
-- [ ] Open Issues has no resolved/closed state — ShopTimeline_Feedback carries no
+- [x] Open Issues has no resolved/closed state — ShopTimeline_Feedback carries no
       status column, so every filed report lists forever. Gate: the list needing
       triage; fix is a ⚠ additive `status` column spec for Robert. (v1.20.0,
-      2026-09-03)
+      2026-09-03) **Gate FIRED same day (owner asked for status on the dev page) —
+      v1.20.1: ⚠ spec delivered (`status`, single-line text, `resolved`/empty on
+      ShopTimeline_Feedback); dev page shows a RESOLVED chip + Mark resolved/Reopen
+      per row (PATCH, rows never deleted); resolved reports leave the public Open
+      Issues list. Until the column exists, the first Mark-resolved errors with a
+      clear toast (the v1.15.2 rule) and everything reads open. Column CREATED by
+      the owner 2026-09-03 — the feature is fully live.**
+- [ ] `othoffice` (Other · Technical Design) is RETIRED, not deleted (owner 09-03:
+      TD is standalone like PM) — hidden from every picker (dept checklist, task
+      modal, inspector dropdown, right-click spare-dept menu) but still renders
+      wherever a legacy row already uses it. Gate: a real othoffice row surviving
+      long enough to bother anyone; fix is reassigning that row's department.
+      (v1.20.1, 2026-09-03)
 - [ ] People/Clients edits stay outside the undo/redo system — they ride their own
       Save-with-confirm paths (savePeople etc.), not saveState. Gate: someone
       reaching for ⌘Z on the People page. (v1.20.0)

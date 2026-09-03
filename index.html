@@ -1277,8 +1277,8 @@ body.cd-route #dash-bar{display:none!important}
       <span class="tb-app">Shop Timeline</span>
     </div>
     <button id="btn-new-proj" class="t-btn accent" title="Create a new project (N)">+ New Project</button>
-    <button id="btn-undo" class="t-btn" title="Undo"><svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7h6.5a3.5 3.5 0 0 1 0 7H6"/><path d="M6 4 3 7l3 3"/></svg></button>
-    <button id="btn-redo" class="t-btn" title="Redo"><svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 7H6.5a3.5 3.5 0 0 0 0 7H10"/><path d="M10 4l3 3-3 3"/></svg></button>
+    <button id="btn-undo" class="t-btn" title="Undo"><svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4.2 7.3A6 6 0 0 1 13.5 11"/><path d="M2.2 3.4v4.6h4.6z" fill="currentColor" stroke="none"/></svg></button>
+    <button id="btn-redo" class="t-btn" title="Redo"><svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M11.8 7.3A6 6 0 0 0 2.5 11"/><path d="M13.8 3.4v4.6h-4.6z" fill="currentColor" stroke="none"/></svg></button>
     <div class="sf-wrap">
       <button id="btn-dash" class="t-btn" title="Your dashboard — your schedule, milestones, notes and time off"><svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="5" r="2.5"/><path d="M3 13.5c.6-3 2.5-4.5 5-4.5s4.4 1.5 5 4.5"/></svg> My Dashboard</button>
       <div id="dash-menu" class="tb-menu hidden"></div>
@@ -1565,7 +1565,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.20.0'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.20.1'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -1613,7 +1613,10 @@ const DEPTS=[
   /* 1 · OFFICE */
   {id:'pm',        name:'Project Management', roster:'projectManagers', grp:'pmg'},
   {id:'td',        name:'Technical Design',   roster:'drafters', est:10, grp:'tdg'},
-  {id:'othoffice', name:'Other (Office)',     freeText:true, est:3, grp:'tdg'},
+  /* v1.20.1 (owner): Technical Design is standalone like PM — no Other bucket. The id
+     stays (retired) so any existing othoffice rows keep rendering; it just never
+     appears in a picker again. */
+  {id:'othoffice', name:'Other (Office)',     freeText:true, est:3, grp:'tdg', retired:true},
   /* 2 · DIGITAL FABRICATION */
   {id:'cnc',       name:'CNC',          est:5, grp:'dfab'},
   {id:'beamsaw',   name:'Beamsaw',      est:3, grp:'dfab'},
@@ -4323,7 +4326,8 @@ function openTaskModal(taskId,prefill){
   psel.value=t?t.projectId:(prefill&&prefill.projectId)||(ST.projects[0]?ST.projects[0].id:'');
   const dsel=document.getElementById('tm-dept');
   dsel.innerHTML='';
-  for(const d of DEPTS){const op=document.createElement('option');op.value=d.id;op.textContent=d.name;dsel.appendChild(op);}
+  for(const d of DEPTS){if(d.retired&&!(t&&t.department===d.id))continue;
+    const op=document.createElement('option');op.value=d.id;op.textContent=d.name;dsel.appendChild(op);}
   dsel.value=t?t.department:(prefill&&prefill.department)||'td';
   tmAssigneeUI(dsel.value,t?t.assignee:(prefill&&prefill.assignee)||'');
   dsel.onchange=()=>tmAssigneeUI(dsel.value,'');
@@ -5980,6 +5984,7 @@ function insDeptList(p,boxId){
                    :(D?D.activeDepartments.includes(id)
                       :DEFAULT_DEPTS.includes(id));
       const ex=p?ST.tasks.find(t=>t.projectId===p.id&&t.department===id):null;
+      if(d.retired&&!active&&!ex)continue; /* retired dept: offered nowhere, shown only where it's already in use */
       const days=ex?(ex.estimatedDays||d.est||1):((D&&D.est[id])||d.est||1);
       const other=d.freeText?(ex?(ex.assignee||''):((D&&D.otherLabels[id])||'')):null;
       h+='<div class="idr'+(active?'':' off')+'">'
@@ -6730,7 +6735,7 @@ function npvCloseMenu(){
 /* Departments the job isn't using yet, in shop order. */
 function npvSpareDepts(){
   const used=new Set(NPV_TASKS.map(t=>t.department));
-  return DEPTS.filter(d=>d.id!=='pm'&&!used.has(d.id));
+  return DEPTS.filter(d=>d.id!=='pm'&&!d.retired&&!used.has(d.id));
 }
 /* REV49 — menus for a specific thing. Verb first, likeliest at the top, destructive at
    the bottom, and every item shows its key so the menu teaches the keyboard. */
@@ -7856,7 +7861,7 @@ function liveDeleteTodo(id){
 
 /* ---------- draft event / task editors on the left ---------- */
 function deptOptions(sel){
-  return '<option value="">No phase</option>'+DEPTS.map(d=>
+  return '<option value="">No phase</option>'+DEPTS.filter(d=>!d.retired||d.id===sel).map(d=>
     '<option value="'+d.id+'"'+(d.id===sel?' selected':'')+'>'+esc(d.name)+'</option>').join('');
 }
 function allPeople(){return PEOPLE.map(p=>p.name).sort((a,b)=>a.localeCompare(b));}
@@ -9910,23 +9915,32 @@ async function fbFetch(force){
   await spSite();
   const r=await gpageAll(listUrl(LIST_FEEDBACK)+'/items?expand=fields&$top=2000');
   const rows=r.map(it=>{const f=it.fields||{};return{
-    at:it.createdDateTime||f.Created||'',kind:f.kind||'bug',title:f.Title||'',
-    name:f.name||'',email:f.email||'',description:f.description||'',appVersion:f.appVersion||''};});
+    spId:it.id,at:it.createdDateTime||f.Created||'',kind:f.kind||'bug',title:f.Title||'',
+    name:f.name||'',email:f.email||'',description:f.description||'',appVersion:f.appVersion||'',
+    /* v1.20.1: `status` column — 'resolved' or empty/absent (= open), the staff-flag
+       tristate convention; a build older than the column just reads everything open */
+    status:String(f.status||'')};});
   rows.sort((a,b)=>a.at>b.at?-1:a.at<b.at?1:0);
   FB_CACHE=rows;FB_AT=Date.now();
   return rows;
 }
 /* The public Open Issues list: kind + a one-line summary + when. Deliberately vague —
    no names, no full descriptions; those live on the dev page and the email. */
+let FB_PAINT=0; /* a stale (slow/failed) fetch must never overpaint a newer one */
 function fbPaintList(force){
   const el=document.getElementById('fb-list');
   if(!el)return;
+  const gen=++FB_PAINT;
   if(!el.firstChild)el.innerHTML='<div class="clog-empty">Loading…</div>';
   fbFetch(force).then(rows=>{
     const el2=document.getElementById('fb-list');
-    if(!el2)return;
-    if(!rows.length){el2.innerHTML='<div class="clog-empty">Nothing filed yet — be the first.</div>';return;}
-    el2.innerHTML=rows.map(r=>{
+    if(!el2||gen!==FB_PAINT)return;
+    /* Open means open — resolved reports leave this list (they stay on the dev page). */
+    const open=rows.filter(r=>r.status!=='resolved');
+    if(!open.length){el2.innerHTML='<div class="clog-empty">'+(rows.length
+      ?'No open issues — everything filed has been resolved.'
+      :'Nothing filed yet — be the first.')+'</div>';return;}
+    el2.innerHTML=open.map(r=>{
       const t=String(r.title||'').replace(/^(Bug|Feature)\s+—\s+/,'');
       return '<div class="clog-row">'
         +'<span class="cd-perm" title="'+(r.kind==='bug'?'Bug report':'Feature request')+'">'+(r.kind==='bug'?'BUG':'IDEA')+'</span>'
@@ -9935,7 +9949,7 @@ function fbPaintList(force){
     }).join('');
   }).catch(()=>{
     const el2=document.getElementById('fb-list');
-    if(el2)el2.innerHTML='<div class="clog-empty">Couldn’t reach the ShopTimeline_Feedback list.</div>';
+    if(el2&&gen===FB_PAINT)el2.innerHTML='<div class="clog-empty">Couldn’t reach the ShopTimeline_Feedback list.</div>';
   });
 }
 /* The report form's HTML — the retired modal's body, verbatim ids so sendFeedback
@@ -9987,27 +10001,55 @@ function renderReports(){
     toast('The full reports page is developer-only.','err');
     location.hash='#/';return;
   }
-  helpPageShell('Bug Reports & Feature Requests','Every report in full — reporter, version, description. Developer view; the team sees the concise Open Issues list.',
+  helpPageShell('Bug Reports & Feature Requests','Every report in full — reporter, version, description, status. Developer view; the team sees the concise Open Issues list (open reports only).',
     '<div class="clog-list" id="fbr-list"><div class="clog-empty">Loading…</div></div>');
   fbFetch(true).then(rows=>{
     const el=document.getElementById('fbr-list');
     if(!el)return;
     if(!rows.length){el.innerHTML='<div class="clog-empty">Nothing filed yet.</div>';return;}
-    el.innerHTML=rows.map(r=>'<div class="clog-row">'
+    el.innerHTML=rows.map(r=>{
+      const res=r.status==='resolved';
+      return '<div class="clog-row'+(res?' fbr-res':'')+'">'
       +'<span class="clog-when">'+esc(clogWhen(r.at))+'</span>'
       +'<span class="cd-perm">'+(r.kind==='bug'?'BUG':'IDEA')+'</span>'
+      +(res?'<span class="cd-perm" title="Marked resolved — hidden from the public Open Issues list">RESOLVED</span>':'')
       +'<div class="clog-what"><b>'+esc(String(r.title||'').replace(/^(Bug|Feature)\s+—\s+/,''))+'</b>'
       +' <span class="clog-field">'+esc((r.name||'—')+(r.email?' <'+r.email+'>':'')+(r.appVersion?' · v'+r.appVersion:''))+'</span>'
       +(r.description?'<div class="clog-det">'+esc(r.description)+'</div>':'')
-      +'</div></div>').join('');
+      +'</div>'
+      +'<button class="btn btn-ghost fbr-tog" data-spid="'+esc(r.spId)+'" data-next="'+(res?'':'resolved')+'" '
+      +'title="'+(res?'Put it back on the Open Issues list':'Rows are never deleted — resolving hides it from the Open Issues list, it stays here')+'">'
+      +(res?'Reopen':'Mark resolved')+'</button></div>';
+    }).join('');
+    el.addEventListener('click',ev=>{
+      const b=ev.target&&ev.target.closest?ev.target.closest('.fbr-tog'):null;
+      if(b)fbSetStatus(b.dataset.spid,b.dataset.next,b);
+    });
   }).catch(()=>{
     const el=document.getElementById('fbr-list');
     if(el)el.innerHTML='<div class="clog-empty">Couldn’t reach the ShopTimeline_Feedback list.</div>';
   });
 }
+/* Flip one report's status on the list, then repaint. Never deletes a row. */
+async function fbSetStatus(spId,status,btn){
+  if(btn){btn.disabled=true;btn.textContent='Saving…';}
+  try{
+    await gfetch(listUrl(LIST_FEEDBACK)+'/items/'+spId+'/fields',{method:'PATCH',body:JSON.stringify({status:status})});
+    FB_AT=0; /* our write outdates the cache */
+    toast(status==='resolved'?'Marked resolved — it leaves the Open Issues list.':'Reopened.');
+    renderReports();
+  }catch(e){
+    console.warn(e);
+    if(btn){btn.disabled=false;btn.textContent=status==='resolved'?'Mark resolved':'Reopen';}
+    toast('Couldn’t save the status — has the `status` column been created on ShopTimeline_Feedback?','err');
+  }
+}
 /* ===== Help ▸ Release notes (v1.20.0) — plain-language, per version, newest first.
    Curated by hand: add an entry here with each release. ===== */
 const RELEASE_NOTES=[
+ {v:'1.20.1',d:'Sep 3, 2026',n:['Resolved reports leave the Open Issues list (they stay on the developer page, marked).',
+   'Technical Design no longer carries an “Other” bucket — it’s standalone, like Project Management.',
+   'The undo/redo arrows got their proper curved shape.']},
  {v:'1.20.0',d:'Sep 3, 2026',n:['Crew pickers only offer people from that phase’s department.',
    'Holidays are named on the calendar with a small pill, and the schedule already plans around them.',
    'Undo and redo everywhere: the ↩ ↪ toolbar buttons, Ctrl+Z / Ctrl+Y (⌘ on Mac).',
