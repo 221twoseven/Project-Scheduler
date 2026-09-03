@@ -1243,7 +1243,8 @@ these are the ones still open, plus new deferrals as they happen.
       ShopTimeline_Feedback); dev page shows a RESOLVED chip + Mark resolved/Reopen
       per row (PATCH, rows never deleted); resolved reports leave the public Open
       Issues list. Until the column exists, the first Mark-resolved errors with a
-      clear toast (the v1.15.2 rule) and everything reads open.**
+      clear toast (the v1.15.2 rule) and everything reads open. Column CREATED by
+      the owner 2026-09-03 — the feature is fully live.**
 - [ ] `othoffice` (Other · Technical Design) is RETIRED, not deleted (owner 09-03:
       TD is standalone like PM) — hidden from every picker (dept checklist, task
       modal, inspector dropdown, right-click spare-dept menu) but still renders
