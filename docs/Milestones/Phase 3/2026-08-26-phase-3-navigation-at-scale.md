@@ -3,7 +3,7 @@
 **What this is.** The complete third phase of the UX plan in
 `docs/Archive/UX-Audit-and-Strategy.md`, delivered from the owner's five task briefs
 (`Phase-3-Task-Briefs.md`, V1–V5) over 2026-08-25/26, REV 74→79 on `development`.
-One-file records for each task live in [`Phase 3/`](Phase%203/). Phase 1 fixed what
+One-file records for each task live in [`Phase 3/`](). Phase 1 fixed what
 things *do*, Phase 2 fixed what they *say at a glance* — Phase 3 makes the timeline
 navigable when the shop is actually busy: more projects, longer seasons, one screen.
 
@@ -43,15 +43,15 @@ back to that exact setup in one click, or zero on launch.
 
 | What | Screenshot |
 |---|---|
-| Zoom — Day | [after-b3-days.png](Phase%203/screenshots/after-b3-days.png) |
-| Zoom — 2-Day | [after-b3-day2.png](Phase%203/screenshots/after-b3-day2.png) |
-| Zoom — Week | [after-b3-week.png](Phase%203/screenshots/after-b3-week.png) |
-| Zoom — Month (a season, one screen) | [after-b3-month.png](Phase%203/screenshots/after-b3-month.png) |
-| Density — Comfortable (before) | [before-b5-rows.png](Phase%203/screenshots/before-b5-rows.png) |
-| Density — Compact (after) | [after-b5-compact.png](Phase%203/screenshots/after-b5-compact.png) |
-| Group "Caroline · 8" collapsed | [after-b5-collapsed.png](Phase%203/screenshots/after-b5-collapsed.png) |
-| Views menu open | [after-b6-views-menu.png](Phase%203/screenshots/after-b6-views-menu.png) |
-| A saved view applied, one click | [after-b6-view-applied.png](Phase%203/screenshots/after-b6-view-applied.png) |
+| Zoom — Day | [after-b3-days.png](screenshots/after-b3-days.png) |
+| Zoom — 2-Day | [after-b3-day2.png](screenshots/after-b3-day2.png) |
+| Zoom — Week | [after-b3-week.png](screenshots/after-b3-week.png) |
+| Zoom — Month (a season, one screen) | [after-b3-month.png](screenshots/after-b3-month.png) |
+| Density — Comfortable (before) | [before-b5-rows.png](screenshots/before-b5-rows.png) |
+| Density — Compact (after) | [after-b5-compact.png](screenshots/after-b5-compact.png) |
+| Group "Caroline · 8" collapsed | [after-b5-collapsed.png](screenshots/after-b5-collapsed.png) |
+| Views menu open | [after-b6-views-menu.png](screenshots/after-b6-views-menu.png) |
+| A saved view applied, one click | [after-b6-view-applied.png](screenshots/after-b6-view-applied.png) |
 
 **Tests.** Each task landed with its own suite (`test-b3-zoom`, `test-goto`,
 `test-b5`, `test-v4-views`) plus drift assertions in `test46`; the full `npm test`

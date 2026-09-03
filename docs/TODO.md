@@ -15,7 +15,7 @@ info generally: prompt for what's needed instead of parking the item.
 viewable at `/preview/` before a manual, deliberate merge to `main` (production).
 
 **Versioning (standing):** semantic versions from v1.0.1 (the REV101 build — see
-`docs/Milestones/2026-08-28-semver-switch.md`). Bump the **patch** for fixes, copy, and
+`docs/Milestones/V1-Wrap/2026-08-28-semver-switch.md`). Bump the **patch** for fixes, copy, and
 styling; the **minor** for feature drops; **v2.0.0 is reserved for the
 single-source-of-truth milestone** (§3 item 13) — the app becoming the company's one
 database is the breaking change the major number exists for. `APP_VER` in `index.html`
@@ -26,7 +26,7 @@ the whole `main...development` span surfaced 16 confirmed defects; **all 16 ship
 v1.18.1** (permission doors actually per-kind, staff-poll race closed, client/config
 retry parks, CD_EDIT exit leak, v1-era zoom migration, Everything-view client reset,
 nickname search, test-runner skip detector + mojibake repair — record:
-`docs/Milestones/2026-09-02-v1181-audit-fixes.md`). The one owner action from it is
+`docs/Milestones/V1-Releases/2026-09-02-v1181-audit-fixes.md`). The one owner action from it is
 **DONE — verified 2026-09-02 (late): `deploy-pages.yml` is byte-identical on `main`,
 `development`, and `sandbox`, and the latest Deploy Pages runs are green on both
 deploying branches (§7 entry closed).** `package.json` re-aligned
@@ -66,24 +66,24 @@ all ten shipped as **v1.6.1** (calendar-marker redraw, Saved Views rename + anch
 past projects sink, sidebar bottom-crop, Today-anchored smooth step zoom, lane
 summaries drop past work, shortcuts as a Help popover muted against the Legend,
 legend navigation entries removed, drag-zoom smoothing, bug-form radio fix).
-Record: `docs/Milestones/2026-08-31-v161-preview-polish.md`. The second review round
+Record: `docs/Milestones/V1-Releases/2026-08-31-v161-preview-polish.md`. The second review round
 (markers ✓, step zoom ✓, drag-zoom still juddery + three new asks) shipped as
 **v1.6.2**: same-frame header sync, project date-strip gesture parity, Summary·name
 for other people's plates, and the full-height Notes dock column. Record:
-`docs/Milestones/2026-08-31-v162-preview-polish-2.md`. The third round (2026-09-01:
+`docs/Milestones/V1-Releases/2026-08-31-v162-preview-polish-2.md`. The third round (2026-09-01:
 drag-zoom ✓, strip gesture ✓) shipped as **v1.6.4**: the Summary/Dashboard place
 follows the person into the Projects lens — the lens toggle hides whenever a person
 is on; only the dept reading stays flat (`dash-flat`). Record:
-`docs/Milestones/2026-09-01-v164-preview-polish-3.md`. Same day, the owner's live-data
+`docs/Milestones/V1-Releases/2026-09-01-v164-preview-polish-3.md`. Same day, the owner's live-data
 report ("legacy person IDs assigned, authenticated IDs not") shipped as **v1.6.5**:
 `canonName()` resolves legacy abbreviated crew/role strings ("Davis S.", bare first
 names) to roster people inside `barCrew()` — lanes merge, dashboards/filters find
 legacy work, overbooking stops skipping them; stored values untouched. Record:
-`docs/Milestones/2026-09-01-v165-legacy-person-ids.md`. The owner's follow-up on the
+`docs/Milestones/V1-Releases/2026-09-01-v165-legacy-person-ids.md`. The owner's follow-up on the
 Filters dropdown shipped as **v1.6.6**: the Person radios stay in the menu inside a
 Summary (switch or clear the person right there — the v1.2.2 hide reversed), and the
 status-scoped Show all / Clear all pair became one menu-wide **Show everything**
-reset. Record: `docs/Milestones/2026-09-01-v166-filter-dropdown.md`.
+reset. Record: `docs/Milestones/V1-Releases/2026-09-01-v166-filter-dropdown.md`.
 
 ---
 
@@ -122,7 +122,7 @@ The full story lives in the archive, `docs/Milestones/`, and `docs/Handoff-Notes
 - [x] **Stale "Settings" strings in the app — DONE 2026-08-28 (v1.0.2):** all five
       strings and the comment now say Resources (the Settings menu retired in
       REV95). Rode the quick-wins batch
-      (`docs/Milestones/Quick-Wins-v102/2026-08-28-v102-quick-wins.md`).
+      (`docs/Milestones/V1-Releases/Quick-Wins-v102/2026-08-28-v102-quick-wins.md`).
 - [ ] **Shared shop-terminal account — future `terminal` permission type.** Owner
       ruling 2026-09-02: a ways off — necessity gets established after rollout and
       real use proves it. The wiring can exist meanwhile, and partly already does
@@ -153,7 +153,7 @@ Owner's objective numbers in parentheses. Each batch: build on `development`, ve
       Gantt, project calendar — weekend cells take the month tint); Quiet keeps its
       full weekend treatment; the Day/2-Day header still marks weekends in both
       modes. Design-Language §2.4 updated; ceiling ledgered in §7. Record:
-      `docs/Milestones/Quick-Wins-v102/2026-08-28-v102-quick-wins.md`.
+      `docs/Milestones/V1-Releases/Quick-Wins-v102/2026-08-28-v102-quick-wins.md`.
 - [x] **2. (Obj 12) Black bar mellowed — DONE 2026-08-28 (v1.0.2),** read as the app
       toolbar (it hosts the TWOSEVEN title obj 10 targets): ink-black gradient →
       slate navy `#2A3850→#202C41`, secondary text lifted to ≥4.5:1, chrome-line
@@ -231,7 +231,7 @@ Owner's objective numbers in parentheses. Each batch: build on `development`, ve
       "My Dashboard" sidebar label, every assigned phase flat (collapsed sections
       ignored, carets hidden), and the summary dock trades its old breadcrumb/✕ for
       the REV99 collapse chevron persisted under its own key. Record:
-      `docs/Milestones/2026-08-31-v120-dashboard-view.md`. Suite:
+      `docs/Milestones/V1-Releases/2026-08-31-v120-dashboard-view.md`. Suite:
       `tests/test-v120.js` (+ test67/68 branched).
 
 ### Bug reporting (minor bump — one storage decision ⚠)
@@ -257,7 +257,7 @@ Owner's objective numbers in parentheses. Each batch: build on `development`, ve
       checkboxes manage both flags (last admin can't be demoted), and feedback
       reports mail every `feedbackRecipient` via Graph `sendMail` as the submitter
       on a dedicated `Mail.Send` silent token. Record:
-      `docs/Milestones/2026-09-01-v180-permissions.md`. Suite: `tests/test-v180.js`.
+      `docs/Milestones/V1-Releases/2026-09-01-v180-permissions.md`. Suite: `tests/test-v180.js`.
       **Rollout note: only Robert's row is flagged — everyone else becomes a viewer
       the moment this build reaches them; flag the admins on the People page (shared
       data — works from `/preview/` even while production runs older builds).**
@@ -391,7 +391,7 @@ rule §5); old data keeps reading fine.
       Company Data, save paths untouched. Suite `tests/test-v170.js` (39 checks);
       test66/69/70/90 branched on the `renderCompanyPage` marker. Design-Language
       §7.6 records the reusable pattern. Record:
-      `docs/Milestones/2026-09-01-v170-company-data.md`. Ceilings ledgered in §7
+      `docs/Milestones/V1-Releases/2026-09-01-v170-company-data.md`. Ceilings ledgered in §7
       (no per-record URLs; no lifecycle column yet; client selection keyed by name).
       Original scope below.
       The core move:
@@ -460,7 +460,7 @@ rule §5); old data keeps reading fine.
       "Department lens regroups everything by department." (owner wording — "crew"
       is out); **drag-zoom max out extended 3 months → 1 year** (`FIT_MAX` 91→365,
       both gestures; buttons still stop at 3-Mo). Record:
-      `docs/Milestones/2026-09-01-v172-quick-wins-and-scrub.md`. Suite:
+      `docs/Milestones/V1-Releases/2026-09-01-v172-quick-wins-and-scrub.md`. Suite:
       `tests/test-v172.js`.
 - [x] **29. (09-01 item 5) v1.6.5 legacy-name data scrub — GO given, SHIPPED
       2026-09-01 (v1.7.2)** as `scrubLegacyNames()`: console-run, dry-run by default
@@ -502,7 +502,7 @@ rule §5); old data keeps reading fine.
       dead). Fires the REV77 ledger gate. (2) **Sort-group headers = department
       section headers** — same bar/hover/ink/count chip; the status sort keeps its
       colored pill. Record:
-      `docs/Milestones/2026-09-01-v181-sidebar-headers-and-all-toggle.md`. Suite:
+      `docs/Milestones/V1-Releases/2026-09-01-v181-sidebar-headers-and-all-toggle.md`. Suite:
       `tests/test-v181.js`. Third item (owner, same evening): **the My Dashboard
       dock is drag-resizable like the project edit dock** — same grip pattern,
       `--medock-h` drives dock + `#main` together, persisted per browser, collapse
@@ -537,7 +537,7 @@ rule §5); old data keeps reading fine.
          page, `enterDash` walks the hash back to `#/` (applyRoute renders) instead
          of arming the dashboard behind the page on screen.
       Suite: `tests/test-v190.js` (41 checks — extended by v1.9.1). Record:
-      `docs/Milestones/2026-09-01-v190-owner-asks.md`.
+      `docs/Milestones/V1-Releases/2026-09-01-v190-owner-asks.md`.
       **v1.9.1 follow-up (2026-09-02, owner report from the Viewer toggle):** a
       viewer opening any project WITH a milestone/note got an empty schedule and
       unlocked dock fields — a LATENT v1.8.0 bug: viewer agenda rows render no
@@ -695,7 +695,7 @@ rule §5); old data keeps reading fine.
       DELETE before its task DELETEs, so a run dying mid-queue orphaned the
       children. Fix: DELETEs run after all upserts, children before the project —
       a mid-queue death now leaves a visibly incomplete project, never an orphan.
-      Record: `docs/Milestones/2026-09-02-v1183-child-first-deletes.md`. Suite:
+      Record: `docs/Milestones/V1-Releases/2026-09-02-v1183-child-first-deletes.md`. Suite:
       `tests/test-v1183.js`.
 
 - [ ] **13. (Obj 4) Reconcile and absorb the 14 disparate data stores.** The app

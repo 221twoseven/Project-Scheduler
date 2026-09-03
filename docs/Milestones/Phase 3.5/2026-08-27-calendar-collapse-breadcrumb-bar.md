@@ -15,8 +15,8 @@ is the collapse and the repaint-on-select. The Gantt's own expand state
 (`NPV_OPEN`, the ▸ toggle) is untouched — the calendar's expansion follows the
 selection, per the owner's wording.
 
-![Collapsed: one band per phase](Phase%203.5/screenshots/after-3-5-cal-collapse.png)
-![Clicked: the editor opens and the subtasks come into view](Phase%203.5/screenshots/after-3-5-cal-expand.png)
+![Collapsed: one band per phase](screenshots/after-3-5-cal-collapse.png)
+![Clicked: the editor opens and the subtasks come into view](screenshots/after-3-5-cal-expand.png)
 
 **The nav breadcrumb sits on its own bar.** On the project pages the breadcrumb
 trail (All Projects › project › phase) and the summary strip (client, job,
@@ -24,7 +24,7 @@ installs…) rendered as one unseparated blob. The trail now has its own bar wit
 a hairline below it, and the summary strip reads as its own band beneath —
 two CSS declarations, no markup change.
 
-![Breadcrumb bar above, summary strip below](Phase%203.5/screenshots/after-3-5-crumb-bar.png)
+![Breadcrumb bar above, summary strip below](screenshots/after-3-5-crumb-bar.png)
 
 **Tests.** New suite `tests/test84.js` (14 assertions, both pages per the REV49
 lesson): default collapse, the +N roster merge surviving it, click → selection +

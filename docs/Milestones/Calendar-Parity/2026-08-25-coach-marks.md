@@ -32,7 +32,7 @@ round was skipped for lack of team availability under the viable-product push.
 
 | First step — the project list | New Project step |
 |---|---|
-| ![tour step 1](screenshots/after-coach-tour-step1.png) | ![tour New Project step](screenshots/after-coach-tour-newproj.png) |
+| ![tour step 1](../screenshots/after-coach-tour-step1.png) | ![tour New Project step](../screenshots/after-coach-tour-newproj.png) |
 
 ## Tests
 

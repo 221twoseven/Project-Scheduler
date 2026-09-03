@@ -3,7 +3,7 @@
 **What this is.** The complete first phase of the UX plan in
 `docs/Archive/UX-Audit-and-Strategy.md`, delivered as eight task briefs
 (`docs/Archive/Phase-1-Task-Briefs.md`, T1–T8) over 2026-08-12/13, REV 50→52 on
-`development`. One-file records for each task live in [`Phase 1/`](Phase%201/).
+`development`. One-file records for each task live in [`Phase 1/`]().
 
 **What changed, in one pass each:**
 

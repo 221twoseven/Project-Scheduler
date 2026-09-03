@@ -26,7 +26,7 @@ into the app. Closes §3a N3.
 
 ## Evidence
 
-- ![Settings → Clients manager with the imported roster](screenshots/after-clients-manager.png)
+- ![Settings → Clients manager with the imported roster](../screenshots/after-clients-manager.png)
 
 ## Tests
 

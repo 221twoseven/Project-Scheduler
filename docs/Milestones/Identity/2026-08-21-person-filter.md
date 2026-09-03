@@ -28,9 +28,9 @@ Gantt to one person's work, in both lenses.
 
 ## Evidence
 
-- ![Departments lens, everyone](screenshots/after-person-filter-dept-everyone.png)
-- ![Departments lens filtered to Nick, menu open](screenshots/after-person-filter-dept-person.png)
-- ![Project lens filtered to Peter, projects expanded](screenshots/after-person-filter-proj-person.png)
+- ![Departments lens, everyone](../screenshots/after-person-filter-dept-everyone.png)
+- ![Departments lens filtered to Nick, menu open](../screenshots/after-person-filter-dept-person.png)
+- ![Project lens filtered to Peter, projects expanded](../screenshots/after-person-filter-proj-person.png)
 
 ## Tests
 

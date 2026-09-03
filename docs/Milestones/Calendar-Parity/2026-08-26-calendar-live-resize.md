@@ -14,7 +14,7 @@ is one CSS rule plus a class toggle on the existing `[data-d]` day cells; a
 `::after` overlay carries the tint because the cells' inline background shorthand
 and blend mode swallow class-level backgrounds and shadows.
 
-![Mid-drag: the snapped span tints live, the chip names the snapped edge](Phase%203.5/screenshots/after-3-5-cal-resize-tint.png)
+![Mid-drag: the snapped span tints live, the chip names the snapped edge](../Phase%203.5/screenshots/after-3-5-cal-resize-tint.png)
 
 **Coach-mark copy.** The tour's timeline step claimed "Red bars are installs —
 nothing else is ever red," but other red elements (the late chip, warnings) exist

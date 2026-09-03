@@ -34,8 +34,8 @@ now the board can be narrowed to one.
 
 ## Evidence
 
-![after — active filter chips](Native-Toolbar/screenshots/after-native-phase3-chips.png)
-![after — the Filters menu](Native-Toolbar/screenshots/after-native-phase3-menu.png)
+![after — active filter chips](screenshots/after-native-phase3-chips.png)
+![after — the Filters menu](screenshots/after-native-phase3-menu.png)
 
 ## Tests
 

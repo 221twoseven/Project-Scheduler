@@ -24,7 +24,7 @@ testers meet the finished behavior:
   A new card branch says why and points at Clear filters. `applyFilter()` now
   re-renders the card, so it tracks every keystroke without a full render.
 
-  ![Search that matches nothing](screenshots/after-search-empty-state.png)
+  ![Search that matches nothing](../screenshots/after-search-empty-state.png)
 - **Two-chip rows are now tested (T6).** No code change — the case (a row whose
   bars sit off both viewport edges at once) was implemented but never asserted.
   `test-b1.js` now drives a department lane straddling the viewport and checks

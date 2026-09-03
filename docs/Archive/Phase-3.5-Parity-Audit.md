@@ -30,9 +30,9 @@ owner picks from this list.
 - **Click behavior (§4): deferred** — to be addressed after the above.
 
 **Shipped so far:** I8, I13, I14, D7+D9, D8, and the keep-pile tooltip crew name
-landed 2026-08-26 as **REV81** (`docs/Milestones/2026-08-26-parity-quick-wins.md`).
+landed 2026-08-26 as **REV81** (`docs/Milestones/Phase 3.5/2026-08-26-parity-quick-wins.md`).
 **The inspector convergence (D1–D4, L1/L3/L4, I1–I7, I9–I12) shipped the same day as
-REV82** (`docs/Milestones/2026-08-26-inspector-convergence.md`) — draft selection is
+REV82** (`docs/Milestones/Phase 3.5/2026-08-26-inspector-convergence.md`) — draft selection is
 real, the popover is retired, the shared inspector serves both pages.
 
 **§4 closeout (verified 2026-08-26, REV83):** every §4 row turned out to be already

@@ -25,7 +25,7 @@ left is the button and breadcrumb that name it.
 
 ## Evidence
 
-- ![Departments lens filtered to Nick with the person panel below](screenshots/after-person-panel.png)
+- ![Departments lens filtered to Nick with the person panel below](../screenshots/after-person-panel.png)
 
 ## Tests
 

@@ -20,7 +20,7 @@ tail. It's now one breadcrumb trail with one visual logic:
 
 ## Evidence
 
-![Breadcrumb trail with the name field in Setup](2026-08-20-breadcrumb-trail/screenshots/after-breadcrumb-trail.png)
+![Breadcrumb trail with the name field in Setup](screenshots/after-breadcrumb-trail.png)
 
 ## Notes
 

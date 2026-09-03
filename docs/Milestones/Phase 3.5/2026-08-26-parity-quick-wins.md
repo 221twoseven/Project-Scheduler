@@ -45,7 +45,7 @@ hand-placed marker stays a draft-only affordance (the scheduler only exists as a
 layout assistant while composing a draft — it never moves a saved bar, so there is
 nothing for the marker to mean there).
 
-**Evidence.** [after-3-5-draft-pill.png](Phase%203.5/screenshots/after-3-5-draft-pill.png)
+**Evidence.** [after-3-5-draft-pill.png](screenshots/after-3-5-draft-pill.png)
 — a draft with the dashed **DRAFT** pill in the footer status slot (D7) and the
 "New project" chip up top. The Pin checkbox and refusal toasts are asserted in the
 suite below (headless captures don't hold a selection, so no screenshot).

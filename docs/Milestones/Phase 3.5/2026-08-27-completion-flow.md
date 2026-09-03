@@ -21,7 +21,7 @@ flips to a disabled "✓ Complete". Reopening is the Setup status dropdown's
 job — set it back to Automatic or any live status. Drafts have no button;
 nothing exists to complete.
 
-![The footer button on a late project](Phase%203.5/screenshots/after-3-5-complete-button.png)
+![The footer button on a late project](screenshots/after-3-5-complete-button.png)
 
 **The PM late-project prompt.** When the signed-in user (the REV66 identity
 chain: login email against the staff list, name second) is the Project Manager
@@ -32,7 +32,7 @@ verbs: **Open** (jump to the project to extend its schedule) and
 **Mark complete** (files right there, undo toast, row leaves the list — an
 empty list closes the prompt). **Later** dismisses until tomorrow.
 
-![The prompt over the timeline](Phase%203.5/screenshots/after-3-5-pm-late-prompt.png)
+![The prompt over the timeline](screenshots/after-3-5-pm-late-prompt.png)
 
 **Tests.** New suite `tests/test87.js` (15 assertions): identity resolution,
 the prompt's rows/actions/dismissal and the once-a-day key, the button's

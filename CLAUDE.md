@@ -108,7 +108,9 @@ The current infrastructure values (for reference — do not change without instr
 anything worth remembering later: bandwidth/performance passes, UX/design changes, a Teams
 integration, schema or auth changes, a notable refactor. Skip it only for trivial fixes.
 
-- One Markdown file per milestone, named `YYYY-MM-DD-short-slug.md`.
+- One Markdown file per milestone, named `YYYY-MM-DD-short-slug.md`, filed in the
+  era subfolder it belongs to — versioned releases go in `Milestones/V1-Releases/`;
+  see `docs/Milestones/README.md` for the map (2026-09-02 reorg).
 - Keep it plain-language and skimmable: what changed, why it mattered, the app REV(s), a
   pointer to the PR, and any known ceiling or follow-up. A non-developer should understand it.
 - Link any shareable artifact (explainer page, diagram) from the record.

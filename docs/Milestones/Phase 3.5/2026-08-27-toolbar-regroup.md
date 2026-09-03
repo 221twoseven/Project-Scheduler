@@ -33,8 +33,8 @@ click like the rest of its cluster.
 
 ## Evidence
 
-![before](Phase%203.5/screenshots/before-3-5-toolbar-regroup.png)
-![after](Phase%203.5/screenshots/after-3-5-toolbar-regroup.png)
+![before](screenshots/before-3-5-toolbar-regroup.png)
+![after](screenshots/after-3-5-toolbar-regroup.png)
 
 ## Tests
 

@@ -5,7 +5,7 @@ The complaint: two toolbars with competing/mixed categories — view styles, dat
 filters, and actions interleaved.*
 
 **DECIDED 2026-08-27: the owner picked Option A** — shipped the same day as
-REV88 (`docs/Milestones/2026-08-27-toolbar-regroup.md`); the grouping rule is
+REV88 (`docs/Milestones/Phase 3.5/2026-08-27-toolbar-regroup.md`); the grouping rule is
 now codified in Design-Language §2.6.
 
 ## What's there today

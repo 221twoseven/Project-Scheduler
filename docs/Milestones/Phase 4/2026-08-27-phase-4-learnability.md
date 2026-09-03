@@ -36,8 +36,8 @@ events restores from the undo snapshot; `tests/test89.js` §6 guards it.
 
 ## Evidence
 
-![empty state with the sample button](Phase%204/screenshots/after-4-empty-sample.png)
-![the timeline shortcut sheet](Phase%204/screenshots/after-4-shortcut-sheet.png)
+![empty state with the sample button](screenshots/after-4-empty-sample.png)
+![the timeline shortcut sheet](screenshots/after-4-shortcut-sheet.png)
 
 ## Tests
 

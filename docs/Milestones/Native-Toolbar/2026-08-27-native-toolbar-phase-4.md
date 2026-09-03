@@ -47,9 +47,9 @@ Project), **navigation** (My Dashboard), **commands** (Print), **resources**
 
 ## Evidence
 
-![after — app bar with Help menu](Native-Toolbar/screenshots/after-native-phase4-help.png)
-![after — app bar](Native-Toolbar/screenshots/after-native-phase4-appbar.png)
-![after — Legend folded into Help ▾ (REV96)](Native-Toolbar/screenshots/after-native-phase4-legend.png)
+![after — app bar with Help menu](screenshots/after-native-phase4-help.png)
+![after — app bar](screenshots/after-native-phase4-appbar.png)
+![after — Legend folded into Help ▾ (REV96)](screenshots/after-native-phase4-legend.png)
 
 ## Tests
 

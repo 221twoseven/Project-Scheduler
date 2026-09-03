@@ -4,7 +4,7 @@
 briefs, a run of higher-priority feature work and field-note fixes shipped on
 `development` — REV53 through REV64. None of it was in the Phase 1/2 briefs, so it's
 categorized here as **Phase 2.5**. One-file records for each REV live in
-[`Phase 2.5/`](Phase%202.5/); this page is the index. Carried by PR
+[`Phase 2.5/`](); this page is the index. Carried by PR
 [#15](https://github.com/221twoseven/Project-Scheduler/pull/15) (open, `development → main`).
 
 **The REVs, one line each:**

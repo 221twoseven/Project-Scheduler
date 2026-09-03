@@ -39,8 +39,8 @@ unaffected). Install crews keep their existing JSON-array format.
 
 ## Evidence
 
-- ![Department lens — crew lanes, implicit umbrellas, per-person conflicts, PTO hatch](2026-08-20-work-priority-crews/screenshots/after-deptlens-crew-lanes.png)
-- ![Project page — one row per subtask, shared crew](2026-08-20-work-priority-crews/screenshots/after-project-subtasks.png)
+- ![Department lens — crew lanes, implicit umbrellas, per-person conflicts, PTO hatch](screenshots/after-deptlens-crew-lanes.png)
+- ![Project page — one row per subtask, shared crew](screenshots/after-project-subtasks.png)
 
 ## Tests
 

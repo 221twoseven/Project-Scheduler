@@ -23,7 +23,7 @@ labeled way back. **§3 item 4 is done.**
 
 ## Evidence
 
-- ![The dashboard: My Dashboard button lit, Timeline › Nick trail, filtered Gantt + panel](screenshots/after-dashboard-button.png)
+- ![The dashboard: My Dashboard button lit, Timeline › Nick trail, filtered Gantt + panel](../screenshots/after-dashboard-button.png)
 
 ## Tests
 

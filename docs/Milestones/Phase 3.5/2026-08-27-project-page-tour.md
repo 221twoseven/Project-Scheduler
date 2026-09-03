@@ -16,7 +16,7 @@ target isn't on screen, so the draft sees a "Nothing is real yet" step on the
 Create button and the saved page sees an "Everything saves itself" step on the
 autosave note.
 
-![Step 3 of 6 — the schedule, spotlit on the saved page](Phase%203.5/screenshots/after-3-5-pp-tour.png)
+![Step 3 of 6 — the schedule, spotlit on the saved page](screenshots/after-3-5-pp-tour.png)
 
 **Deliberately NOT included:** a first-visit auto-run. The REV74 tour auto-runs
 once on a fresh browser; the project tour is Help-only for now — auto-running

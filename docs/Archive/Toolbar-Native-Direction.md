@@ -6,7 +6,7 @@ bespoke dashboard." Decisions below are locked; phases are the agreed steps.*
 
 **This supersedes the eyebrow-label approach.** The current toolbar is
 **Option A** of `Toolbar-Grouping-Proposal.md`, shipped the same day as REV88
-(`Milestones/2026-08-27-toolbar-regroup.md`) and codified in
+(`Milestones/Phase 3.5/2026-08-27-toolbar-regroup.md`) and codified in
 `Design-Language.md` §2.6. Option A's thesis was *expose the taxonomy with
 `Where`/`Style`/`Filter` eyebrow labels, keep everything visible*. This pass
 reverses that thesis: **hide the taxonomy, lean on familiar patterns.** So

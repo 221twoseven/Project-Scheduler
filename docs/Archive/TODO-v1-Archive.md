@@ -24,7 +24,7 @@ as REV88), Phase 4 shipped whole (REV89), and every §8/§9 loose end decided or
 (the shop-terminal licence question is the one item left open — a business call, not
 a code task). Earlier review note (2026-08-21): the REV53–64 run between UX Phases 2 and 3 is
 categorized as **Phase 2.5** (index:
-`docs/Milestones/2026-08-21-phase-2-5-feature-interlude.md`; records:
+`docs/Milestones/Phase 2.5/2026-08-21-phase-2-5-feature-interlude.md`; records:
 `docs/Milestones/Phase 2.5/`). This review reconciled every open item below against
 what Phase 2.5 actually shipped — N6/N7 closed by REV64, N8 re-renamed, N9 downgraded
 to a data-model decision, PR #15 now carries through REV64. The moves themselves are
@@ -61,7 +61,7 @@ logged in §10.
       now serves just `index.html` + `msal-browser.min.js` per subpath — `docs/`,
       `tests/`, `reference/` are no longer published as web pages. A guard step fails
       the deploy if the app references a file missing from the allowlist. See
-      `docs/Milestones/2026-08-19-pages-deploy-trim.md`.
+      `docs/Milestones/Foundations/2026-08-19-pages-deploy-trim.md`.
 - [x] **Sensitive info scrubbed from live docs** (2026-08-19): personal names → role
       wording, stale security-gap notes dropped, harness.js stub neutralized. Generic
       fixture first names in test data deliberately left (sample data; suites assert on
@@ -112,7 +112,7 @@ Roughly in build order:
       - [x] **Person filter on the home page** — DONE 2026-08-21 (REV65), beside the
         Status filter: limits the existing Gantt to one person in both lenses;
         the pick persists per browser. Suite: `tests/test65.js`. Record:
-        `docs/Milestones/2026-08-21-person-filter.md`.
+        `docs/Milestones/Identity/2026-08-21-person-filter.md`.
       - [x] **User identity** — DONE 2026-08-21 (REV66): signed-in email →
         `Staff.email`, fallback display-name match ("me" floats to the top of the
         person filter); People & Availability gained Email + Role fields; lens,
@@ -120,19 +120,19 @@ Roughly in build order:
         fallback is deferred to the dashboard button (that's where the explicit ask
         lives). Per-user *row order* deliberately not done — sortIndex is shared
         shop data; a private shadow order needs its own decision. Suite:
-        `tests/test66.js`. Record: `docs/Milestones/2026-08-21-identity-chain.md`.
+        `tests/test66.js`. Record: `docs/Milestones/Identity/2026-08-21-identity-chain.md`.
       - [x] **Person panel in Department view** — DONE 2026-08-21 (REV67): with the
         person filter active, a bottom dock (project-page inspector style) shows
         Working on / Checkpoints / Tasks / Time off plus role, departments and
         email, synced with People & Availability. Suite: `tests/test67.js`.
-        Record: `docs/Milestones/2026-08-21-person-panel.md` (ceilings: fixed
+        Record: `docs/Milestones/Identity/2026-08-21-person-panel.md` (ceilings: fixed
         height, events-only checkpoints, rows not clickable).
       - [x] **The "dashboard" IS that composition** — DONE 2026-08-21 (REV68):
         "My Dashboard" toolbar button enters it in one click ("me" via the identity
         chain, with a remembered ask-once picker as the last fallback); the panel
         header is a Timeline › name breadcrumb that unwinds to the home view in
         whichever lens was most recent. Suite: `tests/test68.js`. Record:
-        `docs/Milestones/2026-08-21-dashboard-button.md`.
+        `docs/Milestones/Identity/2026-08-21-dashboard-button.md`.
       **Item 4 complete (REV65–68).**
 - [x] **5b. People & Availability fed from MS Teams — DONE 2026-08-25 (REV70).**
       The Name field suggests from the company Team (group
@@ -141,7 +141,7 @@ Roughly in build order:
       roster. Membership is a menu, not a sync — only saved people join the app.
       `TeamMember.Read.All` consented 2026-08-25; it rides its own token request so
       failures degrade to free text. Suite: `tests/test70.js`. Record:
-      `docs/Milestones/2026-08-25-teams-picker.md`. **[decision, still open]** keep
+      `docs/Milestones/Identity/2026-08-25-teams-picker.md`. **[decision, still open]** keep
       People & Availability as a modal, or promote it to its own page — revisit if
       the roster outgrows the modal.
 - [x] **5. Project edit page — subtask/phase-bar behavior — DONE 2026-08-20 (REV56).**
@@ -160,14 +160,14 @@ Roughly in build order:
       clamp to the parent window, Link carries subtasks. The right-click menu's "Add a
       department" is renamed "Add a phase" (owner direction — the action creates a
       phase bar). Suite: `tests/test71.js`. Record:
-      `docs/Milestones/2026-08-25-calendar-drag-and-phase-wording.md`. Its ceilings
+      `docs/Milestones/Calendar-Parity/2026-08-25-calendar-drag-and-phase-wording.md`. Its ceilings
       (no edge-resize, inert marker bands) were closed the same day by item 7.
 - [x] **7. Calendar FULL parity — DONE 2026-08-25 (REV72).** Checkpoint/task bands
       got the Gantt diamonds' verbs (drag moves, click opens the agenda editor,
       right-click deletes); phase bands resize from edge handles (true-edge only,
       workday snap, Protect-dates/pin lock, nesting clamp, twins together); band hit
       areas padded to the 24px line. Suite: `tests/test72.js`. Record:
-      `docs/Milestones/2026-08-25-calendar-full-parity.md` — also records what parity
+      `docs/Milestones/Calendar-Parity/2026-08-25-calendar-full-parity.md` — also records what parity
       deliberately excludes (empty-state menu = a both-modes gap; "+N" click-picks
       first bar = the N16 density decision).
 - [x] **Decide: dependencies between bars — decided (owner, 2026-08-25): consciously
@@ -205,7 +205,7 @@ meantime without the doc (the notes reached the team through the owner directly)
 - **N14 — coach marks + help button** → **DONE 2026-08-25 (REV74),** pulled forward by
   owner decision when hallway round 2 was skipped: a Help button in the toolbar's top
   row runs a six-step spotlight tour, auto-running once for first-time users. Suite:
-  `tests/test74.js`. Record: `docs/Milestones/2026-08-25-coach-marks.md`.
+  `tests/test74.js`. Record: `docs/Milestones/Calendar-Parity/2026-08-25-coach-marks.md`.
 
 The ungated items shipped 2026-08-20 as **REV57** — one batch so hallway round 2 lands
 on a finished page. Suite: `tests/test57.js`; record:
@@ -249,7 +249,7 @@ Still open in this track (gated on decisions or schema):
       and one-off clients never break; the list is managed under **Settings →
       Clients** (add/edit/remove, aliases uppercased, dupes rejected), and an absent
       list degrades to browser-local with one warning on save. Suite:
-      `tests/test69.js`. Record: `docs/Milestones/2026-08-25-client-list.md`. **Unblocked 2026-08-21 — the list
+      `tests/test69.js`. Record: `docs/Milestones/Identity/2026-08-25-client-list.md`. **Unblocked 2026-08-21 — the list
       exists:** owner imported the Excel client master (see provenance below) with
       only the real data columns, **Client Name** + **Alias** (job-code suffix); the
       derived counter columns were culled at import (project counts get solved from
@@ -297,7 +297,7 @@ In order:
       [#23](https://github.com/221twoseven/Project-Scheduler/pull/23) carried
       **REV74–91** (Phase 3, all of Phase 3.5, Phase 4, and the 2026-08-27
       pre-merge audit pass — REV90 fixes + REV91 dead-code cleanup, see
-      `docs/Milestones/2026-08-27-pre-merge-audit-pass.md`) to production.
+      `docs/Milestones/V1-Wrap/2026-08-27-pre-merge-audit-pass.md`) to production.
 
 ## 5. Data / schema (⚠ all need approval — shared Lists)
 
@@ -326,7 +326,7 @@ In order:
 **Phase 3 is COMPLETE** (2026-08-25/26, REV75–79, briefs V1–V4 of the owner's
 `Phase-3-Task-Briefs.md`): B3 zoom steps + jump-to-date, B5 three density levels +
 group collapse, B6 named saved views. Record:
-`docs/Milestones/2026-08-26-phase-3-navigation-at-scale.md`; deferrals in §7.
+`docs/Milestones/Phase 3/2026-08-26-phase-3-navigation-at-scale.md`; deferrals in §7.
 **Phase 3.5 is COMPLETE** (2026-08-27, REV80–88) and **Phase 4 is COMPLETE**
 (2026-08-27, REV89) — the promotion hold is lifted; everything rides
 [PR #23](https://github.com/221twoseven/Project-Scheduler/pull/23) (see §4).
@@ -351,11 +351,11 @@ until this list is done (or the owner trims it). Grouped by surface;
       phase" is a silent no-op), deliberate differences flagged, convergence
       order recommended. **Owner decided rows 1–3 the same day** (decisions
       recorded in that doc); the quick wins shipped as **REV81**
-      (`docs/Milestones/2026-08-26-parity-quick-wins.md`): I8 bug fixed, I13
+      (`docs/Milestones/Phase 3.5/2026-08-26-parity-quick-wins.md`): I8 bug fixed, I13
       leak hygiene, I14 working Pin + refusal toasts, D7 Draft pill, D8
       Automatic-status option, D9 edit-debounced stash, tooltip crew name.
       **The inspector convergence shipped as REV82** the same day
-      (`docs/Milestones/2026-08-26-inspector-convergence.md`): draft selection
+      (`docs/Milestones/Phase 3.5/2026-08-26-inspector-convergence.md`): draft selection
       is real, the popover is retired, the shared bottom inspector serves both
       pages, all selection verbs + Link + ⌘Z work on drafts, saved reorder
       persists, and the saved page's silently-broken Notes field now saves.
@@ -372,7 +372,7 @@ until this list is done (or the owner trims it). Grouped by surface;
 
 - [x] **Scroll wheel over the project sidebar** — DONE 2026-08-26 (REV80): the
       sidebar forwards the wheel (both axes) to the Gantt scroller. Suite:
-      `tests/test80.js`. Record: `docs/Milestones/2026-08-26-global-view-polish.md`.
+      `tests/test80.js`. Record: `docs/Milestones/Phase 3.5/2026-08-26-global-view-polish.md`.
 - [x] **Date bar drag-to-pan** — DONE 2026-08-26 (REV80): the timeline header
       drags to pan; a 4px threshold keeps month-name clicks (goto popover)
       working. Suite/record: as above.
@@ -396,7 +396,7 @@ until this list is done (or the owner trims it). Grouped by surface;
       recommendation (A: recluster row 2 into Where / How-drawn / What-shown,
       surface Density out of Settings, Views to the row's edge).
       **DECIDED 2026-08-27: the owner picked Option A — shipped the same day as
-      REV88** (`docs/Milestones/2026-08-27-toolbar-regroup.md`): Where / Style /
+      REV88** (`docs/Milestones/Phase 3.5/2026-08-27-toolbar-regroup.md`): Where / Style /
       Filter clusters with eyebrow labels, Density surfaced as a one-click cycle
       button (the Settings item stays as an alias for a release, ledgered in
       §7), Views · Protect dates · ? at the right edge. The grouping rule is
@@ -411,12 +411,12 @@ until this list is done (or the owner trims it). Grouped by surface;
       (the +N roster merge intact); selection expands the phase's subtasks, and
       the click already opened the bottom editor (REV53/82). Suite:
       `tests/test84.js`. Record:
-      `docs/Milestones/2026-08-27-calendar-collapse-breadcrumb-bar.md`.
+      `docs/Milestones/Phase 3.5/2026-08-27-calendar-collapse-breadcrumb-bar.md`.
 - [x] **Drag-resize live feedback — DONE 2026-08-26 (REV83).** While an edge
       handle drags, the day columns the band will span after the workday snap
       tint live and clear on release; the snap itself is unchanged. Suite:
       `tests/test83.js`. Record:
-      `docs/Milestones/2026-08-26-calendar-live-resize.md`.
+      `docs/Milestones/Calendar-Parity/2026-08-26-calendar-live-resize.md`.
 
 **Project Edit / New Project pages:**
 
@@ -430,7 +430,7 @@ until this list is done (or the owner trims it). Grouped by surface;
       filter supplies the branch (draft → Create step, saved → autosave step).
       Help-only, no first-visit auto-run (ledgered in §7). Suite:
       `tests/test86.js`. Record:
-      `docs/Milestones/2026-08-27-project-page-tour.md`.
+      `docs/Milestones/Phase 3.5/2026-08-27-project-page-tour.md`.
 - [x] **Coach-mark copy: remove "Nothing else is red." — DONE 2026-08-26
       (REV83).** The tour step now ends at "Red bars are installs."; the legend
       screen's matching line was scoped to bars ("no other bar is ever red") —
@@ -444,7 +444,7 @@ until this list is done (or the owner trims it). Grouped by surface;
       **DECIDED 2026-08-27: add it — shipped as REV85** the same day: an × at
       the right edge of the breadcrumb bar (both pages), same action as
       Done/Esc. Suite: `tests/test85.js`. Record:
-      `docs/Milestones/2026-08-27-decisions-and-x-exit.md`.
+      `docs/Milestones/Phase 3.5/2026-08-27-decisions-and-x-exit.md`.
 
 **Completion flow:**
 
@@ -466,7 +466,7 @@ until this list is done (or the owner trims it). Grouped by surface;
       "✓ Complete" after; reopen via the Setup status dropdown) + the meta
       strip's overdue cell and late warning now respect a complete status.
       Suite: `tests/test87.js`. Record:
-      `docs/Milestones/2026-08-27-completion-flow.md`.
+      `docs/Milestones/Phase 3.5/2026-08-27-completion-flow.md`.
 - [x] **PM late-project prompt** — when a PM opens the app (identity
       authenticated), projects whose install dates have passed (reading
       "late") with a Project Manager assignment matching the signed-in user
@@ -480,7 +480,7 @@ until this list is done (or the owner trims it). Grouped by surface;
 **Phase 4 is what remains after 3.5**, rescoped at the phase-3 close against the fact that
 **coach marks (N14) shipped early as REV74**. **Owner go-ahead 2026-08-27 — all
 four SHIPPED the same day as REV89**
-(`docs/Milestones/2026-08-27-phase-4-learnability.md`, suite `tests/test89.js`).
+(`docs/Milestones/Phase 4/2026-08-27-phase-4-learnability.md`, suite `tests/test89.js`).
 **Phase 4 is COMPLETE**; only the strategy doc's optional 60-second explainer
 remains unbuilt, and stays optional.
 
@@ -511,7 +511,7 @@ section is the aggregate. Process-level skips (e.g. hallway round 2) are recorde
 where they were decided (§4/§6). None of these are bugs; none block users.
 
 **Phases 1–2** — the four unconditional items shipped 2026-08-25 as **REV73**
-(`docs/Milestones/2026-08-25-deferred-polish-pass.md`); the rest keep their
+(`docs/Milestones/Calendar-Parity/2026-08-25-deferred-polish-pass.md`); the rest keep their
 own "only if it proves needed" gates.
 
 - [x] Resize handle zones widen to 12px on bars narrower than 60px (T3) — REV73.
@@ -716,7 +716,7 @@ Phase 3 are categorized as **Phase 2.5**. Moves made:
   (`2026-08-20-breadcrumb-trail/`, `2026-08-20-work-priority-crews/`) — which also
   fixed those two records' image links, broken since they referenced a `screenshots/`
   folder that wasn't next to them.
-- **Added the index record** `docs/Milestones/2026-08-21-phase-2-5-feature-interlude.md`
+- **Added the index record** `docs/Milestones/Phase 2.5/2026-08-21-phase-2-5-feature-interlude.md`
   (same pattern as the Phase 1/2 summary records).
 - **Left at the Milestones root:** the 08-12 infra/perf records, the Phase 1/2 summary
   records, and `2026-08-19-pages-deploy-trim.md` (infrastructure, no app REV).

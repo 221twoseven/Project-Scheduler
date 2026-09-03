@@ -31,8 +31,8 @@ is the familiar pattern; the eyebrows were the opposite instinct.
 
 ## Evidence
 
-![before](Native-Toolbar/screenshots/before-native-phase1.png)
-![after](Native-Toolbar/screenshots/after-native-phase1.png)
+![before](screenshots/before-native-phase1.png)
+![after](screenshots/after-native-phase1.png)
 
 ## Tests
 

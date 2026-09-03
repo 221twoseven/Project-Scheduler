@@ -25,7 +25,7 @@ With this, **§3's feature work is complete.**
 
 ## Evidence
 
-- ![New person picked from the Team, email auto-filled](screenshots/after-teams-pick.png)
+- ![New person picked from the Team, email auto-filled](../screenshots/after-teams-pick.png)
 
 ## Tests
 

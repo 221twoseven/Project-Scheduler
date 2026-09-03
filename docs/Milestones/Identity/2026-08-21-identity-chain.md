@@ -25,8 +25,8 @@ REV65's person filter.
 
 ## Evidence
 
-- ![Person menu with "(me)" pinned](screenshots/after-identity-me-menu.png)
-- ![People & Availability with Email and Role fields](screenshots/after-identity-staff-modal.png)
+- ![Person menu with "(me)" pinned](../screenshots/after-identity-me-menu.png)
+- ![People & Availability with Email and Role fields](../screenshots/after-identity-staff-modal.png)
 
 ## Tests
 

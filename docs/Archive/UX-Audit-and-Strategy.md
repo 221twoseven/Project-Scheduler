@@ -172,13 +172,13 @@ Not part of this plan's briefs: between Phase 2's close and Phase 3's start, a r
 higher-priority feature work and field-note fixes shipped (calendar parity, standalone
 events, the subtask/crew model, the checkpoint editor). Records:
 `docs/Milestones/Phase 2.5/`, index
-`docs/Milestones/2026-08-21-phase-2-5-feature-interlude.md`; actionable state stays in
+`docs/Milestones/Phase 2.5/2026-08-21-phase-2-5-feature-interlude.md`; actionable state stays in
 `docs/TODO.md`.
 
 ### Phase 3 — Navigation at scale — COMPLETE 2026-08-26 (REV75–79)
 
 Delivered from the owner's task-brief pack (`Phase-3-Task-Briefs.md`, repo root, V1–V5).
-Phase record: `docs/Milestones/2026-08-26-phase-3-navigation-at-scale.md`; per-task
+Phase record: `docs/Milestones/Phase 3/2026-08-26-phase-3-navigation-at-scale.md`; per-task
 records in `docs/Milestones/Phase 3/`.
 
 1. **Zoom steps + jump-to-date** (B3) — shipped as REV75 (four steps Day / 2-Day /
@@ -236,7 +236,7 @@ Now small enough to be one session's work. Actionable state lives in
 `docs/TODO.md` §6; the optional explainer stays optional.
 
 **Phase 4 SHIPPED 2026-08-27 (REV89,
-`docs/Milestones/2026-08-27-phase-4-learnability.md`):** the hint bar dropped
+`docs/Milestones/Phase 4/2026-08-27-phase-4-learnability.md`):** the hint bar dropped
 (owner call, as recommended), the timeline `?` sheet, the sample project
 (browser-local, never synced), and the ⋯ hover cue. The optional 60-second
 explainer remains the only unbuilt idea, and stays optional.

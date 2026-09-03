@@ -36,8 +36,8 @@ the familiar desktop pattern and keeps the row legible.
 
 ## Evidence
 
-![after — row](Native-Toolbar/screenshots/after-native-phase2-row.png)
-![after — View menu open](Native-Toolbar/screenshots/after-native-phase2-viewmenu.png)
+![after — row](screenshots/after-native-phase2-row.png)
+![after — View menu open](screenshots/after-native-phase2-viewmenu.png)
 
 ## Tests
 

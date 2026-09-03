@@ -24,7 +24,7 @@ breadcrumb — same action as Done: back to all projects, and on a draft it
 leaves without creating (the autosaved stash still protects typed work against
 an accidental close). Same hover treatment as the app's other close buttons.
 
-![The × on the breadcrumb bar](Phase%203.5/screenshots/after-3-5-x-exit.png)
+![The × on the breadcrumb bar](screenshots/after-3-5-x-exit.png)
 
 **Tests.** New suite `tests/test85.js` (5 assertions, both pages): the × sits
 on the breadcrumb bar, exits the saved page, exits the draft without creating

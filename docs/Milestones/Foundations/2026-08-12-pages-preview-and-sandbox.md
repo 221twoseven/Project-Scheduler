@@ -22,7 +22,7 @@ three subpaths.
 
 **Safety.** The `sandbox` branch (and the collaborator's write access) can't reach
 production: `main` is protected and merging there needs the owner's approval. See
-[Onboarding-Fork.md](../Onboarding-Fork.md) for the collaborator flow.
+[Onboarding-Fork.md](../../Onboarding-Fork.md) for the collaborator flow.
 
 **Auth ceiling / follow-up.** Each subpath is a new origin to Entra, so sign-in on `/preview/`
 and `/sandbox/` only works after each URL is registered as a **SPA redirect URI** in the

@@ -33,8 +33,8 @@ to grab the timeline, and a button pressed into the bezel.
 
 | What | Screenshot |
 |---|---|
-| Before — ink labels on light bars, Today at the edge (REV79) | [before-3-5-white-text.png](Phase%203.5/screenshots/before-3-5-white-text.png) |
-| After — white labels on the darkened palette, Today padded (REV80) | [after-3-5-white-text.png](Phase%203.5/screenshots/after-3-5-white-text.png) |
+| Before — ink labels on light bars, Today at the edge (REV79) | [before-3-5-white-text.png](screenshots/before-3-5-white-text.png) |
+| After — white labels on the darkened palette, Today padded (REV80) | [after-3-5-white-text.png](screenshots/after-3-5-white-text.png) |
 
 **Tests.** New suite `tests/test80.js` (13 assertions: every identity/department/
 fallback fill labels white at ≥4.5:1 — independently recomputed; rendered bars carry
