@@ -1311,6 +1311,7 @@ body.cd-route #dash-bar{display:none!important}
         <div class="sm-item" id="mi-legend" title="What the colors, patterns and markers mean">Legend</div>
         <div class="sm-item" id="mi-report" title="File a bug or ask for a feature, and see what's already been reported — lands on SharePoint with your name attached">Report a bug or idea</div>
         <div class="sm-item" id="mi-relnotes" title="What changed in each version, in plain language">Release notes</div>
+        <div class="sm-item" id="mi-repo" title="Open the source code on GitHub in a new tab">Repository ↗</div>
         <div class="sm-item hidden" id="mi-appset" title="Developer switches — viewer permission grants and experimental features">App settings</div>
         <div class="sm-item hidden" id="mi-reports" title="Developer view — every bug report and feature request in full, as mailed">Bug reports (dev)</div>
         <div class="sm-note">Shop Timeline · v<span id="tb-rev-num"></span></div>
@@ -1574,7 +1575,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.20.4'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.20.5'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -10062,6 +10063,7 @@ async function fbSetStatus(spId,status,btn){
 /* ===== Help ▸ Release notes (v1.20.0) — plain-language, per version, newest first.
    Curated by hand: add an entry here with each release. ===== */
 const RELEASE_NOTES=[
+ {v:'1.20.5',d:'Sep 3, 2026',n:['Added a Repository link to the Help menu — opens the source code on GitHub.']},
  {v:'1.20.4',d:'Sep 3, 2026',n:['Tidied the Help menu — “Report a bug or idea” already shows the open issues, so the duplicate “Open issues” entry is gone.']},
  {v:'1.20.3',d:'Sep 3, 2026',n:['Undo/redo moved to the end of the top row, next to Help, and made a little smaller.',
    'Refreshed the browser-tab favicon.']},
@@ -10159,6 +10161,10 @@ async function sendFeedback(){
 document.getElementById('mi-report').addEventListener('click',openFeedback);
 document.getElementById('mi-relnotes').addEventListener('click',()=>{closeMenus();location.hash='#/releases';});
 document.getElementById('mi-reports').addEventListener('click',()=>{closeMenus();location.hash='#/reports';});
+/* v1.20.5: Repository link — opens the public GitHub repo in a new tab. Built with
+   window.open (NOT an anchor) so the Pages deploy's referenced-assets guard, which
+   greps index.html for quoted src/href attributes, never sees it (v1.13.1 rule). */
+document.getElementById('mi-repo').addEventListener('click',()=>{closeMenus();window.open('https://github.com/221twoseven/Project-Scheduler','_blank','noopener');});
 /* v1.20.4: the "Open issues" menu item is gone — "Report a bug or idea" already
    opens #/issues (the form beside the open-issue list). The #/issues route stays. */
 /* fb-send binds per render inside renderIssues — the form lives on the page now */
