@@ -61,6 +61,9 @@ button.tb-co{background:none;border:0;padding:0;cursor:pointer}
 .ico-s{width:12px;height:12px;flex:none;vertical-align:-2px}
 .t-btn:hover{background:rgba(255,255,255,.14);color:#fff}
 .t-btn.active{background:rgba(47,111,228,.32);border-color:rgba(96,150,240,.65);color:#fff}
+/* the developer view-as picker is a native select wearing the toolbar-button skin */
+#tb-viewas{appearance:none;-webkit-appearance:none;padding-right:24px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23ffffff' stroke-opacity='.6' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4.5 6 8 9.5 11.5 6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;background-size:10px}
+#tb-viewas option{color:#1E293B}
 .t-btn.accent{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:600}
 .t-btn.accent:hover{background:var(--acc-deep)}
 /* Native shell (Phase 1): standalone toolbar buttons sit flat — only New Project
@@ -312,6 +315,7 @@ body.compact .sb-chip{line-height:1.2;padding:.5px 6px}
 .rn-list{padding:6px 0}
 .rn-ver{padding:10px 22px;border-bottom:1px solid #EEF2F7}
 .rn-hd{display:flex;align-items:baseline;gap:10px;font-size:13px;color:#1E293B}
+.rn-hd .clog-when{width:auto} /* release-note dates are ranges ("Aug 19–21, 2026") — size to content, not the changelog's fixed column */
 .rn-notes{margin:6px 0 0;padding-left:18px;font-size:12.5px;color:#33415A;line-height:1.5}
 /* Holiday name pill — the TODAY-pill anatomy in the quiet weekend grey (§2.4). Sits
    centered on its day column at the top of the canvas, under the today line's z. */
@@ -1325,8 +1329,11 @@ body.cd-route #dash-bar{display:none!important}
     <button id="btn-undo" class="t-btn" title="Undo"><svg class="ico arw" viewBox="0 0 500 225" fill="currentColor" aria-hidden="true"><path d="M500,172.798l-48.253,16.08c-26.324-78.96-97.05-133.013-180.176-137.699-57.588-3.245-111.908,17.727-151.503,56.014l56.499,42.84L0,224.357,23.914,34.288l55.36,41.981c14.627-14.99,31.167-28.189,49.33-39.292C172.475,10.156,222.907-2.498,274.429.408c51.522,2.906,100.211,21.13,140.799,52.697,39.631,30.841,68.946,72.216,84.772,119.693Z"/></svg></button>
     <button id="btn-redo" class="t-btn" title="Redo"><svg class="ico arw" viewBox="0 0 500 225" fill="currentColor" aria-hidden="true"><path d="M0,172.798l48.253,16.08C74.577,109.918,145.303,55.866,228.429,51.18c57.588-3.245,111.908,17.727,151.503,56.014l-56.499,42.84,176.567,74.323-23.914-190.069-55.36,41.981c-14.627-14.99-31.167-28.189-49.33-39.292C327.525,10.156,277.093-2.498,225.571.408c-51.522,2.906-100.211,21.13-140.799,52.697C45.141,83.945,15.826,125.32,0,172.798Z"/></svg></button>
     <span class="tb-spacer"></span>
-    <button id="tb-devview" class="t-btn hidden" title="Developer preview — the label is the view you're in; click to switch between your admin view and the non-admin experience">Admin</button>
-    <button id="tb-notme" class="t-btn hidden" title="Developer preview — browse as if you were someone else: your own Summary shows exactly as other people see it (User Notes hidden, the Listening-to line visible)">Not me</button>
+    <select id="tb-viewas" class="t-btn hidden" aria-label="Preview the app as" title="Developer preview — see the app as one of three: yourself (Developer), a non-developer Admin, or a Non-admin. Only you see this control; it's remembered per tab.">
+      <option value="dev">View: Developer</option>
+      <option value="admin">View: Admin</option>
+      <option value="viewer">View: Non-admin</option>
+    </select>
     <span id="tb-user" class="hidden" title="Who you're signed in as"></span>
     <span id="tb-rev" title="App version — the build this tab is running">v</span>
     <span id="sync-pill" class="busy" title="Shows whether your changes are saved to SharePoint — click to retry after an error">● connecting…</span>
@@ -1575,7 +1582,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.20.5'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.20.6'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -1651,6 +1658,7 @@ const DEPTS=[
   {id:'othfinish', name:'Other (Finishing)', freeText:true, est:3, grp:'finish'},
   /* 5 · INSTALLATION */
   {id:'install',   name:'Installation',  est:2, grp:'install'},
+  {id:'shipping',  name:'Shipping',      est:2, grp:'install'}, /* v1.20.6: the other way a job ends — one or both */
   /* 6 · LOGISTICS — its own department (owner ask 09-02, v1.10.0) */
   {id:'logistics', name:'Logistics',     est:2, grp:'logi'},
 ];
@@ -1664,7 +1672,7 @@ const GROUPS=[
   {id:'metal',     label:'Metal Shop'},
   {id:'unit7',     label:'Unit 7'},
   {id:'finish',    label:'Finishing'},
-  {id:'install',   label:'Installation'},
+  {id:'install',   label:'Installation / Shipping'},
   {id:'logi',      label:'Logistics'},
 ];
 const grpDepts=g=>DEPTS.filter(d=>d.grp===g).map(d=>d.id);
@@ -1683,7 +1691,7 @@ const SECTIONS=[
   {kind:'dept', id:'metal'},
   {kind:'group',id:'unit7',  label:'Unit 7',              depts:grpDepts('unit7')},
   {kind:'group',id:'finishing',label:'Finishing',         depts:grpDepts('finish')},
-  {kind:'dept', id:'install'},
+  {kind:'group',id:'install',label:'Installation / Shipping',depts:grpDepts('install')},
   {kind:'dept', id:'logistics'},
 ];
 
@@ -1695,9 +1703,11 @@ const MONTH_HSL=[[214,40,57],[265,36,59],[145,40,46],[177,43,44],[25,66,54],[44,
    the mid-luminance dead zone §2.3 itself corrects. */
 const PCOLS=['#2B73CF','#BE531B','#268449','#9050C3','#148079','#936E12','#C04485',
              '#567693','#7A5AE0','#357C92','#A8642C','#5E7D34'];
-/* Red is reserved exclusively for installations */
+/* Red is reserved exclusively for installations and shipping — the two ways a job ends */
 const INSTALL_RED='#CE4242';
-function isInstall(t){return t.department==='install';}
+const isEndDept=id=>id==='install'||id==='shipping';
+function isInstall(t){return isEndDept(t.department);}
+const endName=id=>id==='shipping'?'Shipping':'Install';
 /* A bar's crew. Stored as an array (install), a JSON string (legacy install rows) or a
    comma-joined name list — the same convention roles use, so the shared SharePoint
    column stays readable in the colleague app. */
@@ -1718,7 +1728,7 @@ function phaseLabel(t){
 }
 function assigneeText(t){return [...new Set(crewOf(t).map(canonName))].map(dispName).join(', ')||(isInstall(t)?'Crew TBD':'');}
 /* Stable identity colors per department for "Team" color mode */
-const DEPT_COLORS={pm:'#567693',vinyl:'#D92871',othunit7:'#647590',td:'#9050C3',othoffice:'#637590',print:'#C04485',cnc:'#BE531B',beamsaw:'#936E12','3dprint':'#268449',laser:'#CE4242',other:'#63758F',fab:'#2B73CF',metal:'#8B5E3C',softgoods:'#C0487B',electrical:'#876511',othshop:'#6A7866',prefinish:'#2F7E8C',finish:'#148079',othfinish:'#657589',install:'#5A5DEC',logistics:'#4E7D5B'};
+const DEPT_COLORS={pm:'#567693',vinyl:'#D92871',othunit7:'#647590',td:'#9050C3',othoffice:'#637590',print:'#C04485',cnc:'#BE531B',beamsaw:'#936E12','3dprint':'#268449',laser:'#CE4242',other:'#63758F',fab:'#2B73CF',metal:'#8B5E3C',softgoods:'#C0487B',electrical:'#876511',othshop:'#6A7866',prefinish:'#2F7E8C',finish:'#148079',othfinish:'#657589',install:'#5A5DEC',shipping:'#5A5DEC',logistics:'#4E7D5B'};
 /* v1.4.0: TN_TARGETS retired — milestone names are plain text now (08-31 obj 3) */
 
 /* ===================== STATE ===================== */
@@ -1903,12 +1913,13 @@ function assigneeFor(p,deptId,otherLabels){
      project team (barCrew); crews are assigned per subtask, not per phase. */
   if(d&&d.roster)return '';
   if(d&&d.freeText)return (otherLabels&&otherLabels[deptId])||'Other';
+  if(d&&isEndDept(d.id))return []; /* crew array from day one (v1.20.6) — the legacy 'Installation' string crewOf() still tolerates */
   return d.name;
 }
 /* Phases chain backward from the deadline; departments inside a phase run in parallel.
    Shared by generateSchedule and scheduleNewDepts — one list, so they cannot drift. */
 const SCHED_PHASES=[
-  ['install'],
+  grpDepts('install'),
   grpDepts('finish'),
   [...grpDepts('shop'),...grpDepts('metal'),...grpDepts('unit7')],
   grpDepts('dfab'),
@@ -2017,8 +2028,8 @@ function _projStatus(p){
   if(p.status&&p.status!=='auto')return STATUS_MIGRATE[p.status]||p.status;
   const ts=ST.tasks.filter(t=>t.projectId===p.id);
   const t=today();
-  const inst=ts.find(x=>x.department==='install');
-  if(inst&&t>parseDate(inst.endDate))return 'complete';
+  const ends=ts.filter(isInstall).map(x=>parseDate(x.endDate).getTime());
+  if(ends.length&&t.getTime()>Math.max(...ends))return 'complete';
   const started=g=>{
     const m=ts.filter(x=>{const d=deptById(x.department);return d&&g.includes(d.grp);});
     return m.length&&t.getTime()>=Math.min(...m.map(x=>parseDate(x.startDate).getTime()));
@@ -2219,7 +2230,7 @@ function safeArr(s){if(Array.isArray(s))return s;try{const a=JSON.parse(s);retur
 function projToFields(p){const f={Title:p.name||'',client:p.client||'',jobCode:p.jobCode||'',deadline:p.deadline||null,status:p.status||'auto',projectManager:p.projectManager||'',drafter:p.drafter||'',leadFab:p.leadFab||'',fabricators:p.fabricators||'',metalFab:p.metalFab||'',activeDepartments:JSON.stringify(p.activeDepartments||[]),appId:p.id,createdAt:p.createdAt||null};if(p.sortIndex!=null)f.sortIndex=p.sortIndex;return f;}
 function fieldsToProj(f){return{id:f.appId,name:f.Title||'',client:f.client||'',jobCode:f.jobCode||'',deadline:isoDay(f.deadline),status:f.status||'auto',projectManager:f.projectManager||'',drafter:f.drafter||'',leadFab:f.leadFab||'',fabricators:f.fabricators||'',metalFab:f.metalFab||'',activeDepartments:safeArr(f.activeDepartments),sortIndex:f.sortIndex==null?null:Number(f.sortIndex),createdAt:isoDay(f.createdAt)};}
 function taskToFields(t){const d=deptById(t.department);return{Title:(d?d.name:t.department)||'Task',projectId:t.projectId,department:t.department,assignee:Array.isArray(t.assignee)?JSON.stringify(t.assignee):(t.assignee||''),startDate:t.startDate||null,endDate:t.endDate||null,estimatedDays:t.estimatedDays||1,ticketNodes:JSON.stringify(t.ticketNodes||[]),notes:t.notes||'',pinned:!!t.pinned,label:t.label||'',appId:t.id};}
-function fieldsToTask(f){const a=(f.department==='install'&&typeof f.assignee==='string'&&f.assignee.trim().startsWith('['))?safeArr(f.assignee):(f.assignee||'');return{id:f.appId,projectId:f.projectId,department:f.department,assignee:a,startDate:isoDay(f.startDate),endDate:isoDay(f.endDate),estimatedDays:Number(f.estimatedDays)||1,ticketNodes:safeArr(f.ticketNodes),notes:f.notes||'',pinned:!!f.pinned,label:f.label||''};}
+function fieldsToTask(f){const a=(isEndDept(f.department)&&typeof f.assignee==='string'&&f.assignee.trim().startsWith('['))?safeArr(f.assignee):(f.assignee||'');return{id:f.appId,projectId:f.projectId,department:f.department,assignee:a,startDate:isoDay(f.startDate),endDate:isoDay(f.endDate),estimatedDays:Number(f.estimatedDays)||1,ticketNodes:safeArr(f.ticketNodes),notes:f.notes||'',pinned:!!f.pinned,label:f.label||''};}
 /* v1.7.1: phone rides the person record (column created by the owner 2026-09-01). */
 /* v1.8.0 (§3 item 12): the admin / feedbackRecipient flags. A flag is TRISTATE on the
    person object: true/false once the row carries a column value, null when it never
@@ -2228,7 +2239,8 @@ function fieldsToTask(f){const a=(f.department==='install'&&typeof f.assignee===
    absent" (legacy: everyone admin) from "flag off". */
 function flagTruthy(v){return v===true||v===1||/^(1|yes|true)$/i.test(String(v||''));}
 /* v1.9.0: the admin column grows a third value — 'dev' marks a DEVELOPER: a full admin
-   who also gets the toolbar Viewer toggle (preview the app as a non-admin). The value
+   who also gets the toolbar view-as picker (preview the app as a non-dev admin or a
+   non-admin). The value
    is typed straight onto the list row by the owner; the People editor never writes it,
    but a People-page save must not clobber it — personToFields writes 'dev' back while
    the row stays admin, and drops it only on a deliberate admin demote. */
@@ -2737,16 +2749,21 @@ function meName(){
    carries Sites.ReadWrite.All (recorded honestly in the milestone doc; the same trust
    model the shared Lists have always had). */
 function permsLive(){return PEOPLE.some(p=>p.admin!=null||p.feedbackRecipient!=null);}
-/* v1.9.0 (owner ask): the developer's viewer preview. A row whose admin column reads
-   'dev' is a developer — a full admin whose toolbar gains the Viewer toggle next to
-   the version number. While the toggle is on (per tab), isAdmin() answers false, so
-   EVERY door the real viewer experience closes closes here too. */
-let DEV_VIEW=false;
-try{DEV_VIEW=sessionStorage.getItem('shopTimelineDevView')==='1';}catch(e){}
-let DEV_LOCK0=null; /* DATE_LOCK as it stood when the preview switched on — restored on exit, since applyPerms only ever forces it ON for viewers */
+/* Developer preview axis (per tab): 'dev' = yourself, 'admin' = a non-developer admin,
+   'viewer' = a non-admin. One toolbar control (#tb-viewas), developers only. Replaces
+   the old DEV_VIEW/DEV_NOTME booleans (v1.9.0/v1.14.0) — the three states they could
+   express collapse to this one enum, and the impossible fourth combo is gone. */
+let VIEW_AS='dev';
+try{const v=sessionStorage.getItem('shopTimelineViewAs');if(v==='admin'||v==='viewer')VIEW_AS=v;}catch(e){}
+let DEV_LOCK0=null; /* DATE_LOCK as it stood when the viewer preview switched on — restored on exit, since applyPerms only ever forces it ON for viewers */
 function isDeveloper(){const me=meName();const p=me?personByName(me):null;return !!(p&&p.developer);}
+/* "Presenting as a developer right now" — a developer whose dev-only chrome (Help ▸
+   App settings / Bug reports, the developer demo-tour) should show. Only the plain
+   Developer view shows it; both previews (admin/viewer) read as a non-dev. The picker
+   itself stays on raw isDeveloper() so the developer can always switch back. */
+function devUI(){return isDeveloper()&&VIEW_AS==='dev';}
 function isAdmin(){
-  if(DEV_VIEW&&isDeveloper())return false; /* previewing the non-admin experience */
+  if(isDeveloper()&&VIEW_AS==='viewer')return false; /* previewing the non-admin experience */
   if(!PEOPLE.length||PEOPLE.every(p=>p.admin==null))return true;
   const me=meName();const p=me?personByName(me):null;
   return !!(p&&p.admin);
@@ -2829,17 +2846,15 @@ function viewerLock(box,kind){
 function applyPerms(){
   const v=isViewer();
   document.body.classList.toggle('viewer',v);
-  /* v1.9.0: the Viewer toggle lives on every route's toolbar, developers only. */
-  {const dv=document.getElementById('tb-devview');
-   if(dv){dv.classList.toggle('hidden',!isDeveloper());dv.classList.toggle('active',DEV_VIEW&&isDeveloper());
-     /* v1.18.0 (owner): the label reads as the view you're IN — Admin by default */
-     dv.textContent=(DEV_VIEW&&isDeveloper())?'Non-admin':'Admin';}}
-  /* v1.14.0: the "Not me" identity preview rides the same developer gate. */
-  {const nm=document.getElementById('tb-notme');
-   if(nm){nm.classList.toggle('hidden',!isDeveloper());nm.classList.toggle('active',DEV_NOTME&&isDeveloper());}}
+  /* The view-as picker lives on every route's toolbar, developers only. Its value is
+     the view you're IN; it lights while previewing as someone else. */
+  {const vs=document.getElementById('tb-viewas');
+   if(vs){vs.classList.toggle('hidden',!isDeveloper());
+     vs.classList.toggle('active',isDeveloper()&&VIEW_AS!=='dev');
+     if(vs.value!==VIEW_AS)vs.value=VIEW_AS;}}
   /* v1.10.0 (owner ask 09-02): the signed-in name next to the status pill, with a
      DEV / ADMIN chip. The chip reads the account's REAL access — it doesn't flip
-     while the Viewer preview is on (the lit Viewer button already says that). */
+     while a preview is on (the lit view-as picker already says that). */
   {const tu=document.getElementById('tb-user');
    if(tu){
      const nm=meName()||(ACCOUNT?ACCOUNT.name:'');
@@ -2856,9 +2871,10 @@ function applyPerms(){
   for(const m of CFG_META)if(m[0].indexOf('viewer.')===0)
     document.body.classList.toggle('vg-'+m[0].slice(7),v&&!!CFG[m[0]]);
   /* v1.11.0: Help ▸ App settings — developers only. v1.18.0: the Non-admin preview
-     hides it too (owner: the menus must read exactly as a non-dev sees them). */
-  {const mi=document.getElementById('mi-appset');if(mi)mi.classList.toggle('hidden',!isDeveloper()||DEV_VIEW);}
-  {const mi=document.getElementById('mi-reports');if(mi)mi.classList.toggle('hidden',!isDeveloper()||DEV_VIEW);} /* v1.20.0: dev-only full reports page */
+     hides it too (owner: the menus must read exactly as a non-dev sees them); both
+     previews now route through devUI(). */
+  {const mi=document.getElementById('mi-appset');if(mi)mi.classList.toggle('hidden',!devUI());}
+  {const mi=document.getElementById('mi-reports');if(mi)mi.classList.toggle('hidden',!devUI());} /* v1.20.0: dev-only full reports page */
   if(v&&!vcan('phases')&&!DATE_LOCK){ /* Lock Dates on by default and the toggle hidden (owner spec); the phases grant hands the toggle back */
     DATE_LOCK=true;
     const ck=document.getElementById('lock-ck');if(ck)ck.checked=true;
@@ -3280,13 +3296,11 @@ function dashOn(){return !!PERSON&&!(typeof ROUTE!=='undefined'&&ROUTE&&ROUTE.vi
 /* v1.6.2: the same view serves two readings — MY dashboard when the person is the
    signed-in identity, and a plain workload summary when it's someone else. Mechanics
    are identical; only the naming and the toolbar button's lit state differ. */
-/* v1.14.0 (owner): the developer's "Not me" preview — while on, your own summary
-   reads as ANOTHER person's Summary (dashSelf answers false), so the dev can see
-   what everyone else sees. Per-tab, like the Viewer toggle; identity/permissions
-   stay yours — only the self-reading flips. */
-let DEV_NOTME=false;
-try{DEV_NOTME=sessionStorage.getItem('shopTimelineDevNotMe')==='1';}catch(e){}
-function dashSelf(){return dashOn()&&!(DEV_NOTME&&isDeveloper())&&PERSON===(meName()||rememberedMe());}
+/* Your own person page reads as "My Dashboard" only when you're viewing as yourself.
+   In either preview (admin/viewer) it reads as a plain Summary — the way everyone else
+   sees your page (User Notes hidden, the Listening-to line visible). Per tab; identity
+   and the DEV badge stay yours — only the presentation flips. See VIEW_AS. */
+function dashSelf(){return dashOn()&&!(isDeveloper()&&VIEW_AS!=='dev')&&PERSON===(meName()||rememberedMe());}
 function renderDashBar(){
   const on=dashOn();
   document.body.classList.toggle('dash-on',on);
@@ -4038,9 +4052,9 @@ function makeTaskBar(t,row,lane,labelMode){
     lbl.dataset.base=String(lblBase);lbl.dataset.min=String(LBL_MIN_TASK);
     lbl.style.left=labelLeftFor(x,w,lblBase,LBL_MIN_TASK)+'px';
     lbl.style.right=(t.pinned?18:7)+'px';
-    if(t.__ghost)lbl.textContent=(isInstall(t)?'Install':phaseLabel(t))+' · '+(p?p.name:'?');
+    if(t.__ghost)lbl.textContent=(isInstall(t)?endName(t.department):phaseLabel(t))+' · '+(p?p.name:'?');
     else if(labelMode==='proj')lbl.textContent=p?p.name+(p.jobCode?' · '+p.jobCode:''):'?';
-    else if(isInstall(t))lbl.textContent='Install — '+assigneeText(t);
+    else if(isInstall(t))lbl.textContent=endName(t.department)+' — '+assigneeText(t);
     else lbl.textContent=phaseLabel(t);
     bar.appendChild(lbl);
   }
@@ -4175,7 +4189,7 @@ document.addEventListener('mouseup',ev=>{
       updated.startDate=fmtDate(addDays(parseDate(oStart),dd));
       updated.endDate=fmtDate(addDays(parseDate(oEnd),dd));
     }
-    if(LENS==='dept'&&targetRow&&targetRow.kind==='deptLane'&&targetRow.key!==row.key&&!isInstall(t)&&targetRow.dept!=='install'){
+    if(LENS==='dept'&&targetRow&&targetRow.kind==='deptLane'&&targetRow.key!==row.key&&!isInstall(t)&&!isEndDept(targetRow.dept)){
       updated.department=targetRow.dept;
       updated.assignee=targetRow.assignee;
     }
@@ -4283,8 +4297,8 @@ function tmAssigneeUI(deptId,current){
   sel.classList.add('hidden');txt.classList.add('hidden');crew.classList.remove('hidden');
   const p=projById(document.getElementById('tm-project').value);
   let checked=crewOf({assignee:current}).map(canonName).filter(n=>personByName(n));
-  if(deptId==='install'){
-    lbl.textContent='Install Crew — pick from full staff';
+  if(isEndDept(deptId)){
+    lbl.textContent=endName(deptId)+' Crew — pick from full staff';
     if(!checked.length&&p)checked=[...new Set([...roleList(p.projectManager),...roleList(p.leadFab)].map(canonName))];
     buildCrewList(checked);
     return;
@@ -4299,7 +4313,7 @@ function tmAssigneeValue(){
   const d=deptById(dept);
   if(d&&d.freeText)return document.getElementById('tm-assignee-txt').value.trim()||'Other';
   const names=[...document.querySelectorAll('#tm-crew input:checked')].map(c=>c.value);
-  return dept==='install'?names:names.join(', ');
+  return isEndDept(dept)?names:names.join(', ');
 }
 function renderTnList(){
   const box=document.getElementById('tm-tnlist');
@@ -4355,7 +4369,7 @@ function openTaskModal(taskId,prefill){
   const tov=document.getElementById('task-overlay');
   tov.classList.remove('hidden');
   /* viewerLock disables fields but nothing un-disables them — a grant flipped mid-session
-     (the dev Viewer toggle) left the modal locked on its next open. Reset, then lock. */
+     (the dev view-as picker) left the modal locked on its next open. Reset, then lock. */
   tov.querySelectorAll('input,select,textarea').forEach(el=>{el.disabled=false;el.removeAttribute('tabindex');});
   viewerLock(tov,'phases'); /* v1.8.0: visible, locked. The phase's own fields follow the PHASES door; only the Milestones block (data-vk) rides the subtasks grant — the whole-box 'subtasks' kind let that grant move dates and delete phases */
   TM_SNAP=tmSnap();
@@ -4424,7 +4438,7 @@ document.getElementById('tm-del').addEventListener('click',()=>{
    machine-level Digital Fab depts read as ONE "DFAB", Pre-Finishing + Painting as
    ONE "Finishing". pdCanon folds legacy stored ids into the canonical people ids;
    PHASE departments (DEPTS) are untouched — shared task rows keep their ids. */
-const PD_ALIAS={cnc:'dfab',beamsaw:'dfab','3dprint':'dfab',laser:'dfab',print:'dfab',prefinish:'finish'};
+const PD_ALIAS={shipping:'install',cnc:'dfab',beamsaw:'dfab','3dprint':'dfab',laser:'dfab',print:'dfab',prefinish:'finish'};
 const pdCanon=id=>PD_ALIAS[id]||id;
 /* People tagged with a phase's department (person depts are the coarse pdCanon ids).
    Empty when nobody carries the tag — callers fall back to their old, wider pool. */
@@ -5868,7 +5882,7 @@ function commitPhase(id,field,val){
     if(t.id!==id)return t;
     const n={...t};
     if(field==='assignee'){
-      n.assignee=(t.department==='install')?String(val||'').split(',').map(x=>x.trim()).filter(Boolean):val;
+      n.assignee=isInstall(t)?String(val||'').split(',').map(x=>x.trim()).filter(Boolean):val;
     }else if(field==='startDate'){
       if(!val)return t;
       n.startDate=val;if(n.endDate&&n.endDate<val)n.endDate=val;
@@ -6104,8 +6118,8 @@ function ppInspector(){
        umbrella is implicitly covered by the project team. */
     if(!(d.freeText)){
       const crew=crewOf(sel);
-      const dp=sel.department==='install'?[]:deptPeople(sel.department);
-      const pool=dp.length?dp:(sel.department==='install'?allPeople():(projTeam(p).length?projTeam(p):allPeople()));
+      const dp=isInstall(sel)?[]:deptPeople(sel.department);
+      const pool=dp.length?dp:(isInstall(sel)?allPeople():(projTeam(p).length?projTeam(p):allPeople()));
       f+='<div class="ins-f"><label>Crew</label><div class="crew-list ins-crew" id="ins-crew">'
        + [...new Set([...pool,...crew])].map(n=>'<label><input type="checkbox" value="'+esc(n)+'"'
          +(crew.indexOf(n)>=0?' checked':'')+'>'+esc(n)+'</label>').join('')
@@ -6968,7 +6982,7 @@ function npvCreateSubtask(dept,date,newDept,name,popAt){
   let end=npvEndAfter(date,days);
   if(nested&&end>sib.endDate)end=sib.endDate;
   const t={id:genId(),projectId:p.id,department:dept,
-    assignee:(dept==='install'?[]:(sib?sib.assignee:'')),
+    assignee:(isEndDept(dept)?[]:(sib?sib.assignee:'')),
     startDate:date,endDate:end,estimatedDays:wdCount(parseDate(date),parseDate(end)),
     ticketNodes:[],notes:'',pinned:false,
     label:(name&&name.trim())||(kids.length?'Subtask '+(kids.length+1):'')};
@@ -8360,7 +8374,7 @@ function npvPopPhaseHTML(sel){
    +'>'+deptOptions(sel.department)+'</select></div>';
   if(!d.freeText){
     const crew=crewOf(sel);
-    const pool=sel.department==='install'?allPeople():(projTeam(p).length?projTeam(p):allPeople());
+    const pool=isInstall(sel)?allPeople():(projTeam(p).length?projTeam(p):allPeople());
     h+='<div class="ins-f"><label>Crew</label><div class="crew-list ins-crew" data-pop-crew>'
      +[...new Set([...pool,...crew])].map(n=>'<label><input type="checkbox" value="'+esc(n)+'"'
        +(crew.indexOf(n)>=0?' checked':'')+'>'+esc(dispName(n))+'</label>').join('') /* v1.19.2: display nickname, store full name */
@@ -9423,9 +9437,9 @@ function buildLegend(){
       if(st==='estimating')inner='<span class="bar-stripe"></span>'+inner;
       return row(st==='forecast'?fbar(inner):bar(st,inner),NOTE[st]);
     }).join('')
-    +'<div class="lg-sec">Installation</div>'
+    +'<div class="lg-sec">Installation / Shipping</div>'
     +row('<span class="job-bar lg-bar" style="background-color:'+INSTALL_RED+';color:'+labelColor(INSTALL_RED)+'"></span>',
-      'Red bars are installs — no other bar is ever red')
+      'Red bars are installs or shipping — no other bar is ever red')
     +'<div class="lg-sec">People chips</div>'
     +row(bar('','<span class="role-tag">PM</span><span class="role-tag">D</span><span class="role-tag">F</span>'),
       'Project manager · Drafter · Lead fabricator')
@@ -9575,23 +9589,20 @@ document.getElementById('btn-dash').addEventListener('click',ev=>{
   const open=m.classList.contains('hidden');closeMenus();if(open)m.classList.remove('hidden');
 });
 document.getElementById('dash-menu').addEventListener('click',ev=>ev.stopPropagation());
-/* v1.9.0: the developer's Viewer toggle — per tab, remembered across reloads in this
-   tab only. DATE_LOCK is restored on exit because applyPerms only forces it ON. */
-document.getElementById('tb-devview').addEventListener('click',()=>{
-  DEV_VIEW=!DEV_VIEW;
-  try{sessionStorage.setItem('shopTimelineDevView',DEV_VIEW?'1':'0');}catch(e){}
-  if(DEV_VIEW)DEV_LOCK0=DATE_LOCK;
-  else if(DEV_LOCK0!=null){DATE_LOCK=DEV_LOCK0;DEV_LOCK0=null;
+/* The developer's view-as picker — one axis, three views, remembered per tab.
+   Entering/leaving the non-admin view saves & restores your real Lock-Dates state
+   (applyPerms only ever forces it ON for viewers). */
+document.getElementById('tb-viewas').addEventListener('change',e=>{
+  const wasViewer=(VIEW_AS==='viewer'),v=e.target.value;
+  VIEW_AS=(v==='admin'||v==='viewer')?v:'dev';
+  try{sessionStorage.setItem('shopTimelineViewAs',VIEW_AS);}catch(err){}
+  const nowViewer=(VIEW_AS==='viewer');
+  if(nowViewer&&!wasViewer)DEV_LOCK0=DATE_LOCK;
+  else if(!nowViewer&&wasViewer&&DEV_LOCK0!=null){DATE_LOCK=DEV_LOCK0;DEV_LOCK0=null;
     const ck=document.getElementById('lock-ck');if(ck)ck.checked=DATE_LOCK;}
-  toast(DEV_VIEW?'Previewing as a non-admin — every edit door is closed. Click Non-admin to return.':'Back to your admin view.');
-  render();
-});
-/* v1.14.0: the "Not me" preview — flips only dashSelf(), so your Summary renders
-   the way it does for everyone else (per tab, like the Viewer toggle). */
-document.getElementById('tb-notme').addEventListener('click',()=>{
-  DEV_NOTME=!DEV_NOTME;
-  try{sessionStorage.setItem('shopTimelineDevNotMe',DEV_NOTME?'1':'0');}catch(e){}
-  toast(DEV_NOTME?'Browsing as someone else — your own Summary now reads the way others see it. Click Not me again to return.':'Back to being yourself.');
+  toast(VIEW_AS==='dev'?'Back to your developer view.'
+    :VIEW_AS==='admin'?'Previewing as a non-developer admin — dev-only tools hidden, your Summary reads as others see it.'
+    :'Previewing as a non-admin — every edit door closed, dev-only tools hidden, your Summary reads as others see it.');
   render();
 });
 /* v1.2.0 (obj 1): the dashboard bar's two exits — the crumb and the × — both unwind
@@ -9866,8 +9877,9 @@ document.addEventListener('keydown',ev=>{
 document.getElementById('mi-tour').addEventListener('click',()=>{
   /* a developer already ON a project page skips the slides — mid-demo restarts
      shouldn't replay the preamble over the project tour. v1.18.0: the Non-admin
-     preview gets the plain tour too (the view must read exactly as others see it). */
-  if(isDeveloper()&&!DEV_VIEW&&ROUTE.view!=='project'){demoStart();return;}
+     preview gets the plain tour too (the view must read exactly as others see it);
+     devUI() folds both previews. */
+  if(devUI()&&ROUTE.view!=='project'){demoStart();return;}
   tourStart();
 });
 /* v1.6.1: keyboard shortcuts are a Help popover like the Legend — same tb-menu
@@ -10061,43 +10073,69 @@ async function fbSetStatus(spId,status,btn){
   }
 }
 /* ===== Help ▸ Release notes (v1.20.0) — plain-language, per version, newest first.
-   Curated by hand: add an entry here with each release. ===== */
+   GENERATED from CHANGELOG.md by tools/gen-release-notes.js (`npm run notes`) — the
+   block between the markers is overwritten on every run; add lines to CHANGELOG.md,
+   never here. test-v160 fails CI if the newest entry doesn't name APP_VER or the
+   block drifts from the changelog. ===== */
+/* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
- {v:'1.20.5',d:'Sep 3, 2026',n:['Added a Repository link to the Help menu — opens the source code on GitHub.']},
- {v:'1.20.4',d:'Sep 3, 2026',n:['Tidied the Help menu — “Report a bug or idea” already shows the open issues, so the duplicate “Open issues” entry is gone.']},
- {v:'1.20.3',d:'Sep 3, 2026',n:['Undo/redo moved to the end of the top row, next to Help, and made a little smaller.',
-   'Refreshed the browser-tab favicon.']},
- {v:'1.20.2',d:'Sep 3, 2026',n:['The undo/redo arrows are now the TWOSEVEN brand swoosh.',
-   'The browser tab got the company favicon.']},
- {v:'1.20.1',d:'Sep 3, 2026',n:['Resolved reports leave the Open Issues list (they stay on the developer page, marked).',
-   'Technical Design no longer carries an “Other” bucket — it’s standalone, like Project Management.',
-   'The undo/redo arrows got their proper curved shape.']},
- {v:'1.20.0',d:'Sep 3, 2026',n:['Crew pickers only offer people from that phase’s department.',
-   'Holidays are named on the calendar with a small pill, and the schedule already plans around them.',
-   'Undo and redo everywhere: the ↩ ↪ toolbar buttons, Ctrl+Z / Ctrl+Y (⌘ on Mac).',
-   'Milestones and Notes moved to the top rows of the project chart.',
-   'New Help pages: Release notes and Open issues (with the report form built in).']},
- {v:'1.19',d:'Sep 2, 2026',n:['A changelog: every recorded change to every project — who, when, what.',
-   'Nicknames show everywhere a name is displayed (set them on the People page).']},
- {v:'1.18',d:'Sep 2, 2026',n:['Availability on the People page (freelancers can be marked Not available).',
-   'Admins can preview the app exactly as non-admins see it.']},
- {v:'1.17',d:'Sep 2, 2026',n:['People page: at-a-glance columns, filters by department and permission, resizable panes.']},
- {v:'1.16',d:'Sep 2, 2026',n:['A short intro before the guided tour: what the Shop Timeline is and who it’s for.']},
- {v:'1.14–1.15',d:'Sep 2, 2026',n:['Nicknames on people records; duplicate people can be merged.',
-   'A person’s department list is simpler — machine-level splits folded into DFAB and Finishing.']},
- {v:'1.10–1.13',d:'Sep 2, 2026',n:['Logistics is its own department.','Dashboard layout refinements and a round of owner-requested fixes.']},
- {v:'1.9',d:'Sep 1, 2026',n:['My Dashboard: personal notes, milestones and time off in one place.']},
- {v:'1.8',d:'Sep 1, 2026',n:['Accounts: view-only by default, with admin roles managed on the People page.',
-   'Bug reports email the team as well as landing on SharePoint.']},
- {v:'1.7',d:'Sep 1, 2026',n:['Company Data pages: People and Clients, imported from the HR contact list and the client master.']},
- {v:'1.5–1.6',d:'Aug 31, 2026',n:['Smooth zoom from a week to a full year (drag the date bar).','The bug report / feature request form.']},
- {v:'1.0–1.4',d:'Aug 31, 2026',n:['First company release: the shared timeline, project pages, calendar view, milestones and notes.']},
+ {v:"v1.20.6",d:"Sep 4, 2026",n:["Shipping is a new phase on the project page, right after Installation. Tick it instead of (or as well as) Install when a job ships out; its bars are red like installs, and the project counts as complete once the last install or shipping day has passed.",
+   "Release notes now go all the way back to the beginning — every version since the first alpha, in one place."]},
+ {v:"v1.20.5",d:"Sep 3, 2026",n:["Added a Repository link to the Help menu — opens the source code on GitHub."]},
+ {v:"v1.20.4",d:"Sep 3, 2026",n:["Tidied the Help menu — “Report a bug or idea” already shows the open issues, so the duplicate “Open issues” entry is gone."]},
+ {v:"v1.20.3",d:"Sep 3, 2026",n:["Undo/redo moved to the end of the top row, next to Help, and made a little smaller.",
+   "Refreshed the browser-tab favicon."]},
+ {v:"v1.20.2",d:"Sep 3, 2026",n:["The undo/redo arrows are now the TWOSEVEN brand swoosh.",
+   "The browser tab got the company favicon."]},
+ {v:"v1.20.1",d:"Sep 3, 2026",n:["Resolved reports leave the Open Issues list (they stay on the developer page, marked).",
+   "Technical Design no longer carries an “Other” bucket — it’s standalone, like Project Management.",
+   "The undo/redo arrows got their proper curved shape."]},
+ {v:"v1.20.0",d:"Sep 3, 2026",n:["Crew pickers only offer people from that phase’s department.",
+   "Holidays are named on the calendar with a small pill, and the schedule already plans around them.",
+   "Undo and redo everywhere: the ↩ ↪ toolbar buttons, Ctrl+Z / Ctrl+Y (⌘ on Mac).",
+   "Milestones and Notes moved to the top rows of the project chart.",
+   "New Help pages: Release notes and Open issues (with the report form built in)."]},
+ {v:"v1.19",d:"Sep 2, 2026",n:["A changelog: every recorded change to every project — who, when, what.",
+   "Nicknames show everywhere a name is displayed (set them on the People page)."]},
+ {v:"v1.18",d:"Sep 2, 2026",n:["Availability on the People page (freelancers can be marked Not available).",
+   "Admins can preview the app exactly as non-admins see it."]},
+ {v:"v1.17",d:"Sep 2, 2026",n:["People page: at-a-glance columns, filters by department and permission, resizable panes."]},
+ {v:"v1.16",d:"Sep 2, 2026",n:["A short intro before the guided tour: what the Shop Timeline is and who it’s for."]},
+ {v:"v1.14–1.15",d:"Sep 2, 2026",n:["Nicknames on people records; duplicate people can be merged.",
+   "A person’s department list is simpler — machine-level splits folded into DFAB and Finishing."]},
+ {v:"v1.10–1.13",d:"Sep 2, 2026",n:["Logistics is its own department.",
+   "Dashboard layout refinements and a round of owner-requested fixes."]},
+ {v:"v1.9",d:"Sep 1, 2026",n:["My Dashboard: personal notes, milestones and time off in one place."]},
+ {v:"v1.8",d:"Sep 1, 2026",n:["Accounts: view-only by default, with admin roles managed on the People page.",
+   "Bug reports email the team as well as landing on SharePoint."]},
+ {v:"v1.7",d:"Sep 1, 2026",n:["Company Data pages: People and Clients, imported from the HR contact list and the client master."]},
+ {v:"v1.5–1.6",d:"Aug 31, 2026",n:["Smooth zoom from a week to a full year (drag the date bar).",
+   "The bug report / feature request form."]},
+ {v:"v1.0–1.4",d:"Aug 31, 2026",n:["First company release: the shared timeline, project pages, calendar view, milestones and notes."]},
+ {v:"Beta · Wrap-up (REV101)",d:"Aug 28, 2026",n:["A full audit pass before the first release (REV90–91).",
+   "The timeline opens parked on today when you come back to it.",
+   "Version numbers switched from REV counts to v1.0.1-style numbers."]},
+ {v:"Beta · Footer action bar (REV100)",d:"Aug 28, 2026",n:["Project-page actions moved into a footer bar."]},
+ {v:"Beta · Collapsible edit dock (REV99)",d:"Aug 28, 2026",n:["The edit panel can collapse out of the way."]},
+ {v:"Beta · Edit-in-place popover (REV98)",d:"Aug 27, 2026",n:["Edit names and dates right where they are, in a small popover."]},
+ {v:"Beta · Menu-bar redesign (REV92–95)",d:"Aug 27, 2026",n:["The toolbar became a proper menu bar — Print, Company Data and Help — in four steps."]},
+ {v:"Beta · Learnability (REV89)",d:"Aug 27, 2026",n:["A ? shortcuts sheet, a sample project, and hover cues to help you find your way."]},
+ {v:"Beta · Parity audit (REV80–88)",d:"Aug 26–27, 2026",n:["The inspector converged into one, a completion flow, the × exit, a toolbar regroup, and a project-page tour."]},
+ {v:"Beta · Navigation at scale (REV75–79)",d:"Aug 25–26, 2026",n:["Zoom steps, jump-to-date, a compact density, and saved views."]},
+ {v:"Beta · Calendar parity (REV71–74)",d:"Aug 25–26, 2026",n:["Calendar drag and wording, full parity with the timeline, live resize, and coach marks."]},
+ {v:"Beta · Identity (REV65–70)",d:"Aug 21–25, 2026",n:["Sign in as yourself: a person filter, a person panel, the My Dashboard button, the client list, and a Teams-backed staff picker."]},
+ {v:"Beta · Feature interlude (REV53–64)",d:"Aug 19–21, 2026",n:["Create from the calendar, standalone events, subtask hierarchy, breadcrumbs, and checkpoints everywhere."]},
+ {v:"Beta · Visual system (REV52)",d:"Aug 13–14, 2026",n:["A consistent type scale, the bottom dock, today and deadline markers, a status legend, a quieter canvas, SVG icons, and docked toasts."]},
+ {v:"Beta · UX overhaul (REV~51)",d:"Aug 13, 2026",n:["Readable labels and stable project colors, clean click-vs-drag, resize from both ends, two-line sidebar names, off-screen bar indicators, plain-language errors, and tooltips everywhere."]},
+ {v:"Beta · Foundations (REV50)",d:"Aug 12–19, 2026",n:["The company copy begins: preview and sandbox deploys, a render and bandwidth performance pass, and the two-tier toolbar."]},
+ {v:"Alpha · The original Timeline (REV1–50)",d:"before Aug 12, 2026",n:["The original Timeline app, built before this project — its REV 50 is the frozen baseline everything here grew from."]}
 ];
+/* RELEASE_NOTES:END */
 function renderReleases(){
   applyPerms();
   helpPageShell('Release Notes','What changed in each version, in plain language. Newest first.',
     '<div class="clog-list rn-list">'+RELEASE_NOTES.map(r=>
-      '<div class="rn-ver"><div class="rn-hd"><b>v'+esc(r.v)+'</b><span class="clog-when">'+esc(r.d)+'</span></div>'
+      '<div class="rn-ver"><div class="rn-hd"><b>'+esc(r.v)+'</b><span class="clog-when">'+esc(r.d)+'</span></div>'
       +'<ul class="rn-notes">'+r.n.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul></div>').join('')+'</div>');
 }
 async function sendFeedback(){

@@ -1,12 +1,13 @@
 ﻿{
   "name": "project-scheduler",
-  "version": "1.20.5",
+  "version": "1.20.6",
   "private": true,
   "description": "Timeline — single-file Gantt and scheduling dashboard for Twoseven, backed by SharePoint via Microsoft Graph.",
   "license": "SEE LICENSE IN LICENSE",
   "scripts": {
     "test": "node tests/run.js index.html",
-    "test:ref": "node tests/run.js reference/Timeline_50.html"
+    "test:ref": "node tests/run.js reference/Timeline_50.html",
+    "notes": "node tools/gen-release-notes.js"
   },
   "devDependencies": {
     "jsdom": "^24.0.0"

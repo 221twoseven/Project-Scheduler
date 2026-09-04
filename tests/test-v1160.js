@@ -43,9 +43,10 @@ function main(){
      the h3 must inherit .modal h3 (no font-family/weight override of its own) */
   ok('titles wear the tour heading face (no Brauer override)',
      /#demo-modal h3\{font-size:21px/.test(src) && !/#demo-modal h3\{[^}]*font-family/.test(src));
-  /* v1.18.0 added !DEV_VIEW to the gate (the Non-admin preview gets the plain tour) */
-  ok('mi-tour gates the slides on developer, off project pages',
-     /isDeveloper\(\)&&(!DEV_VIEW&&)?ROUTE\.view!=='project'\)\{demoStart\(\);return;\}/.test(src));
+  /* v1.18.0: the Non-admin preview gets the plain tour; v1.20.x folded both previews
+     into devUI() — only the plain Developer view opens the slides. */
+  ok('mi-tour gates the slides on devUI(), off project pages',
+     /devUI\(\)&&ROUTE\.view!=='project'\)\{demoStart\(\);return;\}/.test(src));
   ok('first-visit auto-run still starts the plain tour', /setTimeout\(coachStart,700\)/.test(src));
 
   E('coachEnd()'); /* the first-visit auto tour may be up — clear the deck */

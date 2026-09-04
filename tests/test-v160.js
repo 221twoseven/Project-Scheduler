@@ -73,6 +73,17 @@ setTimeout(()=>{
       ok('the newest entry matches the running build',
          new RegExp('v'+win.eval('APP_VER').replace(/\./g,'\\.')).test((q('.rn-ver .rn-hd')||{textContent:''}).textContent),
          (q('.rn-ver .rn-hd')||{textContent:''}).textContent);
+      /* the in-app block must be exactly what the generator emits from CHANGELOG.md —
+         "edited the changelog, forgot npm run notes" fails here, in CI. */
+      const gen=require('../tools/gen-release-notes.js');
+      const cl=fs.readFileSync(require('path').join(__dirname,'..','CHANGELOG.md'),'utf8');
+      const eol=/\r\n/.test(src)?'\r\n':'\n';
+      ok('the RELEASE_NOTES block is in sync with CHANGELOG.md (else: npm run notes)',
+         src.indexOf(gen.emit(gen.parse(cl),eol))>=0);
+      const hds=[...doc.querySelectorAll('.rn-ver .rn-hd b')].map(b=>b.textContent);
+      ok('the whole history is on the page — beta eras and the alpha line',
+         hds.some(h=>/^Alpha/.test(h))&&hds.filter(h=>/^Beta/.test(h)).length>=10, hds.length+' headers');
+      ok('Unreleased lines are held back until the version ships', !hds.some(h=>/unreleased/i.test(h)));
 
       sec('dev reports page is guarded');
       ok('the dev menu item exists (hidden by default)', !!q('#mi-reports'));

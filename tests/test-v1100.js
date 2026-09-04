@@ -69,7 +69,7 @@ function main(){
   ok('the developer wears a DEV chip', !!tu.querySelector('.tb-acc.dev'));
   ok('it sits in the dev cluster ahead of the version number',
      tu.nextElementSibling===doc.getElementById('tb-rev')
-     &&doc.getElementById('tb-devview').parentElement===tu.parentElement);
+     &&doc.getElementById('tb-viewas').parentElement===tu.parentElement);
 
   sec('v1.10.0 — dock re-layout: Time off under Working on, own columns back');
   E("enterDash('Sam')");
@@ -82,14 +82,26 @@ function main(){
      &&/Milestones/.test(h4(secs[1]))&&/Notes/.test(h4(secs[2]))&&/User Notes/.test(h4(secs[3])));
   E('exitDash()');
 
-  sec('v1.14.0 — Not me: your own Summary as others see it');
-  E('DEV_NOTME=true');
+  sec('view-as: previewing as someone else — your own Summary as others see it');
+  E("VIEW_AS='admin'");
   E("enterDash('Sam')");
-  ok('dashSelf answers false and User Notes hides while Not me is on',
+  ok('dashSelf answers false and User Notes hides while previewing as an admin',
      E('dashSelf()')===false&&!doc.getElementById('md-unotes')
      &&/Summary · Sam/.test(doc.getElementById('db-name').textContent));
-  ok('the toggle rides the dev cluster', !doc.getElementById('tb-notme').classList.contains('hidden'));
-  E('DEV_NOTME=false');E('exitDash()');
+  ok('the picker rides the dev cluster', !doc.getElementById('tb-viewas').classList.contains('hidden'));
+  E('applyPerms()');
+  ok('dev-only Help options hide while previewing as someone else',
+     doc.getElementById('mi-appset').classList.contains('hidden')
+     &&doc.getElementById('mi-reports').classList.contains('hidden'));
+  ok('the picker reflects the current view and lights up',
+     doc.getElementById('tb-viewas').value==='admin'
+     &&doc.getElementById('tb-viewas').classList.contains('active'));
+  E("VIEW_AS='dev'");E('applyPerms()');
+  ok('…and return in the Developer view',
+     !doc.getElementById('mi-appset').classList.contains('hidden')
+     &&!doc.getElementById('mi-reports').classList.contains('hidden')
+     &&!doc.getElementById('tb-viewas').classList.contains('active'));
+  E('exitDash()');
 
   sec('v1.10.0 — the wordmark goes home');
   ok('the wordmark is a button', doc.getElementById('tb-home').tagName==='BUTTON');
@@ -133,7 +145,7 @@ function stageSettings(){
     E("saveConfigKey('viewer.notes',true)");
 
     sec('v1.11.0 — the notes grant opens ONE door for a viewer');
-    E('DEV_VIEW=true');E('render()');
+    E("VIEW_AS='viewer'");E('render()');
     ok('previewing as a viewer', E('isViewer()')===true&&doc.body.classList.contains('viewer'));
     ok('the grant class rides the body', doc.body.classList.contains('vg-notes')
        &&!doc.body.classList.contains('vg-phases'));
@@ -158,7 +170,7 @@ function stageSettings(){
       ok('the write choke point lets the granted viewer through',
          (()=>{E("saveState({projects:ST.projects,tasks:ST.tasks,todos:(ST.todos||[]).map(t=>({...t,title:t.title==='Order steel'?'Order MORE steel':t.title}))})");
            return E("(ST.todos||[]).some(t=>t.title==='Order MORE steel')");})());
-      E("saveConfigKey('viewer.notes',false)");E('DEV_VIEW=false');
+      E("saveConfigKey('viewer.notes',false)");E("VIEW_AS='dev'");
       win.location.hash='#/';
       win.dispatchEvent(new win.Event('hashchange'));
       setTimeout(stageListening,300);
