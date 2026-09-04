@@ -1174,10 +1174,12 @@ these are the ones still open, plus new deferrals as they happen.
 - [ ] The chained tour's combined total assumes the second half lands on a DRAFT
       (COACH_PP_DRAFT_N) — if a draft ever drops another tour target, the count
       would run one high. Cosmetic. Gate: someone notices. (v1.14.0, 2026-09-02)
-- [ ] "Not me" flips only `dashSelf()` — permissions, identity chain and the PM
-      prompt stay the developer's own (deliberate: it previews the SUMMARY reading,
-      not another user's whole session). Gate: a preview need beyond the Summary.
-      (v1.14.0)
+- [x] ~~"Not me" flips only `dashSelf()`~~ — RESOLVED: folded into the three-state
+      view-as picker (Developer / Admin / Non-admin, `VIEW_AS`). Both previews now
+      hide dev-only chrome AND read your own page as a Summary; the Non-admin view
+      also closes every door. Identity, the DEV badge and the PM prompt still stay the
+      developer's own — it previews a role's reading, not another user's whole session.
+      (v1.14.0 → picker, 2026-09-04)
 - [ ] People-dept consolidation is presentation + people-data canon only — phase
       departments, the dept lens and task rows keep machine-level ids; a person
       stored with a legacy machine id heals on their next People-page save, not
@@ -1260,8 +1262,11 @@ these are the ones still open, plus new deferrals as they happen.
 - [ ] Draft redo snapshots the whole draft-mutable state (NPV_MANUAL/LINES/EVENTS/
       TODOS/ORDER) rather than inverting each reverser — a toast-button Undo
       doesn't feed the redo stack (only ⌘Z does). Gate: someone noticing. (v1.20.0)
-- [ ] RELEASE_NOTES is a hand-curated const in index.html — add an entry per
-      release; nothing generates it. Gate: it going stale twice. (v1.20.0)
+- [x] ~~RELEASE_NOTES is a hand-curated const in index.html~~ — RESOLVED 2026-09-04:
+      generated from `CHANGELOG.md` by `tools/gen-release-notes.js` (`npm run notes`),
+      seeded with the whole history back to the alpha. test-v160 fails CI if the
+      newest entry doesn't name APP_VER or the block drifts from the changelog.
+      (v1.20.0 → generated)
 
 **Deliberate design ceilings — no action planned, revisit only on real complaints:**
 12-slot palette repeats at 13+ visible projects (T2); quiet re-selection after a

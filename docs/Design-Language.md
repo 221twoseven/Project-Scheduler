@@ -27,7 +27,7 @@ Each visual channel encodes exactly one thing:
 | **Bar hue** | Identity (project; department in Team/project-page modes) | Status, urgency |
 | **Bar pattern & opacity** | Status | Identity |
 | **Status pill** | Status (text + tint) | — |
-| **Red `#CE4242`** | Installation only (existing rule — keep absolute) | Anything else; late-ness uses the marker system, not bar color |
+| **Red `#CE4242`** | Installation and Shipping — the two ways a job ends (v1.20.6; existing rule — keep absolute) | Anything else; late-ness uses the marker system, not bar color |
 | **Canvas background** | Calendar time (workday/weekend/month), *quietly* | Data of any kind |
 
 Consequences: on-hold bars keep their **project's hue** and signal status by treatment — on-hold = 55% desaturation + diagonal hatch; estimating keeps its current stripe (it already follows the rule). The gray/gold hue-theft overrides are retired.
@@ -306,13 +306,24 @@ for every future company master-data section (departments, project types, holida
   outright. App-wide, the viewer role follows the same read-first grammar: locked
   fields flatten to information (`body.viewer` + disabled controls), admin-only
   chrome disappears rather than disabling, and every refusal toast says who to ask.
-- **The developer's Viewer toggle (v1.9.0).** A staff row whose admin column reads
-  `dev` is a *developer* — a full admin whose toolbar gains a **Viewer** button next
-  to the version number (top right, every route). One click previews the app exactly
-  as a non-admin sees it — `isAdmin()` answers false everywhere, so every real door
-  closes, including Lock Dates forcing on (restored on exit). The toggle lights while
-  active and is remembered per tab. The value is typed straight onto the list by the
-  owner; the People editor never assigns it, but People-page saves preserve it.
+- **The developer's view-as picker (v1.9.0; unified 2026-09-04).** A staff row whose
+  admin column reads `dev` is a *developer* — a full admin whose toolbar gains a
+  **view-as picker** (`#tb-viewas`) next to the version number (top right, every
+  route). It offers three views, remembered per tab (`VIEW_AS`), and lights while
+  previewing:
+  - **Developer** — your real view: dev-only chrome shown (Help ▸ App settings /
+    Bug reports, the developer demo-tour), admin doors open, your own page is My
+    Dashboard. This is the only view where `devUI()` answers true.
+  - **Admin** — a non-developer admin: dev-only chrome hidden, admin doors still open.
+  - **Non-admin** — a non-developer viewer: `isAdmin()` answers false everywhere so
+    every real door closes (Lock Dates forces on, restored on exit), dev-only chrome
+    hidden.
+  In either preview you are *someone else*, so your own Summary reads exactly as others
+  see it (`dashSelf()` false — User Notes hidden, the personal line visible); identity
+  and the DEV badge stay yours. The developer flag is typed straight onto the list by
+  the owner; the People editor never assigns it, but People-page saves preserve it.
+  (Replaces the separate Viewer / "Not me" toggles — three states, one control, and the
+  impossible fourth combo is gone.)
 - **My Dashboard dock columns (v1.9.0; re-laid v1.10.0, owner ask):** Working on +
   Time off *stacked in one column* | Milestones | Notes | **User Notes** — a personal
   multi-line scratch pad at the far right, stored on the person's staff row
@@ -346,11 +357,11 @@ for every future company master-data section (departments, project types, holida
   header bar, right-justified (v1.14.0) — a field-sized popover anchored to that
   section that commits once, on close, through the self-row staff save. Empty title
   or Show off = hidden; the whole feature sits behind the App-settings switch.
-- **"Not me" (v1.14.0).** The Viewer toggle's sibling: a developer-only, per-tab
-  preview that flips only `dashSelf()`, so the developer's own Summary renders
-  exactly as everyone else sees it (User Notes hidden, the personal line visible).
-  Permissions and identity stay the developer's own — it previews the reading, not
-  another user's session.
+- **Previewing as someone else (v1.14.0 "Not me"; folded into the view-as picker
+  2026-09-04).** The picker's **Admin** and **Non-admin** views both render the
+  developer's own Summary the way everyone else sees it (`dashSelf()` false — User
+  Notes hidden, the personal line visible). The reading flips, not identity or the DEV
+  badge. See the view-as picker above.
 - **People departments are coarser than phase departments (v1.14.0).** The People
   page speaks a canonical people list (`pdCanon`): DFAB folds the machine-level
   Digital Fab depts, Finishing folds Pre-Finishing + Painting. Phase departments,

@@ -71,6 +71,12 @@ function run(){
   const before=E('JSON.stringify(ST.tasks)');
   E("generateSchedule({id:'zz',deadline:'2026-10-01',activeDepartments:['td','fab','install']},{td:5,fab:5,install:1})");
   ok('generateSchedule does not touch ST', E('JSON.stringify(ST.tasks)')===before);
+  sec('shipping is a second end phase (v1.20.6)');
+  const ship=E("generateSchedule({id:'zz',deadline:'2026-10-01',activeDepartments:['fab','install','shipping']},{fab:5,install:1,shipping:2})");
+  const si=ship.find(x=>x.department==='install'),ss=ship.find(x=>x.department==='shipping');
+  ok('shipping schedules alongside install, both ending at the deadline', !!si&&!!ss&&si.endDate===ss.endDate, JSON.stringify([si&&si.endDate,ss&&ss.endDate]));
+  ok('shipping bars are red', E("barColor({projectId:'nope',department:'shipping'})")===E('INSTALL_RED'));
+  ok('shipping crew is an array like install', Array.isArray(ss&&ss.assignee));
 
   sec('45s poll (REV46 fix 4)');
   const m=src.match(/if\(JSON\.stringify\(fresh\)!==JSON\.stringify\(([^\n]*?)\)\)\{ST=fresh/);

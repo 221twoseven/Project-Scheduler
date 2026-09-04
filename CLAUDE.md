@@ -91,6 +91,23 @@ The current infrastructure values (for reference — do not change without instr
   Every feature should be asserted on BOTH the new-project draft page and the saved
   project page (see the "REV49 lesson" in `README.md`).
 
+## Release notes
+
+**Help ▸ Release notes is generated, never hand-edited.** The single source is
+`CHANGELOG.md` (plain language, shop-facing, newest first; format `## <label> — <date>`
+then one `- ` line per change). `npm run notes` splices it into the `RELEASE_NOTES`
+block in `index.html` between the `RELEASE_NOTES:BEGIN/END` markers.
+
+- **Every change that bumps `APP_VER` adds its lines to `CHANGELOG.md` and runs
+  `npm run notes` in the same commit.** Collect lines under `## Unreleased` while
+  working; rename that heading to `## v<APP_VER> — <Mon D, YYYY>` when you ship.
+- Write for the team: what changed *for them*, one concrete sentence each. No vague
+  "bug fixes" lines — a version with nothing team-facing is folded into the next
+  entry's version range (e.g. `v1.14–1.15`), the way the notes already do.
+  Developer-only tooling does not earn a line.
+- Enforced, not remembered: `test-v160` fails CI if the newest entry doesn't name the
+  running `APP_VER` or if the in-app block drifts from `CHANGELOG.md`.
+
 ## Change discipline
 
 - **Prefer small, reviewable changes.** Do not refactor unrelated working code unless

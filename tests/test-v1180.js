@@ -76,17 +76,23 @@ function main(){
          doc.getElementById('cde-av-o').checked&&!doc.getElementById('cde-av-u').checked);
       doc.getElementById('cde-cancel').click();
 
-      sec('the Admin / Non-admin toggle');
-      const dv=doc.getElementById('tb-devview');
-      ok('reads "Admin" by default for the developer', dv.textContent==='Admin'&&!dv.classList.contains('hidden'));
+      sec('the view-as picker: Developer / Admin / Non-admin');
+      const vs=doc.getElementById('tb-viewas');
+      const pick=v=>{vs.value=v;vs.dispatchEvent(new win.Event('change'));};
+      ok('reads "Developer" by default for the developer', vs.value==='dev'&&!vs.classList.contains('hidden'));
       ok('App settings is on the Help menu', !doc.getElementById('mi-appset').classList.contains('hidden'));
-      dv.click();
-      ok('one click reads "Non-admin" and lights', dv.textContent==='Non-admin'&&dv.classList.contains('active'));
+      pick('viewer');
+      ok('picking Non-admin lights the picker', vs.value==='viewer'&&vs.classList.contains('active'));
       ok('the preview hides Help ▸ App settings', doc.getElementById('mi-appset').classList.contains('hidden'));
       ok('admin chrome is gone (+ Add person)', !doc.getElementById('cd-add'));
-      dv.click();
-      ok('a second click restores the admin view',
-         dv.textContent==='Admin'&&!doc.getElementById('mi-appset').classList.contains('hidden')&&!!doc.getElementById('cd-add'));
+      pick('admin');
+      ok('the Admin view keeps admin chrome but still hides dev-only Help',
+         E('isAdmin()')===true&&!!doc.getElementById('cd-add')
+         &&doc.getElementById('mi-appset').classList.contains('hidden'));
+      pick('dev');
+      ok('back to Developer restores the admin view',
+         vs.value==='dev'&&!vs.classList.contains('active')
+         &&!doc.getElementById('mi-appset').classList.contains('hidden')&&!!doc.getElementById('cd-add'));
 
       console.log('\ntest-v1180: '+pass+' passed, '+fail+' failed');
       process.exit(fail?1:0);

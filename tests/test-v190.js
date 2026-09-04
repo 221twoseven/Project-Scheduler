@@ -16,7 +16,7 @@ const fs=require('fs');
 const FILE=process.argv[2]||'index.html';
 const src=fs.readFileSync(FILE,'utf8');
 
-if(src.indexOf('tb-devview')<0){
+if(src.indexOf('tb-viewas')<0&&src.indexOf('tb-devview')<0){
   console.log('test-v190: skipped — pre-v1.9.0 build ('+FILE+')');
   process.exit(0);
 }
@@ -43,6 +43,9 @@ const todos=[{appId:'k1',Title:'Order steel',projectId:'p1',department:'fab',ass
   completedOn:null,completedBy:'',sortIndex:0}];
 const dom=boot(FILE,{data:{projects,tasks,staff,todos},todosList:true});
 const win=dom.window,doc=win.document,E=s=>win.eval(s);
+/* v1.20.x: the two dev toggles became one view-as picker (#tb-viewas) — drive it
+   the way a person would, by setting the value and firing change. */
+const setView=v=>{const s=doc.getElementById('tb-viewas');s.value=v;s.dispatchEvent(new win.Event('change'));};
 
 setTimeout(main,1300);
 
@@ -67,25 +70,25 @@ function main(){
   ok('a row that never carried the column stays tristate-null (no 400 risk)',
      JSON.parse(E("JSON.stringify(personToFields({id:'y',name:'Bo',email:'',phone:'',role:'',depts:[],ooo:[],admin:null,personalNotes:null}))")).personalNotes===undefined);
 
-  sec('the Viewer toggle: developers preview the non-admin app');
-  ok('the toggle shows for the developer', !doc.getElementById('tb-devview').classList.contains('hidden'));
-  /* v1.10.0 added #tb-user, v1.14.0 #tb-notme — the toggle leads the dev cluster
-     that ends at the version number; walk the chain instead of pinning a neighbor */
+  sec('the view-as picker: developers preview the non-admin app');
+  ok('the picker shows for the developer', !doc.getElementById('tb-viewas').classList.contains('hidden'));
+  /* the picker leads the dev cluster (then #tb-user) that ends at the version number;
+     walk the chain instead of pinning a neighbor */
   ok('…and sits in the global toolbar row next to the version number',(()=>{
-     let el=doc.getElementById('tb-devview');
-     for(let i=0;i<4&&el;i++){el=el.nextElementSibling;
+     let el=doc.getElementById('tb-viewas');
+     for(let i=0;i<3&&el;i++){el=el.nextElementSibling;
        if(el===doc.getElementById('tb-rev'))return true;
-       if(el&&el.id!=='tb-notme'&&el.id!=='tb-user')return false;}
+       if(el&&el.id!=='tb-user')return false;}
      return false;})());
-  ok('admin before the toggle', E('isAdmin()')===true);
+  ok('admin before the preview', E('isAdmin()')===true);
   E('DATE_LOCK=false');
-  doc.getElementById('tb-devview').click();
-  ok('one click: the whole app answers viewer', E('isAdmin()')===false&&doc.body.classList.contains('viewer'));
-  ok('the toggle lights while previewing', doc.getElementById('tb-devview').classList.contains('active'));
+  setView('viewer');
+  ok('picking Non-admin: the whole app answers viewer', E('isAdmin()')===false&&doc.body.classList.contains('viewer'));
+  ok('the picker lights while previewing', doc.getElementById('tb-viewas').classList.contains('active'));
   ok('Lock Dates forced on, like a real viewer', E('DATE_LOCK')===true);
-  ok('the choice is remembered per tab', E("sessionStorage.getItem('shopTimelineDevView')")==='1');
+  ok('the choice is remembered per tab', E("sessionStorage.getItem('shopTimelineViewAs')")==='viewer');
 
-  sec('viewer preview: the dock, and the self-row notes exception');
+  sec('viewer preview: your own page reads as a Summary (as others see it)');
   E("enterDash('Sam')");
   ok('the dashboard dock is on', doc.body.classList.contains('me-dock-on'));
   const stack=doc.querySelector('#me-dock .md-stack');
@@ -97,26 +100,26 @@ function main(){
      &&(V1100
        ?/Working on/.test(stack.querySelectorAll('h4')[0].textContent)&&/Time off/.test(stack.querySelectorAll('h4')[1].textContent)
        :/Milestones/.test(stack.querySelectorAll('h4')[0].textContent)&&/Notes/.test(stack.querySelectorAll('h4')[1].textContent)));
-  const secs=doc.querySelectorAll('#me-dock .ins-body>.ins-sec');
-  ok('User Notes is the far-right column', secs.length===4
-     &&/User Notes/.test(secs[3].querySelector('h4').textContent)
-     &&!!secs[3].querySelector('#md-unotes'));
-  const un=doc.getElementById('md-unotes');
-  ok('the stored note is shown', un.value==='seed note');
-  ok('your OWN dashboard edits it — even as a viewer', !un.disabled);
-  un.value='new note';
-  un.dispatchEvent(new win.Event('change',{bubbles:true}));
-  ok('a change saves through the self-row exception (viewer guard bypassed)',
-     E("PEOPLE.find(p=>p.name==='Sam').personalNotes")==='new note');
+  /* v1.20.x: previewing as someone else, your own page is a Summary — the personal
+     User Notes column is gone, exactly as a colleague sees your page (item 30 spec). */
+  ok('your own page shows no User Notes column while previewing as someone else',
+     E('dashSelf()')===false
+     &&!doc.getElementById('md-unotes')
+     &&doc.querySelectorAll('#me-dock .ins-body>.ins-sec').length===3);
+  /* the self-row notes exception is a REAL non-admin's capability — a viewer may write
+     their OWN staff row past the guard. Test the mechanism directly (savePeople's self
+     flag), independent of whose page is on screen. */
+  ok('a viewer writes their OWN notes through the self-row exception',(()=>{
+     E("savePeople(PEOPLE.map(p=>p.name==='Sam'?{...p,personalNotes:'new note'}:p),true)");
+     return E("PEOPLE.find(p=>p.name==='Sam').personalNotes")==='new note';})());
+  ok('…while the plain guard still blocks a viewer', (()=>{ /* same list back = a people edit attempt */
+     E('savePeople(PEOPLE.map(p=>({...p,role:"X"})))');
+     return E("PEOPLE.find(p=>p.name==='Sam').role")!=='X';})());
   E("enterDash('Pat')");
   ok("someone else's Summary never shows their personal notes (item 30 spec)",
      !doc.getElementById('md-unotes')
      &&doc.querySelectorAll('#me-dock .ins-body>.ins-sec').length===3
      &&doc.getElementById('me-dock').innerHTML.indexOf('private pat note')<0);
-  E("enterDash('Sam')");
-  ok('…while the plain guard still blocks a viewer', (()=>{ /* same list back = a people edit attempt */
-     E('savePeople(PEOPLE.map(p=>({...p,role:"X"})))');
-     return E("PEOPLE.find(p=>p.name==='Sam').role")!=='X';})());
 
   /* v1.9.1 regression: a viewer opening a project WITH agenda rows must still render.
      v1.8.0 dropped the × from viewer agenda rows but ppBindInspector grabbed it
@@ -142,14 +145,13 @@ function stage1b(){
 }
 
 function stage2(){
-  const un=doc.getElementById('md-unotes'); /* re-queried: savePeople re-rendered the dock */
   ok('the staff PATCH carries personalNotes',
      (win.__spCalls||[]).some(c=>c.init&&c.init.method==='PATCH'&&/personalNotes/.test(String(c.init.body))
        &&/new note/.test(String(c.init.body))));
 
-  sec('toggling back restores the admin');
+  sec('switching back to Developer restores the admin');
   E('DEV_LOCK0===null'); /* touch to keep eval warm */
-  doc.getElementById('tb-devview').click();
+  setView('dev');
   ok('admin again', E('isAdmin()')===true&&!doc.body.classList.contains('viewer'));
   ok('DATE_LOCK restored to how it stood before the preview', E('DATE_LOCK')===false);
 
