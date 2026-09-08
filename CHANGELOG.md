@@ -40,7 +40,7 @@ Collect lines for the next version under `## Unreleased` and rename it when you 
 
 ## v1.20.2 — Sep 3, 2026
 
-- The undo/redo arrows are now the TWOSEVEN brand swoosh.
+- The undo/redo arrows are now custom-designed arrows.
 - The browser tab got the company favicon.
 
 ## v1.20.1 — Sep 3, 2026
