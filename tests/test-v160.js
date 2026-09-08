@@ -34,6 +34,7 @@ setTimeout(()=>{
   click(q('#mi-report'));
   ok('the report item lands on the Open Issues page', win.location.hash==='#/issues'&&!!q('#fb-desc'), win.location.hash);
   ok('the issues list pane renders beside the form', !!q('#fb-list'));
+  ok('the resolved column renders as a third pane (v1.20.7)', !!q('#fb-done')&&!!q('.cd-body.fb-3col'));
   ok('name prefilled from the signed-in account', q('#fb-name').value==='Sam', q('#fb-name').value);
   ok('email prefilled', q('#fb-email').value==='user@example.com', q('#fb-email').value);
   ok('Bug is the default kind', q('#fb-kind input[value="bug"]').checked);

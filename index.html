@@ -312,6 +312,9 @@ body.compact .sb-chip{line-height:1.2;padding:.5px 6px}
 /* v1.20.4: per-column headings on Open Issues — the right pane becomes a flex column
    so its cd-head stays fixed while the list scrolls under it. */
 .cd-detail-hd{display:flex;flex-direction:column;padding:0;overflow:hidden}
+/* v1.20.7: Open Issues is three columns — form | open | resolved. The form gives up width. */
+.fb-3col .cd-list{width:36%;max-width:520px}
+.fb-3col .cd-detail-hd+.cd-detail-hd{border-left:1px solid #E2E8F0}
 .rn-list{padding:6px 0}
 .rn-ver{padding:10px 22px;border-bottom:1px solid #EEF2F7}
 .rn-hd{display:flex;align-items:baseline;gap:10px;font-size:13px;color:#1E293B}
@@ -1582,7 +1585,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.20.6'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.20.7'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -9950,28 +9953,28 @@ async function fbFetch(force){
    no names, no full descriptions; those live on the dev page and the email. */
 let FB_PAINT=0; /* a stale (slow/failed) fetch must never overpaint a newer one */
 function fbPaintList(force){
-  const el=document.getElementById('fb-list');
-  if(!el)return;
+  const ids=['fb-list','fb-done'],els=()=>ids.map(id=>document.getElementById(id));
+  if(!els()[0])return;
   const gen=++FB_PAINT;
-  if(!el.firstChild)el.innerHTML='<div class="clog-empty">Loading…</div>';
+  for(const e of els())if(e&&!e.firstChild)e.innerHTML='<div class="clog-empty">Loading…</div>';
+  const row=r=>{
+    const t=String(r.title||'').replace(/^(Bug|Feature)\s+—\s+/,'');
+    return '<div class="clog-row">'
+      +'<span class="cd-perm" title="'+(r.kind==='bug'?'Bug report':'Feature request')+'">'+(r.kind==='bug'?'BUG':'IDEA')+'</span>'
+      +'<div class="clog-what"><b>'+esc(t)+'</b></div>'
+      +'<span class="clog-when">'+esc(clogWhen(r.at))+'</span></div>';
+  };
+  const empty=m=>'<div class="clog-empty">'+m+'</div>';
   fbFetch(force).then(rows=>{
-    const el2=document.getElementById('fb-list');
-    if(!el2||gen!==FB_PAINT)return;
-    /* Open means open — resolved reports leave this list (they stay on the dev page). */
-    const open=rows.filter(r=>r.status!=='resolved');
-    if(!open.length){el2.innerHTML='<div class="clog-empty">'+(rows.length
-      ?'No open issues — everything filed has been resolved.'
-      :'Nothing filed yet — be the first.')+'</div>';return;}
-    el2.innerHTML=open.map(r=>{
-      const t=String(r.title||'').replace(/^(Bug|Feature)\s+—\s+/,'');
-      return '<div class="clog-row">'
-        +'<span class="cd-perm" title="'+(r.kind==='bug'?'Bug report':'Feature request')+'">'+(r.kind==='bug'?'BUG':'IDEA')+'</span>'
-        +'<div class="clog-what"><b>'+esc(t)+'</b></div>'
-        +'<span class="clog-when">'+esc(clogWhen(r.at))+'</span></div>';
-    }).join('');
+    const [el,dn]=els();
+    if(!el||gen!==FB_PAINT)return;
+    /* Open means open — resolved reports move to the third column (v1.20.7; before that they only lived on the dev page). */
+    const open=rows.filter(r=>r.status!=='resolved'),done=rows.filter(r=>r.status==='resolved');
+    el.innerHTML=open.length?open.map(row).join(''):empty(rows.length?'No open issues — everything filed has been resolved.':'Nothing filed yet — be the first.');
+    if(dn)dn.innerHTML=done.length?done.map(row).join(''):empty('Nothing resolved yet.');
   }).catch(()=>{
-    const el2=document.getElementById('fb-list');
-    if(el2&&gen===FB_PAINT)el2.innerHTML='<div class="clog-empty">Couldn’t reach the ShopTimeline_Feedback list.</div>';
+    if(gen!==FB_PAINT)return;
+    for(const e of els())if(e)e.innerHTML=empty('Couldn’t reach the ShopTimeline_Feedback list.');
   });
 }
 /* The report form's HTML — the retired modal's body, verbatim ids so sendFeedback
@@ -10004,17 +10007,19 @@ function helpPageShell(title,sub,body,noHead){
   document.getElementById('cd-back').addEventListener('click',goTimeline);
   document.getElementById('cd-x').addEventListener('click',goTimeline);
 }
-/* Help ▸ Open issues — two columns, each with its OWN heading (owner ask): the report
-   form (left) beside the open-issue list (right). No page-wide header. */
+/* Help ▸ Open issues — three columns, each with its OWN heading (owner asks v1.20.4 /
+   v1.20.7): the report form | open issues | resolved issues. No page-wide header. */
 function renderIssues(){
   applyPerms();
   const colHd=(t,s)=>'<div class="cd-head"><h2>'+esc(t)+'</h2><span class="cd-sub">'+esc(s)+'</span></div>';
   helpPageShell('Open Issues',null,
-    '<div class="cd-body">'
+    '<div class="cd-body fb-3col">'
     +'<div class="cd-list">'+colHd('Report a bug or request a feature','Lands on SharePoint with your name attached, and emails the team.')
       +'<div class="fb-pane">'+fbFormHtml()+'</div></div>'
     +'<div class="cd-detail cd-detail-hd">'+colHd('Open issues','Bug reports and feature requests still open, newest first.')
       +'<div class="clog-list" id="fb-list"></div></div>'
+    +'<div class="cd-detail cd-detail-hd">'+colHd('Resolved','Reports that have been dealt with, newest first.')
+      +'<div class="clog-list" id="fb-done"></div></div>'
     +'</div>',true);
   const nm=document.getElementById('fb-name'),em=document.getElementById('fb-email');
   if(ACCOUNT){nm.value=meName()||ACCOUNT.name||'';em.value=ACCOUNT.username||'';}
@@ -10079,6 +10084,7 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.20.7",d:"Sep 4, 2026",n:["The Report a bug or idea page has a third column: resolved reports, newest first, so you can see what has already been dealt with."]},
  {v:"v1.20.6",d:"Sep 4, 2026",n:["Shipping is a new phase on the project page, right after Installation. Tick it instead of (or as well as) Install when a job ships out; its bars are red like installs, and the project counts as complete once the last install or shipping day has passed.",
    "Release notes now go all the way back to the beginning — every version since the first alpha, in one place."]},
  {v:"v1.20.5",d:"Sep 3, 2026",n:["Added a Repository link to the Help menu — opens the source code on GitHub."]},
