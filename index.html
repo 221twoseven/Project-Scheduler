@@ -946,6 +946,7 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 .ins-f input:focus,.ins-f select:focus,.ins-f textarea:focus{border-color:var(--acc);
   box-shadow:0 0 0 3px rgba(59,127,214,.12)}
 .ins-f input.err{border-color:#CE4242}
+.pg-rbox.err{border-color:#CE4242}
 .ins-row{display:grid;grid-template-columns:1fr 1fr;gap:9px}
 .ins-row3{display:grid;grid-template-columns:1fr 1fr 64px;gap:9px}
 .ins-note{font-size:var(--fs-fine);color:#94A3B8;line-height:1.45;margin:-3px 0 10px}
@@ -6558,7 +6559,7 @@ function wdCount(a,b){let n=0,c=new Date(a);while(c<=b){if(isWorking(c))n++;c=ad
 /* Read the left-hand form without saving anything. */
 function ppFormInit(){
   PP_FORM={name:'',client:'',jobCode:'',deadline:fmtDate(addDays(today(),42)),status:'auto',
-    projectManager:meName()||'',drafter:'',leadFab:'',fabricators:'', /* v1.20.8: the creator is the PM until someone unchecks them */
+    projectManager:'',drafter:'',leadFab:'',fabricators:'',
     activeDepartments:DEFAULT_DEPTS.slice(),est:{},otherLabels:{}};
   PP_SNAP=JSON.stringify(PP_FORM);
 }
@@ -8694,16 +8695,22 @@ function savePageProject(){
   ppFormSync();
   const F=PP_FORM||{};
   const name=(F.name||'').trim(), deadline=F.deadline||'';
+  const pm=roleList(F.projectManager).length>0; /* v1.20.8 (owner): a Project Manager is required — someone must own the schedule */
   const nameEl=document.getElementById('pp-name');
   if(nameEl)nameEl.classList.remove('err');
-  if(!name||!deadline){
+  if(!name||!deadline||!pm){
     if(!name&&nameEl){nameEl.classList.add('err');nameEl.focus();}
+    if(!deadline||!pm)ppInspector();
     if(!deadline){
-      ppInspector();
       const dl2=document.getElementById('pp-deadline');
       if(dl2){dl2.classList.add('err');dl2.focus();}
     }
-    toast('Give it a name and an install date.','err');
+    if(!pm){
+      const box=document.getElementById('pp-r-pm');
+      if(box){box.classList.add('err');if(deadline){const ck=box.querySelector('input');if(ck)ck.focus();}}
+    }
+    const miss=[!name&&'a name',!deadline&&'an install date',!pm&&'a Project Manager'].filter(Boolean);
+    toast('Give it '+miss.join(' and ')+'.','err');
     return;
   }
   const activeDepartments=(F.activeDepartments||[]).slice();
@@ -10088,7 +10095,7 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
- {v:"v1.20.8",d:"Sep 8, 2026",n:["New projects start with you as the Project Manager. Anyone creating a project can uncheck their name and pick someone else under Team.",
+ {v:"v1.20.8",d:"Sep 8, 2026",n:["A project cannot be created without a Project Manager. Create now asks for one under Team, the same way it asks for a name and an install date.",
    "My Dashboard lists every milestone, working-on bar, time-off entry and note. Long lists scroll inside their column instead of stopping at \"+N more\".",
    "Leaving a New Project page you have not touched no longer asks whether to discard it."]},
  {v:"v1.20.7",d:"Sep 4, 2026",n:["The Report a bug or idea page has a third column: resolved reports, newest first, so you can see what has already been dealt with."]},

@@ -1,15 +1,15 @@
-/* v1.20.8 — the creator is the default Project Manager (owner request, 2026-09-08).
-   A new-project draft opens with the signed-in person checked under Team ▸ Project
-   manager, even when they are not on the PM roster (their box is added, checked).
-   Unchecking swaps the name like any other role; saved projects are untouched; with
-   no resolvable sign-in the field stays blank as before.
+/* v1.20.8 — Project Manager is required on Create (owner request, 2026-09-08; replaced the
+   short-lived "creator is the default PM" idea the same day). A new-project draft opens
+   with NO Project Manager; Create refuses until one is checked under Team, marking the
+   box the way a missing name or install date is marked. Also: My Dashboard lists every
+   row (no "+N more" cap) and an untouched draft does not read dirty.
    Run: node tests/test-v1208.js index.html  (or via tests/run.js) */
 const {boot}=require('./harness');
 const fs=require('fs');
 const FILE=process.argv[2]||'index.html';
 const src=fs.readFileSync(FILE,'utf8');
 
-if(src.indexOf("projectManager:meName()||''")<0){
+if(src.indexOf("!pm&&'a Project Manager'")<0){
   console.log('test-v1208: skipped — pre-v1.20.8 build ('+FILE+')');
   process.exit(0);
 }
@@ -20,8 +20,6 @@ const sec=t=>console.log('\n'+t);
 const D=n=>{const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()+n);
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
 
-/* The harness signs in as user@example.com. Sam Ortiz owns that email but is a
-   drafter, not a PM — the non-PM-creates-a-project case. */
 const staff=[
   {appId:'s1',Title:'Sam Ortiz',depts:JSON.stringify(['td']),ooo:'[]',email:'user@example.com',role:'Drafter'},
   {appId:'s2',Title:'Caroline Bondi',depts:JSON.stringify(['pm']),ooo:'[]',email:'',role:'PM'},
@@ -42,35 +40,39 @@ const E=s=>win.eval(s);
 const qa=s=>[...doc.querySelectorAll(s)];
 const go=h=>{win.location.hash=h;win.dispatchEvent(new win.Event('hashchange'));};
 
-setTimeout(main,1300);
-
-function main(){
-  ok('the sign-in resolves to the drafter through the email chain', E('meName()')==='Sam Ortiz', E('meName()'));
-  go('#/project/new');
-  setTimeout(draftPart,800);
-}
+setTimeout(()=>{go('#/project/new');setTimeout(draftPart,800);},1300);
 
 function draftPart(){
-  sec('new-project draft: the creator is the Project Manager');
-  ok('the draft carries the creator as PM', E('PP_FORM.projectManager')==='Sam Ortiz', E('PP_FORM.projectManager'));
-  const checked=qa('#pp-r-pm input:checked').map(i=>i.value);
-  ok('their box renders checked even though they are not on the PM roster', checked.join('|')==='Sam Ortiz', checked.join('|'));
-  ok('the PM roster still lists the real PMs', qa('#pp-r-pm input').map(i=>i.value).includes('Caroline Bondi'));
+  sec('new-project draft: no Project Manager pre-checked');
+  ok('the draft opens with an empty PM', E('PP_FORM.projectManager')==='', E('PP_FORM.projectManager'));
+  ok('no PM box is checked', qa('#pp-r-pm input:checked').length===0);
+  ok('the PM roster lists the real PMs', qa('#pp-r-pm input').map(i=>i.value).includes('Caroline Bondi'));
   ok('an untouched draft is not dirty', E('ppDraftDirty()')===false, E('PP_SNAP')+' vs '+E('JSON.stringify(PP_FORM)'));
 
-  sec('the name can be swapped like any other role');
-  const mine=qa('#pp-r-pm input').find(i=>i.value==='Sam Ortiz');
-  const car=qa('#pp-r-pm input').find(i=>i.value==='Caroline Bondi');
-  mine.click();car.click();
-  E('ppFormSync()');
-  ok('unchecking yourself and checking a PM moves the field', E('PP_FORM.projectManager')==='Caroline Bondi', E('PP_FORM.projectManager'));
+  sec('Create refuses without a Project Manager');
+  const n0=E('ST.projects.length');
+  doc.getElementById('pp-name').value='Needs a PM';
+  doc.getElementById('pp-save').click();
+  ok('no project was created', E('ST.projects.length')===n0, E('ST.projects.length'));
+  ok('still on the draft page', E('ROUTE.creating')===true);
+  ok('the PM box is marked in error', !!doc.querySelector('#pp-r-pm.err'));
+  const tt=qa('.toast').map(t=>t.textContent).join('|');
+  ok('the toast names the missing PM', /Project Manager/.test(tt), tt);
 
-  sec('saved project page is untouched');
-  go('#/project/p1');
-  setTimeout(savedPart,800);
+  sec('checking a PM lets Create through');
+  const car=qa('#pp-r-pm input').find(i=>i.value==='Caroline Bondi');
+  car.click();
+  doc.getElementById('pp-save').click();
+  setTimeout(()=>{
+    ok('the project was created', E('ST.projects.length')===n0+1, E('ST.projects.length'));
+    ok('with the checked PM', E("ST.projects.some(p=>p.name==='Needs a PM'&&p.projectManager==='Caroline Bondi')"));
+    go('#/project/p1');
+    setTimeout(savedPart,800);
+  },400);
 }
 
 function savedPart(){
+  sec('saved project page is untouched');
   const checked=qa('#pp-r-pm input:checked').map(i=>i.value);
   ok('the saved project keeps its own PM', checked.join('|')==='Caroline Bondi', checked.join('|'));
   ok('the stored record never changed', E("projById('p1').projectManager")==='Caroline Bondi');
@@ -83,10 +85,6 @@ function savedPart(){
   ok('all 12 milestones are rows', ms&&ms.querySelectorAll('.md-row').length===12, ms&&ms.querySelectorAll('.md-row').length);
   ok('no +N more stub anywhere in the dock', !doc.querySelector('#me-dock .md-more'));
   ok('the column body scrolls (stylesheet rule)', src.includes('.ins-sec .in{padding:8px 15px 14px;flex:1;min-height:0;overflow-y:auto}'));
-
-  sec('no resolvable sign-in: blank as before');
-  E('ACCOUNT=null;ppFormInit()');
-  ok('an unresolved account leaves the PM empty', E('PP_FORM.projectManager')==='');
 
   console.log('\n'+pass+' passed, '+fail+' failed');
   process.exit(fail?1:0);

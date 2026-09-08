@@ -11,7 +11,7 @@ Collect lines for the next version under `## Unreleased` and rename it when you 
 
 ## v1.20.8 — Sep 8, 2026
 
-- New projects start with you as the Project Manager. Anyone creating a project can uncheck their name and pick someone else under Team.
+- A project cannot be created without a Project Manager. Create now asks for one under Team, the same way it asks for a name and an install date.
 - My Dashboard lists every milestone, working-on bar, time-off entry and note. Long lists scroll inside their column instead of stopping at "+N more".
 - Leaving a New Project page you have not touched no longer asks whether to discard it.
 
