@@ -9,6 +9,10 @@ Format: `## <label> — <date>` then one `- ` line per change. Keep lines concre
 what changed *for the team*, not how. Developer-only tooling doesn't need a line.
 Collect lines for the next version under `## Unreleased` and rename it when you ship.
 
+## v1.20.9 — Sep 8, 2026
+- My Dashboard: subtasks show their own name on the bar, in the sidebar list and in the hover card, not just the project.
+- Project page crew picker shows nicknames like everywhere else.
+
 ## v1.20.8 — Sep 8, 2026
 
 - A project cannot be created without a Project Manager. Create now asks for one under Team, the same way it asks for a name and an install date.
