@@ -167,7 +167,6 @@ body.me-dock-col #md-collapse svg{transform:rotate(180deg)}
 .md-when{flex-shrink:0;font-size:11px;color:#7488A3}
 .md-tag{flex-shrink:0;font-size:11px;font-weight:700;letter-spacing:.06em;color:#1A7F4E;background:#DCF3E6;border-radius:6px;padding:0 5px}
 .md-empty{font-size:12px;color:#94A3B8;padding:6px 0}
-.md-more{font-size:11px;color:#94A3B8;padding:3px 0}
 /* v1.9.0 (owner ask): stacked dock column (v1.10.0: Working on + Time off); the second
    header needs a top rule where the column boundary used to be. */
 .md-stack>h4:not(:first-child){border-top:1px solid #E2E8F0}
@@ -947,6 +946,7 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 .ins-f input:focus,.ins-f select:focus,.ins-f textarea:focus{border-color:var(--acc);
   box-shadow:0 0 0 3px rgba(59,127,214,.12)}
 .ins-f input.err{border-color:#CE4242}
+.pg-rbox.err{border-color:#CE4242}
 .ins-row{display:grid;grid-template-columns:1fr 1fr;gap:9px}
 .ins-row3{display:grid;grid-template-columns:1fr 1fr 64px;gap:9px}
 .ins-note{font-size:var(--fs-fine);color:#94A3B8;line-height:1.45;margin:-3px 0 10px}
@@ -1585,7 +1585,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.20.7'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.20.8'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -3328,7 +3328,6 @@ function renderMeDock(){
   if(!on){dk.innerHTML='';return;}
   const per=personByName(PERSON)||{name:PERSON,depts:[],ooo:[]};
   const t0=fmtDate(today());
-  const CAP=8;
   const mine=visTasks().filter(personHit).sort((a,b)=>String(a.startDate).localeCompare(String(b.startDate)));
   const active=mine.filter(t=>t.startDate<=t0&&t0<=t.endDate);
   const coming=mine.filter(t=>t.startDate>t0);
@@ -3339,8 +3338,7 @@ function renderMeDock(){
     .sort((a,b)=>String(a.due||'9999').localeCompare(String(b.due||'9999')));
   const ooo=oooFor(PERSON).filter(o=>o.end&&o.end>=t0).sort((a,b)=>String(a.start).localeCompare(String(b.start)));
   const pn=id=>{const p=projById(id);return p?p.name:'—';};
-  const cap=(arr,row)=>arr.slice(0,CAP).map(row).join('')
-    +(arr.length>CAP?'<div class="md-more">+'+(arr.length-CAP)+' more</div>':'')
+  const cap=(arr,row)=>arr.map(row).join('') /* v1.20.8 (owner): every row — the column scrolls (.ins-sec .in) instead of stopping at +N more */
     ||'<div class="md-empty">Nothing here right now.</div>';
   const barRow=t=>'<div class="md-row"><span class="md-dot" style="background:'+projColor(t.projectId)+'"></span>'
     +'<span class="md-main">'+esc(phaseLabel(t))+' · '+esc(pn(t.projectId))+'</span>'
@@ -5553,7 +5551,7 @@ function renderProjectPage(){
       /* A tab the browser put to sleep reloads right here with everything the user typed
          gone from memory — pick the autosaved draft back up. PP_SNAP stays at the clean
          defaults from ppFormInit, so the restored draft still counts as dirty. */
-      ppDraftUnstash();
+      PP_FRESH=!ppDraftUnstash();
     }
   }
   PP_KEEP=false;
@@ -5653,6 +5651,11 @@ function renderProjectPage(){
 
   PP_SEL=keepSel;PP_INSP=keepSel?'phase':'project';
   ppInspector();
+  /* v1.20.8: the department checklist fills est/otherLabels on render, so the snapshot
+     is taken AFTER the form exists — an untouched draft must not read dirty (it used to
+     ask 'Discard this unsaved project?' with nothing typed). A restored stash skips
+     this: it keeps the init snapshot and stays dirty on purpose. */
+  if(isNew)if(PP_FRESH){ppFormSync();PP_SNAP=JSON.stringify(PP_FORM);PP_FRESH=false;}
   ppPaintMeta(p);
 
   document.getElementById('pp-back').addEventListener('click',goTimeline);
@@ -6478,6 +6481,7 @@ let NPV_LIVE=false;      /* true when the chart mirrors a saved project instead 
 let TINT=false;              /* C2: quiet canvas is the default; true = the vivid MONTH_HSL look */
 let GROUP_BY=null;       /* 'client' | 'pm' | 'status' — drives the sidebar group headers */           /* month hue + week saturation behind the charts */
 let PP_FORM=null;        /* new-project values, kept out of the DOM so tabs can't lose them */
+let PP_FRESH=false;     /* a brand-new draft awaiting its first snapshot (see renderProjectPage) */
 let PP_SNAP='';          /* N2: what a clean draft form serializes to */
 let PP_KEEP=false;       /* set when a redraw must not wipe the draft */
 /* 3.5/I10: the draft's undo stack — reversers for mutations that live outside ST
@@ -6613,12 +6617,13 @@ function ppDraftStash(){
 function ppDraftUnstash(){
   try{
     const raw=sessionStorage.getItem(PP_STASH);
-    if(!raw)return;
+    if(!raw)return false;
     const d=JSON.parse(raw);
     if(d.f)PP_FORM=d.f;
     NPV_EVENTS=d.ev||[];NPV_TODOS=d.tk||[];NPV_LINES=d.ln||[];
     NPV_MANUAL=d.man||{};NPV_ORDER=d.ord||[];NPV_ORDER_DIRTY=!!d.od;
     NPV_MODE=d.mode||'gantt';
+    return true;
   }catch(e){}
 }
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')ppDraftStash();});
@@ -8690,16 +8695,25 @@ function savePageProject(){
   ppFormSync();
   const F=PP_FORM||{};
   const name=(F.name||'').trim(), deadline=F.deadline||'';
+  /* v1.20.8 (owner): a Project Manager is required — someone must own the schedule.
+     ponytail: only enforced while the roster has a PM to pick, so a shop with no staff
+     list yet (and the empty-roster suites) can still create; revisit if that ever bites. */
+  const pm=roleList(F.projectManager).length>0||!(STAFF.projectManagers||[]).length;
   const nameEl=document.getElementById('pp-name');
   if(nameEl)nameEl.classList.remove('err');
-  if(!name||!deadline){
+  if(!name||!deadline||!pm){
     if(!name&&nameEl){nameEl.classList.add('err');nameEl.focus();}
+    if(!deadline||!pm)ppInspector();
     if(!deadline){
-      ppInspector();
       const dl2=document.getElementById('pp-deadline');
       if(dl2){dl2.classList.add('err');dl2.focus();}
     }
-    toast('Give it a name and an install date.','err');
+    if(!pm){
+      const box=document.getElementById('pp-r-pm');
+      if(box){box.classList.add('err');if(deadline){const ck=box.querySelector('input');if(ck)ck.focus();}}
+    }
+    const miss=[!name&&'a name',!deadline&&'an install date',!pm&&'a Project Manager'].filter(Boolean);
+    toast('Give it '+miss.join(' and ')+'.','err');
     return;
   }
   const activeDepartments=(F.activeDepartments||[]).slice();
@@ -10084,6 +10098,9 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.20.8",d:"Sep 8, 2026",n:["A project cannot be created without a Project Manager. Create now asks for one under Team, the same way it asks for a name and an install date.",
+   "My Dashboard lists every milestone, working-on bar, time-off entry and note. Long lists scroll inside their column instead of stopping at \"+N more\".",
+   "Leaving a New Project page you have not touched no longer asks whether to discard it."]},
  {v:"v1.20.7",d:"Sep 4, 2026",n:["The Report a bug or idea page has a third column: resolved reports, newest first, so you can see what has already been dealt with."]},
  {v:"v1.20.6",d:"Sep 4, 2026",n:["Shipping is a new phase on the project page, right after Installation. Tick it instead of (or as well as) Install when a job ships out; its bars are red like installs, and the project counts as complete once the last install or shipping day has passed.",
    "Release notes now go all the way back to the beginning — every version since the first alpha, in one place."]},

@@ -9,6 +9,12 @@ Format: `## <label> — <date>` then one `- ` line per change. Keep lines concre
 what changed *for the team*, not how. Developer-only tooling doesn't need a line.
 Collect lines for the next version under `## Unreleased` and rename it when you ship.
 
+## v1.20.8 — Sep 8, 2026
+
+- A project cannot be created without a Project Manager. Create now asks for one under Team, the same way it asks for a name and an install date.
+- My Dashboard lists every milestone, working-on bar, time-off entry and note. Long lists scroll inside their column instead of stopping at "+N more".
+- Leaving a New Project page you have not touched no longer asks whether to discard it.
+
 ## v1.20.7 — Sep 4, 2026
 
 - The Report a bug or idea page has a third column: resolved reports, newest first, so you can see what has already been dealt with.
