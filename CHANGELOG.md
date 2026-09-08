@@ -9,6 +9,10 @@ Format: `## <label> — <date>` then one `- ` line per change. Keep lines concre
 what changed *for the team*, not how. Developer-only tooling doesn't need a line.
 Collect lines for the next version under `## Unreleased` and rename it when you ship.
 
+## v1.20.7 — Sep 4, 2026
+
+- The Report a bug or idea page has a third column: resolved reports, newest first, so you can see what has already been dealt with.
+
 ## v1.20.6 — Sep 4, 2026
 
 - Shipping is a new phase on the project page, right after Installation. Tick it instead of (or as well as) Install when a job ships out; its bars are red like installs, and the project counts as complete once the last install or shipping day has passed.
