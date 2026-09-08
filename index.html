@@ -1585,7 +1585,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.20.8'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.20.9'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -3613,7 +3613,7 @@ function renderSidebar(){
       for(const t of show){
         const p=projById(t.projectId);
         const a=document.createElement('span');a.className='sb-asn';
-        const n=document.createElement('span');n.className='n';n.textContent=p?p.name:'—';
+        const n=document.createElement('span');n.className='n';n.textContent=(p?p.name:'—')+(t.label&&String(t.label).trim()?' · '+phaseLabel(t):''); /* v1.20.9: a subtask reads by its own name at a glance */
         const d=document.createElement('span');d.className='d';
         d.textContent=fmtNice(t.startDate)+'–'+fmtNice(t.endDate);
         a.appendChild(n);a.appendChild(d);box.appendChild(a);
@@ -4054,7 +4054,7 @@ function makeTaskBar(t,row,lane,labelMode){
     lbl.style.left=labelLeftFor(x,w,lblBase,LBL_MIN_TASK)+'px';
     lbl.style.right=(t.pinned?18:7)+'px';
     if(t.__ghost)lbl.textContent=(isInstall(t)?endName(t.department):phaseLabel(t))+' · '+(p?p.name:'?');
-    else if(labelMode==='proj')lbl.textContent=p?p.name+(p.jobCode?' · '+p.jobCode:''):'?';
+    else if(labelMode==='proj')lbl.textContent=(p?p.name+(p.jobCode?' · '+p.jobCode:''):'?')+(t.label&&String(t.label).trim()?' — '+phaseLabel(t):''); /* v1.20.9: subtask name rides along */
     else if(isInstall(t))lbl.textContent=endName(t.department)+' — '+assigneeText(t);
     else lbl.textContent=phaseLabel(t);
     bar.appendChild(lbl);
@@ -4219,7 +4219,7 @@ function showTooltipTask(t,ev,hiNode){
       return '<div'+cls+'>◆ '+esc(fmtNice(n.date))+' → '+esc(n.target)+(n.notes?' — '+esc(n.notes):'')+'</div>';
     }).join('')+'</div>';
   }
-  el.innerHTML='<div class="tt-title">'+esc(p?p.name:'?')+' — '+esc(deptName)+'</div>'
+  el.innerHTML='<div class="tt-title">'+esc(p?p.name:'?')+' — '+esc(t.label&&String(t.label).trim()?phaseLabel(t)+' · '+deptName:deptName)+'</div>'
     +'<div class="tt-dim">'+esc(assigneeText(t))+'</div>'
     +'<div class="tt-dim">'+fmtNice(t.startDate)+' → '+fmtNice(t.endDate)+' · '+days+'d</div>'
     +(t.notes?'<div class="tt-notes">'+esc(t.notes)+'</div>':'')
@@ -6128,7 +6128,7 @@ function ppInspector(){
       const pool=dp.length?dp:(isInstall(sel)?allPeople():(projTeam(p).length?projTeam(p):allPeople()));
       f+='<div class="ins-f"><label>Crew</label><div class="crew-list ins-crew" id="ins-crew">'
        + [...new Set([...pool,...crew])].map(n=>'<label><input type="checkbox" value="'+esc(n)+'"'
-         +(crew.indexOf(n)>=0?' checked':'')+'>'+esc(n)+'</label>').join('')
+         +(crew.indexOf(n)>=0?' checked':'')+'>'+esc(dispName(n))+'</label>').join('') /* v1.20.9: display nickname, store full name */
        + '</div>'
        + (deptById(sel.department)?.roster?'<div class="ins-note">Leave empty to cover it with the project team.</div>':'')
        + '</div>';
@@ -10098,6 +10098,8 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.20.9",d:"Sep 8, 2026",n:["My Dashboard: subtasks show their own name on the bar, in the sidebar list and in the hover card, not just the project.",
+   "Project page crew picker shows nicknames like everywhere else."]},
  {v:"v1.20.8",d:"Sep 8, 2026",n:["A project cannot be created without a Project Manager. Create now asks for one under Team, the same way it asks for a name and an install date.",
    "My Dashboard lists every milestone, working-on bar, time-off entry and note. Long lists scroll inside their column instead of stopping at \"+N more\".",
    "Leaving a New Project page you have not touched no longer asks whether to discard it."]},
