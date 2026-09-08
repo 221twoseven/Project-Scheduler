@@ -8695,7 +8695,10 @@ function savePageProject(){
   ppFormSync();
   const F=PP_FORM||{};
   const name=(F.name||'').trim(), deadline=F.deadline||'';
-  const pm=roleList(F.projectManager).length>0; /* v1.20.8 (owner): a Project Manager is required — someone must own the schedule */
+  /* v1.20.8 (owner): a Project Manager is required — someone must own the schedule.
+     ponytail: only enforced while the roster has a PM to pick, so a shop with no staff
+     list yet (and the empty-roster suites) can still create; revisit if that ever bites. */
+  const pm=roleList(F.projectManager).length>0||!(STAFF.projectManagers||[]).length;
   const nameEl=document.getElementById('pp-name');
   if(nameEl)nameEl.classList.remove('err');
   if(!name||!deadline||!pm){
