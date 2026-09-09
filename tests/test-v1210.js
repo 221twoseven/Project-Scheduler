@@ -95,6 +95,16 @@ function savedPage(){
      bands().map(b=>b.className).join(' | '));
   E("ppSelect(null,true)");
 
+  sec('the tour teaches the levels (v1.21.1)');
+  E("NPV_MODE='gantt';npvRender()");
+  const st=JSON.parse(E("JSON.stringify(COACH_PP_STEPS.map(s=>s.sel))"));
+  ok('the project tour has a legend step after the view toggle', st.indexOf('#npv-leg')===st.indexOf('.npv-modes')+1, st.join(' | '));
+  E("coachStart(COACH_PP_STEPS);COACH.i=COACH.steps.findIndex(s=>s.sel==='#npv-leg');coachShow()");
+  ok('showing it switches the chart to the calendar', E('NPV_MODE')==='calendar');
+  ok('…so the spotlit legend holds the chip buttons', qa('#npv-leg button[data-dept]').length>0);
+  ok('the card names the legend click', /Click a phase in this legend/.test(q('#coach-body').textContent), q('#coach-body').textContent);
+  E('coachEnd()');
+
   sec('the Gantt legend stays plain');
   E("NPV_MODE='gantt';npvRender()");
   ok('no legend buttons in Gantt mode', qa('#npv-leg button').length===0);

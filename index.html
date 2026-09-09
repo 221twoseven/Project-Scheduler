@@ -1602,7 +1602,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.21.0'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.21.1'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -9779,9 +9779,15 @@ const COACH_PP_STEPS=[
   {sel:'#pp-meta',t:'The job at a glance',
    b:'Client, job code, install date and days out. These update as you edit. A warning appears if work runs past the install.'},
   {sel:'.npv-swrap',t:'The schedule',
-   b:'Every bar is a phase of work. Click one to edit it below, drag to move, grab an edge to resize, right-click to add a subtask, milestone or note. The calendar shows one band per phase — click a band to open it and see its subtasks.'},
+   b:'Every bar is a phase of work. Click one to edit it below, drag to move, grab an edge to resize, right-click to add a subtask, milestone or note. On the calendar, click a strip to open its phase and see its subtasks.'},
   {sel:'.npv-modes',t:'Two views of the same dates',
    b:'Gantt for the whole job at once, Calendar for week-by-week. G and C switch from the keyboard.'},
+  /* v1.21.1 (owner ask 09-09): the calendar detail levels get a step. `on` runs before
+     the spotlight is measured, so the legend it points at is the calendar's (buttons),
+     not the Gantt's plain one. */
+  {sel:'#npv-leg',t:'Read the calendar at any depth',
+   on:()=>{if(NPV_MODE!=='calendar'){NPV_MODE='calendar';npvRender();}},
+   b:'On the calendar every phase starts as a slim colour strip, so a stacked job still fits its weeks. Click a phase in this legend to show its title, again for its subtasks, again to shrink it back. Milestone and Note switch their text on. Collapse all resets.'},
   {sel:'#pp-insp',t:'The editor',
    b:'With nothing selected you edit the project here — Setup, Team, Departments, Milestones and Notes. Select a phase and this becomes that phase’s form.'},
   {sel:'#pp-save',t:'Nothing is real yet',
@@ -9826,7 +9832,9 @@ function coachEl(sel){
 }
 function coachShow(){
   coachUnchain();
-  const s=COACH.steps[COACH.i],r=coachEl(s.sel).getBoundingClientRect();
+  const s=COACH.steps[COACH.i];
+  if(s.on)s.on(); /* v1.21.1: a step may set the view up before it is measured */
+  const r=coachEl(s.sel).getBoundingClientRect();
   const hole=document.getElementById('coach-hole'),card=document.getElementById('coach-card');
   if(s.chain){
     document.getElementById('coach').classList.add('chain');
@@ -10140,6 +10148,7 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.21.1",d:"Sep 9, 2026",n:["The project-page tour has a new step on the calendar legend: how a phase steps from a slim strip to its title to its subtasks, and how to show milestone and note text."]},
  {v:"v1.21.0",d:"Sep 9, 2026",n:["Project calendar: phases start as slim colour strips and milestones as bare diamonds, so a fully stacked job fits its weeks again. Click a phase in the legend to step it up to a titled bar, then to its subtasks; click Milestone or Note to show their text. Collapse all resets."]},
  {v:"v1.20.9",d:"Sep 8, 2026",n:["My Dashboard: subtasks show their own name on the bar, in the sidebar list and in the hover card, not just the project.",
    "Project page crew picker shows nicknames like everywhere else."]},

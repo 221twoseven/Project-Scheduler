@@ -42,17 +42,18 @@ run across both halves (7 here + 6 on the project page = 13).
 
 Also available on its own from Help while on any project page. The draft page shows
 the "Nothing is real yet" step; a saved project shows "Everything saves itself"
-instead (so a full run is 6 steps, never both).
+instead (so a full run is 7 steps, never both).
 
 | # | Highlights | Title | Body |
 |---|---|---|---|
 | 8 | The breadcrumb trail | Where you are | All Projects, this job, and the phase when one is selected. Click a crumb to step back out. Esc, Done and the × do the same. |
 | 9 | The header strip (client · code · install) | The job at a glance | Client, job code, install date and days out. These update as you edit. A warning appears if work runs past the install. |
-| 10 | The schedule (Gantt/calendar) | The schedule | Every bar is a phase of work. Click one to edit it below, drag to move, grab an edge to resize, right-click to add a subtask, milestone or note. The calendar shows one band per phase — click a band to open it and see its subtasks. |
+| 10 | The schedule (Gantt/calendar) | The schedule | Every bar is a phase of work. Click one to edit it below, drag to move, grab an edge to resize, right-click to add a subtask, milestone or note. On the calendar, click a strip to open its phase and see its subtasks. *(v1.21.1 — was "The calendar shows one band per phase — click a band to open it and see its subtasks.")* |
 | 11 | The Gantt/Calendar toggle | Two views of the same dates | Gantt for the whole job at once, Calendar for week-by-week. G and C switch from the keyboard. |
-| 12 | The bottom editor dock | The editor | With nothing selected you edit the project here — Setup, Team, Departments, Milestones and Notes. Select a phase and this becomes that phase's form. |
-| 13a | Create project button (drafts only) | Nothing is real yet | This page is a draft kept in this tab. Drafts survive a page refresh. Create project files it to SharePoint. Cancel or the × closes without saving. |
-| 13b | The ✓ Changes saved tag (saved pages only) | Everything saves itself | Edits file to SharePoint as you make them. The pill in the toolbar shows sync. Done takes you back to the timeline. |
+| 12 | The calendar legend (the step switches the chart to Calendar first, so the chips it points at are the live buttons) — *added v1.21.1, owner ask 2026-09-09* | Read the calendar at any depth | On the calendar every phase starts as a slim colour strip, so a stacked job still fits its weeks. Click a phase in this legend to show its title, again for its subtasks, again to shrink it back. Milestone and Note switch their text on. Collapse all resets. |
+| 13 | The bottom editor dock | The editor | With nothing selected you edit the project here — Setup, Team, Departments, Milestones and Notes. Select a phase and this becomes that phase's form. |
+| 14a | Create project button (drafts only) | Nothing is real yet | This page is a draft kept in this tab. Drafts survive a page refresh. Create project files it to SharePoint. Cancel or the × closes without saving. |
+| 14b | The ✓ Changes saved tag (saved pages only) | Everything saves itself | Edits file to SharePoint as you make them. The pill in the toolbar shows sync. Done takes you back to the timeline. |
 
 Tour buttons: **Skip tour** · **Back** · **Next** (hidden on step 7, where the body
 asks for the real click).

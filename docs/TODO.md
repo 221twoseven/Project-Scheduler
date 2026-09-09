@@ -221,6 +221,10 @@ Owner's objective numbers in parentheses. Each batch: build on `development`, ve
       Collapse all resets. `NPV_CAL_OPEN` is a dept → level Map. Design-Language §6
       amended (with the §9 hit-target exception). Suite: `tests/test-v1210.js`.
       Milestone: `docs/Milestones/V1-Releases/2026-09-09-calendar-detail-levels.md`.
+      **v1.21.1 (same day, owner ask):** the project-page tour teaches it — a
+      "Read the calendar at any depth" step on `#npv-leg` after the view toggle,
+      switching the chart to Calendar before it is spotlit (`on` hook in `coachShow`).
+      Copy doc rows 10/12 updated.
 
 ### My Dashboard as a real view (minor bump)
 

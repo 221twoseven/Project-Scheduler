@@ -26,4 +26,10 @@ click expands it to a full-size band, which is the escape. Recorded as a §9 exc
 
 ![Calendar at level 0, one phase stepped up](screenshots/2026-09-09-calendar-detail-levels.png)
 
+**v1.21.1, same day (owner ask):** the project-page tour gained a step on the calendar
+legend ("Read the calendar at any depth"), right after the Gantt/Calendar toggle step. The
+step switches the chart to Calendar before it is spotlit, so the chips it points at are the
+live buttons. The earlier "The schedule" step's calendar sentence was reworded to match.
+Copy recorded in `docs/Copy-Coach-and-Helpers.md` (rows 10, 12).
+
 Guarded by `test-v1210`.
