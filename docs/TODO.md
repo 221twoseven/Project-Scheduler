@@ -389,7 +389,10 @@ rule §5); old data keeps reading fine.
       time (owner ruling 2026-08-31; the REV99 dock stays). Write side: every
       landed save (syncNow's success path) diffs old→new state and POSTs one row
       per changed record to `ShopTimeline_Changelog` (who, at, field, old→new
-      detail, projectId); creating/deleting a project logs one row, not one per
+      detail, projectId — **v1.21.2 (owner ask 09-09): free-text `notes` logs only
+      added / edited / cleared, never the text (`CLOG_TEXT`); rows stored before that
+      fold the same way at render and in the page filter via `clogDetail`**);
+      creating/deleting a project logs one row, not one per
       child; >20 rows in one save collapse to a Bulk-change summary row. History
       starts 2026-09-02 — nothing backfills earlier edits. Suite `test-v1190`.
 
