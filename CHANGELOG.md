@@ -9,6 +9,9 @@ Format: `## <label> — <date>` then one `- ` line per change. Keep lines concre
 what changed *for the team*, not how. Developer-only tooling doesn't need a line.
 Collect lines for the next version under `## Unreleased` and rename it when you ship.
 
+## v1.21.0 — Sep 9, 2026
+- Project calendar: phases start as slim colour strips and milestones as bare diamonds, so a fully stacked job fits its weeks again. Click a phase in the legend to step it up to a titled bar, then to its subtasks; click Milestone or Note to show their text. Collapse all resets.
+
 ## v1.20.9 — Sep 8, 2026
 - My Dashboard: subtasks show their own name on the bar, in the sidebar list and in the hover card, not just the project.
 - Project page crew picker shows nicknames like everywhere else.

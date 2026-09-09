@@ -213,6 +213,14 @@ Owner's objective numbers in parentheses. Each batch: build on `development`, ve
       the snapped result; the existing full-day snap owns the outcome on release.
       Phase and subtask bands alike. The Gantt already live-follows — the calendar
       was the odd one out; ceilings ledgered in §7. Suite: as above.
+- [x] **10. Calendar detail levels — DONE 2026-09-09 (v1.21.0, development /
+      `/preview/` only until promoted).** Owner ask: a fully stacked job made the
+      calendar unreadable. Every phase now defaults to a slim colour strip (level 0),
+      markers to bare glyphs packed into shared rows; the legend chips are buttons that
+      step a phase 0 → titled → subtasks → 0, Milestone/Note toggle marker text,
+      Collapse all resets. `NPV_CAL_OPEN` is a dept → level Map. Design-Language §6
+      amended (with the §9 hit-target exception). Suite: `tests/test-v1210.js`.
+      Milestone: `docs/Milestones/V1-Releases/2026-09-09-calendar-detail-levels.md`.
 
 ### My Dashboard as a real view (minor bump)
 
@@ -1276,6 +1284,10 @@ column minimum widths are fixed (U2/E1); In-Design and In-Fabrication bars both
 full-strength on purpose, the pill word separates them (U8); the default view parks
 today left-of-center — on first load and on every arrival at the timeline via routing
 (REV101) — while only the Today button and `T` center it (B3b/REV76).
+Calendar level-0 strips (v1.21.0) are ~9px hit targets, under the §9 24px line — the
+pad can't grow without stealing the neighbouring strip's clicks; one click expands to a
+full-size band. Calendar detail levels and marker-text state reset per project visit
+(not persisted) — persist per browser like `NPV_OPEN` only if someone asks.
 
 ---
 
