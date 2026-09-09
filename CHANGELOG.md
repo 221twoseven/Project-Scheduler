@@ -9,6 +9,9 @@ Format: `## <label> — <date>` then one `- ` line per change. Keep lines concre
 what changed *for the team*, not how. Developer-only tooling doesn't need a line.
 Collect lines for the next version under `## Unreleased` and rename it when you ship.
 
+## v1.21.2 — Sep 9, 2026
+- The Changelog no longer prints the full text of a phase's notes. A notes change now reads as added, edited or cleared; older entries fold the same way.
+
 ## v1.21.1 — Sep 9, 2026
 - The project-page tour has a new step on the calendar legend: how a phase steps from a slim strip to its title to its subtasks, and how to show milestone and note text.
 

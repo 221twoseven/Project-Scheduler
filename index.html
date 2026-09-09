@@ -1602,7 +1602,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.21.1'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.21.2'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -4585,6 +4585,26 @@ function clogFmt(v){
   const s=typeof v==='string'?v:JSON.stringify(v);
   return s.length>180?s.slice(0,180)+'…':s;
 }
+/* v1.21.2 (owner ask 09-09): free-text fields log THAT they changed, never what they
+   say — a phase's notes are a document, not a value, and the log was echoing them. */
+const CLOG_TEXT={notes:1};
+const clogEmpty=v=>v==null||v==='';
+function clogField(k,a,b){
+  if(CLOG_TEXT[k])return k+': '+(clogEmpty(a)?'added':clogEmpty(b)?'cleared':'edited');
+  return k+': '+clogFmt(a)+' → '+clogFmt(b);
+}
+/* Rows written before v1.21.2 still carry the text — fold them the same way on read.
+   The row's own `field` list says which keys start a line, so a "Testing:" line inside
+   the note body is never mistaken for a field. */
+function clogDetail(r){
+  const keys=(r.field||'').split(', ').filter(k=>/^\w+$/.test(k));
+  if(!keys.some(k=>CLOG_TEXT[k]))return r.detail;
+  return r.detail.split(new RegExp('\\n(?=(?:'+keys.join('|')+'): )')).map(p=>{
+    const k=p.slice(0,p.indexOf(': ')),body=p.slice(k.length+2);
+    if(!CLOG_TEXT[k]||/^(added|edited|cleared)$/.test(body))return p;
+    return k+': '+(body.indexOf('— → ')===0?'added':/ → —$/.test(body)?'cleared':'edited');
+  }).join('\n');
+}
 function clogDiff(oldST,newST){
   oldST=stripSample(oldST);newST=stripSample(newST);
   const who=(typeof ACCOUNT!=='undefined'&&ACCOUNT&&(ACCOUNT.name||ACCOUNT.username))||'';
@@ -4607,7 +4627,7 @@ function clogDiff(oldST,newST){
       if(!ch.length)continue;
       rows.push({Title:label+' “'+nameOf(n)+'”',projectId:pid,
         field:ch.join(', ').slice(0,240),
-        detail:ch.map(k=>k+': '+clogFmt(o[k])+' → '+clogFmt(n[k])).join('\n')});
+        detail:ch.map(k=>clogField(k,o[k],n[k])).join('\n')});
     }
     for(const[id,o]of om)if(!nm.has(id)){
       const pid=pidOf(o)||'';
@@ -4655,7 +4675,7 @@ function clogRowsHtml(rows,showProject){
       +'<div class="clog-what"><b>'+esc(r.title)+'</b>'
       +(showProject&&r.projectId&&r.title.indexOf('Project ')!==0?' <span class="clog-proj">· '+esc(p?p.name:'(deleted project)')+'</span>':'')
       +' <span class="clog-field">'+esc(r.field)+'</span>'
-      +(r.detail?'<div class="clog-det">'+esc(r.detail)+'</div>':'')
+      +(r.detail?'<div class="clog-det">'+esc(clogDetail(r))+'</div>':'')
       +'</div></div>';}).join('');
 }
 /* The global changelog page — Resources ▸ Changelog, admin-only (menu entry hidden for
@@ -4687,7 +4707,7 @@ function renderChangelog(){
       const el=document.getElementById('clog-list'),qi=document.getElementById('clog-q');
       if(!el||!qi)return;
       const q=(qi.value||'').trim().toLowerCase();
-      const f=q?rows.filter(r=>(r.title+' '+r.who+' '+r.field+' '+r.detail+' '
+      const f=q?rows.filter(r=>(r.title+' '+r.who+' '+r.field+' '+clogDetail(r)+' ' /* v1.21.2: never match on folded note text */
         +((projById(r.projectId)||{}).name||'')).toLowerCase().includes(q)):rows;
       el.innerHTML=clogRowsHtml(f.slice(0,500),true)
         +(f.length>500?'<div class="clog-empty">Showing the latest 500 of '+f.length+' — narrow with the filter above.</div>':'');
@@ -10148,6 +10168,7 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.21.2",d:"Sep 9, 2026",n:["The Changelog no longer prints the full text of a phase's notes. A notes change now reads as added, edited or cleared; older entries fold the same way."]},
  {v:"v1.21.1",d:"Sep 9, 2026",n:["The project-page tour has a new step on the calendar legend: how a phase steps from a slim strip to its title to its subtasks, and how to show milestone and note text."]},
  {v:"v1.21.0",d:"Sep 9, 2026",n:["Project calendar: phases start as slim colour strips and milestones as bare diamonds, so a fully stacked job fits its weeks again. Click a phase in the legend to step it up to a titled bar, then to its subtasks; click Milestone or Note to show their text. Collapse all resets."]},
  {v:"v1.20.9",d:"Sep 8, 2026",n:["My Dashboard: subtasks show their own name on the bar, in the sidebar list and in the hover card, not just the project.",

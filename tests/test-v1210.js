@@ -105,6 +105,18 @@ function savedPage(){
   ok('the card names the legend click', /Click a phase in this legend/.test(q('#coach-body').textContent), q('#coach-body').textContent);
   E('coachEnd()');
 
+  sec('changelog never echoes note text (v1.21.2)');
+  const dOld=E("clogDiff({projects:[],tasks:[{id:'x',projectId:'p1',department:'fab',notes:'',assignee:'A'}]},{projects:[],tasks:[{id:'x',projectId:'p1',department:'fab',notes:'Iceberg:\\n- Buck\\nTesting: seams',assignee:'B'}]})[0].detail");
+  ok('a filled note logs as added, other fields keep old → new', dOld==='notes: added\nassignee: A → B', JSON.stringify(dOld));
+  const dEd=E("clogDiff({tasks:[{id:'x',notes:'a'}]},{tasks:[{id:'x',notes:'b'}]})[0].detail");
+  ok('a changed note logs as edited', dEd==='notes: edited', JSON.stringify(dEd));
+  const dCl=E("clogDiff({tasks:[{id:'x',notes:'a'}]},{tasks:[{id:'x',notes:''}]})[0].detail");
+  ok('an emptied note logs as cleared', dCl==='notes: cleared', JSON.stringify(dCl));
+  const legacy=E("clogDetail({field:'notes, assignee',detail:'notes: — → Iceberg:\\n- Buck\\nTesting: seams → x\\nassignee: A → B'})");
+  ok('a pre-v1.21.2 row folds its note text at render, keeping the other fields', legacy==='notes: added\nassignee: A → B', JSON.stringify(legacy));
+  const legacy2=E("clogDetail({field:'notes',detail:'notes: old text\\nmore → new text'})");
+  ok('…and an edited legacy note reads as edited', legacy2==='notes: edited', JSON.stringify(legacy2));
+
   sec('the Gantt legend stays plain');
   E("NPV_MODE='gantt';npvRender()");
   ok('no legend buttons in Gantt mode', qa('#npv-leg button').length===0);
