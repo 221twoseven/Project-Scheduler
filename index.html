@@ -736,6 +736,23 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 .cal-band.ev{color:#16202E}
 .cal-band.tk{color:#64748B}
 .cal-band.ev .cal-txt,.cal-band.tk .cal-txt{white-space:normal;overflow:visible;text-overflow:clip}
+/* v1.21.0: calendar detail levels. Level 0 (the default) draws a phase as a slim colour
+   strip — the label stays in the DOM (tests, tooltips) and CSS hides it; markers drop to
+   glyph-only under .mk0. The legend chips are the controls (npvRenderLegend).
+   ponytail: slim rows sit ~9px apart, so the hit pad cannot reach the 24px line (§9)
+   without stealing clicks from the neighbouring strip — one click on a strip expands it
+   to a full-size target, which is the escape. */
+.cal-band.ph.slim{height:7px;min-height:0;padding:0}
+.cal-band.ph.slim .cal-txt{display:none}
+.cal-band.ph.slim::after,.cal-band.ph.slim .cal-hdl{top:-1px;bottom:-1px}
+.cal.mk0 .cal-band.ev .cal-txt,.cal.mk0 .cal-band.tk .cal-txt{display:none}
+.npv-leg button.lg{background:none;border:none;padding:0;cursor:pointer;font-family:inherit;border-radius:4px}
+.npv-leg button.lg:hover{color:#1E293B}
+.npv-leg button.lg:focus-visible{outline:2px solid #3B7FD6;outline-offset:2px}
+.npv-leg .lg.lv0{color:#94A3B8}
+.npv-leg .lg.lv0 i[style]{background:transparent!important;box-shadow:inset 0 0 0 2px var(--sw)}
+.npv-leg .lg.lv2{color:#1E293B}
+.npv-leg .lg.lv2::after{content:'▾';margin-left:-2px}
 .cal-mki{flex-shrink:0;width:9px;height:9px;box-sizing:border-box;margin:1px 6px 1px 2px}
 .cal-band.ev .cal-mki{background:#F7C948;border:1.5px solid #16202E;transform:rotate(45deg)}
 .cal-band.tk .cal-mki{background:#fff;border:1.5px solid #3B7FD6;border-radius:50%}
@@ -1585,7 +1602,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.20.9'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.21.1'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -5543,7 +5560,7 @@ function renderProjectPage(){
   const keepSel=PP_KEEP?PP_SEL:null;
   if(!PP_KEEP){
     NPV_MANUAL={};NPV_TASKS=[];NPV_ALL=[];NPV_ORDER=[];NPV_ORDER_DIRTY=false;
-    NPV_EVENTS=[];NPV_TODOS=[];NPV_LINES=[];NPV_UNDO=[];NPV_REDO=[];NPV_CAL_OPEN=new Set();
+    NPV_EVENTS=[];NPV_TODOS=[];NPV_LINES=[];NPV_UNDO=[];NPV_REDO=[];NPV_CAL_OPEN=new Map();NPV_CAL_MK=false;
     PP_CLOG=false; /* v1.19.0: arriving fresh always shows the edit dock */
     if(isNew){
       NPV_MODE='gantt';
@@ -6474,9 +6491,13 @@ let NPV_CAL_FOCUS=false; /* N16: calendar shows only the selected phase's bands 
    same key) at the snapped span, so the bar follows the pointer week to week. */
 let NPV_CAL_RZ=null;
 const npvCalKey=t=>t.department+'|'+(t.label||'')+'|'+t.startDate+'|'+t.endDate;
-let NPV_CAL_OPEN=new Set(); /* v1.0.4 (obj 8): calendar phases expanded (dept ids) — any
+let NPV_CAL_OPEN=new Map(); /* v1.0.4 (obj 8): calendar phases expanded (dept ids) — any
                                number at once, independent of the selection and of the
-                               Gantt's NPV_OPEN; cleared by the legend-bar Collapse all */
+                               Gantt's NPV_OPEN; cleared by the legend-bar Collapse all.
+                               v1.21.0: dept → detail level. Absent/0 = slim colour strip,
+                               1 = titled band, 2 = title + subtask bands. */
+const npvCalLvl=d=>NPV_CAL_OPEN.get(d)||0;
+let NPV_CAL_MK=false;    /* v1.21.0: calendar markers show their text (false = glyph only) */
 let NPV_LIVE=false;      /* true when the chart mirrors a saved project instead of a draft */
 let TINT=false;              /* C2: quiet canvas is the default; true = the vivid MONTH_HSL look */
 let GROUP_BY=null;       /* 'client' | 'pm' | 'status' — drives the sidebar group headers */           /* month hue + week saturation behind the charts */
@@ -6844,7 +6865,7 @@ function npvDuplicatePhase(t){
     NPV_LINES.push(l);
     NPV_MANUAL[npvKey({department:t.department,label:l.name,assignee:who})]=
       {startDate:t.startDate,endDate:t.endDate,estimatedDays:t.estimatedDays};
-    NPV_OPEN.add(t.department);NPV_CAL_OPEN.add(t.department);saveUI();npvRebuild();
+    NPV_OPEN.add(t.department);NPV_CAL_OPEN.set(t.department,2);saveUI();npvRebuild();
     ppSelect('l:'+l.id,true);
     npvToastU('Duplicated '+phaseLabel(t),()=>{
       NPV_LINES=NPV_LINES.filter(x=>x.id!==l.id);
@@ -6856,7 +6877,7 @@ function npvDuplicatePhase(t){
   const copy={...t,id:genId(),label:(t.label||'')+' copy',ticketNodes:[]};
   PP_QUIET=true;
   try{saveState({projects:ST.projects,tasks:[...ST.tasks,copy]});}finally{PP_QUIET=false;}
-  NPV_OPEN.add(t.department);NPV_CAL_OPEN.add(t.department);saveUI();npvRebuild();ppSelect(copy.id);
+  NPV_OPEN.add(t.department);NPV_CAL_OPEN.set(t.department,2);saveUI();npvRebuild();ppSelect(copy.id);
   toastU('Duplicated '+phaseLabel(t));
 }
 
@@ -6936,7 +6957,7 @@ function npvCreateSubtask(dept,date,newDept,name,popAt){
       if(ck&&!ck.checked){ck.checked=true;ck.dispatchEvent(new Event('change',{bubbles:true}));}
       else if(PP_FORM&&!PP_FORM.activeDepartments.includes(dept))PP_FORM.activeDepartments.push(dept);
       ppFormSync();npvRebuild();
-      NPV_OPEN.add(dept);NPV_CAL_OPEN.add(dept);saveUI();
+      NPV_OPEN.add(dept);NPV_CAL_OPEN.set(dept,2);saveUI();
       toastU('Added '+((deptById(dept)||{}).name||dept));
       if(popAt){const nb=NPV_TASKS.find(z=>z.department===dept);
         if(nb){ppSelect(nb.id,true);npvEditPop('phase',ppSelected(),popAt[0],popAt[1],true);}}
@@ -6962,7 +6983,7 @@ function npvCreateSubtask(dept,date,newDept,name,popAt){
       NPV_MANUAL[npvKey({department:dept,label:nm,assignee:''})]=
         {startDate:w0.startDate,endDate:npvEndAfter(w0.startDate,half),estimatedDays:half};
     }
-    NPV_OPEN.add(dept);NPV_CAL_OPEN.add(dept);saveUI();
+    NPV_OPEN.add(dept);NPV_CAL_OPEN.set(dept,2);saveUI();
     npvRebuild();
     /* 3.5/I7: same outcome as the saved page — the new bar is selected into the
        inspector, and the undo rides the draft undo stack (⌘Z). */
@@ -7000,7 +7021,7 @@ function npvCreateSubtask(dept,date,newDept,name,popAt){
     : ST.projects;
   PP_QUIET=true;
   try{saveState({projects,tasks:[...ST.tasks,t]});}finally{PP_QUIET=false;}
-  NPV_OPEN.add(dept);NPV_CAL_OPEN.add(dept);saveUI();
+  NPV_OPEN.add(dept);NPV_CAL_OPEN.set(dept,2);saveUI();
   npvRebuild();
   /* Straight into the name field — an unnamed bar is the thing people forget. */
   ppSelect(t.id);
@@ -7409,7 +7430,7 @@ function npvBindHost(host){
           if(cur&&cur.id===t.id&&NPV_TASKS.find(x=>x.department===t.department)===t){
             if(ev.detail===1){NPV_CAL_OPEN.delete(t.department);ppSelect(null,true);}
             return;}
-          NPV_CAL_OPEN.add(t.department);
+          NPV_CAL_OPEN.set(t.department,2);
           ppSelect(t.id);npvEditPop('phase',ppSelected(),ev.clientX,ev.clientY);return;}
       }
     });
@@ -7908,20 +7929,33 @@ function npvRenderLegend(){
   if(!box)return;
   const seen=[];
   for(const t of NPV_TASKS)if(seen.indexOf(t.department)<0)seen.push(t.department);
-  let h=seen.map(d=>'<span class="lg"><i style="background:'+(DEPT_COLORS[d]||'#8A98AE')+'"></i>'
-    +esc((deptById(d)||{}).name||d)+'</span>').join('');
+  /* v1.21.0: in calendar mode the chips are buttons — each click steps its phase through
+     the detail levels (slim strip → title → subtasks → strip); Milestone / Note toggle
+     the marker text. The chip's swatch reads the level: hollow at 0, filled at 1, a
+     caret at 2. The Gantt legend stays plain text. */
+  const cal=NPV_MODE==='calendar',tag=cal?'button':'span';
+  const chip=(cls,attr,inner)=>'<'+tag+' class="lg'+(cal?' '+cls:'')+'"'+(cal?attr:'')+'>'+inner+'</'+tag+'>';
+  let h=seen.map(d=>{const c=DEPT_COLORS[d]||'#8A98AE';
+    return chip('lv'+npvCalLvl(d),' data-dept="'+esc(d)+'" title="Click to show this phase as a strip, a titled bar, or with its subtasks"',
+      '<i style="--sw:'+c+';background:'+c+'"></i>'+esc((deptById(d)||{}).name||d));}).join('');
   const mks=npvMarkers();
-  if(mks.some(m=>m.k==='ev'))h+='<span class="lg"><i class="ev"></i>Milestone</span>';
-  if(mks.some(m=>m.k==='tk'))h+='<span class="lg"><i class="tk"></i>Note</span>';
+  const mkCls=NPV_CAL_MK?'lv1':'lv0',mkAttr=' data-mk="1" title="Click to show or hide milestone and note text"';
+  if(mks.some(m=>m.k==='ev'))h+=chip(mkCls,mkAttr,'<i class="ev"></i>Milestone');
+  if(mks.some(m=>m.k==='tk'))h+=chip(mkCls,mkAttr,'<i class="tk"></i>Note');
   if(!h)h='<span class="npv-leg-empty">Departments appear here once the schedule has some.</span>';
   /* v1.0.4 (obj 8): phases multi-expand on the calendar — a reset lives in the legend
      bar, against the right margin. The legend is rewritten every render, so the
      listener binds fresh with it. */
-  if(NPV_MODE==='calendar')
-    h+='<button id="npv-collapse-all" title="Reset the calendar view — collapse every expanded phase">Collapse all</button>';
+  if(cal)
+    h+='<button id="npv-collapse-all" title="Reset the calendar view — every phase back to a strip, marker text off">Collapse all</button>';
   box.innerHTML=h;
   const ca=document.getElementById('npv-collapse-all');
-  if(ca)ca.addEventListener('click',()=>{NPV_CAL_OPEN.clear();ppSelect(null,true);}); /* ppSelect repaints the calendar */
+  if(ca)ca.addEventListener('click',()=>{NPV_CAL_OPEN.clear();NPV_CAL_MK=false;ppSelect(null,true);}); /* ppSelect repaints the calendar */
+  box.querySelectorAll('button[data-dept]').forEach(b=>b.addEventListener('click',()=>{
+    const d=b.dataset.dept,n=(npvCalLvl(d)+1)%3;
+    if(n)NPV_CAL_OPEN.set(d,n);else NPV_CAL_OPEN.delete(d);
+    npvRender();}));
+  box.querySelectorAll('button[data-mk]').forEach(b=>b.addEventListener('click',()=>{NPV_CAL_MK=!NPV_CAL_MK;npvRender();}));
 }
 
 function npvMarkers(){
@@ -7984,7 +8018,7 @@ function npvPaintCalendar(lo,hi,dl){
   const availW=Math.max(280,(scroller?scroller.clientWidth:900)-26);
   const cellH=Math.max(64,Math.min(150,Math.round(availW/7)));
 
-  let h='<div class="cal" style="--calh:'+cellH+'px">';
+  let h='<div class="cal'+(NPV_CAL_MK?'':' mk0')+'" style="--calh:'+cellH+'px">';
   let c=addDays(lo2,-lo2.getDay());   /* back up to the Sunday of the first week */
   let lastKey=null, first=true;
 
@@ -8033,8 +8067,8 @@ function npvPaintCalendar(lo,hi,dl){
          (NPV_CAL_OPEN) — any number of phases open at once, persisting across selection
          changes; the selected task's phase always shows so a fresh selection (keyboard,
          create) is never invisible. */
-      if(kid&&calKey(t)!==calKey(NPV_TASKS[pi])&&!NPV_CAL_OPEN.has(t.department)
-        &&(!selT0||selT0.department!==t.department))return;
+      const selDept=!!selT0&&selT0.department===t.department;
+      if(kid&&calKey(t)!==calKey(NPV_TASKS[pi])&&npvCalLvl(t.department)<2&&!selDept)return;
       const col0=DEPT_COLORS[t.department]||'#8A98AE';
       /* N16: roster fan-out collapses to one band per phase — same department, label
          and window, different assignee — with a +N chip in the label.
@@ -8051,12 +8085,16 @@ function npvPaintCalendar(lo,hi,dl){
       /* REV72: a band segment only offers a resize handle on an edge that is the
          phase's true start/end — a week-clipped edge continues into the next row
          and must not be grabbable. */
+      /* v1.21.0: level 0 paints the parent as a slim strip (text kept in the DOM,
+         hidden by CSS); the selected phase always reads at full size. */
       const it={s:Math.max(0,diffDays(c,a)),e:Math.min(6,diffDays(c,b)),
         txt:phaseLabel(t),col:kid?kidShade(col0):col0,kind:'ph',
-        ti:ti,sel:t.id===selId,base:phaseLabel(t),n:1,hl:a>=c,hr:b<=wEnd};
+        ti:ti,sel:t.id===selId,base:phaseLabel(t),n:1,hl:a>=c,hr:b<=wEnd,
+        slim:!kid&&!selDept&&npvCalLvl(t.department)<1};
       seen[key]=it;
       items.push(it);
     });
+    const mkLanes=[];
     for(const mk of marks){
       const d=parseDate(mk.date);
       if(d<c||d>wEnd)continue;
@@ -8067,13 +8105,17 @@ function npvPaintCalendar(lo,hi,dl){
          "Fabrication: " band, and an unknown dept a bare ": ". */
       const dn=mk.k==='ev'&&mk.dept?((deptById(mk.dept)||{}).name||''):'';
       const nm=mk.nm||(mk.k==='ev'?'Untitled milestone':'Untitled note');
-      items.push({s:i,e:i,txt:(dn?dn+': ':'')+nm,col:'',kind:mk.k,id:mk.id,date:mk.date});
+      /* v1.21.0: markers pack — a marker takes the first lane with its day free, so a
+         week's markers share a row unless two land on the same day. */
+      let lane=0;while(mkLanes[lane]&&mkLanes[lane].has(i))lane++;
+      (mkLanes[lane]||(mkLanes[lane]=new Set())).add(i);
+      items.push({s:i,e:i,txt:(dn?dn+': ':'')+nm,col:'',kind:mk.k,id:mk.id,date:mk.date,lane:lane});
     }
 
     /* v1.6.1: markers sit at the bottom of the week — phases keep the top rows, a
        1fr spacer track absorbs the slack, marker rows follow it. Rows stay auto so
        wrapped marker text grows the week instead of overlapping. */
-    const phN=items.filter(x=>x.kind==='ph').length,mkN=items.length-phN;
+    const phN=items.filter(x=>x.kind==='ph').length,mkN=mkLanes.length;
     h+='<div class="cal-wk" style="grid-template-rows:minmax(17px,auto)'
       +(phN?' repeat('+phN+',auto)':'')+' 1fr'+(mkN?' repeat('+mkN+',auto)':'')+'">';
     for(let i=0;i<7;i++){
@@ -8093,11 +8135,11 @@ function npvPaintCalendar(lo,hi,dl){
     }
     items.forEach((it,r)=>{
       /* phases fill rows 2..phN+1; row phN+2 is the 1fr spacer; markers follow it */
-      h+='<div class="cal-band '+it.kind+(it.sel?' pick':'')+'"'
+      h+='<div class="cal-band '+it.kind+(it.sel?' pick':'')+(it.slim?' slim':'')+'"'
         +(it.kind==='ph'?' data-i="'+it.ti+'"'
           :' data-mk-id="'+esc(it.id)+'" data-mk-k="'+it.kind+'" data-mk-date="'+esc(it.date)+'"')
         +' title="'+esc(it.txt)+'" style="grid-column:'+(it.s+1)+'/'+(it.e+2)
-        +';grid-row:'+(r+2+(r>=phN?1:0))+(it.col?';background:'+it.col+';color:'+labelColor(it.col):'')+'">'
+        +';grid-row:'+(it.kind==='ph'?r+2:phN+3+it.lane)+(it.col?';background:'+it.col+';color:'+labelColor(it.col):'')+'">'
         +(it.kind!=='ph'?'<span class="cal-mki"></span>':'')
         +(it.hl?'<span class="cal-hdl l"></span>':'')
         +'<span class="cal-txt">'+esc(it.txt)+'</span>'
@@ -9737,9 +9779,15 @@ const COACH_PP_STEPS=[
   {sel:'#pp-meta',t:'The job at a glance',
    b:'Client, job code, install date and days out. These update as you edit. A warning appears if work runs past the install.'},
   {sel:'.npv-swrap',t:'The schedule',
-   b:'Every bar is a phase of work. Click one to edit it below, drag to move, grab an edge to resize, right-click to add a subtask, milestone or note. The calendar shows one band per phase — click a band to open it and see its subtasks.'},
+   b:'Every bar is a phase of work. Click one to edit it below, drag to move, grab an edge to resize, right-click to add a subtask, milestone or note. On the calendar, click a strip to open its phase and see its subtasks.'},
   {sel:'.npv-modes',t:'Two views of the same dates',
    b:'Gantt for the whole job at once, Calendar for week-by-week. G and C switch from the keyboard.'},
+  /* v1.21.1 (owner ask 09-09): the calendar detail levels get a step. `on` runs before
+     the spotlight is measured, so the legend it points at is the calendar's (buttons),
+     not the Gantt's plain one. */
+  {sel:'#npv-leg',t:'Read the calendar at any depth',
+   on:()=>{if(NPV_MODE!=='calendar'){NPV_MODE='calendar';npvRender();}},
+   b:'On the calendar every phase starts as a slim colour strip, so a stacked job still fits its weeks. Click a phase in this legend to show its title, again for its subtasks, again to shrink it back. Milestone and Note switch their text on. Collapse all resets.'},
   {sel:'#pp-insp',t:'The editor',
    b:'With nothing selected you edit the project here — Setup, Team, Departments, Milestones and Notes. Select a phase and this becomes that phase’s form.'},
   {sel:'#pp-save',t:'Nothing is real yet',
@@ -9784,7 +9832,9 @@ function coachEl(sel){
 }
 function coachShow(){
   coachUnchain();
-  const s=COACH.steps[COACH.i],r=coachEl(s.sel).getBoundingClientRect();
+  const s=COACH.steps[COACH.i];
+  if(s.on)s.on(); /* v1.21.1: a step may set the view up before it is measured */
+  const r=coachEl(s.sel).getBoundingClientRect();
   const hole=document.getElementById('coach-hole'),card=document.getElementById('coach-card');
   if(s.chain){
     document.getElementById('coach').classList.add('chain');
@@ -10098,6 +10148,8 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.21.1",d:"Sep 9, 2026",n:["The project-page tour has a new step on the calendar legend: how a phase steps from a slim strip to its title to its subtasks, and how to show milestone and note text."]},
+ {v:"v1.21.0",d:"Sep 9, 2026",n:["Project calendar: phases start as slim colour strips and milestones as bare diamonds, so a fully stacked job fits its weeks again. Click a phase in the legend to step it up to a titled bar, then to its subtasks; click Milestone or Note to show their text. Collapse all resets."]},
  {v:"v1.20.9",d:"Sep 8, 2026",n:["My Dashboard: subtasks show their own name on the bar, in the sidebar list and in the hover card, not just the project.",
    "Project page crew picker shows nicknames like everywhere else."]},
  {v:"v1.20.8",d:"Sep 8, 2026",n:["A project cannot be created without a Project Manager. Create now asks for one under Team, the same way it asks for a name and an install date.",
