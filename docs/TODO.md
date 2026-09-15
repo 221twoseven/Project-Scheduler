@@ -713,6 +713,17 @@ rule §5); old data keeps reading fine.
       Record: `docs/Milestones/V1-Releases/2026-09-02-v1183-child-first-deletes.md`. Suite:
       `tests/test-v1183.js`.
 
+- [x] **43. (09-15, owner ask) Weekly schedule on the People page — DONE 2026-09-15
+      (v1.22.0, development).** Editor: seven day boxes (M T W Th F Sa Su) + from/to
+      time inputs on a half-hour datalist that also take typing (a typed 5:17 snaps to
+      5:30; bare 1–6 read as afternoon, "am" overrides). Index: a Schedule column after
+      Status, formatted "M-F 9-6" / "T-W-Th 11-4" (the full weekday week collapses to
+      M-F, anything else lists days; hours drop :00 and am/pm). Record page shows the
+      same line. Stored as JSON (`{days,start,end}`) in the ⚠ §5 `schedule` staff
+      column, tristate like driver/availability — an untouched editor never sends it.
+      Record: `docs/Milestones/V1-Releases/2026-09-15-people-schedule.md`. Suite:
+      `tests/test-v1220.js`.
+
 - [ ] **13. (Obj 4) Reconcile and absorb the 14 disparate data stores.** The app
       becomes the company's singular source of truth (the v1 "north star", now
       scoped). **Strategy before code:** the first deliverable is
@@ -816,6 +827,7 @@ rule §5); old data keeps reading fine.
 | v1.18.3 | ✅ Shipped 2026-09-02 — 42 (child-first deletes in spSync: a mid-queue failure can no longer orphan task/todo/event rows behind a deleted project — the live "TBD lane" orphan's root cause) |
 | v1.19.0 | ✅ Shipped 2026-09-02 — 26 (change log): saves write `ShopTimeline_Changelog`; global `#/changelog` page + second project-page dock (one viewable at a time), both admin-only |
 | v1.19.1 | ✅ Shipped 2026-09-03 — tour step 8 fix: `.pg-trail` also matches the hidden dashboard bar first in DOM order, so the coach card landed ON the real breadcrumb bar; step targets now resolve visible-first (`coachEl`) |
+| v1.22.0 | ✅ Shipped 2026-09-15 (development) — 43 (People-page weekly schedule: day boxes + half-hour times in the editor, "M-F 9-6" column after Status; ⚠ `schedule` staff column) |
 | v2.0.0 | 13 (single source of truth) ⚠ — likely several minors along the way (one per absorbed store), with v2.0.0 as the cutover declaration |
 
 ## 5. Data / schema (⚠ all need approval — shared Lists)
@@ -878,6 +890,14 @@ rule §5); old data keeps reading fine.
   People editor's Availability radios; an active OOO range always outranks it.
   Additive, tristate (other saves never 400 without it; a save after touching
   the radios parks with the named-field toast until it exists). ⚠
+- `schedule` column on `ShopTimeline_Staff` (§3 item 43) — **spec delivered
+  2026-09-15 — CREATED 2026-09-15 (Robert).** Single line of text, internal name exactly
+  `schedule`. Holds the person's weekly hours as JSON, e.g.
+  `{"days":[1,2,3,4,5],"start":"09:00","end":"18:00"}` (days are JS getDay
+  numbers, 0 = Sunday; times 24-hour on the half hour). Written only by the
+  People editor's Schedule controls; reads as "M-F 9-6" on the index and record.
+  Additive, tristate (other saves never 400 without it; a save after touching the
+  schedule controls parks with the named-field toast until it exists). ⚠
 - Candidate new column: a lifecycle/`status` column (Active/Inactive/Archived) on
   `ShopTimeline_Staff` and `ShopTimeline_Clients` (§3 item 27's archive-not-delete
   model) — additive; Robert applies it when item 27's lifecycle pass is designed

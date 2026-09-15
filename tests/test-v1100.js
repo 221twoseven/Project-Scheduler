@@ -111,11 +111,11 @@ function main(){
     ok('…from the People page', E('ROUTE.view')==='people');
     /* v1.17.0 grew a Driver column (and header grips ride inside the spans — select
        direct children only); branch on its marker so both builds assert their shape. */
-    const v17=src.indexOf('cd-drv')>=0;
+    const v17=src.indexOf('cd-drv')>=0,v22=src.indexOf('cde-sched')>=0; /* v1.22.0 added Schedule after Status */
     ok('the people index carries the at-a-glance columns (v1.14.0'+(v17?' + v1.17.0)':')'),
        [...doc.querySelectorAll('.cd-cols>span')].map(s=>s.textContent).join(',')
-         ===(v17?'Name,Title,Phone,Email,Perms,Driver,Status':'Name,Title,Phone,Email,Perms,Status')
-       &&doc.querySelector('.cd-row.'+(v17?'pp7':'pp6')).children.length===(v17?7:6));
+         ===(v17?'Name,Title,Phone,Email,Perms,Driver,Status'+(v22?',Schedule':''):'Name,Title,Phone,Email,Perms,Status')
+       &&doc.querySelector('.cd-row.'+(v17?'pp7':'pp6')).children.length===(v22?8:v17?7:6));
     doc.getElementById('tb-home').click();
     win.dispatchEvent(new win.Event('hashchange'));
     setTimeout(()=>{
