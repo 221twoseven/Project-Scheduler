@@ -20,8 +20,15 @@ const proj=(id,name,dl)=>({appId:id,Title:name,client:'',jobCode:id.toUpperCase(
   leadFab:'',activeDepartments:JSON.stringify(['pm','fab']),createdAt:'2026-07-01'});
 const task=(id,pid,s,e)=>({appId:id,projectId:pid,department:'fab',assignee:'Nick',
   startDate:s,endDate:e,estimatedDays:5,ticketNodes:'[]',notes:'',pinned:false,label:''});
-const projects=[proj('p1','Far Future','2026-12-20'),proj('p2','Near Now','2026-09-01')];
-const tasks=[task('t1','p1','2026-12-01','2026-12-10'),task('t2','p2','2026-08-10','2026-08-20')];
+/* Dates ride relative to today: the fixed 2026 seeds went stale on 2026-09-15 when the
+   canvas origin crawled past the "near" bar and it stopped being off-screen. Both bars
+   sit well to the right of an 800px viewport parked at the canvas's left edge. */
+const D=n=>{const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()+n);
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
+const lbl=s=>{const[y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d).toLocaleDateString('en-US',{month:'short',day:'numeric'});};
+const T1S=D(120),T1E=D(129),T2S=D(45),T2E=D(55);
+const projects=[proj('p1','Far Future',D(139)),proj('p2','Near Now',D(60))];
+const tasks=[task('t1','p1',T1S,T1E),task('t2','p2',T2S,T2E)];
 
 const dom=boot(FILE,{data:{projects,tasks,staff:[],todos:[]}});
 const win=dom.window,doc=win.document;
@@ -45,7 +52,7 @@ setTimeout(()=>{
   ok('both rows are flagged',chips().length===2,chips().length+' chips');
   ok('chips hug the right edge',chips().every(c=>c.dataset.side==='r'));
   ok('chips pin to the viewport edge',chip('Pp1').style.left==='794px',chip('Pp1').style.left);
-  ok('date is the bar\'s near (start) edge',chip('Pp1').textContent==='Dec 1',chip('Pp1').textContent);
+  ok('date is the bar\'s near (start) edge',chip('Pp1').textContent===lbl(T1S),chip('Pp1').textContent);
   ok('chevron carries the row\'s project color',
      chip('Pp1').querySelector('svg').getAttribute('stroke')
        ===doc.querySelector('.job-bar.summary[data-pid="p1"]').style.background);
@@ -60,7 +67,7 @@ setTimeout(()=>{
   sec('bars off to the left of the viewport');
   sc.scrollLeft=b1.x2+200;upd();
   ok('chip flips to the left edge',chip('Pp1')&&chip('Pp1').dataset.side==='l');
-  ok('date is now the bar\'s end edge',chip('Pp1').textContent==='Dec 10',chip('Pp1').textContent);
+  ok('date is now the bar\'s end edge',chip('Pp1').textContent===lbl(T1E),chip('Pp1').textContent);
   ok('chip pins to the left viewport edge',chip('Pp1').style.left===(b1.x2+200+6)+'px',chip('Pp1').style.left);
 
   sec('clicking the chip centres the bar');
@@ -88,8 +95,8 @@ setTimeout(()=>{
     ok('the row gets a chip at each edge',two.length===2,two.length+' chips');
     ok('one left, one right',new Set(two.map(c=>c.dataset.side)).size===2);
     const lc=two.find(c=>c.dataset.side==='l'),rc=two.find(c=>c.dataset.side==='r');
-    ok('left chip names the near bar\'s end',lc&&lc.textContent==='Aug 20',lc&&lc.textContent);
-    ok('right chip names the far bar\'s start',rc&&rc.textContent==='Dec 1',rc&&rc.textContent);
+    ok('left chip names the near bar\'s end',lc&&lc.textContent===lbl(T2E),lc&&lc.textContent);
+    ok('right chip names the far bar\'s start',rc&&rc.textContent===lbl(T1S),rc&&rc.textContent);
     click(lc);
     const cw=Math.max(0,(bs[0].x1+bs[0].x2)/2-400);
     ok('clicking the left chip centres its own bar',Math.abs(sc.scrollLeft-cw)<1,sc.scrollLeft+' vs '+cw);

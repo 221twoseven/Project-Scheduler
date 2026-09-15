@@ -1219,7 +1219,13 @@ body.cd-route #dash-bar{display:none!important}
    no full colgroup model, add one only if that ever fights the user. */
 .cd-cols,.cd-row.pp7{grid-template-columns:
   var(--cdc1,minmax(0,1.05fr)) var(--cdc2,minmax(0,.9fr)) var(--cdc3,minmax(0,.7fr))
-  var(--cdc4,minmax(0,1.15fr)) var(--cdc5,minmax(52px,auto)) var(--cdc6,auto) var(--cdc7,auto)}
+  var(--cdc4,minmax(0,1.15fr)) var(--cdc5,minmax(52px,auto)) var(--cdc6,auto) var(--cdc7,auto) var(--cdc8,auto)}
+/* v1.22.0: the schedule editor — seven day boxes on one row, two time inputs beside each other */
+.cd-sched{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center}
+.cd-sched label{display:flex;align-items:center;gap:4px;font-size:12.5px;color:#33415A;text-transform:none;letter-spacing:0;font-weight:400;margin-bottom:0}
+.cd-sched label input[type=checkbox]{width:14px;height:14px;padding:0;margin:0;accent-color:#3B7FD6}
+.cd-sched input[type=text]{width:96px}
+.cd-sched.off{opacity:.45} /* v1.23.0: a freelancer's week is greyed out, not hidden */
 /* v1.17.1: the grips live on the HEADER ROW as <i> elements — v1.17.0 had them as
    spans inside the cells, where the `.cd-cols span` rule out-specified `.cd-grip`
    and collapsed them to 0px (nothing to grab). Full header height, visible line. */
@@ -1602,7 +1608,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.21.2'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.23.0'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -2246,6 +2252,32 @@ function eventToFields(e){return{Title:e.name||'Event',appId:e.id,projectId:e.pr
 function fieldsToEvent(f){return{id:f.appId,projectId:f.projectId||'',dept:f.department||'',
   name:f.Title||'',date:isoDay(f.date),notes:f.notes||''};}
 function safeArr(s){if(Array.isArray(s))return s;try{const a=JSON.parse(s);return Array.isArray(a)?a:[];}catch(e){return[];}}
+/* v1.22.0: a person's weekly schedule — {days:[getDay ints], start:'HH:MM', end:'HH:MM'},
+   half-hour grain, stored as JSON in the `schedule` staff column. Reads as "M-F 9-6"
+   or "T-W-Th 11-4": the full weekday week collapses to M-F, anything else lists days;
+   hours drop the :00 and the am/pm (a shop day never needs them). */
+const SCH_DAYS=[[1,'M'],[2,'T'],[3,'W'],[4,'Th'],[5,'F'],[6,'Sa'],[0,'Su']];
+function schedSafe(s){if(s&&typeof s==='object')return s;try{const o=JSON.parse(s);return o&&typeof o==='object'?{days:safeArr(o.days),start:o.start||'',end:o.end||''}:{days:[],start:'',end:''};}catch(e){return{days:[],start:'',end:''};}}
+function sch12(t,ampm){if(!t)return '';const[H,M]=t.split(':').map(Number);
+  return (H%12||12)+(M||ampm?':'+String(M).padStart(2,'0'):'')+(ampm?(H<12?' AM':' PM'):'');}
+function schedFmt(s){
+  if(!s)return '';
+  const on=SCH_DAYS.filter(d=>(s.days||[]).includes(d[0]));
+  const days=on.length===5&&on.every(d=>d[0]>=1&&d[0]<=5)?'M-F':on.map(d=>d[1]).join('-');
+  const hrs=s.start&&s.end?sch12(s.start)+'-'+sch12(s.end):sch12(s.start||s.end);
+  return [days,hrs].filter(Boolean).join(' ');}
+/* v1.23.0: what the Schedule column/row reads for a person — a freelancer has no set week */
+function schedTxt(p){return p.freelance?'Freelance':schedFmt(p.schedule);}
+/* Typed time → 'HH:MM' snapped to the half hour ('' if unreadable). Accepts 9, 9:30,
+   5pm, 5:30 PM, 17:00.
+   ponytail: a bare 1–6 reads as afternoon — no shift here starts at 3 AM; type "am" to override. */
+function schedParse(v){
+  const m=String(v||'').trim().toLowerCase().match(/^(\d{1,2})(?:[:.](\d{1,2}))?\s*(a|p)?\.?m?\.?$/);
+  if(!m)return '';
+  let H=+m[1],M=+(m[2]||0);if(H>23||M>59)return '';
+  if(m[3]==='p'&&H<12)H+=12;else if(m[3]==='a'&&H===12)H=0;else if(!m[3]&&H>=1&&H<=6)H+=12;
+  M=Math.round(M/30)*30;if(M===60){M=0;H=(H+1)%24;}
+  return String(H).padStart(2,'0')+':'+String(M).padStart(2,'0');}
 
 function projToFields(p){const f={Title:p.name||'',client:p.client||'',jobCode:p.jobCode||'',deadline:p.deadline||null,status:p.status||'auto',projectManager:p.projectManager||'',drafter:p.drafter||'',leadFab:p.leadFab||'',fabricators:p.fabricators||'',metalFab:p.metalFab||'',activeDepartments:JSON.stringify(p.activeDepartments||[]),appId:p.id,createdAt:p.createdAt||null};if(p.sortIndex!=null)f.sortIndex=p.sortIndex;return f;}
 function fieldsToProj(f){return{id:f.appId,name:f.Title||'',client:f.client||'',jobCode:f.jobCode||'',deadline:isoDay(f.deadline),status:f.status||'auto',projectManager:f.projectManager||'',drafter:f.drafter||'',leadFab:f.leadFab||'',fabricators:f.fabricators||'',metalFab:f.metalFab||'',activeDepartments:safeArr(f.activeDepartments),sortIndex:f.sortIndex==null?null:Number(f.sortIndex),createdAt:isoDay(f.createdAt)};}
@@ -2272,6 +2304,8 @@ function personToFields(p){const f={Title:p.name||'',depts:JSON.stringify(p.dept
   if(p.nickname!=null)f.nickname=p.nickname; /* v1.15.0: how the name reads everywhere (display only) */
   if(p.driver!=null)f.driver=p.driver?'1':''; /* v1.17.0: drives for the company — same tristate rule */
   if(p.availability!=null)f.availability=p.availability; /* v1.18.0: manual available/unavailable (freelancers); OOO ranges override */
+  if(p.schedule!=null)f.schedule=JSON.stringify(p.schedule); /* v1.22.0: weekly hours {days:[getDay ints],start:'HH:MM',end:'HH:MM'} — same tristate rule */
+  if(p.freelance!=null)f.freelance=p.freelance?'1':''; /* v1.23.0: freelancer — no set weekly schedule; same tristate rule */
   /* v1.12.0 (item 30 second half): the "Listening to" quartet — same tristate rule. */
   if(p.listeningTo!=null)f.listeningTo=p.listeningTo;
   if(p.listeningLink!=null)f.listeningLink=p.listeningLink;
@@ -2287,6 +2321,8 @@ function fieldsToPerson(f){return{id:f.appId,name:f.Title||'',depts:safeArr(f.de
   nickname:f.nickname==null?null:String(f.nickname),
   driver:f.driver==null?null:flagTruthy(f.driver),
   availability:f.availability==null?null:String(f.availability),
+  schedule:f.schedule==null?null:schedSafe(f.schedule),
+  freelance:f.freelance==null?null:flagTruthy(f.freelance),
   listeningTo:f.listeningTo==null?null:String(f.listeningTo),
   listeningLink:f.listeningLink==null?null:String(f.listeningLink),
   listeningVerb:f.listeningVerb==null?null:String(f.listeningVerb),
@@ -4918,7 +4954,7 @@ function renderCompanyPage(){
       +'<option value="dev">Developers</option><option value="fb">Feedback recipients</option>'
       +'<option value="viewer">Viewers</option></select>':'')
    +'</div>'
-   +(isPeople?'<div class="cd-cols"><span>Name</span><span>Title</span><span>Phone</span><span>Email</span><span>Perms</span><span class="cd-drv">Driver</span><span>Status</span></div>':'')
+   +(isPeople?'<div class="cd-cols"><span>Name</span><span>Title</span><span>Phone</span><span>Email</span><span>Perms</span><span class="cd-drv">Driver</span><span>Status</span><span>Schedule</span></div>':'')
    +'<div class="cd-rows" id="cd-rows"></div></div>'
    +'<div id="cd-split" title="Drag to resize the two panes"></div>'
    +'<div class="cd-detail" id="cd-detail"></div></div></div>';
@@ -4990,7 +5026,8 @@ function cdPaintRows(){
         +'<span class="cd-mut">'+esc(p.email||'')+'</span>'
         +'<span>'+perm+'</span>'
         +'<span class="cd-drv">'+(p.driver?'✓':'')+'</span>'
-        +'<span class="cd-avail'+cdAvailCls(av)+'">'+esc(av.txt)+'</span></div>';});
+        +'<span class="cd-avail'+cdAvailCls(av)+'">'+esc(av.txt)+'</span>'
+        +'<span class="cd-mut cd-sch">'+esc(schedTxt(p))+'</span></div>';});
   }else{
     rows=[...CLIENTS].sort((a,b)=>a.name.localeCompare(b.name))
      .filter(c=>!qq||[c.name,c.alias].some(v=>String(v||'').toLowerCase().includes(qq)))
@@ -5025,6 +5062,8 @@ function cdPaintDetail(){
      +'<div class="cdd-f"><dt>Phone</dt><dd>'+(per.phone?esc(per.phone):'—')+'</dd></div>'
      /* v1.13.0: employment status, mirrored from Employee Contacts (read as information) */
      +(per.status?'<div class="cdd-f"><dt>Status</dt><dd>'+esc(per.status)+'</dd></div>':'')
+     /* v1.22.0: weekly hours */
+     +(schedTxt(per)?'<div class="cdd-f"><dt>Schedule</dt><dd>'+esc(schedTxt(per))+'</dd></div>':'')
      /* v1.17.0: driver flag reads as information, like status */
      +(per.driver!=null?'<div class="cdd-f"><dt>Driver</dt><dd>'+(per.driver?'Yes':'—')+'</dd></div>':'')
      +'<div class="cdd-f"><dt>Departments</dt><dd>'+([...new Set((per.depts||[]).map(pdCanon))].map(d=>esc(cdDeptLbl(d))).join(' · ')||'—')+'</dd></div>'
@@ -5080,6 +5119,21 @@ function cdPaintEditor(el,isPeople){
      +'<div class="cd-fg"><label>Driver</label><div class="cd-depts">'
        +'<label><input type="checkbox" id="cde-driver"> Drives for the company</label></div></div>'
      +'<div class="cd-fg"><label>Departments</label><div class="cd-depts" id="cde-depts"></div></div>'
+     /* v1.22.0 (owner): weekly schedule — day boxes + from/to times on the half hour
+        (⚠ needs the `schedule` staff column; a save touching it parks with the
+        named-field toast until the column exists). The time boxes suggest every
+        half hour but take typing too; a typed value snaps to the nearest half hour. */
+     +'<div class="cd-fg"><label>Schedule</label>'
+       /* v1.23.0 (owner): a third of the roster is freelance — the flag greys the week out
+          (⚠ needs the `freelance` staff column, same tristate rule) */
+       +'<div class="cd-sched" style="margin-bottom:8px"><label><input type="checkbox" id="cde-free"> Freelance <span class="n">— no set weekly schedule</span></label></div>'
+       +'<div class="cd-sched" id="cde-sched">'
+       +SCH_DAYS.map(d=>'<label><input type="checkbox" data-day="'+d[0]+'"> '+d[1]+'</label>').join('')
+       +'</div><div class="cd-sched" id="cde-sched-hrs" style="margin-top:6px">'
+       +'<input type="text" id="cde-sch-s" list="cd-hrs" placeholder="from" autocomplete="off"> <span class="n">to</span> '
+       +'<input type="text" id="cde-sch-e" list="cd-hrs" placeholder="to" autocomplete="off">'
+       +'<datalist id="cd-hrs">'+Array.from({length:35},(_,i)=>{const H=5+(i>>1),M=i%2?30:0;return '<option value="'+sch12(String(H).padStart(2,'0')+':'+(M?'30':'00'),true)+'">';}).join('')+'</datalist>'
+     +'</div></div>'
      /* v1.18.0 (owner): manual availability for freelancers; the OOO radio is
         display-only — an active date range below selects it automatically. */
      +'<div class="cd-fg"><label>Availability</label><div class="cd-depts cd-avset">'
@@ -5129,6 +5183,25 @@ function cdPaintEditor(el,isPeople){
       lb.appendChild(ck);lb.appendChild(document.createTextNode(lbl));
       dp.appendChild(lb);
     }
+    /* v1.22.0: the schedule controls. r.schedule stays null until a control is
+       touched, so an untouched save never sends the column (tristate rule). */
+    {const sch=()=>r.schedule=r.schedule||{days:[],start:'',end:''};
+     const cur=r.schedule||{days:[],start:'',end:''};
+     document.querySelectorAll('#cde-sched input[type=checkbox]').forEach(ck=>{
+       const d=+ck.dataset.day;ck.checked=(cur.days||[]).includes(d);
+       ck.addEventListener('change',()=>{const s=sch();
+         s.days=ck.checked?[...new Set([...s.days,d])]:s.days.filter(x=>x!==d);});});
+     for(const[id,k]of[['cde-sch-s','start'],['cde-sch-e','end']]){
+       const inp=document.getElementById(id);inp.value=sch12(cur[k],true);
+       inp.addEventListener('change',()=>{const t=schedParse(inp.value);
+         if(inp.value.trim()&&!t)toast('Couldn\'t read "'+inp.value+'" as a time — try 9, 5:30 or 5:30 PM.','err');
+         sch()[k]=t;inp.value=sch12(t,true);});}
+     /* v1.23.0: the freelance flag greys the week out (the stored days/hours stay put) */
+     const fr=document.getElementById('cde-free');
+     const frSync=()=>['cde-sched','cde-sched-hrs'].forEach(id=>{const b=document.getElementById(id);
+       b.classList.toggle('off',fr.checked);b.querySelectorAll('input').forEach(i=>i.disabled=fr.checked);});
+     fr.checked=!!r.freelance;frSync();
+     fr.addEventListener('change',()=>{r.freelance=fr.checked;frSync();});}
     /* v1.18.0: keep the radios honest — an active OOO range selects the automatic
        option; otherwise the manual choice (default Available) shows. */
     const avSync=()=>{
@@ -5221,6 +5294,8 @@ function cdSavePerson(){
     nickname:r.nickname==null?null:String(r.nickname).trim(),
     driver:r.driver==null?null:!!r.driver,
     availability:r.availability==null?null:r.availability,
+    schedule:r.schedule==null?null:{days:(r.schedule.days||[]).map(Number).sort(),start:r.schedule.start||'',end:r.schedule.end||''},
+    freelance:r.freelance==null?null:!!r.freelance,
     listeningTo:r.listeningTo==null?null:r.listeningTo,
     listeningLink:r.listeningLink==null?null:r.listeningLink,
     listeningVerb:r.listeningVerb==null?null:r.listeningVerb,
@@ -5264,6 +5339,8 @@ function cdMergePerson(keepId,dupId){
     developer:!!(keep.developer||dup.developer),
     driver:(keep.driver||dup.driver)?true:(keep.driver==null&&dup.driver==null?null:false),
     availability:keep.availability!=null?keep.availability:dup.availability,
+    schedule:keep.schedule!=null?keep.schedule:dup.schedule,
+    freelance:(keep.freelance||dup.freelance)?true:(keep.freelance==null&&dup.freelance==null?null:false),
     feedbackRecipient:(keep.feedbackRecipient||dup.feedbackRecipient)?true
       :(keep.feedbackRecipient==null&&dup.feedbackRecipient==null?null:false)};
   CD_EDIT=null;CD_SEL=keep.id;
@@ -10168,6 +10245,8 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.23.0",d:"Sep 15, 2026",n:["People page: a Freelance checkbox in the editor marks people with no set weekly schedule. It greys out the day and hour controls, and the Schedule column reads \"Freelance\"."]},
+ {v:"v1.22.0",d:"Sep 15, 2026",n:["People page: each person can carry a weekly schedule. Tick the days and pick or type the hours (half-hour steps) in the editor; it reads as \"M-F 9-6\" or \"T-W-Th 11-4\" in a new Schedule column after Status and on the record."]},
  {v:"v1.21.2",d:"Sep 9, 2026",n:["The Changelog no longer prints the full text of a phase's notes. A notes change now reads as added, edited or cleared; older entries fold the same way."]},
  {v:"v1.21.1",d:"Sep 9, 2026",n:["The project-page tour has a new step on the calendar legend: how a phase steps from a slim strip to its title to its subtasks, and how to show milestone and note text."]},
  {v:"v1.21.0",d:"Sep 9, 2026",n:["Project calendar: phases start as slim colour strips and milestones as bare diamonds, so a fully stacked job fits its weeks again. Click a phase in the legend to step it up to a titled bar, then to its subtasks; click Milestone or Note to show their text. Collapse all resets."]},
