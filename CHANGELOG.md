@@ -9,6 +9,9 @@ Format: `## <label> — <date>` then one `- ` line per change. Keep lines concre
 what changed *for the team*, not how. Developer-only tooling doesn't need a line.
 Collect lines for the next version under `## Unreleased` and rename it when you ship.
 
+## v1.23.0 — Sep 15, 2026
+- People page: a Freelance checkbox in the editor marks people with no set weekly schedule. It greys out the day and hour controls, and the Schedule column reads "Freelance".
+
 ## v1.22.0 — Sep 15, 2026
 - People page: each person can carry a weekly schedule. Tick the days and pick or type the hours (half-hour steps) in the editor; it reads as "M-F 9-6" or "T-W-Th 11-4" in a new Schedule column after Status and on the record.
 

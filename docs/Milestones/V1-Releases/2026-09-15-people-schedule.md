@@ -28,3 +28,9 @@ Known ceiling: one range per person — no split shifts or per-day hours. Add a 
 
 Guarded by `test-v1220` (25 checks); `test-v1100` and `test-v1170` learned the eighth
 column.
+
+**v1.23.0, same day (owner):** a third of the roster is freelance. A **Freelance**
+checkbox sits atop the editor's Schedule block; ticking it greys the day and hour controls
+out (the stored hours stay on the row) and the Schedule column and record read
+"Freelance". Stored as `freelance` (`1`/empty) on the staff list, tristate like driver —
+column created by Robert 2026-09-15 (spec in `docs/TODO.md` §5). Guarded by `test-v1230`.
