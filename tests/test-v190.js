@@ -88,7 +88,7 @@ function main(){
   ok('Lock Dates forced on, like a real viewer', E('DATE_LOCK')===true);
   ok('the choice is remembered per tab', E("sessionStorage.getItem('shopTimelineViewAs')")==='viewer');
 
-  sec('viewer preview: your own page reads as a Summary (as others see it)');
+  sec('viewer preview: your own page is still YOUR dashboard (owner ruling 09-18)');
   E("enterDash('Sam')");
   ok('the dashboard dock is on', doc.body.classList.contains('me-dock-on'));
   const stack=doc.querySelector('#me-dock .md-stack');
@@ -100,12 +100,19 @@ function main(){
      &&(V1100
        ?/Working on/.test(stack.querySelectorAll('h4')[0].textContent)&&/Time off/.test(stack.querySelectorAll('h4')[1].textContent)
        :/Milestones/.test(stack.querySelectorAll('h4')[0].textContent)&&/Notes/.test(stack.querySelectorAll('h4')[1].textContent)));
-  /* v1.20.x: previewing as someone else, your own page is a Summary — the personal
-     User Notes column is gone, exactly as a colleague sees your page (item 30 spec). */
-  ok('your own page shows no User Notes column while previewing as someone else',
-     E('dashSelf()')===false
-     &&!doc.getElementById('md-unotes')
-     &&doc.querySelectorAll('#me-dock .ins-body>.ins-sec').length===3);
+  /* Owner ruling 2026-09-18 (reversing the v1.14.0 hide): the preview simulates a
+     non-admin, and a non-admin sees their OWN dashboard — User Notes visible and
+     editable. Notes-to-self are personal, never permission-gated. */
+  ok('your own page keeps the editable User Notes column while previewing as a viewer',
+     E('dashSelf()')===true
+     &&!!doc.getElementById('md-unotes')
+     &&!doc.getElementById('md-unotes').disabled
+     &&doc.querySelectorAll('#me-dock .ins-body>.ins-sec').length===4);
+  ok('…and typing in it saves through the self-row exception (the UI path)',(()=>{
+     const un=doc.getElementById('md-unotes');
+     un.value='typed in preview';
+     un.dispatchEvent(new win.Event('change'));
+     return E("PEOPLE.find(p=>p.name==='Sam').personalNotes")==='typed in preview';})());
   /* the self-row notes exception is a REAL non-admin's capability — a viewer may write
      their OWN staff row past the guard. Test the mechanism directly (savePeople's self
      flag), independent of whose page is on screen. */

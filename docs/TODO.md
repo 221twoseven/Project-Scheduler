@@ -1174,6 +1174,13 @@ these are the ones still open, plus new deferrals as they happen.
 - [ ] The Viewer preview is honest to a fault: while it's on, the developer IS a
       viewer — their own edits (beyond User Notes) are refused until toggled back.
       Deliberate; that's what "preview the real thing" means. (v1.9.0)
+      **Revised 2026-09-18 (owner ruling):** the preview now keeps your OWN
+      dashboard — `dashSelf()` no longer flips under view-as, so User Notes stays
+      visible and editable, matching a real non-admin's own experience
+      (notes-to-self are personal, never permission-gated). This reverses the
+      v1.14.0 "your own Summary renders exactly as others see it" hide; the trade
+      is that no preview shows your page as others see it any more (check a
+      colleague's Summary for the shape). Suites test-v190/test-v1100 updated.
 - [x] User Notes saves need the `personalNotes` column on `ShopTimeline_Staff`
       (§5 spec, Robert applies) — before it exists the first save surfaces the
       normal staff sync-error toast (localStorage copy still holds locally).
