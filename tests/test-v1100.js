@@ -82,12 +82,12 @@ function main(){
      &&/Milestones/.test(h4(secs[1]))&&/Notes/.test(h4(secs[2]))&&/User Notes/.test(h4(secs[3])));
   E('exitDash()');
 
-  sec('view-as: previewing as someone else — your own Summary as others see it');
+  sec('view-as: a preview keeps your OWN dashboard (owner ruling 09-18)');
   E("VIEW_AS='admin'");
   E("enterDash('Sam')");
-  ok('dashSelf answers false and User Notes hides while previewing as an admin',
-     E('dashSelf()')===false&&!doc.getElementById('md-unotes')
-     &&/Summary · Sam/.test(doc.getElementById('db-name').textContent));
+  ok('dashSelf stays true and User Notes stays editable while previewing as an admin',
+     E('dashSelf()')===true&&!!doc.getElementById('md-unotes')
+     &&/My Dashboard · Sam/.test(doc.getElementById('db-name').textContent));
   ok('the picker rides the dev cluster', !doc.getElementById('tb-viewas').classList.contains('hidden'));
   E('applyPerms()');
   ok('dev-only Help options hide while previewing as someone else',

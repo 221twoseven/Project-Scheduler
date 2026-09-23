@@ -3352,11 +3352,13 @@ function dashOn(){return !!PERSON&&!(typeof ROUTE!=='undefined'&&ROUTE&&ROUTE.vi
 /* v1.6.2: the same view serves two readings — MY dashboard when the person is the
    signed-in identity, and a plain workload summary when it's someone else. Mechanics
    are identical; only the naming and the toolbar button's lit state differ. */
-/* Your own person page reads as "My Dashboard" only when you're viewing as yourself.
-   In either preview (admin/viewer) it reads as a plain Summary — the way everyone else
-   sees your page (User Notes hidden, the Listening-to line visible). Per tab; identity
-   and the DEV badge stay yours — only the presentation flips. See VIEW_AS. */
-function dashSelf(){return dashOn()&&!(isDeveloper()&&VIEW_AS!=='dev')&&PERSON===(meName()||rememberedMe());}
+/* Your own person page reads as "My Dashboard" whenever the person is YOU — including
+   under a view-as preview (owner ruling 2026-09-18, reversing the v1.14.0 hide): a
+   preview simulates being a non-admin, and a non-admin sees their OWN dashboard with
+   User Notes editable — notes-to-self are personal, never permission-gated. The cost:
+   no preview shows you your own page as others see it (ask a colleague, or check
+   someone else's Summary for the shape). */
+function dashSelf(){return dashOn()&&PERSON===(meName()||rememberedMe());}
 function renderDashBar(){
   const on=dashOn();
   document.body.classList.toggle('dash-on',on);
