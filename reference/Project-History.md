@@ -197,7 +197,7 @@ What the evidence shows this stage actually contributed, category by category:
   living backlog with a versioning ladder and a **deferred-decisions ledger**
   (every skipped or deferred move recorded with rationale and the condition that
   would reopen it), and one milestone record per shipped batch — 62 records,
-  organized by era [docs/; docs/TODO.md §7; docs/Milestones/README.md].
+  organized by era [docs/; docs/Archive/TODO-v1.x-Archive.md §7; docs/Milestones/README.md].
 
 ### 5.2 UX and product development (documented redesign of the inherited UI)
 
@@ -431,7 +431,7 @@ How to verify this document's claims, by pointer type:
 - **[UX-Audit §N]** — `docs/Archive/UX-Audit-and-Strategy.md` (2026-08-12): the
   inherited build's assessment, the "protect these" list crediting the
   prototype's strengths, the phased plan, and the §6 validation plan.
-- **[TODO §N / item N]** — `docs/TODO.md`: the versioning ladder (§4), schema
+- **[TODO §N / item N]** — `docs/Archive/TODO-v1.x-Archive.md`: the versioning ladder (§4), schema
   ledger (§5), deferred-decisions ledger (§7), and the 14-store inventory with
   its rulings (§3 item 13). The completed v1 backlog: `docs/Archive/TODO-v1-Archive.md`.
 - **[V1-Releases/...]** and era folders — `docs/Milestones/` (62 records, mapped

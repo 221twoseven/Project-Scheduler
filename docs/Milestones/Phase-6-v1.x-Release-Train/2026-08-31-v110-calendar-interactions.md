@@ -1,6 +1,6 @@
 # 2026-08-31 — v1.1.0: calendar interactions (objectives 7 and 9)
 
-The first minor release of the v2.0.0 track (`docs/TODO.md` §3): two owner
+The first minor release of the v2.0.0 track (`docs/Archive/TODO-v1.x-Archive.md` §3): two owner
 objectives that make the project calendar feel direct. App version bumped
 **v1.0.4 → v1.1.0** (minor: a feature drop).
 

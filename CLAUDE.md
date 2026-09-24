@@ -21,9 +21,12 @@ Project rules and context for working in this repository. Read this before makin
 - **`docs/Design-Language.md` — the design system. Read it before any change that
   touches appearance or interaction.** If a change contradicts it, either follow the
   doc or update the doc in the same PR — never silently diverge.
-- **`docs/TODO.md` — the working backlog (v2.0.0 track).** Objectives, versioning
-  ladder, and the deferred/skipped ledger. The completed v1 backlog and all retired
-  planning docs (UX audit, task briefs, proposals) live in **`docs/Archive/`** —
+- **`docs/TODO.md` — the working backlog (Phase 7: pilot readiness, toward v2.0.0).**
+  North star, roadmap, the proposed build list, the open design decisions (§4), the
+  material still to gather, and the deferred/skipped ledger (§7). Nothing in it is
+  started until agreed with the owner and collaborators. The retired v1 and v1.x
+  backlogs and all retired planning docs (UX audit, task briefs, proposals) live in
+  **`docs/Archive/`** —
   history and rationale, not current state. **`reference/`** holds frozen material
   that is not actively maintained (REV50 baseline, original handoff notes, project history).
 
@@ -127,9 +130,9 @@ anything worth remembering later: bandwidth/performance passes, UX/design change
 integration, schema or auth changes, a notable refactor. Skip it only for trivial fixes.
 
 - One Markdown file per milestone, named `YYYY-MM-DD-short-slug.md`, filed flat in
-  the development-phase folder it belongs to (`Phase-N-Name/`, screenshots in that
-  folder's `screenshots/`) — versioned releases go in `Milestones/Phase-6-v1.x-Release-Train/`;
-  see `docs/Milestones/README.md` for the map (2026-09-24 reorg).
+  the folder of the phase that is running (`Phase-7-Pilot-Readiness/` today; releases
+  included; screenshots in that folder's `screenshots/`). See `docs/Milestones/README.md`
+  for the map and the rule for opening the next phase (2026-09-24 reorg).
 - Keep it plain-language and skimmable: what changed, why it mattered, the app REV(s), a
   pointer to the PR, and any known ceiling or follow-up. A non-developer should understand it.
 - Link any shareable artifact (explainer page, diagram) from the record.

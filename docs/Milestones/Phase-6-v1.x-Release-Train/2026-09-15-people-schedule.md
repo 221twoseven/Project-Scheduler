@@ -21,7 +21,7 @@ what hours — visible at a glance on the People index and editable in the perso
   (`{"days":[1,2,3,4,5],"start":"09:00","end":"18:00"}`). Tristate like driver and
   availability: an editor that never touches the schedule controls does not send the
   field, so a site without the column never fails on other saves. Column created by
-  Robert 2026-09-15 (spec in `docs/TODO.md` §5) — saves land directly.
+  Robert 2026-09-15 (spec in `docs/Archive/TODO-v1.x-Archive.md` §5) — saves land directly.
 
 Known ceiling: one range per person — no split shifts or per-day hours. Add a per-day
 `hours` map when someone actually has one.
@@ -33,4 +33,4 @@ column.
 checkbox sits atop the editor's Schedule block; ticking it greys the day and hour controls
 out (the stored hours stay on the row) and the Schedule column and record read
 "Freelance". Stored as `freelance` (`1`/empty) on the staff list, tristate like driver —
-column created by Robert 2026-09-15 (spec in `docs/TODO.md` §5). Guarded by `test-v1230`.
+column created by Robert 2026-09-15 (spec in `docs/Archive/TODO-v1.x-Archive.md` §5). Guarded by `test-v1230`.
