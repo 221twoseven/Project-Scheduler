@@ -33,3 +33,11 @@ choices, SharePoint conventions). History and rationale only — its world-state
 
 A dated narrative (and one-page summary) of how the prototype became company
 infrastructure, prepared 2026-09-03. Not kept current.
+
+## `2026-09-22-Shop-Timeline-Brief-Condensed.md`
+
+The Project Director's September 2026 brief, condensed by Robert with a **Response**
+annotation per section saying what the app did on that date. The source document for
+Phase 7 (`docs/TODO.md`); frozen — corrections from the 2026-09-24 fact-check live in
+the TODO, not here. A few internal details are generalized because the repository is
+public.

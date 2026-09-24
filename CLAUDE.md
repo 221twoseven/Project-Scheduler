@@ -43,13 +43,18 @@ Project rules and context for working in this repository. Read this before makin
 
 ## Shared infrastructure — SharePoint & Entra
 
-The SharePoint site and Lists are **shared infrastructure**. They are used by BOTH this
-company app (`index.html`) AND a separately maintained colleague app. Changes here can
-break the other application.
+The SharePoint site and Lists are **shared infrastructure**: the app's nine
+`ShopTimeline_*` lists are read and written from the browser, can be hand-edited on the
+site, and were built alongside a separately maintained colleague app. **Owner ruling
+2026-09-24: the colleague app still runs but is unused and will not return; breaking it
+through a schema or data-store change is accepted collateral.** It no longer constrains
+the schema.
 
-- **Do not rename, delete, change column types, or otherwise alter the existing
-  SharePoint List schema without explicit approval.** The other app reads and writes the
-  same Lists; a schema change is a cross-application breaking change.
+- **Schema changes are owner-applied and deliberate.** The app never writes schema.
+  Deliver Robert the exact spec (list, column, internal name, type, values); additive
+  columns are routine (the app probes them live — the tristate pattern). A destructive
+  change (rename, delete, type change, moving a store) gets a milestone record naming
+  what it breaks and how existing rows migrate. See `docs/TODO.md` §6.
 - **Do not change Entra client IDs, tenant IDs, Graph permissions/scopes, redirect URIs,
   or the authentication architecture without explicit instruction.** These are tied to an
   external Entra app registration and shared expectations.
@@ -57,10 +62,12 @@ break the other application.
 The current infrastructure values (for reference — do not change without instruction):
 
 - SharePoint site: `twosevennet.sharepoint.com/sites/TWOSEVENINC`
-- Lists: `ShopTimeline_Projects`, `ShopTimeline_Tasks`, `ShopTimeline_Staff`,
-  `ShopTimeline_Tasks2`, `ShopTimeline_Events`, `ShopTimeline_Clients` (Events and
-  Clients are app-side — the colleague app never reads Events; Clients was imported
-  from the Excel client master, REV69)
+- Lists (nine, plus one read-only): `ShopTimeline_Projects`, `ShopTimeline_Tasks`
+  (phases), `ShopTimeline_Staff`, `ShopTimeline_Tasks2` (to-dos), `ShopTimeline_Events`,
+  `ShopTimeline_Clients` (imported from the Excel client master, REV69),
+  `ShopTimeline_Feedback`, `ShopTimeline_Changelog`, `ShopTimeline_Config` (app
+  settings); HR's `Employee Contacts` is read for the People-page import and never
+  written (Pay Type and PersonalEmail must not be fetched — `docs/TODO.md` item 9)
 - Entra (public SPA / PKCE, single-tenant): Client ID `5ba3aabe-81f7-41c9-92a4-83a45d5407ab`,
   Tenant ID `70aa5330-416f-48cb-a64f-1a89f0196577`
 - Graph scopes: `User.Read`, `Sites.ReadWrite.All`, plus `TeamMember.Read.All`
@@ -121,7 +128,8 @@ block in `index.html` between the `RELEASE_NOTES:BEGIN/END` markers.
   confirmed for any surface you touched.
 - **Before any substantial architectural change, first explain:** the proposed change,
   the files it affects, the risks (especially to shared SharePoint/Entra infrastructure
-  and the colleague app), and the rollback path. Wait for approval before proceeding.
+  and to data already in the lists), and the rollback path. Wait for approval before
+  proceeding.
 
 ## Milestones
 

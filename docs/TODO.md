@@ -9,8 +9,9 @@ open there was checked against the code before it was carried; the carried entri
 Two documents set this phase and are the source for most lines below:
 
 - **The Project Director's brief** — *Shop Timeline App: Current Processes and Development
-  Priorities* (September 2026), read here in Robert's condensed, annotated version
-  (2026-09-22). Cited as **[brief §N]**. Its "Response" annotations were fact-checked
+  Priorities* (September 2026), read here in Robert's condensed, annotated version,
+  [`reference/2026-09-22-Shop-Timeline-Brief-Condensed.md`](../reference/2026-09-22-Shop-Timeline-Brief-Condensed.md).
+  Cited as **[brief §N]**. Its "Response" annotations were fact-checked
   against the app on 2026-09-24; where a claim was partly wrong, the corrected fact is what
   appears below.
 - **The owner's vision (2026-09-24)** — Timeline stays a project-management and scheduling
@@ -27,8 +28,9 @@ milestones and this plan are presented as the phase runs.
 
 - ⚠ marks a SharePoint column/list or Entra change. **Not a gate** (owner, 2026-09-01):
   deliver Robert the exact spec (list, column, type, values) and he applies the list edit;
-  the app never writes schema. Additive-only while the colleague app shares the lists
-  (§4 D2). Entra changes still need explicit instruction (`CLAUDE.md`).
+  the app never writes schema. The colleague app no longer constrains the schema (D2,
+  ruled 2026-09-24); a destructive change still gets a milestone record naming what it
+  breaks and how rows migrate. Entra changes still need explicit instruction (`CLAUDE.md`).
 - Work lands on `development`, is viewable at `/preview/`, and is promoted to `main` by a
   deliberate manual merge. `/preview/` and `/sandbox/` write the **live** lists (§3 item 17).
 - Semantic versions; `APP_VER` in `index.html` is the source of truth, `package.json` and
@@ -38,7 +40,12 @@ milestones and this plan are presented as the phase runs.
 - Every milestone gets a record in `docs/Milestones/Phase-7-Pilot-Readiness/`; every
   deliberate skip gets a §7 line with its gate.
 
-Last reviewed: 2026-09-24 — file created (see §8 for the log).
+Last reviewed: 2026-09-24 (evening) — the owner's rulings folded in: D2 lifted (the
+colleague app is no constraint), D3 answered (tiered lists, one fact in one place),
+Hubert is backup maintainer, `ShopTimeline_Config` exists, the People page is current,
+the brief is in `reference/`. The five fact-check findings the owner flagged are placed
+by phase: items 2, 5, 9, 25, 26 (Phase 7) and 27–28 (Phase 8); the contingency map in §2
+shows what waits on what. See §8 for the log.
 
 ---
 
@@ -102,12 +109,36 @@ Manager (§4 D8); the v1.x "app as declared master" gate on v2.0.0 is dropped.
 
 | Release | Contents (§3 items) |
 |---|---|
-| v1.24.0 | 1–2 (terminology + Lock dates copy), 4 (time-off notes private), 9 (import `$select`, phone fallback) — the pilot's copy-and-privacy batch |
-| v1.25.0 | 7 (repeat work discoverable: Duplicate on the bar, ⋯ cue, New Project grip + section progress), 8 (rollup band label) |
+| v1.24.0 | 9a–9b (import `$select`, phone fallback — first, the owner's "cache is cache" ruling), 4 (time-off notes private), 1–2 (terminology + Lock dates meaning and copy) — the pilot's privacy-and-copy batch |
+| v1.25.0 | 25 (saved views per user ⚠ `savedViews`, Lock dates remembered per user), 7 (repeat work discoverable), 8 (rollup band label) |
 | v1.26.0 | 5 (date certainty ⚠ `dateCertainty`), 6 (visible last update + stale flag) |
 | v1.27.0 | 11 (closeout & billing states ⚠, PM checklist, verification, Bookkeeper queue, aging) — may split into two minors |
 | v1.2x.y | 3 (tour repro/fix), 10 (auto-Complete vs closeout), 19–24 as they resolve |
 | v2.0.0 | Phase 8 cutover (§1 point 5) |
+
+**Contingency map — what waits on what** (rulings dated; ← means "needs"):
+
+- **Ruled 2026-09-24 — D2: the colleague app is no constraint.** Unblocks D1 (registry
+  move), D10 / item 28 (person and client IDs), item 27 (splitting Staff), item 29
+  (dropping dead columns). Nothing else waited on it.
+- **D3 permission model** — ruled in principle 2026-09-24 (tiered lists, one fact in one
+  place; see §4):
+  - Phase 7: item 26 define the tiers (HR + Project Director) · item 4 time-off notes ·
+    item 9a import `$select` · item 25 per-user saved views (no dependency).
+  - Phase 8: item 27 split Staff into public roster + restricted record ← item 26 + D5
+    (identity master) + the owner breaking permission inheritance on the new list.
+  - Phase 9: role-based shared views (item 30, reuses item 25's shape) · Personnel Manager
+    and Client Manager over the tiered lists · D6 Design Resources (pointers, never secrets).
+- **D1 core registry** ← item 14 schema comparison ← the Current Projects / 27 Events
+  schemas from the Project Director (§5). Then **v2.0.0** ← D1 + item 28 + item 13's
+  cost-code registry (← the workbook inventory).
+- **Item 11 closeout** ← nothing technical (additive columns); the Bookkeeper's sign-in
+  and the verifier role ← D3's role vocabulary.
+- **Item 5 date certainty** ← the Project Director's default-date decision (5a). **Item 2
+  Lock dates** ← the owner's single-meaning decision; remembering it ← item 25.
+- **Item 12 calendar drift** ← a flow owner identified (§5). **Item 19 PTO** ← the
+  operations manager's session. **D13 integrations** ← D2 ✓, D3, D5 settled + the CSV
+  formats (§5).
 
 ## 3. Phase 7 work — proposed, not started
 
@@ -122,12 +153,16 @@ Numbering restarts at 1 for this file; v1.x item numbers are cited as "v1.x item
       (round one shipped v1.15.1). "Flexible roles instead of fixed buckets" is a data-model
       change (four fixed role columns today: PM, Drafter, Lead fabricator, Fabricators, plus
       a legacy `metalFab`) — Phase 8, §4 D10. [brief §7 Terminology]
-- [ ] **2. Lock dates explained — and made to mean one thing.** Today it means two: on the
-      timeline it stops moves (a resize grab downgrades to a move, a move applies no date
-      change — but a drag can still change the department/assignee lane); on the project
-      page it blocks *resize only* and a move still shifts dates. Decide the single meaning,
-      then relabel + tooltip. Always on for viewers except under the `viewer.phases` grant;
-      not remembered between visits. [brief §5.1, §7 "Tour and Lock dates"]
+- [ ] **2. Lock dates — one meaning, then explained. Confirmed P0 by user feedback
+      (owner, 2026-09-24).** Today it means two things: on the timeline it stops moves (a
+      resize grab downgrades to a move, a move applies no date change — but a drag can still
+      change the department/assignee lane); on the project page it blocks *resize only* and
+      a move still shifts dates. Steps: (a) the owner picks the one meaning — recommend *no
+      date change by drag, move or resize, on both surfaces* (lane changes stay allowed);
+      (b) relabel (e.g. "Protect dates") and a tooltip that says exactly what it stops;
+      (c) remember it per user instead of per session — rides item 25; (d) keep the viewer
+      rule (always on, except under the `viewer.phases` grant) and say so in the tooltip.
+      Contingency: (a)–(b) none; (c) item 25. [brief §5.1, §7 "Tour and Lock dates"]
 - [ ] **3. Tour "looped" — repro, then fix or gate.** No loop bug on record. Working
       hypothesis: a browser whose `localStorage` returns null every session (private window,
       or a policy that clears site data on exit) replays the first-visit tour on every boot
@@ -143,10 +178,21 @@ Numbering restarts at 1 for this file; v1.x item numbers are cited as "v1.x item
 - [ ] **5. Date certainty: Tentative / Confirmed / TBD.** ⚠ one Projects column,
       `dateCertainty` (single-line text, `tentative` / `confirmed` / empty = confirmed;
       tristate so other saves never 400). Surfaces: sidebar chip, bar label, project page
-      header, Meeting Sheet. **Start with the default:** New Project pre-fills the install
-      date at today + 42 days, so the "required" date is never actually chosen — either mark
-      the default Tentative or remove it and ask. Forecast status stays as the *project*
-      state; certainty is about the *date*. [brief §7 Early dates; §9 P0]
+      header, Meeting Sheet. Forecast status stays as the *project* state; certainty is
+      about the *date*. Steps and decisions (owner, 2026-09-24: "noted — add the steps"):
+      (a) **the default** — New Project pre-fills the install date at today + 42 days, so
+      the "required" date is never actually chosen. Project Director decides: remove the
+      pre-fill and require a choice (recommended — the whole schedule is built backward
+      from this date), or keep it and stamp it Tentative. (b) **TBD still needs a working
+      date** for the backward schedule — store `tbd`, schedule from the placeholder, show
+      the TBD pill instead of the date everywhere it prints. (c) **Existing projects** — a
+      default-created date is indistinguishable from a chosen one; migration rule for the
+      Project Director: everything existing reads Confirmed except Forecast-status
+      projects, which read Tentative, and PMs correct from there. (d) **Downstream** — a
+      Tentative/TBD date must never present as a commitment: no LATE chip, no PM late
+      prompt, no auto-Complete (item 10), and the Meeting Sheet prints the certainty.
+      Contingency: (a) and (c) are Project Director decisions; the column is additive.
+      [brief §7 Early dates; §9 P0]
 - [ ] **6. Last update visible, stale flag.** `updatedBy`/`updatedAt` already come from
       Graph but show only in hover cards (and, for admins, the change log). Put last editor +
       time on the project page header and the Meeting Sheet; add a stale chip (no edit in
@@ -167,16 +213,21 @@ Numbering restarts at 1 for this file; v1.x item numbers are cited as "v1.x item
       "gaps never read as work", the progress bar is the one surface to relabel or compute
       from blocks. Double-booking checks already use the actual blocks. [brief §7 Rollup,
       §8.2, §14]
-- [ ] **9. Employee source hardening.** (a) The Employee Contacts import fetches
-      `items?expand=fields` with no `$select`, so Pay Type and PersonalEmail cross the wire
-      into an admin's browser even though they are never stored or shown — add
-      `expand=fields($select=…)` or import from a trimmed SharePoint view. (b) A blank
-      Primary Phone silently falls back to Phone, then Mobile Phone (more likely personal) —
-      drop the fallback or flag the row. (c) Decide which People-page fields non-admins see:
-      today name, nickname, title, phone, email, departments, time off, schedule, driver,
-      **employment Status and the ADMIN/DEV/FB permission badges** are visible to every
-      signed-in user. (d) Confirm with HR whether Primary Phone is ever personal. [brief §7
-      Employee source, §8.1, §13]
+- [ ] **9. Employee source hardening — 9a is the first thing in the first batch (owner,
+      2026-09-24: "browser cache but invisible is still browser cache").** (a) The Employee
+      Contacts import fetches `items?expand=fields` with no `$select`, so Pay Type and
+      PersonalEmail cross the wire into the importing admin's browser even though they are
+      never stored or shown. Fix: `expand=fields($select=Title,Status,Email,…)` naming only
+      the six fields the import maps. Honest limit: this is the app behaving well, not a
+      guarantee — a curious admin with site rights could still read the HR list directly;
+      the guarantee is SharePoint permissions on Employee Contacts itself (HR's list, HR's
+      call — item 26 / D3). (b) A blank Primary Phone silently falls back to Phone, then
+      Mobile Phone (more likely personal) — drop the fallback; report the row as "no work
+      phone" instead. (c) Which People-page fields non-admins see is now item 26's field
+      map — today name, nickname, title, phone, email, departments, time off, schedule,
+      driver, **employment Status and the ADMIN/DEV/FB permission badges** are visible to
+      every signed-in user. (d) Confirm with HR whether Primary Phone is ever personal.
+      Contingency: (a), (b), (d) none; (c) item 26. [brief §7 Employee source, §8.1, §13]
 - [ ] **10. Automatic status vs closeout.** A project on Automatic marks itself Complete
       once its last install *or shipping* bar ends (v1.20.6). Under item 11, "work finished"
       and "closed out" are different states: keep the automatic flip as the trigger that
@@ -231,10 +282,13 @@ app's part, where any, is listed.
       if the fallback must be human-readable. Confirm list versioning is on for all nine
       (recovery for deletes is the Recycle Bin, for edits version history). [brief §10.2,
       §12, §7.2]
-- [ ] **16. Backup maintainer + rollback procedure.** Name the second maintainer (Hubert?)
-      with access to the repository, Pages, the app registration and the recovery docs.
-      Write the one-paragraph rollback (git revert on `main` → Actions redeploys) and start
-      tagging releases (`v1.23.0` etc.) — there are no release tags today. [brief §5.1, §11]
+- [ ] **16. Backup maintainer + rollback procedure. Backup maintainer: Hubert (owner,
+      2026-09-24, "for now").** Remaining: give him collaborator access to the repository
+      (the `sandbox` branch flow exists — `docs/Archive/Onboarding-Fork.md`), Pages, the
+      Entra app registration (at least redirect-URI rights) and the recovery docs
+      (`SETUP.md`, `CONTRIBUTING.md`, `reference/Handoff-Notes.md`); write the one-paragraph
+      rollback (git revert on `main` → Actions redeploys) and start tagging releases
+      (`v1.23.0` etc.) — there are no release tags today. [brief §5.1, §11]
 - [ ] **17. Separate development data from production.** `/preview/` and `/sandbox/` write
       the live lists, so every pilot test edit is a real edit — the brief's technical-test
       stage would otherwise put test jobs in production data. Options: a test SharePoint site
@@ -288,17 +342,67 @@ app's part, where any, is listed.
       re-registered — `SETUP.md`). The repository is public (Pages hosting); safe because
       access depends on Microsoft sign-in, but leadership should know. [brief §11]
 
-### Owner confirmations (one click each — ask, don't park)
+### P0 additions from the owner's fact-check review (2026-09-24)
 
-- [ ] `ShopTimeline_Config` exists? The v1.x spec was delivered 2026-09-02 and never
-      marked created; the brief counts "settings" among the nine lists, which suggests it
-      does. Check Help ▸ App settings on `/preview/`: the source line reads "shared via the
-      ShopTimeline_Config list" when it exists, "browser-local" when not. If not: Title
-      (= setting key) + one single-line text column `value`. ⚠
-- [ ] Was the People-page **Import from Employee Contacts** re-run after the `status`
-      column landed (2026-09-02 late)? Idempotent — re-run it if unsure.
-- [ ] Should the condensed brief live in the repository (`docs/Briefs/`)? The repo is
-      public; it names internal processes and a mailbox. Owner's call.
+- [ ] **25. Saved views per user, not per browser (owner ruling 2026-09-24).** Today a
+      saved view lives in `localStorage` (`shopTimelineViews_v1`) on one machine. Store
+      them on the signed-in user's own Staff row instead: ⚠ `savedViews` on
+      `ShopTimeline_Staff`, multi-line text holding a JSON array, written only to the
+      user's own row (the `personalNotes` pattern). Migration: on the first load after the
+      release, import the browser's local views into the row, then keep the local copy as
+      a cache. Result: a view saved anywhere follows the person. The same own-row record is
+      the home for per-user settings that are session-only today — Lock dates (item 2c),
+      density, sidebar width if wanted. Shared and role-based views (item 30, D3) reuse the
+      same JSON shape in Phase 9. Contingency: none — additive column, spec with the batch.
+      [brief §2 "plan saved views and permissions now", §7 Audience views]
+- [ ] **26. Define the information tiers — a decision with HR and the Project Director.**
+      The owner's finding: employee information is gated only by curiosity today; every
+      signed-in user can read all of `ShopTimeline_Staff`. The unit of protection in
+      SharePoint is the *list* (or the item), never the column, so the fields have to be
+      sorted into tiers before anything can be protected. Output: a field map with one
+      owner per field. Proposed tiers — **public roster** (what pickers, lanes and
+      dashboards need: name, nickname, departments, title, availability, weekly schedule,
+      driver); **restricted personnel record** (work phone and email?, employment status,
+      time-off notes, personal contacts, pay basis, anything ADP/TimeClock+ brings later).
+      Question for HR: is a work phone/email public inside the company? Contingency: feeds
+      item 27 and D5; until 27 ships, items 4 and 9a are the only protection, so say so in
+      the pilot's limits. [brief §7 Employee source, §8.1, §11.1; vision]
+
+### Queued for Phase 8 — contingent (see the map in §2)
+
+- [ ] **27. Split `ShopTimeline_Staff` into a public roster and a restricted personnel
+      record.** A new list holding only the restricted fields plus the person's stable ID
+      — on this site with broken permission inheritance, or on a separate HR site — with
+      membership set by HR; the restricted columns move off Staff. The app reads the
+      restricted list only when the user's token can (a 403 degrades the way `STAFF_OK`
+      does today) and joins by ID, so each fact lives once and nothing is duplicated.
+      Personnel Manager (Phase 9) becomes its editor; Timeline shows what the roster holds.
+      Owner action: break inheritance / create the site (site admin). ⚠ destructive on
+      Staff (columns move) → milestone record + migration of existing rows. ← item 26, D5,
+      D3; D2 lifted. [brief §8.1, §11.1; vision]
+- [ ] **28. Stable IDs.** `clientId` on Projects (additive; one-time name → id backfill in
+      the same milestone; `spId` is the key until Clients get an `appId`); `personId` on
+      assignments (Tasks and the project role fields) so `canonName` and the scrub retire —
+      D10. D2 lifted, so Tasks can change. ⚠ [brief §8]
+- [ ] **29. Drop the dead columns** `metalFab`, `labels`, `checklist` (§7 L1040) — a
+      deliberate cleanup now that D2 is lifted; milestone record; the app stops writing
+      them one release before the columns go. ⚠
+
+### Queued for Phase 9
+
+- [ ] **30. Role-based shared views** (leadership, department, PM, later `terminal`) over
+      item 25's JSON shape, stored in `ShopTimeline_Config` or a views list; **Personnel
+      Manager** and **Client Manager** over the tiered lists (items 27–28); **Design
+      Resources Manager** per D6. ← D3 role vocabulary, D4 architecture.
+
+### Owner confirmations — answered 2026-09-24
+
+- [x] `ShopTimeline_Config` **exists** (owner). The dev App Settings switches are shared
+      via the list; "Listening to" (§7) is only the owner's promote-or-drop call now.
+- [x] The People page **is up to date** (owner) — the `status` import has run.
+- [x] The condensed brief **is in the repository**:
+      `reference/2026-09-22-Shop-Timeline-Brief-Condensed.md` (dated title; the mailbox
+      name, headcount and a location generalized — the repo is public).
 
 ## 4. Decisions the suite forces (open — record rulings here, dated)
 
@@ -308,24 +412,40 @@ Each has a recommendation. None is taken.
   §6.7) vs `ShopTimeline_Projects` promoted to it. *Recommend:* run item 14's schema
   comparison first; whichever wins, the other becomes a read-only mirror for one parallel
   period, then is retired — never a permanent two-way sync between two editable masters.
-  Moving off `ShopTimeline_Projects` touches the colleague app (D2). [brief §6.7, §14]
-- **D2 — The colleague app and schema parity.** Projects, Tasks, Staff and Tasks2 are
-  shared with a separately maintained colleague app; Events, Clients, Feedback, Changelog
-  and Config are app-only and can be reshaped freely. Nothing records whether the colleague
-  app still runs or who maintains it. The owner said on 2026-09-24 that parity may be
-  dropped if it holds development back. *Recommend:* confirm its status; if retired, lift
-  the additive-only rule in `CLAUDE.md` and unblock D10 (person IDs), the `metalFab` /
-  `labels` / `checklist` write-only columns (§7 L1040) and D1. Until then, additive-only.
-- **D3 — Permission model and enforcement.** Today: Admin / Viewer / Developer, with
-  per-door viewer grants in Config; PMs are admins. The vision needs sets per audience (PM,
-  Accounting, HR, Operations Director, Purchasing/SysAdmin, Viewer, later `terminal`). Hard
-  constraint: **UI gating is workflow protection, not security** — every signed-in token
-  carries `Sites.ReadWrite.All`, and anyone with site edit rights can read or change any
-  list directly. *Recommend:* roles in the app for workflow; **SharePoint permissions on
-  separate lists/libraries for anything sensitive** (pay, personal contacts, billing notes,
-  licence keys). Saved views are browser-local (`localStorage`) and cannot be the audience
-  mechanism; role-based views need shared storage (Config or a per-user record). Design
-  the role vocabulary once, for all apps. [brief §2, §9, §11; vision]
+  Moving off `ShopTimeline_Projects` is no longer gated by the colleague app (D2); the
+  migration record still names what changes. [brief §6.7, §14]
+- **D2 — The colleague app and schema parity. RULED 2026-09-24 (owner):** the colleague
+  app still runs but is not used and will not be used again; breaking it through a schema
+  or data-store change is accepted collateral. **The additive-only rule is lifted**
+  (`CLAUDE.md` updated). What stays: the lists are still shared infrastructure in the
+  plainer sense (hand edits on the site, any flows), so a destructive change — rename,
+  delete, type change, moving a store — gets a milestone record naming what it breaks and
+  how existing rows migrate. Unblocked: D1, D10 / item 28, item 27, item 29.
+- **D3 — Permission model and enforcement. RULED IN PRINCIPLE 2026-09-24 (owner): "this
+  must be solved" — select access for specific stakeholders without duplicating
+  information, and no sprawl of lists.** Facts: today Admin / Viewer / Developer with
+  per-door viewer grants in Config; PMs are admins; **UI gating is workflow protection,
+  not security** — every signed-in token carries `Sites.ReadWrite.All` (delegated, so it
+  can do exactly what that person can do on the site), and every site member can read
+  `ShopTimeline_Staff` directly. SharePoint permissions apply per *site*, per *list*, or
+  per *item* — never per column. So the answer to "how do we keep select access without
+  duplicating information" is **normalize, don't duplicate: one fact lives in one list,
+  and the list is the unit of protection.** A public roster list holds what everyone
+  needs; a restricted list holds *only* the sensitive fields plus the stable ID of the
+  person (or project) they belong to. Nothing is copied; the restricted record *is* the
+  extra information the stakeholder needs, and only their token can read it. To the
+  owner's question — **yes, a list can reference another list**, two ways: (1) SharePoint
+  **lookup columns** (a column pointing at an item in another list, optionally projecting
+  its columns; Graph reads them as `<col>LookupId` + value) — same-site only, and awkward
+  to write through Graph; (2) the app's existing pattern — a stable ID stored as text
+  (`appId`, `personId`) and joined in the app — which works across sites, so the
+  restricted list can live on an HR-only site. *Recommend (2).* Enforcement is then the
+  user's own token: Graph returns 403 on a list they can't read, and the app already
+  degrades for optional lists (`STAFF_OK`, `EVENTS_OK`). App roles stay for *workflow*
+  (which doors, which views); the role vocabulary is designed once for every app in the
+  suite. Work: item 26 (tiers, Phase 7) → item 27 (the split, Phase 8) → item 30 (Phase
+  9). Saved views: per user in item 25 (Phase 7); shared/role-based in Phase 9.
+  [brief §2, §9, §11; vision]
 - **D4 — Architecture for more than one app.** One 10,600-line `index.html`, no build step,
   no shared module; Pages deploys three branches to `/`, `/preview/`, `/sandbox/` with a
   guard that greps the file as markup. A portal plus three sibling apps sharing theme, auth
@@ -369,7 +489,7 @@ Each has a recommendation. None is taken.
 - **D10 — Stable IDs.** Assignments store *names*, resolved through `canonName`; projects
   store the client as a *name*; Clients have no `appId` but do have a stable `spId`.
   *Recommend:* Phase 8 adds `clientId` on Projects (additive, one-time name → id backfill
-  in the same milestone) and person IDs on assignments (touches shared Tasks — D2); the
+  in the same milestone) and person IDs on assignments (Tasks can change — D2 lifted); the
   flexible-roles model (item 1) rides the same change. [brief §8]
 - **D11 — Departments and closures as data.** Departments and the six holidays are fixed
   in code; the brief wants configurable departments and a Shop Closure list. *Recommend:*
@@ -404,14 +524,15 @@ Schemas, rules and examples — not screenshots. Status as of 2026-09-24.
 | PTO, holidays, changelog: availability source, identity matching, cancellation examples, how holidays are set | operations manager (PTO, 27 Employees automation); Robert (changelog — item 20) | discovery session not held |
 | QuickBooks / TimeClock+ CSV formats | Bookkeeper | not requested (D13) |
 | Who administers which view (the key users) and which permission set each needs | owner, Hubert | in progress (D3) |
-| Colleague app: is it running, who maintains it, which lists it reads/writes | owner | unknown (D2) |
+| Colleague app: is it running, who maintains it, which lists it reads/writes | owner | answered 2026-09-24: running, unused, will not return; breakage accepted (D2) |
 | The app itself: lists, registration, scopes, deployment, data model, formulas | Robert | mostly in the repo; item 21 closes the gaps (backups and rollup formulas undocumented) |
 
 ## 6. Data / schema (⚠ shared Lists — spec to Robert, additive-only)
 
-Standing: any column or list change is checked against the colleague app while D2 is
-open; additive-only; Robert applies the delivered spec; the app probes new columns live
-(tristate pattern — a missing column never 400s other saves).
+Standing: Robert applies the delivered spec; additive columns are routine (the app probes
+new columns live — the tristate pattern, a missing column never 400s other saves); a
+destructive change gets a milestone record with the migration. The colleague app is no
+constraint (D2, lifted 2026-09-24).
 
 Created and in use (v1.x): `ShopTimeline_Feedback`, `ShopTimeline_Changelog`,
 `ShopTimeline_Clients`; on `ShopTimeline_Staff`: `admin` (`1` / `dev` / empty),
@@ -420,13 +541,16 @@ Created and in use (v1.x): `ShopTimeline_Feedback`, `ShopTimeline_Changelog`,
 `driver`, `availability`, `schedule` (JSON), `freelance`. Entra: `Mail.Send` delegated,
 consented. Employee Contacts: READ-ONLY, never written, schema never touched.
 
-To confirm: `ShopTimeline_Config` (Title + `value`) — see §3 owner confirmations.
+`ShopTimeline_Config` (Title + `value`) — **confirmed created (owner, 2026-09-24)**; the
+dev App Settings switches are shared through it.
 
 Candidates this phase (spec delivered with the item's batch):
 
 - `dateCertainty` on `ShopTimeline_Projects` — item 5.
 - `closeoutStatus`, `billingStatus` (+ `closeoutBy`, `closeoutAt` if needed) on
   `ShopTimeline_Projects` — item 11.
+- `savedViews` on `ShopTimeline_Staff` — multi-line text, JSON array, written only to the
+  signed-in user's own row (the `personalNotes` pattern) — item 25.
 - Tour seen flag on `ShopTimeline_Staff` — only if item 3 lands that way.
 - A test site or suffixed list set for development data — item 17.
 
@@ -538,8 +662,8 @@ Line numbers in brackets are the entry's place in `docs/Archive/TODO-v1.x-Archiv
       8" wording was stale — v1.1.0 didn't touch the block, and the v1.8.0/v1.11.0 permission
       guards touched both without merging). [L1026]
 - [ ] `metalFab` and `todoToFields`' `labels` / `checklist` are dead schema kept alive for
-      cross-app compatibility (`metalFab` still round-trips and is searchable). Dropping
-      them waits on D2. [L1040]
+      cross-app compatibility (`metalFab` still round-trips and is searchable). D2 lifted
+      2026-09-24 — dropping them is item 29, a deliberate Phase 8 cleanup. [L1040]
 - [ ] Edit-in-place popover carries data fields + Delete only; Duplicate and Pin stay
       inspector-only. Gate: shop use asking — **fired by brief §1/§7** (make Duplicate
       visible); handled as item 7. [L1044]
@@ -613,8 +737,8 @@ Line numbers in brackets are the entry's place in `docs/Archive/TODO-v1.x-Archiv
       specified; likely covered by the v1.15.0/v1.19.2 `dispName` sweep. Needs an owner
       yes/no, not code. [v1.x item 29]
 - [ ] "Listening to" stays behind the `exp.listening` dev switch — promote or drop is the
-      owner's call; shared toggling needs `ShopTimeline_Config` to exist (v1.12.0). [v1.x
-      item 30]
+      owner's call (`ShopTimeline_Config` exists, confirmed 2026-09-24, so the switch is
+      shared) (v1.12.0). [v1.x item 30]
 - [ ] Staff flag columns are text `1`/empty (`admin`, `feedbackRecipient`, `driver`,
       `freelance`, `listeningShow`); a Yes/No column would need the writer switched.
       **Corrected:** the `viewer.*` grants are rows on `ShopTimeline_Config`, not Staff
@@ -726,7 +850,8 @@ Line numbers in brackets are the entry's place in `docs/Archive/TODO-v1.x-Archiv
       edits browser-local and resumes persistence silently later — fine for an optional
       roster, a data-integrity risk once Staff is the personnel master (Phase 9 design).
 - [ ] Polling: every open tab re-reads every list every 90 s — D12.
-- [ ] Saved views are browser-local — D3.
+- [ ] Saved views are browser-local — item 25 (per user, Phase 7); shared and role-based
+      views item 30 / D3 (Phase 9).
 - [ ] No release tags, no written rollback procedure, repo under a user account — items
       16, 24.
 - [ ] Shop-terminal account type — D14. [v1.x §2]
@@ -756,6 +881,11 @@ state reset per project visit, persist per browser like `NPV_OPEN` only if asked
 - **Standing rule:** the retired backlogs (`docs/Archive/TODO-v1-Archive.md`,
   `TODO-v1.x-Archive.md`) are frozen; a ledger entry's later decision is recorded here, in
   §7, with the archive line number.
+- 2026-09-24 (evening): the owner's rulings folded in (D2 lifted, D3 ruled in principle,
+  Hubert backup maintainer, Config exists, People page current); items 25–30 added and
+  the contingency map written into §2; the condensed brief added as
+  `reference/2026-09-22-Shop-Timeline-Brief-Condensed.md`; `CLAUDE.md`, `README.md`,
+  `CONTRIBUTING.md`, `SETUP.md`, `ARCHITECTURE.md` colleague-app rule wording updated.
 - 2026-09-24: v1.x backlog retired and audited; this file created; Milestones Phase 6
   closed at v1.23.0, Phase 7 opened
   (`docs/Milestones/Phase-7-Pilot-Readiness/2026-09-24-backlog-retired-phase-7-kickoff.md`).

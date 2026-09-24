@@ -64,8 +64,8 @@ handoff (setup rationale, conventions, traps, version history).
 
 - `reference/Timeline_50.html` is a read-only reference — never edit it.
 - Work on the `development` branch; `main` is production / GitHub Pages.
-- The SharePoint Lists and Entra app are **shared** with a separately maintained
-  colleague app. Do not change the List schema or the auth configuration without
-  explicit approval — it can break the other application.
+- The SharePoint Lists are shared infrastructure (hand edits, flows, a retired colleague
+  app). Schema changes are owner-applied and deliberate — see `CLAUDE.md`; never change
+  the auth configuration without explicit instruction.
 - Never commit secrets, tokens, or credentials. This is a public repo.
 - Run `npm test` after any change to `index.html`.
