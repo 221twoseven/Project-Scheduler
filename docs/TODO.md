@@ -19,8 +19,9 @@ Two documents set this phase and are the source for most lines below:
   Personnel Manager, Design Resources Manager) that share the same SharePoint lists, one
   permission model, and one visual language. Cited as **[vision]**.
 
-**Nothing in this file is started.** §3 is a proposed build list, §4 the decisions it
-depends on. Both are to be agreed with Hubert, the Project Director and the key users who
+**Nothing in this file is started except item 31** — the feedback → GitHub ticket bridge,
+owner go-ahead 2026-09-24, built outside the app in a private tracker repository. §3 is a
+proposed build list, §4 the decisions it depends on. Both are to be agreed with Hubert, the Project Director and the key users who
 administer specific views before any code lands. Development is no longer solitary:
 milestones and this plan are presented as the phase runs.
 
@@ -368,6 +369,50 @@ app's part, where any, is listed.
       item 27 and D5; until 27 ships, items 4 and 9a are the only protection, so say so in
       the pilot's limits. [brief §7 Employee source, §8.1, §11.1; vision]
 
+### Owner ask (2026-09-24, evening) — tickets
+
+- [ ] **31. One GitHub issue per feedback report, screenshots included — a poller in a
+      private tracker repository. PRIORITY (owner, 2026-09-24: "whatever is easiest to
+      implement that is automated").** **STARTED 2026-09-24 (owner go-ahead):**
+      `221twoseven/Project-Scheduler-issues` created (private), poller + hourly workflow +
+      README pushed; waiting on the owner's one-time setup (Entra registration, site grant,
+      two Actions secrets, the `ghIssue` column — steps in that README) and Hubert's GitHub
+      username for collaborator access; the first real run back-fills the open reports,
+      which are then carried into this file. Required chain: user submits → mailed to the
+      `feedbackRecipient`s (both exist today) → a GitHub issue that Claude can read and
+      act on, screenshots included → folded into this file on request (`gh issue list`).
+      The app cannot file issues itself: no token can live in a public browser page. Two
+      routes compared 2026-09-24. **(A) Power Automate, no code** — the GitHub connector
+      is Standard tier with *Create an issue* / *Update an Issue* actions
+      (learn.microsoft.com/connectors/github), but nothing in the standard tier can move a
+      file into GitHub, so a screenshot would only be a SharePoint link Claude cannot open;
+      the premium *HTTP* action closes that gap only if the tenant has a Premium licence.
+      **(B) recommended — a GitHub Actions poller** in a **private** repository
+      `221twoseven/Project-Scheduler-issues` (GitHub Free: unlimited private repositories
+      and 2,000 Actions minutes a month; hourly runs use about 720). Every hour, and on
+      demand (`gh workflow run`), a ~100-line Node script reads `ShopTimeline_Feedback`
+      through Graph with an **app-only Entra registration** (application permission
+      `Sites.Selected`, granted `write` on the TWOSEVENINC site only; client secret held as
+      an Actions secret in the private repository, never in the app or this repository),
+      downloads each new report's screenshot from the site's `/ShopTimeline Feedback/`
+      upload folder, commits it under `screenshots/`, opens the issue (title = the row's
+      Title; label `bug` / `feature`; body = reporter, app version, description, the
+      screenshot inline, a link to the list item) and writes the issue URL back to ⚠
+      `ghIssue` on the row. Reverse direction in the same run: a row whose issue is closed
+      gets `status = resolved`, so the Open Issues page follows the ticket without a second
+      click. Open rows are back-filled on the first run; resolved history stays on the
+      list. Commits in this repository close tickets with
+      `Fixes 221twoseven/Project-Scheduler-issues#N`. **Owner setup, one time:** create the
+      private repository (Hubert as collaborator); create the Entra registration + secret
+      and grant it on the site (exact steps delivered with the build; a *new* registration,
+      the app's is untouched); add three Actions secrets; create `ghIssue` (single line of
+      text). App change: none; the developer Bug Reports page can print the `ghIssue` link
+      later (two lines). Why private: reporter names, descriptions and shop screenshots
+      would otherwise be on the open internet; making the code repository private is not
+      available on GitHub Free (Pages is public-only there). Rollback: disable the
+      workflow and delete the secret; the app and the list are untouched apart from the
+      additive column. [owner ask 2026-09-24; brief §11 maintenance]
+
 ### Queued for Phase 8 — contingent (see the map in §2)
 
 - [ ] **27. Split `ShopTimeline_Staff` into a public roster and a restricted personnel
@@ -553,6 +598,8 @@ Candidates this phase (spec delivered with the item's batch):
   signed-in user's own row (the `personalNotes` pattern) — item 25.
 - Tour seen flag on `ShopTimeline_Staff` — only if item 3 lands that way.
 - A test site or suffixed list set for development data — item 17.
+- `ghIssue` on `ShopTimeline_Feedback` — single line of text, the GitHub issue URL,
+  written by the tracker repository's poller, never by the app — item 31.
 
 Phase 8 candidates (design first): `clientId` on Projects (D10); person IDs on
 assignments (D10, D2); a client lifecycle column on `ShopTimeline_Clients` (the Staff side
@@ -881,6 +928,13 @@ state reset per project visit, persist per browser like `NPV_OPEN` only if asked
 - **Standing rule:** the retired backlogs (`docs/Archive/TODO-v1-Archive.md`,
   `TODO-v1.x-Archive.md`) are frozen; a ledger entry's later decision is recorded here, in
   §7, with the archive line number.
+- 2026-09-24 (evening, later): item 31 added — one GitHub issue per feedback report,
+  screenshots included, through a poller in a private tracker repository (owner ask,
+  priority). The reports open on `ShopTimeline_Feedback` are carried in once the poller
+  files them (the list is behind Microsoft sign-in; no session has ever read it — GitHub
+  Issues holds nothing today). Owner go-ahead the same evening: the private tracker
+  repository was created and the poller, workflow and setup README pushed; the owner's
+  Entra / secrets / column setup is the next step.
 - 2026-09-24 (evening): the owner's rulings folded in (D2 lifted, D3 ruled in principle,
   Hubert backup maintainer, Config exists, People page current); items 25–30 added and
   the contingency map written into §2; the condensed brief added as
