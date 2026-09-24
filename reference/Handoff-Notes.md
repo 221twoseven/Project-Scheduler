@@ -6,10 +6,10 @@
 >
 > Some specifics in the original (live URL, GitHub account, repo, "current build") described
 > the earlier personal-account setup and **have since moved**. For current live values —
-> URL, redirect URI, client/tenant IDs, auth config — always use **[SETUP.md](SETUP.md)**.
+> URL, redirect URI, client/tenant IDs, auth config — always use **[SETUP.md](../docs/SETUP.md)**.
 > For the current ship/branch workflow, see **[../CONTRIBUTING.md](../CONTRIBUTING.md)**.
-> Actionable open items and operational-security follow-ups live in **[TODO.md](TODO.md)**.
-> For the current architecture from a fresh inspection, see **[ARCHITECTURE.md](ARCHITECTURE.md)**.
+> Actionable open items and operational-security follow-ups live in **[TODO.md](../docs/TODO.md)**.
+> For the current architecture from a fresh inspection, see **[ARCHITECTURE.md](../docs/ARCHITECTURE.md)**.
 >
 > The live app is `index.html` (see the `APP_VER` constant for the current version);
 > `reference/Timeline_50.html` is the frozen REV50 baseline it began as.
@@ -36,7 +36,7 @@ with their normal Microsoft account — no new passwords.
 The Application (client) ID and Directory (tenant) ID sit in plain sight in the HTML.
 **They are not secrets** — they're meant to be public. There is no client secret and no API
 key anywhere in this project, by design: the security comes from Microsoft login, not from
-hiding a string. (Current values: see [SETUP.md](SETUP.md).)
+hiding a string. (Current values: see [SETUP.md](../docs/SETUP.md).)
 
 ## 3. How the login plumbing works (plain English)
 
@@ -56,7 +56,7 @@ The app can only do what the token permits. We asked for exactly two permissions
 
 ## 4. Why the Entra setup is the way it is
 
-Rationale kept for context; current config lives in [SETUP.md](SETUP.md):
+Rationale kept for context; current config lives in [SETUP.md](../docs/SETUP.md):
 
 - **Single tenant ("My organization only").** Internal staff only, no outside accounts.
 - **Delegated permissions**, not application permissions. "Delegated" is the important
@@ -179,7 +179,7 @@ hold:
 - GitHub keeps every previous version, so **rollback is a couple of clicks.**
 - A deploy needs **no Entra changes** — swapping the file never touches the auth panel. Only
   a change of *hosting address* would (then the redirect URI must be re-registered — see
-  [SETUP.md](SETUP.md)).
+  [SETUP.md](../docs/SETUP.md)).
 
 ## 9. Traps that have already cost time
 
@@ -275,5 +275,5 @@ patching the wrong function; output was syntax-checked with Node before shipping
 
 **Open items** (calendar create-menu/parity, standalone events, dependencies, the Dash view,
 `ShopTimeline_Tasks2`, staff `email`/`role` columns, and the rest) are tracked, ranked,
-and kept current in **[TODO.md](TODO.md)** — not duplicated here, so there's one source of
+and kept current in **[TODO.md](../docs/TODO.md)** — not duplicated here, so there's one source of
 truth. (The org transfer is done; the repo lives under `221twoseven`.)

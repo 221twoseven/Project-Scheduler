@@ -20,3 +20,16 @@ The untouched REV50 build handed off by the colleague who wrote the original app
 > copy lives at the repo root (next to the live `index.html`). This doesn't affect the
 > tests, which stub MSAL. If you ever need to run the reference build live, copy
 > `msal-browser.min.js` into this folder.
+
+## `Handoff-Notes.md`
+
+The original developer's plain-English handoff, consolidated with their developer notes.
+It explains *why* the app is built and hosted the way it is (single file, Pages, Entra
+choices, SharePoint conventions). History and rationale only — its world-state claims
+(URLs, accounts, "current build") are stale. Current truth lives in `docs/SETUP.md`,
+`docs/ARCHITECTURE.md`, and `CONTRIBUTING.md`.
+
+## `Project-History.md` / `Project-History_TLDR.md`
+
+A dated narrative (and one-page summary) of how the prototype became company
+infrastructure, prepared 2026-09-03. Not kept current.

@@ -134,7 +134,7 @@ init.
 - **`JSON.stringify` state comparisons** break when key sets differ; the poll once
   compared a three-key object to a two-key one and clobbered state every tick.
 
-See [Handoff-Notes.md](Handoff-Notes.md) for the consolidated handoff — setup rationale,
+See [Handoff-Notes.md](../reference/Handoff-Notes.md) for the consolidated handoff — setup rationale,
 conventions, traps, and version history (REV34–REV50).
 
 ## Hosting

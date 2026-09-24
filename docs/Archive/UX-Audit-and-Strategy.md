@@ -25,7 +25,7 @@ The strategy: fix trust and legibility first (cheap, high-visibility, low-risk),
 - Cloned the repo; confirmed `/preview/` = `development` branch via the Pages deploy workflow.
 - Rendered the actual build headlessly and exercised it with a **12-project seeded dataset** (the built-in `seed()` generator, extended) to evaluate realistic density — plus the true first-run/offline state.
 - Captured and reviewed: timeline Days/Weeks, Project/Team color modes, Departments lens, status filter, Settings/Print menus, Meeting Sheet, New Project draft page, Staff overlay, project page Gantt + Calendar, 1280px viewport, and offline error states.
-- Read `CLAUDE.md`, `docs/ARCHITECTURE.md`, `docs/TODO.md`, `docs/Handoff-Notes.md`, and the relevant source (design tokens, palettes, render paths, keyboard handling).
+- Read `CLAUDE.md`, `docs/ARCHITECTURE.md`, `docs/TODO.md`, `reference/Handoff-Notes.md`, and the relevant source (design tokens, palettes, render paths, keyboard handling).
 
 Not covered: live SharePoint sync behavior under multi-user editing, real print output on 11×17 paper, and actual user observation. All three are called out in the validation plan (§6).
 
@@ -171,15 +171,15 @@ Acceptance: a screenshot of the dense timeline can go in a client-facing deck wi
 Not part of this plan's briefs: between Phase 2's close and Phase 3's start, a run of
 higher-priority feature work and field-note fixes shipped (calendar parity, standalone
 events, the subtask/crew model, the checkpoint editor). Records:
-`docs/Milestones/Phase 2.5/`, index
-`docs/Milestones/Phase 2.5/2026-08-21-phase-2-5-feature-interlude.md`; actionable state stays in
+`docs/Milestones/Phase-2.5-Feature-Interlude/`, index
+`docs/Milestones/Phase-2.5-Feature-Interlude/2026-08-21-phase-2-5-feature-interlude.md`; actionable state stays in
 `docs/TODO.md`.
 
 ### Phase 3 — Navigation at scale — COMPLETE 2026-08-26 (REV75–79)
 
 Delivered from the owner's task-brief pack (`Phase-3-Task-Briefs.md`, repo root, V1–V5).
-Phase record: `docs/Milestones/Phase 3/2026-08-26-phase-3-navigation-at-scale.md`; per-task
-records in `docs/Milestones/Phase 3/`.
+Phase record: `docs/Milestones/Phase-3-Navigation-at-Scale/2026-08-26-phase-3-navigation-at-scale.md`; per-task
+records in `docs/Milestones/Phase-3-Navigation-at-Scale/`.
 
 1. **Zoom steps + jump-to-date** (B3) — shipped as REV75 (four steps Day / 2-Day /
    Week / Month, `+`/`−` keys) and REV76 (Go to date via `G` / month-name click /
@@ -236,7 +236,7 @@ Now small enough to be one session's work. Actionable state lives in
 `docs/TODO.md` §6; the optional explainer stays optional.
 
 **Phase 4 SHIPPED 2026-08-27 (REV89,
-`docs/Milestones/Phase 4/2026-08-27-phase-4-learnability.md`):** the hint bar dropped
+`docs/Milestones/Phase-4-Learnability/2026-08-27-phase-4-learnability.md`):** the hint bar dropped
 (owner call, as recommended), the timeline `?` sheet, the sample project
 (browser-local, never synced), and the ⋯ hover cue. The optional 60-second
 explainer remains the only unbuilt idea, and stays optional.

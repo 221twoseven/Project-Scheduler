@@ -276,7 +276,7 @@ The Setup / Team / Departments / Agenda inspector is **not a sidebar**. It rende
 
 People and Clients are **first-class pages** (`#/people`, `#/clients`), not management
 modals — the 2026-09-01 Master Data UX Refactor handoff
-(`docs/2026-09-01-Master-Data-UX-Refactor-Handoff.md`). This is the reusable pattern
+(`docs/Archive/Master-Data-UX-Refactor-Handoff.md`). This is the reusable pattern
 for every future company master-data section (departments, project types, holidays…):
 
 - **A place, not a dialog.** Each dataset gets a route on the project-page chrome

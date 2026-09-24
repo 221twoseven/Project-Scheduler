@@ -63,7 +63,7 @@ single file. The repository preserves this stage in three first-class artifacts:
   a diff baseline and as the control build for the test suite (`npm run
   test:ref`). The production `index.html` began as a **byte-for-byte copy** of
   this file [reference/README.md; CLAUDE.md].
-- **`docs/Handoff-Notes.md`** — the original developer's plain-English handoff
+- **`reference/Handoff-Notes.md`** — the original developer's plain-English handoff
   (converted from the original PDF) merged with detailed developer notes,
   including a REV34–50 version-history table in the author's own framing.
 - The handoff's design rationale, preserved verbatim in spirit: one HTML file, no
@@ -226,7 +226,7 @@ import** (read-only HR mirror with tolerant column resolution); nicknames,
 availability tri-state, merge-duplicate tooling; the project **change log**;
 chained onboarding tours and the demo preamble; viewport-fitting zoom with a
 drag-zoom gesture. Each carries a milestone record and, for behavior-bearing
-changes, a test suite [docs/Milestones/V1-Releases/; tests/].
+changes, a test suite [docs/Milestones/Phase-6-v1.x-Release-Train/; tests/].
 
 ### 5.4 Data architecture and the source-of-truth direction
 
@@ -422,7 +422,7 @@ are marked; nothing below is guessed.*
 
 How to verify this document's claims, by pointer type:
 
-- **[Handoff §N]** — `docs/Handoff-Notes.md`, the original developer's handoff:
+- **[Handoff §N]** — `reference/Handoff-Notes.md`, the original developer's handoff:
   prototype rationale (§§1–4), data conventions (§5), alpha version history
   REV34–50 (§12), org-transfer note (§10/closing).
 - **[reference/README.md]** and `reference/Timeline_50.html` — the frozen REV50

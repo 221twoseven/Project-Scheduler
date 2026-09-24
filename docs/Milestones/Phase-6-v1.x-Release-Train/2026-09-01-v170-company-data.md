@@ -1,7 +1,7 @@
 # 2026-09-01 — v1.7.0: Company Data — People & Clients become pages
 
 **The 2026-09-01 "Master Data UX Refactor" handoff, delivered whole**
-(`docs/2026-09-01-Master-Data-UX-Refactor-Handoff.md`; TODO §3 item 27). The People &
+(`docs/Archive/Master-Data-UX-Refactor-Handoff.md`; TODO §3 item 27). The People &
 Availability and Clients management modals are gone; in their place, two first-class
 application pages under a renamed **Company Data** menu (was Resources).
 

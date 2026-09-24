@@ -24,7 +24,8 @@ Project rules and context for working in this repository. Read this before makin
 - **`docs/TODO.md` — the working backlog (v2.0.0 track).** Objectives, versioning
   ladder, and the deferred/skipped ledger. The completed v1 backlog and all retired
   planning docs (UX audit, task briefs, proposals) live in **`docs/Archive/`** —
-  history and rationale, not current state.
+  history and rationale, not current state. **`reference/`** holds frozen material
+  that is not actively maintained (REV50 baseline, original handoff notes, project history).
 
 ## Branches
 
@@ -35,7 +36,7 @@ Project rules and context for working in this repository. Read this before makin
 - **Pushes auto-deploy to GitHub Pages** via `.github/workflows/deploy-pages.yml`:
   `main` → `/`, `development` → `/preview/`, `sandbox` → `/sandbox/` (a collaborator's
   copy). The workflow rebuilds the whole site from all three branches each run, so it must
-  stay identical on all three. See `docs/Onboarding-Fork.md`.
+  stay identical on all three. See `docs/Archive/Onboarding-Fork.md`.
 
 ## Shared infrastructure — SharePoint & Entra
 
@@ -125,9 +126,10 @@ block in `index.html` between the `RELEASE_NOTES:BEGIN/END` markers.
 anything worth remembering later: bandwidth/performance passes, UX/design changes, a Teams
 integration, schema or auth changes, a notable refactor. Skip it only for trivial fixes.
 
-- One Markdown file per milestone, named `YYYY-MM-DD-short-slug.md`, filed in the
-  era subfolder it belongs to — versioned releases go in `Milestones/V1-Releases/`;
-  see `docs/Milestones/README.md` for the map (2026-09-02 reorg).
+- One Markdown file per milestone, named `YYYY-MM-DD-short-slug.md`, filed flat in
+  the development-phase folder it belongs to (`Phase-N-Name/`, screenshots in that
+  folder's `screenshots/`) — versioned releases go in `Milestones/Phase-6-v1.x-Release-Train/`;
+  see `docs/Milestones/README.md` for the map (2026-09-24 reorg).
 - Keep it plain-language and skimmable: what changed, why it mattered, the app REV(s), a
   pointer to the PR, and any known ceiling or follow-up. A non-developer should understand it.
 - Link any shareable artifact (explainer page, diagram) from the record.

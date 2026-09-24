@@ -56,5 +56,5 @@ controls acting on the *application shell* stay visually separate.
 
 ## Evidence
 
-- ![Footer, dock expanded](screenshots/after-expanded.png)
-- ![Footer, dock collapsed](screenshots/after-collapsed.png)
+- ![Footer, dock expanded](screenshots/footer-after-expanded.png)
+- ![Footer, dock collapsed](screenshots/footer-after-collapsed.png)

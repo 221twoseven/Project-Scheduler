@@ -27,7 +27,8 @@ treat it as optional background, not a prerequisite.
 | `msal-browser.min.js` | MSAL auth library, vendored locally (not a CDN). Loaded by `index.html` as a sibling — must stay at repo root. |
 | `reference/Timeline_50.html` | **Immutable reference** — frozen copy of the colleague's working REV50 build. Never modified; used as a diff baseline and the `npm run test:ref` control. |
 | `tests/` | jsdom regression suites (48 suites, ~1,100 assertions) and the `harness.js` that boots a build with MSAL and `fetch` stubbed. See `tests/README.md`. |
-| `docs/` | Architecture reference, hosting/auth setup (`SETUP.md`), handoff notes, and the backlog (`TODO.md`). Retired planning docs and the completed v1 backlog live in `docs/Archive/`; milestone records in `docs/Milestones/`. |
+| `docs/` | Architecture reference, hosting/auth setup (`SETUP.md`), design language, and the backlog (`TODO.md`). Retired planning docs and the completed v1 backlog live in `docs/Archive/`; milestone records, one folder per development phase, in `docs/Milestones/`. |
+| `reference/` | Frozen, not-actively-maintained material: the REV50 baseline, the original developer's handoff notes, and the project history. |
 | `CLAUDE.md` | Working rules and guardrails for anyone (human or AI) making changes. **Read this first.** |
 | `CONTRIBUTING.md` | How to run, test, branch, and ship. |
 | `LICENSE` | Proprietary — Twoseven, all rights reserved. |
@@ -56,7 +57,7 @@ state. A 90-second poll picks up other people's edits; local edits are written b
 optimistic, serialized, diffed Graph `POST`/`PATCH`/`DELETE` calls with a sync-status
 pill, one retry, and visible Undo. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full
 picture, [docs/SETUP.md](docs/SETUP.md) for the hosting and Entra/auth configuration, and
-[docs/Handoff-Notes.md](docs/Handoff-Notes.md) for the consolidated developer/maintainer
+[reference/Handoff-Notes.md](reference/Handoff-Notes.md) for the consolidated developer/maintainer
 handoff (setup rationale, conventions, traps, version history).
 
 ## Ground rules (see `CLAUDE.md` for the full set)

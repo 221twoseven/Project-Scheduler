@@ -44,5 +44,5 @@ edit-in-place popover (REV98).
 
 ## Evidence
 
-- ![Expanded — form + footer toggle (down chevron)](screenshots/after-expanded.png)
-- ![Collapsed — chart fills the window, footer bar + up-chevron toggle remain](screenshots/after-collapsed.png)
+- ![Expanded — form + footer toggle (down chevron)](screenshots/dock-after-expanded.png)
+- ![Collapsed — chart fills the window, footer bar + up-chevron toggle remain](screenshots/dock-after-collapsed.png)
