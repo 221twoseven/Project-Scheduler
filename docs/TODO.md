@@ -898,7 +898,7 @@ state reset per project visit, persist per browser like `NPV_OPEN` only if asked
 ### Legend
 
 - ⚠ Touches shared SharePoint schema or Entra/auth config. Not a gate: deliver Robert the
-  exact spec and he applies the list edit; additive-only while D2 is open; Entra changes
+  exact spec and he applies the list edit; destructive changes get a milestone record (D2 lifted 2026-09-24); Entra changes
   need explicit instruction (`CLAUDE.md`).
 - **[brief §N]** — the Project Director's September 2026 brief, condensed and annotated by
   Robert (2026-09-22); section numbers match the original 21-page document.
