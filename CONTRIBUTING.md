@@ -88,8 +88,8 @@ Request.
 
 ## Things that need explicit approval first
 
-These are shared with a separately maintained colleague app and/or an external Entra
-registration; changing them can break the other application:
+These are shared infrastructure — SharePoint lists that other people and tools touch, and
+the company's Entra registration; changing them can break sign-in or existing data:
 
 - **SharePoint List schema** — renaming/deleting Lists or columns, changing column types.
 - **Entra / auth** — client IDs, tenant IDs, Graph scopes, redirect URIs, or the auth

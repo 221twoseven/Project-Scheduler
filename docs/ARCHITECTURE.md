@@ -41,9 +41,9 @@ Microsoft Graph  v1.0  ──►  SharePoint site  /sites/TWOSEVENINC
 - Every Graph call goes through `gfetch()`, which attaches `Authorization: Bearer <token>`
   and throws on a non-2xx response.
 
-> These values are tied to an external Entra app registration and are **shared** with a
-> colleague app. Do not change client/tenant IDs, scopes, redirect URIs, or the auth flow
-> without explicit instruction (see `CLAUDE.md`).
+> These values are tied to the company's Entra app registration. Do not change
+> client/tenant IDs, scopes, redirect URIs, or the auth flow without explicit instruction
+> (see `CLAUDE.md`).
 
 ## Data layer
 
@@ -134,7 +134,7 @@ init.
 - **`JSON.stringify` state comparisons** break when key sets differ; the poll once
   compared a three-key object to a two-key one and clobbered state every tick.
 
-See [Handoff-Notes.md](Handoff-Notes.md) for the consolidated handoff — setup rationale,
+See [Handoff-Notes.md](../reference/Handoff-Notes.md) for the consolidated handoff — setup rationale,
 conventions, traps, and version history (REV34–REV50).
 
 ## Hosting

@@ -1,1353 +1,908 @@
-# To-Do / Backlog — the v2.0.0 track
+# To-Do / Backlog — Phase 7: pilot readiness, on the road to v2.0.0
 
-**The single working to-do list for Project Scheduler (Timeline).** Started 2026-08-28,
-when the v1 backlog was retired to
-[`docs/Archive/TODO-v1-Archive.md`](Archive/TODO-v1-Archive.md) with everything closed
-except the entries carried into §2 and §7 below. Anything touching **SharePoint schema**
-or **Entra/auth** is marked ⚠ (shared with a separately maintained colleague app — see
-`CLAUDE.md`). **Process change (owner, 2026-09-01): ⚠ items are not gates.** Schema
-changes don't wait for a formal approval cycle — deliver Robert the exact spec (list,
-column name, type) and he applies the list edit himself; the app never writes schema.
-Additive-only and the colleague-app awareness rule still stand. Same spirit for missing
-info generally: prompt for what's needed instead of parking the item.
+**The single working to-do list for Project Scheduler (Timeline).** Started 2026-09-24,
+when the v1.x backlog was retired to
+[`docs/Archive/TODO-v1.x-Archive.md`](Archive/TODO-v1.x-Archive.md). Every entry still
+open there was checked against the code before it was carried; the carried entries are in
+§7 with their gates, the stale ones are closed in §7.0.
 
-**Workflow (standing):** all work batches land on the `development` branch and are
-viewable at `/preview/` before a manual, deliberate merge to `main` (production).
+Two documents set this phase and are the source for most lines below:
 
-**Versioning (standing):** semantic versions from v1.0.1 (the REV101 build — see
-`docs/Milestones/V1-Wrap/2026-08-28-semver-switch.md`). Bump the **patch** for fixes, copy, and
-styling; the **minor** for feature drops; **v2.0.0 is reserved for the
-single-source-of-truth milestone** (§3 item 13) — the app becoming the company's one
-database is the breaking change the major number exists for. `APP_VER` in `index.html`
-is the source of truth; keep `package.json` aligned.
+- **The Project Director's brief** — *Shop Timeline App: Current Processes and Development
+  Priorities* (September 2026), read here in Robert's condensed, annotated version,
+  [`reference/2026-09-22-Shop-Timeline-Brief-Condensed.md`](../reference/2026-09-22-Shop-Timeline-Brief-Condensed.md).
+  Cited as **[brief §N]**. Its "Response" annotations were fact-checked
+  against the app on 2026-09-24; where a claim was partly wrong, the corrected fact is what
+  appears below.
+- **The owner's vision (2026-09-24)** — Timeline stays a project-management and scheduling
+  app with its features intact, and moves into a portal of sibling apps (Client Manager,
+  Personnel Manager, Design Resources Manager) that share the same SharePoint lists, one
+  permission model, and one visual language. Cited as **[vision]**.
 
-Last reviewed: 2026-09-02 (evening) — a repo-wide audit + high-effort code review of
-the whole `main...development` span surfaced 16 confirmed defects; **all 16 shipped as
-v1.18.1** (permission doors actually per-kind, staff-poll race closed, client/config
-retry parks, CD_EDIT exit leak, v1-era zoom migration, Everything-view client reset,
-nickname search, test-runner skip detector + mojibake repair — record:
-`docs/Milestones/V1-Releases/2026-09-02-v1181-audit-fixes.md`). The one owner action from it is
-**DONE — verified 2026-09-02 (late): `deploy-pages.yml` is byte-identical on `main`,
-`development`, and `sandbox`, and the latest Deploy Pages runs are green on both
-deploying branches (§7 entry closed).** `package.json` re-aligned
-to `APP_VER` (had drifted since v1.15.2). Previous review 2026-09-02 — the owner's nine-item morning brief filed as §3 items
-33–36 and the item-30 close-out; **all shipped same day as v1.10.0–v1.13.0** (dock
-re-layout + comprehensive departments + Logistics + wordmark-home + signed-in badge +
-chained tours; dev App Settings + granular viewer grants; Listening-to; Employee
-Contacts import). Owner actions open: create `ShopTimeline_Config` (§5), the
-`status` column and the four listening columns on `ShopTimeline_Staff` (§5), then
-re-run the People-page import. The change log slides to v1.14.0. Previous review
-2026-09-01 (evening handoff) — the owner's post-v1.7.1 message filed as
-§3 items 28–30: the four quick wins + the v1.6.5 scrub GO **shipped same day as
-v1.7.2** (wordmark TWOSEVEN INC., sort hidden in the dept lens, coach copy
-"department", drag-zoom out to a year, `scrubLegacyNames()` console pass); My
-Dashboard personal notes + "Listening to:" filed as item 30 (proposed v1.9.0 — three
-⚠ staff columns, spec delivered). Mail.Send confirmed consented and `phone` verified —
-**v1.8.0 (permissions + feedback mail) SHIPPED the same session**. The owner's
-merge-timing question ("are ducks in a row?") answered in the session report: merge
-v1.7.x → main now, before v1.8.0 soaks at `/preview/` (workflow drift heals on merge;
-sandbox needs the same `deploy-pages.yml` cherry-picked). Previous review 2026-09-01 — folded the **Master Data UX Refactor handoff** (2026-09-01)
-into §3 item 27 and **shipped it the same day as v1.7.0** (owner: "Build"); permissions
-→ v1.8.0, changelog → v1.9.0. Same message: the owner lifted the schema gate (⚠ items
-are owner-applied list edits now, see the note above), confirmed both font licences,
-approved the `/preview/` state of the v1.6.x rounds, and added feedback-recipient
-assignment to the permissions scope (item 12). Later the same day the owner approved
-v1.7.0 at `/preview/`, created the `admin`/`feedbackRecipient`/`phone` staff columns,
-verified the Feedback/Changelog lists on the site, chose Graph mail for feedback
-delivery, and supplied the Brauer Neue files — **v1.7.1 shipped** (fonts + phone
-field), item 12 became fully buildable, and the item-13 inventory gained Employee
-Contacts + the 27-Employees nightly-automation flag and the staffing-reconciliation
-ruling (parallel-run, work-email join key). Previous review 2026-08-31 — appended the owner's second
-objective list (the 2026-08-31 brief, §3 items 14–26) and refolded the version ladder. Same day: v1.2.1–v1.6.0 all
-shipped to `development`; **owner called a PAUSE after v1.6.0 — hone the shipped
-batches before any new rung (permissions v1.7.0 is NOT started).** The owner's first
-`/preview/` review of those batches came back the same day as a ten-item punch list —
-all ten shipped as **v1.6.1** (calendar-marker redraw, Saved Views rename + anchor,
-past projects sink, sidebar bottom-crop, Today-anchored smooth step zoom, lane
-summaries drop past work, shortcuts as a Help popover muted against the Legend,
-legend navigation entries removed, drag-zoom smoothing, bug-form radio fix).
-Record: `docs/Milestones/V1-Releases/2026-08-31-v161-preview-polish.md`. The second review round
-(markers ✓, step zoom ✓, drag-zoom still juddery + three new asks) shipped as
-**v1.6.2**: same-frame header sync, project date-strip gesture parity, Summary·name
-for other people's plates, and the full-height Notes dock column. Record:
-`docs/Milestones/V1-Releases/2026-08-31-v162-preview-polish-2.md`. The third round (2026-09-01:
-drag-zoom ✓, strip gesture ✓) shipped as **v1.6.4**: the Summary/Dashboard place
-follows the person into the Projects lens — the lens toggle hides whenever a person
-is on; only the dept reading stays flat (`dash-flat`). Record:
-`docs/Milestones/V1-Releases/2026-09-01-v164-preview-polish-3.md`. Same day, the owner's live-data
-report ("legacy person IDs assigned, authenticated IDs not") shipped as **v1.6.5**:
-`canonName()` resolves legacy abbreviated crew/role strings ("Davis S.", bare first
-names) to roster people inside `barCrew()` — lanes merge, dashboards/filters find
-legacy work, overbooking stops skipping them; stored values untouched. Record:
-`docs/Milestones/V1-Releases/2026-09-01-v165-legacy-person-ids.md`. The owner's follow-up on the
-Filters dropdown shipped as **v1.6.6**: the Person radios stay in the menu inside a
-Summary (switch or clear the person right there — the v1.2.2 hide reversed), and the
-status-scoped Show all / Clear all pair became one menu-wide **Show everything**
-reset. Record: `docs/Milestones/V1-Releases/2026-09-01-v166-filter-dropdown.md`.
+**Nothing in this file is started.** §3 is a proposed build list, §4 the decisions it
+depends on. Both are to be agreed with Hubert, the Project Director and the key users who
+administer specific views before any code lands. Development is no longer solitary:
+milestones and this plan are presented as the phase runs.
+
+**Standing rules (unchanged from v1.x):**
+
+- ⚠ marks a SharePoint column/list or Entra change. **Not a gate** (owner, 2026-09-01):
+  deliver Robert the exact spec (list, column, type, values) and he applies the list edit;
+  the app never writes schema. The colleague app no longer constrains the schema (D2,
+  ruled 2026-09-24); a destructive change still gets a milestone record naming what it
+  breaks and how rows migrate. Entra changes still need explicit instruction (`CLAUDE.md`).
+- Work lands on `development`, is viewable at `/preview/`, and is promoted to `main` by a
+  deliberate manual merge. `/preview/` and `/sandbox/` write the **live** lists (§3 item 17).
+- Semantic versions; `APP_VER` in `index.html` is the source of truth, `package.json` and
+  `CHANGELOG.md` follow it (`npm run notes`; CI fails without a release-notes line).
+  **v2.0.0 is re-reserved** for the Phase 8 cutover defined in §1, not for "the app
+  becomes the one database".
+- Every milestone gets a record in `docs/Milestones/Phase-7-Pilot-Readiness/`; every
+  deliberate skip gets a §7 line with its gate.
+
+Last reviewed: 2026-09-24 (evening) — the owner's rulings folded in: D2 lifted (the
+colleague app is no constraint), D3 answered (tiered lists, one fact in one place),
+Hubert is backup maintainer, `ShopTimeline_Config` exists, the People page is current,
+the brief is in `reference/`. The five fact-check findings the owner flagged are placed
+by phase: items 2, 5, 9, 25, 26 (Phase 7) and 27–28 (Phase 8); the contingency map in §2
+shows what waits on what. See §8 for the log.
 
 ---
 
-## 1. Where v1 came from (REV50 → v1.0.1, condensed)
+## 0. Where we stand
 
-The full story lives in the archive, `docs/Milestones/`, and `docs/Handoff-Notes.md`
-(REV34–50). The short version:
+Production (`main`) runs **v1.23.0** plus the 2026-09-18 view-as fix (PR #49); `development`
+is level with it apart from the docs reorg. Since the v1.x backlog opened on 2026-08-28 the
+app gained My Dashboard, calendar interactions and detail levels, the Department view,
+Milestones & Notes, saved views and viewport zoom, bug reporting, admin/viewer/developer
+permissions with per-door grants, the Company Data pages (People, Clients), the Employee
+Contacts import, the change log, generated release notes, the weekly schedule and the
+Freelance flag — 44 numbered objectives, all shipped. What did **not** ship is the one
+strategic item: the data-consolidation strategy (v1.x §3 item 13) was never written, and
+the brief is, in effect, its first draft.
 
-- **REV1–50 — alpha** (colleague build; REV50 frozen forever at
-  `reference/Timeline_50.html`, the diff baseline and `test:ref` control).
-- **REV50–100 — beta**, the company build:
-  - **Phases 1–2** (08-13/14): UX overhaul + visual system — the design language,
-    tokens, sidebar, dock, spotlight, palettes (`docs/Design-Language.md` was born here).
-  - **Phase 2.5** (REV53–64): calendar create/click parity, standalone events
-    (`ShopTimeline_Events` ⚠ approved), draft/saved convergence, the subtask
-    parent-hierarchy remodel, checkpoint editors everywhere.
-  - **Identity track** (REV65–70): person filter, signed-in identity chain, person
-    panel, the My Dashboard button, client list (`ShopTimeline_Clients` ⚠), Teams
-    staff picker (`TeamMember.Read.All` ⚠).
-  - **Calendar parity** (REV71–72) + deferred-polish pass (REV73) + coach marks (REV74).
-  - **Phase 3** (REV75–79): navigation at scale — zoom steps, jump-to-date, three
-    density levels, group collapse, named saved views.
-  - **Phase 3.5** (REV80–88): the ~30-item parity audit dispositioned, inspector
-    convergence (draft = saved), completion flow + PM late prompt, × exit, toolbar
-    regroup. **Phase 4** (REV89): learnability — `?` sheet, sample project, hover cues.
-  - **Pre-merge audit** (REV90–91): sync serialization, poll race, undo safety,
-    −320 lines dead code. **PR #23 carried REV74–91 to `main`.**
-  - **Native toolbar** (REV92–95): menu-bar redesign — View / Filters / Resources /
-    Help menus, Settings menu retired. Legend folded into Help (REV96), coach-step
-    fix (REV97), edit-in-place popover (REV98), collapsible edit dock (REV99), footer
-    action bar (REV100), today-parking on return (REV101).
-- **REV101 shipped as v1.0.1** — the live production build.
+The brief's verdict on the app: ready for user testing; verify what exists before calling
+anything an integration; the three foundational business controls (cost-code registry,
+closeout queue, one rule for 27 Events vs Outlook) are SharePoint and Power Automate work
+beside the app, not app features. Its one P0 that needs new app code is **closeout**.
 
-## 2. Loose ends carried from v1 (actionable now)
+## 1. North star, restated
 
-- [x] **Stale "Settings" strings in the app — DONE 2026-08-28 (v1.0.2):** all five
-      strings and the comment now say Resources (the Settings menu retired in
-      REV95). Rode the quick-wins batch
-      (`docs/Milestones/V1-Releases/Quick-Wins-v102/2026-08-28-v102-quick-wins.md`).
-- [ ] **Shared shop-terminal account — future `terminal` permission type.** Owner
-      ruling 2026-09-02: a ways off — necessity gets established after rollout and
-      real use proves it. The wiring can exist meanwhile, and partly already does
-      (the person filter and the third-party Summary view were built with this in
-      mind). Precedent: the company already runs non-person M365 accounts (shared
-      software-licence logins, the 3D-print lab's "slicer computer"), so a shop
-      terminal would likely be another such account. When it happens it becomes a
-      FOURTH account type — `terminal`, alongside admin / non-admin / dev — with
-      its own dashboard view. Not designed yet; needs shop feedback to develop.
-      (Carried from v1 §9; the old "paid licence?" framing is folded into this.)
-- [ ] **Coach-mark copy revision — ON HOLD (owner, 2026-08-28):** "leave coach mark
-      copy alone for now." The extraction list was delivered 2026-08-28 (chat); the
-      swap happens whenever the owner sends revised copy. This is §3 item 5.
-- [x] **Retire the Settings → Density alias** (v1 gate fired at PR #23) — resolved by
-      REV95: the whole Settings menu was retired; density lives on the toolbar.
+**Retired framing (v1.x):** "the app becomes the company's singular source of truth";
+each of the 14 stores is absorbed into Timeline's Company Data pages; v2.0.0 declares the
+cutover.
 
-Everything else still open from v1 lives in the ledger (§7), each with its gate.
+**Proposed framing (needs sign-off — §4 D7):**
 
-## 3. New objectives — sorted by ease of implementation
+1. **The shared SharePoint registries are the source of truth, not any app.** One record
+   per fact, keyed by a stable internal ID, with one owner per field and its freshness
+   visible. Projects, Clients, People, Cost Codes, Events, Departments, Shop Closures,
+   Closeouts are registries; Timeline, the portal and its sibling apps are *views* of them
+   [brief §5, §8; vision "no duplicate entries"].
+2. **Timeline stays the schedule.** It keeps every feature as designed and reads/writes the
+   operational fields of those registries — dates, work blocks, assignments, status. It stops
+   being a candidate master for people, clients or cost codes [vision; brief §7].
+3. **Duplicate entry is removed before features are added.** After the pilot, the first
+   retirement of a manual re-typing step is the measure of success, not a new view
+   [brief §1, §10].
+4. **Sensitive data is protected by SharePoint permissions, not by hiding it in a UI.** The
+   app runs in the browser with each user's own token; anything a user must not see lives in
+   a list or library they cannot read (§4 D3).
+5. **v2.0.0 = Timeline running on the shared registries** — the first `ShopTimeline_*`
+   master retired in favour of a shared one. That is the breaking change the major number
+   exists for. The portal and sibling apps arrive as v2.x/v3, each app its own client of
+   the same registries.
 
-Owner's objective numbers in parentheses. Each batch: build on `development`, verify at
-`/preview/`, tests green, milestone record, then the version bump that matches its size.
+What this changes in the app's own vocabulary: the Company Data pages stop being "the shell
+every store lands in" (v1.x item 27) and become the seeds of Client Manager and Personnel
+Manager (§4 D8); the v1.x "app as declared master" gate on v2.0.0 is dropped.
 
-### Quick wins — styling, copy, small fixes (patch bumps, batchable)
+## 2. Roadmap
 
-- [x] **1. (Obj 13) Vivid Months: grey weekend strips removed — DONE 2026-08-28
-      (v1.0.2).** In Vivid, no weekend/holiday overlays anywhere (timeline, project
-      Gantt, project calendar — weekend cells take the month tint); Quiet keeps its
-      full weekend treatment; the Day/2-Day header still marks weekends in both
-      modes. Design-Language §2.4 updated; ceiling ledgered in §7. Record:
-      `docs/Milestones/V1-Releases/Quick-Wins-v102/2026-08-28-v102-quick-wins.md`.
-- [x] **2. (Obj 12) Black bar mellowed — DONE 2026-08-28 (v1.0.2),** read as the app
-      toolbar (it hosts the TWOSEVEN title obj 10 targets): ink-black gradient →
-      slate navy `#2A3850→#202C41`, secondary text lifted to ≥4.5:1, chrome-line
-      lightened. Design-Language §2 updated. **Owner eyes on `/preview/` wanted** —
-      and if "Black Bar" meant the calendar's black month header (`.cal-mon`),
-      that's a one-line follow-up. Record: as above.
-- [x] **3. (Obj 8) Calendar blank-space click — DONE 2026-08-28 (v1.0.2), REVISED
-      same day (owner) as v1.0.3, EXTENDED same day (owner) as v1.0.4:** on the
-      calendar, blank space never deselects — a blank click only dismisses an open
-      popover/menu. **Phases multi-expand (v1.0.4):** expansion is its own per-phase
-      state (`NPV_CAL_OPEN`) — clicking another phase expands it without collapsing
-      the first, any number open at once, deselect collapses nothing; a phase
-      collapses only via a second click on its **parent band**, or the new
-      **Collapse all** button in the legend bar (right margin, calendar only).
-      A re-clicked subtask band reopens its editor; create/duplicate expands its
-      phase. Esc/breadcrumb/× still exit; the Gantt keeps empty-canvas deselect.
-      Design-Language §6 amended twice. Suite: `tests/test-v102.js`.
-- [x] **4. (Obj 5) Window-resize closed the subtask form — FIXED 2026-08-28
-      (v1.0.2):** a PP_KEEP repaint (resize, poll, autosave) now carries the
-      selection through — form, breadcrumb and ring survive; a poll that deleted the
-      selected task drops the dock to the project pane instead of a stale form.
-      Root cause: `renderProjectPage` reset `PP_SEL` unconditionally. Suite: as above.
-- [ ] **5. (Obj 6) Coach-marks language revision — TABLED INDEFINITELY (owner,
-      2026-08-31).** Extraction list delivered 2026-08-28. If copy ever arrives it's
-      a copy-swap patch across `COACH_STEPS` / `COACH_PP_STEPS`. (New steps are not
-      covered by the hold — the 08-31 obj 1 step shipped in v1.2.1.)
+| Phase | Versions | Goal | Done when |
+|---|---|---|---|
+| **7 — Pilot readiness** (now) | v1.24 → v1.3x | The brief's P0 app items, closeout as the one new feature, verification of what exists, the outside-the-app controls handed to their owners, the design decisions in §4 taken | Pilot users create and update jobs without missing workers, lost edits or misleading dates; a finished job can't fall through before the balance invoice; at least one duplicate-entry step is named for removal [brief §9, §10.1] |
+| **8 — Shared registries** | v2.0.0 (+ minors per registry) | Linked Client, Project and Cost Code lists with stable IDs; Timeline re-pointed to them; assignments by person ID; departments and shop closures as lists, not code | A `ShopTimeline_*` master is retired for a shared registry with no loss; two cost-code requests at once can't collide; the workbook is frozen read-only [brief §6, §8, §9 P1] |
+| **9 — The portal and the suite** | v2.x → v3 | Homepage portal; Client Manager, Personnel Manager, Design Resources Manager; permission sets per audience; shared design system with per-app colour/icon identity | Each audience (PM, HR, Accounting, Purchasing, Operations, Management) has its own entry point over the same records; nothing is entered twice [vision; brief §9 P2–P3] |
 
-### Fonts (patch/minor — one licensing check first)
-
-- [x] **6. (Obj 10) Brauer Neue for the app title — DONE 2026-09-01 (v1.7.1).**
-      Licence confirmed same day (owner); Robert supplied the family in `fonts/`,
-      and **only `BrNStdBd.otf` is committed and deployed** (the owner named
-      BrNStdBd as the title face; the public site publishes only what it uses).
-      `@font-face 'Brauer Neue'` + the `.tb-co` rule; the file joined all three
-      deploy sparse-checkout lists — **workflow drift ledgered in §7** (main/sandbox
-      still carry the old allowlist until the next sync).
-- [x] **7. (Obj 11) Bahnschrift app-wide — DONE 2026-09-01 (v1.7.1),** the no-file
-      rung: `--sans` now leads with `Bahnschrift` via `local()` (Windows 10+ ships
-      it; non-Windows falls through to the old stack unchanged). Verified at the
-      timeline's smallest sizes in a real browser. Committing a TTF stays gated on
-      non-Windows coverage demand (§7 entry, half open).
-
-### Calendar interaction features (minor bumps)
-
-- [x] **8. (Obj 7) Double-click calendar blank space creates a phase — DONE
-      2026-08-31 (v1.1.0).** The double-click opens the "Add a phase" department
-      picker at the pointer (a phase needs a department — same list as right-click,
-      one step shorter), seeded with the clicked day; the fresh phase arrives
-      selected with its edit popover open on the name field. Both pages (REV49
-      lesson). Calendar only — the Gantt's blank double-click stays reserved.
-      Design-Language §6 amended. Suite: `tests/test-v102.js`. *(Correction to the
-      earlier note here: this did not touch the marker drag/click/delete block, so
-      the marker-dedup ledger gate did NOT fire — that entry stays open.)*
-- [x] **9. (Obj 9) Live drag dynamics for duration drag-to-edit — DONE 2026-08-31
-      (v1.1.0).** On the calendar, the grabbed edge handle follows the pointer
-      px-for-px (clamped to its week row) while the REV83 day tint and tooltip show
-      the snapped result; the existing full-day snap owns the outcome on release.
-      Phase and subtask bands alike. The Gantt already live-follows — the calendar
-      was the odd one out; ceilings ledgered in §7. Suite: as above.
-- [x] **10. Calendar detail levels — DONE 2026-09-09 (v1.21.0, development /
-      `/preview/` only until promoted).** Owner ask: a fully stacked job made the
-      calendar unreadable. Every phase now defaults to a slim colour strip (level 0),
-      markers to bare glyphs packed into shared rows; the legend chips are buttons that
-      step a phase 0 → titled → subtasks → 0, Milestone/Note toggle marker text,
-      Collapse all resets. `NPV_CAL_OPEN` is a dept → level Map. Design-Language §6
-      amended (with the §9 hit-target exception). Suite: `tests/test-v1210.js`.
-      Milestone: `docs/Milestones/V1-Releases/2026-09-09-calendar-detail-levels.md`.
-      **v1.21.1 (same day, owner ask):** the project-page tour teaches it — a
-      "Read the calendar at any depth" step on `#npv-leg` after the view toggle,
-      switching the chart to Calendar before it is spotlit (`on` hook in `coachShow`).
-      Copy doc rows 10/12 updated.
-
-### My Dashboard as a real view (minor bump)
-
-- [x] **10a. My Dashboard never presents as a filtered view — DONE 2026-08-31
-      (v1.2.2, owner revision to obj 1):** the person that mechanically powers the
-      dashboard stops counting as a filter while it's on — no "Person: name" chip
-      (the trail bar already names them), no Filters badge for it, the Person
-      section hidden from the Filters menu (status + client only), Clear filters
-      hidden until a status/client filter is set and never exits the dashboard,
-      and the empty-state card stops explaining a "person filter". Off the
-      dashboard, the person filter behaves exactly as before.
-- [x] **10. (Obj 1) My Dashboard becomes its own place — DONE 2026-08-31 (v1.2.0).**
-      Mechanics unchanged (Departments lens + person filter); presentation is a
-      distinct view: a project-page-style trail bar (`All Projects › My Dashboard ·
-      name` + × exit) fixed under the toolbar, lens toggles/⇕ All hidden behind a
-      "My Dashboard" sidebar label, every assigned phase flat (collapsed sections
-      ignored, carets hidden), and the summary dock trades its old breadcrumb/✕ for
-      the REV99 collapse chevron persisted under its own key. Record:
-      `docs/Milestones/V1-Releases/2026-08-31-v120-dashboard-view.md`. Suite:
-      `tests/test-v120.js` (+ test67/68 branched).
-
-### Bug reporting (minor bump — one storage decision ⚠)
-
-- [x] **11. (Obj 2) Bug report / feature request form — DONE 2026-08-31 (v1.6.0).**
-      Help ▾ → "Report a bug or idea": Name + Email prefilled from the signed-in
-      account, Bug vs Feature, multiline description, optional screenshot. Posts to
-      the owner-created `ShopTimeline_Feedback` list. **One design change from the
-      straw proposal ⚠→resolved:** Graph v1.0 has no list-item-attachment API, so
-      the screenshot uploads to the site's default document library
-      (`/ShopTimeline Feedback/` folder, created on first upload) and the report
-      links to it in the description — no new columns needed. Failure toast points
-      at the Site-contents-vs-My-Lists check. Suite: `tests/test-v160.js`.
-
-### Permissions (minor bump, v2-gating)
-
-- [x] **12. (Obj 3) Admin vs regular user permissions — DONE 2026-09-01 (v1.8.0).**
-      Shipped exactly as scoped below: the `admin` column is the switch (no values
-      anywhere = legacy, everyone admin — keeps pre-v1.8.0 suites meaningful; any
-      value = only truthy rows are admins), viewers are read-only on shared data
-      (choke-point guards in saveState/savePeople/saveClients + door gating +
-      `viewerLock` flattening), Lock Dates forced on and hidden, People-page
-      checkboxes manage both flags (last admin can't be demoted), and feedback
-      reports mail every `feedbackRecipient` via Graph `sendMail` as the submitter
-      on a dedicated `Mail.Send` silent token. Record:
-      `docs/Milestones/V1-Releases/2026-09-01-v180-permissions.md`. Suite: `tests/test-v180.js`.
-      **Rollout note: only Robert's row is flagged — everyone else becomes a viewer
-      the moment this build reaches them; flag the admins on the People page (shared
-      data — works from `/preview/` even while production runs older builds).**
-      Original scope:
-      - Admin roster: a checkbox per person, populated from the same staff list
-        People & Availability uses; admins can grant/revoke admin (checkbox inside
-        People & Availability — after §3 item 27 lands, this surface is the People
-        page's edit state). **`admin` column CREATED 2026-09-01 (Robert), `1` on
-        his row — nothing blocks this item now; it's the next batch (v1.8.0).**
-      - Admins: full access as the app is today.
-      - Non-admins: no client list, no people edits, no department/phase edits;
-        **Lock Dates on by default and the button hidden**; Project Edit fields
-        render as plain text (not inputs/checkboxes) — visible, locked.
-      - **Feedback recipients (owner, 2026-09-01):** a second per-person checkbox —
-        who receives bug reports / feature requests. **`feedbackRecipient` column
-        CREATED 2026-09-01 (Robert), `1` on his row. Delivery DECIDED same day:
-        Graph `sendMail` as the signed-in submitter** — needs the `Mail.Send`
-        delegated permission added to the Entra app registration + admin consent
-        (spec delivered to Robert 2026-09-01; **DONE 2026-09-01 — set up in Entra,
-        admin-consented**; the app requests the scope on its own token, the
-        TeamMember.Read.All pattern). ⚠ Entra — owner-executed, per CLAUDE.md.
-      - ~~Owner's brief cut off at "This form is its own page with its own toolbar ("~~
-        — **RESOLVED 2026-08-31: owner said disregard the incomplete sentence.** No
-        own-page form requirement; scope is the roster checkbox + gating above.
-      - **Design constraint to record honestly:** this is a client-side SPA; every
-        signed-in user's token carries `Sites.ReadWrite.All`, so UI gating is
-        workflow protection, not security — a determined user could still write via
-        Graph. Real enforcement would need SharePoint-side permissions. State this
-        in the milestone record; decide if it's acceptable (it likely is, same trust
-        model as the shared Lists today).
-
-### 2026-08-31 brief — quick wins (patch bumps, batchable)
-
-Objective numbers below are from the **2026-08-31 brief** (a separate numbering from
-the 08-28 brief above — see the legend).
-
-- [x] **14. (08-31 obj 12) "Add a phase" removed from the right-click menu — DONE
-      2026-08-31 (v1.2.1).** Both pages (the menu builder is shared). New checkpoint /
-      New task stay (items 21–22 will rename those labels); phase creation keeps its
-      other doors (calendar double-click picker untouched, Departments checklist).
-- [x] **15. (08-31 obj 2) Past projects' date pill removed — DONE 2026-08-31
-      (v1.2.1), CORRECTED same day (owner screenshot) as v1.2.2:** the pill is the
-      **B1 off-screen edge chip** on the Gantt canvas, not the sidebar LATE chip.
-      v1.2.2 reverts the LATE-chip gating (it shows again exactly as before) and
-      instead suppresses the **left** edge chip on rows whose every bar wrapped
-      before today; current rows keep their chips, and right chips (always pointing
-      at upcoming bars) are untouched.
-- [x] **16. (08-31 obj 10) Concurrency warning counts — DONE 2026-08-31 (v1.2.1):**
-      "… is on **X other jobs** during this window", X = distinct other *projects*
-      sharing this bar's crew in the window (singular/plural handled).
-- [x] **17. (08-31 obj 11) Forecast renders uncolored — DONE 2026-08-31 (v1.2.1):**
-      `FORECAST_GREY` everywhere a forecast project draws (bars in both color modes,
-      install bars included, sidebar dot, outline); palette slot stays reserved so
-      colors don't shuffle when the status firms up. Legend + Design-Language §2.1
-      updated (the one exception to hue-is-identity).
-
-### 2026-08-31 brief — tour addition (patch)
-
-- [x] **18. (08-31 obj 1) Date-bar drag tour step — DONE 2026-08-31 (v1.2.1),**
-      owner-approved same day (new steps aren't covered by the copy hold): "Slide
-      through time" step on `#gantt-hdr`, after the timeline step.
-
-### 2026-08-31 brief — Department view (minor bump)
-
-- [x] **19. (08-31 obj 5) Dept-view phase click navigates to the project edit
-      page — DONE 2026-08-31 (v1.3.0).** The task modal stays the Projects-lens
-      edit surface (§6 exception recorded in Design-Language). The clicked phase
-      is not preselected on arrival — ledgered in §7.
-- [x] **20. (08-31 obj 9) Department-view sidebar restructure — DONE 2026-08-31
-      (v1.3.0):** lane rows read name-over-department (the `.sb-2l` two-line
-      pattern), and the freed right side lists that lane's assignments —
-      project + dates, current work first, capped to what the row height fits
-      with a "+N more" tail.
-
-### 2026-08-31 brief — Milestones & Notes (minor bump — rename + simplify)
-
-UI copy and editors only — **stored SharePoint field names stay as-is** (shared-schema
-rule §5); old data keeps reading fine.
-
-- [x] **21. (08-31 obj 3) Checkpoint → Milestone — DONE 2026-08-31 (v1.4.0).** Every
-      editor (agenda row, edit popover, phase-modal list) is date + plain-text name +
-      phase; the type dropdown/datalist (`TN_TARGETS`) and the notes field are gone.
-      Old stored notes/types still read (tooltips show them); they're just no longer
-      editable. Copy sweep across menus, toasts, dashboard, legend, tour, shortcuts.
-- [x] **22. (08-31 obj 6) Task → Note — DONE 2026-08-31 (v1.4.0).** Note editors are
-      date + single-line text only — the phase picker and who field left the note's
-      agenda row and popover (per the spec's "only"; stored fields untouched, so old
-      who/phase data persists invisibly). Ledgered in §7.
-- [x] **23. (08-31 obj 4) Gantt marker labels hidden — DONE 2026-08-31 (v1.4.0):**
-      the project Gantt draws no inline milestone/note label (`.npv-evlbl` retired);
-      the hover title carries name · date, click opens the edit popover (as before).
-      Calendar bands keep their in-cell names — they don't overlap the same way.
-
-### 2026-08-31 brief — zoom revision (minor bump)
-
-- [x] **24. (08-31 obj 7) Viewport-fitting zoom — DONE 2026-08-31 (v1.5.0),
-      GESTURE INCLUDED.** Week/Month/3-Month fit 7/30/91 days across the live
-      viewport (old stored steps migrate: Day/2-Day→Month, Week→3-Month; W/M keys,
-      +/− walk). The vertical date-bar drag shipped: it slides the fit continuously
-      between Week and 3-Month, anchored on the date under the pointer, rAF-throttled
-      (~14–21ms/frame measured at 14 projects in a real browser — usable). Built with
-      a **45° axis split instead of the suggested ±15° bands** — bands leave dead
-      diagonal zones where a drag does nothing, which reads as broken; ledgered in §7.
-      Header degrades by px-per-day, not step name. Design-Language §7 rewritten.
-- [x] **25. (08-31 obj 8) Project Gantt zoom — DONE 2026-08-31 (v1.5.0):** the same
-      Week/Month/3-Mo steps plus **Fit** (whole job — the historical scale, still the
-      default), Gantt mode only, persisted per browser. No drag-zoom gesture on the
-      project date strip — ledgered in §7.
-
-### 2026-08-31 brief — change log (minor bump, after permissions ⚠)
-
-- [x] **26. (08-31 obj 13) Project Edit change log — DONE 2026-09-02 (v1.19.0).**
-      Admin-viewable, both surfaces as ruled: the **global changelog** under
-      Company Data ▸ Changelog (`#/changelog`, filterable, newest first), and the
-      **project-specific changelog** on the project edit page as a SECOND
-      collapsible dock — footer Changelog button, only one dock viewable at a
-      time (owner ruling 2026-08-31; the REV99 dock stays). Write side: every
-      landed save (syncNow's success path) diffs old→new state and POSTs one row
-      per changed record to `ShopTimeline_Changelog` (who, at, field, old→new
-      detail, projectId — **v1.21.2 (owner ask 09-09): free-text `notes` logs only
-      added / edited / cleared, never the text (`CLOG_TEXT`); rows stored before that
-      fold the same way at render and in the page filter via `clogDetail`**);
-      creating/deleting a project logs one row, not one per
-      child; >20 rows in one save collapse to a Bulk-change summary row. History
-      starts 2026-09-02 — nothing backfills earlier edits. Suite `test-v1190`.
-
-### 2026-09-01 handoff — Company Data: People & Clients as pages (minor bump)
-
-- [x] **27. (09-01 handoff) People and Clients become first-class application pages —
-      DONE 2026-09-01 (v1.7.0).** Shipped whole: `#/people` + `#/clients` on the
-      project-page chrome (trail bar, `cd-route` hides the timeline toolbar row, Esc
-      walks home), read-first master/detail with an explicit Edit state, record-level
-      Add/Edit/Remove (Remove confirms with live relationship counts), Resources →
-      Company Data, save paths untouched. Suite `tests/test-v170.js` (39 checks);
-      test66/69/70/90 branched on the `renderCompanyPage` marker. Design-Language
-      §7.6 records the reusable pattern. Record:
-      `docs/Milestones/V1-Releases/2026-09-01-v170-company-data.md`. Ceilings ledgered in §7
-      (no per-record URLs; no lifecycle column yet; client selection keyed by name).
-      Original scope below.
-      The core move:
-      **modal → batch form → save/cancel** becomes **persistent location → record
-      index → selected record → explicit edit state**. This is a presentation /
-      interaction / routing refactor — **no schema changes**, all SharePoint
-      persistence and current behavior preserved. **Full handoff committed 2026-09-01:
-      `docs/2026-09-01-Master-Data-UX-Refactor-Handoff.md`** (staff names in its
-      examples are fake — owner confirmed).
-      - **Routing:** extend the REV35 hash router (`ROUTE`/`parseRoute`,
-        `index.html` ~4011) with `#/people` and `#/clients` views on the
-        project-page precedent: trail bar (`All Projects › People`), timeline-only
-        toolbar controls hidden, obvious route back to `#/`. Per-record URLs
-        (`#/people/:id`) only if they fall out cleanly — a master/detail selection
-        state inside the page is acceptable; don't over-engineer the router.
-      - **Naming:** Resources menu group → **Company Data**; "People &
-        Availability" → **People** (availability becomes information belonging to
-        a person, not a peer nav concept). Future master-data sections
-        (Departments, Project Types, Holidays…) join this group — it is the UX
-        shell the §3 item 13 consolidation absorbs stores into.
-      - **Read mode vs edit mode (critical):** default record presentation is
-        read-oriented — fields render as information ("the company record for X"),
-        NOT as always-editable form controls moved onto a page. An explicit Edit
-        action enters edit state (inline in the detail pane or a scoped modal —
-        implementer's choice); Cancel/Save exit it. Add Person / Add Client may
-        stay modals: **the entity gets a page, the action may get a modal.**
-      - **Index views:** searchable/filterable list-tables (columns from the
-        existing data model — name/role/departments/availability for people,
-        client/alias for clients), record count + the existing sync indicator as
-        system-of-record cues ("18 people · SharePoint · Synced 11:48"). Desktop:
-        master/detail side by side; narrow viewport: selection transitions to the
-        detail view (no cramped two-column squeeze).
-      - **Record-level actions,** not batch-list editing: Add / Edit per record.
-        Archive/Deactivate lifecycle (Active/Inactive/Archived) **needs a status
-        column on the shared staff/clients lists ⚠ — NOT in this pass.** First
-        pass: no casual per-row × delete buttons in the new UI; keep existing
-        delete paths where they exist, behind intent + confirm. Ledger the
-        lifecycle gap in §7 when the batch ships.
-      - **Relationship context** only where derivable reliably from data already
-        in memory (client → project counts via the existing client/project link;
-        person → assignment counts via the v1.6.5 `canonName` machinery). Don't
-        fabricate; leave the layout room for richer relational panels later.
-        Deactivation guards ("assigned to 6 active projects — reassign first")
-        ride the lifecycle column, not this pass.
-      - **Before refactoring:** inventory the People/Client modals' state,
-        SharePoint read/write paths, temp/copy state before Save, and every
-        consumer of these datasets elsewhere in the app (staff picker, filters,
-        dashboards, crew chips…). Nothing regresses — availability management
-        included.
-      - **Visual:** existing design system only — compact, information-dense; no
-        dashboard cards, oversized headings, or a separate Company Data look.
-        Authority comes from structure and interaction, not visual weight.
-      - **Interactions with other items:** §3 item 12's admin checkbox lands on
-        the People page (refactor first = permissions gate pages, not modals);
-        item 26's "global changelog in the Resources dropdown" surface becomes
-        the Company Data group. Acceptance criteria in the handoff; the short
-        version: both pages feel like persistent company directories, editing is
-        intentional, everything that worked still works.
-
-### 2026-09-01 evening handoff — quick wins + scrub + dashboard personal fields
-
-- [x] **28. (09-01 items 6–9) Four quick wins — DONE 2026-09-01 (v1.7.2):**
-      wordmark → **TWOSEVEN INC.** (toolbar + print title + meeting sheet — "this is
-      the company logo/wordmark"); **Sort controls hidden in the Departments lens**
-      (they order projects; dept rows are people lanes); coach step 1 says
-      "Department lens regroups everything by department." (owner wording — "crew"
-      is out); **drag-zoom max out extended 3 months → 1 year** (`FIT_MAX` 91→365,
-      both gestures; buttons still stop at 3-Mo). Record:
-      `docs/Milestones/V1-Releases/2026-09-01-v172-quick-wins-and-scrub.md`. Suite:
-      `tests/test-v172.js`.
-- [x] **29. (09-01 item 5) v1.6.5 legacy-name data scrub — GO given, SHIPPED
-      2026-09-01 (v1.7.2)** as `scrubLegacyNames()`: console-run, dry-run by default
-      with a change report (console.table), `scrubLegacyNames(true)` applies through
-      the normal optimistic sync. Heals project roles, phase crews (all three stored
-      shapes), note assignees; never touches ambiguous/unknown strings or free-text
-      departments. **Stays in the app for re-runs** — the owner expects more edits as
-      staff lists reconcile and users are added. Robert runs it on `/preview/`.
-      (Related later problem, owner-parked: name presentation on project-edit/
-      subtask-edit pages.)
-- [x] **30. (09-01 items 1–2) My Dashboard personal fields — DONE: personalNotes
-      2026-09-01 (v1.9.0, via item 32); "Listening to" 2026-09-02 (v1.12.0, revised
-      09-02 spec — verb select [listening to|reading|thinking about], optional link,
-      show/hide checkbox, thought-cloud popover editor, Summary-header display,
-      behind the `exp.listening` dev switch).**
-      Answer to the owner's question first: the greyed "Notes" panel on My Dashboard
-      lists open **notes/to-dos assigned to you** (`ShopTimeline_Tasks2`) — it reads
-      empty/grey when none. The ask is different and additive:
-      - [x] **Personal notes to self — SHIPPED v1.9.0** as the dock's User Notes
-        column (item 32): multi-line, own dashboard only, never on other people's
-        Summary pages, saved on blur through `savePeople(list,true)` — the promised
-        self-row exception to the v1.8.0 viewer guard. ⚠ Needs the `personalNotes`
-        column (below) before a save can land; until then the first save surfaces
-        the normal sync-error toast.
-      - [x] **"Listening to:" — SHIPPED 2026-09-02 (v1.12.0)** to the owner's revised
-        spec (a popover editor + verb + show/hide, not the original two dock fields);
-        displayed in the Summary dock header, experimental (`exp.listening`).
-      - Storage ⚠ (spec revised 2026-09-02, Robert applies): FIVE columns on
-        `ShopTimeline_Staff` — `personalNotes` (multi-line, plain text; v1.9.0),
-        `listeningTo`, `listeningLink`, `listeningVerb` (single line) and
-        `listeningShow` (single line, `1`/empty). Save path is a self-row-only PATCH.
-- [x] **31. (09-01 sidebar feedback) ⇕ All levels + header parity — DONE 2026-09-01
-      (v1.8.1).** Two items from the owner's screenshot message: (1) **⇕ All walks
-      the view's expansion levels in series** — Projects lens + sort grouping is a
-      three-level cycle (all collapsed → groups open/projects closed → everything
-      open), two-level views toggle; mixed states resolve forward, so one
-      hand-opened row never flips the button (the reported inconsistency — with
-      groups collapsed the old button touched only project expansion and looked
-      dead). Fires the REV77 ledger gate. (2) **Sort-group headers = department
-      section headers** — same bar/hover/ink/count chip; the status sort keeps its
-      colored pill. Record:
-      `docs/Milestones/V1-Releases/2026-09-01-v181-sidebar-headers-and-all-toggle.md`. Suite:
-      `tests/test-v181.js`. Third item (owner, same evening): **the My Dashboard
-      dock is drag-resizable like the project edit dock** — same grip pattern,
-      `--medock-h` drives dock + `#main` together, persisted per browser, collapse
-      chevron unchanged. Rode along: `test-v171`'s gate was version-tied
-      (`APP_VER='1.7`) and silently skipped at v1.8.0 — now feature-tied.
-      Noted for later: the owner's screenshot shows a double
-      DIOR group — two case-different client spellings on projects (data condition;
-      fix the client field on the projects or a future scrub, not rendering).
-      **Resolved 2026-09-02: owner checked the clients list and sees no double DIOR
-      group — condition no longer reproduces (likely healed by intervening client
-      edits). Closed unless it reappears.**
-- [x] **32. (09-01 late-evening handoff) Four owner asks — DONE 2026-09-01 (v1.9.0).**
-      1. **Calendar edge-resize follows the pointer across week rows.** The v1.1.0
-         px-for-px stretch was clamped to the grabbed segment's own week; only the
-         cell tint crossed rows. Now the moment the drag leaves the home row the
-         bands repaint live at the snapped span (`NPV_CAL_RZ` override in
-         `npvPaintCalendar`, day-granular, twins merged) — the bar jumps week to
-         week under the mouse, both directions, new week rows included. Within the
-         home row the smooth px stretch is unchanged. Ceiling ledgered in §7
-         (can't extend past the last painted week — no cells below to hover).
-      2. **My Dashboard dock re-layout:** Milestones + Notes stacked in one column;
-         **User Notes** (item 30's personalNotes half — see item 30) in its own
-         column at the far right.
-      3. **Developer Viewer toggle:** admin column value `dev` = developer (a full
-         admin); their toolbar gains a Viewer button next to the version number that
-         previews the app exactly as a non-admin viewer sees it (per-tab, Lock Dates
-         restored on exit). Owner types the value straight onto the list — the
-         People editor never assigns it, but People-page saves preserve it
-         (`personToFields` writes `dev` back while the row stays admin). Ledger
-         note in §7 on the demote/re-promote path.
-      4. **My Dashboard is a navigation:** entered from a Company Data or project
-         page, `enterDash` walks the hash back to `#/` (applyRoute renders) instead
-         of arming the dashboard behind the page on screen.
-      Suite: `tests/test-v190.js` (41 checks — extended by v1.9.1). Record:
-      `docs/Milestones/V1-Releases/2026-09-01-v190-owner-asks.md`.
-      **v1.9.1 follow-up (2026-09-02, owner report from the Viewer toggle):** a
-      viewer opening any project WITH a milestone/note got an empty schedule and
-      unlocked dock fields — a LATENT v1.8.0 bug: viewer agenda rows render no
-      delete ×, but `ppBindInspector` bound it unguarded, and the throw killed the
-      rest of the render (before the chart paint and `viewerLock`). One guard at
-      the shared binding site fixes every path; regression staged in test-v190
-      (viewer + project + agenda rows → chart painted, fields disabled).
-
-### 2026-09-02 brief — nine owner asks (all shipped same day)
-
-- [x] **33. (09-02 items 1, 2, 3, 5, 7, 8) Quick batch — DONE 2026-09-02 (v1.10.0).**
-      My Dashboard dock re-laid (Time off stacks under Working on; Milestones and
-      Notes back in their own columns); People-page department checkboxes/filter use
-      the COMPREHENSIVE `DEPTS` list (SM_DEPTS now derived — the REV90 dup-ids ledger
-      gate fired) with **Logistics added as its own department** (DEPTS + GROUPS +
-      dept-lens section + team color); the TWOSEVEN INC. wordmark navigates home from
-      any route; the top right shows the signed-in name with a DEV/ADMIN chip (real
-      access, not the preview state); and the home tour CHAINS into the project tour —
-      its last step has the user actually click + New Project (overlay click-through,
-      capture-guarded) and the project tour continues on the draft.
-- [x] **34. (09-02 item 6) Backend permission toggles + dev App Settings page — DONE
-      2026-09-02 (v1.11.0).** Help ▸ App settings (`#/settings`, developers only)
-      hosts app-wide switches on the app-side `ShopTimeline_Config` list ⚠(§5,
-      app-only, owner creates; browser-local fallback with an inline warning until
-      then). viewer.* grants open single edit doors for non-admins via `vcan()`:
-      project settings, phases (incl. Lock Dates back), subtasks, milestones, notes —
-      defaults all OFF per the owner ("leave non-admin mostly gated for now").
-- [x] **35. (09-02 item 9) "Listening to" — DONE 2026-09-02 (v1.12.0), see item 30.**
-- [x] **36. (09-02 item 4) People page mirrors Employee Contacts — DONE 2026-09-02
-      (v1.13.0).** Admin-only "Import from Employee Contacts" on the People page:
-      reads the HR list (READ-ONLY, tolerant field-name resolution, HR-sensitive
-      columns never read), joins on work email (name fallback), one confirm applies —
-      active newcomers added (title→role, phone, mapped department), matched people
-      updated with HR as master for title/phone/status (curated depts and non-blank
-      emails kept), non-active rows never create people, nothing auto-removed.
-      Employment `status` (⚠ §5 column, vocabulary = the HR Status values) is probed
-      live and silently waits until the column exists. Re-run the import any time —
-      it's idempotent ("roster already mirrors" when clean). **M365 pairing note
-      (owner question answered 2026-09-02):** any TwoSeven M365 login can open the
-      app (single-tenant Entra); identity pairs by work email via `meName()`, so one
-      import run makes every Employee-Contacts email pair with a roster row —
-      unmatched sign-ins remain viewers with an unresolved dashboard.
-
-- [x] **37. (09-02 afternoon review) Fixes + follow-ups on the morning batch — DONE
-      2026-09-02 (v1.14.0).** From the owner's live test of v1.10–13 on /preview/:
-      - **Import actually autofills now** (the owner's report: "already mirrors —
-        nothing changed"): the HR list's INTERNAL column names don't match their
-        display names (grid-created columns come back as `field_N`), so the v1.13.0
-        matcher read every data column as empty. The import now fetches the EC
-        list's column definitions and resolves display name → internal, reading by
-        both; a loud toast fires when rows exist but no expected column resolves,
-        and the column map always prints to the console.
-      - **One tour, one count:** "STEP n OF total" counts across both chained
-        halves (home 7 + draft 6 = 13; the second half continues at STEP 8).
-      - **Thought-cloud icon** moved onto the User Notes header bar,
-        right-justified; the popover anchors to that section.
-      - **"Not me" toggle** (dev-only, next to Viewer, per tab): flips `dashSelf()`
-        so the developer's own Summary renders exactly as others see it (User Notes
-        hidden, Listening-to line visible); identity/permissions stay theirs.
-      - **People departments consolidated:** CNC/Beamsaw/3D Printing/Lasercutting/
-        Printing fold into **DFAB**, Pre-Finishing/Painting into **Finishing** —
-        people-list only (`pdCanon`; PHASE departments untouched, shared task rows
-        keep their ids); legacy stored ids read as their canon and heal on save.
-      - **People index gets at-a-glance columns** (Name · Title · Phone · Email ·
-        Perms · Status/availability) with a header row and a wider pane; checkbox
-        sets (departments, permissions) render as tidy stacked grids.
-
-- [x] **38. (09-02 evening review) Pre-presentation round — DONE 2026-09-02
-      (v1.15.0).**
-      - **Stuck-dock bug FIXED at the funnel** (owner report: Summary + Not me +
-        New Project left the summary dock painted under the draft): NOT
-        Not-me-specific — ANY project page opened from an active dashboard/Summary
-        kept the stale dock, latent since v1.7.0 (applyRoute's project branch never
-        dropped `me-dock-on`; the Company-Data branch always did). One line at
-        applyRoute fixes every door; the dock re-arms on return to the timeline.
-      - **People editor cleaned up:** the real culprit behind the ragged checkbox
-        layout was `.cd-fg input{width:100%}` stretching the CHECKBOXES themselves —
-        pinned to 14px (the .crew-list trick) inside an intentional fixed-column
-        grid, one line per label.
-      - **Nickname** (⚠ §5 column): optional per-person field; when set it is how
-        the name READS everywhere (`dispName` at bar crew chips, dept-lens lanes,
-        Summary/dashboard headers and trail, person filter + dashboard menus,
-        People page shows it quoted next to the full name). Identity — stored
-        names, canonName, joins, `meName()` — stays the full roster name.
-      - **Merge duplicate…** in the People editor footer: fold one roster entry
-        into the open record — every stored assignment string rewrites to the kept
-        name (the scrub walkers, generalized to `scrubNames(mapFn)`), missing
-        contact/flag fields backfill, the duplicate row is removed; one confirm
-        names the rewrite count. For the Sean Hong / Seungwoo (Sean) Hong and
-        Davis Smith / R. Davis Smith pairs the EC import surfaced.
-      - **Listening-to line hugs the collapse chevron** (the two competing auto
-        margins had floated it mid-header).
-      - **Copy inventory delivered:** `docs/Copy-Coach-and-Helpers.md` — every
-        coach-mark and helper/placeholder string, organized by surface for
-        owner line edits.
-
-- [x] **39. (09-02 demo prep) Demo preamble slides, developer-only — DONE 2026-09-02
-      (v1.16.0).** For the 09-03 live demo the owner presents without slides but
-      wants on-screen text for the preamble. A developer's Help ▸ Take a tour now
-      opens four modal "slides" (standard `.overlay/.modal` chrome, Brauer Neue
-      titles, step counter, Skip/Back/Next, ← → Enter Esc keys) distilled from the
-      preamble script: planning-tool-to-hub, enter-it-once, who it's for, what it
-      isn't. The last button is **Start the tour** and runs the normal chained tour.
-      Everyone else's Help ▸ Tour and the first-visit auto-run are untouched; a
-      developer already on a project page skips the slides (mid-demo restarts).
-      Copy channel: `Copy-Coach-and-Helpers.md` §0. Suite `tests/test-v1160.js`.
-
-- [x] **40. (09-02 evening, six People-page asks) — DONE 2026-09-02 (v1.17.0).**
-      1. **HR title prefixes hidden on display** ("SFAB1 - Seasonal Fabricator" →
-         "Seasonal Fabricator"): `cdTitle()` strips a leading all-caps/digit code
-         + hyphen on the index and record pane; the STORED role keeps the prefix
-         (the editor shows it raw). Real hyphenated titles (Co-Director) untouched.
-      2. **Driver column** (⚠ §5 `driver` column): ✓ on the index, Yes/— on the
-         record, checkbox in the editor; tristate mappers, rides merges.
-      3. **Permission filter** beside the department filter (Everyone / Admins /
-         Developers / Feedback recipients / Viewers); renders once the flag
-         columns are live. Admins include developers; Viewers = no admin flag.
-      4. **Resizable index columns + list/detail split**: drag grips on the
-         header cells pin a column's width; a drag bar between the panes resizes
-         the split. Both remembered per browser (`shopTimelineCdColW`/`CdListW`).
-      5. **Idle "table jump" root-caused**: ANY dirty data poll repaints the whole
-         Company Data page, which reset both panes' scroll to the top. The repaint
-         now carries the index and record scroll positions across.
-      6. **↑↓ walk the index selection** (People AND Clients; clamps at the ends,
-         keeps the row in view; taught in the Help ▸ shortcuts popover).
-      Suite `tests/test-v1170.js`; test-v1100's index check branches on the
-      `cd-drv` marker. **v1.17.1 (same evening): the grips were real-mouse-dead —
-      a CSS specificity bug (`.cd-cols span` beat `.cd-grip`) collapsed them to
-      0px; rebuilt as header-row `<i>` elements with a visible divider (owner
-      report; regression-gated in test-v1170, now 28). `driver` column CREATED.**
-
-- [x] **41. (09-02 late) Availability tri-state + Admin/Non-admin toggle — DONE
-      2026-09-02 (v1.18.0).**
-      1. **Availability radios in the People editor** (freelancers aren't active
-         year-round): Available / Not available are manual (new ⚠ §5
-         `availability` staff column); Out of office is automatic — checked and
-         disabled while a date range covers today, and it outranks the manual
-         flag. The Status column follows: "Not available" reads grey, OOO amber.
-      2. **The dev Viewer toggle reads as the view you're IN**: label "Admin" by
-         default, "Non-admin" while previewing (same mechanics, `#tb-devview`).
-         The preview now also hides Help ▸ App settings — menus read exactly as a
-         non-dev sees them — and the dev demo-preamble slides step aside too.
-      3. Rode along: `renderCompanyPage` runs `applyPerms` at the door (a DIRECT
-         #/people load left the dev cluster + Help entries stale until the next
-         repaint); the Driver ✓ centers under its header. Time-off entry stays
-         the editor's "Out of office" ranges (owner ruling: keep the name;
-         manual today, ties into the company time-off calendar under item 13).
-      Suite `tests/test-v1180.js` (19).
-
-- [x] **42. (09-02 night, owner report) Orphaned "TBD" lane in the dept lens — DONE
-      2026-09-02 (v1.18.3).** A phase row survived its parent project's deletion
-      (crew string "TBD" → phantom lane, label "?", click → "That project no longer
-      exists"). Cleaned live via console (`saveState` filtering
-      `t=>projById(t.projectId)`). Root cause: `spSync` queued the project-row
-      DELETE before its task DELETEs, so a run dying mid-queue orphaned the
-      children. Fix: DELETEs run after all upserts, children before the project —
-      a mid-queue death now leaves a visibly incomplete project, never an orphan.
-      Record: `docs/Milestones/V1-Releases/2026-09-02-v1183-child-first-deletes.md`. Suite:
-      `tests/test-v1183.js`.
-
-- [x] **43. (09-15, owner ask) Weekly schedule on the People page — DONE 2026-09-15
-      (v1.22.0, development).** Editor: seven day boxes (M T W Th F Sa Su) + from/to
-      time inputs on a half-hour datalist that also take typing (a typed 5:17 snaps to
-      5:30; bare 1–6 read as afternoon, "am" overrides). Index: a Schedule column after
-      Status, formatted "M-F 9-6" / "T-W-Th 11-4" (the full weekday week collapses to
-      M-F, anything else lists days; hours drop :00 and am/pm). Record page shows the
-      same line. Stored as JSON (`{days,start,end}`) in the ⚠ §5 `schedule` staff
-      column, tristate like driver/availability — an untouched editor never sends it.
-      Record: `docs/Milestones/V1-Releases/2026-09-15-people-schedule.md`. Suite:
-      `tests/test-v1220.js`.
-
-- [x] **44. (09-15, owner) Freelance flag — DONE 2026-09-15 (v1.23.0, development).**
-      A third of the roster is freelance: a Freelance checkbox atop the editor's
-      Schedule block greys the day/hour controls out (stored hours stay put), and the
-      Schedule column/record read "Freelance". ⚠ §5 `freelance` staff column
-      (`1`/empty), tristate. Same record as item 43. Suite: `tests/test-v1230.js`.
-
-- [ ] **13. (Obj 4) Reconcile and absorb the 14 disparate data stores.** The app
-      becomes the company's singular source of truth (the v1 "north star", now
-      scoped). **Strategy before code:** the first deliverable is
-      `docs/Data-Consolidation-Strategy.md` — a granular, per-document audit:
-      what each store holds, who writes it, what reads it, overlap with app data,
-      and a no-disruption cutover plan (the proven pattern: the client-list
-      divergence rule — list-side copy runs in parallel until it earns mastership).
-      Inventory to audit:
-      - Installations (Excel on SharePoint)
-      - Install Log (Excel on SharePoint)
-      - TwoSeven Master Calendar (Excel on SharePoint)
-      - Current 2-7 Projects (SharePoint list)
-      - 27 Events (SharePoint list)
-      - 27 Projects (Archive) (SharePoint list)
-      - 27 Events (Archive) (SharePoint list)
-      - PTO Contract Approvals (SharePoint list) — **fed by a Teams PowerApps plugin
-        built by the operations manager (identified 2026-09-01; he's on vacation
-        until ~2026-09-08 — Robert schedules the discovery session with him in a
-        couple of weeks); must connect to the People page; nothing moves before
-        that flow is understood ⚠**
-      - Material Deliveries (SharePoint list)
-      - 27 Employees (SharePoint list) — **carries an unknown automation touching
-        every row nightly at 10pm (observed 2026-09-01) ⚠ — likely a directory
-        sync (its `userType` Business Standard/Guest values smell like an
-        Entra/M365 mirror); do not write to or retire this list until the ops
-        manager identifies the flow (same discovery session as PTO).** Columns:
-        employee, email, mobilePhone, department, jobTitle, employmentStatus,
-        employmentType, payStructure, driver, userType. Old, long, sparsely
-        maintained.
-      - Employee Contacts (SharePoint list — added to the inventory 2026-09-01):
-        the HR manager's working store — manually maintained, current (last entry =
-        last hire), the richest employee record. Columns: Employee Name, Status
-        (Active/Off Payroll/Terminated/Archived), Category (Full/Part Time/
-        Seasonal/Archived), Pay Type, Email, Primary Phone, PersonalEmail, Current
-        Title, Department, Company Driver. **The likely identity/lifecycle master
-        for the staffing consolidation; carries HR-sensitive fields (pay type,
-        personal contacts) that must NOT surface in the app.**
-      **Staffing reconciliation ruling (2026-09-01, from Robert's read of the two
-      lists):** `ShopTimeline_Staff` stays the app's operational roster,
-      parallel-run (the proven client-list pattern) — additive columns land as
-      needed (`admin`, `feedbackRecipient`, `phone` all created 2026-09-01), the
-      join key across all three lists is the **work email** (already the app's
-      identity chain via `meName()`), and the eventual lifecycle column's
-      vocabulary should align with Employee Contacts' `Status` so a future sync is
-      1:1 — don't invent a third vocabulary. A later read-only import can backfill
-      phone/title/department from Employee Contacts into the People page for
-      review-then-save; `27 Employees` is untouchable until its automation is
-      identified.
-      - All `ShopTimeline_*` lists this app already owns
-      Known redundancies going in: client + staffing lists, project history,
-      department/logistics calendars. Everything here is ⚠ by definition — per-store
-      approval, colleague-app check, and dual-run before any store is retired.
-      **v2.0.0 ships when the app is the declared master and the manual stores are
-      frozen or retired.** The §3 item 27 Company Data pages are the UX shell this
-      work lands in — each absorbed store becomes a section under Company Data,
-      using the People/Clients page pattern.
-
-## 4. Version ladder (proposed — adjust as batches actually land)
+**Version ladder (proposed — adjust as batches land):**
 
 | Release | Contents (§3 items) |
 |---|---|
-| v1.0.2 | ✅ Shipped 2026-08-28 — quick wins 1–4 + stale-Settings strings (§2) + runner SKIP line |
-| v1.0.3 | ✅ Shipped 2026-08-28 — obj 8 revision: calendar blank space never collapses; the parent band click toggles |
-| v1.0.4 | ✅ Shipped 2026-08-28 — obj 8 extension: phases multi-expand on the calendar; Collapse all in the legend bar |
-| v1.1.0 | ✅ Shipped 2026-08-31 — calendar interactions: obj 7 double-click create + obj 9 live drag-follow |
-| v1.2.0 | ✅ Shipped 2026-08-31 — obj 1: My Dashboard as its own view (trail bar, no lens toggles, flat phases, collapsible dock) |
-| v1.2.1 | ✅ Shipped 2026-08-31 — 08-31 quick wins 14–17 + tour step 18 |
-| v1.2.2 | ✅ Shipped 2026-08-31 — item 15 correction (the "date pill" is the B1 edge chip; LATE chip restored, past rows lose their left edge chip) + item 10a (the dashboard never presents as filtered) |
-| v1.2.x | 5 (coach copy — tabled indefinitely) · 6–7 (fonts, once licence-checked) — patches whenever unblocked |
-| v1.3.0 | ✅ Shipped 2026-08-31 — Department view: phase click routes to the project page; lane rows get name-over-dept + assignment dates |
-| v1.4.0 | ✅ Shipped 2026-08-31 — Milestones & Notes: renames + simplified editors + Gantt labels hidden |
-| v1.5.0 | ✅ Shipped 2026-08-31 — viewport-fitting zoom (Week/Month/3-Mo + drag-zoom gesture) on both Gantts |
-| v1.6.0 | ✅ Shipped 2026-08-31 — bug report / feature request form (list created by owner same day) |
-| v1.6.1 | ✅ Shipped 2026-08-31 — the owner's ten-item `/preview/` punch list (see Last-reviewed note + milestone record) |
-| v1.6.2 | ✅ Shipped 2026-08-31 — second review round: header/canvas same-frame sync (drag-zoom judder), project date-strip pan/zoom parity (§7 gate half-fired), Summary·name for other people's plates, full-height Notes dock column |
-| v1.6.3 | ✅ Shipped 2026-08-31 — project-Gantt scroll fallout: step buttons anchor today, sticky axis gutter mask, weekend webs moved under the rows with the §2.4 hatch (they painted OVER the bars) |
-| v1.6.4 | ✅ Shipped 2026-09-01 — third review round: the Summary/Dashboard place follows the person into the Projects lens (toggle hidden while a person is on; flat treatment stays dept-only) |
-| v1.6.5 | ✅ Shipped 2026-09-01 — legacy person strings resolve to roster people (`canonName` in `barCrew`): dept lanes merge, person filter/dashboards find legacy-named work, overbooking sees through old strings; stored values never rewritten |
-| v1.6.6 | ✅ Shipped 2026-09-01 — Filters dropdown revision: Person radios stay in the menu inside a Summary (switch/clear in place; Everyone = the × exit), one menu-wide "Show everything" reset replaces the status-scoped Show all / Clear all pair |
-| v1.7.0 | ✅ Shipped 2026-09-01 — 27 (Company Data: People & Clients as read-first pages; Resources → Company Data; modals retired) |
-| v1.7.1 | ✅ Shipped 2026-09-01 — fonts 6–7 (Brauer Neue title file + Bahnschrift `local()` app-wide) + the staff `phone` field (owner-created column) |
-| v1.7.2 | ✅ Shipped 2026-09-01 — 28 (evening-handoff quick wins: wordmark, dept-lens sort hide, coach copy, year drag-zoom) + 29 (`scrubLegacyNames()` — the v1.6.5 scrub, GO'd) |
-| v1.8.0 | ✅ Shipped 2026-09-01 — 12 (permissions: admin/viewer roles + feedback-recipient mail via Graph sendMail) |
-| v1.8.1 | ✅ Shipped 2026-09-01 — 31 (⇕ All walks expansion levels; sort-group headers = dept-header style) + test-v171 gate fix (feature-tied, not version-tied) |
-| v1.9.0 | ✅ Shipped 2026-09-01 — 32 (late-evening owner asks: calendar resize follows across weeks, dock re-layout + User Notes = item 30's personalNotes half, developer Viewer toggle, My Dashboard navigates) ⚠ `personalNotes` column |
-| v1.9.1 | ✅ Shipped 2026-09-02 — v1.8.0 latent bug the Viewer toggle exposed: a viewer opening any project WITH a milestone/note crashed the page render (empty chart, fields never locked) — the agenda-row × is not rendered for viewers but ppBindInspector grabbed it unguarded; guard added, regression checks in test-v190 (41) |
-| v1.10.0 | ✅ Shipped 2026-09-02 — 33 (09-02 quick batch: dock re-layout, comprehensive departments + Logistics, wordmark home, signed-in DEV/ADMIN badge, chained tours) |
-| v1.11.0 | ✅ Shipped 2026-09-02 — 34 (dev App Settings page + granular viewer grants on `ShopTimeline_Config` ⚠) |
-| v1.12.0 | ✅ Shipped 2026-09-02 — 30 second half / 35 (Listening to, revised spec; experimental) ⚠ four staff columns |
-| v1.13.0 | ✅ Shipped 2026-09-02 — 36 (People page mirrors Employee Contacts, read-only import) ⚠ `status` column |
-| v1.13.1 | ✅ Shipped 2026-09-02 — Pages-deploy fix: the Listening-to anchor's URL is a DOM property, not a literal href the referenced-assets guard reads as a missing file |
-| v1.14.0 | ✅ Shipped 2026-09-02 — 37 (afternoon review: EC import resolves display names, one tour count, thought icon on the User Notes bar, Not me toggle, DFAB/Finishing people-dept consolidation, at-a-glance people columns) |
-| v1.15.0 | ✅ Shipped 2026-09-02 — 38 (pre-presentation round: stuck-dock fix, editor grid, nickname ⚠, merge-duplicate tool, listening position, copy inventory) |
-| v1.15.1 | ✅ Shipped 2026-09-02 — the owner's copy revision (docs/Copy-Coach-and-Helpers.md) applied: tour bodies, phase-notes placeholder, sign-in card. The 08-28 coach-copy hold is LIFTED — the doc is the editing channel now |
-| v1.15.2 | ✅ Shipped 2026-09-02 — staff-sync resilience (owner report: name edits/merges reverted minutes later): one bad row (a save carrying a not-yet-created column, e.g. `nickname`) no longer strands the rows behind it; a failed staff save parks for pill retry, the staff poll defers while parked, closing the tab warns |
-| v1.16.0 | ✅ Shipped 2026-09-02 — 39 (demo preamble slides, developer-only, for the 09-03 live demo) |
-| v1.17.0 | ✅ Shipped 2026-09-02 — 40 (six People-page asks: title prefixes hidden, driver column ⚠, permission filter, resizable columns + split, poll scroll fix, ↑↓ selection) + v1.17.1 grip fix same evening |
-| v1.18.0 | ✅ Shipped 2026-09-02 — 41 (availability tri-state ⚠ `availability` column + the Admin/Non-admin toggle relabel; applyPerms at the renderCompanyPage door) |
-| v1.18.1 | ✅ Shipped 2026-09-02 — September audit round: 16 confirmed review findings fixed. Promoted to main with everything before it via PR #32 (2026-09-02) |
-| v1.18.2 | ✅ Shipped 2026-09-02 — owner's preamble copy revision applied (`docs/Copy-Demo-Preamble.md` is the editing channel) + preamble titles drop Brauer Neue for the tour heading font. Pushed to main directly (owner call); main = development |
-| v1.18.3 | ✅ Shipped 2026-09-02 — 42 (child-first deletes in spSync: a mid-queue failure can no longer orphan task/todo/event rows behind a deleted project — the live "TBD lane" orphan's root cause) |
-| v1.19.0 | ✅ Shipped 2026-09-02 — 26 (change log): saves write `ShopTimeline_Changelog`; global `#/changelog` page + second project-page dock (one viewable at a time), both admin-only |
-| v1.19.1 | ✅ Shipped 2026-09-03 — tour step 8 fix: `.pg-trail` also matches the hidden dashboard bar first in DOM order, so the coach card landed ON the real breadcrumb bar; step targets now resolve visible-first (`coachEl`) |
-| v1.22.0 | ✅ Shipped 2026-09-15 (development) — 43 (People-page weekly schedule: day boxes + half-hour times in the editor, "M-F 9-6" column after Status; ⚠ `schedule` staff column) |
-| v1.23.0 | ✅ Shipped 2026-09-15 (development) — 44 (Freelance flag greys the weekly schedule out; ⚠ `freelance` staff column) |
-| v2.0.0 | 13 (single source of truth) ⚠ — likely several minors along the way (one per absorbed store), with v2.0.0 as the cutover declaration |
+| v1.24.0 | 9a–9b (import `$select`, phone fallback — first, the owner's "cache is cache" ruling), 4 (time-off notes private), 1–2 (terminology + Lock dates meaning and copy) — the pilot's privacy-and-copy batch |
+| v1.25.0 | 25 (saved views per user ⚠ `savedViews`, Lock dates remembered per user), 7 (repeat work discoverable), 8 (rollup band label) |
+| v1.26.0 | 5 (date certainty ⚠ `dateCertainty`), 6 (visible last update + stale flag) |
+| v1.27.0 | 11 (closeout & billing states ⚠, PM checklist, verification, Bookkeeper queue, aging) — may split into two minors |
+| v1.2x.y | 3 (tour repro/fix), 10 (auto-Complete vs closeout), 19–24 as they resolve |
+| v2.0.0 | Phase 8 cutover (§1 point 5) |
 
-## 5. Data / schema (⚠ all need approval — shared Lists)
+**Contingency map — what waits on what** (rulings dated; ← means "needs"):
 
-- `ShopTimeline_Feedback` (§3 item 11) — **APPROVED + CREATED 2026-08-31** from the
-  delivered field spec. All columns single-line text except `description`
-  (multi-line, plain text): Title, kind, name, email, description (multi-line),
-  appVersion, appId. `appId` is app-written; the built-in SharePoint ID is
-  unrelated. **Screenshot handling changed at build time (v1.6.0):** Graph v1.0 has
-  no list-item-attachment API, so screenshots upload to the site's default document
-  library (`/ShopTimeline Feedback/`) and the report links to them — no extra
-  columns, no schema impact.
-- `ShopTimeline_Changelog` (§3 item 26) — **APPROVED + CREATED 2026-08-31**, same
-  arrangement. All single-line text except `detail` (multi-line, plain text):
-  Title, projectId, who, at, field, detail (multi-line), appId. **The app writes
-  and reads it as of v1.19.0 (2026-09-02).**
-- ~~Verify before first use: both new lists must live on the TWOSEVENINC site~~ —
-  **VERIFIED 2026-09-01 (Robert): `ShopTimeline_Feedback` and
-  `ShopTimeline_Changelog` both live on the TWOSEVENINC site.** (The app resolves
-  lists by name on the site and cannot see personal "My Lists".)
-- `admin`, `feedbackRecipient`, and `phone` columns on `ShopTimeline_Staff` —
-  **CREATED 2026-09-01 (Robert)**; `1` on his row for the first two. The app reads
-  and writes `phone` as of v1.7.1 (field mappers + People page). ~~Verify the
-  phone column's internal name is exactly `phone`~~ — **VERIFIED 2026-09-01
-  (Robert): internal name is `phone`.** **v1.9.0 (no schema change): the admin
-  column accepts a third VALUE, `dev` = developer (admin + the Viewer preview
-  toggle) — Robert types it onto his own row directly on the list.**
-- Entra: `Mail.Send` (Delegated) joins the app registration for §3 item 12's
-  feedback mail — owner-executed + admin consent; **DONE 2026-09-01 (Robert:
-  set up + admin-consented).** The app requests the scope on its own silent token
-  (v1.8.0), so a consent gap degrades to "report filed, mail skipped". ⚠
-- Columns for §3 item 30 — **CREATED 2026-09-02, late (Robert), all five**: on
-  `ShopTimeline_Staff` — `personalNotes` (multi-line, plain text; v1.9.0 writer) plus
-  the v1.12.0 quartet, all single-line text: `listeningTo`, `listeningLink`,
-  `listeningVerb`, `listeningShow` (`1`/empty). All additive, tristate in the app —
-  a site without them never 400s on OTHER saves, but the feature's own first save
-  needs them. App reads/writes them only on the signed-in user's own row. ⚠
-- `ShopTimeline_Config` (§3 item 34) — **spec delivered 2026-09-02, Robert creates:**
-  app-only list, Title (= setting key) plus ONE single-line text column named
-  `value`. Holds the dev App Settings switches (viewer permission grants +
-  experimental features); read by everyone at sign-in, written only from the dev
-  page. Until it exists, settings stay browser-local (inline warning on the page). ⚠
-- `status` column on `ShopTimeline_Staff` (§3 items 27/36) — **CREATED 2026-09-02,
-  late (Robert)** (re-run the People-page import to start syncing it): single-line text, vocabulary EXACTLY Employee
-  Contacts' Status values (Active / Off Payroll / Terminated / Archived — the
-  2026-09-01 don't-invent-a-third-vocabulary ruling). The v1.13.0 import probes for
-  it live and starts syncing it the run after it exists; it reads as information on
-  the People page. ⚠
-- **Employee Contacts (HR list) — READ-ONLY standing rule (v1.13.0):** the app reads
-  it for the People-page import and never writes it or touches its schema; Pay Type
-  and PersonalEmail are never read at all.
-- `nickname` column on `ShopTimeline_Staff` (§3 item 38) — spec delivered
-  2026-09-02 — **CREATED 2026-09-02 (Robert).**
-- `driver` column on `ShopTimeline_Staff` (§3 item 40) — spec delivered
-  2026-09-02 — **CREATED 2026-09-02 (Robert).** Reads as a ✓ column on the People
-  index, a Yes/— row on the record, and a checkbox in the editor.
-- `availability` column on `ShopTimeline_Staff` (§3 item 41) — **CREATED
-  2026-09-02, late (Robert):** single-line text, values `available` /
-  `unavailable` (empty = available). Manual flag for freelancers, set by the
-  People editor's Availability radios; an active OOO range always outranks it.
-  Additive, tristate (other saves never 400 without it; a save after touching
-  the radios parks with the named-field toast until it exists). ⚠
-- `schedule` column on `ShopTimeline_Staff` (§3 item 43) — **spec delivered
-  2026-09-15 — CREATED 2026-09-15 (Robert).** Single line of text, internal name exactly
-  `schedule`. Holds the person's weekly hours as JSON, e.g.
-  `{"days":[1,2,3,4,5],"start":"09:00","end":"18:00"}` (days are JS getDay
-  numbers, 0 = Sunday; times 24-hour on the half hour). Written only by the
-  People editor's Schedule controls; reads as "M-F 9-6" on the index and record.
-  Additive, tristate (other saves never 400 without it; a save after touching the
-  schedule controls parks with the named-field toast until it exists). ⚠
-- `freelance` column on `ShopTimeline_Staff` (§3 item 44) — **spec delivered
-  2026-09-15 — CREATED 2026-09-15 (Robert).** Single line of text, internal name exactly
-  `freelance`, values `1` / empty (the driver pattern). Set by the People editor's
-  Freelance checkbox; reads as "Freelance" in the Schedule column and greys the
-  week controls out. Additive, tristate (other saves never 400 without it; a save
-  after touching the box parks with the named-field toast until it exists). ⚠
-- Candidate new column: a lifecycle/`status` column (Active/Inactive/Archived) on
-  `ShopTimeline_Staff` and `ShopTimeline_Clients` (§3 item 27's archive-not-delete
-  model) — additive; Robert applies it when item 27's lifecycle pass is designed
-  (exact spec to be delivered with that batch). Item 27's first pass ships without it.
-- **Non-change to note:** the Checkpoint→Milestone / Task→Note renames (§3 items
-  21–22) are UI copy only — stored field names do not change.
-- Everything in §3 item 13's inventory.
-- **Standing rule:** any schema change must be checked against the colleague app
-  before shipping; additive-only unless explicitly approved otherwise.
+- **Ruled 2026-09-24 — D2: the colleague app is no constraint.** Unblocks D1 (registry
+  move), D10 / item 28 (person and client IDs), item 27 (splitting Staff), item 29
+  (dropping dead columns). Nothing else waited on it.
+- **D3 permission model** — ruled in principle 2026-09-24 (tiered lists, one fact in one
+  place; see §4):
+  - Phase 7: item 26 define the tiers (HR + Project Director) · item 4 time-off notes ·
+    item 9a import `$select` · item 25 per-user saved views (no dependency).
+  - Phase 8: item 27 split Staff into public roster + restricted record ← item 26 + D5
+    (identity master) + the owner breaking permission inheritance on the new list.
+  - Phase 9: role-based shared views (item 30, reuses item 25's shape) · Personnel Manager
+    and Client Manager over the tiered lists · D6 Design Resources (pointers, never secrets).
+- **D1 core registry** ← item 14 schema comparison ← the Current Projects / 27 Events
+  schemas from the Project Director (§5). Then **v2.0.0** ← D1 + item 28 + item 13's
+  cost-code registry (← the workbook inventory).
+- **Item 11 closeout** ← nothing technical (additive columns); the Bookkeeper's sign-in
+  and the verifier role ← D3's role vocabulary.
+- **Item 5 date certainty** ← the Project Director's default-date decision (5a). **Item 2
+  Lock dates** ← the owner's single-meaning decision; remembering it ← item 25.
+- **Item 12 calendar drift** ← a flow owner identified (§5). **Item 19 PTO** ← the
+  operations manager's session. **D13 integrations** ← D2 ✓, D3, D5 settled + the CSV
+  formats (§5).
 
-## 6. Documentation upkeep
+## 3. Phase 7 work — proposed, not started
 
-- **Standing rule:** keep `docs/ARCHITECTURE.md` and `CLAUDE.md` in sync as the app
-  evolves; every milestone gets a `docs/Milestones/` record.
-- **Standing rule:** re-verify `docs/Handoff-Notes.md` world-state claims before
-  quoting them — it's history + rationale; `ARCHITECTURE.md`/`SETUP.md` are current.
-- 2026-08-28: docs reorganized — retired planning docs and the v1 backlog moved to
-  `docs/Archive/`; all cross-references repointed.
+Numbering restarts at 1 for this file; v1.x item numbers are cited as "v1.x item N".
 
-## 7. Deferred & skipped ledger (carried from v1 + new entries)
+### P0 — before the pilot, in the app [brief §9 row 1; §7]
 
-The running record of moves deliberately skipped or deferred: **rationale** (why not
-now), **gate** (what would change the answer), and — once one lands — the **later
-decision**, updated in place, never deleted. Closed v1 entries stay in the archive;
-these are the ones still open, plus new deferrals as they happen.
+- [ ] **1. Terminology pass.** "Job code" → **Cost Code** everywhere it shows (sidebar,
+      bar labels, tooltip, Meeting Sheet, late prompt, New Project); "Drafter" → **Technical
+      Designer**. Screen labels only — stored field names (`jobCode`, `drafter`) stay, the
+      schema is shared. Copy channel: round two of `docs/Copy-Coach-and-Helpers.md`
+      (round one shipped v1.15.1). "Flexible roles instead of fixed buckets" is a data-model
+      change (four fixed role columns today: PM, Drafter, Lead fabricator, Fabricators, plus
+      a legacy `metalFab`) — Phase 8, §4 D10. [brief §7 Terminology]
+- [ ] **2. Lock dates — one meaning, then explained. Confirmed P0 by user feedback
+      (owner, 2026-09-24).** Today it means two things: on the timeline it stops moves (a
+      resize grab downgrades to a move, a move applies no date change — but a drag can still
+      change the department/assignee lane); on the project page it blocks *resize only* and
+      a move still shifts dates. Steps: (a) the owner picks the one meaning — recommend *no
+      date change by drag, move or resize, on both surfaces* (lane changes stay allowed);
+      (b) relabel (e.g. "Protect dates") and a tooltip that says exactly what it stops;
+      (c) remember it per user instead of per session — rides item 25; (d) keep the viewer
+      rule (always on, except under the `viewer.phases` grant) and say so in the tooltip.
+      Contingency: (a)–(b) none; (c) item 25. [brief §5.1, §7 "Tour and Lock dates"]
+- [ ] **3. Tour "looped" — repro, then fix or gate.** No loop bug on record. Working
+      hypothesis: a browser whose `localStorage` returns null every session (private window,
+      or a policy that clears site data on exit) replays the first-visit tour on every boot
+      (`shopTimelineCoachSeen`). Get the reporting user's browser/setup. Fix options: a
+      per-person seen flag (⚠ one Staff column) or a "don't show again" on the card. The
+      owner ruled "leave it" on 2026-09-02; the brief is the complaint that ruling's gate
+      named (§7 L1001). Also: the chained tour's step count assumes the second half lands on
+      a draft (§7 L1233). [brief §5.1, §9 P0 "tour fix"]
+- [ ] **4. Time-off notes private.** Notes typed on an Out-of-office range render to every
+      signed-in user at three sites (People record, dashboard, person panel). Hide them from
+      non-admins, or drop the field from non-admin views. The brief's suggested P0 addition.
+      [brief §7.2, §9 Response]
+- [ ] **5. Date certainty: Tentative / Confirmed / TBD.** ⚠ one Projects column,
+      `dateCertainty` (single-line text, `tentative` / `confirmed` / empty = confirmed;
+      tristate so other saves never 400). Surfaces: sidebar chip, bar label, project page
+      header, Meeting Sheet. Forecast status stays as the *project* state; certainty is
+      about the *date*. Steps and decisions (owner, 2026-09-24: "noted — add the steps"):
+      (a) **the default** — New Project pre-fills the install date at today + 42 days, so
+      the "required" date is never actually chosen. Project Director decides: remove the
+      pre-fill and require a choice (recommended — the whole schedule is built backward
+      from this date), or keep it and stamp it Tentative. (b) **TBD still needs a working
+      date** for the backward schedule — store `tbd`, schedule from the placeholder, show
+      the TBD pill instead of the date everywhere it prints. (c) **Existing projects** — a
+      default-created date is indistinguishable from a chosen one; migration rule for the
+      Project Director: everything existing reads Confirmed except Forecast-status
+      projects, which read Tentative, and PMs correct from there. (d) **Downstream** — a
+      Tentative/TBD date must never present as a commitment: no LATE chip, no PM late
+      prompt, no auto-Complete (item 10), and the Meeting Sheet prints the certainty.
+      Contingency: (a) and (c) are Project Director decisions; the column is additive.
+      [brief §7 Early dates; §9 P0]
+- [ ] **6. Last update visible, stale flag.** `updatedBy`/`updatedAt` already come from
+      Graph but show only in hover cards (and, for admins, the change log). Put last editor +
+      time on the project page header and the Meeting Sheet; add a stale chip (no edit in
+      N days — N set with the Project Director) in the sidebar and legend. [brief §5.1, §7
+      Reliability, §9 P1 "stale-data warnings"]
+- [ ] **7. Repeat department work discoverable.** The capability exists (each block is its
+      own record; Duplicate and New subtask work before the first save); the gap is finding
+      it. Duplicate on the bar's popover/right-click, not only the inspector (§7 L1044); the
+      ⋯ hover cue on project-page bars (§7 L1011); New Project divider: a grip visible before
+      hover (cursor, tooltip, remembered height and collapse already exist), section progress,
+      links to the missing fields Create already names. [brief §1, §7 Repeat work + New
+      Project layout, §9 P0 "before shop-wide use", P1 "small fix"]
+- [ ] **8. Department rollup: label or drop the envelope.** The faint band behind each
+      department row spans first start → last finish. Label it "Overall span" or remove it.
+      Fact-check correction: the app *does* have two whole-project calculations that span
+      gaps — the Meeting Sheet progress % (first start → last end) and the project-page "Lead
+      time N workdays" — neither counts a gap as department work or load, but if the rule is
+      "gaps never read as work", the progress bar is the one surface to relabel or compute
+      from blocks. Double-booking checks already use the actual blocks. [brief §7 Rollup,
+      §8.2, §14]
+- [ ] **9. Employee source hardening — 9a is the first thing in the first batch (owner,
+      2026-09-24: "browser cache but invisible is still browser cache").** (a) The Employee
+      Contacts import fetches `items?expand=fields` with no `$select`, so Pay Type and
+      PersonalEmail cross the wire into the importing admin's browser even though they are
+      never stored or shown. Fix: `expand=fields($select=Title,Status,Email,…)` naming only
+      the six fields the import maps. Honest limit: this is the app behaving well, not a
+      guarantee — a curious admin with site rights could still read the HR list directly;
+      the guarantee is SharePoint permissions on Employee Contacts itself (HR's list, HR's
+      call — item 26 / D3). (b) A blank Primary Phone silently falls back to Phone, then
+      Mobile Phone (more likely personal) — drop the fallback; report the row as "no work
+      phone" instead. (c) Which People-page fields non-admins see is now item 26's field
+      map — today name, nickname, title, phone, email, departments, time off, schedule,
+      driver, **employment Status and the ADMIN/DEV/FB permission badges** are visible to
+      every signed-in user. (d) Confirm with HR whether Primary Phone is ever personal.
+      Contingency: (a), (b), (d) none; (c) item 26. [brief §7 Employee source, §8.1, §13]
+- [ ] **10. Automatic status vs closeout.** A project on Automatic marks itself Complete
+      once its last install *or shipping* bar ends (v1.20.6). Under item 11, "work finished"
+      and "closed out" are different states: keep the automatic flip as the trigger that
+      starts closeout aging, never as the thing that hides a job from the closeout queue.
+      [brief §7 Closeout Response, §8.4]
 
-**Phases 1–2:**
-- [ ] Native `title` tooltips — unstyled, invisible on touch. Gate: touch use
-      materializes (T8).
-- [ ] Toast dock offset computed at fire time; a live toast can briefly overlap the
-      dock on drag-resize. Gate: someone notices (U7).
-- [ ] Unicode 📌 on the Pin-dates modal and the phase-inspector Pin checkbox — swap
-      both to the SVG set when that modal is next touched (U6 + REV81/I14).
-- [ ] Persistent error banner with explicit close, if the ~5s toast auto-dismiss
-      still proves too fleeting (carried from T7).
+### P0 — the business control: closeout [brief §8.4–8.5, §9 "Business control"]
 
-**Phase 3:**
-- [ ] Jump memory in the Go-to-date popover. Gate: PMs asking for it (REV76).
-- [ ] Go-to popover can sit left of the pointer on very narrow windows. Cosmetic.
-      Gate: someone trips on it (REV76).
-- [ ] Very short projects render pill-only at Week zoom — intended per
-      Design-Language §7. Gate: real complaints about lost labels (REV75).
-- [x] Sidebar ⇕ All doesn't fold sort-group headers. Gate: PMs ask (REV77).
-      **Gate FIRED 2026-09-01 (owner feedback) — v1.8.1's level walk folds groups,
-      projects and phases in series (§3 item 31).**
-- [ ] Saved views don't capture sidebar width / gutter / scroll / linked-subtasks —
-      workspace ergonomics, not "a view". Gate: someone misses one (REV79).
-- [ ] Saved views recall grouping, not per-person ordering — `sortIndex` is shared
-      data; a private order is a data-model decision (REV79).
+- [ ] **11. Closeout and billing states — the one new feature.** Keep project status,
+      closeout status and billing status as three fields. ⚠ two Projects columns:
+      `closeoutStatus` (`submitted` / `returned` / `ready` / `hold` / empty) and
+      `billingStatus` (`invoiced` / `exception` / empty), plus `closeoutBy`/`closeoutAt`
+      if the change log's who/when isn't enough. Flow: PM submits a one-minute checklist
+      (no budget or line items) → Project Director verifies (Returned / Ready for balance
+      invoice / Hold for revision) → Bookkeeper marks Invoice sent or Accounting exception.
+      Surfaces: a **Needs closeout** queue (a filtered page under the existing router, or a
+      Meeting Sheet section for the AMPM handout) with aging from the last scheduled work
+      date; overdue items stay visible until resolved; reminders via the already-consented
+      `Mail.Send` path the feedback form uses. Estimate reference (number, revision, sent /
+      approved dates; a client revision creates a new revision; unbilled scope blocks Ready)
+      is P1 and can ride the same columns family later [brief §8.6]. Open sub-decisions: the
+      Bookkeeper's sign-in (remote, another state — a viewer with a `closeout` grant?), and
+      whether the Project Director's verification is a role or a named person (§4 D3).
 
-**Phase 3.5:**
-- [ ] White-bar-text rule covers bar palettes only; `kidShade()` subtask tints still
-      pick ink. Gate: owner extending the rule (REV80).
-- [ ] Drag-to-pan is date-header-only; canvas drag stays bar move/resize. Gate: PMs
-      asking to grab the canvas (needs a modifier-key design) (REV80).
-- [ ] Draft "Add a phase" ignores the optional name field (the department names the
-      primary). Gate: someone missing their typed name (REV81/I8).
-- [ ] Department dropdown disabled on drafts — re-departmenting is a saved-page
-      concept. Gate: real demand (REV82).
-- [ ] Draft selection key for an unsplit bar falls back to the department's first
-      bar if a mid-selection split lands — benign today. Gate: re-parenting ever
-      landing (REV82).
-- [ ] Calendar live feedback covers resize only (REV83 tint; v1.1.0 added px-level
-      edge-follow) — drag-to-MOVE still keeps tooltip-only feedback. Gate: the same
-      complaint about moves. New v1.1.0 ceilings: the live follow stretches only the
-      grabbed week-row segment (a multi-week phase's other rows redraw on release),
-      and the pixel follow can briefly overshoot the nesting/pin clamp — the tint
-      and the release snap always show and file the clamped truth. (2026-08-31)
+### P0 — outside the app: owners, not releases [brief §1, §6, §7.1, §9, §11]
+
+These need an owner in SharePoint / Power Automate / the business, not an app version. The
+app's part, where any, is listed.
+
+- [ ] **12. Calendar drift rule.** Leadership declares **27 Events** the event record; each
+      Outlook event gets an "Edit source" link; 27 Events stores Outlook IDs and sync state.
+      Owners: Project Director + whoever owns the 27 Events → Outlook flows (unknown — §5).
+      App: none until §4 D1/D11 decide whether Timeline's own `ShopTimeline_Events` merges
+      into 27 Events. [brief §7.1, §9 P0 "Calendar drift", §15]
+- [ ] **13. Cost-code workbook guardrail inventory.** Every formula, validation message,
+      abbreviation and sequence rule, and an example of every warning; reconcile against
+      QuickBooks and TCP exports. Owners: Project Director + Bookkeeper. App today: `jobCode`
+      is free text with no format, duplicate or lifecycle check; the Clients list already
+      carries the 2–3 letter alias (`field_2`, imported from the Excel client master) — the
+      registry design must adopt or supersede it so there aren't two abbreviation masters.
+      App later (Phase 8): pick confirmed codes from the registry instead of typing.
+      [brief §6, §9 P0 "Before integrations"]
+- [ ] **14. Core project registry decision** — §4 D1. Deliverable before deciding: a
+      side-by-side schema comparison of Current 2-7 Projects / 27 Projects (Archive) vs
+      `ShopTimeline_Projects`, including 27 Events' and Teams' dependencies on Current
+      Projects. Robert can do this from read access alone. [brief §6.7, §14]
+- [ ] **15. Backups.** No scheduled backup of the nine lists exists. Quick answer: a weekly
+      SharePoint Export to Excel until something better; ask the tenant admin what retention
+      already covers. Caveat for any export: several columns hold JSON strings (departments,
+      time off, schedule, assignee arrays, ticketNodes), so a raw export is not readable by
+      Accounting or HR without a flatten step — budget a small in-app CSV export or a script
+      if the fallback must be human-readable. Confirm list versioning is on for all nine
+      (recovery for deletes is the Recycle Bin, for edits version history). [brief §10.2,
+      §12, §7.2]
+- [ ] **16. Backup maintainer + rollback procedure. Backup maintainer: Hubert (owner,
+      2026-09-24, "for now").** Remaining: give him collaborator access to the repository
+      (the `sandbox` branch flow exists — `docs/Archive/Onboarding-Fork.md`), Pages, the
+      Entra app registration (at least redirect-URI rights) and the recovery docs
+      (`SETUP.md`, `CONTRIBUTING.md`, `reference/Handoff-Notes.md`); write the one-paragraph
+      rollback (git revert on `main` → Actions redeploys) and start tagging releases
+      (`v1.23.0` etc.) — there are no release tags today. [brief §5.1, §11]
+- [ ] **17. Separate development data from production.** `/preview/` and `/sandbox/` write
+      the live lists, so every pilot test edit is a real edit — the brief's technical-test
+      stage would otherwise put test jobs in production data. Options: a test SharePoint site
+      with the nine lists cloned (⚠ owner creates; the app resolves lists by site + name), or
+      a list-name suffix switch on the preview build. Decide before the pilot's stage 3.
+      [brief §10, §11.1]
+- [ ] **18. Pilot projects preloaded.** Project Director + Robert load the pilot jobs so PMs
+      verify instead of re-entering; set the parallel-entry end date up front; limit the
+      pilot project count. [brief §10, §10.2]
+
+### P1 — verification and small fixes [brief §9 P1]
+
+- [ ] **19. Verify the PTO source and edge cases.** Availability today comes from
+      Out-of-office ranges typed on the People page, whole days only, back-to-back ranges not
+      merged for "Away until". The PTO Contract Approvals list (fed by the operations
+      manager's Teams PowerApps plugin) is not connected; the discovery session planned for
+      mid-September is not on record as held — schedule it, and the same session identifies
+      the nightly 10pm automation on 27 Employees. Test: multiple, adjacent, overlapping
+      requests; partial days; cancellations; people without company email. [brief §7.2, §13]
+- [ ] **20. Document the change log's limits** (the brief's verification row): covers
+      projects, phases, milestones, notes — not people, clients or settings; admins only;
+      history starts 2026-09-02; **no retention limit and no export** — every cache miss reads
+      the whole list (it pages), the pages show the latest 500 / 300 per project; recovery is
+      in-session undo (projects only, 20 steps, lost on reload) or SharePoint (Recycle Bin for
+      deletes, version history for edits) — the log is evidence, not a restore tool. Most of
+      this is in the 2026-09-02 milestone record; retention and recovery are the missing
+      paragraphs. [brief §7.2]
+- [ ] **21. Refresh the reference docs before handing the repo to reviewers.**
+      `docs/ARCHITECTURE.md` documents 5 lists (9 in use + Employee Contacts), omits the
+      client/config/changelog/feedback mappers and the `#/people`, `#/clients`,
+      `#/changelog`, `#/settings`, `#/reports` routes, and predates Logistics, Shipping and
+      the `othoffice` retirement; `SETUP.md` lists 2 Graph scopes (4 in use: `User.Read`,
+      `Sites.ReadWrite.All`, `TeamMember.Read.All`, `Mail.Send`); `CLAUDE.md` says ~7,000
+      lines (10,600); `tests/README.md` says 48 suites (79). Add a short "formulas and
+      rollup" section (`generateSchedule` backward from the install date skipping weekends
+      and the coded holidays; `estimatedDays`; Meeting Sheet %; Lead time). [brief §13 "The
+      app" row; §8 standing rule]
+- [ ] **22. Meeting Sheet as the AMPM handout.** It already prints per PM with status,
+      current phase, dates, install date and workdays left. Get the Master Project Tracker's
+      AMPM columns from the Project Director and diff; add the closeout/aging column when
+      item 11 lands. [brief §3 step 9, §9 P1 "AMPM output"]
+- [ ] **23. Milestone records owed** (CLAUDE.md rule): v1.20.6 Shipping phase (a
+      phase-chain and department-vocabulary change documented only as a footnote), v1.20.8
+      (PM required at Create; dashboard columns scroll), v1.20.9; the v1.x ladder has no
+      rows for v1.20.0–v1.20.9 and v1.21.x (add one folded row each to the archive's §4, the
+      way `CHANGELOG.md` folds v1.14–1.15). Docs only.
+- [ ] **24. Repository ownership.** `github.com/221twoseven` is a GitHub *user* account
+      named for the company, not an Organization — no org owners, SSO or team roles;
+      continuity rests on one login. If leadership's "company-owned code" gate matters, plan
+      an Organization transfer (the Pages URL and the Entra redirect URIs must then be
+      re-registered — `SETUP.md`). The repository is public (Pages hosting); safe because
+      access depends on Microsoft sign-in, but leadership should know. [brief §11]
+
+### P0 additions from the owner's fact-check review (2026-09-24)
+
+- [ ] **25. Saved views per user, not per browser (owner ruling 2026-09-24).** Today a
+      saved view lives in `localStorage` (`shopTimelineViews_v1`) on one machine. Store
+      them on the signed-in user's own Staff row instead: ⚠ `savedViews` on
+      `ShopTimeline_Staff`, multi-line text holding a JSON array, written only to the
+      user's own row (the `personalNotes` pattern). Migration: on the first load after the
+      release, import the browser's local views into the row, then keep the local copy as
+      a cache. Result: a view saved anywhere follows the person. The same own-row record is
+      the home for per-user settings that are session-only today — Lock dates (item 2c),
+      density, sidebar width if wanted. Shared and role-based views (item 30, D3) reuse the
+      same JSON shape in Phase 9. Contingency: none — additive column, spec with the batch.
+      [brief §2 "plan saved views and permissions now", §7 Audience views]
+- [ ] **26. Define the information tiers — a decision with HR and the Project Director.**
+      The owner's finding: employee information is gated only by curiosity today; every
+      signed-in user can read all of `ShopTimeline_Staff`. The unit of protection in
+      SharePoint is the *list* (or the item), never the column, so the fields have to be
+      sorted into tiers before anything can be protected. Output: a field map with one
+      owner per field. Proposed tiers — **public roster** (what pickers, lanes and
+      dashboards need: name, nickname, departments, title, availability, weekly schedule,
+      driver); **restricted personnel record** (work phone and email?, employment status,
+      time-off notes, personal contacts, pay basis, anything ADP/TimeClock+ brings later).
+      Question for HR: is a work phone/email public inside the company? Contingency: feeds
+      item 27 and D5; until 27 ships, items 4 and 9a are the only protection, so say so in
+      the pilot's limits. [brief §7 Employee source, §8.1, §11.1; vision]
+
+### Queued for Phase 8 — contingent (see the map in §2)
+
+- [ ] **27. Split `ShopTimeline_Staff` into a public roster and a restricted personnel
+      record.** A new list holding only the restricted fields plus the person's stable ID
+      — on this site with broken permission inheritance, or on a separate HR site — with
+      membership set by HR; the restricted columns move off Staff. The app reads the
+      restricted list only when the user's token can (a 403 degrades the way `STAFF_OK`
+      does today) and joins by ID, so each fact lives once and nothing is duplicated.
+      Personnel Manager (Phase 9) becomes its editor; Timeline shows what the roster holds.
+      Owner action: break inheritance / create the site (site admin). ⚠ destructive on
+      Staff (columns move) → milestone record + migration of existing rows. ← item 26, D5,
+      D3; D2 lifted. [brief §8.1, §11.1; vision]
+- [ ] **28. Stable IDs.** `clientId` on Projects (additive; one-time name → id backfill in
+      the same milestone; `spId` is the key until Clients get an `appId`); `personId` on
+      assignments (Tasks and the project role fields) so `canonName` and the scrub retire —
+      D10. D2 lifted, so Tasks can change. ⚠ [brief §8]
+- [ ] **29. Drop the dead columns** `metalFab`, `labels`, `checklist` (§7 L1040) — a
+      deliberate cleanup now that D2 is lifted; milestone record; the app stops writing
+      them one release before the columns go. ⚠
+
+### Queued for Phase 9
+
+- [ ] **30. Role-based shared views** (leadership, department, PM, later `terminal`) over
+      item 25's JSON shape, stored in `ShopTimeline_Config` or a views list; **Personnel
+      Manager** and **Client Manager** over the tiered lists (items 27–28); **Design
+      Resources Manager** per D6. ← D3 role vocabulary, D4 architecture.
+
+### Owner confirmations — answered 2026-09-24
+
+- [x] `ShopTimeline_Config` **exists** (owner). The dev App Settings switches are shared
+      via the list; "Listening to" (§7) is only the owner's promote-or-drop call now.
+- [x] The People page **is up to date** (owner) — the `status` import has run.
+- [x] The condensed brief **is in the repository**:
+      `reference/2026-09-22-Shop-Timeline-Brief-Condensed.md` (dated title; the mailbox
+      name, headcount and a location generalized — the repo is public).
+
+## 4. Decisions the suite forces (open — record rulings here, dated)
+
+Each has a recommendation. None is taken.
+
+- **D1 — Core project registry.** Current 2-7 Projects extended into the registry (brief
+  §6.7) vs `ShopTimeline_Projects` promoted to it. *Recommend:* run item 14's schema
+  comparison first; whichever wins, the other becomes a read-only mirror for one parallel
+  period, then is retired — never a permanent two-way sync between two editable masters.
+  Moving off `ShopTimeline_Projects` is no longer gated by the colleague app (D2); the
+  migration record still names what changes. [brief §6.7, §14]
+- **D2 — The colleague app and schema parity. RULED 2026-09-24 (owner):** the colleague
+  app still runs but is not used and will not be used again; breaking it through a schema
+  or data-store change is accepted collateral. **The additive-only rule is lifted**
+  (`CLAUDE.md` updated). What stays: the lists are still shared infrastructure in the
+  plainer sense (hand edits on the site, any flows), so a destructive change — rename,
+  delete, type change, moving a store — gets a milestone record naming what it breaks and
+  how existing rows migrate. Unblocked: D1, D10 / item 28, item 27, item 29.
+- **D3 — Permission model and enforcement. RULED IN PRINCIPLE 2026-09-24 (owner): "this
+  must be solved" — select access for specific stakeholders without duplicating
+  information, and no sprawl of lists.** Facts: today Admin / Viewer / Developer with
+  per-door viewer grants in Config; PMs are admins; **UI gating is workflow protection,
+  not security** — every signed-in token carries `Sites.ReadWrite.All` (delegated, so it
+  can do exactly what that person can do on the site), and every site member can read
+  `ShopTimeline_Staff` directly. SharePoint permissions apply per *site*, per *list*, or
+  per *item* — never per column. So the answer to "how do we keep select access without
+  duplicating information" is **normalize, don't duplicate: one fact lives in one list,
+  and the list is the unit of protection.** A public roster list holds what everyone
+  needs; a restricted list holds *only* the sensitive fields plus the stable ID of the
+  person (or project) they belong to. Nothing is copied; the restricted record *is* the
+  extra information the stakeholder needs, and only their token can read it. To the
+  owner's question — **yes, a list can reference another list**, two ways: (1) SharePoint
+  **lookup columns** (a column pointing at an item in another list, optionally projecting
+  its columns; Graph reads them as `<col>LookupId` + value) — same-site only, and awkward
+  to write through Graph; (2) the app's existing pattern — a stable ID stored as text
+  (`appId`, `personId`) and joined in the app — which works across sites, so the
+  restricted list can live on an HR-only site. *Recommend (2).* Enforcement is then the
+  user's own token: Graph returns 403 on a list they can't read, and the app already
+  degrades for optional lists (`STAFF_OK`, `EVENTS_OK`). App roles stay for *workflow*
+  (which doors, which views); the role vocabulary is designed once for every app in the
+  suite. Work: item 26 (tiers, Phase 7) → item 27 (the split, Phase 8) → item 30 (Phase
+  9). Saved views: per user in item 25 (Phase 7); shared/role-based in Phase 9.
+  [brief §2, §9, §11; vision]
+- **D4 — Architecture for more than one app.** One 10,600-line `index.html`, no build step,
+  no shared module; Pages deploys three branches to `/`, `/preview/`, `/sandbox/` with a
+  guard that greps the file as markup. A portal plus three sibling apps sharing theme, auth
+  and data code needs a decision: (a) one file, more routes (the Company Data pages already
+  are proto-apps at `#/people`, `#/clients`); (b) separate single-file apps under one Pages
+  site (`/timeline/`, `/clients/`, `/people/`, `/resources/`) sharing a vendored
+  `common.css`/`common.js` — each subpath needs its own Entra redirect URI; (c) a build
+  step. *Recommend:* (b) — keeps the no-build, one-file-per-app discipline that made this
+  app maintainable, and the portal is then a static page. Consequence: Timeline moves off
+  `/` (a URL change for users) or the portal lives at `/portal/`. Decide before the second
+  app starts. [vision; brief §11.1]
+- **D5 — Employee Directory identity.** Which list is "the Employee Directory": HR's
+  Employee Contacts (manual, current, has Pay Type / PersonalEmail), 27 Employees (nightly
+  automation, unidentified), or a new consolidated list? Join key today: work email, else
+  exact name (a namesake without work email can join the wrong row). *Recommend:* Employee
+  Contacts as identity master, read through a trimmed view or `$select` (item 9), until D3's
+  separate-list rule lets Personnel Manager hold HR-only fields on their own list. Employee
+  Contacts stays READ-ONLY for the app. [brief §4 open question, §8.1]
+- **D6 — Design Resources Manager and secrets.** Licence keys and shared logins in a
+  SharePoint list readable by the app are readable by every user with site access,
+  whatever the UI hides (D3), and this repository is public. *Recommend:* the Manager
+  stores *pointers and ownership* (what the tool is, who owns the licence, where the
+  credential lives) and links to a proper vault (a password manager or a restricted
+  document library with its own permissions); never the secret itself in a list the app
+  reads. The plug-in/script store is a document library with a Manager page over it.
+  [vision]
+- **D7 — What v2.0.0 means.** §1 point 5 (Timeline on shared registries) vs the retired
+  "app as master" vs "the pilot release". *Recommend:* §1 point 5.
+- **D8 — Company Data pages' future.** Stay in Timeline as its People/Clients views, or
+  graduate into Personnel Manager / Client Manager with Timeline keeping read-only pickers.
+  *Recommend:* graduate in Phase 9; until then they are where the shared-registry work
+  lands (Phase 8). The Client Manager's "project history (names, cost codes, job details,
+  billings)" needs client IDs on projects (D10) and the closeout/billing states (item 11)
+  before it can be built without name-joins.
+- **D9 — Worker type vocabulary.** The app has a `1`/empty Freelance flag; the brief wants
+  Regular / Seasonal / Freelance / Contractor; Employee Contacts already carries Category
+  (Full/Part Time / Seasonal / Archived). *Recommend:* one vocabulary, taken from Employee
+  Contacts if HR agrees, mapped onto the flag until Phase 8. Weekly schedule is one range
+  per person (no split shifts, no per-day hours) — the first ceiling a TimeClock+ hours
+  integration hits (§7 new entries). [brief §8.1]
+- **D10 — Stable IDs.** Assignments store *names*, resolved through `canonName`; projects
+  store the client as a *name*; Clients have no `appId` but do have a stable `spId`.
+  *Recommend:* Phase 8 adds `clientId` on Projects (additive, one-time name → id backfill
+  in the same milestone) and person IDs on assignments (Tasks can change — D2 lifted); the
+  flexible-roles model (item 1) rides the same change. [brief §8]
+- **D11 — Departments and closures as data.** Departments and the six holidays are fixed
+  in code; the brief wants configurable departments and a Shop Closure list. *Recommend:*
+  Phase 8, after D1 — the department vocabulary just changed (Logistics, Shipping,
+  `othoffice` retired) and should settle first. Timeline's own `ShopTimeline_Events` vs
+  27 Events is decided with item 12. [brief §8, §8.2]
+- **D12 — Polling budget.** Every open tab re-reads every list every 90 s; the change log
+  is deliberately never polled. Each sibling app and each new registry adds a full poll per
+  user per tab. *Recommend:* before Phase 8 adds registries, set a budget (lists per tick,
+  delta or `$filter` reads for large lists) — see `memory` note on the change-probe trap.
+- **D13 — Integrations: ADP, TimeClock+, QuickBooks.** Brief: P3, after ownership, security
+  and maintenance are settled; vision: "if possible". A browser SPA cannot hold API secrets,
+  so any write integration needs a flow or a small service with its own owner. *Recommend:*
+  CSV export/import first (QuickBooks and TCP formats to be confirmed — §5), APIs only via
+  Power Automate with a named owner. [brief §1.2, §9 P3, §15]
+- **D14 — Shop terminal / TV mode.** A fourth account type (`terminal`) with its own
+  read-only dashboard; the company already runs non-person M365 accounts. Owner ruling
+  2026-09-02: after rollout, once real use proves the need; brief: P2, and no TV redesign in
+  the pilot. Stays parked.
+
+## 5. Reference material to gather [brief §13]
+
+Schemas, rules and examples — not screenshots. Status as of 2026-09-24.
+
+| Material | Owner | Status |
+|---|---|---|
+| Employee Directory: exact list, field names, types, permissions, sanitized export | HR manager | not requested |
+| Master Cost Code List: headers, formulas, validation messages, abbreviation + sequence rules, an example of every warning; QuickBooks and TCP exports to compare | Project Director, Bookkeeper | not requested (item 13) |
+| Current Projects and 27 Events: schemas, lookups, status fields, Teams and shop-screen dependencies, Outlook ID storage, an Outlook-only edit and a deletion example | Project Director; flow owner (unknown) | not requested (item 14) |
+| Power Automate: every trigger, action, calendar connection, recipient, error owner, retry policy | flow owner (unknown) | owner not identified |
+| Master Project Tracker and closeout: columns, restricted fields, AMPM fields, closeout email examples, what the Bookkeeper minimally needs | Project Director, Bookkeeper | not requested (items 11, 22) |
+| PTO, holidays, changelog: availability source, identity matching, cancellation examples, how holidays are set | operations manager (PTO, 27 Employees automation); Robert (changelog — item 20) | discovery session not held |
+| QuickBooks / TimeClock+ CSV formats | Bookkeeper | not requested (D13) |
+| Who administers which view (the key users) and which permission set each needs | owner, Hubert | in progress (D3) |
+| Colleague app: is it running, who maintains it, which lists it reads/writes | owner | answered 2026-09-24: running, unused, will not return; breakage accepted (D2) |
+| The app itself: lists, registration, scopes, deployment, data model, formulas | Robert | mostly in the repo; item 21 closes the gaps (backups and rollup formulas undocumented) |
+
+## 6. Data / schema (⚠ shared Lists — spec to Robert, additive-only)
+
+Standing: Robert applies the delivered spec; additive columns are routine (the app probes
+new columns live — the tristate pattern, a missing column never 400s other saves); a
+destructive change gets a milestone record with the migration. The colleague app is no
+constraint (D2, lifted 2026-09-24).
+
+Created and in use (v1.x): `ShopTimeline_Feedback`, `ShopTimeline_Changelog`,
+`ShopTimeline_Clients`; on `ShopTimeline_Staff`: `admin` (`1` / `dev` / empty),
+`feedbackRecipient`, `phone`, `personalNotes`, `listeningTo` / `listeningLink` /
+`listeningVerb` / `listeningShow`, `status` (Employee Contacts' vocabulary), `nickname`,
+`driver`, `availability`, `schedule` (JSON), `freelance`. Entra: `Mail.Send` delegated,
+consented. Employee Contacts: READ-ONLY, never written, schema never touched.
+
+`ShopTimeline_Config` (Title + `value`) — **confirmed created (owner, 2026-09-24)**; the
+dev App Settings switches are shared through it.
+
+Candidates this phase (spec delivered with the item's batch):
+
+- `dateCertainty` on `ShopTimeline_Projects` — item 5.
+- `closeoutStatus`, `billingStatus` (+ `closeoutBy`, `closeoutAt` if needed) on
+  `ShopTimeline_Projects` — item 11.
+- `savedViews` on `ShopTimeline_Staff` — multi-line text, JSON array, written only to the
+  signed-in user's own row (the `personalNotes` pattern) — item 25.
+- Tour seen flag on `ShopTimeline_Staff` — only if item 3 lands that way.
+- A test site or suffixed list set for development data — item 17.
+
+Phase 8 candidates (design first): `clientId` on Projects (D10); person IDs on
+assignments (D10, D2); a client lifecycle column on `ShopTimeline_Clients` (the Staff side
+reuses `status`, not a third vocabulary — v1.x ruling 2026-09-01); Departments and Shop
+Closures lists (D11); Cost Codes registry (item 13).
+
+Non-changes to note: item 1's renames are labels only; stored field names do not change.
+
+## 7. Deferred & skipped ledger
+
+The running record of moves deliberately skipped or deferred: **rationale** (why not now),
+**gate** (what would change the answer), and — once one lands — the **later decision**,
+updated in place, never deleted. Carried from v1.x on 2026-09-24 after each entry was
+checked against the code; wording corrected where the audit found the ceiling misdescribed.
+Line numbers in brackets are the entry's place in `docs/Archive/TODO-v1.x-Archive.md`.
+
+### 7.0 Closed at retirement (audit 2026-09-24) — not carried
+
+- Coach-mark copy revision "ON HOLD" / "TABLED INDEFINITELY" (v1.x §2, §3 item 5, ladder
+  v1.2.x row) — **shipped v1.15.1**; `docs/Copy-Coach-and-Helpers.md` is the editing
+  channel. Round two (Cost Code, Technical Designer, Lock dates) is item 1–2 above.
+- "Black bar mellowed — owner eyes wanted; possible `.cal-mon` follow-up" (v1.x §3 item 2)
+  — 27 releases and a live demo later with no re-raise; closed. `.cal-mon` unchanged.
+- Calendar detail levels "development-only until promoted" (v1.x §3 item 10) — on `main`
+  since PR #47.
+- Admin rollout note "flag the admins on the People page" (v1.x item 12) — done in
+  practice (PMs are admins); superseded by D3.
+- "UI gating is workflow protection — decide if acceptable" (v1.x item 12) — recorded and
+  accepted for v1.x; **re-opened as D3** for the suite, not carried as-is.
+- Weekly schedule and Freelance flag "(development)" qualifiers (v1.x items 43–44) — on
+  `main` via PR #48.
+- Draft "Add a phase" ignores the optional name field [L973] — the field was removed in
+  v1.2.1; nothing to drop.
+- `scrubLegacyNames()` run on `/preview/` [L1110] — shipped v1.7.2; the re-run ceiling
+  lives at its own entry (7.1, L1148).
+- `canonName` doesn't cover to-do assignees [L1117] — the fix named in its own gate
+  shipped in v1.18.1 (`test-v1181`).
+- Drag-zoom 45° split vs ±15° bands [L1061; v1.x item 24] — owner accepted the split in
+  practice across three `/preview/` rounds (2026-08-31 → 09-01); closed unless the owner
+  says otherwise.
+
+### 7.1 Carried — Phases 1–4 (REV51–89)
+
+- [ ] Native `title` tooltips (incl. marker hover) — unstyled, invisible on touch. Gate:
+      touch use materializes (T8; v1.4.0 marker hover shares it). [L945, L1059]
+- [ ] Toast dock offset computed at fire time; a live toast can overlap the dock on
+      drag-resize. Gate: someone notices (U7). [L947]
+- [ ] Unicode 📌 outside the SVG icon set — **five sites**, not two: Pin-dates modal,
+      phase-inspector Pin checkbox, the `.bar-pin` glyph on pinned Gantt bars, and the two
+      drag-refusal hints. Swap when any is next touched (U6). [L949]
+- [ ] Persistent error banner with explicit close, if the ~5 s toast proves too fleeting
+      (T7). Mitigation already shipped: the sync pill's `err` state persists as a clickable
+      "not saved — click to retry" until the retry succeeds. Brief §7 Reliability /
+      §10.1 "failed saves show a clear error" is the gate to watch. [L951]
+- [ ] Jump memory in the Go-to-date popover. Gate: PMs asking (REV76). [L955]
+- [ ] Go-to popover can sit left of the pointer on very narrow windows. Cosmetic. [L956]
+- [ ] Very short projects render pill-only at Week zoom — intended (Design-Language §7).
+      Gate: real complaints about lost labels (REV75). [L958]
+- [ ] Saved views don't capture sidebar width / gutter / scroll / linked-subtasks. Gate:
+      someone misses one (REV79). **Input to D3:** decide the snapshot shape when
+      role-based views are designed, not before. [L963]
+- [ ] Saved views recall grouping, not per-person ordering — `sortIndex` is shared data;
+      a private order needs a per-user record (spec to Robert when decided). [L965]
+- [ ] White-bar-text rule covers bar palettes only; `kidShade()` subtask tints pick ink.
+      Owner's call (REV80). [L969]
+- [ ] Drag-to-pan is date-header-only. Gate: PMs asking to grab the canvas (needs a
+      modifier-key design) (REV80). [L971]
+- [ ] Department dropdown disabled on drafts — re-departmenting is a saved-page concept.
+      Gate: real demand (REV82). [L975]
+- [ ] Draft selection key for an unsplit bar falls back to the department's first bar after
+      a mid-selection split — benign. Gate: re-parenting ever landing (REV82). [L977]
+- [ ] Calendar live feedback: drag-to-MOVE keeps tooltip-only feedback. Gate: the same
+      complaint about moves. **Reworded:** the cross-week follow landed in v1.9.0; what
+      remains is that the px stretch is single-row and can briefly overshoot the nesting/pin
+      clamp (tint and release snap always show the clamped truth). [L980]
 - [ ] Collapsed calendar phase spans only the parent bar's window — an out-of-window
-      subtask is invisible until expanded. Gate: a PM missing one (REV84).
-- [x] Calendar collapse follows selection, not the Gantt's ▸ state (REV84) —
-      **superseded 2026-08-28 (v1.0.4):** the calendar now has its own multi-expand
-      state (`NPV_CAL_OPEN`), decoupled from selection. Still independent of the
-      Gantt's ▸ state — that half of the gate stands: someone expecting the two
-      surfaces to share expansion.
-- [ ] The positional parent model shows through the collapse (resize a phase past
-      its subtask and the calendar band flips with the Gantt parent row — the
-      surfaces agree). Gate: a PM confused by the swap (REV84).
-- [ ] PM late-prompt's once-a-day key is per-browser, not per-user — shared
-      machines can swallow a second PM's ask. Gate: shared stations complain; fix by
-      keying on account username (REV87).
-- [ ] Project-page tour is Help-only, no first-visit auto-run. Gate: owner wanting
-      auto-run for new hires (REV86).
-- [ ] Home-tour seen-flag is per-browser localStorage (`shopTimelineCoachSeen`), not
-      per-person — a machine/browser switch replays the auto-run once. **Owner ruling
-      2026-09-02: leave it — most people don't change machines or browsers often.**
-      Gate: repeat-tour complaints; fix = a seen flag on the staff row (⚠ column).
-- [x] Settings → Density alias retirement — **closed by REV95** (Settings menu
-      retired entirely).
-- [x] Where/Style/Filter eyebrow labels hidden below 1400px — **moot since REV92**
-      (the native toolbar dropped the taxonomy eyebrows by design).
+      subtask is invisible until expanded. Gate: a PM missing one (REV84). [L986]
+- [ ] Calendar collapse state is independent of the Gantt's ▸ state (the selection half
+      was superseded by v1.0.4's `NPV_CAL_OPEN`; sharing would now need a Set ↔ level map).
+      Gate: someone expecting the two surfaces to share expansion. [L988]
+- [ ] Positional parent model shows through the collapse — resize a phase past its subtask
+      and the calendar band flips with the Gantt parent row (only when both bars carry
+      labels). Gate: a PM confused by the swap (REV84). [L993]
+- [ ] PM late-prompt once-a-day key is per-browser, not per-user — shared machines can
+      swallow a second PM's ask. Fix: key on the account username (one line + a test87
+      case). Gate: shared stations complain (REV87). Relevant to item 11's reminders. [L996]
+- [ ] Project-page tour has no first-visit auto-run on a direct project landing (a
+      first-visit user who finishes the home tour and clicks + New Project is chained in
+      since v1.10.0). Gate: owner wanting auto-run for new hires (REV86). [L999]
+- [ ] Home-tour seen flag is per-browser `localStorage`, not per-person. Owner ruling
+      2026-09-02: leave it. **Gate fired?** brief §5.1 "the tour has looped" — handled as
+      item 3. [L1001]
+- [ ] The ⋯ hover cue covers main-timeline bars only — one CSS rule for `.npv-bar` when
+      item 7 lands. [L1011]
+- [ ] Stashed sample project re-attaches only after a successful load — offline boots
+      show the sign-in card. Gate: someone demos offline (REV89) — closer now: brief §2
+      says shop internet is inconsistent. An offline mode proper is a separate scoping
+      decision. [L1013]
+- [ ] Poll's local-todos guard could drop session-local to-dos if `ShopTimeline_Tasks2`
+      were missing AND the sample carried to-dos — accepted risk, Tasks2 exists. [L1015]
+- [ ] Optional 60-second explainer video/page — never scoped. Gate: an owner brief. [L1018]
 
-**Phase 4:**
-- [ ] The ⋯ hover cue covers main-timeline bars only. Gate: the same
-      discoverability complaint on the project page (REV89).
-- [ ] A stashed sample project re-attaches only after a successful load — offline
-      boots show the sign-in card. Gate: someone demos offline (REV89).
-- [ ] If `ShopTimeline_Tasks2` were missing AND the sample carried to-dos, the
-      poll's local-todos guard could drop session-local todos — Tasks2 exists in
-      production; noted in code (REV89).
-- [ ] Optional 60-second explainer video/page — never scoped. Gate: an owner brief.
+### 7.2 Carried — v1 close-out (REV90–101)
 
-**Pre-merge audit (REV90/91):**
-- [x] Staff and Clients modals discard in-progress edits on Escape/backdrop with no
-      confirm (the task modal snapshot-compares). Gate: someone loses edits.
-      **Closed 2026-09-01 (v1.7.0):** the modals are gone; the Company Data pages'
-      edit state confirms before discarding on Esc, Cancel-free row switches, and
-      + Add.
-- [ ] Calendar marker drag/click/delete block is a near-clone of the Gantt's —
-      **gate fires with §3 item 8** (next touch of either handler: merge them).
-- [x] `ROSTER_DEPTS` / `SM_DEPTS` duplicate the roster dept ids. Gate: next
-      roster-department change. **Gate FIRED 2026-09-02 (v1.10.0, Logistics +
-      comprehensive People-page list):** `SM_DEPTS` is now derived from `DEPTS`
-      (minus free-text buckets) and can't drift; `ROSTER_DEPTS` stays the separate
-      project-team trio by design.
-- [x] `#tm-dl` datalist keeps its task-modal prefix while serving the staff modal.
-      Gate: next staff-modal edit. **Gate fired 2026-09-01 (v1.7.0):** the staff
-      modal's replacement (the People page editor) was its only consumer — renamed
-      to a global `#cd-dl`.
-- [x] `tests/run.js` counts a self-skipped suite as "passed" — **closed 2026-08-28
-      (v1.0.2):** the runner now prints a SKIP summary line naming self-skipped
-      suites (gate fired when the batch registered `test-v102.js`).
-- [ ] `metalFab` and `todoToFields`' `labels`/`checklist` are write-only shared-List
-      schema — dropping them is a §5-approval decision.
+- [ ] Calendar marker drag/click/delete block is a near-clone of the Gantt's. **Gate
+      reworded:** the next touch of either handler merges them (the v1.x "fires with item
+      8" wording was stale — v1.1.0 didn't touch the block, and the v1.8.0/v1.11.0 permission
+      guards touched both without merging). [L1026]
+- [ ] `metalFab` and `todoToFields`' `labels` / `checklist` are dead schema kept alive for
+      cross-app compatibility (`metalFab` still round-trips and is searchable). D2 lifted
+      2026-09-24 — dropping them is item 29, a deliberate Phase 8 cleanup. [L1040]
+- [ ] Edit-in-place popover carries data fields + Delete only; Duplicate and Pin stay
+      inspector-only. Gate: shop use asking — **fired by brief §1/§7** (make Duplicate
+      visible); handled as item 7. [L1044]
+- [ ] A background poll landing while the popover/add-menu is open defers until it closes
+      (the CD_EDIT deferral, L1143, shares the gate). Gate: a real "why didn't I see their
+      edit" report. [L1046]
 
-**Edit-in-place popover (REV98):**
-- [ ] Popover carries data fields + Delete only; Duplicate and Pin stay
-      inspector-only. Gate: shop use asking for them.
-- [ ] A background poll landing while the popover/add-menu is open defers until it
-      closes. Gate: a real "why didn't I see their edit" report.
+### 7.3 Carried — the v1.x track (v1.0.2 → v1.23.0)
 
-**New (v2 track):**
-- [ ] Dept-lens phase click lands on the project page without preselecting the
-      clicked phase — arriving selected needs a cross-route handoff. Gate: PMs
-      asking "why do I have to find the phase again". (v1.3.0, 2026-08-31)
-- [ ] Lane assignment lines clip to row height with "+N more" — no way to see the
-      tail without expanding density. Gate: real complaints. (v1.3.0, 2026-08-31)
-- [ ] Old milestone notes/types and note who/phase data survive in storage but have
-      no editor — visible only in main-timeline tooltips (notes) or not at all
-      (who). Gate: someone needing to read or clear old values; fix is a read-only
-      line in the popover. (v1.4.0, 2026-08-31)
-- [ ] Marker hover uses the native `title` (unstyled, invisible on touch) — same
-      ceiling as the Phase 1 T8 entry above; the two share a gate. (v1.4.0)
-- [ ] Drag-zoom uses a 45° axis split, not the owner's suggested ±15° bands — bands
-      leave dead diagonal zones where a drag does nothing. Gate: owner preferring
-      the bands after feeling the split on `/preview/`. (v1.5.0, 2026-08-31)
-- [ ] The project page's date strip has no drag-zoom gesture (buttons only) and the
-      global page has no Fit step. Gate: someone reaching for either. (v1.5.0)
-      **Half-fired 2026-08-31 (v1.6.2):** the owner reached for the strip gesture —
-      shipped, full parity with the global header (pan + continuous zoom, float
-      NPV_FIT). The global-Fit half stays open on the same gate.
-- [ ] A drag-set custom FIT survives reloads but has no UI to re-enter it exactly —
-      the buttons snap to named steps. Cosmetic. Gate: someone caring. (v1.5.0)
-- [ ] Font files & licences (§3 items 6–7): nothing committed until the licence
-      check passes; Bahnschrift starts as `local()`-only. Gate: licence confirmed /
-      non-Windows coverage demanded. (2026-08-28) **Licence gate FIRED 2026-09-01
-      (owner confirmed; v1.7.1 shipped `BrNStdBd.otf` + the `local()` stack).**
-      Still open on the second half: a committed Bahnschrift TTF waits on
-      non-Windows coverage demand — until then Macs/phones silently fall through
-      to Segoe/system faces. Also deliberate: only the ONE Brauer file is
-      committed; the other five weights sit uncommitted in the local `fonts/`
-      folder (the public repo publishes only what the site uses).
-- [x] The fonts deploy-allowlist edit lives only on `development` until the next
-      main/sandbox sync — the workflow must be identical on all three branches, so
-      **a push to `main` or `sandbox` before v1.7.1 reaches them fails the Pages
-      deploy at the guard step** (non-destructive: the old site stays up). Gate:
-      the next merge to main carries `.github/workflows/deploy-pages.yml`; sandbox
-      needs the same file cherry-picked. (v1.7.1, 2026-09-01) **CLOSED 2026-09-02:
-      PR #32 carried the workflow to `main`, sandbox synced — verified byte-identical
-      on all three branches; Deploy Pages green on `main` and `development`.**
-- [ ] Vivid shows no non-working-day marker on the canvas at all (holidays
-      included) — the obj-13 ruling makes the month colour king; weekends stay
-      visible in the Day/2-Day header and everywhere in Quiet. Gate: someone
-      scheduling into a weekend because Vivid hid it. (v1.0.2, 2026-08-28)
-- [ ] Calendar milestone prefix is the **department** name, not a phase's custom
-      label — markers only carry the department id. Gate: someone renames a phase
-      and expects the custom name in the prefix. (v1.6.1, 2026-08-31)
-- [ ] Dept-lane summaries keep **upcoming** assignments (the complaint was past
-      ones); a strict "in progress only" read is a one-line filter. Gate: the owner
-      asking for future work gone too. (v1.6.1)
-- [ ] The sidebar/canvas scroll parity fix pads by the footer height but not the
-      Gantt's ~10px horizontal scrollbar — the last few px of sync can clamp at the
-      very bottom. Cosmetic. Gate: someone notices. (v1.6.1)
-- [ ] Project-Gantt today column and deadline pennant (z4) out-stack the sticky row
-      gutters (their z3 lives inside z1 row contexts) — at extreme scroll the
-      translucent today wash can slide over the name column. The axis is masked
-      (v1.6.3); a full fix means restructuring the gutter stacking. Gate: someone
-      notices it on a real job. (v1.6.3, 2026-08-31)
-- [ ] The Summary/Dashboard locks its lens — the Projects/Departments toggle hides
-      while a person is on, so regrouping the same person means exiting (×) and
-      re-entering from the other lens. Same trade My Dashboard made in v1.2.0.
-      Gate: someone asking to regroup in place. (v1.6.4, 2026-09-01)
-- [x] Legacy person strings are healed at compare/display time only — the stored
-      values keep their old abbreviations until re-saved. Gate: the owner ordering
-      the scrub. **Gate FIRED 2026-09-01 (owner: "Do it") — v1.7.2 ships
-      `scrubLegacyNames()`** (console dry-run + apply with a change report; §3
-      item 29). Robert runs it on `/preview/`; it stays in the app for re-runs as
-      the staff lists reconcile — people not yet on the roster stay abbreviated
-      until a later pass. (v1.6.5 → v1.7.2)
-- [ ] `canonName` covers bar crews and role fields, not to-do assignees — a to-do
-      stored with a legacy name still misses its person's dashboard Notes section.
-      Gate: someone missing a to-do; fix is the same map in the me-dock/todo
-      filters. (v1.6.5)
-- [ ] Two roster people sharing a first name + surname initial keep legacy strings
-      unmerged (deliberate ambiguity rule — never guess identity). Gate: it happens
-      on the real roster; fix is a manual data correction, not code. (v1.6.5)
-- [ ] "Show everything" clears the person (exits the summary like the ×) while the
-      toolbar Clear filters still keeps it (the v1.2.2 ruling) — a deliberate
-      asymmetry: the menu button is the owner-specified full-list reset, the toolbar
-      button keeps the dashboard-safe behavior. Gate: the owner asking for the two
-      to align either way. (v1.6.6, 2026-09-01)
-- [ ] The status section lost its "Clear all" (hide everything, then tick one) —
-      isolating one status now means unchecking the rest by hand. Gate: someone
-      missing it; fix is a per-item "only" affordance, not the confusing pair.
-      (v1.6.6)
-- [ ] Company Data pages have no per-record URLs — `#/people/:id` lands on the page
-      without selecting; selection is page state. Gate: someone wants a linkable
-      person/client record. (v1.7.0, 2026-09-01)
-- [ ] No Active/Inactive/Archived lifecycle on people/clients — Remove is a real
-      delete behind a consequence-naming confirm (assignment/project counts). Gate:
-      the §5 status column (Robert applies it when that pass is designed).
-      (v1.7.0)
-- [ ] Client selection is keyed by name (clients carry no appId) — a concurrent
-      remote rename while selected drops the selection to the empty state on the
-      next repaint; self-heals on the next click. (v1.7.0)
+- [ ] Dept-lens phase click lands on the project page without preselecting the clicked
+      phase — needs a cross-route handoff. Gate: PMs asking "why do I have to find the
+      phase again" (v1.3.0). [L1050]
+- [ ] Dept-lens lane assignment lines clip to row height with "+N more" (My Dashboard's
+      "+N more" was removed in v1.20.8; the lanes are unchanged). Gate: real complaints
+      (v1.3.0). [L1053]
+- [ ] Old milestone notes/types and note who/phase data survive in storage with no editor
+      (notes visible in tooltips, who not at all). Fix: a read-only popover line. Gate:
+      someone needing to read or clear old values (v1.4.0). [L1055]
+- [ ] Global page has no Fit step (the project-page strip gesture half shipped v1.6.2).
+      Gate: someone reaching for it (v1.5.0). [L1064]
+- [ ] A drag-set custom FIT survives reloads but has no UI to re-enter it exactly.
+      Cosmetic (v1.5.0). [L1069]
+- [ ] Fonts: Brauer Neue title file shipped v1.7.1 (five weights left uncommitted by
+      design); a committed Bahnschrift TTF for non-Windows waits on coverage demand and a
+      redistribution-licence check — Macs/phones fall through to system faces meanwhile.
+      Owner's call. [L1071; v1.x item 7]
+- [ ] Vivid shows no **weekend** marker on the canvas (holidays got name pills in v1.20.0
+      — the v1.x "(holidays included)" clause is stale). Gate: someone scheduling into a
+      weekend Vivid hid (v1.0.2). [L1088]
+- [ ] Calendar milestone prefix is the department name, not a phase's custom label. Gate:
+      someone renaming a phase and expecting the name (v1.6.1). [L1092]
+- [ ] Dept-lane summaries keep upcoming assignments; a strict "in progress only" read is a
+      one-line filter. Owner's call (v1.6.1). [L1095]
+- [ ] Sidebar/canvas scroll parity pads by footer height, not the Gantt's ~10 px horizontal
+      scrollbar. Cosmetic (v1.6.1). [L1098]
+- [ ] Project-Gantt today column and deadline pennant out-stack the sticky row gutters at
+      extreme scroll; axis masked (v1.6.3), full fix restructures gutter stacking. Gate:
+      someone notices on a real job. [L1101]
+- [ ] The Summary/Dashboard locks its lens — regrouping the same person means exiting and
+      re-entering (same trade as v1.2.0). Gate: someone asking (v1.6.4). [L1106]
+- [ ] Two roster people sharing a first name + surname initial keep legacy strings unmerged
+      — never guess identity. Fix is a manual data correction or the People-page Merge, not
+      code (v1.6.5). [L1121]
+- [ ] "Show everything" clears the person while toolbar Clear filters keeps it —
+      deliberate asymmetry. Owner's call to align (v1.6.6). [L1124]
+- [ ] The status section lost its "Clear all" — isolating one status means unchecking the
+      rest by hand. Fix: a per-status "only" affordance. Gate: someone missing it (v1.6.6).
+      [L1129]
+- [ ] Company Data pages have no per-record URLs (`#/people/:id` lands without selecting).
+      Gate: someone wanting a linkable record. The client half can key on `spId` today — no
+      column needed (v1.7.0). [L1133]
+- [ ] Remove on People/Clients is a real delete behind a consequence-naming confirm — no
+      archive/deactivate lifecycle. **Gate reworded:** the Staff `status` column exists since
+      2026-09-02 (Active / Off Payroll / Terminated / Archived, synced by the import) but
+      drives no behaviour yet; Clients has no equivalent. The lifecycle pass (hide from
+      pickers, deactivation guards, archive-not-delete per brief §10.2) is Phase 8 design
+      work (v1.7.0, v1.13.0). [L1136, L1226]
+- [ ] Client selection is keyed by name — a concurrent remote rename drops the selection
+      until the next click. **Corrected:** clients already carry a stable `spId`; keying
+      `CD_SEL` on it closes this without a schema change (v1.7.0). [L1140]
 - [ ] A background poll defers entirely while a Company Data record is mid-edit
-      (CD_EDIT) — same trade as the REV98 popover entry above; the two share its
-      gate. (v1.7.0)
-- [ ] Reaching the year-wide view is drag-only — the step buttons still stop at
-      3-Mo. Gate: someone asking for a "Year" button. (v1.7.2, 2026-09-01)
-- [ ] `scrubLegacyNames` heals only what the CURRENT roster resolves — reconciled
-      staff additions need a re-run (deliberate: parallel-run staffing, §3 item 13).
-      Gate: each staffing-reconciliation pass. (v1.7.2)
-- [ ] Viewer gating writes the flags as text `'1'`/`''` (matches the created
-      columns); a Yes/No boolean column would need the writer switched. Gate: the
-      first permissions save on `/preview/` 400ing. (v1.8.0, 2026-09-01)
-- [ ] A viewer can't seed the sample project (the teach-card seed rides the guarded
-      saveState) — only visible on a zero-project site. Gate: a real complaint.
-      (v1.8.0)
-- [ ] Viewer checkbox surfaces (crew, departments, pin) hide unchecked entries via
-      CSS `:has()` — very old browsers would show disabled boxes instead. Cosmetic.
-      Gate: someone on such a browser caring. (v1.8.0)
-- [ ] The PM late prompt skips viewers entirely — a non-admin PM never sees it
-      (they couldn't act on it). Gate: owner wanting a read-only nudge instead.
-      (v1.8.0)
-- [ ] Feedback mail rides silent-token-only — if a user's Mail.Send consent is
-      somehow missing, the mail is skipped without a popup (report still filed,
-      toast says which). Gate: recipients report gaps. (v1.8.0)
-- [ ] The calendar resize-follow can't extend past the LAST painted week — there
-      are no day cells below the final row to hover (the calendar paints only the
-      weeks the job touches + deadline). Long extensions belong to the Gantt or
-      the inspector's date fields. Gate: someone reaching for it on the calendar.
-      (v1.9.0, 2026-09-01)
-- [ ] Cross-week resize feedback is day-granular (repaint per day crossed); the
-      smooth px-for-px stretch lives only inside the home week, and once the drag
-      has left it the whole drag stays repaint-mode even back home. Cosmetic.
-      Gate: someone noticing. (v1.9.0)
-- [ ] Demoting a developer's admin checkbox drops the `dev` value (deliberate);
-      re-checking Admin writes plain `1` — the owner re-types `dev` on the list
-      to restore the toggle. Gate: it happening often enough to annoy. (v1.9.0)
-- [ ] The Viewer preview is honest to a fault: while it's on, the developer IS a
-      viewer — their own edits (beyond User Notes) are refused until toggled back.
-      Deliberate; that's what "preview the real thing" means. (v1.9.0)
-      **Revised 2026-09-18 (owner ruling):** the preview now keeps your OWN
-      dashboard — `dashSelf()` no longer flips under view-as, so User Notes stays
-      visible and editable, matching a real non-admin's own experience
-      (notes-to-self are personal, never permission-gated). This reverses the
-      v1.14.0 "your own Summary renders exactly as others see it" hide; the trade
-      is that no preview shows your page as others see it any more (check a
-      colleague's Summary for the shape). Suites test-v190/test-v1100 updated.
-- [x] User Notes saves need the `personalNotes` column on `ShopTimeline_Staff`
-      (§5 spec, Robert applies) — before it exists the first save surfaces the
-      normal staff sync-error toast (localStorage copy still holds locally).
-      Gate: column created. (v1.9.0) **Gate FIRED 2026-09-02 (late): column
-      created (Robert).**
-- [ ] The saveState choke point opens WHOLESALE for a viewer once ANY viewer.* grant
-      is on — the UI doors carry the per-kind granularity (a granted viewer who found
-      an ungated door could write past their grant; same workflow-not-security
-      posture as v1.8.0). Gate: a partially-granted viewer actually reaching an
-      ungranted door; fix is kind-tagged diffs at the choke point. (v1.11.0,
-      2026-09-02)
-- [ ] The right-click create menu opens on the PHASES grant only — a milestones- or
-      notes-only viewer adds via the dock buttons/keyboard, not right-click (the
-      menu builders offer phase/subtask creation and aren't filtered per-entry yet).
-      Gate: the first narrow grant actually flipped on for real users. (v1.11.0)
-- [ ] Config is read at sign-in, never re-polled — a flipped grant reaches users on
-      their next reload (deliberate: no extra Graph call per 90s tick, the
-      polling-cost rule). Gate: the lag biting someone in practice. (v1.11.0)
-- [ ] The App Settings entry and page stay reachable while the Viewer preview is ON
-      (isDeveloper isn't isAdmin-gated) — the preview is faithful for permissions,
-      not for developer chrome, same as the Viewer button itself staying visible.
-      Deliberate. (v1.11.0)
-- [ ] The thought-cloud popover commits on CLOSE — a repaint landing mid-edit (a
-      background sync elsewhere) closes it uncommitted. Rare on an idle dashboard.
-      Gate: someone actually loses an entry; fix is commit-per-field. (v1.12.0,
-      2026-09-02)
-- [x] The Listening-to feature needs its four §5 columns — before they exist the
-      popover's first save surfaces the staff sync-error toast (same shape as the
-      personalNotes entry above). Gate: columns created. (v1.12.0) **Gate FIRED
-      2026-09-02 (late): all four created (Robert).**
-- [ ] The Employee Contacts import maps departments by exact name/group match + a
-      small alias table — unrecognized strings (e.g. "Warehouse") are reported and
-      left unset, never guessed. Gate: real HR dept strings that should map; fix is
-      one alias line each. (v1.13.0, 2026-09-02)
-- [ ] Import matching is email-first, exact-name fallback — a person whose HR email
-      and roster email differ AND whose names don't match exactly gets ADDED as a
-      duplicate rather than merged (deliberate: never guess identity, the v1.6.5
-      rule). Gate: it happens; fix is a manual merge then re-run. (v1.13.0)
-- [ ] `status` never drives behavior yet — it reads as information on the People
-      page; the archive/deactivate lifecycle (hide from pickers, deactivation
-      guards) remains the §3 item 27 lifecycle pass. Gate: that pass. (v1.13.0)
-- [ ] Any JS-built `src="`/`href="` string literal in index.html trips the Pages
-      deploy's referenced-assets guard (it greps the whole file as markup) — build
-      such attributes as DOM properties instead (the v1.13.1 lesson). Gate: next
-      time it bites, consider teaching the guard to skip concatenations. (v1.13.1)
-- [ ] The chained tour's combined total assumes the second half lands on a DRAFT
-      (COACH_PP_DRAFT_N) — if a draft ever drops another tour target, the count
-      would run one high. Cosmetic. Gate: someone notices. (v1.14.0, 2026-09-02)
-- [x] ~~"Not me" flips only `dashSelf()`~~ — RESOLVED: folded into the three-state
-      view-as picker (Developer / Admin / Non-admin, `VIEW_AS`). Both previews now
-      hide dev-only chrome AND read your own page as a Summary; the Non-admin view
-      also closes every door. Identity, the DEV badge and the PM prompt still stay the
-      developer's own — it previews a role's reading, not another user's whole session.
-      (v1.14.0 → picker, 2026-09-04)
-- [ ] People-dept consolidation is presentation + people-data canon only — phase
-      departments, the dept lens and task rows keep machine-level ids; a person
-      stored with a legacy machine id heals on their next People-page save, not
-      via a scrub. Gate: legacy ids lingering long enough to bother a filter.
-      (v1.14.0)
-- [ ] The people index drops the Departments column to fit the at-a-glance four —
-      the dept filter and the record pane still carry them. Gate: someone missing
-      it at a glance. (v1.14.0)
-- [x] Nicknames cover the prominent display surfaces (bar chips, lanes, summary
-      chrome, person menus, People page) — deeper spots (meeting sheet groups,
-      conflict warnings, changelog `who`) still print full names. Gate: a nickname
-      user reading one and caring. (v1.15.0, 2026-09-02) **Gate FIRED 2026-09-02
-      (owner: "Nickname needs to display everywhere") — v1.19.2 sweeps every
-      remaining display surface through dispName: Team role checkboxes, crew
-      pickers (modal + popover), tooltip conflict/OOO/roles/Updated-by lines,
-      sidebar role tags, meeting-sheet PM groups, changelog `who`, the signed-in
-      toolbar chip. Stored values, checkbox VALUES and identity joins stay full
-      names; the People page keeps showing both (it's where nicknames are set).
-- [ ] Merge duplicate can't be un-merged automatically (the confirm says so) — the
-      rewrite rides the normal undo stack for THIS session only; the removed row
-      needs re-adding by hand if merged wrong. Gate: a real mis-merge. (v1.15.0)
-- [ ] Merge matches stored strings by EXACT name only — abbreviations of the
-      duplicate ("Seungwoo H.") that canonName can't resolve stay behind; run
-      `scrubLegacyNames(true)` after merging to sweep those. (v1.15.0)
-- [ ] A parked staff save (PENDING_STAFF) retries only via the pill click — no
-      automatic replay, and OTHER staff saves during the park sync their own diffs
-      while the pill stays on "not saved" until the park clears. Gate: the manual
-      retry proving annoying in practice. (v1.15.2, 2026-09-02)
-- [ ] Child-first deletes (v1.18.3) close the orphan window for THIS app's writes
-      only — the shared Lists have other writers (the colleague app, hand edits),
-      so an orphaned task can still arrive from outside. Deliberate: `visTasks`
-      keeps rendering tasks whose project is missing (the `!p||` branch), so an
-      orphan surfaces as an odd dept-lens lane instead of rotting invisibly; the
-      console one-liner in the v1.18.3 milestone record cleans one up. Gate: a
-      second real orphan appearing; fix would be an admin-visible orphan warning
-      at load. (v1.18.3, 2026-09-02)
-- [ ] spSyncClients keeps the old stop-at-first-failure shape — clients have no
-      tristate columns, so the missing-column failure mode doesn't apply there.
-      Gate: a real stranded-clients report; fix is the same per-row pattern.
-      (v1.15.2)
-- [ ] The changelog logs the project save path only (projects/phases/notes/
-      milestones via saveState→syncNow) — staff, client and config edits ride
-      other save paths and are NOT logged. Deliberate: item 26 is the Project
-      Edit change log. Gate: the owner asking who changed the roster. (v1.19.0,
-      2026-09-02)
-- [ ] Changelog reads are on-demand with a 60s cache, never polled (the
-      polling-cost rule) — a teammate's edit shows on the next open, the fetch is
-      one `$top=2000` page, and the surfaces cap at the latest 500 (global) / 300
-      (per-project) rows. Gate: the list outgrowing one page; fix is paging by
-      `at` or an indexed projectId filter. (v1.19.0, 2026-09-02)
-- [ ] A save that lands but whose changelog POST fails loses those rows silently
-      (console only) — deliberate: history must never block or fail a save, and a
-      write retry would double-log on partial failure. Gate: real gaps mattering
-      in practice. (v1.19.0)
-- [ ] The changelog dock has no drag-resize handle — it reuses the edit dock's
-      persisted height; its collapse is per-visit, not persisted. Gate: someone
-      dragging for it. (v1.19.0)
-- [x] Open Issues has no resolved/closed state — ShopTimeline_Feedback carries no
-      status column, so every filed report lists forever. Gate: the list needing
-      triage; fix is a ⚠ additive `status` column spec for Robert. (v1.20.0,
-      2026-09-03) **Gate FIRED same day (owner asked for status on the dev page) —
-      v1.20.1: ⚠ spec delivered (`status`, single-line text, `resolved`/empty on
-      ShopTimeline_Feedback); dev page shows a RESOLVED chip + Mark resolved/Reopen
-      per row (PATCH, rows never deleted); resolved reports leave the public Open
-      Issues list. Until the column exists, the first Mark-resolved errors with a
-      clear toast (the v1.15.2 rule) and everything reads open. Column CREATED by
-      the owner 2026-09-03 — the feature is fully live.**
-- [ ] `othoffice` (Other · Technical Design) is RETIRED, not deleted (owner 09-03:
-      TD is standalone like PM) — hidden from every picker (dept checklist, task
-      modal, inspector dropdown, right-click spare-dept menu) but still renders
-      wherever a legacy row already uses it. Gate: a real othoffice row surviving
-      long enough to bother anyone; fix is reassigning that row's department.
-      (v1.20.1, 2026-09-03)
-- [ ] People/Clients edits stay outside the undo/redo system — they ride their own
-      Save-with-confirm paths (savePeople etc.), not saveState. Gate: someone
-      reaching for ⌘Z on the People page. (v1.20.0)
-- [ ] Holiday name pills render on the two Gantt surfaces + date-header tooltip;
-      the month-calendar view greys holidays but shows no name. Gate: someone
-      missing it there. (v1.20.0)
-- [ ] Draft redo snapshots the whole draft-mutable state (NPV_MANUAL/LINES/EVENTS/
-      TODOS/ORDER) rather than inverting each reverser — a toast-button Undo
-      doesn't feed the redo stack (only ⌘Z does). Gate: someone noticing. (v1.20.0)
-- [x] ~~RELEASE_NOTES is a hand-curated const in index.html~~ — RESOLVED 2026-09-04:
-      generated from `CHANGELOG.md` by `tools/gen-release-notes.js` (`npm run notes`),
-      seeded with the whole history back to the alpha. test-v160 fails CI if the
-      newest entry doesn't name APP_VER or the block drifts from the changelog.
-      (v1.20.0 → generated)
+      (CD_EDIT) — shares L1046's gate (v1.7.0). [L1143]
+- [ ] Reaching the year-wide view is drag-only — the step buttons stop at 3-Mo. Gate:
+      someone asking for a Year button (small: one more `FIT_STEPS` entry + a button)
+      (v1.7.2). [L1146; v1.x item 28]
+- [ ] `scrubLegacyNames` heals only what the current roster resolves — roster *additions*
+      need an owner console re-run on `/preview/` (merges no longer do, since the v1.15.0
+      merge-time rewrite). Gate: each staffing-reconciliation pass; closes for good with
+      D10 (v1.7.2). [L1148; v1.x item 29]
+- [ ] "Name presentation on project-edit / subtask-edit pages" — owner-parked, never
+      specified; likely covered by the v1.15.0/v1.19.2 `dispName` sweep. Needs an owner
+      yes/no, not code. [v1.x item 29]
+- [ ] "Listening to" stays behind the `exp.listening` dev switch — promote or drop is the
+      owner's call (`ShopTimeline_Config` exists, confirmed 2026-09-24, so the switch is
+      shared) (v1.12.0). [v1.x item 30]
+- [ ] Staff flag columns are text `1`/empty (`admin`, `feedbackRecipient`, `driver`,
+      `freelance`, `listeningShow`); a Yes/No column would need the writer switched.
+      **Corrected:** the `viewer.*` grants are rows on `ShopTimeline_Config`, not Staff
+      columns (v1.8.0/v1.11.0). Gate: a save 400ing. [L1151]
+- [ ] A fully read-only viewer can't seed the sample project (any `viewer.*` grant can,
+      since v1.11.0); only reachable on a zero-project site (v1.8.0). [L1154]
+- [ ] Viewer checkbox surfaces hide unchecked entries via CSS `:has()` — very old browsers
+      would show disabled boxes. Cosmetic (v1.8.0). [L1157]
+- [ ] The PM late prompt skips viewers (they couldn't act on it). Gate: owner wanting a
+      read-only nudge (v1.8.0). Revisit with item 11. [L1160]
+- [ ] Feedback mail rides the silent token — a missing `Mail.Send` consent skips the mail
+      without a popup (report still filed, toast says so). Gate: recipients report gaps
+      (v1.8.0). [L1163]
+- [ ] Calendar resize-follow can't extend past the last painted week (no cells below to
+      hover); long extensions belong to the Gantt or the inspector. Gate: someone reaching
+      for it (v1.9.0). [L1166; v1.x item 32]
+- [ ] Cross-week resize feedback is day-granular (repaint per day crossed). Cosmetic
+      (v1.9.0). [L1171]
+- [ ] Demoting a developer's admin checkbox drops the `dev` value; re-checking writes `1`;
+      the owner re-types `dev` on the list. Gate: often enough to annoy; the People editor
+      assigning `dev` needs an owner ruling (v1.9.0). [L1175; v1.x item 32]
+- [ ] The view-as preview keeps your **own** dashboard (owner ruling 2026-09-18 — User
+      Notes stays editable); no preview shows your page as others see it. Side finding: the
+      picker toasts still say "your Summary reads as others see it" — fix on next touch.
+      [L1178]
+- [ ] `saveState` opens wholesale for a viewer once ANY `viewer.*` grant is on; the UI
+      doors carry the per-kind granularity. Gate: a partially-granted viewer reaching an
+      ungranted door; fix is kind-tagged diffs (v1.11.0). Folds into D3. [L1193]
+- [ ] Right-click create menu opens on the PHASES grant only. Gate: the first narrow grant
+      flipped on for real users (v1.11.0). [L1199]
+- [ ] Config is read at sign-in, never re-polled (polling-cost rule) — a flipped grant
+      reaches users on next reload. Gate: the lag biting someone (v1.11.0). [L1203]
+- [ ] Developer pages reachable by direct hash while previewing as Non-admin: `#/settings`
+      (menu entry hidden since v1.18.0, page not) and **`#/reports`** (full reporter
+      name/email — personal data). Whether the remainder is deliberate is unrecorded;
+      one `isDeveloper()` check at the route closes both. [L1206 + new]
+- [ ] The thought-cloud popover commits on close; a render from another save path mid-edit
+      can close it uncommitted (the 90 s poll already skips while a dock field has focus).
+      Rare. Gate: someone loses an entry; fix is commit-per-field (v1.12.0). [L1210]
+- [ ] Employee Contacts import maps departments by exact name/group + a small alias table;
+      unrecognized strings are reported and left unset. Gate: real HR strings that should
+      map — one alias line each (v1.13.0). [L1218]
+- [ ] Import matching is email-first, exact-name fallback — a mismatch ADDS a duplicate
+      rather than merging (never guess identity); remedy is the People-page Merge then
+      re-run (v1.13.0). Feeds D5. [L1222]
+- [ ] Any JS-built `src="`/`href="` string literal in `index.html` trips the Pages deploy's
+      referenced-assets guard — build such attributes as DOM properties (v1.13.1). Gate:
+      next time it bites, teach the guard to skip concatenations. [L1229]
+- [ ] Chained tour's combined step count assumes the second half lands on a draft.
+      Cosmetic (v1.14.0). See item 3. [L1233]
+- [ ] People-dept consolidation is presentation + people-data canon only; phase
+      departments, dept lens and task rows keep machine ids; a legacy id heals on the
+      person's next save. Gate: legacy ids bothering a filter (v1.14.0). [L1242]
+- [ ] The people index drops the Departments column to fit at a glance (the fit is
+      seven-to-eight columns now, so the rationale is weaker). Gate: someone missing it
+      (v1.14.0). [L1247]
+- [ ] Merge duplicate can't be un-merged automatically; parks live in memory only, so a
+      reload mid-park drops the scrub. Gate: a real mis-merge (v1.15.0). [L1260]
+- [ ] Merge matches stored strings by exact name — abbreviations `canonName` can't resolve
+      stay behind; run `scrubLegacyNames(true)` after merging. Root fix is D10 (v1.15.0).
+      [L1263]
+- [ ] A parked staff save (`PENDING_STAFF`) retries only via the pill click. Gate: the
+      manual retry proving annoying (v1.15.2). [L1266]
+- [ ] Child-first deletes close the orphan window for THIS app's writes only; the shared
+      lists have other writers, so an orphan can still arrive and surfaces as an odd
+      dept-lens lane. Gate: a second real orphan; fix is a load-time admin warning
+      (v1.18.3). [L1270]
+- [ ] `spSyncClients` keeps the stop-at-first-failure shape (clients have no tristate
+      columns). Gate: a real stranded-clients report (v1.15.2). [L1278]
+- [ ] The change log logs the project save path only — staff, client and config edits are
+      not logged. Gate: the owner asking who changed the roster (v1.19.0). Documented in
+      item 20. [L1282]
+- [ ] Change log reads: on-demand with a 60 s cache, **reworded** — the fetch already pages
+      (`gpageAll`); the real ceiling is that every cache miss reads the *entire* list (cost
+      grows with it) and the surfaces truncate at 500 / 300 with no server-side filter. Fix:
+      `$filter` on `projectId` / `at`, or a date window. Gate: the list's size making opens
+      slow (v1.19.0). Feeds D12. [L1287]
+- [ ] A save that lands but whose changelog POST fails loses those rows silently (console
+      only) — history must never block a save. Gate: real gaps mattering (v1.19.0). [L1292]
+- [ ] The change log dock has no drag-resize handle; collapse is per-visit. Gate: someone
+      dragging for it (v1.19.0). [L1296]
+- [ ] `othoffice` (Other · Technical Design) is RETIRED, not deleted — hidden from pickers,
+      still renders on legacy rows. Close by reassigning any surviving row, then deleting
+      the `DEPTS` entry (v1.20.1). [L1309]
+- [ ] People/Clients/Settings edits stay outside undo/redo (own Save-with-confirm paths);
+      project undo is in-memory, 20 steps, lost on reload. Gate: someone reaching for ⌘Z on
+      the People page (v1.20.0). Documented in item 20. [L1315]
+- [ ] Holiday name pills are absent from the month-calendar view (greys, no name); ~3
+      lines in the day loop. Gate: someone missing it (v1.20.0). [L1318]
+- [ ] Draft redo snapshots the whole draft-mutable state; a toast-button Undo doesn't feed
+      the redo stack (⌘Z does). Gate: someone noticing (v1.20.0). [L1321]
+- [ ] Right-clicking the Milestones/Notes gutter rows gives the date-scoped menu, never a
+      department menu (v1.20.0 — unledgered until now). Gate: someone expecting one. [new]
 
-**Deliberate design ceilings — no action planned, revisit only on real complaints:**
-12-slot palette repeats at 13+ visible projects (T2); quiet re-selection after a
-committed project-page resize/move (T4); sidebar names >~26 chars truncate at default
-width (T5); off-screen edge chips don't dim with the search filter (T6); bottom-dock
-column minimum widths are fixed (U2/E1); In-Design and In-Fabrication bars both
-full-strength on purpose, the pill word separates them (U8); the default view parks
-today left-of-center — on first load and on every arrival at the timeline via routing
-(REV101) — while only the Today button and `T` center it (B3b/REV76).
-Calendar level-0 strips (v1.21.0) are ~9px hit targets, under the §9 24px line — the
-pad can't grow without stealing the neighbouring strip's clicks; one click expands to a
-full-size band. Calendar detail levels and marker-text state reset per project visit
-(not persisted) — persist per browser like `NPV_OPEN` only if someone asks.
+### 7.4 New entries from the 2026-09-24 audit
+
+- [ ] Weekly schedule is one range per person — no split shifts, no per-day hours; upgrade
+      path is a per-day `hours` map (v1.22.0 record). First ceiling a TimeClock+ hours
+      integration hits (D9, D13).
+- [ ] Meeting Sheet progress % and the project-page "Lead time" span first start → last
+      end, gaps included. Neither counts a gap as work; relabel or compute from blocks if
+      the brief's "gaps never read as work" rule is applied literally (item 8).
+- [ ] Employee Contacts import transports every column (no `$select`); phone fallback
+      chain Primary → Phone → Mobile — item 9.
+- [ ] Export to Excel of the lists yields JSON-string columns (departments, time off,
+      schedule, assignee arrays, ticketNodes) and `appId` cross-references — not a readable
+      fallback dataset without a flatten step (item 15).
+- [ ] Graceful degradation: a missing or unreachable `ShopTimeline_Staff`/`Tasks2` keeps
+      edits browser-local and resumes persistence silently later — fine for an optional
+      roster, a data-integrity risk once Staff is the personnel master (Phase 9 design).
+- [ ] Polling: every open tab re-reads every list every 90 s — D12.
+- [ ] Saved views are browser-local — item 25 (per user, Phase 7); shared and role-based
+      views item 30 / D3 (Phase 9).
+- [ ] No release tags, no written rollback procedure, repo under a user account — items
+      16, 24.
+- [ ] Shop-terminal account type — D14. [v1.x §2]
+- [ ] Docs drift (ARCHITECTURE 5 vs 9 lists; SETUP 2 vs 4 scopes; CLAUDE.md line count;
+      tests/README suite count) — item 21.
+
+### 7.5 Deliberate design ceilings — no action planned, revisit only on real complaints
+
+12-slot palette repeats at 13+ visible projects (T2) · quiet re-selection after a committed
+project-page resize/move (T4) · sidebar names >~26 chars truncate at default width, the
+180–480 px drag is the escape hatch (T5) · off-screen edge chips don't dim with the search
+filter (T6) · bottom-dock column minimum widths are fixed (U2/E1) · In-Design and
+In-Fabrication bars both full-strength on purpose, the pill word separates them (U8) · the
+default view parks today left-of-center on first load and every routed arrival, only the
+Today button and `T` center it (B3b/REV101) · calendar level-0 strips are ~9 px hit targets
+under the 24 px line, one click expands (v1.21.0) · calendar detail levels and marker-text
+state reset per project visit, persist per browser like `NPV_OPEN` only if asked (v1.21.0).
+
+## 8. Documentation upkeep
+
+- **Standing rule:** keep `docs/ARCHITECTURE.md`, `docs/SETUP.md` and `CLAUDE.md` in sync
+  as the app evolves (item 21 is the catch-up); every milestone gets a record in
+  `docs/Milestones/Phase-7-Pilot-Readiness/`; every `APP_VER` bump gets a `CHANGELOG.md`
+  line.
+- **Standing rule:** `reference/Handoff-Notes.md` and `reference/Project-History.md` are
+  history — re-verify their world-state claims before quoting them.
+- **Standing rule:** the retired backlogs (`docs/Archive/TODO-v1-Archive.md`,
+  `TODO-v1.x-Archive.md`) are frozen; a ledger entry's later decision is recorded here, in
+  §7, with the archive line number.
+- 2026-09-24 (evening): the owner's rulings folded in (D2 lifted, D3 ruled in principle,
+  Hubert backup maintainer, Config exists, People page current); items 25–30 added and
+  the contingency map written into §2; the condensed brief added as
+  `reference/2026-09-22-Shop-Timeline-Brief-Condensed.md`; `CLAUDE.md`, `README.md`,
+  `CONTRIBUTING.md`, `SETUP.md`, `ARCHITECTURE.md` colleague-app rule wording updated.
+- 2026-09-24: v1.x backlog retired and audited; this file created; Milestones Phase 6
+  closed at v1.23.0, Phase 7 opened
+  (`docs/Milestones/Phase-7-Pilot-Readiness/2026-09-24-backlog-retired-phase-7-kickoff.md`).
+  Same day, earlier: Milestones regrouped into numbered phase folders; Handoff-Notes and
+  Project-History moved to `reference/`; the Master Data brief and Onboarding-Fork to
+  `docs/Archive/`.
 
 ---
 
 ### Legend
 
-- ⚠ Touches shared SharePoint schema or Entra/auth config. **Not a gate (owner,
-  2026-09-01):** deliver Robert the exact spec and he applies the list edit;
-  additive-only and colleague-app awareness still apply. Entra/auth changes still
-  need explicit instruction (CLAUDE.md).
-- (Obj N) = the owner's objective numbering from the 2026-08-28 v2 brief.
-- (08-31 obj N) = the owner's numbering from the 2026-08-31 brief (a separate list —
-  the two briefs' numbers do not correspond).
-- (09-01 handoff) = the 2026-09-01 "Master Data UX Refactor" handoff (unnumbered —
-  a single scoped objective, §3 item 27).
-- (09-02 item N) = the owner's numbering from the 2026-09-02 nine-item morning brief
-  (§3 items 33–36; its item 9 revised §3 item 30's Listening-to spec).
+- ⚠ Touches shared SharePoint schema or Entra/auth config. Not a gate: deliver Robert the
+  exact spec and he applies the list edit; destructive changes get a milestone record (D2 lifted 2026-09-24); Entra changes
+  need explicit instruction (`CLAUDE.md`).
+- **[brief §N]** — the Project Director's September 2026 brief, condensed and annotated by
+  Robert (2026-09-22); section numbers match the original 21-page document.
+- **[vision]** — the owner's 2026-09-24 statement of the portal/suite direction.
+- **[LNNNN]** — line in `docs/Archive/TODO-v1.x-Archive.md` where a carried ledger entry
+  came from; **v1.x item N** — its §3 item number there.
+- **D1–D14** — §4 decisions; **item N** — §3 work items in this file.

@@ -2,7 +2,7 @@
 
 The working configuration for the deployed app. If sign-in ever breaks after a move,
 rename, or domain change, this is the first place to check. **All of these values are
-shared with a separately maintained colleague app** — do not change the app registration,
+tied to the company's Entra app registration** — do not change the app registration,
 client ID, or tenant ID; only add/adjust redirect URIs with care (see `CLAUDE.md`).
 
 > Values here are public identifiers (client ID, tenant ID, list names). They are **not**
