@@ -290,7 +290,9 @@ app's part, where any, is listed.
       §12, §7.2]
 - [ ] **16. Backup maintainer + rollback procedure. Backup maintainer: Hubert (owner,
       2026-09-24, "for now").** Remaining: give him collaborator access to the repository
-      (the `sandbox` branch flow exists — `docs/Archive/Onboarding-Fork.md`), Pages, the
+      (the `sandbox` branch flow exists — `docs/Archive/Onboarding-Fork.md`; **he has no
+      GitHub account yet** (owner, 2026-09-25) — one is the first step, and it also opens
+      the private tracker of item 31 to him), Pages, the
       Entra app registration (at least redirect-URI rights) and the recovery docs
       (`SETUP.md`, `CONTRIBUTING.md`, `reference/Handoff-Notes.md`); write the one-paragraph
       rollback (git revert on `main` → Actions redeploys) and start tagging releases
@@ -383,7 +385,8 @@ app's part, where any, is listed.
       registration, site grant, secrets, `ghIssue` column); the first real run filed
       tracker #1–#12 from 13 rows, carried in below as items 32–40; record
       `docs/Milestones/Phase-7-Pilot-Readiness/2026-09-25-feedback-github-bridge.md`.
-      Still owed: Hubert's GitHub username (collaborator). Required chain: user submits → mailed to the
+      Hubert has no GitHub account (owner, 2026-09-25) — tracker access for him is
+      skipped; he sees reports through the app and the FB mail. Required chain: user submits → mailed to the
       `feedbackRecipient`s (both exist today) → a GitHub issue that Claude can read and
       act on, screenshots included → folded into this file on request (`gh issue list`).
       The app cannot file issues itself: no token can live in a public browser page. Two
