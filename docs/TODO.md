@@ -20,8 +20,9 @@ Two documents set this phase and are the source for most lines below:
   permission model, and one visual language. Cited as **[vision]**.
 
 **Nothing in this file is started except item 31** — the feedback → GitHub ticket bridge,
-owner go-ahead 2026-09-24, built outside the app in a private tracker repository. §3 is a
-proposed build list, §4 the decisions it depends on. Both are to be agreed with Hubert, the Project Director and the key users who
+running since 2026-09-25 outside the app in a private tracker repository; user reports
+arrive there and are carried in as items 32–40. §3 is a proposed build list, §4 the
+decisions it depends on. Both are to be agreed with Hubert, the Project Director and the key users who
 administer specific views before any code lands. Development is no longer solitary:
 milestones and this plan are presented as the phase runs.
 
@@ -41,7 +42,9 @@ milestones and this plan are presented as the phase runs.
 - Every milestone gets a record in `docs/Milestones/Phase-7-Pilot-Readiness/`; every
   deliberate skip gets a §7 line with its gate.
 
-Last reviewed: 2026-09-24 (evening) — the owner's rulings folded in: D2 lifted (the
+Last reviewed: 2026-09-25 — item 31 running; the twelve user reports it filed are carried
+in as items 32–40 (one folded into item 3, one closed as done). Before that, 2026-09-24
+(evening) — the owner's rulings folded in: D2 lifted (the
 colleague app is no constraint), D3 answered (tiered lists, one fact in one place),
 Hubert is backup maintainer, `ShopTimeline_Config` exists, the People page is current,
 the brief is in `reference/`. The five fact-check findings the owner flagged are placed
@@ -171,7 +174,9 @@ Numbering restarts at 1 for this file; v1.x item numbers are cited as "v1.x item
       per-person seen flag (⚠ one Staff column) or a "don't show again" on the card. The
       owner ruled "leave it" on 2026-09-02; the brief is the complaint that ruling's gate
       named (§7 L1001). Also: the chained tour's step count assumes the second half lands on
-      a draft (§7 L1233). [brief §5.1, §9 P0 "tour fix"]
+      a draft (§7 L1233). **Repro detail from the tracker (#7, 2026-09-24):** the
+      walkthrough loops between steps 6 and 7 of 14; browser not recorded — test Safari,
+      Chrome, Edge and Firefox. [brief §5.1, §9 P0 "tour fix"; tracker #7]
 - [ ] **4. Time-off notes private.** Notes typed on an Out-of-office range render to every
       signed-in user at three sites (People record, dashboard, person panel). Hide them from
       non-admins, or drop the field from non-admin views. The brief's suggested P0 addition.
@@ -373,12 +378,12 @@ app's part, where any, is listed.
 
 - [ ] **31. One GitHub issue per feedback report, screenshots included — a poller in a
       private tracker repository. PRIORITY (owner, 2026-09-24: "whatever is easiest to
-      implement that is automated").** **STARTED 2026-09-24 (owner go-ahead):**
-      `221twoseven/Project-Scheduler-issues` created (private), poller + hourly workflow +
-      README pushed; waiting on the owner's one-time setup (Entra registration, site grant,
-      two Actions secrets, the `ghIssue` column — steps in that README) and Hubert's GitHub
-      username for collaborator access; the first real run back-fills the open reports,
-      which are then carried into this file. Required chain: user submits → mailed to the
+      implement that is automated").** **RUNNING since 2026-09-25:**
+      `221twoseven/Project-Scheduler-issues` (private); the owner's setup is done (Entra
+      registration, site grant, secrets, `ghIssue` column); the first real run filed
+      tracker #1–#12 from 13 rows, carried in below as items 32–40; record
+      `docs/Milestones/Phase-7-Pilot-Readiness/2026-09-25-feedback-github-bridge.md`.
+      Still owed: Hubert's GitHub username (collaborator). Required chain: user submits → mailed to the
       `feedbackRecipient`s (both exist today) → a GitHub issue that Claude can read and
       act on, screenshots included → folded into this file on request (`gh issue list`).
       The app cannot file issues itself: no token can live in a public browser page. Two
@@ -412,6 +417,69 @@ app's part, where any, is listed.
       available on GitHub Free (Pages is public-only there). Rollback: disable the
       workflow and delete the secret; the app and the list are untouched apart from the
       additive column. [owner ask 2026-09-24; brief §11 maintenance]
+
+### Reported by users — carried from the tracker (2026-09-25)
+
+Every report filed in the app is an issue in the private tracker
+(`221twoseven/Project-Scheduler-issues`, item 31); **[tracker #N]** is the citation and
+reporter names stay there. Twelve reports were open on 2026-09-25: #7 is folded into item
+3, #11 was the bridge itself (closed as done), the rest are the items below — untriaged,
+in filing order, for the owner to place in the ladder.
+
+- [ ] **32. Shipping bar missing; milestones assigned to Shipping don't land.** A user
+      adds Shipping milestones, sees no Shipping bar, and milestones assigned to the
+      shipping phase don't attach to it. `shipping` exists as an end department since
+      v1.20.6 (`DEPTS`, `grp:'install'`), so step one is a repro on the real project: is
+      Shipping ticked in that project's departments, does the block exist without dates,
+      and where does a milestone go when its phase has no bar. Bug, P0 for the pilot.
+      [tracker #1]
+- [ ] **33. Today button: left edge at the start of the current week.** Today centres
+      (`scrollToToday` → `centerDate`); the ask is to park the current week's first day at
+      the left edge of the canvas instead. Small: one alignment change, plus the `T` key.
+      Challenges the §7.5 "only Today and `T` centre it" ceiling (B3b/REV101) — owner's
+      call which behaviour wins. [tracker #2]
+- [ ] **34. Name a repeat block ("possible mock-up days").** A second Fabrication block
+      can only read "Main Shop Fab"; the Excel calendar names the sub-range. The capability
+      exists — phases carry a custom `label` (inspector field; shown in sidebar rows and
+      bar labels since v1.20.9) — and the reporter did not find it. Discoverability, rides
+      item 7; also check the calendar (§7 L1092: the calendar prefix is the department
+      name, not the label) and the project page. [tracker #3, screenshot in the issue]
+- [ ] **35. Phase labels pinned at the left edge while scrolling.** The text inside a bar
+      ("Technical Design", "Main Shop Fab") scrolls off with the bar; keep it visible at
+      the left edge of the canvas, next to the sidebar, like a sticky caption. Design item
+      (`Design-Language.md` bar labels): `position: sticky` inside the bar, or a label
+      repaint on scroll. [tracker #4, screenshot in the issue]
+- [ ] **36. Calendar-based project entry.** Drag across a date range on the calendar to
+      create a phase or milestone, then fill in details in the bottom panel — a simpler
+      path than building in the Gantt. The calendar supports live drag-resize and move of
+      existing bars (v1.9.0–v1.11.0) but not creation. Larger feature; after the pilot
+      unless the owner ranks it. [tracker #5]
+- [ ] **37. Completed projects: filter and indicator.** Completed jobs stay in the main
+      view with no clear sign in the sidebar. Ask: move them off the active view, or an
+      Active / Completed filter (they must stay reachable for revisions, closeout,
+      billing), and if they stay listed, a clear "Completed" marker — a label under the
+      name, a muted row, or strike-through; not red. The status checklist can already
+      hide Complete; the missing pieces are the default and the marker. Ties to items
+      10–11 (Complete ≠ closed out). [tracker #6]
+- [ ] **38. PDF export of every view, Letter or Tabloid.** Gantt, Calendar and List
+      (Meeting Sheet) exported to PDF at Letter or Tabloid, both selectable. Print today
+      covers the Meeting Sheet and print styles; the route is browser print-to-PDF with
+      `@page` sizes per view and a size choice in the Print menu. [tracker #8, #9]
+- [ ] **39. Open Issues page truncates to 80 characters — add a Subject.** The row's
+      Title is the first 80 characters of the description (`sendFeedback`). Add a
+      single-line **Subject** field to the form and store it as `Title` (no new column);
+      the Open Issues page shows the subject and the full description stays on the report.
+      The reporter also asks that the list be public — it is visible to every signed-in
+      user today; confirm whether "public" means "not truncated". [tracker #10]
+- [ ] **40. Custom domain for the app.** Ask: `twoseven.net/timeline`, password
+      protected. Facts: GitHub Pages custom domains are host-level — `timeline.twoseven.net`
+      (a CNAME to `221twoseven.github.io`) works; a *path* under `twoseven.net` cannot be
+      served by Pages, only redirected or proxied by whatever hosts twoseven.net.
+      "Password protected" is already true in the only way that matters — Microsoft
+      sign-in gates every page; Pages adds no password layer. A new origin needs its
+      redirect URIs in Entra for `/`, `/preview/` and `/sandbox/` (explicit instruction,
+      `CLAUDE.md`) and `SETUP.md` updated. Owner decision: subdomain, or a redirect from
+      the path. [tracker #12]
 
 ### Queued for Phase 8 — contingent (see the map in §2)
 
@@ -913,7 +981,7 @@ project-page resize/move (T4) · sidebar names >~26 chars truncate at default wi
 filter (T6) · bottom-dock column minimum widths are fixed (U2/E1) · In-Design and
 In-Fabrication bars both full-strength on purpose, the pill word separates them (U8) · the
 default view parks today left-of-center on first load and every routed arrival, only the
-Today button and `T` center it (B3b/REV101) · calendar level-0 strips are ~9 px hit targets
+Today button and `T` center it (B3b/REV101 — challenged by tracker #2, item 33) · calendar level-0 strips are ~9 px hit targets
 under the 24 px line, one click expands (v1.21.0) · calendar detail levels and marker-text
 state reset per project visit, persist per browser like `NPV_OPEN` only if asked (v1.21.0).
 
@@ -928,6 +996,10 @@ state reset per project visit, persist per browser like `NPV_OPEN` only if asked
 - **Standing rule:** the retired backlogs (`docs/Archive/TODO-v1-Archive.md`,
   `TODO-v1.x-Archive.md`) are frozen; a ledger entry's later decision is recorded here, in
   §7, with the archive line number.
+- 2026-09-25: the bridge ran (item 31 RUNNING) — tracker #1–#12 filed from the 13 rows
+  on `ShopTimeline_Feedback`; items 32–40 carried in, #7 folded into item 3, #11 closed
+  as done; the §7.5 Today-centres ceiling marked as challenged. Record:
+  `docs/Milestones/Phase-7-Pilot-Readiness/2026-09-25-feedback-github-bridge.md`.
 - 2026-09-24 (evening, later): item 31 added — one GitHub issue per feedback report,
   screenshots included, through a poller in a private tracker repository (owner ask,
   priority). The reports open on `ShopTimeline_Feedback` are carried in once the poller
