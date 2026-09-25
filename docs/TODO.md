@@ -406,10 +406,16 @@ app's part, where any, is listed.
       upload folder, commits it under `screenshots/`, opens the issue (title = the row's
       Title; label `bug` / `feature`; body = reporter, app version, description, the
       screenshot inline, a link to the list item) and writes the issue URL back to ⚠
-      `ghIssue` on the row. Reverse direction in the same run: a row whose issue is closed
-      gets `status = resolved`, so the Open Issues page follows the ticket without a second
-      click. Open rows are back-filled on the first run; resolved history stays on the
-      list. Commits in this repository close tickets with
+      `ghIssue` on the row. **Status follows GitHub (rule set 2026-09-25 after the first
+      day's runs):** a closed ticket marks the row `resolved` — it moves to the Resolved
+      column of the Open Issues page — and a reopened ticket clears it; the poller runs on
+      every close/reopen event (about a minute), hourly on a best-effort schedule (GitHub
+      fired the cron three times in fifteen hours on 2026-09-25) and on demand. The
+      two-way rule of the first day (a row resolved in the app closed its ticket) was
+      dropped: it re-closed reopened tickets. Consequence: the developer page's Mark
+      resolved / Reopen buttons are overridden by the next run once a report has a ticket
+      — ledgered in §7.4, remove them with item 39's touch of that page. Open rows were
+      back-filled on the first run; resolved history stays on the list. Commits in this repository close tickets with
       `Fixes 221twoseven/Project-Scheduler-issues#N`. **Owner setup, one time:** create the
       private repository (Hubert as collaborator); create the Entra registration + secret
       and grant it on the site (exact steps delivered with the build; a *new* registration,
@@ -427,7 +433,9 @@ Every report filed in the app is an issue in the private tracker
 (`221twoseven/Project-Scheduler-issues`, item 31); **[tracker #N]** is the citation and
 reporter names stay there. Twelve reports were open on 2026-09-25: #7 is folded into item
 3, #11 was the bridge itself (closed as done), the rest are the items below — untriaged,
-in filing order, for the owner to place in the ladder.
+in filing order, for the owner to place in the ladder. Two more arrived that afternoon:
+#13 is item 41; #14 ("GitHub resolutions must reflect in the app") is the status rule in
+item 31, closed as done.
 
 - [ ] **32. Shipping bar missing; milestones assigned to Shipping don't land.** A user
       adds Shipping milestones, sees no Shipping bar, and milestones assigned to the
@@ -483,6 +491,11 @@ in filing order, for the owner to place in the ladder.
       redirect URIs in Entra for `/`, `/preview/` and `/sandbox/` (explicit instruction,
       `CLAUDE.md`) and `SETUP.md` updated. Owner decision: subdomain, or a redirect from
       the path. [tracker #12]
+- [ ] **41. People page: column widths.** Columns are hard to align: make them fit their
+      text without spill-over or misalignment, let the table sit inside the page column
+      instead of spanning the full container, and make a width edit change only that
+      column (today a resize shifts the neighbours). Company Data table CSS
+      (`table-layout`, per-column widths). [tracker #13]
 
 ### Queued for Phase 8 — contingent (see the map in §2)
 
@@ -975,6 +988,10 @@ Line numbers in brackets are the entry's place in `docs/Archive/TODO-v1.x-Archiv
 - [ ] Shop-terminal account type — D14. [v1.x §2]
 - [ ] Docs drift (ARCHITECTURE 5 vs 9 lists; SETUP 2 vs 4 scopes; CLAUDE.md line count;
       tests/README suite count) — item 21.
+- [ ] Developer Bug Reports page: the Mark resolved / Reopen buttons are overridden by
+      the tracker poller once a report has a `ghIssue` (GitHub is the status truth,
+      2026-09-25). Remove or relabel them on the next touch of that page (item 39); the
+      `fbSetStatus` path stays for rows without a ticket. [item 31]
 
 ### 7.5 Deliberate design ceilings — no action planned, revisit only on real complaints
 
@@ -999,6 +1016,10 @@ state reset per project visit, persist per browser like `NPV_OPEN` only if asked
 - **Standing rule:** the retired backlogs (`docs/Archive/TODO-v1-Archive.md`,
   `TODO-v1.x-Archive.md`) are frozen; a ledger entry's later decision is recorded here, in
   §7, with the archive line number.
+- 2026-09-25 (later): status rule set — GitHub is the truth once a report has a ticket;
+  the poller runs on close/reopen events; tracker #13 → item 41, #14 closed as done;
+  PR #52 merged (Hubert has no GitHub account). The bridge's dev-page buttons ledgered
+  in §7.4.
 - 2026-09-25: the bridge ran (item 31 RUNNING) — tracker #1–#12 filed from the 13 rows
   on `ShopTimeline_Feedback`; items 32–40 carried in, #7 folded into item 3, #11 closed
   as done; the §7.5 Today-centres ceiling marked as challenged. Record:
