@@ -2,6 +2,13 @@
 
 **Version 1.0 · September 27, 2026 · describes `index.html` as shipped at v1.23.0**
 
+> **Status (2026-09-27, later the same day):** this is the **as-built inventory**, not the
+> direction. The direction is [`TwoSeven-Application-Style-Guide.md`](TwoSeven-Application-Style-Guide.md);
+> the gap between the two is in [`Style-Transition-Review.md`](Style-Transition-Review.md).
+> §1.1's proposed token names are superseded by the `--ts-*` set, and §10.3's per-app hue
+> is **withdrawn** (the target guide assigns no identity colour per app). Use this file to
+> find every value that has to migrate.
+
 The **values and recipes** of the Timeline visual system, taken from the stylesheet and
 the script constants as they run today — not as any earlier plan described them. Where
 the code and `Design-Language.md` disagree, this file reports the code and says so.
