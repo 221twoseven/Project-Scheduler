@@ -6,6 +6,8 @@ A lightweight design system for the Project Scheduler. Written to be implementab
 
 How to use it: when a change touches appearance or interaction, check the relevant section. If the change contradicts this doc, either follow the doc or update the doc in the same PR — never silently diverge.
 
+**Companion:** [`Style-Guide.md`](Style-Guide.md) (2026-09-27) holds the tokens, hex values, sizes and component CSS *as shipped*, plus the sibling-app/`common.css` brief for Phase 9. This file keeps the rules and rulings; where the two disagree on a value, the Style Guide reports the code.
+
 ---
 
 ## 1. Voice & feel

@@ -1016,6 +1016,12 @@ state reset per project visit, persist per browser like `NPV_OPEN` only if asked
 - **Standing rule:** the retired backlogs (`docs/Archive/TODO-v1-Archive.md`,
   `TODO-v1.x-Archive.md`) are frozen; a ledger entry's later decision is recorded here, in
   §7, with the archive line number.
+- 2026-09-27: `docs/Style-Guide.md` written (owner ask) — the tokens, colours, type,
+  spacing and component recipes as shipped at v1.23.0, read from the stylesheet and script
+  constants, plus §10: the sibling-app / `common.css` brief for Phase 9 with a proposed
+  three-slot per-app identity (eyebrow, mark, `--app` hue). §10 is a proposal pending D4;
+  no app code changed. `CLAUDE.md` core files and `Design-Language.md` point to it. Record:
+  `docs/Milestones/Phase-7-Pilot-Readiness/2026-09-27-style-guide.md`.
 - 2026-09-25 (later): status rule set — GitHub is the truth once a report has a ticket;
   the poller runs on close/reopen events; tracker #13 → item 41, #14 closed as done;
   PR #52 merged (Hubert has no GitHub account). The bridge's dev-page buttons ledgered

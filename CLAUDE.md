@@ -21,6 +21,10 @@ Project rules and context for working in this repository. Read this before makin
 - **`docs/Design-Language.md` — the design system. Read it before any change that
   touches appearance or interaction.** If a change contradicts it, either follow the
   doc or update the doc in the same PR — never silently diverge.
+- **`docs/Style-Guide.md` — the tokens, values and component recipes as shipped** (the
+  *what* to Design-Language's *why*), and the spec a sibling app or the future shared
+  `common.css` copies from. A PR that adds a token, a recurring colour, or a component
+  style updates its tables in the same PR.
 - **`docs/TODO.md` — the working backlog (Phase 7: pilot readiness, toward v2.0.0).**
   North star, roadmap, the proposed build list, the open design decisions (§4), the
   material still to gather, and the deferred/skipped ledger (§7). Nothing in it is
