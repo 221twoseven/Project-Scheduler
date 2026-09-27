@@ -1,6 +1,13 @@
 # Style transition review — Timeline vs. the TwoSeven Application Style Guide
 
-**2026-09-27 · review only, nothing implemented · target: `TwoSeven-Application-Style-Guide.md` v1.0 · baseline: `Design-Language.md` v1.0 + `Style-Guide.md` (as shipped, v1.23.0)**
+**2026-09-27 · review only, nothing implemented · written against `TwoSeven-Application-Style-Guide.md` v1.0 · baseline: `Design-Language.md` v1.0 + `Style-Guide.md` (as shipped, v1.23.0)**
+
+> **Superseded in part by v1.1 (same day).** The guide's v1.1 revision took this review as
+> input and its §12 D deliberately narrows several recommendations below: protective amber
+> toggles stay amber, "Done" stays, project-status chips keep their colours in every view,
+> the existing floating shadow and `#C9D4E3` hairline stay, dialogs are not forced to
+> 440px, and REV61 is retained for a style-only pass. Read §3–§6 here as the measured
+> inventory of differences; take the rulings from v1.1 §12 and the sequence from v1.1 §13.
 
 The owner's direction (2026-09-27): retire the "not a SaaS dashboard / everything feels
 drafted" mentality and move the UI toward conventional enterprise application styling,
