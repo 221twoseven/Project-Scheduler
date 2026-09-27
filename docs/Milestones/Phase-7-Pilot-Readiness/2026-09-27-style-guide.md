@@ -1,7 +1,7 @@
 # 2026-09-27 — Style Guide: the visual system written down as shipped
 
 **Date:** 2026-09-27 · **App version:** unchanged (v1.23.0 — docs only) · **File:**
-`docs/Style-Guide.md`
+`design/Style-Guide.md`
 
 ## What changed
 
@@ -10,7 +10,7 @@ fonts, colours, spacing and everything else a sibling app would need — to star
 app ecosystem the 2026-09-24 vision describes (portal + Client Manager, Personnel
 Manager, Design Resources Manager; `TODO.md` §1–2, Phase 9).
 
-`docs/Design-Language.md` already held the *rules* and owner rulings, but several of its
+`design/Design-Language.md` already held the *rules* and owner rulings, but several of its
 values were written before the code moved on (the toolbar's near-black bar, the
 pre-3.5 palette slots) and it never listed the recurring literals, shadows, z-index
 ladder, breakpoints or component CSS. The new file is the **values-and-recipes**

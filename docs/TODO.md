@@ -1016,7 +1016,12 @@ state reset per project visit, persist per browser like `NPV_OPEN` only if asked
 - **Standing rule:** the retired backlogs (`docs/Archive/TODO-v1-Archive.md`,
   `TODO-v1.x-Archive.md`) are frozen; a ledger entry's later decision is recorded here, in
   §7, with the archive line number.
-- 2026-09-27: `docs/Style-Guide.md` written (owner ask) — the tokens, colours, type,
+- 2026-09-27 (later): design files get their own root folder `design/` (owner ask) —
+  `Design-Language.md`, `Style-Guide.md` and `fonts/` moved there; `index.html` loads the
+  wordmark font from `design/fonts/`, the Pages allowlist lists the new path (legacy line
+  kept until main and sandbox carry the move), `test-v171` follows. Future design docs
+  land in `design/`, not `docs/`.
+- 2026-09-27: `design/Style-Guide.md` written (owner ask) — the tokens, colours, type,
   spacing and component recipes as shipped at v1.23.0, read from the stylesheet and script
   constants, plus §10: the sibling-app / `common.css` brief for Phase 9 with a proposed
   three-slot per-app identity (eyebrow, mark, `--app` hue). §10 is a proposal pending D4;

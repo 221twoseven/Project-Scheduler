@@ -333,10 +333,10 @@ functions; do not hand-pick a text colour for a fill.
 |---|---|---|
 | `--sans` | **Bahnschrift** (Windows, via `local()`), then Segoe UI → system sans | Everything prose: labels, controls, menus, body |
 | `--mono` | ui-monospace → **Cascadia Mono** → Segoe UI Mono → Consolas → Roboto Mono | Codes, dates, numbers, day counts, keys, version, pills, sync pill |
-| **Brauer Neue Std Bold** | `fonts/BrNStdBd.otf`, weight 800, `font-display:swap` — the one committed font file | **The wordmark only** (`TWOSEVEN INC.`) |
+| **Brauer Neue Std Bold** | `design/fonts/BrNStdBd.otf`, weight 800, `font-display:swap` — the one committed font file | **The wordmark only** (`TWOSEVEN INC.`) |
 
 ```css
-@font-face{font-family:'Brauer Neue';src:url('fonts/BrNStdBd.otf') format('opentype');font-weight:800;font-style:normal;font-display:swap}
+@font-face{font-family:'Brauer Neue';src:url('design/fonts/BrNStdBd.otf') format('opentype');font-weight:800;font-style:normal;font-display:swap}
 .tb-co{font-family:'Brauer Neue',var(--sans);font-size:13px;font-weight:800;letter-spacing:.24em;color:#fff}
 ```
 

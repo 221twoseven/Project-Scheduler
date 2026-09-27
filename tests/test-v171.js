@@ -24,12 +24,12 @@ const sec=t=>console.log('\n'+t);
 
 sec('fonts (src + deploy allowlist)');
 ok('Brauer Neue @font-face points at the committed bold file',
-   /@font-face\{font-family:'Brauer Neue';src:url\('fonts\/BrNStdBd\.otf'\)/.test(src));
+   /@font-face\{font-family:'Brauer Neue';src:url\('design\/fonts\/BrNStdBd\.otf'\)/.test(src));
 ok('the TWOSEVEN title asks for Brauer Neue first', /\.tb-co\{font-family:'Brauer Neue',var\(--sans\)/.test(src));
 ok('Bahnschrift leads the app-wide stack via local()', /--sans:Bahnschrift,'Segoe UI'/.test(src));
 const yml=fs.readFileSync('.github/workflows/deploy-pages.yml','utf8');
 ok('the font is on all three deploy sparse-checkout lists',
-   (yml.match(/fonts\/BrNStdBd\.otf/g)||[]).length===3);
+   (yml.match(/design\/fonts\/BrNStdBd\.otf/g)||[]).length===3);
 
 const staff=[
   {appId:'s1',Title:'Nick',depts:JSON.stringify(['fab']),ooo:'[]',email:'',phone:'212-555-0100',role:'Lead Fabricator'},

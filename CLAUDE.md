@@ -18,10 +18,10 @@ Project rules and context for working in this repository. Read this before makin
 - **`index.html` — the company-developed application. This is the primary
   implementation file.** All company feature work happens here. It began as a
   byte-for-byte copy of the REV50 reference; divergence is expected over time.
-- **`docs/Design-Language.md` — the design system. Read it before any change that
+- **`design/Design-Language.md` — the design system. Read it before any change that
   touches appearance or interaction.** If a change contradicts it, either follow the
   doc or update the doc in the same PR — never silently diverge.
-- **`docs/Style-Guide.md` — the tokens, values and component recipes as shipped** (the
+- **`design/Style-Guide.md` — the tokens, values and component recipes as shipped** (the
   *what* to Design-Language's *why*), and the spec a sibling app or the future shared
   `common.css` copies from. A PR that adds a token, a recurring colour, or a component
   style updates its tables in the same PR.
@@ -128,7 +128,7 @@ block in `index.html` between the `RELEASE_NOTES:BEGIN/END` markers.
 - **Prefer small, reviewable changes.** Do not refactor unrelated working code unless
   explicitly requested.
 - **UI changes ship with evidence:** before/after screenshots from `/preview/` in the
-  PR description, and the accessibility checklist from `docs/Design-Language.md` §9
+  PR description, and the accessibility checklist from `design/Design-Language.md` §9
   confirmed for any surface you touched.
 - **Before any substantial architectural change, first explain:** the proposed change,
   the files it affects, the risks (especially to shared SharePoint/Entra infrastructure

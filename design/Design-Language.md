@@ -169,7 +169,7 @@ visible segmented control (it is the most-touched, with D/W/+/− keys).
 
 ## 3. Typography
 
-Families: `--sans` (Bahnschrift-led via `local()` since v1.7.1 — Windows ships it; other platforms fall through to the Segoe UI stack) for prose/labels, `--mono` (Cascadia stack) for codes, dates, numbers, REV chips. Mono is a brand asset here — anything that would appear on a work order (job codes, dates, day counts) is mono. **The wordmark** — the toolbar title reading `TWOSEVEN INC.` (v1.7.2; the company logo/wordmark) — is the one surface set in **Brauer Neue Std Bold** (`fonts/BrNStdBd.otf`, the single committed weight, licence confirmed 2026-09-01); everything else stays on the two families above.
+Families: `--sans` (Bahnschrift-led via `local()` since v1.7.1 — Windows ships it; other platforms fall through to the Segoe UI stack) for prose/labels, `--mono` (Cascadia stack) for codes, dates, numbers, REV chips. Mono is a brand asset here — anything that would appear on a work order (job codes, dates, day counts) is mono. **The wordmark** — the toolbar title reading `TWOSEVEN INC.` (v1.7.2; the company logo/wordmark) — is the one surface set in **Brauer Neue Std Bold** (`design/fonts/BrNStdBd.otf`, the single committed weight, licence confirmed 2026-09-01); everything else stays on the two families above.
 
 **Scale — four working sizes + one micro:**
 
