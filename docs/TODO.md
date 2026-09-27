@@ -56,19 +56,8 @@ shows what waits on what. See §8 for the log.
 ## 0. Where we stand
 
 Production (`main`) runs **v1.23.0** plus the 2026-09-18 view-as fix (PR #49); `development`
-is level with it apart from the docs reorg. Since the v1.x backlog opened on 2026-08-28 the
-app gained My Dashboard, calendar interactions and detail levels, the Department view,
-Milestones & Notes, saved views and viewport zoom, bug reporting, admin/viewer/developer
-permissions with per-door grants, the Company Data pages (People, Clients), the Employee
-Contacts import, the change log, generated release notes, the weekly schedule and the
-Freelance flag — 44 numbered objectives, all shipped. What did **not** ship is the one
-strategic item: the data-consolidation strategy (v1.x §3 item 13) was never written, and
-the brief is, in effect, its first draft.
-
-The brief's verdict on the app: ready for user testing; verify what exists before calling
-anything an integration; the three foundational business controls (cost-code registry,
-closeout queue, one rule for 27 Events vs Outlook) are SharePoint and Power Automate work
-beside the app, not app features. Its one P0 that needs new app code is **closeout**.
+carries the docs reorg, the `design/` folder and **v1.24.0** (suite tokens + readable chrome
+text, style guide §13 step 2, 2026-09-27).
 
 ## 1. North star, restated
 
