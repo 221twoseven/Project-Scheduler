@@ -104,6 +104,17 @@ No hand-picked per-bar text colors. Pills use the same rule. A jsdom test (`test
 Existing tokens are good — codify them as the only chrome colors:
 `--ink #0D131D`, `--ink-2 #141C29`, `--chrome-line #3A4A66`, accent `--acc #2F6FE4` / `--acc-deep #1D5AC9`, warn `--warn #F0A814`, danger `--late #DC2626`, sidebar `--side #EDF1F7` / `--side-line #C9D4E3`, paper `--paper #F5F7FA`. New UI must draw from these; no ad-hoc hex in new code (a grep-able rule a reviewer can enforce).
 
+**Amended v1.24.0 (suite guide §13 step 2):** the `:root` now carries the TwoSeven
+suite tokens (`--ts-*`, `TwoSeven-Application-Style-Guide.md` §10) and `--paper`,
+`--side`, `--side-line`, `--txt`, `--acc`, `--acc-deep` alias them. **Secondary chrome
+text is `--ts-muted #596B81`** (≥4.5:1 on every light surface) — hints, section heads,
+eyebrows, empty states, close glyphs, panel dates and codes. The old greys (`#7488A3`,
+`#94A3B8`, `#A3B1C4`, `#B4C0D0`, `--txt-dim`, `--txt-micro`) survive only on the canvas:
+sidebar-row sub-lines and assignment dates, the project-page date axis, gutter and
+legend off-state — the canvas keeps its quiet ramp until its own step. **Input
+boundaries are `--ts-control-line #7C8BA0`** (3:1); pale dividers (`#E2E8F0`,
+`#DDE5EF`) are dividers only. `tests/test-contrast.js` enforces both.
+
 **My Dashboard is its own place (v1.2.0, owner objective 1):** mechanically it stays
 the Departments lens + person filter, but it presents like a page — a project-style
 trail bar (`All Projects › My Dashboard · name`, × exit) fixed under the toolbar, the

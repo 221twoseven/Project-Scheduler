@@ -58,9 +58,24 @@ This is the whole token layer as it ships. Copy it unchanged into any sibling ap
   --sans:Bahnschrift,'Segoe UI',-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;
   --mono:ui-monospace,'Cascadia Mono','Segoe UI Mono',Consolas,'Roboto Mono',monospace;
   --ink:#0D131D; --ink-2:#141C29; --chrome-line:#3A4A66;
-  --paper:#F5F7FA; --side:#EDF1F7; --side-line:#C9D4E3;
-  --txt:#1B2537; --txt-dim:#8B99AD; --txt-micro:#93A2B8;
-  --acc:#2F6FE4; --acc-deep:#1D5AC9; --warn:#F0A814; --late:#DC2626;
+  /* v1.24.0: the suite tokens (TwoSeven-Application-Style-Guide.md §10) — light only */
+  color-scheme:light;
+  --ts-paper:#F5F7FA; --ts-panel:#FFFFFF; --ts-sidebar:#EDF1F7; --ts-soft:#F8FAFD;
+  --ts-text:#1B2537; --ts-muted:#596B81; --ts-line:#C9D4E3; --ts-control-line:#7C8BA0;
+  --ts-link:#245FC9; --ts-selected:#EAF2FF;
+  --ts-action:#2F6FE4; --ts-action-hover:#1D5AC9; --ts-on-action:#FFFFFF;
+  --ts-success-text:#236847; --ts-success-bg:#EAF4EE;
+  --ts-warning-text:#895B11; --ts-warning-bg:#FFF4DB;
+  --ts-danger-text:#B42318; --ts-danger-bg:#FFF0EE;
+  --ts-header-start:#2A3850; --ts-header-end:#202C41; --ts-header-text:#EDF3FC; --ts-header-line:#576882;
+  --ts-font:var(--sans); --ts-mono:var(--mono);
+  --ts-space-1:4px; --ts-space-2:8px; --ts-space-3:12px; --ts-space-4:16px; --ts-space-5:20px;
+  --ts-space-6:24px; --ts-space-8:32px; --ts-space-10:40px; --ts-space-12:48px;
+  --ts-radius-chip:4px; --ts-radius-control:6px; --ts-radius-panel:8px; --ts-radius-dialog:10px;
+  --ts-shadow-floating:0 4px 18px rgba(13,19,29,.18);
+  --paper:var(--ts-paper); --side:var(--ts-sidebar); --side-line:var(--ts-line);
+  --txt:var(--ts-text); --txt-dim:#8B99AD; --txt-micro:#93A2B8;
+  --acc:var(--ts-action); --acc-deep:var(--ts-action-hover); --warn:#F0A814; --late:#DC2626;
   --r-s:5px; --r-m:8px; --r-l:14px;
   --fs-title:15px; --fs-body:13px; --fs-label:11.5px; --fs-fine:11px; --fs-micro:9px;
   --row-h:56px;
@@ -82,14 +97,17 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);font-size:var(--fs
 | `--ink` | `#0D131D` | Darkest text; the `labelColor()` ink candidate; print title rule |
 | `--ink-2` | `#141C29` | Reserved dark (the toolbar no longer uses it — §2.1) |
 | `--chrome-line` | `#3A4A66` | Hairlines and separators **on the dark toolbar** |
-| `--paper` | `#F5F7FA` | Page background, docks, footers |
-| `--side` | `#EDF1F7` | Sidebar fill, `kbd` fill, print sidebar |
-| `--side-line` | `#C9D4E3` | Hairlines **on light surfaces**: sidebar edge, month lines, chips |
-| `--txt` | `#1B2537` | Default body text |
-| `--txt-dim` | `#8B99AD` | Secondary mono (sidebar codes, dates) |
-| `--txt-micro` | `#93A2B8` | Eyebrow/section labels on light |
-| `--acc` | `#2F6FE4` | The one accent: primary button, selection ring, focus, active state |
-| `--acc-deep` | `#1D5AC9` | Accent hover/pressed |
+| `--ts-*` | see block | **v1.24.0** — the suite tokens from `TwoSeven-Application-Style-Guide.md` §10, verbatim (light only; `--ts-font`/`--ts-mono` alias the local stacks). Chrome migrates to these one surface at a time (§13) |
+| `--ts-muted` | `#596B81` | Secondary chrome text: hints, section heads, eyebrows, empty states, close glyphs, panel dates/codes (5.1:1 on white) |
+| `--ts-control-line` | `#7C8BA0` | Input boundaries (3.5:1 on white) — never a divider |
+| `--paper` | `= --ts-paper #F5F7FA` | Page background, docks, footers |
+| `--side` | `= --ts-sidebar #EDF1F7` | Sidebar fill, `kbd` fill, print sidebar |
+| `--side-line` | `= --ts-line #C9D4E3` | Hairlines **on light surfaces**: sidebar edge, month lines, chips |
+| `--txt` | `= --ts-text #1B2537` | Default body text |
+| `--txt-dim` | `#8B99AD` | **Canvas only** since v1.24.0: sidebar-row sub-line. Chrome uses `--ts-muted` |
+| `--txt-micro` | `#93A2B8` | **No consumers** since v1.24.0 (chrome eyebrows moved to `--ts-muted`); retire when the sidebar migrates |
+| `--acc` | `= --ts-action #2F6FE4` | The one accent: primary button, selection ring, focus, active state |
+| `--acc-deep` | `= --ts-action-hover #1D5AC9` | Accent hover/pressed |
 | `--warn` | `#F0A814` | Toggle-on colour (Lock dates, Pin), busy state |
 | `--late` | `#DC2626` | The Today line and TODAY pill |
 | `--r-s / -m / -l` | 5 / 8 / 14px | Chips · buttons, inputs, bars · overlays, cards |
@@ -196,14 +214,19 @@ Strongest → faintest. Pick the nearest step; do not invent a new grey.
 #475569                 light buttons, menu rows, list labels
 #5B6B84 / #5B6B85       breadcrumb links, preview footer, legend chips
 #64748B                 form labels (modal), day numbers, chevrons
-#7488A3                 section heads, sub-lines, dock subtitles
-#8B99AD  --txt-dim      secondary mono (codes, dates)
-#93A2B8  --txt-micro    eyebrow labels
-#94A3B8                 hints, placeholders, empty states, muted heads
-#A3B1C4                 meta-strip keys, department-group heads, dt labels
-#B4C0D0                 close ×, separators, disabled glyphs, day numbers (preview)
+#596B81  --ts-muted     v1.24.0: ALL secondary chrome text — section heads, sub-lines,
+                        dock subtitles, eyebrows, hints, placeholders, empty states,
+                        meta-strip keys, dt labels, close ×, separators, kbd glyphs
+#8B99AD  --txt-dim      canvas only: sidebar-row sub-line (codes, dates)
+#93A2B8                 canvas only: sidebar-row assignment dates (--txt-micro is unused)
+#94A3B8                 canvas only: project-page month axis, extra-row gutter, legend off-state
+#B4C0D0                 canvas only: project-page day numbers
 #CBD6E4                 disabled icons, grips
 ```
+
+Retired from chrome in v1.24.0 (do not reintroduce — `tests/test-contrast.js` fails on
+them outside the canvas selectors above): `#7488A3`, `#94A3B8`, `#A3B1C4`, `#B4C0D0`,
+`#8194AB`, `var(--txt-dim)`, `var(--txt-micro)`. All were under 4.5:1 on white.
 
 ### 2.4 Semantic colours
 
@@ -574,15 +597,15 @@ Footer order (weakest → strongest, left → right): passive status text · Del
 /* modal field */
 .fg{margin-bottom:11px}
 .fg label{display:block;font-size:var(--fs-fine);font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#64748B;margin-bottom:4px}
-.fg input,.fg select,.fg textarea{width:100%;border:1.5px solid #E2E8F0;border-radius:7px;padding:7px 9px;font-size:13px;
+.fg input,.fg select,.fg textarea{width:100%;border:1.5px solid var(--ts-control-line);border-radius:7px;padding:7px 9px;font-size:13px;
   color:#101A29;background:#FAFBFC;outline:none;font-family:inherit;transition:border-color .14s}
 .fg input[type=date],.fg input[type=number]{font-family:var(--mono);font-size:12px}
 .fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(47,111,228,.13);background:#fff}
-.hint{font-size:11px;color:#94A3B8;margin:-5px 0 11px}
+.hint{font-size:11px;color:var(--ts-muted);margin:-5px 0 11px}
 /* inspector / popover field (denser) */
 .ins-f{margin-bottom:10px}
-.ins-f>label{display:block;font-size:var(--fs-fine);font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#94A3B8;margin-bottom:4px}
-.ins-f input,.ins-f select,.ins-f textarea{width:100%;border:1px solid #DDE5EF;border-radius:6px;padding:7px 9px;font-size:12.5px;
+.ins-f>label{display:block;font-size:var(--fs-fine);font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--ts-muted);margin-bottom:4px}
+.ins-f input,.ins-f select,.ins-f textarea{width:100%;border:1px solid var(--ts-control-line);border-radius:6px;padding:7px 9px;font-size:12.5px;
   font-family:inherit;background:#fff;color:#1E293B;outline:none}
 .ins-f input:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(59,127,214,.12)}
 .ins-f input.err{border-color:#CE4242}

@@ -19,9 +19,26 @@
   --sans:Bahnschrift,'Segoe UI',-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;
   --mono:ui-monospace,'Cascadia Mono','Segoe UI Mono',Consolas,'Roboto Mono',monospace;
   --ink:#0D131D; --ink-2:#141C29; --chrome-line:#3A4A66; /* v1.0.2: chrome-line lifted with the mellowed bar (obj 12) */
-  --paper:#F5F7FA; --side:#EDF1F7; --side-line:#C9D4E3;
-  --txt:#1B2537; --txt-dim:#8B99AD; --txt-micro:#93A2B8;
-  --acc:#2F6FE4; --acc-deep:#1D5AC9; --warn:#F0A814; --late:#DC2626;
+  /* v1.24.0: the TwoSeven suite tokens (design/TwoSeven-Application-Style-Guide.md §10),
+     §13 step 2. Timeline is light-only, so no dark block. Legacy tokens below alias the
+     equivalent --ts-* value; --ink/--ink-2/--warn/--late/--row-h/--r-* stay independent. */
+  color-scheme:light;
+  --ts-paper:#F5F7FA; --ts-panel:#FFFFFF; --ts-sidebar:#EDF1F7; --ts-soft:#F8FAFD;
+  --ts-text:#1B2537; --ts-muted:#596B81; --ts-line:#C9D4E3; --ts-control-line:#7C8BA0;
+  --ts-link:#245FC9; --ts-selected:#EAF2FF;
+  --ts-action:#2F6FE4; --ts-action-hover:#1D5AC9; --ts-on-action:#FFFFFF;
+  --ts-success-text:#236847; --ts-success-bg:#EAF4EE;
+  --ts-warning-text:#895B11; --ts-warning-bg:#FFF4DB;
+  --ts-danger-text:#B42318; --ts-danger-bg:#FFF0EE;
+  --ts-header-start:#2A3850; --ts-header-end:#202C41; --ts-header-text:#EDF3FC; --ts-header-line:#576882;
+  --ts-font:var(--sans); --ts-mono:var(--mono);
+  --ts-space-1:4px; --ts-space-2:8px; --ts-space-3:12px; --ts-space-4:16px; --ts-space-5:20px;
+  --ts-space-6:24px; --ts-space-8:32px; --ts-space-10:40px; --ts-space-12:48px;
+  --ts-radius-chip:4px; --ts-radius-control:6px; --ts-radius-panel:8px; --ts-radius-dialog:10px;
+  --ts-shadow-floating:0 4px 18px rgba(13,19,29,.18);
+  --paper:var(--ts-paper); --side:var(--ts-sidebar); --side-line:var(--ts-line);
+  --txt:var(--ts-text); --txt-dim:#8B99AD; --txt-micro:#93A2B8; /* dim/micro: canvas sidebar rows only now */
+  --acc:var(--ts-action); --acc-deep:var(--ts-action-hover); --warn:#F0A814; --late:#DC2626;
   --r-s:5px; --r-m:8px; --r-l:14px;
   /* type scale — Design-Language §3; --fs-micro is decorative eyebrows ONLY */
   --fs-title:15px; --fs-body:13px; --fs-label:11.5px; --fs-fine:11px; --fs-micro:9px;
@@ -145,28 +162,28 @@ body.dash-flat .sb-chev{visibility:hidden}
    in the Filters menu while inside, so the person can be switched or cleared
    (Everyone) without hunting for the × — the old display:none hide is gone. */
 .sb-dash-lbl{display:none}
-body.dash-on #sb-head .sb-dash-lbl{display:block;flex:1;font-size:var(--fs-fine);font-weight:700;letter-spacing:.16em;color:var(--txt-micro)}
+body.dash-on #sb-head .sb-dash-lbl{display:block;flex:1;font-size:var(--fs-fine);font-weight:700;letter-spacing:.16em;color:var(--ts-muted)}
 body.me-dock-on.me-dock-col #main{bottom:45px}
 body.me-dock-on.me-dock-col #me-dock{height:45px}
 body.me-dock-col #me-dock .ins-body{display:none}
 #md-collapse{margin-left:auto;padding:5px 7px;line-height:0}
-#md-collapse svg{width:15px;height:15px;display:block;color:#7488A3;transition:transform .12s}
+#md-collapse svg{width:15px;height:15px;display:block;color:var(--ts-muted);transition:transform .12s}
 #md-collapse:hover{border-color:var(--acc)}
 #md-collapse:hover svg{color:var(--acc)}
 body.me-dock-col #md-collapse svg{transform:rotate(180deg)}
 .md-hd{display:flex;align-items:center;gap:9px;padding:10px 16px;border-bottom:1px solid #E2E8F0;background:#fff;flex-shrink:0}
 .md-hd .dot{width:11px;height:11px;border-radius:3px;flex-shrink:0}
 .md-hd .t{font-size:13px;font-weight:700;color:#1E293B}
-.md-hd .sub{font-size:11.5px;color:#7488A3}
-.md-hd .x{margin-left:auto;background:none;border:none;color:#B4C0D0;font-size:17px;line-height:1;cursor:pointer;padding:0 2px;font-family:inherit}
+.md-hd .sub{font-size:11.5px;color:var(--ts-muted)}
+.md-hd .x{margin-left:auto;background:none;border:none;color:var(--ts-muted);font-size:17px;line-height:1;cursor:pointer;padding:0 2px;font-family:inherit}
 .md-hd .x:hover{color:var(--acc)}
 #me-dock .ins-body{background:var(--paper)}
 .md-row{display:flex;align-items:center;gap:7px;padding:4px 0;font-size:12px;color:#1E293B;min-width:0}
 .md-dot{width:9px;height:9px;border-radius:3px;flex-shrink:0}
 .md-main{flex:1;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
-.md-when{flex-shrink:0;font-size:11px;color:#7488A3}
+.md-when{flex-shrink:0;font-size:11px;color:var(--ts-muted)}
 .md-tag{flex-shrink:0;font-size:11px;font-weight:700;letter-spacing:.06em;color:#1A7F4E;background:#DCF3E6;border-radius:6px;padding:0 5px}
-.md-empty{font-size:12px;color:#94A3B8;padding:6px 0}
+.md-empty{font-size:12px;color:var(--ts-muted);padding:6px 0}
 /* v1.9.0 (owner ask): stacked dock column (v1.10.0: Working on + Time off); the second
    header needs a top rule where the column boundary used to be. */
 .md-stack>h4:not(:first-child){border-top:1px solid #E2E8F0}
@@ -182,7 +199,7 @@ body.me-dock-col #md-collapse svg{transform:rotate(180deg)}
    its popover anchors to that section. */
 #me-dock .ins-sec[data-sec=notes]{position:relative}
 #me-dock .ins-sec[data-sec=notes] h4{display:flex;align-items:center}
-#md-thought{margin-left:auto;background:none;border:1px solid transparent;border-radius:6px;color:#94A3B8;cursor:pointer;padding:2px 4px;line-height:0}
+#md-thought{margin-left:auto;background:none;border:1px solid transparent;border-radius:6px;color:var(--ts-muted);cursor:pointer;padding:2px 4px;line-height:0}
 #md-thought:hover{color:var(--acc);border-color:#CBD6E4}
 #md-thought svg{width:15px;height:15px;display:block}
 #md-tpop{position:absolute;right:8px;top:28px;z-index:40;background:#fff;border:1px solid #CBD5E1;border-radius:10px;box-shadow:0 8px 24px rgba(15,23,42,.18);padding:10px;display:flex;flex-direction:column;gap:6px;width:232px}
@@ -193,7 +210,7 @@ body.me-dock-col #md-collapse svg{transform:rotate(180deg)}
 body.me-dock-col #md-thought,body.me-dock-col #md-tpop{display:none}
 @media (max-width:560px){.fg-2{grid-template-columns:1fr}.fg-3{grid-template-columns:1fr}}
 #sidebar{position:relative;width:300px;flex-shrink:0;display:flex;flex-direction:column;background:var(--side);border-right:1.5px solid var(--side-line);z-index:10}
-#sb-head{height:64px;flex-shrink:0;display:flex;align-items:center;gap:8px;padding:0 10px 0 14px;font-size:var(--fs-fine);font-weight:700;text-transform:uppercase;letter-spacing:.16em;color:var(--txt-micro);border-bottom:1px solid var(--side-line)}
+#sb-head{height:64px;flex-shrink:0;display:flex;align-items:center;gap:8px;padding:0 10px 0 14px;font-size:var(--fs-fine);font-weight:700;text-transform:uppercase;letter-spacing:.16em;color:var(--ts-muted);border-bottom:1px solid var(--side-line)}
 #sb-head .sb-lens{flex:1;border-color:var(--side-line);background:#fff;text-transform:none;letter-spacing:0}
 #sb-head .sb-lens .t-btn{flex:1;background:#fff;color:#475569;border-right:1px solid var(--side-line);font-weight:600}
 #sb-head .sb-lens .t-btn:hover{background:#E8EEF7;color:#1E293B}
@@ -229,7 +246,7 @@ body.viewer #task-overlay input[type=checkbox]:disabled{display:none}
 body.viewer #pp-insp label:has(>input[type=checkbox]:disabled:not(:checked)),
 body.viewer .npv-pop label:has(>input[type=checkbox]:disabled:not(:checked)),
 body.viewer #task-overlay label:has(>input[type=checkbox]:disabled:not(:checked)){display:none}
-.sbf-lbl{font-size:var(--fs-micro);font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--txt-micro)}
+.sbf-lbl{font-size:var(--fs-micro);font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ts-muted)}
 .sbf-btn{flex:1;background:#fff;border:1px solid var(--side-line);border-radius:6px;padding:5px 0;font-size:11px;font-weight:600;color:#475569;cursor:pointer;font-family:inherit}
 .sbf-btn:hover{background:#E8EEF7;color:#1E293B}
 .sb-eye{background:none;border:none;cursor:pointer;font-size:12px;line-height:1;padding:0 2px;opacity:.4;flex-shrink:0}
@@ -237,7 +254,7 @@ body.viewer #task-overlay label:has(>input[type=checkbox]:disabled:not(:checked)
 .sb-eye.on{opacity:1}
 .role-tag{display:inline-block;font-family:var(--mono);font-size:var(--fs-fine);font-weight:800;letter-spacing:.08em;padding:1.5px 4px;border-radius:4px;background:rgba(0,0,0,.28);color:rgba(255,255,255,.92);margin:0 4px 0 10px;vertical-align:1px}
 #sb-head .sbh-lbl{flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
-#sb-all{display:inline-flex;align-items:center;gap:4px;background:none;border:1px solid #CBD6E4;border-radius:5px;color:#7488A3;font-size:var(--fs-fine);font-family:inherit;padding:3px 8px;cursor:pointer;letter-spacing:.05em;flex-shrink:0}
+#sb-all{display:inline-flex;align-items:center;gap:4px;background:none;border:1px solid #CBD6E4;border-radius:5px;color:var(--ts-muted);font-size:var(--fs-fine);font-family:inherit;padding:3px 8px;cursor:pointer;letter-spacing:.05em;flex-shrink:0}
 #sb-all:hover{border-color:var(--acc);color:var(--acc)}
 #side-rows{flex:1;overflow:hidden;min-height:0}
 #gantt-area{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
@@ -435,7 +452,7 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 .modal h3{font-size:var(--fs-title);font-weight:700;color:#101A29;padding:22px 24px 12px;flex-shrink:0}
 .fg{margin-bottom:11px}
 .fg label{display:block;font-size:var(--fs-fine);font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#64748B;margin-bottom:4px}
-.fg input,.fg select,.fg textarea{width:100%;border:1.5px solid #E2E8F0;border-radius:7px;padding:7px 9px;font-size:13px;color:#101A29;background:#FAFBFC;outline:none;font-family:inherit;resize:vertical;transition:border-color .14s}
+.fg input,.fg select,.fg textarea{width:100%;border:1.5px solid var(--ts-control-line);border-radius:7px;padding:7px 9px;font-size:13px;color:#101A29;background:#FAFBFC;outline:none;font-family:inherit;resize:vertical;transition:border-color .14s}
 .fg input[type=date],.fg input[type=number]{font-family:var(--mono);font-size:12px}
 .fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(47,111,228,.13);background:#fff}
 /* v1.6.1: the bug-report Kind radios — undo the generic .fg label/input rules that
@@ -459,13 +476,13 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 .tn-list{border:1.5px solid #E2E8F0;border-radius:8px;padding:7px;margin-bottom:8px}
 .tn-row{display:grid;grid-template-columns:108px 1fr 24px;gap:6px;margin-bottom:6px;align-items:center}
 .tn-row:last-child{margin-bottom:0}
-.tn-row input,.tn-row select{border:1px solid #E2E8F0;border-radius:5px;padding:4px 6px;font-size:11.5px;font-family:inherit;width:100%}
+.tn-row input,.tn-row select{border:1px solid var(--ts-control-line);border-radius:5px;padding:4px 6px;font-size:11.5px;font-family:inherit;width:100%}
 .tn-row input[type=date]{font-family:var(--mono);font-size:var(--fs-fine)}
 .tn-x{background:none;border:none;color:#CBD5E1;font-size:15px;cursor:pointer}
 .tn-x:hover{color:#EF4444}
 .tn-add{background:#F1F5F9;border:none;border-radius:6px;padding:5px 10px;font-size:11.5px;color:#475569;cursor:pointer;font-family:inherit}
 .tn-add:hover{background:#E2E8F0}
-.tn-empty{font-size:11.5px;color:#94A3B8;padding:2px 4px}
+.tn-empty{font-size:11.5px;color:var(--ts-muted);padding:2px 4px}
 .m-actions{display:flex;justify-content:space-between;align-items:center;padding:14px 24px;border-top:1px solid #F1F5F9;flex-shrink:0}
 .m-right{display:flex;gap:8px}
 .btn{padding:8px 16px;font-size:13px;font-weight:600;border-radius:7px;border:none;cursor:pointer;font-family:inherit;transition:background .12s}
@@ -476,13 +493,13 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 .btn-del{background:transparent;color:#EF4444;border:1.5px solid #FECACA;padding:7px 14px}
 .btn-del:hover{background:#FEF2F2}
 .hidden{display:none!important}
-.hint{font-size:11px;color:#94A3B8;margin:-5px 0 11px}
+.hint{font-size:11px;color:var(--ts-muted);margin:-5px 0 11px}
 
 /* ============ PRINT PREVIEW MODAL ============ */
 #print-overlay .modal{width:880px;max-width:96vw}
 .pp-controls{display:flex;gap:10px;align-items:flex-end;margin-bottom:12px;flex-wrap:wrap}
 .pp-controls .fg{margin-bottom:0;flex:0 0 150px}
-.pp-note{font-size:var(--fs-fine);color:#94A3B8;flex:1;min-width:200px;padding-bottom:6px}
+.pp-note{font-size:var(--fs-fine);color:var(--ts-muted);flex:1;min-width:200px;padding-bottom:6px}
 #pp-zoom{border:1.5px solid #E2E8F0;border-radius:8px;background:#E8ECF2;overflow:auto;max-height:55vh;padding:14px}
 #pp-zoom-inner{transform-origin:top left}
 
@@ -493,7 +510,7 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 .p-title .pt-sub{font-family:var(--mono);font-size:var(--fs-fine);color:#64748B}
 .p-grid{display:flex;align-items:flex-start}
 .p-side{width:232px;flex-shrink:0;border-right:1.5px solid var(--side-line);background:var(--side)}
-.p-side-head{height:64px;display:flex;align-items:center;padding:0 14px;font-size:var(--fs-fine);font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:var(--txt-micro);border-bottom:1px solid var(--side-line)}
+.p-side-head{height:64px;display:flex;align-items:center;padding:0 14px;font-size:var(--fs-fine);font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:var(--ts-muted);border-bottom:1px solid var(--side-line)}
 .p-view{overflow:hidden;position:relative}
 .p-hdr{position:relative;height:64px}
 .p-canvas{position:relative}
@@ -506,8 +523,8 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 .sm-item:hover{background:#F1F5F9}
 .sm-all{margin-top:6px;border:none;background:#F1F5F9;border-radius:6px;padding:5px;font-size:11px;cursor:pointer;color:#334155}
 .sm-all:hover{background:#E2E8F0}
-.sm-note{font-family:var(--mono);font-size:var(--fs-fine);color:#8194ab;padding:6px 8px 2px;border-top:1px solid #E2E8F0;margin-top:4px;white-space:nowrap}
-.sm-sec{font-size:var(--fs-micro);font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#94A3B8;padding:6px 8px 2px}
+.sm-note{font-family:var(--mono);font-size:var(--fs-fine);color:var(--ts-muted);padding:6px 8px 2px;border-top:1px solid #E2E8F0;margin-top:4px;white-space:nowrap}
+.sm-sec{font-size:var(--fs-micro);font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ts-muted);padding:6px 8px 2px}
 #filters-menu{max-height:70vh;overflow:auto}
 .f-chips{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap}
 .f-chip{display:inline-flex;align-items:center;gap:2px;height:22px;padding:0 3px 0 9px;background:rgba(47,111,228,.2);border:1px solid rgba(96,150,240,.45);border-radius:11px;color:#DCE8FF;font-size:11px;white-space:nowrap}
@@ -524,7 +541,7 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 #goto-menu{width:272px;padding:10px;gap:8px}
 .gp-row{display:flex;align-items:center;gap:8px}
 #goto-date{flex:1;font-family:var(--mono);font-size:var(--fs-body);color:var(--ink);padding:4px 7px;border:1px solid var(--side-line);border-radius:var(--r-s)}
-.gp-key{font-family:var(--mono);font-size:var(--fs-fine);color:var(--txt-dim)}
+.gp-key{font-family:var(--mono);font-size:var(--fs-fine);color:var(--ts-muted)}
 .gp-picks{display:flex;gap:6px}
 .gp-picks .sm-all{flex:1;margin-top:0;white-space:nowrap}
 #lg-goto{text-align:left;display:flex;justify-content:space-between;align-items:center}
@@ -552,7 +569,7 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 .meet-pm td{background:#E6F1FB;color:#185FA5;font-weight:800;font-size:var(--fs-fine);padding:5px 8px;border-top:1.5px solid #CBD5E1}
 .meet-row td{padding:6px 8px;border-bottom:1px solid #E2E8F0;vertical-align:top}
 .mr-name{display:block;font-weight:700}
-.mr-sub{display:block;font-family:var(--mono);font-size:var(--fs-fine);color:#8B99AD}
+.mr-sub{display:block;font-family:var(--mono);font-size:var(--fs-fine);color:var(--ts-muted)}
 .mr-pill{display:inline-block;font-family:var(--mono);font-size:var(--fs-fine);font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:2px 7px;border-radius:9px;background:#EEF2F7;color:#33415A;white-space:nowrap}
 .mr-pill[data-st="in-fabrication"]{background:#E1F5EE;color:#0F6E56}
 .mr-pill[data-st="in-design"]{background:#EDE9FE;color:#5B21B6}
@@ -562,7 +579,7 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 .mr-phase{color:#33415A}
 .meet-mini{position:relative;height:9px;background:#EEF2F7;border-radius:3px;overflow:hidden;margin-top:3px}
 .mm-fill{position:absolute;left:0;top:0;bottom:0;border-radius:3px}
-.mm-dates{font-family:var(--mono);font-size:var(--fs-fine);color:#8B99AD;margin-top:2px}
+.mm-dates{font-family:var(--mono);font-size:var(--fs-fine);color:var(--ts-muted);margin-top:2px}
 .mr-dl{font-family:var(--mono);font-size:var(--fs-fine);white-space:nowrap}
 .mr-days{font-family:var(--mono);font-weight:700;text-align:right}
 .mr-notes{border-left:1px dashed #CBD5E1}
@@ -575,7 +592,7 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 .pg{max-width:1060px;margin:0 auto;padding:22px 26px 80px}
 .pg-roles{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
 .pg-roles>div{display:flex;flex-direction:column;gap:5px}
-.pg-roles .rl{font-size:var(--fs-fine);font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#7488A3}
+.pg-roles .rl{font-size:var(--fs-fine);font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ts-muted)}
 .pg-rbox{background:#F7FAFD;border:1px solid #D8E2EF;border-radius:8px;padding:8px 10px;max-height:132px;overflow:auto}
 .pg-rbox label{display:flex;gap:6px;align-items:center;font-size:12px;color:#33415A;cursor:pointer;user-select:none;padding:1.5px 0}
 .pg-rbox input{width:13px;height:13px;flex-shrink:0;accent-color:#3B7FD6}
@@ -586,7 +603,7 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 /* ============ REV37: SPLIT CREATE PAGE + LIVE SCHEDULE PREVIEW ============ */
 .npv{background:#fff;border:1px solid #E2E8F0;border-radius:11px;overflow:hidden}
 .npv-hd{display:flex;align-items:center;gap:9px;padding:9px 12px;border-bottom:1px solid #E2E8F0;background:#F7FAFD}
-.npv-ttl{flex:1;font-size:var(--fs-micro);font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:#7488A3}
+.npv-ttl{flex:1;font-size:var(--fs-micro);font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--ts-muted)}
 .npv-btn{background:#fff;border:1px solid #CBD6E4;border-radius:5px;padding:3px 9px;font-size:var(--fs-fine);font-weight:600;color:#5B6B85;cursor:pointer;font-family:inherit}
 .npv-btn:hover{border-color:var(--acc);color:var(--acc)}
 .npv-btn[disabled]{opacity:.4;cursor:default}
@@ -632,7 +649,7 @@ body.vivid .npv-we{display:none} /* v1.0.2: no weekend strips over the vivid tin
 /* N4: the status pill sits static and right-justified in the footer, not absolute. */
 .npv-foot .sum-pill{position:static;transform:none;margin-left:auto;pointer-events:none;
   border:1px solid #E2E8F0}
-.npv-empty{padding:36px 18px;text-align:center;font-size:12.5px;color:#94A3B8;font-style:italic}
+.npv-empty{padding:36px 18px;text-align:center;font-size:12.5px;color:var(--ts-muted);font-style:italic}
 
 
 /* ============ REV38: DEPARTMENT REORDERING ============ */
@@ -651,7 +668,7 @@ body.vivid .npv-we{display:none} /* v1.0.2: no weekend strips over the vivid tin
 .sm-btns .sm-all{flex:1;margin-top:0}
 .gantt-empty{position:absolute;left:0;top:0;right:0;display:flex;flex-direction:column;align-items:center;gap:9px;padding:60px 20px}
 .gantt-empty b{font-size:14.5px;color:#33415A}
-.gantt-empty span{font-size:12.5px;color:#94A3B8}
+.gantt-empty span{font-size:12.5px;color:var(--ts-muted)}
 
 /* --- configurator uses the whole frame --- */
 .pg.split{max-width:none;padding:22px 30px 90px}
@@ -663,7 +680,7 @@ body.vivid .npv-we{display:none} /* v1.0.2: no weekend strips over the vivid tin
 .npv-axis{height:36px}
 .npv-body{min-height:56px}
 .npv-modes{display:flex;border:1px solid #CBD6E4;border-radius:6px;overflow:hidden}
-.npv-modes button{background:#fff;border:none;padding:3px 11px;font-size:var(--fs-fine);font-weight:600;color:#7488A3;cursor:pointer;font-family:inherit}
+.npv-modes button{background:#fff;border:none;padding:3px 11px;font-size:var(--fs-fine);font-weight:600;color:var(--ts-muted);cursor:pointer;font-family:inherit}
 .npv-modes button.on{background:var(--acc);color:#fff}
 
 
@@ -701,7 +718,7 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 .npv-leg .lg i.ev{background:#F7C948;border:2px solid #16202E;box-sizing:border-box;
   transform:rotate(45deg);border-radius:1px;width:10px;height:10px}
 .npv-leg .lg i.tk{background:#fff;border:2px solid #3B7FD6;border-radius:50%;box-sizing:border-box}
-.npv-leg-empty{font-size:11px;color:#B4C0D0;font-style:italic}
+.npv-leg-empty{font-size:11px;color:var(--ts-muted);font-style:italic}
 #npv-collapse-all{margin-left:auto;background:#fff;border:1px solid #CBD6E4;border-radius:6px;padding:2px 10px;font-size:var(--fs-fine);font-weight:600;color:#5B6B85;cursor:pointer;font-family:inherit}
 #npv-collapse-all:hover{background:#E8EEF7;color:#1E293B}
 
@@ -756,7 +773,7 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 .cal-mki{flex-shrink:0;width:9px;height:9px;box-sizing:border-box;margin:1px 6px 1px 2px}
 .cal-band.ev .cal-mki{background:#F7C948;border:1.5px solid #16202E;transform:rotate(45deg)}
 .cal-band.tk .cal-mki{background:#fff;border:1.5px solid #3B7FD6;border-radius:50%}
-.cal-empty{padding:34px 18px;text-align:center;font-size:12.5px;color:#B4C0D0;font-style:italic}
+.cal-empty{padding:34px 18px;text-align:center;font-size:12.5px;color:var(--ts-muted);font-style:italic}
 /* REV53: the calendar is a live surface like the Gantt — phase bands click and
    right-click, and the selected phase carries the same ring (it can be several
    bands, one per week the phase crosses). */
@@ -787,7 +804,7 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 .pml-row{display:flex;align-items:center;gap:10px;padding:9px 2px;border-bottom:1px solid #EDF2F7}
 .pml-row:last-child{border-bottom:none}
 .pml-name{flex:1;min-width:90px;font-weight:700;color:#16202E;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.pml-code{font-family:var(--mono);font-size:12px;color:#94A3B8;flex-shrink:0}
+.pml-code{font-family:var(--mono);font-size:12px;color:var(--ts-muted);flex-shrink:0}
 .pml-late{font-size:12px;font-weight:700;color:#CE4242;flex-shrink:0;margin-left:auto}
 .pml-row .btn{flex-shrink:0}
 
@@ -796,7 +813,7 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 
 /* ============ REV42: PROJECT PAGE REBUILD ============ */
 .pg2{max-width:none;padding:16px 26px 90px}
-.pg-code{font-size:12px;font-family:var(--mono);color:#94A3B8;flex-shrink:0}
+.pg-code{font-size:12px;font-family:var(--mono);color:var(--ts-muted);flex-shrink:0}
 /* The breadcrumb trail: All Projects › project › phase. Links are muted, the current
    (deepest) segment is dark; everything sits on one 14px text line. */
 .pg-trail{display:flex;align-items:center;gap:9px;min-width:0;flex:1}
@@ -806,10 +823,10 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 .pg-cr:hover{color:var(--acc)}
 .pg-cr.cur{color:#16202E;font-weight:700;cursor:default}
 .pg-cr.cur:hover{color:#16202E}
-.pg-sep{color:#B4C0D0;font-size:14px;font-weight:700;flex-shrink:0;user-select:none}
+.pg-sep{color:var(--ts-muted);font-size:14px;font-weight:700;flex-shrink:0;user-select:none}
 /* REV85: the fourth exit — × at the right edge of the breadcrumb bar (same hover
    pattern as the other close buttons). */
-.pg-x{margin-left:auto;background:none;border:none;color:#94A3B8;font-size:18px;
+.pg-x{margin-left:auto;background:none;border:none;color:var(--ts-muted);font-size:18px;
   line-height:1;cursor:pointer;padding:4px 8px;font-family:inherit;flex-shrink:0}
 .pg-x:hover{color:#CE4242}
 .pg.split .pg-roles{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -817,7 +834,7 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 @media(max-width:1250px){.pg-depts{column-count:3}}
 @media(max-width:900px){.pg-depts{column-count:2}}
 .npv-full{margin:0}
-.pg-auto{font-size:11px;color:#94A3B8;display:flex;align-items:center;gap:5px}
+.pg-auto{font-size:11px;color:var(--ts-muted);display:flex;align-items:center;gap:5px}
 .pg-auto b{color:#1AA59C;font-weight:700}
 
 
@@ -835,7 +852,7 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
    no hatch rule needed; the inline background overrides the quiet-mode one above. */
 .cal-tint .cal-col{background-blend-mode:multiply}
 .npv-subs{display:flex;gap:0;border:1px solid #CBD6E4;border-radius:6px;overflow:hidden;margin-left:6px}
-.npv-subs button{background:#fff;border:none;padding:3px 10px;font-size:var(--fs-fine);font-weight:600;color:#7488A3;cursor:pointer;font-family:inherit}
+.npv-subs button{background:#fff;border:none;padding:3px 10px;font-size:var(--fs-fine);font-weight:600;color:var(--ts-muted);cursor:pointer;font-family:inherit}
 .npv-subs button.on{background:#5B6B85;color:#fff}
 
 
@@ -864,7 +881,7 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 .dash-meta .m{display:flex;align-items:baseline;gap:6px;padding:0 14px;border-right:1px solid #E2E8F0}
 .dash-meta .m:first-child{padding-left:0}
 .dash-meta .m:last-child{border-right:none}
-.dash-meta .k{font-size:var(--fs-micro);font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#A3B1C4}
+.dash-meta .k{font-size:var(--fs-micro);font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ts-muted)}
 .dash-meta .v{font-size:12px;font-weight:700;color:#33415A}
 .dash-meta .v.warn{color:#CE4242}
 .dash-body{flex:1;display:flex;flex-direction:column;gap:0;min-height:0;border-top:1px solid #E2E8F0}
@@ -894,7 +911,7 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
    corner of the dock, outside the footer's button row, in both states. */
 #pp-dock-toggle,#pp-clog-toggle{position:absolute;right:12px;bottom:8px;z-index:31;padding:5px 7px;line-height:0;
   border:1px solid #E2E8F0;border-radius:6px;background:#fff}
-#pp-dock-toggle svg,#pp-clog-toggle svg{width:15px;height:15px;display:block;color:#7488A3;transition:transform .12s}
+#pp-dock-toggle svg,#pp-clog-toggle svg{width:15px;height:15px;display:block;color:var(--ts-muted);transition:transform .12s}
 #pp-dock-toggle:hover,#pp-clog-toggle:hover{border-color:var(--acc)}
 #pp-dock-toggle:hover svg,#pp-clog-toggle:hover svg{color:var(--acc)}
 .dash-insp.collapsed #pp-dock-toggle svg,.dash-insp.collapsed #pp-clog-toggle svg{transform:rotate(180deg)}
@@ -908,13 +925,13 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 .dash-insp.collapsed .clog-list{display:none}
 .clog-list{flex:1;min-height:0;overflow:auto;background:#fff}
 .clog-row{display:flex;gap:12px;padding:7px 22px;border-bottom:1px solid #EEF2F7;font-size:12px;align-items:baseline}
-.clog-when{color:#7488A3;white-space:nowrap;flex-shrink:0;width:96px}
+.clog-when{color:var(--ts-muted);white-space:nowrap;flex-shrink:0;width:96px}
 .clog-who{font-weight:700;color:#33415A;flex-shrink:0;width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .clog-what{flex:1;min-width:0;color:#1E293B}
 .clog-proj{color:#33415A}
-.clog-field{color:#7488A3}
+.clog-field{color:var(--ts-muted)}
 .clog-det{white-space:pre-wrap;word-break:break-word;color:#5B6B84;font-size:11.5px;margin-top:2px}
-.clog-empty{padding:18px 22px;color:#7488A3;font-size:12.5px}
+.clog-empty{padding:18px 22px;color:var(--ts-muted);font-size:12.5px}
 .clog-tools{display:flex;align-items:center;gap:8px;padding:8px 22px;border-top:1px solid #E2E8F0;background:var(--paper)}
 .clog-tools input{width:300px}
 
@@ -924,7 +941,7 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 .ins-hd .dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
 .ins-hd .t{flex:1;font-size:12.5px;font-weight:700;color:#1E293B;overflow:hidden;
   white-space:nowrap;text-overflow:ellipsis}
-.ins-hd .x{background:none;border:none;color:#B4C0D0;font-size:17px;line-height:1;cursor:pointer;
+.ins-hd .x{background:none;border:none;color:var(--ts-muted);font-size:17px;line-height:1;cursor:pointer;
   padding:0 2px;font-family:inherit}
 .ins-hd .x:hover{color:var(--acc)}
 /* E1: sections run side by side as columns — Setup | Team | Departments | Agenda — all
@@ -942,22 +959,22 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 .ins-sec[data-sec="phase"]{flex:2 1 0}
 .ins-sec[data-sec="phase"]~.ins-sec[data-sec="agenda"]{min-width:240px}
 .ins-sec[data-sec="notes"] .in{display:flex}
-.ins-notes{flex:1;width:100%;min-height:90px;resize:none;border:1px solid #DDE5EF;border-radius:6px;
+.ins-notes{flex:1;width:100%;min-height:90px;resize:none;border:1px solid var(--ts-control-line);border-radius:6px;
   padding:7px 9px;font-size:12.5px;font-family:inherit;background:#fff;color:#1E293B;outline:none;
   box-sizing:border-box}
 .ins-notes:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(59,127,214,.12)}
 .ins-sec>h4{display:flex;align-items:center;gap:7px;margin:0;padding:10px 15px;flex-shrink:0;
-  font-size:var(--fs-fine);font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#7488A3;
+  font-size:var(--fs-fine);font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ts-muted);
   user-select:none;border-bottom:1px solid #EDF2F7}
-.ins-sec>h4 .n{margin-left:auto;font-size:var(--fs-fine);font-weight:700;color:#94A3B8;background:#EDF2F8;
+.ins-sec>h4 .n{margin-left:auto;font-size:var(--fs-fine);font-weight:700;color:var(--ts-muted);background:#EDF2F8;
   border-radius:8px;padding:1px 6px}
 .ins-sec .in{padding:8px 15px 14px;flex:1;min-height:0;overflow-y:auto}
 .dash-insp .pg-roles{grid-template-columns:repeat(2,1fr);gap:10px}
 .dash-insp .pg-depts{column-count:1}
 .ins-f{margin-bottom:10px}
 .ins-f>label{display:block;font-size:var(--fs-fine);font-weight:700;letter-spacing:.07em;
-  text-transform:uppercase;color:#94A3B8;margin-bottom:4px}
-.ins-f input,.ins-f select,.ins-f textarea{width:100%;border:1px solid #DDE5EF;border-radius:6px;
+  text-transform:uppercase;color:var(--ts-muted);margin-bottom:4px}
+.ins-f input,.ins-f select,.ins-f textarea{width:100%;border:1px solid var(--ts-control-line);border-radius:6px;
   padding:7px 9px;font-size:12.5px;font-family:inherit;background:#fff;color:#1E293B;outline:none;
   box-sizing:border-box}
 .ins-f input:focus,.ins-f select:focus,.ins-f textarea:focus{border-color:var(--acc);
@@ -966,12 +983,12 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 .pg-rbox.err{border-color:#CE4242}
 .ins-row{display:grid;grid-template-columns:1fr 1fr;gap:9px}
 .ins-row3{display:grid;grid-template-columns:1fr 1fr 64px;gap:9px}
-.ins-note{font-size:var(--fs-fine);color:#94A3B8;line-height:1.45;margin:-3px 0 10px}
+.ins-note{font-size:var(--fs-fine);color:var(--ts-muted);line-height:1.45;margin:-3px 0 10px}
 .ins-acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:2px}
 .ins-btn{background:#fff;border:1px solid #CBD6E4;border-radius:6px;padding:6px 10px;font-size:11px;
   font-weight:600;color:#33415A;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px}
 .ins-btn:hover{border-color:var(--acc);color:var(--acc)}
-.ins-btn kbd{font-family:inherit;font-size:var(--fs-fine);font-weight:700;color:#B4C0D0;
+.ins-btn kbd{font-family:inherit;font-size:var(--fs-fine);font-weight:700;color:var(--ts-muted);
   border:1px solid #E2E8F0;border-radius:3px;padding:0 3px}
 .ins-btn.dngr{color:#CE4242;border-color:#EBC4C4}
 .ins-btn.dngr:hover{background:#FCEBEB;border-color:#CE4242}
@@ -981,31 +998,31 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
    tab and the staff modal) collapsing inside the inspector. This one is a plain vertical
    list: group heading, then one row per department. */
 .ins-depts .idg{padding:9px 0 4px;font-size:var(--fs-fine);font-weight:700;letter-spacing:.1em;
-  text-transform:uppercase;color:#A3B1C4}
+  text-transform:uppercase;color:var(--ts-muted)}
 .ins-depts .idg:first-child{padding-top:0}
 .ins-depts .idr{display:flex;align-items:center;gap:8px;padding:3px 0;min-height:24px}
 .ins-depts .idr input[type=checkbox]{flex-shrink:0;margin:0;width:14px;height:14px;accent-color:var(--acc)}
 .ins-depts .idr .dname{flex:1;font-size:12px;color:#1E293B;overflow:hidden;
   white-space:nowrap;text-overflow:ellipsis;min-width:0}
-.ins-depts .idr.off .dname{color:#A3B1C4}
-.ins-depts .idr .ddays{width:46px;flex-shrink:0;border:1px solid #DDE5EF;border-radius:5px;
+.ins-depts .idr.off .dname{color:var(--ts-muted)}
+.ins-depts .idr .ddays{width:46px;flex-shrink:0;border:1px solid var(--ts-control-line);border-radius:5px;
   padding:3px 5px;font-size:11.5px;font-family:inherit;text-align:right;box-sizing:border-box}
 .ins-depts .idr .ddays:disabled{background:#F7FAFD;color:#C3CEDC;border-color:#EDF2F7}
-.ins-depts .idr .dlbl{flex-shrink:0;font-size:var(--fs-fine);color:#B4C0D0;width:14px}
+.ins-depts .idr .dlbl{flex-shrink:0;font-size:var(--fs-fine);color:var(--ts-muted);width:14px}
 /* N13: the row wraps — process name and the date pair each take their own line,
    indented under the checkbox. An unticked row hides its date line entirely
    (nothing greyed pretends to be a control). */
 .ins-depts .idr{flex-wrap:wrap}
-.ins-depts .idr .dother{flex-basis:100%;min-width:0;margin-left:22px;border:1px solid #DDE5EF;
+.ins-depts .idr .dother{flex-basis:100%;min-width:0;margin-left:22px;border:1px solid var(--ts-control-line);
   border-radius:5px;padding:3px 6px;font-size:11.5px;font-family:inherit;box-sizing:border-box}
 .ins-depts .idr .dother:disabled{background:#F7FAFD;border-color:#EDF2F7}
 .ins-depts .idr .ddates{flex-basis:100%;display:flex;align-items:center;gap:5px;
   margin-left:22px;min-width:0}
 .ins-depts .idr.off .ddates{display:none}
 .ins-depts .idr.off .dother{display:none}
-.ins-depts .idr .ddates input{flex:1;min-width:0;border:1px solid #DDE5EF;border-radius:5px;
+.ins-depts .idr .ddates input{flex:1;min-width:0;border:1px solid var(--ts-control-line);border-radius:5px;
   padding:2px 4px;font-size:11px;font-family:var(--mono);color:#33415A;box-sizing:border-box}
-.ins-depts .idr .ddates .da{flex-shrink:0;font-size:11px;color:#B4C0D0}
+.ins-depts .idr .ddates .da{flex-shrink:0;font-size:11px;color:var(--ts-muted)}
 
 /* --- agenda: the one list of everything dated on this job. Each row is the Home
    modal's checkpoint editor — date | name | notes — so editing matches everywhere. --- */
@@ -1016,7 +1033,7 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 .ag-i .ic{width:9px;height:9px;flex-shrink:0}
 .ag-i .ic.ev{background:#F7C948;border:2px solid #16202E;box-sizing:border-box;transform:rotate(45deg)}
 .ag-i .ic.tk{border-radius:50%;border:2px solid #3B7FD6;box-sizing:border-box}
-.ag-i input,.ag-i select{border:1px solid #E2E8F0;border-radius:5px;padding:4px 6px;font-size:11.5px;
+.ag-i input,.ag-i select{border:1px solid var(--ts-control-line);border-radius:5px;padding:4px 6px;font-size:11.5px;
   font-family:inherit;width:100%;min-width:0;box-sizing:border-box;color:#1E293B;outline:none;background:#fff}
 .ag-i select{grid-column:2/5} /* v1.4.0: the phase picker owns the milestone row's second line */
 .ag-i input[type=date]{font-family:var(--mono);font-size:var(--fs-fine)}
@@ -1024,7 +1041,7 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 .ag-i .del{background:none;border:none;color:#CBD6E4;font-size:14px;line-height:1;cursor:pointer;
   padding:0 2px;font-family:inherit}
 .ag-i .del:hover{color:#CE4242}
-.ag-empty{padding:22px 15px;text-align:center;font-size:11.5px;color:#B4C0D0;line-height:1.6}
+.ag-empty{padding:22px 15px;text-align:center;font-size:11.5px;color:var(--ts-muted);line-height:1.6}
 
 /* --- selection --- */
 .npv-bar.pick{box-shadow:0 0 0 2px #fff,0 0 0 4px var(--acc);z-index:4}
@@ -1056,27 +1073,27 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
   border-radius:9px;box-shadow:0 10px 30px -8px rgba(15,23,42,.3);padding:5px;
   font-family:inherit}
 .npv-menu .mh{padding:6px 9px 7px;font-size:var(--fs-fine);font-weight:700;letter-spacing:.09em;
-  text-transform:uppercase;color:#94A3B8;border-bottom:1px solid #EDF2F7;margin-bottom:4px;
+  text-transform:uppercase;color:var(--ts-muted);border-bottom:1px solid #EDF2F7;margin-bottom:4px;
   overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 .npv-menu button{display:flex;align-items:center;gap:9px;width:100%;background:none;border:none;
   border-radius:6px;padding:7px 9px;font-size:12px;font-weight:600;color:#1E293B;cursor:pointer;
   font-family:inherit;text-align:left}
 .npv-menu button:hover{background:#EFF5FC;color:var(--acc)}
-.npv-menu button .k{font-size:var(--fs-fine);font-weight:600;color:#94A3B8;margin-left:auto;flex-shrink:0}
+.npv-menu button .k{font-size:var(--fs-fine);font-weight:600;color:var(--ts-muted);margin-left:auto;flex-shrink:0}
 .npv-menu button:hover .k{color:var(--acc)}
 .npv-menu .sep{height:1px;background:#EDF2F7;margin:4px 6px}
 /* N11: the inline name field under the menu header — Enter files the first action. */
-.npv-menu .mn{display:block;width:calc(100% - 12px);margin:2px 6px 5px;border:1px solid #DDE5EF;
+.npv-menu .mn{display:block;width:calc(100% - 12px);margin:2px 6px 5px;border:1px solid var(--ts-control-line);
   border-radius:6px;padding:5px 8px;font-size:12px;font-family:inherit;color:#1E293B;
   box-sizing:border-box;outline:none}
 .npv-menu .mn:focus{border-color:var(--acc)}
-.npv-menu .mn::placeholder{color:#B4C0D0}
+.npv-menu .mn::placeholder{color:var(--ts-muted)}
 .npv-menu .mi{width:11px;height:11px;flex-shrink:0;border-radius:3px;display:block}
 .npv-menu .mi.ev{background:#F7C948;border:2px solid #16202E;box-sizing:border-box;
   transform:rotate(45deg);border-radius:1px;width:10px;height:10px}
 .npv-menu .mi.tk{background:#fff;border:2px solid #3B7FD6;border-radius:50%;box-sizing:border-box}
 .npv-menu .mi.dp{background:#CBD6E4}
-.npv-menu .none{padding:9px;font-size:11px;color:#B4C0D0;font-style:italic;text-align:center}
+.npv-menu .none{padding:9px;font-size:11px;color:var(--ts-muted);font-style:italic;text-align:center}
 /* Edit-in-place popover — left-click any item, or right-click → New X. Reuses the
    inspector's field classes (.ins-f/.ins-row3/.crew-list/.ins-btn) so the two editors
    read identically; only the frame and the vertical body are its own. */
@@ -1144,9 +1161,9 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
    can't run past the window edge. */
 #kbd-menu{left:auto;right:0;width:410px;padding:12px;cursor:default}
 #views-menu{left:auto;right:0}
-.lg-sec{font-size:var(--fs-fine);font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:#7488A3;margin:8px 0 5px}
+.lg-sec{font-size:var(--fs-fine);font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--ts-muted);margin:8px 0 5px}
 .lg-sec:first-child{margin-top:0}
-.lg-hint{font-size:var(--fs-fine);color:#94A3B8;margin-bottom:6px;line-height:1.4}
+.lg-hint{font-size:var(--fs-fine);color:var(--ts-muted);margin-bottom:6px;line-height:1.4}
 .lg-row{display:flex;align-items:center;gap:10px;margin-bottom:5px;font-size:var(--fs-label);color:#33415A}
 .lg-row>span:last-child{flex:1;min-width:0}
 .lg-bar{position:static;flex:0 0 128px;display:flex;align-items:center;padding:0 5px;height:20px;cursor:default;pointer-events:none;overflow:hidden}
@@ -1165,7 +1182,7 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 #coach.chain #coach-next{display:none}
 #coach-hole{position:absolute;border-radius:10px;box-shadow:0 0 0 9999px rgba(13,19,29,.55);outline:2px solid var(--acc);outline-offset:2px;transition:left .18s ease-out,top .18s ease-out,width .18s ease-out,height .18s ease-out}
 #coach-card{position:absolute;width:300px;background:#fff;border:1.5px solid #CBD5E1;border-radius:var(--r-l);box-shadow:0 10px 30px rgba(15,23,42,.25);padding:14px 16px;cursor:default;transition:left .18s ease-out,top .18s ease-out}
-#coach-step{font-family:var(--mono);font-size:var(--fs-fine);font-weight:600;letter-spacing:.1em;color:#7488A3}
+#coach-step{font-family:var(--mono);font-size:var(--fs-fine);font-weight:600;letter-spacing:.1em;color:var(--ts-muted)}
 #coach-title{font-size:var(--fs-title);font-weight:700;color:var(--ink);margin:4px 0 6px}
 #coach-body{font-size:var(--fs-body);line-height:1.4;color:#33415A}
 .coach-btns{display:flex;align-items:center;gap:8px;margin-top:12px}
@@ -1176,7 +1193,7 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 /* v1.16.0: demo preamble — developer-only intro "slides" shown before the tour.
    The standard .overlay/.modal chrome; only the type is tuned for reading aloud. */
 #demo-modal{width:560px}
-#demo-step{font-family:var(--mono);font-size:var(--fs-fine);font-weight:600;letter-spacing:.1em;color:#7488A3;padding:22px 24px 0}
+#demo-step{font-family:var(--mono);font-size:var(--fs-fine);font-weight:600;letter-spacing:.1em;color:var(--ts-muted);padding:22px 24px 0}
 #demo-modal h3{font-size:21px;padding-top:6px}
 #demo-body{font-size:15px;line-height:1.55;color:#33415A;padding-bottom:12px}
 #demo-body p{margin:0 0 10px}
@@ -1202,17 +1219,17 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
    project page's chrome. The timeline toolbar row hides exactly as on pp-route. */
 body.cd-route .tb-timeline{display:none}
 body.cd-route #dash-bar{display:none!important}
-.cd-src{font-size:12px;color:#94A3B8;flex-shrink:0}
+.cd-src{font-size:12px;color:var(--ts-muted);flex-shrink:0}
 .cd-head{display:flex;align-items:center;gap:10px;padding:12px 22px 10px;border-bottom:1px solid #E2E8F0}
 .cd-head h2{margin:0;font-size:17px;color:#16202E}
-.cd-sub{font-size:12px;color:#7488A3}
+.cd-sub{font-size:12px;color:var(--ts-muted)}
 .cd-head .btn{margin-left:auto}
 .cd-body{flex:1;display:flex;min-height:0}
 /* v1.14.0: the people index carries at-a-glance columns (title/phone/email/perms) —
    the pane earns more width for them. */
 .cd-list{width:56%;min-width:320px;max-width:820px;border-right:1px solid #E2E8F0;display:flex;flex-direction:column;min-height:0}
 .cd-cols{display:grid;gap:4px 12px;align-items:center;padding:6px 14px 4px;
-  font-size:var(--fs-fine);font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#94A3B8;border-bottom:1px solid #EDF1F7}
+  font-size:var(--fs-fine);font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ts-muted);border-bottom:1px solid #EDF1F7}
 /* v1.17.0: each column reads its width from a var so the header grips can resize
    it — unset vars fall back to the flexible fr defaults.
    ponytail: a drag pins ONE column to px; the untouched fr columns share the rest —
@@ -1240,7 +1257,7 @@ body.cd-route #dash-bar{display:none!important}
 #cd-split:hover{background:#E2E8F0}
 .cd-perm{font-family:var(--mono);font-size:var(--fs-fine);font-weight:700;letter-spacing:.06em;color:#3B6FB5;background:#EAF1FB;border-radius:5px;padding:0 4px;margin-right:3px}
 .cd-perm.dev{color:#7C4FB0;background:#F2EBFA}
-.cdd-nick{font-weight:500;color:#7488A3;font-size:.92em}
+.cdd-nick{font-weight:500;color:var(--ts-muted);font-size:.92em}
 /* v1.15.0: the merge-duplicate inline picker in the editor footer */
 #cde-merge-ui{display:inline-flex;gap:6px;align-items:center}
 #cde-merge-ui.hidden{display:none}
@@ -1255,25 +1272,25 @@ body.cd-route #dash-bar{display:none!important}
 .cd-row:hover{background:#F6F9FC}
 .cd-row.sel{background:#EDF3FA;box-shadow:inset 2px 0 0 var(--acc)}
 .cd-row b{font-size:12.5px;color:#16202E;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cd-row .cd-mut{font-size:11.5px;color:#7488A3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cd-row .cd-mut{font-size:11.5px;color:var(--ts-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .cd-avail{font-size:var(--fs-fine);font-weight:600;color:#1AA59C;white-space:nowrap}
 .cd-avail.away{color:#B7791F}
-.cd-avail.off{color:#94A3B8} /* v1.18.0: manually Not available (freelancers off-roster) */
+.cd-avail.off{color:var(--ts-muted)} /* v1.18.0: manually Not available (freelancers off-roster) */
 .cd-avset{grid-template-columns:1fr;gap:5px}
-.cd-avset .n{color:#94A3B8;font-size:11.5px}
+.cd-avset .n{color:var(--ts-muted);font-size:11.5px}
 .cd-detail{flex:1;overflow-y:auto;padding:18px 26px;min-width:0}
-.cd-empty{color:#94A3B8;font-size:12.5px;padding:26px 14px;text-align:center}
+.cd-empty{color:var(--ts-muted);font-size:12.5px;padding:26px 14px;text-align:center}
 .cdd-hd h3{margin:0;font-size:16px;color:#16202E}
-.cdd-role{font-size:12px;color:#7488A3;margin-top:2px}
+.cdd-role{font-size:12px;color:var(--ts-muted);margin-top:2px}
 .cdd dl{margin:0}
 .cdd-f{margin-top:14px}
-.cdd-f dt{font-size:var(--fs-micro);font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#A3B1C4;margin-bottom:3px}
+.cdd-f dt{font-size:var(--fs-micro);font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ts-muted);margin-bottom:3px}
 .cdd-f dd{margin:0;font-size:12.5px;color:#33415A}
 .cdd-ooo{display:flex;gap:8px;font-size:12px;color:#33415A;padding:2px 0}
-.cdd-ooo .n{color:#94A3B8}
+.cdd-ooo .n{color:var(--ts-muted)}
 .cdd-foot{display:flex;gap:8px;align-items:center;margin-top:20px;padding-top:12px;border-top:1px solid #EDF2F7}
 .cd-fg{margin-top:12px}
-.cd-fg label{display:block;font-size:var(--fs-micro);font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#A3B1C4;margin-bottom:3px}
+.cd-fg label{display:block;font-size:var(--fs-micro);font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ts-muted);margin-bottom:3px}
 .cd-fg input{width:100%;max-width:420px;font-family:inherit;font-size:12.5px;padding:6px 9px;border:1px solid #CBD6E4;border-radius:6px;color:#16202E}
 /* v1.14.0/v1.15.0 (owner): checkbox sets are an intentional grid — fixed-width
    columns, checkbox leading, one line per label (no ragged wraps). */
@@ -1287,22 +1304,22 @@ body.cd-route #dash-bar{display:none!important}
 .cd-ooo-row{display:flex;gap:6px;align-items:center;margin-top:5px}
 .cd-ooo-row input[type=date]{width:130px;font-family:inherit;font-size:12px;padding:4px 6px;border:1px solid #CBD6E4;border-radius:6px;color:#33415A}
 .cd-ooo-row input[type=text]{flex:1;width:auto;max-width:220px;font-family:inherit;font-size:12px;padding:4px 6px;border:1px solid #CBD6E4;border-radius:6px;color:#33415A}
-.cd-del{color:#94A3B8;margin-right:auto}
+.cd-del{color:var(--ts-muted);margin-right:auto}
 .cd-del:hover{color:#CE4242;border-color:#CE4242}
 @media(max-width:900px){.cd-body{flex-direction:column}.cd-list{width:auto!important;max-width:none;border-right:none;border-bottom:1px solid #E2E8F0;max-height:45vh}#cd-split{display:none}}
 /* v1.11.0: the dev App Settings page */
 .as-body{max-width:620px;padding:0 26px 40px;overflow-y:auto}
-.as-body h3{font-size:var(--fs-fine);font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:var(--txt-micro);margin:26px 0 8px}
+.as-body h3{font-size:var(--fs-fine);font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:var(--ts-muted);margin:26px 0 8px}
 .as-src{font-size:12px;color:#5B7C99;background:#F1F6FB;border:1px solid #D8E2EF;border-radius:8px;padding:8px 12px;margin-top:14px}
 .as-src.warn{color:#8A5A18;background:#FCF4E4;border-color:#EAD199}
 .as-src code{font-family:var(--mono);font-size:11px}
-.as-note{font-size:12px;color:#7488A3;margin-bottom:10px}
+.as-note{font-size:12px;color:var(--ts-muted);margin-bottom:10px}
 .as-row{display:flex;align-items:flex-start;gap:10px;padding:9px 10px;border:1px solid #E2E8F0;border-radius:8px;margin-bottom:6px;cursor:pointer;background:#fff}
 .as-row:hover{border-color:#CBD6E4}
 .as-row input[type=checkbox]{width:14px;height:14px;margin-top:2px;accent-color:#3B7FD6;flex-shrink:0}
 .as-txt{display:flex;flex-direction:column;gap:2px}
 .as-txt b{font-size:12.5px;color:#1E293B;font-weight:600}
-.as-txt span{font-size:11.5px;color:#7488A3}
+.as-txt span{font-size:11.5px;color:var(--ts-muted)}
 </style>
 </head>
 <body>
@@ -1608,7 +1625,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.23.0'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.24.0'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -10247,6 +10264,7 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.24.0",d:"Sep 27, 2026",n:["Easier to read: the grey helper text across the app (hints, section labels, empty-state notes, dates and codes in panels) is darker, and the boxes around form fields are clearer. Colours on the schedule itself are unchanged."]},
  {v:"v1.23.0",d:"Sep 15, 2026",n:["People page: a Freelance checkbox in the editor marks people with no set weekly schedule. It greys out the day and hour controls, and the Schedule column reads \"Freelance\"."]},
  {v:"v1.22.0",d:"Sep 15, 2026",n:["People page: each person can carry a weekly schedule. Tick the days and pick or type the hours (half-hour steps) in the editor; it reads as \"M-F 9-6\" or \"T-W-Th 11-4\" in a new Schedule column after Status and on the record."]},
  {v:"v1.21.2",d:"Sep 9, 2026",n:["The Changelog no longer prints the full text of a phase's notes. A notes change now reads as added, edited or cleared; older entries fold the same way."]},
