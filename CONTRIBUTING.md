@@ -43,7 +43,11 @@ If you prefer **GitHub Desktop**, the equivalent loop is: make sure you're on
 
 - **`main`** — production. GitHub Pages deploys it live automatically. Do not edit or
   commit here directly.
-- **`development`** — the working branch. Do all work here.
+- **`development`** — the working branch. Every change lands here.
+- **One short-lived branch per change**, cut from `development` and named for what it
+  does (`fix/…`, `feat/…`, `style/…`, `docs/…`), merged back into `development` by Pull
+  Request when it is ready. Changes merge in order of readiness, not on a schedule. No
+  long-lived branches per topic.
 - Promote `development → main` through a **Pull Request** when a change is tested and
   ready. The Pull Request is the review-and-ship step.
 

@@ -27,8 +27,13 @@ Project rules and context for working in this repository. Read this before makin
   style updates its tables in the same PR.
 - **`docs/TODO.md` — the working backlog (Phase 7: pilot readiness, toward v2.0.0).**
   North star, roadmap, the proposed build list, the open design decisions (§4), the
-  material still to gather, and the deferred/skipped ledger (§7). Nothing in it is
-  started until agreed with the owner and collaborators. The retired v1 and v1.x
+  material still to gather, and the deferred/skipped ledger (§7). **§3 is the work queue
+  in priority order, and that order is the owner's approval:** take the top unchecked
+  item, or the one the owner names, and don't ask "what's next". Only ⚠ schema items
+  and architectural changes still need an explicit go (see "Change discipline"). The
+  file holds the work, never process rules — those live here and in `CONTRIBUTING.md`.
+  GitHub Issues (the private tracker) is the user-feedback loop only; reports are folded
+  into §3 by hand. The retired v1 and v1.x
   backlogs and all retired planning docs (UX audit, task briefs, proposals) live in
   **`docs/Archive/`** —
   history and rationale, not current state. **`reference/`** holds frozen material
@@ -38,8 +43,12 @@ Project rules and context for working in this repository. Read this before makin
 
 - **`main` is the production / GitHub Pages branch.** It is what users run. Treat it as
   protected — do not develop directly on it.
-- **Development work happens on the `development` branch** unless explicitly instructed
-  otherwise. Open changes there and promote to `main` deliberately.
+- **Development work lands on the `development` branch** unless explicitly instructed
+  otherwise, and is promoted to `main` deliberately. **One short-lived branch per change**
+  (`style/…`, `fix/…`, `feat/…`, `docs/…`), cut from `development` and merged back into it
+  by pull request in order of readiness. No long-lived track branches (no "aesthetics"
+  branch beside a "functionality" branch): the two tracks — the §3 queue and the style
+  guide's §13 steps — interleave through the one queue in `docs/TODO.md`.
 - **Pushes auto-deploy to GitHub Pages** via `.github/workflows/deploy-pages.yml`:
   `main` → `/`, `development` → `/preview/`, `sandbox` → `/sandbox/` (a collaborator's
   copy). The workflow rebuilds the whole site from all three branches each run, so it must
