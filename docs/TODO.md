@@ -98,15 +98,16 @@ Manager (§4 D8); the v1.x "app as declared master" gate on v2.0.0 is dropped.
 | **8 — Shared registries** | v2.0.0 (+ minors per registry) | Linked Client, Project and Cost Code lists with stable IDs; Timeline re-pointed to them; assignments by person ID; departments and shop closures as lists, not code | A `ShopTimeline_*` master is retired for a shared registry with no loss; two cost-code requests at once can't collide; the workbook is frozen read-only [brief §6, §8, §9 P1] |
 | **9 — The portal and the suite** | v2.x → v3 | Homepage portal; Client Manager, Personnel Manager, Design Resources Manager; permission sets per audience; shared design system with per-app colour/icon identity | Each audience (PM, HR, Accounting, Purchasing, Operations, Management) has its own entry point over the same records; nothing is entered twice [vision; brief §9 P2–P3] |
 
-**Version ladder (proposed — adjust as batches land):**
+**Batches (proposed — the §3 items that ship together; a version number is given at ship time):**
 
-| Release | Contents (§3 items) |
+| Batch | Contents (§3 items) |
 |---|---|
-| v1.24.0 | 9a–9b (import `$select`, phone fallback — first, the owner's "cache is cache" ruling), 4 (time-off notes private), 1–2 (terminology + Lock dates meaning and copy) — the pilot's privacy-and-copy batch |
-| v1.25.0 | 25 (saved views per user ⚠ `savedViews`, Lock dates remembered per user), 7 (repeat work discoverable), 8 (rollup band label) |
-| v1.26.0 | 5 (date certainty ⚠ `dateCertainty`), 6 (visible last update + stale flag) |
-| v1.27.0 | 11 (closeout & billing states ⚠, PM checklist, verification, Bookkeeper queue, aging) — may split into two minors |
-| v1.2x.y | 3 (tour repro/fix), 10 (auto-Complete vs closeout), 19–24 as they resolve |
+| 1 | 9a–9b (import `$select`, phone fallback — first, the owner's "cache is cache" ruling), 4 (time-off notes private), 1–2 (terminology + Lock dates meaning and copy) — the pilot's privacy-and-copy batch |
+| 2 | 25 (saved views per user ⚠ `savedViews`, Lock dates remembered per user), 7 (repeat work discoverable), 8 (rollup band label) |
+| 3 | 5 (date certainty ⚠ `dateCertainty`), 6 (visible last update + stale flag) |
+| 4 | 11 (closeout & billing states ⚠, PM checklist, verification, Bookkeeper queue, aging) — may split in two |
+| as they resolve | 3 (tour repro/fix), 10 (auto-Complete vs closeout), 19–24 |
+| style track | Style guide §13, interleaved with the batches above: step 3 next (one chrome surface per PR, project inspector first); the D4 reshape (§4) after the pilot P0 batches; step 4 after the reshape. Step 2 shipped as v1.24.0 |
 | v2.0.0 | Phase 8 cutover (§1 point 5) |
 
 **Contingency map — what waits on what** (rulings dated; ← means "needs"):
@@ -137,7 +138,7 @@ Manager (§4 D8); the v1.x "app as declared master" gate on v2.0.0 is dropped.
 
 Numbering restarts at 1 for this file; v1.x item numbers are cited as "v1.x item N".
 
-### P0 — before the pilot, in the app [brief §9 row 1; §7]
+### P0 — before the pilot, in the app [brief §9 row 1; §7; §8.4–8.5 closeout]
 
 - [ ] **1. Terminology pass.** "Job code" → **Cost Code** everywhere it shows (sidebar,
       bar labels, tooltip, Meeting Sheet, late prompt, New Project); "Drafter" → **Technical
@@ -228,9 +229,6 @@ Numbering restarts at 1 for this file; v1.x item numbers are cited as "v1.x item
       and "closed out" are different states: keep the automatic flip as the trigger that
       starts closeout aging, never as the thing that hides a job from the closeout queue.
       [brief §7 Closeout Response, §8.4]
-
-### P0 — the business control: closeout [brief §8.4–8.5, §9 "Business control"]
-
 - [ ] **11. Closeout and billing states — the one new feature.** Keep project status,
       closeout status and billing status as three fields. ⚠ two Projects columns:
       `closeoutStatus` (`submitted` / `returned` / `ready` / `hold` / empty) and
@@ -246,6 +244,24 @@ Numbering restarts at 1 for this file; v1.x item numbers are cited as "v1.x item
       is P1 and can ride the same columns family later [brief §8.6]. Open sub-decisions: the
       Bookkeeper's sign-in (remote, another state — a viewer with a `closeout` grant?), and
       whether the Project Director's verification is a role or a named person (§4 D3).
+- [ ] **25. Saved views per user, not per browser (owner ruling 2026-09-24).** Today a
+      saved view lives in `localStorage` (`shopTimelineViews_v1`) on one machine. Store
+      them on the signed-in user's own Staff row instead: ⚠ `savedViews` on
+      `ShopTimeline_Staff`, multi-line text holding a JSON array, written only to the
+      user's own row (the `personalNotes` pattern). Migration: on the first load after the
+      release, import the browser's local views into the row, then keep the local copy as
+      a cache. Result: a view saved anywhere follows the person. The same own-row record is
+      the home for per-user settings that are session-only today — Lock dates (item 2c),
+      density, sidebar width if wanted. Shared and role-based views (item 30, D3) reuse the
+      same JSON shape in Phase 9. Contingency: none — additive column, spec with the batch.
+      [brief §2 "plan saved views and permissions now", §7 Audience views]
+- [ ] **32. Shipping bar missing; milestones assigned to Shipping don't land.** A user
+      adds Shipping milestones, sees no Shipping bar, and milestones assigned to the
+      shipping phase don't attach to it. `shipping` exists as an end department since
+      v1.20.6 (`DEPTS`, `grp:'install'`), so step one is a repro on the real project: is
+      Shipping ticked in that project's departments, does the block exist without dates,
+      and where does a milestone go when its phase has no bar. Bug, P0 for the pilot.
+      [tracker #1]
 
 ### P0 — outside the app: owners, not releases [brief §1, §6, §7.1, §9, §11]
 
@@ -295,63 +311,6 @@ app's part, where any, is listed.
 - [ ] **18. Pilot projects preloaded.** Project Director + Robert load the pilot jobs so PMs
       verify instead of re-entering; set the parallel-entry end date up front; limit the
       pilot project count. [brief §10, §10.2]
-
-### P1 — verification and small fixes [brief §9 P1]
-
-- [ ] **19. Verify the PTO source and edge cases.** Availability today comes from
-      Out-of-office ranges typed on the People page, whole days only, back-to-back ranges not
-      merged for "Away until". The PTO Contract Approvals list (fed by the operations
-      manager's Teams PowerApps plugin) is not connected; the discovery session planned for
-      mid-September is not on record as held — schedule it, and the same session identifies
-      the nightly 10pm automation on 27 Employees. Test: multiple, adjacent, overlapping
-      requests; partial days; cancellations; people without company email. [brief §7.2, §13]
-- [ ] **20. Document the change log's limits** (the brief's verification row): covers
-      projects, phases, milestones, notes — not people, clients or settings; admins only;
-      history starts 2026-09-02; **no retention limit and no export** — every cache miss reads
-      the whole list (it pages), the pages show the latest 500 / 300 per project; recovery is
-      in-session undo (projects only, 20 steps, lost on reload) or SharePoint (Recycle Bin for
-      deletes, version history for edits) — the log is evidence, not a restore tool. Most of
-      this is in the 2026-09-02 milestone record; retention and recovery are the missing
-      paragraphs. [brief §7.2]
-- [ ] **21. Refresh the reference docs before handing the repo to reviewers.**
-      `docs/ARCHITECTURE.md` documents 5 lists (9 in use + Employee Contacts), omits the
-      client/config/changelog/feedback mappers and the `#/people`, `#/clients`,
-      `#/changelog`, `#/settings`, `#/reports` routes, and predates Logistics, Shipping and
-      the `othoffice` retirement; `SETUP.md` lists 2 Graph scopes (4 in use: `User.Read`,
-      `Sites.ReadWrite.All`, `TeamMember.Read.All`, `Mail.Send`); `CLAUDE.md` says ~7,000
-      lines (10,600); `tests/README.md` says 48 suites (79). Add a short "formulas and
-      rollup" section (`generateSchedule` backward from the install date skipping weekends
-      and the coded holidays; `estimatedDays`; Meeting Sheet %; Lead time). [brief §13 "The
-      app" row; §8 standing rule]
-- [ ] **22. Meeting Sheet as the AMPM handout.** It already prints per PM with status,
-      current phase, dates, install date and workdays left. Get the Master Project Tracker's
-      AMPM columns from the Project Director and diff; add the closeout/aging column when
-      item 11 lands. [brief §3 step 9, §9 P1 "AMPM output"]
-- [ ] **23. Milestone records owed** (CLAUDE.md rule): v1.20.6 Shipping phase (a
-      phase-chain and department-vocabulary change documented only as a footnote), v1.20.8
-      (PM required at Create; dashboard columns scroll), v1.20.9; the v1.x ladder has no
-      rows for v1.20.0–v1.20.9 and v1.21.x (add one folded row each to the archive's §4, the
-      way `CHANGELOG.md` folds v1.14–1.15). Docs only.
-- [ ] **24. Repository ownership.** `github.com/221twoseven` is a GitHub *user* account
-      named for the company, not an Organization — no org owners, SSO or team roles;
-      continuity rests on one login. If leadership's "company-owned code" gate matters, plan
-      an Organization transfer (the Pages URL and the Entra redirect URIs must then be
-      re-registered — `SETUP.md`). The repository is public (Pages hosting); safe because
-      access depends on Microsoft sign-in, but leadership should know. [brief §11]
-
-### P0 additions from the owner's fact-check review (2026-09-24)
-
-- [ ] **25. Saved views per user, not per browser (owner ruling 2026-09-24).** Today a
-      saved view lives in `localStorage` (`shopTimelineViews_v1`) on one machine. Store
-      them on the signed-in user's own Staff row instead: ⚠ `savedViews` on
-      `ShopTimeline_Staff`, multi-line text holding a JSON array, written only to the
-      user's own row (the `personalNotes` pattern). Migration: on the first load after the
-      release, import the browser's local views into the row, then keep the local copy as
-      a cache. Result: a view saved anywhere follows the person. The same own-row record is
-      the home for per-user settings that are session-only today — Lock dates (item 2c),
-      density, sidebar width if wanted. Shared and role-based views (item 30, D3) reuse the
-      same JSON shape in Phase 9. Contingency: none — additive column, spec with the batch.
-      [brief §2 "plan saved views and permissions now", §7 Audience views]
 - [ ] **26. Define the information tiers — a decision with HR and the Project Director.**
       The owner's finding: employee information is gated only by curiosity today; every
       signed-in user can read all of `ShopTimeline_Staff`. The unit of protection in
@@ -364,9 +323,6 @@ app's part, where any, is listed.
       Question for HR: is a work phone/email public inside the company? Contingency: feeds
       item 27 and D5; until 27 ships, items 4 and 9a are the only protection, so say so in
       the pilot's limits. [brief §7 Employee source, §8.1, §11.1; vision]
-
-### Owner ask (2026-09-24, evening) — tickets
-
 - [ ] **31. One GitHub issue per feedback report, screenshots included — a poller in a
       private tracker repository. PRIORITY (owner, 2026-09-24: "whatever is easiest to
       implement that is automated").** **RUNNING since 2026-09-25:**
@@ -416,23 +372,56 @@ app's part, where any, is listed.
       workflow and delete the secret; the app and the list are untouched apart from the
       additive column. [owner ask 2026-09-24; brief §11 maintenance]
 
-### Reported by users — carried from the tracker (2026-09-25)
+### P1 — verification and small fixes [brief §9 P1]
+
+- [ ] **19. Verify the PTO source and edge cases.** Availability today comes from
+      Out-of-office ranges typed on the People page, whole days only, back-to-back ranges not
+      merged for "Away until". The PTO Contract Approvals list (fed by the operations
+      manager's Teams PowerApps plugin) is not connected; the discovery session planned for
+      mid-September is not on record as held — schedule it, and the same session identifies
+      the nightly 10pm automation on 27 Employees. Test: multiple, adjacent, overlapping
+      requests; partial days; cancellations; people without company email. [brief §7.2, §13]
+- [ ] **20. Document the change log's limits** (the brief's verification row): covers
+      projects, phases, milestones, notes — not people, clients or settings; admins only;
+      history starts 2026-09-02; **no retention limit and no export** — every cache miss reads
+      the whole list (it pages), the pages show the latest 500 / 300 per project; recovery is
+      in-session undo (projects only, 20 steps, lost on reload) or SharePoint (Recycle Bin for
+      deletes, version history for edits) — the log is evidence, not a restore tool. Most of
+      this is in the 2026-09-02 milestone record; retention and recovery are the missing
+      paragraphs. [brief §7.2]
+- [ ] **21. Refresh the reference docs before handing the repo to reviewers.**
+      `docs/ARCHITECTURE.md` documents 5 lists (9 in use + Employee Contacts), omits the
+      client/config/changelog/feedback mappers and the `#/people`, `#/clients`,
+      `#/changelog`, `#/settings`, `#/reports` routes, and predates Logistics, Shipping and
+      the `othoffice` retirement; `SETUP.md` lists 2 Graph scopes (4 in use: `User.Read`,
+      `Sites.ReadWrite.All`, `TeamMember.Read.All`, `Mail.Send`); `CLAUDE.md` says ~7,000
+      lines (10,600); `tests/README.md` says 48 suites (79). Add a short "formulas and
+      rollup" section (`generateSchedule` backward from the install date skipping weekends
+      and the coded holidays; `estimatedDays`; Meeting Sheet %; Lead time). [brief §13 "The
+      app" row; §8 standing rule]
+- [ ] **22. Meeting Sheet as the AMPM handout.** It already prints per PM with status,
+      current phase, dates, install date and workdays left. Get the Master Project Tracker's
+      AMPM columns from the Project Director and diff; add the closeout/aging column when
+      item 11 lands. [brief §3 step 9, §9 P1 "AMPM output"]
+- [ ] **23. Milestone records owed** (CLAUDE.md rule): v1.20.6 Shipping phase (a
+      phase-chain and department-vocabulary change documented only as a footnote), v1.20.8
+      (PM required at Create; dashboard columns scroll), v1.20.9; the v1.x ladder has no
+      rows for v1.20.0–v1.20.9 and v1.21.x (add one folded row each to the archive's §4, the
+      way `CHANGELOG.md` folds v1.14–1.15). Docs only.
+- [ ] **24. Repository ownership.** `github.com/221twoseven` is a GitHub *user* account
+      named for the company, not an Organization — no org owners, SSO or team roles;
+      continuity rests on one login. If leadership's "company-owned code" gate matters, plan
+      an Organization transfer (the Pages URL and the Entra redirect URIs must then be
+      re-registered — `SETUP.md`). The repository is public (Pages hosting); safe because
+      access depends on Microsoft sign-in, but leadership should know. [brief §11]
+
+### Untriaged — reported by users, in filing order [tracker]
 
 Every report filed in the app is an issue in the private tracker
 (`221twoseven/Project-Scheduler-issues`, item 31); **[tracker #N]** is the citation and
-reporter names stay there. Twelve reports were open on 2026-09-25: #7 is folded into item
-3, #11 was the bridge itself (closed as done), the rest are the items below — untriaged,
-in filing order, for the owner to place in the ladder. Two more arrived that afternoon:
-#13 is item 41; #14 ("GitHub resolutions must reflect in the app") is the status rule in
-item 31, closed as done.
+reporter names stay there. Not yet placed in a band above. Already placed or closed: #1 is
+item 32 (P0), #7 is folded into item 3, #11 and #14 were done by the bridge itself.
 
-- [ ] **32. Shipping bar missing; milestones assigned to Shipping don't land.** A user
-      adds Shipping milestones, sees no Shipping bar, and milestones assigned to the
-      shipping phase don't attach to it. `shipping` exists as an end department since
-      v1.20.6 (`DEPTS`, `grp:'install'`), so step one is a repro on the real project: is
-      Shipping ticked in that project's departments, does the block exist without dates,
-      and where does a milestone go when its phase has no bar. Bug, P0 for the pilot.
-      [tracker #1]
 - [ ] **33. Today button: left edge at the start of the current week.** Today centres
       (`scrollToToday` → `centerDate`); the ask is to park the current week's first day at
       the left edge of the canvas instead. Small: one alignment change, plus the `T` key.
