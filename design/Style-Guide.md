@@ -24,9 +24,10 @@ the code and `Design-Language.md` disagree, this file reports the code and says 
 **Why it exists now.** The owner's vision (2026-09-24, `TODO.md` §1–2) puts Timeline
 inside a portal of sibling apps — Client Manager, Personnel Manager, Design Resources
 Manager — that share one visual language with per-app colour/icon identity (Phase 9).
-`TODO.md` §4 D4 recommends separate single-file apps sharing a vendored `common.css`.
-This file is the spec that `common.css` would be cut from. Until D4 is ruled, a new
-surface **copies the blocks in §1 and §7 verbatim** and follows the rules in §10.
+`TODO.md` §4 D4 (ruled 2026-09-28) is separate single-file apps, one folder each under
+one Pages site, sharing a vendored `common.css`. This file is the spec that `common.css`
+will be cut from when the second app starts; until then a new surface **copies the blocks
+in §1 and §7 verbatim** and follows the rules in §10.
 
 ---
 
@@ -809,10 +810,11 @@ Full inventory: `docs/Copy-Coach-and-Helpers.md`; rules: Design-Language §1.
 
 ## 10. The ecosystem — what a sibling app takes, and where its identity goes
 
-Status: **Phase 9 is planned, not started.** D4 (one file vs. shared `common.css` vs. a
-build) is open; its recommendation is separate single-file apps under one Pages site
-sharing a vendored `common.css`/`common.js`. This section is written for that outcome and
-is a **proposal until the owner rules on D4** — nothing here changes Timeline today.
+Status: **Phase 9 is planned, not started.** D4 was ruled 2026-09-28: separate single-file
+apps, one folder each under one Pages site, the portal at the root, sharing a vendored
+`common.css`/`common.js` extracted when the second app starts. This section is written
+for that outcome; the layout and the Timeline reshape PR are in `TODO.md` §4 D4 — nothing
+here changes Timeline today.
 
 ### 10.1 Shared, verbatim (the future `common.css`)
 

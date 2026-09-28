@@ -564,17 +564,42 @@ Each has a recommendation. None is taken.
   suite. Work: item 26 (tiers, Phase 7) → item 27 (the split, Phase 8) → item 30 (Phase
   9). Saved views: per user in item 25 (Phase 7); shared/role-based in Phase 9.
   [brief §2, §9, §11; vision]
-- **D4 — Architecture for more than one app.** One 10,600-line `index.html`, no build step,
-  no shared module; Pages deploys three branches to `/`, `/preview/`, `/sandbox/` with a
-  guard that greps the file as markup. A portal plus three sibling apps sharing theme, auth
-  and data code needs a decision: (a) one file, more routes (the Company Data pages already
-  are proto-apps at `#/people`, `#/clients`); (b) separate single-file apps under one Pages
-  site (`/timeline/`, `/clients/`, `/people/`, `/resources/`) sharing a vendored
-  `common.css`/`common.js` — each subpath needs its own Entra redirect URI; (c) a build
-  step. *Recommend:* (b) — keeps the no-build, one-file-per-app discipline that made this
-  app maintainable, and the portal is then a static page. Consequence: Timeline moves off
-  `/` (a URL change for users) or the portal lives at `/portal/`. Decide before the second
-  app starts. [vision; brief §11.1]
+- **D4 — Architecture for more than one app. RULED 2026-09-28 (owner): option (b).** One
+  repository, one Pages site, one folder per app, the portal at the root. The options
+  weighed: (a) one file, more routes (the Company Data pages already are proto-apps at
+  `#/people`, `#/clients`); (b) separate single-file apps under one Pages site sharing a
+  vendored `common.css`/`common.js`; (c) a build step. (b) keeps the no-build,
+  one-file-per-app discipline that made this app maintainable, and the portal is then a
+  static page. The hierarchy is the same in the directory, the URL and the docs:
+
+  ```
+  /                         the suite
+    index.html              portal: a static page that links to the apps
+    timeline/index.html     today's index.html, moved
+    clients/  people/  resources/    one folder each, created only when built
+    common/                 common.css, common.js, msal — extracted only when app #2 starts
+    design/                 suite-level (already is)
+    docs/                   suite-level: TODO, ARCHITECTURE, Milestones by phase
+    tests/                  Timeline's today; tests/timeline/ when app #2 arrives
+    reference/              Timeline's frozen baseline, stays put
+  ```
+
+  Phase folders under `docs/Milestones/` stay as they are — phases belong to the suite;
+  a record names its app in the slug. **The Timeline move is its own no-behaviour
+  "reshape" PR**, one release, one CHANGELOG line (the front page is now the portal;
+  Timeline lives at `/timeline/`). What it touches: the Pages workflow (sparse-checkout
+  paths; the markup guard loops over every `index.html`; a missing path is harmless, so it
+  can land on `development` first); **the Entra redirect URIs** — exact match, so
+  `/timeline/`, `/preview/timeline/`, `/sandbox/timeline/` are added by the owner *before*
+  the merge; one line on the portal forwarding any `#/…` hash to `timeline/` so old
+  bookmarks keep working; `tests/run.js`'s default target (one string — the other test
+  files that mention `index.html` are to be checked, not assumed). **Sequence:** after the
+  pilot P0 batch (it changes the URL users have), before style guide §13 step 4 (the
+  shell's app switcher needs a real portal to point at). **Repository name:**
+  `Project-Scheduler` is the Pages path, so it names the suite in every user's URL, and
+  GitHub does not promise a Pages redirect after a rename — item 40 (custom domain) makes
+  the name invisible to users, so: custom domain first, rename after, never before.
+  [vision; brief §11.1]
 - **D5 — Employee Directory identity.** Which list is "the Employee Directory": HR's
   Employee Contacts (manual, current, has Pay Type / PersonalEmail), 27 Employees (nightly
   automation, unidentified), or a new consolidated list? Join key today: work email, else
