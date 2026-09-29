@@ -70,7 +70,7 @@ them.
 
 | Product | What it holds and does | Who uses it | Gated? | Where it stands |
 |---|---|---|---|---|
-| **People** | Staff names, contact information, status (FTE vs Freelance), logged hours, and whatever else the HR / ADP administrator manages | The HR / ADP administrator; everyone reads the public roster | HR-only fields restricted (D3, items 26–27) | Timeline's People page today (`#/people`); its own product in Phase 9 (D8) |
+| **People** | Staff names, contact information, status (FTE vs Freelance), logged hours, and whatever else the HR / ADP administrator manages. The place to connect to ADP — CSV first; the ADP API only through Power Automate with a named owner, never from the browser (D13) | The HR / ADP administrator; everyone reads the public roster | HR-only fields restricted (D3, items 26–27) | Timeline's People page today (`#/people`); its own product in Phase 9 (D8) |
 | **Clients** | Client names, past projects, billing and revenue, current and past teams, client contacts and their details — whatever management needs to track | Management, project management, accounting | Yes | Timeline's Clients page today (`#/clients`); its own product in Phase 9 (D8) |
 | **Office** | Where projects are set up and closed out: estimating, cost-code generation, budget views, project closeout | Management, project management, purchasing, accounting | Yes | Does not exist. **The next new product, built in Phase 8** (owner, 2026-09-29), in project-cycle order: job lead / forecast (45), estimate (44), job creation with cost codes and the QuickBooks / TCP hand-off (42, 43); closeout (11) is the last step of the cycle and comes last |
 | **Timeline** | Project production: the schedule, phases, assignments, milestones, notes — the app that exists today | Everyone; existing permissions mostly stay | Mostly no (admin / viewer as today) | v1.24.0; moves from `/` to `/timeline/` when the portal lands (D4); New Project stays here until Office takes setup (item 43) |
@@ -123,7 +123,7 @@ from the start; the Clients product's place is Phase 9 (§2).
 
 **Where the open work lands** (product → §3 items and §4 decisions):
 
-- **People** — items 4, 9, 19, 26, 27; D5, D9.
+- **People** — items 4, 9, 19, 26, 27; D5, D9, D13 (the ADP connection).
 - **Clients** — item 28 (client IDs; person IDs with People); D10; the billing states of
   item 11 once Office exists.
 - **Office** — items 45, 44, 42, 43 in that order, with 13 and 14 as inputs, then 11 last;
@@ -764,7 +764,8 @@ D14. The rest are open.
   CSV export/import first (QuickBooks and TCP formats to be confirmed — §5), APIs only via
   Power Automate with a named owner. The project cycle (§1, 2026-09-29) puts the
   QuickBooks and TCP hand-off at job creation (item 43), so the CSV formats are Office's
-  input. [brief §1.2, §9 P3, §15]
+  input. The ADP connection belongs to People (owner, 2026-09-29): CSV first, the API via
+  Power Automate. [brief §1.2, §9 P3, §15]
 - **D14 — Shop terminal / TV mode.** A fourth account type (`terminal`) with its own
   read-only dashboard; the company already runs non-person M365 accounts. Owner ruling
   2026-09-02: after rollout, once real use proves the need; brief: P2, and no TV redesign in
@@ -1147,6 +1148,9 @@ state reset per project visit, persist per browser like `NPV_OPEN` only if asked
 - **Standing rule:** the retired backlogs (`docs/Archive/TODO-v1-Archive.md`,
   `TODO-v1.x-Archive.md`) are frozen; a ledger entry's later decision is recorded here, in
   §7, with the archive line number.
+- 2026-09-29 (evening): **People is where Systems connects to ADP** (owner, from the
+  Systems overview handout). §1's People row says so, with D13's limit — CSV first, the
+  API only through Power Automate — and the People bullet lists D13.
 - 2026-09-29 (later): **Office is the next new product, and the build order is the
   project cycle** (owner). Lead / forecast → estimate → job creation with cost codes,
   QuickBooks and TCP (Office) → people management (People) → schedule and production
