@@ -72,7 +72,7 @@ them.
 |---|---|---|---|---|
 | **People** | Staff names, contact information, status (FTE vs Freelance), logged hours, and whatever else the HR / ADP administrator manages | The HR / ADP administrator; everyone reads the public roster | HR-only fields restricted (D3, items 26–27) | Timeline's People page today (`#/people`); its own product in Phase 9 (D8) |
 | **Clients** | Client names, past projects, billing and revenue, current and past teams, client contacts and their details — whatever management needs to track | Management, project management, accounting | Yes | Timeline's Clients page today (`#/clients`); its own product in Phase 9 (D8) |
-| **Office** | Where projects are set up and closed out: estimating, cost-code generation, budget views, project closeout | Management, project management, purchasing, accounting | Yes | Does not exist. **The next new product, built in Phase 8** (owner, 2026-09-29): closeout (item 11) first, then cost-code generation (42), project setup (43), estimating and budgets (44) |
+| **Office** | Where projects are set up and closed out: estimating, cost-code generation, budget views, project closeout | Management, project management, purchasing, accounting | Yes | Does not exist. **The next new product, built in Phase 8** (owner, 2026-09-29), in project-cycle order: job lead / forecast (45), estimate (44), job creation with cost codes and the QuickBooks / TCP hand-off (42, 43); closeout (11) is the last step of the cycle and comes last |
 | **Timeline** | Project production: the schedule, phases, assignments, milestones, notes — the app that exists today | Everyone; existing permissions mostly stay | Mostly no (admin / viewer as today) | v1.24.0; moves from `/` to `/timeline/` when the portal lands (D4); New Project stays here until Office takes setup (item 43) |
 
 **The ownership rule.** Each product has sole ownership of the data it holds: records are
@@ -82,6 +82,22 @@ interactive wherever it is needed — a Timeline phase picks a person from Peopl
 references a client from Clients — but Timeline never creates or deletes a person, a client
 or a cost code, and once Office exists it no longer sets projects up either (item 43):
 Office creates the project, Timeline schedules it. Timeline manages production data only.
+
+**The build order is the project cycle** (owner, 2026-09-29). Systems is developed in the
+order a job moves through the shop, so each product exists before the step that needs it:
+
+| Step | Product | Backlog |
+|---|---|---|
+| 1. Job lead / forecast | Office | item 45 |
+| 2. Estimate | Office | item 44 |
+| 3. Job creation — cost codes, QuickBooks, TCP | Office | items 42, 43 (13 and 14 are its inputs; D13 the hand-off) |
+| 4. People management | People | items 26, 27, 9, 19; D5, D9 |
+| 5. PM schedule, workback | Timeline (exists) | the pilot items, §3 P0 / P1 |
+| 6. Design, production, finishing, packing / install / shipping | Timeline (exists) | the pilot items |
+| 7. Project closeout, final invoice | Office | item 11 — last, not planned further until the steps before it exist |
+
+Clients is not a step: a lead names a client at step 1, so the Clients registry is read
+from the start; the Clients product's place is Phase 9 (§2).
 
 **What this means for the data** (the 2026-09-24 framing, unchanged; D7):
 
@@ -110,8 +126,8 @@ Office creates the project, Timeline schedules it. Timeline manages production d
 - **People** — items 4, 9, 19, 26, 27; D5, D9.
 - **Clients** — item 28 (client IDs; person IDs with People); D10; the billing states of
   item 11 once Office exists.
-- **Office** — items 11, 13, 14, 42–44; D1, D11. The next new product, built in Phase 8
-  (owner, 2026-09-29).
+- **Office** — items 45, 44, 42, 43 in that order, with 13 and 14 as inputs, then 11 last;
+  D1, D11, D13. The next new product, built in Phase 8 (owner, 2026-09-29).
 - **Timeline** — items 1–3, 5–8, 10, 12, 18, 20, 22, 23, 25, 29, 32–41; D12, D14.
 - **Systems as a whole** (portal, shared module, sign-in, hosting) — items 15–17, 21, 24,
   30, 31; D3, D4, D7, D8, D13. D6 is tabled.
@@ -127,8 +143,8 @@ four products and is tabled — owner, 2026-09-29, D6).
 | Phase | Versions | Goal | Done when |
 |---|---|---|---|
 | **7 — Pilot readiness** (now) | v1.24 → v1.3x | The brief's P0 app items, verification of what exists, the outside-the-app controls handed to their owners, the design decisions in §4 taken. Closeout moved to Office, Phase 8 (owner, 2026-09-29) | Pilot users create and update jobs without missing workers, lost edits or misleading dates; at least one duplicate-entry step is named for removal [brief §9, §10.1] |
-| **8 — Shared registries and Office** | v2.0.0 (+ minors per registry; Office versions on its own) | Linked Client, Project and Cost Code lists with stable IDs; Timeline re-pointed to them; assignments by person ID; departments and shop closures as lists, not code. **Office, the next new product** (owner, 2026-09-29): closeout, cost-code generation, project setup, estimating and budgets over the registries it edits (items 11, 42–44) | A `ShopTimeline_*` master is retired for a shared registry with no loss; two cost-code requests at once can't collide; the workbook is frozen read-only; a finished job can't fall through before the balance invoice [brief §6, §8, §8.4–8.6, §9 P1] |
-| **9 — Systems: the portal and the products** | v2.x → v3 | The Systems portal at `/`; People and Clients as their own products (Office arrived in Phase 8); Timeline at `/timeline/`; one shared module and design language with per-product identity; permission sets per audience | Each audience (PM, HR, Accounting, Purchasing, Operations, Management) has its own product over the same records; records are created and deleted only in their owning product; nothing is entered twice [vision; brief §9 P2–P3] |
+| **8 — Shared registries and Office** | v2.0.0 (+ minors per registry; Office and People version on their own) | Linked Client, Project and Cost Code lists with stable IDs; Timeline re-pointed to them; assignments by person ID; departments and shop closures as lists, not code. **Office, the next new product** (owner, 2026-09-29), built in project-cycle order (§1): job lead / forecast, estimate, job creation with cost codes and the QuickBooks / TCP hand-off (items 45, 44, 42, 43); then **People** (step 4: items 26, 27) | A `ShopTimeline_*` master is retired for a shared registry with no loss; two cost-code requests at once can't collide; the workbook is frozen read-only; a job exists in Office before Timeline schedules it [brief §6, §8, §9 P1] |
+| **9 — Systems: the portal and the products** | v2.x → v3 | The Systems portal at `/`; Clients as its own product (Office and People arrived in Phase 8); Office's closeout screen (item 11), the last step of the cycle; Timeline at `/timeline/`; one shared module and design language with per-product identity; permission sets per audience | Each audience (PM, HR, Accounting, Purchasing, Operations, Management) has its own product over the same records; records are created and deleted only in their owning product; nothing is entered twice; a finished job can't fall through before the balance invoice [vision; brief §8.4–8.5, §9 P2–P3] |
 
 **Batches (proposed — the §3 items that ship together; a version number is given at ship time):**
 
@@ -137,7 +153,8 @@ four products and is tabled — owner, 2026-09-29, D6).
 | 1 | 9a–9b (import `$select`, phone fallback — first, the owner's "cache is cache" ruling), 4 (time-off notes private), 1–2 (terminology + Lock dates meaning and copy) — the pilot's privacy-and-copy batch |
 | 2 | 25 (saved views per user ⚠ `savedViews`, Lock dates remembered per user), 7 (repeat work discoverable), 8 (rollup band label) |
 | 3 | 5 (date certainty ⚠ `dateCertainty`), 6 (visible last update + stale flag) |
-| Office (Phase 8) | 11 (closeout & billing states ⚠, PM checklist, verification, Bookkeeper queue, aging) first, then 42 (cost-code generation), 43 (project setup), 44 (estimating and budgets) — Office's own releases; moved out of the pilot 2026-09-29 |
+| Office (Phase 8) | in project-cycle order: 45 (job lead / forecast), 44 (estimate), 42 (cost-code generation), 43 (job creation with the QuickBooks / TCP hand-off) — Office's own releases |
+| Office (Phase 9) | 11 (closeout & billing states ⚠) — the last step of the cycle; moved out of the pilot 2026-09-29 |
 | as they resolve | 3 (tour repro/fix), 10 (auto-Complete vs closeout), 19–24 |
 | style track | Style guide §13, interleaved with the batches above: step 3 next (one chrome surface per PR, project inspector first); the D4 reshape (§4) after the pilot P0 batches; step 4 after the reshape. Step 2 shipped as v1.24.0 |
 | v2.0.0 | Phase 8 cutover (§1 point 5) |
@@ -166,12 +183,13 @@ four products and is tabled — owner, 2026-09-29, D6).
 - **D1 core registry** ← item 14 schema comparison ← the Current Projects / 27 Events
   schemas from the Project Director (§5). Then **v2.0.0** ← D1 + item 28 + item 13's
   cost-code registry (← the workbook inventory).
-- **Ruled 2026-09-29 — Office is the next new product, built in Phase 8** (option 1:
-  closeout arrives with Office; the pilot does not wait for it). **Office** ← D1 (the
-  registry), item 13's inventory, item 14; **item 11 closeout** ← Office (the columns are
-  additive; the Bookkeeper's sign-in and the verifier role ← D3's role vocabulary); **item
-  42 cost codes** ← item 13, D1, item 28; **item 43 setup** ← D1, item 28, item 42;
-  **item 44 estimating** ← items 11, 42 and the Master Project Tracker material (§5).
+- **Ruled 2026-09-29 — Office is the next new product, built in project-cycle order**
+  (§1). **Item 45 job lead** ← D1 (the registry), the Clients registry. **Item 44
+  estimate** ← item 45, the Master Project Tracker material (§5). **Item 42 cost codes** ←
+  item 13's inventory, D1, item 28. **Item 43 job creation** ← items 42, 44, 45, D1, item
+  28; D13 for the QuickBooks / TCP hand-off. **Item 11 closeout** ← every step before it
+  (Phase 9); its columns are additive; the Bookkeeper's sign-in and the verifier role ←
+  D3's role vocabulary.
 - **Item 5 date certainty** ← the Project Director's default-date decision (5a). **Item 2
   Lock dates** ← the owner's single-meaning decision; remembering it ← item 25.
 - **Item 12 calendar drift** ← a flow owner identified (§5). **Item 19 PTO** ← the
@@ -525,53 +543,65 @@ item 32 (P0), #7 is folded into item 3, #11 and #14 were done by the bridge itse
       deliberate cleanup now that D2 is lifted; milestone record; the app stops writing
       them one release before the columns go. ⚠
 
-### Queued for Phase 8 — Office, the next product (owner, 2026-09-29) [brief §8.4–8.6, §9 "Business control"; vision]
+### Queued — Office, the next product, in project-cycle order (owner, 2026-09-29) [brief §6, §8.4–8.6; vision]
 
-Office is built in Phase 8, before People and Clients, because it edits the registries
-Phase 8 creates. Its screens, in proposed build order. The pilot does not wait for them:
-closeout arrives with Office.
+Office is built first among the new products, in the order a job moves through the shop
+(§1): lead, estimate, creation. Items 13 and 14, in the P0 outside-the-app band, are its
+inputs. Closeout is the last step of the cycle and comes last.
 
-- [ ] **11. Closeout and billing states — Office's first screen.** Keep project status,
-      closeout status and billing status as three fields. ⚠ two Projects columns:
-      `closeoutStatus` (`submitted` / `returned` / `ready` / `hold` / empty) and
-      `billingStatus` (`invoiced` / `exception` / empty), plus `closeoutBy`/`closeoutAt`
-      if the change log's who/when isn't enough. Flow: PM submits a one-minute checklist
-      (no budget or line items) → Project Director verifies (Returned / Ready for balance
-      invoice / Hold for revision) → Bookkeeper marks Invoice sent or Accounting exception.
-      Surfaces: a **Needs closeout** queue in Office with aging from the last scheduled
-      work date; overdue items stay visible until resolved; reminders via the
-      already-consented `Mail.Send` path the feedback form uses; the Meeting Sheet section
-      for the AMPM handout stays a Timeline surface that reads the same columns. The
-      estimate reference is item 44. Open sub-decisions: the Bookkeeper's sign-in (remote,
-      another state — a viewer with a `closeout` grant?), and whether the Project
-      Director's verification is a role or a named person (§4 D3). **Moved out of the
-      pilot band 2026-09-29 (owner, option 1):** built with Office in Phase 8; the columns
-      live on the Projects registry either way. [brief §8.4–8.5, §9 "Business control"]
-- [ ] **42. Cost-code generation in Office.** Today `jobCode` is free text typed on New
-      Project, with no format, duplicate or lifecycle check (item 13). Office generates
-      the next code from the cost-code registry: the client's alias from Clients plus the
-      next sequence number, with the workbook's format and duplicate rules (item 13's
-      inventory) enforced at creation. Timeline and every other product only pick from
-      the registry, never type.
+- [ ] **45. Job lead and forecast in Office.** Step 1 of the cycle (Phase 8). Today a
+      forecast is a Timeline project with the `forecast` status: a real project record,
+      penciled in grey, created on New Project. In Office a lead is a record *before* a
+      job exists — the client (from Clients), the scope, the expected install window, who
+      is chasing it — and becomes a job at creation (item 43). Timeline shows a lead as a
+      forecast bar only once it has dates worth scheduling. Existing Forecast-status
+      projects migrate to leads when Office ships.
+      Waits on: D1 (the registry), the Clients registry. [vision; brief §7 Early dates]
+- [ ] **44. Estimate in Office.** Step 2 of the cycle (Phase 8). The estimate reference
+      (number, revision, sent and approved dates; a client revision creates a new
+      revision; unbilled scope later blocks Ready at closeout) on the lead from item 45,
+      and the budget views per project. Nothing is specified beyond that; scope it with
+      the Project Director and the Bookkeeper before design.
+      Waits on: item 45; the Master Project Tracker material (§5). [brief §8.6; vision]
+- [ ] **42. Cost-code generation in Office.** Step 3 of the cycle (Phase 8), with item
+      43. Today `jobCode` is free text typed on New Project, with no format, duplicate or
+      lifecycle check (item 13). Office generates the next code from the cost-code
+      registry: the client's alias from Clients plus the next sequence number, with the
+      workbook's format and duplicate rules (item 13's inventory) enforced at creation.
+      Timeline and every other product only pick from the registry, never type.
       Waits on: item 13's inventory (the rules), D1 (the registry), item 28 (client IDs).
       [brief §6, §9 P0 "Before integrations"; vision]
-- [ ] **43. Project setup moves to Office.** Today a project is created on Timeline's New
-      Project page: name, client, cost code, install date, team, departments. Under the
-      ownership rule (§1), Office creates the project — name, client from Clients, cost
-      code from item 42, install date and its certainty (item 5), the PM — and Timeline
-      schedules it: New Project becomes "schedule this project" over a record Office made.
-      Until Office exists, New Project stays in Timeline unchanged.
+- [ ] **43. Job creation in Office — with the cost code and the QuickBooks / TCP
+      hand-off.** Step 3 of the cycle (Phase 8). Today a project is created on Timeline's
+      New Project page: name, client, cost code, install date, team, departments. Under
+      the ownership rule (§1), Office creates the job from the lead and the estimate
+      (items 45, 44) — name, client from Clients, cost code from item 42, install date and
+      its certainty (item 5), the PM — hands the code to QuickBooks and TCP (D13: CSV
+      first, APIs via Power Automate), and Timeline schedules it: New Project becomes
+      "schedule this job" over a record Office made. Until Office exists, New Project
+      stays in Timeline unchanged.
       - Office's create screen over the Projects registry.
       - Timeline's New Project loses the setup fields and gains a picker of unscheduled
-        projects; the draft page's scheduler (`generateSchedule`) is untouched.
-      Waits on: D1, item 28 (client IDs), item 42. [vision; brief §7 New Project layout]
-- [ ] **44. Estimating and budget views.** Office's remaining screens per the Systems
-      definition: the estimate reference (number, revision, sent and approved dates; a
-      client revision creates a new revision; unbilled scope blocks Ready — formerly item
-      11's P1 tail) and budget views per project. Nothing is specified beyond that; scope
-      it with the Project Director and the Bookkeeper before design.
-      Waits on: item 11, item 42; the Master Project Tracker material (§5). [brief §8.6;
-      vision]
+        jobs; the draft page's scheduler (`generateSchedule`) is untouched.
+      Waits on: D1, item 28 (client IDs), items 42, 44, 45; D13 for the hand-off. [vision;
+      brief §6, §7 New Project layout]
+- [ ] **11. Closeout and billing states.** Step 7 of the cycle, the last one (Phase 9):
+      not planned further until the steps before it exist. What is known: keep project
+      status, closeout status and billing status as three separate fields.
+      - ⚠ Two Projects columns: `closeoutStatus` (`submitted` / `returned` / `ready` /
+        `hold` / empty) and `billingStatus` (`invoiced` / `exception` / empty), plus
+        `closeoutBy` / `closeoutAt` if the change log's who and when is not enough.
+      - The flow: the PM submits a one-minute checklist (no budget or line items); the
+        Project Director verifies (Returned, Ready for balance invoice, or Hold for
+        revision); the Bookkeeper marks Invoice sent or Accounting exception.
+      - Surfaces: a **Needs closeout** queue in Office with aging from the last scheduled
+        work date; overdue items stay visible until resolved; reminders through the
+        already-consented `Mail.Send` path. The Meeting Sheet's AMPM section stays a
+        Timeline surface that reads the same columns.
+      Open sub-decisions: the Bookkeeper's sign-in (remote, in another state; a viewer
+      with a `closeout` grant?), and whether the Project Director's verification is a role
+      or a named person (§4 D3). Moved out of the pilot 2026-09-29 (owner). [brief
+      §8.4–8.5, §9 "Business control"]
 
 ### Queued for Phase 9
 
@@ -732,7 +762,9 @@ D14. The rest are open.
   and maintenance are settled; vision: "if possible". A browser SPA cannot hold API secrets,
   so any write integration needs a flow or a small service with its own owner. *Recommend:*
   CSV export/import first (QuickBooks and TCP formats to be confirmed — §5), APIs only via
-  Power Automate with a named owner. [brief §1.2, §9 P3, §15]
+  Power Automate with a named owner. The project cycle (§1, 2026-09-29) puts the
+  QuickBooks and TCP hand-off at job creation (item 43), so the CSV formats are Office's
+  input. [brief §1.2, §9 P3, §15]
 - **D14 — Shop terminal / TV mode.** A fourth account type (`terminal`) with its own
   read-only dashboard; the company already runs non-person M365 accounts. Owner ruling
   2026-09-02: after rollout, once real use proves the need; brief: P2, and no TV redesign in
@@ -1115,6 +1147,13 @@ state reset per project visit, persist per browser like `NPV_OPEN` only if asked
 - **Standing rule:** the retired backlogs (`docs/Archive/TODO-v1-Archive.md`,
   `TODO-v1.x-Archive.md`) are frozen; a ledger entry's later decision is recorded here, in
   §7, with the archive line number.
+- 2026-09-29 (later still): **the build order is the project cycle** (owner). Lead /
+  forecast → estimate → job creation with cost codes, QuickBooks and TCP (Office) →
+  people management (People) → schedule and production (Timeline, exists) → closeout and
+  final invoice (Office, last). §1 gains the table; Office's band is reordered (45 lead,
+  44 estimate, 42 cost codes, 43 job creation; 11 closeout last, Phase 9, not planned
+  further until then); People follows Office in Phase 8; new item 45; D13 notes the
+  hand-off at job creation.
 - 2026-09-29 (later): **Office is the next new product** (owner, option 1). Built in
   Phase 8, before People and Clients, because it edits the registries Phase 8 creates.
   Item 11 (closeout) leaves the pilot band and becomes Office's first screen; the pilot's
