@@ -5,7 +5,7 @@
 > **Status (2026-09-27, later the same day):** this is the **as-built inventory**, not the
 > direction. The direction is [`TwoSeven-Application-Style-Guide.md`](TwoSeven-Application-Style-Guide.md);
 > the gap between the two is in [`Style-Transition-Review.md`](Style-Transition-Review.md).
-> §1.1's proposed token names are superseded by the `--ts-*` set, and §10.3's per-app hue
+> §1.1's proposed token names are superseded by the `--ts-*` set, and §10.3's per-product hue
 > is **withdrawn** (the target guide assigns no identity colour per app). Use this file to
 > find every value that has to migrate.
 
@@ -19,21 +19,21 @@ the code and `Design-Language.md` disagree, this file reports the code and says 
 |---|---|---|
 | Answers | *Why* — rules, owner rulings, interaction law | *What* — tokens, hex values, sizes, component CSS |
 | Changes when | a decision is made | the stylesheet changes |
-| Read by | anyone changing appearance or behaviour | anyone building a surface — in Timeline or a sibling app |
+| Read by | anyone changing appearance or behaviour | anyone building a surface — in Timeline or another Systems product |
 
-**Why it exists now.** The owner's vision (2026-09-24, `TODO.md` §1–2) puts Timeline
-inside a portal of sibling apps — Client Manager, Personnel Manager, Design Resources
-Manager — that share one visual language with per-app colour/icon identity (Phase 9).
-`TODO.md` §4 D4 (ruled 2026-09-28) is separate single-file apps, one folder each under
+**Why it exists now.** Systems (owner, 2026-09-29, `TODO.md` §1) makes Timeline one of
+four peer products — People, Clients, Office, Timeline — behind one portal, sharing one
+visual language with per-product colour/icon identity (Phase 9). `TODO.md` §4 D4 (ruled
+2026-09-28, refined 2026-09-29) is separate single-file products, one folder each under
 one Pages site, sharing a vendored `common.css`. This file is the spec that `common.css`
-will be cut from when the second app starts; until then a new surface **copies the blocks
-in §1 and §7 verbatim** and follows the rules in §10.
+will be cut from when the second product starts; until then a new surface **copies the
+blocks in §1 and §7 verbatim** and follows the rules in §10.
 
 ---
 
 ## 0. Grep-able rules
 
-Six checks a reviewer can run on any diff, in Timeline or a sibling app:
+Six checks a reviewer can run on any diff, in Timeline or another product:
 
 1. **No new hex.** New CSS references a token (`var(--…)`) or a value already in §2. A
    reviewer greps the diff for `#[0-9A-Fa-f]{6}`.
@@ -52,7 +52,7 @@ Six checks a reviewer can run on any diff, in Timeline or a sibling app:
 
 ## 1. Tokens — the `:root` block, verbatim
 
-This is the whole token layer as it ships. Copy it unchanged into any sibling app.
+This is the whole token layer as it ships. Copy it unchanged into any Systems product.
 
 ```css
 :root{
@@ -117,7 +117,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);font-size:var(--fs
 
 ### 1.1 Values that behave like tokens but are still literals
 
-These recur across the sheet as raw hex. A sibling app should treat them as tokens; the
+These recur across the sheet as raw hex. Another product should treat them as tokens; the
 names below are **proposed** (not in `:root` today — promoting them is a one-line PR each).
 
 | Proposed name | Value | Used for today |
@@ -252,7 +252,7 @@ Three reds ship. Keep them to their jobs:
 | `--late #DC2626` | The Today marker | anything else on the canvas |
 | `#EF4444` | `.btn-del` / row-delete × (Tailwind red, pre-design-system) | new surfaces — use `#CE4242` |
 
-A sibling app needs at most two: `#CE4242` for errors and destructive actions, `--late`
+Another product needs at most two: `#CE4242` for errors and destructive actions, `--late`
 only if it draws a Today marker.
 
 ### 2.6 Identity palette (projects) — `PCOLS`
@@ -384,7 +384,7 @@ functions; do not hand-pick a text colour for a fill.
 **Off-scale sizes in use** (inherited, not to be added to): `12px` and `12.5px` are the
 de-facto "body-small" of menus, list rows, tooltips and toasts; `14px` breadcrumb links;
 `14.5px` empty-state; `16–17px` page/record `h2`/`h3`; `18px` the × exit; `21px` the demo
-preamble title only. A sibling app rounds these to `--fs-body` or `--fs-label` unless
+preamble title only. Another product rounds these to `--fs-body` or `--fs-label` unless
 copying a recipe verbatim.
 
 ### 3.3 Weight, leading, tracking
@@ -537,7 +537,7 @@ Compact tightens leading (`line-height:1.1`) but nothing informational drops bel
 
 ## 7. Component recipes
 
-CSS as shipped, trimmed to the essentials. Class names are Timeline's; a sibling app may
+CSS as shipped, trimmed to the essentials. Class names are Timeline's; another product may
 rename but must keep the values.
 
 ### 7.1 Toolbar button (dark)
@@ -726,8 +726,8 @@ Widths in use: 470 default · 560 (staff, demo) · 680 (late prompt) · 720 (`.m
 
 ### 7.11 Master/detail (Company Data pattern)
 
-The reusable page shape for every registry view — People and Clients today; Client
-Manager and Personnel Manager tomorrow.
+The reusable page shape for every registry view — Timeline's People and Clients pages
+today; the People, Clients and Office products tomorrow.
 
 ```css
 .cd-head{display:flex;align-items:center;gap:10px;padding:12px 22px 10px;border-bottom:1px solid #E2E8F0}
@@ -808,13 +808,14 @@ Full inventory: `docs/Copy-Coach-and-Helpers.md`; rules: Design-Language §1.
 
 ---
 
-## 10. The ecosystem — what a sibling app takes, and where its identity goes
+## 10. Systems — what a product takes, and where its identity goes
 
-Status: **Phase 9 is planned, not started.** D4 was ruled 2026-09-28: separate single-file
-apps, one folder each under one Pages site, the portal at the root, sharing a vendored
-`common.css`/`common.js` extracted when the second app starts. This section is written
-for that outcome; the layout and the Timeline reshape PR are in `TODO.md` §4 D4 — nothing
-here changes Timeline today.
+Status: **Phase 9 is planned, not started.** D4 was ruled 2026-09-28 and refined for
+Systems on 2026-09-29: separate single-file products, one folder each under one Pages
+site, the Systems portal at the root, sharing a vendored `common.css`/`common.js`
+extracted when the second product starts. This section is the extraction brief for that
+outcome; the layout and the Timeline reshape PR are in `TODO.md` §4 D4 — nothing here
+changes Timeline today.
 
 ### 10.1 Shared, verbatim (the future `common.css`)
 
@@ -823,7 +824,7 @@ here changes Timeline today.
    group, dark search, sync pill, signed-in chip (§2.1, §7.1–7.2). Every app has the same
    title block; only the eyebrow text and the mark change.
 3. Buttons, fields, toggles, chips, menus, popovers, tooltip, toast, modal (§7.3–7.9).
-4. The page chrome and master/detail pattern (§7.10–7.11) — the portal and every Manager
+4. The page chrome and master/detail pattern (§7.10–7.11) — the portal and every product
    is a set of these pages.
 5. `labelColor()`, `kidShade()`, `hashSlot()`, `PCOLS`, `DEPT_COLORS`, `INSTALL_RED`,
    `FORECAST_GREY` (§2.6–2.10) — so a project or department is one colour everywhere.
@@ -834,32 +835,33 @@ here changes Timeline today.
 `--ink`, `--acc`, the type scale, the 4px unit, the red rule, white-on-bar, the
 three-path interaction rule, toast-with-Undo, one-menu-at-a-time, Escape-one-layer.
 
-### 10.3 Per-app identity — three slots, nothing more (proposal)
+### 10.3 Per-product identity — three slots, nothing more (proposal)
 
-| Slot | Timeline today | A sibling app |
+| Slot | Timeline today | Another product |
 |---|---|---|
-| **Eyebrow** `.tb-app` | `Shop Timeline` (markup; CSS uppercases it) | `Client Manager` · `Personnel Manager` · `Design Resources` · `Portal` |
-| **Mark** | `icons/favicon.svg` (2-7 monogram) | The same monogram; an app may add a small glyph after the eyebrow, 16-grid SVG, 1.5px stroke |
-| **App hue** `--app` (new token) | unset → falls back to `#8CA0BF` | One hue per app, used **only** on: the eyebrow text, the app glyph, the favicon tint, and the active-nav underline in the portal. Never on data, never on buttons, never replacing `--acc`. |
+| **Eyebrow** `.tb-app` | `Shop Timeline` (markup; CSS uppercases it) | `People` · `Clients` · `Office` · `Systems` (the portal) |
+| **Mark** | `icons/favicon.svg` (2-7 monogram) | The same monogram; a product may add a small glyph after the eyebrow, 16-grid SVG, 1.5px stroke |
+| **App hue** `--app` (new token) | unset → falls back to `#8CA0BF` | One hue per product, used **only** on: the eyebrow text, the product glyph, the favicon tint, and the active-nav underline in the portal. Never on data, never on buttons, never replacing `--acc`. |
 
 Suggested `--app` hues, chosen from the identity palette so they already pass the
-contrast test and never approach red: Timeline `#2B73CF` (slot 01) · Client Manager
-`#148079` (05) · Personnel Manager `#9050C3` (04) · Design Resources `#5E7D34` (12) ·
-Portal none (neutral `#8CA0BF`). A user tells the apps apart by the eyebrow and a tint on
-one word; everything else is the same shop drawing.
+contrast test and never approach red: Timeline `#2B73CF` (slot 01) · Clients `#148079`
+(05) · People `#9050C3` (04) · Office `#5E7D34` (12) · Systems (the portal) none (neutral
+`#8CA0BF`). A user tells the products apart by the eyebrow and a tint on one word;
+everything else is the same shop drawing.
 
 ### 10.4 Routing and shell
 
-Each app is one file at its own subpath (`/timeline/`, `/clients/`, `/people/`,
-`/resources/`), each with its own Entra redirect URI (D4 consequence). The wordmark
-button goes to the **portal** in every app, not to that app's home; the app's own home is
-the first breadcrumb (`All Projects`, `All Clients`, `All People`). The trail bar, ×
-exit and Esc behave as in Design-Language §7.5–7.6.
+Each product is one file at its own subpath (`/timeline/`, `/people/`, `/clients/`,
+`/office/`), each with its own Entra redirect URI (D4 consequence); the Systems portal is
+at `/`. The wordmark button goes to the **portal** in every product, not to that product's
+home; the product's own home is the first breadcrumb (`All Projects`, `All People`,
+`All Clients`; Office's is to be named). The trail bar, × exit and Esc behave as in
+Design-Language §7.5–7.6.
 
 ### 10.5 Where the seeds already are
 
-`#/people` and `#/clients` inside Timeline are proto-apps built on §7.10–7.11 (D8
-recommends graduating them in Phase 9). A new Manager starts by copying one of those
+`#/people` and `#/clients` inside Timeline are proto-products built on §7.10–7.11 (D8,
+ruled 2026-09-29: they graduate in Phase 9). A new product starts by copying one of those
 routes, its CSS block (`/* COMPANY DATA PAGES */`), and this file.
 
 ---
@@ -870,7 +872,7 @@ routes, its CSS block (`/* COMPANY DATA PAGES */`), and this file.
   literal, or a component recipe updates the matching table here in the same PR.
 - Promoting a §1.1 literal to a real token is welcome: add it to `:root`, replace the
   literals, update §1 and delete the row from §1.1.
-- When D4 is ruled, §10 becomes the `common.css` extraction brief; its "proposal" label
-  comes off in that PR.
+- D4 was ruled 2026-09-29, so §10 is the `common.css` extraction brief; the "proposal"
+  label on §10.3 comes off when the first product copies it.
 - Checklist for any new surface: Design-Language §9 (contrast, three paths, focus, ≥11px,
   ≥24px, toasts don't cover controls) plus §0 above.

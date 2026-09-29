@@ -1,6 +1,7 @@
 # design/
 
-The visual system for Shop Timeline and the sibling apps that will share it.
+The visual system for Timeline and the other Systems products that will share it
+(`docs/TODO.md` §1).
 
 | File | What it is |
 |---|---|
@@ -11,5 +12,5 @@ The visual system for Shop Timeline and the sibling apps that will share it.
 | `fonts/` | The one committed font file, `BrNStdBd.otf` (Brauer Neue Std Bold, the wordmark). Other licensed weights stay local and are git-ignored. `index.html` loads it from `design/fonts/`, and the Pages deploy allowlist publishes it. |
 
 New design documents (a component inventory, an icon sheet, the `common.css` brief when
-the second app starts — D4 was ruled 2026-09-28) go here, not in `docs/`. `docs/` keeps the backlog, architecture, setup and
+the second product starts — D4 was ruled 2026-09-28, refined for Systems 2026-09-29) go here, not in `docs/`. `docs/` keeps the backlog, architecture, setup and
 milestone records.

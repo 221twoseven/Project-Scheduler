@@ -14,10 +14,11 @@ Two documents set this phase and are the source for most lines below:
   Cited as **[brief §N]**. Its "Response" annotations were fact-checked
   against the app on 2026-09-24; where a claim was partly wrong, the corrected fact is what
   appears below.
-- **The owner's vision (2026-09-24)** — Timeline stays a project-management and scheduling
-  app with its features intact, and moves into a portal of sibling apps (Client Manager,
-  Personnel Manager, Design Resources Manager) that share the same SharePoint lists, one
-  permission model, and one visual language. Cited as **[vision]**.
+- **The owner's vision (2026-09-24), defined as Systems (2026-09-29)** — Timeline stays a
+  project-management and scheduling app with its features intact, and becomes one product
+  of **Systems**: a data-management ecosystem of peer products (People, Clients, Office,
+  Timeline) over one shared SharePoint dataset, one permission model and one visual
+  language, reached from one portal. The definition is §1. Cited as **[vision]**.
 
 **Nothing in this file is started except item 31** — the feedback → GitHub ticket bridge,
 running since 2026-09-25 outside the app in a private tracker repository; user reports
@@ -59,36 +60,65 @@ Production (`main`) runs **v1.23.0** plus the 2026-09-18 view-as fix (PR #49); `
 carries the docs reorg, the `design/` folder and **v1.24.0** (suite tokens + readable chrome
 text, style guide §13 step 2, 2026-09-27).
 
-## 1. North star, restated
+## 1. North star — Systems
 
-**Retired framing (v1.x):** "the app becomes the company's singular source of truth";
-each of the 14 stores is absorbed into Timeline's Company Data pages; v2.0.0 declares the
-cutover.
+**Systems** (owner, 2026-09-29) is a data-management ecosystem: several **products**, each
+a touchpoint for one kind of information, over **one shared dataset**, reached from one
+**portal**. "Systems" is the name in the title block of the portal, and the portal sits at
+the root `/`. The products are peers — none is the parent of another. Timeline is one of
+them.
 
-**Proposed framing (needs sign-off — §4 D7):**
+| Product | What it holds and does | Who uses it | Gated? | Where it stands |
+|---|---|---|---|---|
+| **People** | Staff names, contact information, status (FTE vs Freelance), logged hours, and whatever else the HR / ADP administrator manages | The HR / ADP administrator; everyone reads the public roster | HR-only fields restricted (D3, items 26–27) | Timeline's People page today (`#/people`); its own product in Phase 9 (D8) |
+| **Clients** | Client names, past projects, billing and revenue, current and past teams, client contacts and their details — whatever management needs to track | Management, project management, accounting | Yes | Timeline's Clients page today (`#/clients`); its own product in Phase 9 (D8) |
+| **Office** | Where projects are set up and closed out: estimating, cost-code generation, budget views, project closeout | Management, project management, purchasing, accounting | Yes | Does not exist. Closeout (item 11) and the cost-code registry (item 13) are its first screens — see the note on item 11 |
+| **Timeline** | Project production: the schedule, phases, assignments, milestones, notes — the app that exists today | Everyone; existing permissions mostly stay | Mostly no (admin / viewer as today) | v1.24.0; moves from `/` to `/timeline/` when the portal lands (D4) |
 
-1. **The shared SharePoint registries are the source of truth, not any app.** One record
-   per fact, keyed by a stable internal ID, with one owner per field and its freshness
-   visible. Projects, Clients, People, Cost Codes, Events, Departments, Shop Closures,
-   Closeouts are registries; Timeline, the portal and its sibling apps are *views* of them
-   [brief §5, §8; vision "no duplicate entries"].
+**The ownership rule.** Each product has sole ownership of the data it holds: records are
+**created and deleted only inside their own product**. Every product **reads** the shared
+dataset, so information from People, Clients and Office is selectable, assignable and
+interactive wherever it is needed — a Timeline phase picks a person from People, a project
+references a client from Clients — but Timeline never creates or deletes a person, a client
+or a cost code. Timeline manages production data only.
+
+**What this means for the data** (the 2026-09-24 framing, unchanged; D7):
+
+1. **The shared SharePoint registries are the source of truth, not any product.** One
+   record per fact, keyed by a stable internal ID, one owner per field, freshness visible.
+   Projects, Clients, People, Cost Codes, Events, Departments, Shop Closures, Closeouts are
+   registries; every product is a *view* of them [brief §5, §8; vision "no duplicate
+   entries"].
 2. **Timeline stays the schedule.** It keeps every feature as designed and reads/writes the
-   operational fields of those registries — dates, work blocks, assignments, status. It stops
-   being a candidate master for people, clients or cost codes [vision; brief §7].
+   operational fields of those registries — dates, work blocks, assignments, status. It is
+   not a master for people, clients or cost codes [vision; brief §7].
 3. **Duplicate entry is removed before features are added.** After the pilot, the first
    retirement of a manual re-typing step is the measure of success, not a new view
    [brief §1, §10].
-4. **Sensitive data is protected by SharePoint permissions, not by hiding it in a UI.** The
-   app runs in the browser with each user's own token; anything a user must not see lives in
-   a list or library they cannot read (§4 D3).
+4. **Sensitive data is protected by SharePoint permissions, not by hiding it in a UI.**
+   Every product runs in the browser with each user's own token; anything a user must not
+   see lives in a list or site they cannot read (§4 D3). "Gated" in the table means exactly
+   that.
 5. **v2.0.0 = Timeline running on the shared registries** — the first `ShopTimeline_*`
    master retired in favour of a shared one. That is the breaking change the major number
-   exists for. The portal and sibling apps arrive as v2.x/v3, each app its own client of
-   the same registries.
+   exists for. The portal and the other products arrive as v2.x/v3, each its own client of
+   the same registries, each with its own version.
 
-What this changes in the app's own vocabulary: the Company Data pages stop being "the shell
-every store lands in" (v1.x item 27) and become the seeds of Client Manager and Personnel
-Manager (§4 D8); the v1.x "app as declared master" gate on v2.0.0 is dropped.
+**Where the open work lands** (product → §3 items and §4 decisions):
+
+- **People** — items 4, 9, 19, 26, 27; D5, D9.
+- **Clients** — item 28 (client IDs; person IDs with People); D10; the billing states of
+  item 11 once Office exists.
+- **Office** — items 11, 13, 14; D1, D11.
+- **Timeline** — items 1–3, 5–8, 10, 12, 18, 20, 22, 23, 25, 29, 32–41; D12, D14.
+- **Systems as a whole** (portal, shared module, sign-in, hosting) — items 15–17, 21, 24,
+  30, 31; D3, D4, D6, D7, D8, D13.
+
+Retired framings, for the record: v1.x "the app becomes the company's singular source of
+truth, absorbing the 14 stores into Timeline's Company Data pages" (retired 2026-09-24);
+the 2026-09-24 wording "a portal of sibling apps — Client Manager, Personnel Manager,
+Design Resources Manager" (names superseded 2026-09-29; Design Resources is not one of the
+four products — whether it becomes a fifth is the owner's call, D6).
 
 ## 2. Roadmap
 
@@ -96,7 +126,7 @@ Manager (§4 D8); the v1.x "app as declared master" gate on v2.0.0 is dropped.
 |---|---|---|---|
 | **7 — Pilot readiness** (now) | v1.24 → v1.3x | The brief's P0 app items, closeout as the one new feature, verification of what exists, the outside-the-app controls handed to their owners, the design decisions in §4 taken | Pilot users create and update jobs without missing workers, lost edits or misleading dates; a finished job can't fall through before the balance invoice; at least one duplicate-entry step is named for removal [brief §9, §10.1] |
 | **8 — Shared registries** | v2.0.0 (+ minors per registry) | Linked Client, Project and Cost Code lists with stable IDs; Timeline re-pointed to them; assignments by person ID; departments and shop closures as lists, not code | A `ShopTimeline_*` master is retired for a shared registry with no loss; two cost-code requests at once can't collide; the workbook is frozen read-only [brief §6, §8, §9 P1] |
-| **9 — The portal and the suite** | v2.x → v3 | Homepage portal; Client Manager, Personnel Manager, Design Resources Manager; permission sets per audience; shared design system with per-app colour/icon identity | Each audience (PM, HR, Accounting, Purchasing, Operations, Management) has its own entry point over the same records; nothing is entered twice [vision; brief §9 P2–P3] |
+| **9 — Systems: the portal and the products** | v2.x → v3 | The Systems portal at `/`; People, Clients and Office as their own products; Timeline at `/timeline/`; one shared module and design language with per-product identity; permission sets per audience | Each audience (PM, HR, Accounting, Purchasing, Operations, Management) has its own product over the same records; records are created and deleted only in their owning product; nothing is entered twice [vision; brief §9 P2–P3] |
 
 **Batches (proposed — the §3 items that ship together; a version number is given at ship time):**
 
@@ -115,14 +145,22 @@ Manager (§4 D8); the v1.x "app as declared master" gate on v2.0.0 is dropped.
 - **Ruled 2026-09-24 — D2: the colleague app is no constraint.** Unblocks D1 (registry
   move), D10 / item 28 (person and client IDs), item 27 (splitting Staff), item 29
   (dropping dead columns). Nothing else waited on it.
+- **Ruled 2026-09-28 — D4: option (b), one folder per product, the portal at the root;
+  refined 2026-09-29 with the Systems definition (peer products People / Clients /
+  Office / Timeline). Ruled 2026-09-29 — D8: the Company Data pages graduate.** Unblocks
+  the shared module (the storage seam, `docs/Architecture-Review-Storage.md`, PR #56),
+  the portal, and the People / Clients products. Waits on: the reshape PR (after the
+  pilot P0 batches; ⚠ the owner adds the redirect URIs first, `SETUP.md` follows) and,
+  for any repository rename, item 40's custom domain first (D4).
 - **D3 permission model** — ruled in principle 2026-09-24 (tiered lists, one fact in one
   place; see §4):
   - Phase 7: item 26 define the tiers (HR + Project Director) · item 4 time-off notes ·
     item 9a import `$select` · item 25 per-user saved views (no dependency).
   - Phase 8: item 27 split Staff into public roster + restricted record ← item 26 + D5
     (identity master) + the owner breaking permission inheritance on the new list.
-  - Phase 9: role-based shared views (item 30, reuses item 25's shape) · Personnel Manager
-    and Client Manager over the tiered lists · D6 Design Resources (pointers, never secrets).
+  - Phase 9: role-based shared views (item 30, reuses item 25's shape) · People and
+    Clients as products over the tiered lists · Office (items 11, 13) · D6 only if Design
+    Resources becomes a fifth product (pointers, never secrets).
 - **D1 core registry** ← item 14 schema comparison ← the Current Projects / 27 Events
   schemas from the Project Director (§5). Then **v2.0.0** ← D1 + item 28 + item 13's
   cost-code registry (← the workbook inventory).
@@ -244,6 +282,10 @@ Numbering restarts at 1 for this file; v1.x item numbers are cited as "v1.x item
       is P1 and can ride the same columns family later [brief §8.6]. Open sub-decisions: the
       Bookkeeper's sign-in (remote, another state — a viewer with a `closeout` grant?), and
       whether the Project Director's verification is a role or a named person (§4 D3).
+      **Home per the Systems definition (2026-09-29): Office** (§1), which does not exist
+      yet. Owner call before batch 4: build the queue in Timeline for the pilot and move it
+      to Office later, or open Office with closeout as its first screen. The columns are the
+      same either way (they live on the Projects registry).
 - [ ] **25. Saved views per user, not per browser (owner ruling 2026-09-24).** Today a
       saved view lives in `localStorage` (`shopTimelineViews_v1`) on one machine. Store
       them on the signed-in user's own Staff row instead: ⚠ `savedViews` on
@@ -280,6 +322,7 @@ app's part, where any, is listed.
       carries the 2–3 letter alias (`field_2`, imported from the Excel client master) — the
       registry design must adopt or supersede it so there aren't two abbreviation masters.
       App later (Phase 8): pick confirmed codes from the registry instead of typing.
+      Owning product: Office (§1) — Timeline only ever picks from the registry.
       [brief §6, §9 P0 "Before integrations"]
 - [ ] **14. Core project registry decision** — §4 D1. Deliverable before deciding: a
       side-by-side schema comparison of Current 2-7 Projects / 27 Projects (Archive) vs
@@ -483,7 +526,7 @@ item 32 (P0), #7 is folded into item 3, #11 and #14 were done by the bridge itse
       membership set by HR; the restricted columns move off Staff. The app reads the
       restricted list only when the user's token can (a 403 degrades the way `STAFF_OK`
       does today) and joins by ID, so each fact lives once and nothing is duplicated.
-      Personnel Manager (Phase 9) becomes its editor; Timeline shows what the roster holds.
+      People (Phase 9, §1) becomes its editor; Timeline shows what the roster holds.
       Owner action: break inheritance / create the site (site admin). ⚠ destructive on
       Staff (columns move) → milestone record + migration of existing rows. ← item 26, D5,
       D3; D2 lifted. [brief §8.1, §11.1; vision]
@@ -498,9 +541,10 @@ item 32 (P0), #7 is folded into item 3, #11 and #14 were done by the bridge itse
 ### Queued for Phase 9
 
 - [ ] **30. Role-based shared views** (leadership, department, PM, later `terminal`) over
-      item 25's JSON shape, stored in `ShopTimeline_Config` or a views list; **Personnel
-      Manager** and **Client Manager** over the tiered lists (items 27–28); **Design
-      Resources Manager** per D6. ← D3 role vocabulary, D4 architecture.
+      item 25's JSON shape, stored in `ShopTimeline_Config` or a views list; **People**
+      and **Clients** as their own products over the tiered lists (items 27–28);
+      **Office** (items 11, 13); Design Resources only if it becomes a fifth product (D6).
+      ← D3 role vocabulary; D4 ruled 2026-09-28.
 
 ### Owner confirmations — answered 2026-09-24
 
@@ -511,9 +555,10 @@ item 32 (P0), #7 is folded into item 3, #11 and #14 were done by the bridge itse
       `reference/2026-09-22-Shop-Timeline-Brief-Condensed.md` (dated title; the mailbox
       name, headcount and a location generalized — the repo is public).
 
-## 4. Decisions the suite forces (open — record rulings here, dated)
+## 4. Decisions Systems forces (record rulings here, dated)
 
-Each has a recommendation. None is taken.
+Each has a recommendation. Ruled so far: D2 (2026-09-24), D3 in principle (2026-09-24),
+D4 (2026-09-28, refined 2026-09-29), D8 (2026-09-29). The rest are open.
 
 - **D1 — Core project registry.** Current 2-7 Projects extended into the registry (brief
   §6.7) vs `ShopTimeline_Projects` promoted to it. *Recommend:* run item 14's schema
@@ -553,28 +598,29 @@ Each has a recommendation. None is taken.
   suite. Work: item 26 (tiers, Phase 7) → item 27 (the split, Phase 8) → item 30 (Phase
   9). Saved views: per user in item 25 (Phase 7); shared/role-based in Phase 9.
   [brief §2, §9, §11; vision]
-- **D4 — Architecture for more than one app. RULED 2026-09-28 (owner): option (b).** One
-  repository, one Pages site, one folder per app, the portal at the root. The options
-  weighed: (a) one file, more routes (the Company Data pages already are proto-apps at
-  `#/people`, `#/clients`); (b) separate single-file apps under one Pages site sharing a
-  vendored `common.css`/`common.js`; (c) a build step. (b) keeps the no-build,
-  one-file-per-app discipline that made this app maintainable, and the portal is then a
-  static page. The hierarchy is the same in the directory, the URL and the docs:
+- **D4 — Architecture for more than one product. RULED 2026-09-28 (owner): option (b);
+  refined 2026-09-29 with the Systems definition (§1).** One repository, one Pages site,
+  one folder per product, the Systems portal at the root. The options weighed: (a) one
+  file, more routes (the Company Data pages already are proto-products at `#/people`,
+  `#/clients`); (b) separate single-file products under one Pages site sharing a vendored
+  `common.css`/`common.js`; (c) a build step. (b) keeps the no-build, one-file-per-product
+  discipline that made this app maintainable, and the portal is then a static page. The
+  hierarchy is the same in the directory, the URL and the docs:
 
   ```
-  /                         the suite
-    index.html              portal: a static page that links to the apps
+  /                         Systems
+    index.html              portal: a static page of tiles, one per product
     timeline/index.html     today's index.html, moved
-    clients/  people/  resources/    one folder each, created only when built
-    common/                 common.css, common.js, msal — extracted only when app #2 starts
-    design/                 suite-level (already is)
-    docs/                   suite-level: TODO, ARCHITECTURE, Milestones by phase
-    tests/                  Timeline's today; tests/timeline/ when app #2 arrives
+    people/  clients/  office/    one folder each, created only when built
+    common/                 common.css, common.js, msal — extracted only when product #2 starts
+    design/                 Systems-level (already is)
+    docs/                   Systems-level: TODO, ARCHITECTURE, Milestones by phase
+    tests/                  Timeline's today; tests/timeline/ when product #2 arrives
     reference/              Timeline's frozen baseline, stays put
   ```
 
-  Phase folders under `docs/Milestones/` stay as they are — phases belong to the suite;
-  a record names its app in the slug. **The Timeline move is its own no-behaviour
+  Phase folders under `docs/Milestones/` stay as they are — phases belong to Systems;
+  a record names its product in the slug. **The Timeline move is its own no-behaviour
   "reshape" PR**, one release, one CHANGELOG line (the front page is now the portal;
   Timeline lives at `/timeline/`). What it touches: the Pages workflow (sparse-checkout
   paths; the markup guard loops over every `index.html`; a missing path is harmless, so it
@@ -585,33 +631,44 @@ Each has a recommendation. None is taken.
   files that mention `index.html` are to be checked, not assumed). **Sequence:** after the
   pilot P0 batch (it changes the URL users have), before style guide §13 step 4 (the
   shell's app switcher needs a real portal to point at). **Repository name:**
-  `Project-Scheduler` is the Pages path, so it names the suite in every user's URL, and
+  `Project-Scheduler` is the Pages path, so it names Systems in every user's URL, and
   GitHub does not promise a Pages redirect after a rename — item 40 (custom domain) makes
   the name invisible to users, so: custom domain first, rename after, never before.
-  [vision; brief §11.1]
+  **The 2026-09-29 refinement (Systems, §1):** the products are peers — Timeline is not
+  the parent — each with its own owner, version, release notes and test suites; the
+  portal's tiles show only the products whose lists the signed-in user's token can read;
+  the wordmark in every product goes to the portal; the shared module is the storage seam
+  plus the tokens (`design/Style-Guide.md` §10; `docs/Architecture-Review-Storage.md`);
+  browser-storage keys carry a product prefix from the first shared-module PR, because
+  products on one origin share `localStorage`. Rejected then and now: (a), because every
+  product's features would ship to every PM on Timeline's release train; (c). [vision;
+  brief §11.1; review 2026-09-29]
 - **D5 — Employee Directory identity.** Which list is "the Employee Directory": HR's
   Employee Contacts (manual, current, has Pay Type / PersonalEmail), 27 Employees (nightly
   automation, unidentified), or a new consolidated list? Join key today: work email, else
   exact name (a namesake without work email can join the wrong row). *Recommend:* Employee
   Contacts as identity master, read through a trimmed view or `$select` (item 9), until D3's
-  separate-list rule lets Personnel Manager hold HR-only fields on their own list. Employee
+  separate-list rule lets People hold HR-only fields on their own list. Employee
   Contacts stays READ-ONLY for the app. [brief §4 open question, §8.1]
-- **D6 — Design Resources Manager and secrets.** Licence keys and shared logins in a
-  SharePoint list readable by the app are readable by every user with site access,
-  whatever the UI hides (D3), and this repository is public. *Recommend:* the Manager
-  stores *pointers and ownership* (what the tool is, who owns the licence, where the
+- **D6 — Design Resources and secrets.** *Not one of the four Systems products (§1,
+  2026-09-29); the owner says whether it becomes a fifth.* If it does: licence keys and
+  shared logins in a SharePoint list readable by a product are readable by every user with
+  site access, whatever the UI hides (D3), and this repository is public. *Recommend:* the
+  product stores *pointers and ownership* (what the tool is, who owns the licence, where the
   credential lives) and links to a proper vault (a password manager or a restricted
   document library with its own permissions); never the secret itself in a list the app
   reads. The plug-in/script store is a document library with a Manager page over it.
   [vision]
 - **D7 — What v2.0.0 means.** §1 point 5 (Timeline on shared registries) vs the retired
   "app as master" vs "the pilot release". *Recommend:* §1 point 5.
-- **D8 — Company Data pages' future.** Stay in Timeline as its People/Clients views, or
-  graduate into Personnel Manager / Client Manager with Timeline keeping read-only pickers.
-  *Recommend:* graduate in Phase 9; until then they are where the shared-registry work
-  lands (Phase 8). The Client Manager's "project history (names, cost codes, job details,
-  billings)" needs client IDs on projects (D10) and the closeout/billing states (item 11)
-  before it can be built without name-joins.
+- **D8 — Company Data pages' future. RULED 2026-09-29 (owner, with the Systems
+  definition): graduate.** Timeline's People and Clients pages become the **People** and
+  **Clients** products in Phase 9; Timeline keeps read-only pickers and, from then on,
+  never creates or deletes a person or a client (§1 ownership rule). Until then the pages
+  are where the shared-registry work lands (Phase 8). Clients' "project history (names,
+  cost codes, job details, billings)" needs client IDs on projects (D10) and the
+  closeout/billing states (item 11, an Office screen) before it can be built without
+  name-joins.
 - **D9 — Worker type vocabulary.** The app has a `1`/empty Freelance flag; the brief wants
   Regular / Seasonal / Freelance / Contractor; Employee Contacts already carries Category
   (Full/Part Time / Seasonal / Archived). *Recommend:* one vocabulary, taken from Employee
@@ -629,7 +686,7 @@ Each has a recommendation. None is taken.
   `othoffice` retired) and should settle first. Timeline's own `ShopTimeline_Events` vs
   27 Events is decided with item 12. [brief §8, §8.2]
 - **D12 — Polling budget.** Every open tab re-reads every list every 90 s; the change log
-  is deliberately never polled. Each sibling app and each new registry adds a full poll per
+  is deliberately never polled. Each product and each new registry adds a full poll per
   user per tab. *Recommend:* before Phase 8 adds registries, set a budget (lists per tick,
   delta or `$filter` reads for large lists) — see `memory` note on the change-probe trap.
 - **D13 — Integrations: ADP, TimeClock+, QuickBooks.** Brief: P3, after ownership, security
@@ -715,7 +772,7 @@ Line numbers in brackets are the entry's place in `docs/Archive/TODO-v1.x-Archiv
 - Admin rollout note "flag the admins on the People page" (v1.x item 12) — done in
   practice (PMs are admins); superseded by D3.
 - "UI gating is workflow protection — decide if acceptable" (v1.x item 12) — recorded and
-  accepted for v1.x; **re-opened as D3** for the suite, not carried as-is.
+  accepted for v1.x; **re-opened as D3** for Systems, not carried as-is.
 - Weekly schedule and Freelance flag "(development)" qualifiers (v1.x items 43–44) — on
   `main` via PR #48.
 - Draft "Add a phase" ignores the optional name field [L973] — the field was removed in
@@ -1019,6 +1076,16 @@ state reset per project visit, persist per browser like `NPV_OPEN` only if asked
 - **Standing rule:** the retired backlogs (`docs/Archive/TODO-v1-Archive.md`,
   `TODO-v1.x-Archive.md`) are frozen; a ledger entry's later decision is recorded here, in
   §7, with the archive line number.
+- 2026-09-29: **Systems defined** (owner) — the ecosystem has a name, four peer products
+  (People, Clients, Office, Timeline), a portal at `/`, and the ownership rule (create and
+  delete only inside the owning product; read everywhere). §1 rewritten around it; D4
+  (ruled 2026-09-28) refined for Systems, D8 ruled; item 11's home flagged (Office); the
+  old names (Client Manager, Personnel Manager, Design Resources Manager, "sibling apps",
+  "the suite") replaced in the living docs — `CLAUDE.md`, `README.md`,
+  `docs/ARCHITECTURE.md`, `design/Design-Language.md`, `design/Style-Guide.md` §10,
+  `design/README.md`. Milestone records and archives keep the old wording as
+  history. The same day's architecture review (`docs/Architecture-Review-Storage.md`,
+  PR #56) predates the names; its "suite" and "sibling app" read as Systems and product.
 - 2026-09-27 (later): design files get their own root folder `design/` (owner ask) —
   `Design-Language.md`, `Style-Guide.md` and `fonts/` moved there; `index.html` loads the
   wordmark font from `design/fonts/`, the Pages allowlist lists the new path (legacy line
@@ -1066,7 +1133,8 @@ state reset per project visit, persist per browser like `NPV_OPEN` only if asked
   need explicit instruction (`CLAUDE.md`).
 - **[brief §N]** — the Project Director's September 2026 brief, condensed and annotated by
   Robert (2026-09-22); section numbers match the original 21-page document.
-- **[vision]** — the owner's 2026-09-24 statement of the portal/suite direction.
+- **[vision]** — the owner's 2026-09-24 statement of the portal direction, defined as
+  Systems on 2026-09-29 (§1).
 - **[LNNNN]** — line in `docs/Archive/TODO-v1.x-Archive.md` where a carried ledger entry
   came from; **v1.x item N** — its §3 item number there.
 - **D1–D14** — §4 decisions; **item N** — §3 work items in this file.
