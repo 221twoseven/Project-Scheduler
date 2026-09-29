@@ -14,10 +14,11 @@ Two documents set this phase and are the source for most lines below:
   Cited as **[brief §N]**. Its "Response" annotations were fact-checked
   against the app on 2026-09-24; where a claim was partly wrong, the corrected fact is what
   appears below.
-- **The owner's vision (2026-09-24)** — Timeline stays a project-management and scheduling
-  app with its features intact, and moves into a portal of sibling apps (Client Manager,
-  Personnel Manager, Design Resources Manager) that share the same SharePoint lists, one
-  permission model, and one visual language. Cited as **[vision]**.
+- **The owner's vision (2026-09-24), defined as Systems (2026-09-29)** — Timeline stays a
+  project-management and scheduling app with its features intact, and becomes one product
+  of **Systems**: a data-management ecosystem of peer products (People, Clients, Office,
+  Timeline) over one shared SharePoint dataset, one permission model and one visual
+  language, reached from one portal. The definition is §1. Cited as **[vision]**.
 
 **Nothing in this file is started except item 31** — the feedback → GitHub ticket bridge,
 running since 2026-09-25 outside the app in a private tracker repository; user reports
@@ -56,68 +57,106 @@ shows what waits on what. See §8 for the log.
 ## 0. Where we stand
 
 Production (`main`) runs **v1.23.0** plus the 2026-09-18 view-as fix (PR #49); `development`
-is level with it apart from the docs reorg. Since the v1.x backlog opened on 2026-08-28 the
-app gained My Dashboard, calendar interactions and detail levels, the Department view,
-Milestones & Notes, saved views and viewport zoom, bug reporting, admin/viewer/developer
-permissions with per-door grants, the Company Data pages (People, Clients), the Employee
-Contacts import, the change log, generated release notes, the weekly schedule and the
-Freelance flag — 44 numbered objectives, all shipped. What did **not** ship is the one
-strategic item: the data-consolidation strategy (v1.x §3 item 13) was never written, and
-the brief is, in effect, its first draft.
+carries the docs reorg, the `design/` folder and **v1.24.0** (suite tokens + readable chrome
+text, style guide §13 step 2, 2026-09-27).
 
-The brief's verdict on the app: ready for user testing; verify what exists before calling
-anything an integration; the three foundational business controls (cost-code registry,
-closeout queue, one rule for 27 Events vs Outlook) are SharePoint and Power Automate work
-beside the app, not app features. Its one P0 that needs new app code is **closeout**.
+## 1. North star — Systems
 
-## 1. North star, restated
+**Systems** (owner, 2026-09-29) is a data-management ecosystem: several **products**, each
+a touchpoint for one kind of information, over **one shared dataset**, reached from one
+**portal**. "Systems" is the name in the title block of the portal, and the portal sits at
+the root `/`. The products are peers — none is the parent of another. Timeline is one of
+them.
 
-**Retired framing (v1.x):** "the app becomes the company's singular source of truth";
-each of the 14 stores is absorbed into Timeline's Company Data pages; v2.0.0 declares the
-cutover.
+| Product | What it holds and does | Who uses it | Gated? | Where it stands |
+|---|---|---|---|---|
+| **People** | Staff names, contact information, status (FTE vs Freelance), logged hours, and whatever else the HR / ADP administrator manages. The place to connect to ADP — CSV first; the ADP API only through Power Automate with a named owner, never from the browser (D13) | The HR / ADP administrator; everyone reads the public roster | HR-only fields restricted (D3, items 26–27) | Timeline's People page today (`#/people`); its own product in Phase 9 (D8) |
+| **Clients** | Client names, past projects, billing and revenue, current and past teams, client contacts and their details — whatever management needs to track | Management, project management, accounting | Yes | Timeline's Clients page today (`#/clients`); its own product in Phase 9 (D8) |
+| **Office** | Where projects are set up and closed out: estimating, cost-code generation, budget views, project closeout | Management, project management, purchasing, accounting | Yes | Does not exist. **The next new product, built in Phase 8** (owner, 2026-09-29), in project-cycle order: job lead / forecast (45), estimate (44), job creation with cost codes and the QuickBooks / TCP hand-off (42, 43); closeout (11) is the last step of the cycle and comes last |
+| **Timeline** | Project production: the schedule, phases, assignments, milestones, notes — the app that exists today | Everyone; existing permissions mostly stay | Mostly no (admin / viewer as today) | v1.24.0; moves from `/` to `/timeline/` when the portal lands (D4); New Project stays here until Office takes setup (item 43) |
 
-**Proposed framing (needs sign-off — §4 D7):**
+**The ownership rule.** Each product has sole ownership of the data it holds: records are
+**created and deleted only inside their own product**. Every product **reads** the shared
+dataset, so information from People, Clients and Office is selectable, assignable and
+interactive wherever it is needed — a Timeline phase picks a person from People, a project
+references a client from Clients — but Timeline never creates or deletes a person, a client
+or a cost code, and once Office exists it no longer sets projects up either (item 43):
+Office creates the project, Timeline schedules it. Timeline manages production data only.
 
-1. **The shared SharePoint registries are the source of truth, not any app.** One record
-   per fact, keyed by a stable internal ID, with one owner per field and its freshness
-   visible. Projects, Clients, People, Cost Codes, Events, Departments, Shop Closures,
-   Closeouts are registries; Timeline, the portal and its sibling apps are *views* of them
-   [brief §5, §8; vision "no duplicate entries"].
+**The build order is the project cycle** (owner, 2026-09-29). Systems is developed in the
+order a job moves through the shop, so each product exists before the step that needs it:
+
+| Step | Product | Backlog |
+|---|---|---|
+| 1. Job lead / forecast | Office | item 45 |
+| 2. Estimate | Office | item 44 |
+| 3. Job creation — cost codes, QuickBooks, TCP | Office | items 42, 43 (13 and 14 are its inputs; D13 the hand-off) |
+| 4. People management | People | items 26, 27, 9, 19; D5, D9 |
+| 5. PM schedule, workback | Timeline (exists) | the pilot items, §3 P0 / P1 |
+| 6. Design, production, finishing, packing / install / shipping | Timeline (exists) | the pilot items |
+| 7. Project closeout, final invoice | Office | item 11 — last, not planned further until the steps before it exist |
+
+Clients is not a step: a lead names a client at step 1, so the Clients registry is read
+from the start; the Clients product's place is Phase 9 (§2).
+
+**What this means for the data** (the 2026-09-24 framing, unchanged; D7):
+
+1. **The shared SharePoint registries are the source of truth, not any product.** One
+   record per fact, keyed by a stable internal ID, one owner per field, freshness visible.
+   Projects, Clients, People, Cost Codes, Events, Departments, Shop Closures, Closeouts are
+   registries; every product is a *view* of them [brief §5, §8; vision "no duplicate
+   entries"].
 2. **Timeline stays the schedule.** It keeps every feature as designed and reads/writes the
-   operational fields of those registries — dates, work blocks, assignments, status. It stops
-   being a candidate master for people, clients or cost codes [vision; brief §7].
+   operational fields of those registries — dates, work blocks, assignments, status. It is
+   not a master for people, clients or cost codes [vision; brief §7].
 3. **Duplicate entry is removed before features are added.** After the pilot, the first
    retirement of a manual re-typing step is the measure of success, not a new view
    [brief §1, §10].
-4. **Sensitive data is protected by SharePoint permissions, not by hiding it in a UI.** The
-   app runs in the browser with each user's own token; anything a user must not see lives in
-   a list or library they cannot read (§4 D3).
+4. **Sensitive data is protected by SharePoint permissions, not by hiding it in a UI.**
+   Every product runs in the browser with each user's own token; anything a user must not
+   see lives in a list or site they cannot read (§4 D3). "Gated" in the table means exactly
+   that.
 5. **v2.0.0 = Timeline running on the shared registries** — the first `ShopTimeline_*`
    master retired in favour of a shared one. That is the breaking change the major number
-   exists for. The portal and sibling apps arrive as v2.x/v3, each app its own client of
-   the same registries.
+   exists for. The portal and the other products arrive as v2.x/v3, each its own client of
+   the same registries, each with its own version.
 
-What this changes in the app's own vocabulary: the Company Data pages stop being "the shell
-every store lands in" (v1.x item 27) and become the seeds of Client Manager and Personnel
-Manager (§4 D8); the v1.x "app as declared master" gate on v2.0.0 is dropped.
+**Where the open work lands** (product → §3 items and §4 decisions):
+
+- **People** — items 4, 9, 19, 26, 27; D5, D9, D13 (the ADP connection).
+- **Clients** — item 28 (client IDs; person IDs with People); D10; the billing states of
+  item 11 once Office exists.
+- **Office** — items 45, 44, 42, 43 in that order, with 13 and 14 as inputs, then 11 last;
+  D1, D11, D13. The next new product, built in Phase 8 (owner, 2026-09-29).
+- **Timeline** — items 1–3, 5–8, 10, 12, 18, 20, 22, 23, 25, 29, 32–41; D12, D14.
+- **Systems as a whole** (portal, shared module, sign-in, hosting) — items 15–17, 21, 24,
+  30, 31; D3, D4, D7, D8, D13. D6 is tabled.
+
+Retired framings, for the record: v1.x "the app becomes the company's singular source of
+truth, absorbing the 14 stores into Timeline's Company Data pages" (retired 2026-09-24);
+the 2026-09-24 wording "a portal of sibling apps — Client Manager, Personnel Manager,
+Design Resources Manager" (names superseded 2026-09-29; Design Resources is not one of the
+four products and is tabled — owner, 2026-09-29, D6).
 
 ## 2. Roadmap
 
 | Phase | Versions | Goal | Done when |
 |---|---|---|---|
-| **7 — Pilot readiness** (now) | v1.24 → v1.3x | The brief's P0 app items, closeout as the one new feature, verification of what exists, the outside-the-app controls handed to their owners, the design decisions in §4 taken | Pilot users create and update jobs without missing workers, lost edits or misleading dates; a finished job can't fall through before the balance invoice; at least one duplicate-entry step is named for removal [brief §9, §10.1] |
-| **8 — Shared registries** | v2.0.0 (+ minors per registry) | Linked Client, Project and Cost Code lists with stable IDs; Timeline re-pointed to them; assignments by person ID; departments and shop closures as lists, not code | A `ShopTimeline_*` master is retired for a shared registry with no loss; two cost-code requests at once can't collide; the workbook is frozen read-only [brief §6, §8, §9 P1] |
-| **9 — The portal and the suite** | v2.x → v3 | Homepage portal; Client Manager, Personnel Manager, Design Resources Manager; permission sets per audience; shared design system with per-app colour/icon identity | Each audience (PM, HR, Accounting, Purchasing, Operations, Management) has its own entry point over the same records; nothing is entered twice [vision; brief §9 P2–P3] |
+| **7 — Pilot readiness** (now) | v1.24 → v1.3x | The brief's P0 app items, verification of what exists, the outside-the-app controls handed to their owners, the design decisions in §4 taken. Closeout moved to Office, Phase 8 (owner, 2026-09-29) | Pilot users create and update jobs without missing workers, lost edits or misleading dates; at least one duplicate-entry step is named for removal [brief §9, §10.1] |
+| **8 — Shared registries and Office** | v2.0.0 (+ minors per registry; Office and People version on their own) | Linked Client, Project and Cost Code lists with stable IDs; Timeline re-pointed to them; assignments by person ID; departments and shop closures as lists, not code. **Office, the next new product** (owner, 2026-09-29), built in project-cycle order (§1): job lead / forecast, estimate, job creation with cost codes and the QuickBooks / TCP hand-off (items 45, 44, 42, 43); then **People** (step 4: items 26, 27) | A `ShopTimeline_*` master is retired for a shared registry with no loss; two cost-code requests at once can't collide; the workbook is frozen read-only; a job exists in Office before Timeline schedules it [brief §6, §8, §9 P1] |
+| **9 — Systems: the portal and the products** | v2.x → v3 | The Systems portal at `/`; Clients as its own product (Office and People arrived in Phase 8); Office's closeout screen (item 11), the last step of the cycle; Timeline at `/timeline/`; one shared module and design language with per-product identity; permission sets per audience | Each audience (PM, HR, Accounting, Purchasing, Operations, Management) has its own product over the same records; records are created and deleted only in their owning product; nothing is entered twice; a finished job can't fall through before the balance invoice [vision; brief §8.4–8.5, §9 P2–P3] |
 
-**Version ladder (proposed — adjust as batches land):**
+**Batches (proposed — the §3 items that ship together; a version number is given at ship time):**
 
-| Release | Contents (§3 items) |
+| Batch | Contents (§3 items) |
 |---|---|
-| v1.24.0 | 9a–9b (import `$select`, phone fallback — first, the owner's "cache is cache" ruling), 4 (time-off notes private), 1–2 (terminology + Lock dates meaning and copy) — the pilot's privacy-and-copy batch |
-| v1.25.0 | 25 (saved views per user ⚠ `savedViews`, Lock dates remembered per user), 7 (repeat work discoverable), 8 (rollup band label) |
-| v1.26.0 | 5 (date certainty ⚠ `dateCertainty`), 6 (visible last update + stale flag) |
-| v1.27.0 | 11 (closeout & billing states ⚠, PM checklist, verification, Bookkeeper queue, aging) — may split into two minors |
-| v1.2x.y | 3 (tour repro/fix), 10 (auto-Complete vs closeout), 19–24 as they resolve |
+| 1 | 9a–9b (import `$select`, phone fallback — first, the owner's "cache is cache" ruling), 4 (time-off notes private), 1–2 (terminology + Lock dates meaning and copy) — the pilot's privacy-and-copy batch |
+| 2 | 25 (saved views per user ⚠ `savedViews`, Lock dates remembered per user), 7 (repeat work discoverable), 8 (rollup band label) |
+| 3 | 5 (date certainty ⚠ `dateCertainty`), 6 (visible last update + stale flag) |
+| Office (Phase 8) | in project-cycle order: 45 (job lead / forecast), 44 (estimate), 42 (cost-code generation), 43 (job creation with the QuickBooks / TCP hand-off) — Office's own releases |
+| Office (Phase 9) | 11 (closeout & billing states ⚠) — the last step of the cycle; moved out of the pilot 2026-09-29 |
+| as they resolve | 3 (tour repro/fix), 10 (auto-Complete vs closeout), 19–24 |
+| style track | Style guide §13, interleaved with the batches above: step 3 next (one chrome surface per PR, project inspector first); the D4 reshape (§4) after the pilot P0 batches; step 4 after the reshape. Step 2 shipped as v1.24.0 |
 | v2.0.0 | Phase 8 cutover (§1 point 5) |
 
 **Contingency map — what waits on what** (rulings dated; ← means "needs"):
@@ -125,19 +164,32 @@ Manager (§4 D8); the v1.x "app as declared master" gate on v2.0.0 is dropped.
 - **Ruled 2026-09-24 — D2: the colleague app is no constraint.** Unblocks D1 (registry
   move), D10 / item 28 (person and client IDs), item 27 (splitting Staff), item 29
   (dropping dead columns). Nothing else waited on it.
+- **Ruled 2026-09-28 — D4: option (b), one folder per product, the portal at the root;
+  refined 2026-09-29 with the Systems definition (peer products People / Clients /
+  Office / Timeline). Ruled 2026-09-29 — D8: the Company Data pages graduate.** Unblocks
+  the shared module (the storage seam, `docs/Architecture-Review-Storage.md`, PR #56),
+  the portal, and the People / Clients products. Waits on: the reshape PR (after the
+  pilot P0 batches; ⚠ the owner adds the redirect URIs first, `SETUP.md` follows) and,
+  for any repository rename, item 40's custom domain first (D4).
 - **D3 permission model** — ruled in principle 2026-09-24 (tiered lists, one fact in one
   place; see §4):
   - Phase 7: item 26 define the tiers (HR + Project Director) · item 4 time-off notes ·
     item 9a import `$select` · item 25 per-user saved views (no dependency).
   - Phase 8: item 27 split Staff into public roster + restricted record ← item 26 + D5
     (identity master) + the owner breaking permission inheritance on the new list.
-  - Phase 9: role-based shared views (item 30, reuses item 25's shape) · Personnel Manager
-    and Client Manager over the tiered lists · D6 Design Resources (pointers, never secrets).
+  - Phase 9: role-based shared views (item 30, reuses item 25's shape) · People and
+    Clients as products over the tiered lists · Office (items 11, 13). D6 Design
+    Resources is tabled (owner, 2026-09-29).
 - **D1 core registry** ← item 14 schema comparison ← the Current Projects / 27 Events
   schemas from the Project Director (§5). Then **v2.0.0** ← D1 + item 28 + item 13's
   cost-code registry (← the workbook inventory).
-- **Item 11 closeout** ← nothing technical (additive columns); the Bookkeeper's sign-in
-  and the verifier role ← D3's role vocabulary.
+- **Ruled 2026-09-29 — Office is the next new product, built in project-cycle order**
+  (§1). **Item 45 job lead** ← D1 (the registry), the Clients registry. **Item 44
+  estimate** ← item 45, the Master Project Tracker material (§5). **Item 42 cost codes** ←
+  item 13's inventory, D1, item 28. **Item 43 job creation** ← items 42, 44, 45, D1, item
+  28; D13 for the QuickBooks / TCP hand-off. **Item 11 closeout** ← every step before it
+  (Phase 9); its columns are additive; the Bookkeeper's sign-in and the verifier role ←
+  D3's role vocabulary.
 - **Item 5 date certainty** ← the Project Director's default-date decision (5a). **Item 2
   Lock dates** ← the owner's single-meaning decision; remembering it ← item 25.
 - **Item 12 calendar drift** ← a flow owner identified (§5). **Item 19 PTO** ← the
@@ -239,24 +291,24 @@ Numbering restarts at 1 for this file; v1.x item numbers are cited as "v1.x item
       and "closed out" are different states: keep the automatic flip as the trigger that
       starts closeout aging, never as the thing that hides a job from the closeout queue.
       [brief §7 Closeout Response, §8.4]
-
-### P0 — the business control: closeout [brief §8.4–8.5, §9 "Business control"]
-
-- [ ] **11. Closeout and billing states — the one new feature.** Keep project status,
-      closeout status and billing status as three fields. ⚠ two Projects columns:
-      `closeoutStatus` (`submitted` / `returned` / `ready` / `hold` / empty) and
-      `billingStatus` (`invoiced` / `exception` / empty), plus `closeoutBy`/`closeoutAt`
-      if the change log's who/when isn't enough. Flow: PM submits a one-minute checklist
-      (no budget or line items) → Project Director verifies (Returned / Ready for balance
-      invoice / Hold for revision) → Bookkeeper marks Invoice sent or Accounting exception.
-      Surfaces: a **Needs closeout** queue (a filtered page under the existing router, or a
-      Meeting Sheet section for the AMPM handout) with aging from the last scheduled work
-      date; overdue items stay visible until resolved; reminders via the already-consented
-      `Mail.Send` path the feedback form uses. Estimate reference (number, revision, sent /
-      approved dates; a client revision creates a new revision; unbilled scope blocks Ready)
-      is P1 and can ride the same columns family later [brief §8.6]. Open sub-decisions: the
-      Bookkeeper's sign-in (remote, another state — a viewer with a `closeout` grant?), and
-      whether the Project Director's verification is a role or a named person (§4 D3).
+- [ ] **25. Saved views per user, not per browser (owner ruling 2026-09-24).** Today a
+      saved view lives in `localStorage` (`shopTimelineViews_v1`) on one machine. Store
+      them on the signed-in user's own Staff row instead: ⚠ `savedViews` on
+      `ShopTimeline_Staff`, multi-line text holding a JSON array, written only to the
+      user's own row (the `personalNotes` pattern). Migration: on the first load after the
+      release, import the browser's local views into the row, then keep the local copy as
+      a cache. Result: a view saved anywhere follows the person. The same own-row record is
+      the home for per-user settings that are session-only today — Lock dates (item 2c),
+      density, sidebar width if wanted. Shared and role-based views (item 30, D3) reuse the
+      same JSON shape in Phase 9. Contingency: none — additive column, spec with the batch.
+      [brief §2 "plan saved views and permissions now", §7 Audience views]
+- [ ] **32. Shipping bar missing; milestones assigned to Shipping don't land.** A user
+      adds Shipping milestones, sees no Shipping bar, and milestones assigned to the
+      shipping phase don't attach to it. `shipping` exists as an end department since
+      v1.20.6 (`DEPTS`, `grp:'install'`), so step one is a repro on the real project: is
+      Shipping ticked in that project's departments, does the block exist without dates,
+      and where does a milestone go when its phase has no bar. Bug, P0 for the pilot.
+      [tracker #1]
 
 ### P0 — outside the app: owners, not releases [brief §1, §6, §7.1, §9, §11]
 
@@ -275,6 +327,7 @@ app's part, where any, is listed.
       carries the 2–3 letter alias (`field_2`, imported from the Excel client master) — the
       registry design must adopt or supersede it so there aren't two abbreviation masters.
       App later (Phase 8): pick confirmed codes from the registry instead of typing.
+      Owning product: Office (§1) — Timeline only ever picks from the registry.
       [brief §6, §9 P0 "Before integrations"]
 - [ ] **14. Core project registry decision** — §4 D1. Deliverable before deciding: a
       side-by-side schema comparison of Current 2-7 Projects / 27 Projects (Archive) vs
@@ -306,63 +359,6 @@ app's part, where any, is listed.
 - [ ] **18. Pilot projects preloaded.** Project Director + Robert load the pilot jobs so PMs
       verify instead of re-entering; set the parallel-entry end date up front; limit the
       pilot project count. [brief §10, §10.2]
-
-### P1 — verification and small fixes [brief §9 P1]
-
-- [ ] **19. Verify the PTO source and edge cases.** Availability today comes from
-      Out-of-office ranges typed on the People page, whole days only, back-to-back ranges not
-      merged for "Away until". The PTO Contract Approvals list (fed by the operations
-      manager's Teams PowerApps plugin) is not connected; the discovery session planned for
-      mid-September is not on record as held — schedule it, and the same session identifies
-      the nightly 10pm automation on 27 Employees. Test: multiple, adjacent, overlapping
-      requests; partial days; cancellations; people without company email. [brief §7.2, §13]
-- [ ] **20. Document the change log's limits** (the brief's verification row): covers
-      projects, phases, milestones, notes — not people, clients or settings; admins only;
-      history starts 2026-09-02; **no retention limit and no export** — every cache miss reads
-      the whole list (it pages), the pages show the latest 500 / 300 per project; recovery is
-      in-session undo (projects only, 20 steps, lost on reload) or SharePoint (Recycle Bin for
-      deletes, version history for edits) — the log is evidence, not a restore tool. Most of
-      this is in the 2026-09-02 milestone record; retention and recovery are the missing
-      paragraphs. [brief §7.2]
-- [ ] **21. Refresh the reference docs before handing the repo to reviewers.**
-      `docs/ARCHITECTURE.md` documents 5 lists (9 in use + Employee Contacts), omits the
-      client/config/changelog/feedback mappers and the `#/people`, `#/clients`,
-      `#/changelog`, `#/settings`, `#/reports` routes, and predates Logistics, Shipping and
-      the `othoffice` retirement; `SETUP.md` lists 2 Graph scopes (4 in use: `User.Read`,
-      `Sites.ReadWrite.All`, `TeamMember.Read.All`, `Mail.Send`); `CLAUDE.md` says ~7,000
-      lines (10,600); `tests/README.md` says 48 suites (79). Add a short "formulas and
-      rollup" section (`generateSchedule` backward from the install date skipping weekends
-      and the coded holidays; `estimatedDays`; Meeting Sheet %; Lead time). [brief §13 "The
-      app" row; §8 standing rule]
-- [ ] **22. Meeting Sheet as the AMPM handout.** It already prints per PM with status,
-      current phase, dates, install date and workdays left. Get the Master Project Tracker's
-      AMPM columns from the Project Director and diff; add the closeout/aging column when
-      item 11 lands. [brief §3 step 9, §9 P1 "AMPM output"]
-- [ ] **23. Milestone records owed** (CLAUDE.md rule): v1.20.6 Shipping phase (a
-      phase-chain and department-vocabulary change documented only as a footnote), v1.20.8
-      (PM required at Create; dashboard columns scroll), v1.20.9; the v1.x ladder has no
-      rows for v1.20.0–v1.20.9 and v1.21.x (add one folded row each to the archive's §4, the
-      way `CHANGELOG.md` folds v1.14–1.15). Docs only.
-- [ ] **24. Repository ownership.** `github.com/221twoseven` is a GitHub *user* account
-      named for the company, not an Organization — no org owners, SSO or team roles;
-      continuity rests on one login. If leadership's "company-owned code" gate matters, plan
-      an Organization transfer (the Pages URL and the Entra redirect URIs must then be
-      re-registered — `SETUP.md`). The repository is public (Pages hosting); safe because
-      access depends on Microsoft sign-in, but leadership should know. [brief §11]
-
-### P0 additions from the owner's fact-check review (2026-09-24)
-
-- [ ] **25. Saved views per user, not per browser (owner ruling 2026-09-24).** Today a
-      saved view lives in `localStorage` (`shopTimelineViews_v1`) on one machine. Store
-      them on the signed-in user's own Staff row instead: ⚠ `savedViews` on
-      `ShopTimeline_Staff`, multi-line text holding a JSON array, written only to the
-      user's own row (the `personalNotes` pattern). Migration: on the first load after the
-      release, import the browser's local views into the row, then keep the local copy as
-      a cache. Result: a view saved anywhere follows the person. The same own-row record is
-      the home for per-user settings that are session-only today — Lock dates (item 2c),
-      density, sidebar width if wanted. Shared and role-based views (item 30, D3) reuse the
-      same JSON shape in Phase 9. Contingency: none — additive column, spec with the batch.
-      [brief §2 "plan saved views and permissions now", §7 Audience views]
 - [ ] **26. Define the information tiers — a decision with HR and the Project Director.**
       The owner's finding: employee information is gated only by curiosity today; every
       signed-in user can read all of `ShopTimeline_Staff`. The unit of protection in
@@ -375,9 +371,6 @@ app's part, where any, is listed.
       Question for HR: is a work phone/email public inside the company? Contingency: feeds
       item 27 and D5; until 27 ships, items 4 and 9a are the only protection, so say so in
       the pilot's limits. [brief §7 Employee source, §8.1, §11.1; vision]
-
-### Owner ask (2026-09-24, evening) — tickets
-
 - [ ] **31. One GitHub issue per feedback report, screenshots included — a poller in a
       private tracker repository. PRIORITY (owner, 2026-09-24: "whatever is easiest to
       implement that is automated").** **RUNNING since 2026-09-25:**
@@ -427,23 +420,56 @@ app's part, where any, is listed.
       workflow and delete the secret; the app and the list are untouched apart from the
       additive column. [owner ask 2026-09-24; brief §11 maintenance]
 
-### Reported by users — carried from the tracker (2026-09-25)
+### P1 — verification and small fixes [brief §9 P1]
+
+- [ ] **19. Verify the PTO source and edge cases.** Availability today comes from
+      Out-of-office ranges typed on the People page, whole days only, back-to-back ranges not
+      merged for "Away until". The PTO Contract Approvals list (fed by the operations
+      manager's Teams PowerApps plugin) is not connected; the discovery session planned for
+      mid-September is not on record as held — schedule it, and the same session identifies
+      the nightly 10pm automation on 27 Employees. Test: multiple, adjacent, overlapping
+      requests; partial days; cancellations; people without company email. [brief §7.2, §13]
+- [ ] **20. Document the change log's limits** (the brief's verification row): covers
+      projects, phases, milestones, notes — not people, clients or settings; admins only;
+      history starts 2026-09-02; **no retention limit and no export** — every cache miss reads
+      the whole list (it pages), the pages show the latest 500 / 300 per project; recovery is
+      in-session undo (projects only, 20 steps, lost on reload) or SharePoint (Recycle Bin for
+      deletes, version history for edits) — the log is evidence, not a restore tool. Most of
+      this is in the 2026-09-02 milestone record; retention and recovery are the missing
+      paragraphs. [brief §7.2]
+- [ ] **21. Refresh the reference docs before handing the repo to reviewers.**
+      `docs/ARCHITECTURE.md` documents 5 lists (9 in use + Employee Contacts), omits the
+      client/config/changelog/feedback mappers and the `#/people`, `#/clients`,
+      `#/changelog`, `#/settings`, `#/reports` routes, and predates Logistics, Shipping and
+      the `othoffice` retirement; `SETUP.md` lists 2 Graph scopes (4 in use: `User.Read`,
+      `Sites.ReadWrite.All`, `TeamMember.Read.All`, `Mail.Send`); `CLAUDE.md` says ~7,000
+      lines (10,600); `tests/README.md` says 48 suites (79). Add a short "formulas and
+      rollup" section (`generateSchedule` backward from the install date skipping weekends
+      and the coded holidays; `estimatedDays`; Meeting Sheet %; Lead time). [brief §13 "The
+      app" row; §8 standing rule]
+- [ ] **22. Meeting Sheet as the AMPM handout.** It already prints per PM with status,
+      current phase, dates, install date and workdays left. Get the Master Project Tracker's
+      AMPM columns from the Project Director and diff; add the closeout/aging column when
+      item 11 lands. [brief §3 step 9, §9 P1 "AMPM output"]
+- [ ] **23. Milestone records owed** (CLAUDE.md rule): v1.20.6 Shipping phase (a
+      phase-chain and department-vocabulary change documented only as a footnote), v1.20.8
+      (PM required at Create; dashboard columns scroll), v1.20.9; the v1.x ladder has no
+      rows for v1.20.0–v1.20.9 and v1.21.x (add one folded row each to the archive's §4, the
+      way `CHANGELOG.md` folds v1.14–1.15). Docs only.
+- [ ] **24. Repository ownership.** `github.com/221twoseven` is a GitHub *user* account
+      named for the company, not an Organization — no org owners, SSO or team roles;
+      continuity rests on one login. If leadership's "company-owned code" gate matters, plan
+      an Organization transfer (the Pages URL and the Entra redirect URIs must then be
+      re-registered — `SETUP.md`). The repository is public (Pages hosting); safe because
+      access depends on Microsoft sign-in, but leadership should know. [brief §11]
+
+### Untriaged — reported by users, in filing order [tracker]
 
 Every report filed in the app is an issue in the private tracker
 (`221twoseven/Project-Scheduler-issues`, item 31); **[tracker #N]** is the citation and
-reporter names stay there. Twelve reports were open on 2026-09-25: #7 is folded into item
-3, #11 was the bridge itself (closed as done), the rest are the items below — untriaged,
-in filing order, for the owner to place in the ladder. Two more arrived that afternoon:
-#13 is item 41; #14 ("GitHub resolutions must reflect in the app") is the status rule in
-item 31, closed as done.
+reporter names stay there. Not yet placed in a band above. Already placed or closed: #1 is
+item 32 (P0), #7 is folded into item 3, #11 and #14 were done by the bridge itself.
 
-- [ ] **32. Shipping bar missing; milestones assigned to Shipping don't land.** A user
-      adds Shipping milestones, sees no Shipping bar, and milestones assigned to the
-      shipping phase don't attach to it. `shipping` exists as an end department since
-      v1.20.6 (`DEPTS`, `grp:'install'`), so step one is a repro on the real project: is
-      Shipping ticked in that project's departments, does the block exist without dates,
-      and where does a milestone go when its phase has no bar. Bug, P0 for the pilot.
-      [tracker #1]
 - [ ] **33. Today button: left edge at the start of the current week.** Today centres
       (`scrollToToday` → `centerDate`); the ask is to park the current week's first day at
       the left edge of the canvas instead. Small: one alignment change, plus the `T` key.
@@ -505,7 +531,7 @@ item 31, closed as done.
       membership set by HR; the restricted columns move off Staff. The app reads the
       restricted list only when the user's token can (a 403 degrades the way `STAFF_OK`
       does today) and joins by ID, so each fact lives once and nothing is duplicated.
-      Personnel Manager (Phase 9) becomes its editor; Timeline shows what the roster holds.
+      People (Phase 9, §1) becomes its editor; Timeline shows what the roster holds.
       Owner action: break inheritance / create the site (site admin). ⚠ destructive on
       Staff (columns move) → milestone record + migration of existing rows. ← item 26, D5,
       D3; D2 lifted. [brief §8.1, §11.1; vision]
@@ -517,12 +543,73 @@ item 31, closed as done.
       deliberate cleanup now that D2 is lifted; milestone record; the app stops writing
       them one release before the columns go. ⚠
 
+### Queued — Office, the next product, in project-cycle order (owner, 2026-09-29) [brief §6, §8.4–8.6; vision]
+
+Office is built first among the new products, in the order a job moves through the shop
+(§1): lead, estimate, creation. Items 13 and 14, in the P0 outside-the-app band, are its
+inputs. Closeout is the last step of the cycle and comes last.
+
+- [ ] **45. Job lead and forecast in Office.** Step 1 of the cycle (Phase 8). Today a
+      forecast is a Timeline project with the `forecast` status: a real project record,
+      penciled in grey, created on New Project. In Office a lead is a record *before* a
+      job exists — the client (from Clients), the scope, the expected install window, who
+      is chasing it — and becomes a job at creation (item 43). Timeline shows a lead as a
+      forecast bar only once it has dates worth scheduling. Existing Forecast-status
+      projects migrate to leads when Office ships.
+      Waits on: D1 (the registry), the Clients registry. [vision; brief §7 Early dates]
+- [ ] **44. Estimate in Office.** Step 2 of the cycle (Phase 8). The estimate reference
+      (number, revision, sent and approved dates; a client revision creates a new
+      revision; unbilled scope later blocks Ready at closeout) on the lead from item 45,
+      and the budget views per project. Nothing is specified beyond that; scope it with
+      the Project Director and the Bookkeeper before design.
+      Waits on: item 45; the Master Project Tracker material (§5). [brief §8.6; vision]
+- [ ] **42. Cost-code generation in Office.** Step 3 of the cycle (Phase 8), with item
+      43. Today `jobCode` is free text typed on New Project, with no format, duplicate or
+      lifecycle check (item 13). Office generates the next code from the cost-code
+      registry: the client's alias from Clients plus the next sequence number, with the
+      workbook's format and duplicate rules (item 13's inventory) enforced at creation.
+      Timeline and every other product only pick from the registry, never type.
+      Waits on: item 13's inventory (the rules), D1 (the registry), item 28 (client IDs).
+      [brief §6, §9 P0 "Before integrations"; vision]
+- [ ] **43. Job creation in Office — with the cost code and the QuickBooks / TCP
+      hand-off.** Step 3 of the cycle (Phase 8). Today a project is created on Timeline's
+      New Project page: name, client, cost code, install date, team, departments. Under
+      the ownership rule (§1), Office creates the job from the lead and the estimate
+      (items 45, 44) — name, client from Clients, cost code from item 42, install date and
+      its certainty (item 5), the PM — hands the code to QuickBooks and TCP (D13: CSV
+      first, APIs via Power Automate), and Timeline schedules it: New Project becomes
+      "schedule this job" over a record Office made. Until Office exists, New Project
+      stays in Timeline unchanged.
+      - Office's create screen over the Projects registry.
+      - Timeline's New Project loses the setup fields and gains a picker of unscheduled
+        jobs; the draft page's scheduler (`generateSchedule`) is untouched.
+      Waits on: D1, item 28 (client IDs), items 42, 44, 45; D13 for the hand-off. [vision;
+      brief §6, §7 New Project layout]
+- [ ] **11. Closeout and billing states.** Step 7 of the cycle, the last one (Phase 9):
+      not planned further until the steps before it exist. What is known: keep project
+      status, closeout status and billing status as three separate fields.
+      - ⚠ Two Projects columns: `closeoutStatus` (`submitted` / `returned` / `ready` /
+        `hold` / empty) and `billingStatus` (`invoiced` / `exception` / empty), plus
+        `closeoutBy` / `closeoutAt` if the change log's who and when is not enough.
+      - The flow: the PM submits a one-minute checklist (no budget or line items); the
+        Project Director verifies (Returned, Ready for balance invoice, or Hold for
+        revision); the Bookkeeper marks Invoice sent or Accounting exception.
+      - Surfaces: a **Needs closeout** queue in Office with aging from the last scheduled
+        work date; overdue items stay visible until resolved; reminders through the
+        already-consented `Mail.Send` path. The Meeting Sheet's AMPM section stays a
+        Timeline surface that reads the same columns.
+      Open sub-decisions: the Bookkeeper's sign-in (remote, in another state; a viewer
+      with a `closeout` grant?), and whether the Project Director's verification is a role
+      or a named person (§4 D3). Moved out of the pilot 2026-09-29 (owner). [brief
+      §8.4–8.5, §9 "Business control"]
+
 ### Queued for Phase 9
 
 - [ ] **30. Role-based shared views** (leadership, department, PM, later `terminal`) over
-      item 25's JSON shape, stored in `ShopTimeline_Config` or a views list; **Personnel
-      Manager** and **Client Manager** over the tiered lists (items 27–28); **Design
-      Resources Manager** per D6. ← D3 role vocabulary, D4 architecture.
+      item 25's JSON shape, stored in `ShopTimeline_Config` or a views list; **People**
+      and **Clients** as their own products over the tiered lists (items 27–28);
+      **Office** (items 11, 13). Design Resources is tabled (D6, owner 2026-09-29).
+      ← D3 role vocabulary; D4 ruled 2026-09-28.
 
 ### Owner confirmations — answered 2026-09-24
 
@@ -533,16 +620,20 @@ item 31, closed as done.
       `reference/2026-09-22-Shop-Timeline-Brief-Condensed.md` (dated title; the mailbox
       name, headcount and a location generalized — the repo is public).
 
-## 4. Decisions the suite forces (open — record rulings here, dated)
+## 4. Decisions Systems forces (record rulings here, dated)
 
-Each has a recommendation. None is taken.
+Each has a recommendation. Ruled so far: D2 (2026-09-24), D3 in principle (2026-09-24),
+D4 (2026-09-28, refined 2026-09-29), D8 (2026-09-29). Tabled: D6 (2026-09-29). Parked:
+D14. The rest are open.
 
 - **D1 — Core project registry.** Current 2-7 Projects extended into the registry (brief
   §6.7) vs `ShopTimeline_Projects` promoted to it. *Recommend:* run item 14's schema
   comparison first; whichever wins, the other becomes a read-only mirror for one parallel
   period, then is retired — never a permanent two-way sync between two editable masters.
   Moving off `ShopTimeline_Projects` is no longer gated by the colleague app (D2); the
-  migration record still names what changes. [brief §6.7, §14]
+  migration record still names what changes. Whichever list wins, Office (the next
+  product, Phase 8) edits its setup fields and Timeline its operational ones (owner,
+  2026-09-29). [brief §6.7, §14]
 - **D2 — The colleague app and schema parity. RULED 2026-09-24 (owner):** the colleague
   app still runs but is not used and will not be used again; breaking it through a schema
   or data-store change is accepted collateral. **The additive-only rule is lifted**
@@ -575,40 +666,78 @@ Each has a recommendation. None is taken.
   suite. Work: item 26 (tiers, Phase 7) → item 27 (the split, Phase 8) → item 30 (Phase
   9). Saved views: per user in item 25 (Phase 7); shared/role-based in Phase 9.
   [brief §2, §9, §11; vision]
-- **D4 — Architecture for more than one app.** One 10,600-line `index.html`, no build step,
-  no shared module; Pages deploys three branches to `/`, `/preview/`, `/sandbox/` with a
-  guard that greps the file as markup. A portal plus three sibling apps sharing theme, auth
-  and data code needs a decision: (a) one file, more routes (the Company Data pages already
-  are proto-apps at `#/people`, `#/clients`); (b) separate single-file apps under one Pages
-  site (`/timeline/`, `/clients/`, `/people/`, `/resources/`) sharing a vendored
-  `common.css`/`common.js` — each subpath needs its own Entra redirect URI; (c) a build
-  step. *Recommend:* (b) — keeps the no-build, one-file-per-app discipline that made this
-  app maintainable, and the portal is then a static page. Consequence: Timeline moves off
-  `/` (a URL change for users) or the portal lives at `/portal/`. Decide before the second
-  app starts. [vision; brief §11.1]
+- **D4 — Architecture for more than one product. RULED 2026-09-28 (owner): option (b);
+  refined 2026-09-29 with the Systems definition (§1).** One repository, one Pages site,
+  one folder per product, the Systems portal at the root. The options weighed: (a) one
+  file, more routes (the Company Data pages already are proto-products at `#/people`,
+  `#/clients`); (b) separate single-file products under one Pages site sharing a vendored
+  `common.css`/`common.js`; (c) a build step. (b) keeps the no-build, one-file-per-product
+  discipline that made this app maintainable, and the portal is then a static page. The
+  hierarchy is the same in the directory, the URL and the docs:
+
+  ```
+  /                         Systems
+    index.html              portal: a static page of tiles, one per product
+    timeline/index.html     today's index.html, moved
+    people/  clients/  office/    one folder each, created only when built
+    common/                 common.css, common.js, msal — extracted only when product #2 starts
+    design/                 Systems-level (already is)
+    docs/                   Systems-level: TODO, ARCHITECTURE, Milestones by phase
+    tests/                  Timeline's today; tests/timeline/ when product #2 arrives
+    reference/              Timeline's frozen baseline, stays put
+  ```
+
+  Phase folders under `docs/Milestones/` stay as they are — phases belong to Systems;
+  a record names its product in the slug. **The Timeline move is its own no-behaviour
+  "reshape" PR**, one release, one CHANGELOG line (the front page is now the portal;
+  Timeline lives at `/timeline/`). What it touches: the Pages workflow (sparse-checkout
+  paths; the markup guard loops over every `index.html`; a missing path is harmless, so it
+  can land on `development` first); **the Entra redirect URIs** — exact match, so
+  `/timeline/`, `/preview/timeline/`, `/sandbox/timeline/` are added by the owner *before*
+  the merge; one line on the portal forwarding any `#/…` hash to `timeline/` so old
+  bookmarks keep working; `tests/run.js`'s default target (one string — the other test
+  files that mention `index.html` are to be checked, not assumed). **Sequence:** after the
+  pilot P0 batch (it changes the URL users have), before style guide §13 step 4 (the
+  shell's app switcher needs a real portal to point at). **Repository name:**
+  `Project-Scheduler` is the Pages path, so it names Systems in every user's URL, and
+  GitHub does not promise a Pages redirect after a rename — item 40 (custom domain) makes
+  the name invisible to users, so: custom domain first, rename after, never before.
+  **The 2026-09-29 refinement (Systems, §1):** the products are peers — Timeline is not
+  the parent — each with its own owner, version, release notes and test suites; the
+  portal's tiles show only the products whose lists the signed-in user's token can read;
+  the wordmark in every product goes to the portal; the shared module is the storage seam
+  plus the tokens (`design/Style-Guide.md` §10; `docs/Architecture-Review-Storage.md`);
+  browser-storage keys carry a product prefix from the first shared-module PR, because
+  products on one origin share `localStorage`. Rejected then and now: (a), because every
+  product's features would ship to every PM on Timeline's release train; (c). [vision;
+  brief §11.1; review 2026-09-29]
 - **D5 — Employee Directory identity.** Which list is "the Employee Directory": HR's
   Employee Contacts (manual, current, has Pay Type / PersonalEmail), 27 Employees (nightly
   automation, unidentified), or a new consolidated list? Join key today: work email, else
   exact name (a namesake without work email can join the wrong row). *Recommend:* Employee
   Contacts as identity master, read through a trimmed view or `$select` (item 9), until D3's
-  separate-list rule lets Personnel Manager hold HR-only fields on their own list. Employee
+  separate-list rule lets People hold HR-only fields on their own list. Employee
   Contacts stays READ-ONLY for the app. [brief §4 open question, §8.1]
-- **D6 — Design Resources Manager and secrets.** Licence keys and shared logins in a
-  SharePoint list readable by the app are readable by every user with site access,
-  whatever the UI hides (D3), and this repository is public. *Recommend:* the Manager
-  stores *pointers and ownership* (what the tool is, who owns the licence, where the
+- **D6 — Design Resources and secrets. TABLED 2026-09-29 (owner):** not one of the four
+  Systems products, and not necessary to the function of the whole system — no product, no
+  list, no work until the owner reopens it. Kept for that day: licence keys and shared
+  logins in a SharePoint list readable by a product are readable by every user with site
+  access, whatever the UI hides (D3), and this repository is public. *Recommend, if
+  reopened:* the product stores *pointers and ownership* (what the tool is, who owns the licence, where the
   credential lives) and links to a proper vault (a password manager or a restricted
   document library with its own permissions); never the secret itself in a list the app
   reads. The plug-in/script store is a document library with a Manager page over it.
   [vision]
 - **D7 — What v2.0.0 means.** §1 point 5 (Timeline on shared registries) vs the retired
   "app as master" vs "the pilot release". *Recommend:* §1 point 5.
-- **D8 — Company Data pages' future.** Stay in Timeline as its People/Clients views, or
-  graduate into Personnel Manager / Client Manager with Timeline keeping read-only pickers.
-  *Recommend:* graduate in Phase 9; until then they are where the shared-registry work
-  lands (Phase 8). The Client Manager's "project history (names, cost codes, job details,
-  billings)" needs client IDs on projects (D10) and the closeout/billing states (item 11)
-  before it can be built without name-joins.
+- **D8 — Company Data pages' future. RULED 2026-09-29 (owner, with the Systems
+  definition): graduate.** Timeline's People and Clients pages become the **People** and
+  **Clients** products in Phase 9; Timeline keeps read-only pickers and, from then on,
+  never creates or deletes a person or a client (§1 ownership rule). Until then the pages
+  are where the shared-registry work lands (Phase 8). Clients' "project history (names,
+  cost codes, job details, billings)" needs client IDs on projects (D10) and the
+  closeout/billing states (item 11, an Office screen) before it can be built without
+  name-joins.
 - **D9 — Worker type vocabulary.** The app has a `1`/empty Freelance flag; the brief wants
   Regular / Seasonal / Freelance / Contractor; Employee Contacts already carries Category
   (Full/Part Time / Seasonal / Archived). *Recommend:* one vocabulary, taken from Employee
@@ -626,14 +755,17 @@ Each has a recommendation. None is taken.
   `othoffice` retired) and should settle first. Timeline's own `ShopTimeline_Events` vs
   27 Events is decided with item 12. [brief §8, §8.2]
 - **D12 — Polling budget.** Every open tab re-reads every list every 90 s; the change log
-  is deliberately never polled. Each sibling app and each new registry adds a full poll per
+  is deliberately never polled. Each product and each new registry adds a full poll per
   user per tab. *Recommend:* before Phase 8 adds registries, set a budget (lists per tick,
   delta or `$filter` reads for large lists) — see `memory` note on the change-probe trap.
 - **D13 — Integrations: ADP, TimeClock+, QuickBooks.** Brief: P3, after ownership, security
   and maintenance are settled; vision: "if possible". A browser SPA cannot hold API secrets,
   so any write integration needs a flow or a small service with its own owner. *Recommend:*
   CSV export/import first (QuickBooks and TCP formats to be confirmed — §5), APIs only via
-  Power Automate with a named owner. [brief §1.2, §9 P3, §15]
+  Power Automate with a named owner. The project cycle (§1, 2026-09-29) puts the
+  QuickBooks and TCP hand-off at job creation (item 43), so the CSV formats are Office's
+  input. The ADP connection belongs to People (owner, 2026-09-29): CSV first, the API via
+  Power Automate. [brief §1.2, §9 P3, §15]
 - **D14 — Shop terminal / TV mode.** A fourth account type (`terminal`) with its own
   read-only dashboard; the company already runs non-person M365 accounts. Owner ruling
   2026-09-02: after rollout, once real use proves the need; brief: P2, and no TV redesign in
@@ -712,7 +844,7 @@ Line numbers in brackets are the entry's place in `docs/Archive/TODO-v1.x-Archiv
 - Admin rollout note "flag the admins on the People page" (v1.x item 12) — done in
   practice (PMs are admins); superseded by D3.
 - "UI gating is workflow protection — decide if acceptable" (v1.x item 12) — recorded and
-  accepted for v1.x; **re-opened as D3** for the suite, not carried as-is.
+  accepted for v1.x; **re-opened as D3** for Systems, not carried as-is.
 - Weekly schedule and Freelance flag "(development)" qualifiers (v1.x items 43–44) — on
   `main` via PR #48.
 - Draft "Add a phase" ignores the optional name field [L973] — the field was removed in
@@ -1016,6 +1148,41 @@ state reset per project visit, persist per browser like `NPV_OPEN` only if asked
 - **Standing rule:** the retired backlogs (`docs/Archive/TODO-v1-Archive.md`,
   `TODO-v1.x-Archive.md`) are frozen; a ledger entry's later decision is recorded here, in
   §7, with the archive line number.
+- 2026-09-29 (evening): **People is where Systems connects to ADP** (owner, from the
+  Systems overview handout). §1's People row says so, with D13's limit — CSV first, the
+  API only through Power Automate — and the People bullet lists D13.
+- 2026-09-29 (later): **Office is the next new product, and the build order is the
+  project cycle** (owner). Lead / forecast → estimate → job creation with cost codes,
+  QuickBooks and TCP (Office) → people management (People) → schedule and production
+  (Timeline, exists) → closeout and final invoice (Office, last). §1 gains the table;
+  Office gets its own band in that order (new items 45 lead, 44 estimate, 42 cost codes,
+  43 job creation; 11 closeout leaves the pilot and sits last, Phase 9, not planned
+  further until then); People follows Office in Phase 8; the pilot's "done when" loses
+  the balance-invoice clause; D1 names Office as the registry's editor; D13 notes the
+  hand-off at job creation; items 13 and 14 stay in the P0 outside-the-app band as
+  Office's inputs.
+- 2026-09-29: **Systems defined** (owner) — the ecosystem has a name, four peer products
+  (People, Clients, Office, Timeline), a portal at `/`, and the ownership rule (create and
+  delete only inside the owning product; read everywhere). §1 rewritten around it; D4
+  (ruled 2026-09-28) refined for Systems, D8 ruled, D6 (Design Resources) tabled as not
+  necessary to the whole system; item 11's home flagged (Office); the
+  old names (Client Manager, Personnel Manager, Design Resources Manager, "sibling apps",
+  "the suite") replaced in the living docs — `CLAUDE.md`, `README.md`,
+  `docs/ARCHITECTURE.md`, `design/Design-Language.md`, `design/Style-Guide.md` §10,
+  `design/README.md`. Milestone records and archives keep the old wording as
+  history. The same day's architecture review (`docs/Architecture-Review-Storage.md`,
+  PR #56) predates the names; its "suite" and "sibling app" read as Systems and product.
+- 2026-09-27 (later): design files get their own root folder `design/` (owner ask) —
+  `Design-Language.md`, `Style-Guide.md` and `fonts/` moved there; `index.html` loads the
+  wordmark font from `design/fonts/`, the Pages allowlist lists the new path (legacy line
+  kept until main and sandbox carry the move), `test-v171` follows. Future design docs
+  land in `design/`, not `docs/`.
+- 2026-09-27: `design/Style-Guide.md` written (owner ask) — the tokens, colours, type,
+  spacing and component recipes as shipped at v1.23.0, read from the stylesheet and script
+  constants, plus §10: the sibling-app / `common.css` brief for Phase 9 with a proposed
+  three-slot per-app identity (eyebrow, mark, `--app` hue). §10 is a proposal pending D4;
+  no app code changed. `CLAUDE.md` core files and `Design-Language.md` point to it. Record:
+  `docs/Milestones/Phase-7-Pilot-Readiness/2026-09-27-style-guide.md`.
 - 2026-09-25 (later): status rule set — GitHub is the truth once a report has a ticket;
   the poller runs on close/reopen events; tracker #13 → item 41, #14 closed as done;
   PR #52 merged (Hubert has no GitHub account). The bridge's dev-page buttons ledgered
@@ -1052,7 +1219,8 @@ state reset per project visit, persist per browser like `NPV_OPEN` only if asked
   need explicit instruction (`CLAUDE.md`).
 - **[brief §N]** — the Project Director's September 2026 brief, condensed and annotated by
   Robert (2026-09-22); section numbers match the original 21-page document.
-- **[vision]** — the owner's 2026-09-24 statement of the portal/suite direction.
+- **[vision]** — the owner's 2026-09-24 statement of the portal direction, defined as
+  Systems on 2026-09-29 (§1).
 - **[LNNNN]** — line in `docs/Archive/TODO-v1.x-Archive.md` where a carried ledger entry
   came from; **v1.x item N** — its §3 item number there.
 - **D1–D14** — §4 decisions; **item N** — §3 work items in this file.

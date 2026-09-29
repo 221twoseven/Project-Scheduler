@@ -6,6 +6,12 @@
 > cover the browser-based workflow with no coding required. Read on only if you want to
 > understand how the app works under the hood.
 
+> **Where it sits:** Timeline is one product of **Systems** (owner, 2026-09-29) — peer
+> products (People, Clients, Office, Timeline) over one shared SharePoint dataset, behind
+> a portal at `/`. Timeline owns production data only and reads people and clients from
+> their own products. Only Timeline exists today. Definition and rulings: `docs/TODO.md`
+> §1 and §4 D4/D8.
+
 Timeline is a **single-file, client-only single-page app**. `index.html` contains all
 HTML, CSS, and vanilla JavaScript (thousands of lines, one file) — no framework, no
 build step. The only

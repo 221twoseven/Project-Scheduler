@@ -33,6 +33,8 @@ jobs:
       # tests/, reference/, ...) stays off the public site on purpose. If the app
       # ever gains a new local asset (image, CSS file, favicon, script), add it to
       # ALL THREE sparse-checkout lists — the guard step below fails the deploy if
+      # (2026-09-27: the font moved to design/fonts/. The old fonts/ line stays until
+      # main and sandbox carry the move — a missing sparse path is harmless.)
       # index.html references a file that would be missing from the site.
       - name: Checkout main into site root (production)
         uses: actions/checkout@v4
@@ -42,6 +44,7 @@ jobs:
           sparse-checkout: |
             index.html
             msal-browser.min.js
+            design/fonts/BrNStdBd.otf
             fonts/BrNStdBd.otf
           sparse-checkout-cone-mode: false
 
@@ -53,6 +56,7 @@ jobs:
           sparse-checkout: |
             index.html
             msal-browser.min.js
+            design/fonts/BrNStdBd.otf
             fonts/BrNStdBd.otf
           sparse-checkout-cone-mode: false
 
@@ -64,6 +68,7 @@ jobs:
           sparse-checkout: |
             index.html
             msal-browser.min.js
+            design/fonts/BrNStdBd.otf
             fonts/BrNStdBd.otf
           sparse-checkout-cone-mode: false
 

@@ -5,6 +5,10 @@ phases, staff, and to-dos on a timeline and calendar, and persists everything to
 SharePoint through Microsoft Graph. It runs as a static page on GitHub Pages with
 Microsoft Entra (MSAL) sign-in — there is no server of our own.
 
+Timeline is one product of **Systems**, Twoseven's data-management ecosystem: peer
+products (People, Clients, Office, Timeline) over one shared SharePoint dataset, behind
+one portal. Only Timeline exists today; the definition is in `docs/TODO.md` §1.
+
 - **Live app:** `index.html`, served via GitHub Pages from the `main` branch.
 - **Current build:** v1.0.1 (one HTML file — the `APP_VER` constant in `index.html` is
   the source of truth; this line goes stale, that number doesn't). Versions before
