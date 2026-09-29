@@ -112,13 +112,13 @@ or a cost code. Timeline manages production data only.
 - **Office** — items 11, 13, 14; D1, D11.
 - **Timeline** — items 1–3, 5–8, 10, 12, 18, 20, 22, 23, 25, 29, 32–41; D12, D14.
 - **Systems as a whole** (portal, shared module, sign-in, hosting) — items 15–17, 21, 24,
-  30, 31; D3, D4, D6, D7, D8, D13.
+  30, 31; D3, D4, D7, D8, D13. D6 is tabled.
 
 Retired framings, for the record: v1.x "the app becomes the company's singular source of
 truth, absorbing the 14 stores into Timeline's Company Data pages" (retired 2026-09-24);
 the 2026-09-24 wording "a portal of sibling apps — Client Manager, Personnel Manager,
 Design Resources Manager" (names superseded 2026-09-29; Design Resources is not one of the
-four products — whether it becomes a fifth is the owner's call, D6).
+four products and is tabled — owner, 2026-09-29, D6).
 
 ## 2. Roadmap
 
@@ -159,8 +159,8 @@ four products — whether it becomes a fifth is the owner's call, D6).
   - Phase 8: item 27 split Staff into public roster + restricted record ← item 26 + D5
     (identity master) + the owner breaking permission inheritance on the new list.
   - Phase 9: role-based shared views (item 30, reuses item 25's shape) · People and
-    Clients as products over the tiered lists · Office (items 11, 13) · D6 only if Design
-    Resources becomes a fifth product (pointers, never secrets).
+    Clients as products over the tiered lists · Office (items 11, 13). D6 Design
+    Resources is tabled (owner, 2026-09-29).
 - **D1 core registry** ← item 14 schema comparison ← the Current Projects / 27 Events
   schemas from the Project Director (§5). Then **v2.0.0** ← D1 + item 28 + item 13's
   cost-code registry (← the workbook inventory).
@@ -543,7 +543,7 @@ item 32 (P0), #7 is folded into item 3, #11 and #14 were done by the bridge itse
 - [ ] **30. Role-based shared views** (leadership, department, PM, later `terminal`) over
       item 25's JSON shape, stored in `ShopTimeline_Config` or a views list; **People**
       and **Clients** as their own products over the tiered lists (items 27–28);
-      **Office** (items 11, 13); Design Resources only if it becomes a fifth product (D6).
+      **Office** (items 11, 13). Design Resources is tabled (D6, owner 2026-09-29).
       ← D3 role vocabulary; D4 ruled 2026-09-28.
 
 ### Owner confirmations — answered 2026-09-24
@@ -558,7 +558,8 @@ item 32 (P0), #7 is folded into item 3, #11 and #14 were done by the bridge itse
 ## 4. Decisions Systems forces (record rulings here, dated)
 
 Each has a recommendation. Ruled so far: D2 (2026-09-24), D3 in principle (2026-09-24),
-D4 (2026-09-28, refined 2026-09-29), D8 (2026-09-29). The rest are open.
+D4 (2026-09-28, refined 2026-09-29), D8 (2026-09-29). Tabled: D6 (2026-09-29). Parked:
+D14. The rest are open.
 
 - **D1 — Core project registry.** Current 2-7 Projects extended into the registry (brief
   §6.7) vs `ShopTimeline_Projects` promoted to it. *Recommend:* run item 14's schema
@@ -650,11 +651,12 @@ D4 (2026-09-28, refined 2026-09-29), D8 (2026-09-29). The rest are open.
   Contacts as identity master, read through a trimmed view or `$select` (item 9), until D3's
   separate-list rule lets People hold HR-only fields on their own list. Employee
   Contacts stays READ-ONLY for the app. [brief §4 open question, §8.1]
-- **D6 — Design Resources and secrets.** *Not one of the four Systems products (§1,
-  2026-09-29); the owner says whether it becomes a fifth.* If it does: licence keys and
-  shared logins in a SharePoint list readable by a product are readable by every user with
-  site access, whatever the UI hides (D3), and this repository is public. *Recommend:* the
-  product stores *pointers and ownership* (what the tool is, who owns the licence, where the
+- **D6 — Design Resources and secrets. TABLED 2026-09-29 (owner):** not one of the four
+  Systems products, and not necessary to the function of the whole system — no product, no
+  list, no work until the owner reopens it. Kept for that day: licence keys and shared
+  logins in a SharePoint list readable by a product are readable by every user with site
+  access, whatever the UI hides (D3), and this repository is public. *Recommend, if
+  reopened:* the product stores *pointers and ownership* (what the tool is, who owns the licence, where the
   credential lives) and links to a proper vault (a password manager or a restricted
   document library with its own permissions); never the secret itself in a list the app
   reads. The plug-in/script store is a document library with a Manager page over it.
@@ -1079,7 +1081,8 @@ state reset per project visit, persist per browser like `NPV_OPEN` only if asked
 - 2026-09-29: **Systems defined** (owner) — the ecosystem has a name, four peer products
   (People, Clients, Office, Timeline), a portal at `/`, and the ownership rule (create and
   delete only inside the owning product; read everywhere). §1 rewritten around it; D4
-  (ruled 2026-09-28) refined for Systems, D8 ruled; item 11's home flagged (Office); the
+  (ruled 2026-09-28) refined for Systems, D8 ruled, D6 (Design Resources) tabled as not
+  necessary to the whole system; item 11's home flagged (Office); the
   old names (Client Manager, Personnel Manager, Design Resources Manager, "sibling apps",
   "the suite") replaced in the living docs — `CLAUDE.md`, `README.md`,
   `docs/ARCHITECTURE.md`, `design/Design-Language.md`, `design/Style-Guide.md` §10,
