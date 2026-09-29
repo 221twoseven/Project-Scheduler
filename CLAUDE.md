@@ -22,8 +22,8 @@ Project rules and context for working in this repository. Read this before makin
   touches appearance or interaction.** If a change contradicts it, either follow the
   doc or update the doc in the same PR — never silently diverge.
 - **`design/Style-Guide.md` — the tokens, values and component recipes as shipped** (the
-  *what* to Design-Language's *why*), and the spec a sibling app or the future shared
-  `common.css` copies from. A PR that adds a token, a recurring colour, or a component
+  *what* to Design-Language's *why*), and the spec another Systems product or the future
+  shared `common.css` copies from. A PR that adds a token, a recurring colour, or a component
   style updates its tables in the same PR.
 - **`docs/TODO.md` — the working backlog (Phase 7: pilot readiness, toward v2.0.0).**
   North star, roadmap, the proposed build list, the open design decisions (§4), the
@@ -159,6 +159,15 @@ integration, schema or auth changes, a notable refactor. Skip it only for trivia
 - Link any shareable artifact (explainer page, diagram) from the record.
 
 ## Architecture summary
+
+**Where Timeline sits — Systems (owner, 2026-09-29).** Timeline is one product of
+*Systems*, a data-management ecosystem of peer products — People, Clients, Office,
+Timeline — over one shared SharePoint dataset, reached from a portal at `/`. Each product
+creates and deletes only the data it owns; every product reads the shared dataset. Timeline
+manages production data only (schedule, phases, assignments, milestones, notes) and will
+hand its People and Clients pages to their own products. None of this is built yet; the
+definition is `docs/TODO.md` §1 and the rulings are §4 D4/D8. Until then, Timeline is the
+whole of what ships.
 
 A **single-file, client-only SPA**. `index.html` (one file of roughly seven thousand
 lines — trust `wc -l`, not this sentence) contains all HTML, CSS,
