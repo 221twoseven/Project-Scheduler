@@ -1147,20 +1147,16 @@ state reset per project visit, persist per browser like `NPV_OPEN` only if asked
 - **Standing rule:** the retired backlogs (`docs/Archive/TODO-v1-Archive.md`,
   `TODO-v1.x-Archive.md`) are frozen; a ledger entry's later decision is recorded here, in
   §7, with the archive line number.
-- 2026-09-29 (later still): **the build order is the project cycle** (owner). Lead /
-  forecast → estimate → job creation with cost codes, QuickBooks and TCP (Office) →
-  people management (People) → schedule and production (Timeline, exists) → closeout and
-  final invoice (Office, last). §1 gains the table; Office's band is reordered (45 lead,
-  44 estimate, 42 cost codes, 43 job creation; 11 closeout last, Phase 9, not planned
-  further until then); People follows Office in Phase 8; new item 45; D13 notes the
-  hand-off at job creation.
-- 2026-09-29 (later): **Office is the next new product** (owner, option 1). Built in
-  Phase 8, before People and Clients, because it edits the registries Phase 8 creates.
-  Item 11 (closeout) leaves the pilot band and becomes Office's first screen; the pilot's
-  "done when" loses the balance-invoice clause, Phase 8's gains it; three items get a home
-  they lacked — 42 cost-code generation, 43 project setup moving out of Timeline, 44
-  estimating and budgets; D1 names Office as the registry's editor; items 13 and 14 stay
-  in the P0 outside-the-app band as Office's inputs.
+- 2026-09-29 (later): **Office is the next new product, and the build order is the
+  project cycle** (owner). Lead / forecast → estimate → job creation with cost codes,
+  QuickBooks and TCP (Office) → people management (People) → schedule and production
+  (Timeline, exists) → closeout and final invoice (Office, last). §1 gains the table;
+  Office gets its own band in that order (new items 45 lead, 44 estimate, 42 cost codes,
+  43 job creation; 11 closeout leaves the pilot and sits last, Phase 9, not planned
+  further until then); People follows Office in Phase 8; the pilot's "done when" loses
+  the balance-invoice clause; D1 names Office as the registry's editor; D13 notes the
+  hand-off at job creation; items 13 and 14 stay in the P0 outside-the-app band as
+  Office's inputs.
 - 2026-09-29: **Systems defined** (owner) — the ecosystem has a name, four peer products
   (People, Clients, Office, Timeline), a portal at `/`, and the ownership rule (create and
   delete only inside the owning product; read everywhere). §1 rewritten around it; D4
