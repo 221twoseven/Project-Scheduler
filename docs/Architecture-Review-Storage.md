@@ -5,6 +5,12 @@
 no call was made to SharePoint or Graph. The one outside read was the private tracker
 repository (`gh api`, read-only) to confirm how the bot runs.
 
+**Vocabulary note (added later the same day):** this review was written hours before the
+owner defined **Systems** (`docs/TODO.md` §1, 2026-09-29). Read "the suite" as Systems,
+"sibling app" as product, "Client Manager" as Clients, "Personnel Manager" as People; the
+closeout and cost-code work belongs to the Office product; Timeline is a peer, not the
+default. The findings and recommendations are unchanged by the renaming.
+
 **Secrets check (Step 0):** no client secret, certificate or token is committed. The repo and
 its full history were searched for `client_secret`, `GRAPH_CLIENT_SECRET`, `thumbprint`,
 `certificate`; the only hits are the string inside the vendored `msal-browser.min.js`
