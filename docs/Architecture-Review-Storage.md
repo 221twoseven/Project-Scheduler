@@ -14,14 +14,16 @@ its full history were searched for `client_secret`, `GRAPH_CLIENT_SECRET`, `thum
 ## Summary
 
 The single highest-leverage change is **the storage seam (idea 1)**, and it should go first.
+The reason is code simplicity: one object owns every conversation with SharePoint instead
+of 37 call sites spread over 16 functions.
 Ninety percent of the plumbing already exists — every SharePoint call funnels through
 `gfetch` / `gpageAll` / `listUrl` (`index.html:2198-2225`) and the field mappers already
 separate app shapes from column shapes — so a thin `store` object can be introduced with no
 callers in one PR, then one list moved per PR with `npm test` proving neutrality (the
 harness records at the `fetch` layer, so no assertion changes). Every later idea gets
 cheaper once it exists: provisioning reads its column spec from the same table, the suite's
-shared `common.js` (D4b) *is* the seam plus the mappers, and a local-only mode becomes a
-second adapter instead of ~37 branched call sites. The permission churn (idea 3) turns out
+shared `common.js` (D4b) *is* the seam plus the mappers, and a list that is renamed or
+moved is changed in one table instead of at every call site. The permission churn (idea 3) turns out
 not to be a setup problem — three Entra changes in six weeks, each for a genuinely new
 resource type, none for a list — so there is nothing to "fix first"; the only permission
 move worth making is swapping `Sites.ReadWrite.All` for a site-scoped grant, and it should
@@ -46,11 +48,10 @@ Gap levels per the handoff: **None** (already true), **Small** (a few PRs, no sc
 
 | Idea | Today (with line refs) | Gap | Effort to close | Pays off when | Recommend |
 | --- | --- | --- | --- | --- | --- |
-| 1. Storage seam | All Graph traffic already goes through `gfetch`/`gpageAll`/`listUrl` (`index.html:2198-2225`), but 16 functions build Graph URLs and item shapes themselves (37 sites), 3 raw `fetch` calls bypass `gfetch` (`2242`, `10353`, `10373`), five per-list flags carry four different fallback behaviours, and ~24 user-visible strings name SharePoint or a list. | Small | ~9 behaviour-neutral PRs, 20-120 lines each, one list per PR; 0 test assertions change | Every list added after it (closeout columns, Clients registry, Phase 8 registries), the suite's shared module (idea 4), local mode (idea 5) | **Do now** |
+| 1. Storage seam | All Graph traffic already goes through `gfetch`/`gpageAll`/`listUrl` (`index.html:2198-2225`), but 16 functions build Graph URLs and item shapes themselves (37 sites), 3 raw `fetch` calls bypass `gfetch` (`2242`, `10353`, `10373`), five per-list flags carry four different fallback behaviours, and ~24 user-visible strings name SharePoint or a list. | Small | ~8 behaviour-neutral PRs, 20-120 lines each, one list per PR; 0 test assertions change | Every list added after it (closeout columns, Clients registry, Phase 8 registries), the suite's shared module (idea 4) | **Do now** |
 | 2. Provisioning as code | No script. Lists and columns are created by hand from a delivered spec (`CLAUDE.md:57-62`); the app probes columns live (`index.html:4840, 4847`). Column names are in the code; types only partly in the docs. | Small (the script) — the grant it runs under is ⚠ | ~120-line Node/Graph script + one site-grant change (`write` → `manage` on the bot) | Item 17 (a test site with the nine lists), every sibling app site, and it closes the "types not recorded" gap | **Do before the next suite app** |
 | 3. Site-scoped permissions | SPA: `User.Read` + `Sites.ReadWrite.All` (`index.html:2176`) plus `TeamMember.Read.All` (`2239`) and `Mail.Send` (`10372`) on their own tokens — all delegated, admin-consented. Bot: `Sites.Selected` app-only, `write` on one site — already the target. Adding a list has never needed an Entra change (nine lists, one scope). | Large by the template (⚠ Entra) — the code change is one string | One Entra edit: add delegated `Sites.Selected`, grant the SPA on TWOSEVENINC, remove `Sites.ReadWrite.All` | When the suite registration is created — do it once | **Do before the next suite app** |
 | 4. Suite readiness | Everything is one app: client/tenant/site/list constants (`2139-2175`), `TEAM_GROUP_ID` (`2233`), ~25 `shopTimeline*` browser-storage keys that sibling apps on the same Pages origin would share, three deploy allowlists, the repo link (`10401`). Shareable for free: same origin + same client ID ⇒ MSAL's `sessionStorage` cache gives silent SSO between sibling apps. | Large (D4 undecided) | A decision (D4 + Q1/Q4 below) first; then the seam's `store` + mappers become the shared module | Before the second app is built — unwinding later means migrating lists and re-consenting | **Do before the next suite app** (decide now) |
-| 5. Portability | Signed-out today (jsdom run): sign-in card, pill "offline", zero network; the draft page, People/Clients (from browser cache) and every toolbar control work; `isAdmin()` is true; an edit is accepted into memory, parked as "not saved", and lost on reload. Roster/clients/config/sample/views persist locally; projects/tasks/todos/events do not. | Small with the seam, Large without | With the seam ≈ 300 lines in 2 PRs (local adapter, export/import, ~8 identity guards). Without: the same plus a branch at each of ~37 call sites, or a fake-Graph `fetch` shim | When a second team wants the scheduler without Microsoft 365 | **Do when a second team asks** (after idea 1) |
 
 ## 1. Storage seam
 
@@ -184,8 +185,8 @@ const store = {
   upload(folder, file),     // → {url} or null           (feedback screenshot, 10349-10356)
   available(kind),          // replaces STAFF_OK / TODOS_OK / EVENTS_OK / CLIENTS_OK / CFG_OK
   explain(err),             // one place that turns "SharePoint 404: …" into a sentence
-  /* Microsoft-only extras — a non-Microsoft store returns [] / false and the existing
-     degrade paths (2250-2253, 10387) already handle that */
+  /* Microsoft-only extras — on the same object so every Microsoft call has one entry
+     point; the existing degrade paths (2250-2253, 10387) are unchanged */
   people(),                 // Team members (2235-2255)
   mail(to, subject, text),  // /me/sendMail (10370-10388)
 };
@@ -202,14 +203,13 @@ Call sites that do not fit cleanly, and why:
   → `columns()` returns pairs, not strings. Fits with that one extension.
 - **Clients keyed by store id** (`2649-2650`): fits via `Row.id`, but the app-level name
   `spId` is a leak; rename in the same PR or leave (cosmetic, `test69.js:44` pins it).
-- **Throttling** (`2203-2209`) and **paging** (`2215-2219`) are adapter-internal; a local
-  store has neither.
+- **Throttling** (`2203-2209`) and **paging** (`2215-2219`) are adapter-internal.
 - **The Staff first-run push** (`10539-10542`) is app logic on top of the adapter; unchanged.
 - **Screenshot upload**: a store without a drive returns null and the report goes without
   its screenshot — already the failure path (`10356`).
 - **`sendMail` and Team membership** are identity features, not storage. They sit on the
-  same object only so a local adapter can no-op them in one place; nothing else in the
-  app needs to know they are Microsoft.
+  same object so every Microsoft call lives in one place; nothing else in the app needs
+  to know they are Microsoft.
 
 ### 1e. Refactor estimate
 
@@ -220,10 +220,9 @@ Call sites that do not fit cleanly, and why:
   records at the `fetch` layer (`tests/harness.js:16-18`) and the adapter keeps the Graph
   URLs and bodies byte-identical — `npm test` green *with no assertion edits* is the proof
   of "no behaviour change" for each PR. The only PR that touches user-visible strings (the
-  one-rule error PR) may touch `test-v170.js:65` and `test69.js:69-70`. A harness option
-  for a local store is ~10 lines and comes last.
+  one-rule error PR) may touch `test-v170.js:65` and `test69.js:69-70`.
 - **Sequence:** yes — the adapter lands with no callers, then one list (or one pair) per PR,
-  each independently revertible. Nine PRs; see the sequence at the end.
+  each independently revertible. Eight PRs; see the sequence at the end.
 
 ## 2. Provisioning as code
 
@@ -395,79 +394,6 @@ multiplies consents, redirect-URI lists and expiry tracking, and gives up silent
 across the suite. Decide before the second app is built — unwinding later means
 re-consenting users and migrating lists.
 
-## 5. Portability
-
-### 5a. What already works with no SharePoint and no sign-in
-
-Recorded from a jsdom run of `index.html` with MSAL stubbed to *fail* sign-in (no cached
-account, `loginPopup` rejected) and `fetch` rejecting — the same boot a user gets when
-they close the Microsoft popup or have no network:
-
-- **Renders:** the timeline shell with the sign-in card ("Shop Timeline … Sign in with
-  Microsoft", `3543-3546`; the button re-runs `boot()`, `3577-3582`); the sync pill reads
-  "offline" (`10531`); one toast with Details (`10532`). **Zero network calls leave the
-  page.** Every toolbar control is enabled; the sidebar renders its lens/sort controls.
-- **Works:** `#/project/new` — the whole draft page and scheduler (`generateSchedule` is
-  pure); `#/people` — "0 people · this browser only" with Add and Import buttons; with a
-  cached roster (`shopTimelinePeople_v1`, read at `2119-2123`) the People page and every
-  picker work from cache; Clients (`2662`) and Config (`2876`) likewise; `#/issues` renders
-  the form (Help ▸ Report is blocked with "Sign in first" at `10106`, the direct route is
-  not).
-- **`isAdmin()` is true** signed-out (`2840`: empty roster ⇒ legacy everyone-admin), so
-  every edit door is open.
-- **An edit is accepted and then lost:** `saveState` updates the screen, the pill reads
-  "not saved — click to retry", `PENDING_SYNC` is parked, still zero network (`spToken`
-  throws before any `fetch`) — and the change is gone on reload, because `ST` is
-  memory-only; only sample projects stash to `localStorage` (`2417-2432`).
-- **Breaks:** nothing throws. **Disabled:** nothing — and that is the gap: signed-out is
-  indistinguishable from "an admin with a network problem". The sample project is
-  unreachable signed-out (`3547-3550` needs an account — ledger §7.1 L1013).
-- **Persists locally today:** roster, clients, config, sample projects, saved views, UI
-  prefs, the draft (`sessionStorage`). **Does not:** projects, phases, to-dos, events.
-
-### 5b. Features tied to Microsoft identity, and how each should degrade in a local mode
-
-| Feature | Where | Depends on | Local-mode degrade |
-| --- | --- | --- | --- |
-| Identity chain (REV66) | `meName()` `2807-2814` | `ACCOUNT.username`/`name` ↔ Staff email/name | a chosen local persona; `rememberedMe()`/`ME_KEY` (`9724-9725`) is already the no-account fallback for the dashboard button (`9760-9761`) — promote it to the identity source |
-| Person filter, My Dashboard, person panel | `3378`, `9665`, `9726-9761` | `meName` ∥ `rememberedMe` | already works from `rememberedMe`; keep |
-| Admin / viewer / developer | `2824-2844` | Staff `admin` flags | single user = admin; `permsLive()` false already yields admin; view-as picker hides |
-| PM late prompt | `9830`, `10568` | account + `meName` | gated on the account today; gate on the persona |
-| Feedback form, mail, screenshot | `10104-10395` | account, list, drive, `Mail.Send` | hide the menu entry (or export to the local file); mail already skips (`10387`) |
-| Teams picker | `2235-2255` | `TeamMember.Read.All` | already degrades to free text (`2250-2253`) |
-| Employee Contacts import | `4832-4905`, button `4964` | HR list on the site | hide when the store has no `employeeContacts` kind |
-| Changelog | `4695-4716`, page `4738` | list + account name (`4665`) | a local kind, or the page hidden |
-| `updatedBy` / `updatedAt` | `2388-2389`, `2555-2565` | Graph audit fields | persona + `Date.now()` — `stampUpdated` already falls back to "You" (`2557`) |
-| `createdBy` on to-dos | `8927` | account | persona |
-| Viewer grants (Config) | `2867-2896` | Config list | irrelevant for one admin |
-| Sign-in card, pill | `3543`, `10529-10533` | MSAL | card becomes "Open a schedule file / Start empty"; pill reads "local" |
-| 90-second poll | `10569-10622` | Graph | no-op for a local store; a `storage` event if a shared-file backend ever comes |
-
-### 5c. Cost of a local-only mode with JSON export/import
-
-**With the seam (idea 1):** ≈ 300 lines in 2 PRs. (1) A `localStore` adapter, 120-150
-lines: `list/create/update/remove` over one `localStorage` key per kind (IndexedDB only if
-the ~5 MB per-origin ceiling is ever reached — 2,000 rows is far below it), `columns()`
-returns the mapper keys, `upload()` null, `people()` `[]`, `mail()` false, `signIn()` the
-persona. (2) Export/import, ~40 lines: `JSON.stringify` of every kind → download; import →
-replace + reload. (3) The mode switch: a `?local` query or one constant beside `2138`,
-plus a five-line branch in `boot()` (`10522-10556`). (4) The ~8 one-line guards from the
-table above. (5) A harness option and one suite round-tripping each kind.
-
-**Without the seam:** the adapter has nowhere to plug in. Either each of the ~37 call sites
-gains a branch (and every future list adds two), or — the ponytail shortcut — a runtime
-`fetch` shim answers the Graph URL shapes from `localStorage`, which is what
-`tests/harness.js:50-87` already does in 40 lines. The shim ships fastest (~100 lines,
-zero call-site changes) but bakes Graph URLs into local mode, must fake `@odata.nextLink`,
-`/columns`, `/drive/root:` and item ids, and becomes a second, hidden copy of the data
-layer that every new call site has to mirror. Roughly 200 lines now, growing with every
-list. Recommend the seam first; the shim only if a second team needs it before the seam
-lands.
-
-**Who it is for (Part D):** one scheduler owning another team's schedule = local-only +
-JSON hand-off is enough. Two people editing is a shared-file or backend decision, not
-scoped here; the seam keeps that door open without designing for it.
-
 ## Proposed PR sequence
 
 Each PR: one short-lived branch off `development`, no `APP_VER` bump and no `CHANGELOG.md`
@@ -495,12 +421,8 @@ dependency order:
    `2670`, `2714`, `2893`) read `store.available(kind)`; the five `*_OK` flags go. The one
    PR that changes user-visible strings — expect to touch `test-v170.js:65` and
    `test69.js:69-70`.
-9. **Harness at the seam.** `tests/harness.js` gains `store:'local'` (keeps `fetch`
-   recording for every existing suite); one new suite round-trips each kind. Prepares
-   idea 5.
 
-After the sequence, and not "do now": local mode + export/import (idea 5, 2 PRs);
-`provision.mjs` in the tracker repo (idea 2, ⚠ grant bump); the scope swap at `2176`
+After the sequence, and not "do now": `provision.mjs` in the tracker repo (idea 2, ⚠ grant bump); the scope swap at `2176`
 (idea 3, ⚠ Entra) — timed with the suite registration.
 
 ## Open questions for Robert
@@ -508,14 +430,11 @@ After the sequence, and not "do now": local mode + export/import (idea 5, 2 PRs)
 1. **Scope swap.** When the suite registration is set up, is it acceptable to add delegated
    `Sites.Selected` with a site grant for the SPA and remove `Sites.ReadWrite.All`? ⚠
    Entra; the code change is the one string at `index.html:2176`.
-2. **Local mode audience.** One scheduler, one browser, JSON hand-off — or two people on a
-   shared file? The first is two PRs after the seam; the second is a backend decision this
-   review deliberately does not make.
-3. **Provisioning runner.** Raise the Feedback Bot's site grant from `write` to `manage`
+2. **Provisioning runner.** Raise the Feedback Bot's site grant from `write` to `manage`
    and run `provision.mjs` from the private tracker, or a script you run signed in as
    yourself (which needs a new delegated scope somewhere)?
-4. **D4.** Is (b) — separate single-file apps under one Pages site with a vendored
+3. **D4.** Is (b) — separate single-file apps under one Pages site with a vendored
    `common.js` — ready to be ruled? The seam's `store` + mappers + `toast`/`setSync` is that
    module, and the browser-storage key prefix has to be decided in the same breath.
-5. **Record what is missing.** The bot registration's client ID and the secret's exact
+4. **Record what is missing.** The bot registration's client ID and the secret's exact
    expiry date are in no file the repo controls; add both to `docs/SETUP.md` (item 21)?
