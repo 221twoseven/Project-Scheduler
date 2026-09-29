@@ -123,6 +123,35 @@ Use sentence case. Reserve spaced uppercase for the wordmark or very short group
 
 Retain `TWOSEVEN INC.` in the established Brauer Neue Std Bold treatment. The supplied Design Language records owner-confirmed licensing on September 1, 2026; the transition review raises web-serving scope as an unresolved verification item, not evidence that the font must be replaced. Before distributing it from additional app origins, verify the recorded coverage. If needed, use an approved wordmark asset with appropriate usage rights; converting to SVG does not itself resolve licensing. The prototype wordmark is not a logo redesign.
 
+### Systems title and product wordmarks — DRAFT, owner review (2026-09-29)
+
+Proposed from the owner's Systems overview handout (2026-09-29). Nothing is built. This extends the Brauer Neue rule above from `TWOSEVEN INC.` alone to the Systems title and the four product names.
+
+| Mark | Text | Treatment | Where |
+|---|---|---|---|
+| **Systems title** | `TWOSEVEN :: SYSTEMS` | Brauer Neue Std Bold, uppercase, Systems blue `#26B6FB`; one space either side of `::` | Portal title block; the title of Systems documents (handouts, print, PDF) |
+| **Product wordmark, standalone** | `OFFICE` · `PEOPLE` · `CLIENTS` · `TIMELINE` · `SYSTEMS` | Brauer Neue Std Bold, uppercase, Systems blue | Where the name stands alone as a label: portal app cards, the header app name, a product column in a table |
+| **Product wordmark, in text** | the same five words | Brauer Neue Std Bold, uppercase, in the surrounding text colour | Inside a sentence, a list item or a quote |
+
+**Rules**
+
+- **One blue for all of Systems.** Every product uses the same Systems blue. No product gets its own colour, which keeps §3's rule against identity colours per app.
+- **Use the whole word.** Don't abbreviate or translate a product name, and don't add a second word in the wordmark (`TIMELINE`, never `SHOP TIMELINE`). Descriptors such as "(already exists)" stay in body type after the mark.
+- **Use it only for the five names.** Generic words such as "the portal", "a product" or "the schedule" stay in body type.
+- **Write the source in normal case and uppercase it with CSS.** The markup holds `Timeline` and CSS sets `text-transform: uppercase`. Screen readers then say a word, not letters, and copied text reads naturally.
+- **Plain-text places use normal case**: email, Markdown docs, commit messages, `aria-label`, `alt`, file names and URLs (`Systems`, `Timeline`, `/timeline/`).
+- **The header keeps `TWOSEVEN INC.`** as the wordmark button that links to the portal (§2). The product wordmark replaces the header app name.
+
+**Proposed token** (not yet in §10): `--ts-brand: #26b6fb`, the same in light and dark.
+
+**Open before this is approved**
+
+1. **Contrast.** Systems blue is 2.29:1 on white and 2.13:1 on `paper`. Logotypes are exempt from WCAG contrast, so the title and the wordmarks can use it. Any functional text in that blue fails AA; the colour needs ≥ 4.5:1 for small text. On the dark header it passes (6.12:1 on `#202C41`). Options:
+   - (a) Accept the logotype exemption and never use the blue for links, buttons or status.
+   - (b) Add a darker companion for small labels on light surfaces, such as `#0677B8` (4.84:1 on white).
+2. **Font licence.** Serving Brauer Neue from more pages, and for more words, widens the web-serving question this section already raises. Verify the coverage before the portal ships.
+3. **Where Systems blue meets `action` blue.** A blue product name next to a blue button can read as a link. Should standalone wordmarks sit only where nothing nearby is clickable text, or is the difference in face and weight enough?
+
 ## 5. Spacing, geometry, and density
 
 Use the spacing scale **4, 8, 12, 16, 20, 24, 32, 40, 48px**. Align page titles, toolbar content, and panel edges. Avoid many subtly different gaps.
