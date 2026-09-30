@@ -158,6 +158,15 @@ integration, schema or auth changes, a notable refactor. Skip it only for trivia
   pointer to the PR, and any known ceiling or follow-up. A non-developer should understand it.
 - Link any shareable artifact (explainer page, diagram) from the record.
 
+## Automations
+
+**Anything that runs outside `index.html` and touches the app's data** — a Power Automate
+flow, a GitHub Actions job, a service account, an integration (ADP, QuickBooks, …) —
+**gets an entry in `docs/Automations.md` in the same change that introduces it**: trigger,
+what it reads and writes, the account it runs as, where its definition lives, who hears
+about failures, how to turn it off. Flows are exported as packages to the private tracker
+repo's `flows/` folder, never to this public repo, and never hold secrets in an action.
+
 ## Architecture summary
 
 **Where Timeline sits — Systems (owner, 2026-09-29).** Timeline is one product of
