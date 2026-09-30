@@ -9,6 +9,9 @@ Format: `## <label> — <date>` then one `- ` line per change. Keep lines concre
 what changed *for the team*, not how. Developer-only tooling doesn't need a line.
 Collect lines for the next version under `## Unreleased` and rename it when you ship.
 
+## v1.25.0 — Sep 30, 2026
+- Open Issues: replies from the team now show under a report. Click "1 reply from the team" to read them, and the person who filed the report gets the reply by email with a link straight to it.
+
 ## v1.24.0 — Sep 27, 2026
 - Easier to read: the grey helper text across the app (hints, section labels, empty-state notes, dates and codes in panels) is darker, and the boxes around form fields are clearer. Colours on the schedule itself are unchanged.
 

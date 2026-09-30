@@ -331,6 +331,12 @@ body.compact .sb-chip{line-height:1.2;padding:.5px 6px}
 /* v1.20.7: Open Issues is three columns — form | open | resolved. The form gives up width. */
 .fb-3col .cd-list{width:36%;max-width:520px}
 .fb-3col .cd-detail-hd+.cd-detail-hd{border-left:1px solid #E2E8F0}
+/* v1.25.0: a report's replies from the team fold open under it (native <details>). */
+.fb-cm{margin-top:4px}
+.fb-cm summary{cursor:pointer;color:var(--ts-muted);font-size:11.5px}
+.fb-cm-one{margin:4px 0 0 12px;padding-left:8px;border-left:2px solid #E2E8F0}
+.fb-cm-one .clog-when{width:auto;font-size:11px}
+.clog-row.fb-hit{background:#EDF3FA;box-shadow:inset 2px 0 0 var(--acc)} /* the .cd-row.sel recipe */
 .rn-list{padding:6px 0}
 .rn-ver{padding:10px 22px;border-bottom:1px solid #EEF2F7}
 .rn-hd{display:flex;align-items:baseline;gap:10px;font-size:13px;color:#1E293B}
@@ -1625,7 +1631,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.24.0'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.25.0'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -5555,6 +5561,7 @@ function parseHash(){
   if(h==='changelog')return{view:'changelog',id:null,creating:false}; /* v1.19.0 (§3 item 26) */
   if(h==='releases')return{view:'releases',id:null,creating:false}; /* v1.20.0: Help ▸ Release notes */
   if(h==='issues')return{view:'issues',id:null,creating:false};     /* v1.20.0: Help ▸ Open issues (report form + list) */
+  if(h.indexOf('issues/')===0)return{view:'issues',id:h.slice(7),creating:false}; /* v1.25.0: the reply email's link — that report, replies open */
   if(h==='reports')return{view:'reports',id:null,creating:false};   /* v1.20.0: dev-only full reports */
   return{view:'timeline',id:null,creating:false};
 }
@@ -10124,24 +10131,40 @@ async function fbFetch(force){
     name:f.name||'',email:f.email||'',description:f.description||'',appVersion:f.appVersion||'',
     /* v1.20.1: `status` column — 'resolved' or empty/absent (= open), the staff-flag
        tristate convention; a build older than the column just reads everything open */
-    status:String(f.status||'')};});
+    status:String(f.status||''),comments:fbComments(f.comments)};});
   rows.sort((a,b)=>a.at>b.at?-1:a.at<b.at?1:0);
   FB_CACHE=rows;FB_AT=Date.now();
   return rows;
 }
+/* v1.25.0: the team's replies. The tracker's poller copies each GitHub comment that
+   starts with /reply into the row's `comments` column as JSON [{at,text}]; anything
+   else (missing column, hand-edited junk) reads as no replies. */
+function fbComments(raw){
+  let a;try{a=JSON.parse(raw||'[]');}catch(e){return [];}
+  return Array.isArray(a)?a.filter(c=>c&&c.text).map(c=>({at:String(c.at||''),text:String(c.text)})):[];
+}
+function fbRepliesHtml(r,open){
+  const n=r.comments.length;
+  if(!n)return '';
+  return '<details class="fb-cm"'+(open?' open':'')+'><summary>'+n+(n>1?' replies':' reply')+' from the team</summary>'
+    +r.comments.map(c=>'<div class="fb-cm-one"><span class="clog-when">'+esc(clogWhen(c.at))+'</span>'
+      +'<div class="clog-det">'+esc(c.text)+'</div></div>').join('')+'</details>';
+}
 /* The public Open Issues list: kind + a one-line summary + when. Deliberately vague —
-   no names, no full descriptions; those live on the dev page and the email. */
+   no names, no full descriptions; those live on the dev page and the email. Replies are
+   public: they were written (with /reply) to be read. */
 let FB_PAINT=0; /* a stale (slow/failed) fetch must never overpaint a newer one */
 function fbPaintList(force){
   const ids=['fb-list','fb-done'],els=()=>ids.map(id=>document.getElementById(id));
   if(!els()[0])return;
   const gen=++FB_PAINT;
   for(const e of els())if(e&&!e.firstChild)e.innerHTML='<div class="clog-empty">Loading…</div>';
+  const hit=ROUTE&&ROUTE.view==='issues'?ROUTE.id:null; /* #/issues/<spId> — the reply email's link */
   const row=r=>{
-    const t=String(r.title||'').replace(/^(Bug|Feature)\s+—\s+/,'');
-    return '<div class="clog-row">'
+    const t=String(r.title||'').replace(/^(Bug|Feature)\s+—\s+/,''),me=hit&&String(r.spId)===hit;
+    return '<div class="clog-row'+(me?' fb-hit':'')+'" data-spid="'+esc(r.spId)+'">'
       +'<span class="cd-perm" title="'+(r.kind==='bug'?'Bug report':'Feature request')+'">'+(r.kind==='bug'?'BUG':'IDEA')+'</span>'
-      +'<div class="clog-what"><b>'+esc(t)+'</b></div>'
+      +'<div class="clog-what"><b>'+esc(t)+'</b>'+fbRepliesHtml(r,me)+'</div>'
       +'<span class="clog-when">'+esc(clogWhen(r.at))+'</span></div>';
   };
   const empty=m=>'<div class="clog-empty">'+m+'</div>';
@@ -10152,6 +10175,7 @@ function fbPaintList(force){
     const open=rows.filter(r=>r.status!=='resolved'),done=rows.filter(r=>r.status==='resolved');
     el.innerHTML=open.length?open.map(row).join(''):empty(rows.length?'No open issues — everything filed has been resolved.':'Nothing filed yet — be the first.');
     if(dn)dn.innerHTML=done.length?done.map(row).join(''):empty('Nothing resolved yet.');
+    const h=document.querySelector('.clog-row.fb-hit');if(h&&h.scrollIntoView)h.scrollIntoView({block:'center'});
   }).catch(()=>{
     if(gen!==FB_PAINT)return;
     for(const e of els())if(e)e.innerHTML=empty('Couldn’t reach the ShopTimeline_Feedback list.');
@@ -10229,6 +10253,7 @@ function renderReports(){
       +'<div class="clog-what"><b>'+esc(String(r.title||'').replace(/^(Bug|Feature)\s+—\s+/,''))+'</b>'
       +' <span class="clog-field">'+esc((r.name||'—')+(r.email?' <'+r.email+'>':'')+(r.appVersion?' · v'+r.appVersion:''))+'</span>'
       +(r.description?'<div class="clog-det">'+esc(r.description)+'</div>':'')
+      +fbRepliesHtml(r,false)
       +'</div>'
       +'<button class="btn btn-ghost fbr-tog" data-spid="'+esc(r.spId)+'" data-next="'+(res?'':'resolved')+'" '
       +'title="'+(res?'Put it back on the Open Issues list':'Rows are never deleted — resolving hides it from the Open Issues list, it stays here')+'">'
@@ -10264,6 +10289,7 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.25.0",d:"Sep 30, 2026",n:["Open Issues: replies from the team now show under a report. Click \"1 reply from the team\" to read them, and the person who filed the report gets the reply by email with a link straight to it."]},
  {v:"v1.24.0",d:"Sep 27, 2026",n:["Easier to read: the grey helper text across the app (hints, section labels, empty-state notes, dates and codes in panels) is darker, and the boxes around form fields are clearer. Colours on the schedule itself are unchanged."]},
  {v:"v1.23.0",d:"Sep 15, 2026",n:["People page: a Freelance checkbox in the editor marks people with no set weekly schedule. It greys out the day and hour controls, and the Schedule column reads \"Freelance\"."]},
  {v:"v1.22.0",d:"Sep 15, 2026",n:["People page: each person can carry a weekly schedule. Tick the days and pick or type the hours (half-hour steps) in the editor; it reads as \"M-F 9-6\" or \"T-W-Th 11-4\" in a new Schedule column after Status and on the record."]},
@@ -10360,7 +10386,10 @@ async function sendFeedback(){
       kind:kind,
       name:document.getElementById('fb-name').value.trim(),
       email:document.getElementById('fb-email').value.trim(),
-      description:desc+extra,appVersion:APP_VER,appId:genId()}})});
+      description:desc+extra,appVersion:APP_VER,appId:genId(),
+      /* v1.25.0: who really sent it — the sign-in, not the editable email box. The
+         reply email goes here (Power Automate on the list; the poller can't send mail). */
+      reporterUpn:ACCOUNT&&ACCOUNT.username||''}})});
     /* v1.8.0 (§3 item 12): the report also mails everyone flagged feedbackRecipient on
        the staff list — Graph sendMail AS THE SIGNED-IN SUBMITTER, on its own Mail.Send
        delegated token (the TeamMember.Read.All pattern: no consent / no token → the
