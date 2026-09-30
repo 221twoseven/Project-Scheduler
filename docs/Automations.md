@@ -62,8 +62,9 @@ it off.
 - **Runs as:** Robert's SharePoint and Outlook connections. The mail comes from his
   mailbox, so replies to it reach him.
 - **Definition:** Power Automate ▸ My flows ▸ *Shop Timeline — reply email*. The
-  step-by-step build is in the tracker README, step 9. Exported package: *not yet*
-  (see below).
+  step-by-step build is in the tracker README, step 9. Exported package: tracker
+  `flows/shop-timeline-reply-email.zip`, with a readable `.definition.json` beside it
+  (exported 2026-09-30). The SharePoint trigger checks for changes every minute.
 - **Failures:** Power Automate emails the flow owner a weekly failure digest. The flow's
   28-day run history shows the failing step and its error.
 - **Turn off:** My flows ▸ the flow ▸ **Turn off**.
