@@ -190,6 +190,9 @@ four products and is tabled — owner, 2026-09-29, D6).
   28; D13 for the QuickBooks / TCP hand-off. **Item 11 closeout** ← every step before it
   (Phase 9); its columns are additive; the Bookkeeper's sign-in and the verifier role ←
   D3's role vocabulary.
+- **D15 data platform** ← a Dataverse licence quote + a Web API spike; rule before the
+  Phase 8 schema is provisioned (D1, D10). The storage seam and the backend-neutral schema
+  go ahead whatever the ruling.
 - **Item 5 date certainty** ← the Project Director's default-date decision (5a). **Item 2
   Lock dates** ← the owner's single-meaning decision; remembering it ← item 25.
 - **Item 12 calendar drift** ← a flow owner identified (§5). **Item 19 PTO** ← the
@@ -624,7 +627,7 @@ inputs. Closeout is the last step of the cycle and comes last.
 
 Each has a recommendation. Ruled so far: D2 (2026-09-24), D3 in principle (2026-09-24),
 D4 (2026-09-28, refined 2026-09-29), D8 (2026-09-29). Tabled: D6 (2026-09-29). Parked:
-D14. The rest are open.
+D14. The rest are open. D15 (data platform) was raised 2026-10-01.
 
 - **D1 — Core project registry.** Current 2-7 Projects extended into the registry (brief
   §6.7) vs `ShopTimeline_Projects` promoted to it. *Recommend:* run item 14's schema
@@ -770,6 +773,60 @@ D14. The rest are open.
   read-only dashboard; the company already runs non-person M365 accounts. Owner ruling
   2026-09-02: after rollout, once real use proves the need; brief: P2, and no TV redesign in
   the pilot. Stays parked.
+
+- **D15 — Data platform: SharePoint lists, Dataverse, or Azure.** Raised 2026-10-01
+  (owner): with the Phase 8 registries forcing a schema change anyway, should the data
+  move off SharePoint lists now and be migrated once? Three options, compared on what this
+  team runs and what Phase 8 needs. Power Automate works with all three, so it isn't one of
+  the options. The Power Platform option is Dataverse, the database Power Apps and Power
+  Automate are built on. Facts marked *verify* (licensing, CORS) must be checked against
+  current Microsoft docs and the tenant's licences before a ruling.
+
+  | | **A. SharePoint lists** (today) | **B. Dataverse** (Power Platform) | **C. Azure** (Azure SQL + an API) |
+  | --- | --- | --- | --- |
+  | Who enforces access | SharePoint, per site / list / item, with each user's own token (§1 point 4, D3) | Dataverse security roles, with each user's own token | Code we write in the API; Entra signs users in, but the rules are ours |
+  | Per-field protection | No; D3 splits lists instead | Yes, column-level security | Yes, built by us (or SQL row-level security) |
+  | Transactions, unique keys | No transactions; unique indexed column + retry | Batch transactions, alternate keys, autonumber columns (cost codes, item 42) | Full SQL |
+  | Relations | Text IDs joined in the app (D3, D10); lookups same-site only | Real relationships | Full SQL |
+  | Browser app calls it directly | Yes (Graph, as today) | Yes, Web API with MSAL delegated tokens (*verify* CORS from the Pages origin) | No; needs a hosted API (e.g. Static Web Apps + Functions), a second codebase with a deploy step |
+  | Power Automate | Standard connector (today's flows) | Native; premium connector | SQL connector is premium; or HTTP to our API |
+  | Company data already there | Current 2-7 Projects, 27 Events, Employee Contacts, the Outlook and PTO flows (Automations.md) | Migrated or mirrored | Migrated or synced |
+  | Cost | Included in M365 | Power Apps premium per user, every user including viewers, plus capacity (*verify* price and any existing licences) | Pay-as-you-go, likely small at this scale; plus a subscription to administer |
+  | Running it | Lowest; hand edits in the list UI | Medium: an environment, solutions, licence assignment; model-driven admin screens come with it | Highest: infrastructure, secrets, backups, monitoring, API releases; no admin UI unless built |
+  | Migration cost | Phase 8 schema work only | Storage seam + rows + flows rewired + licences | Storage seam + API + authorization layer + rows + flows |
+  | Ceilings | List view threshold on unindexed filters; whole-list polling (D12) | Comfortable at this scale | Comfortable at this scale |
+
+  *Recommend:* **A for v2.0.0, with B as the named upgrade path; C only if B proves
+  insufficient.** The reasons: A keeps the no-backend model, so permissions stay the user's
+  own token and D3's design holds. The company's other data and flows are already on
+  SharePoint, and Systems is defined as one shared dataset (§1). Moving Timeline alone would
+  recreate the two-masters problem D1 forbids. B beats C for this team because it keeps
+  per-user tokens and native flows, while C turns security into code we maintain.
+  **The platform is not changed during the pilot.** The expensive part of any migration is
+  the data model (stable IDs, normalization), and that is paid once whatever the target. If
+  the model is right, moving rows later is a script.
+
+  Prepare regardless of the ruling. All three steps are already planned or are cheap:
+  1. the storage seam (`docs/Architecture-Review-Storage.md` idea 1, eight
+     behaviour-neutral PRs), after which a backend swap rewrites one `store` object, not 37
+     call sites;
+  2. a backend-neutral Phase 8 schema: text IDs (D10), typed columns, JSON-in-text columns
+     (`ticketNodes`, `activeDepartments`, `schedule`) split out where they must be
+     queried, all recorded in the provisioning spec (review idea 2), which ports to
+     Dataverse or SQL nearly 1:1;
+  3. D12's polling budget, which matters on every platform.
+
+  *Reopen if any of these become true:* (1) item 42 cost-code allocation can't be made
+  collision-safe with a unique column + retry; (2) item 27 / D3 needs per-field protection
+  that list splits can't express cleanly; (3) a registry nears the list threshold or D12's
+  budget can't be met with delta or `$filter` reads; (4) D13 integrations need server-side
+  logic beyond what flows can do; (5) people outside the tenant need access.
+
+  *Before ruling:* a Dataverse licence quote (headcount × per-user premium, and whether the
+  tenant already holds any), and a half-day spike: one read and one write to the Dataverse
+  Web API from a Pages-hosted page with an MSAL delegated token. *Gate:* rule before the
+  Phase 8 schema is provisioned, so rows move at most once. ← D1, D10, D12; item 42.
+  [owner 2026-10-01; `docs/Architecture-Review-Storage.md`]
 
 ## 5. Reference material to gather [brief §13]
 
@@ -1148,6 +1205,11 @@ state reset per project visit, persist per browser like `NPV_OPEN` only if asked
 - **Standing rule:** the retired backlogs (`docs/Archive/TODO-v1-Archive.md`,
   `TODO-v1.x-Archive.md`) are frozen; a ledger entry's later decision is recorded here, in
   §7, with the archive line number.
+- 2026-10-01: **D15 raised: data platform** (owner). The question is whether to move off
+  SharePoint lists while Phase 8 changes the schema anyway. §4 D15 compares SharePoint,
+  Dataverse and Azure. The recommendation is SharePoint for v2.0.0 with Dataverse as the
+  upgrade path, the reopen triggers are listed, and no platform change happens during the
+  pilot. §2 gains the gate; the legend now reads D1–D15.
 - 2026-09-29 (evening): **People is where Systems connects to ADP** (owner, from the
   Systems overview handout). §1's People row says so, with D13's limit — CSV first, the
   API only through Power Automate — and the People bullet lists D13.
@@ -1223,4 +1285,4 @@ state reset per project visit, persist per browser like `NPV_OPEN` only if asked
   Systems on 2026-09-29 (§1).
 - **[LNNNN]** — line in `docs/Archive/TODO-v1.x-Archive.md` where a carried ledger entry
   came from; **v1.x item N** — its §3 item number there.
-- **D1–D14** — §4 decisions; **item N** — §3 work items in this file.
+- **D1–D15** — §4 decisions; **item N** — §3 work items in this file.
