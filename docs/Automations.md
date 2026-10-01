@@ -56,7 +56,7 @@ it off.
 
 - **Does:** when a report's `lastComment` changes, emails that reply to the reporter,
   with a link to `#/issues/<ID>`. From 2026-10-01 the subject is
-  `Shop Timeline: reply on report #<ID>`, and the body opens by telling the reporter they
+  `Timeline: your bug or idea #<ID> has a reply!`, and the body opens by telling the reporter they
   can reply to the email, followed by a `--- Reply above this line ---` marker. *Email
   reply in* depends on both.
 - **Trigger:** SharePoint *When an item or a file is modified* on
@@ -82,7 +82,7 @@ it off.
 - **Does:** when the reporter answers a reply email, sends the answer to the tracker. The
   feedback poller then posts it on the ticket.
 - **Trigger:** Outlook *When a new email arrives (V3)* in the mailbox the reply email is sent
-  from, with Subject Filter `Shop Timeline: reply on report`.
+  from, with Subject Filter `Timeline: your bug or idea`.
 - **Reads / writes:** reads the email's subject, sender, received time and body (converted
   to plain text). Sends a GitHub `repository_dispatch` (`email-reply`) to
   `221twoseven/Project-Scheduler-issues`. Writes nothing to SharePoint.
