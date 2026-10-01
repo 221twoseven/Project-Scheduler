@@ -113,20 +113,13 @@ Write the bodies with the Write tool, not a heredoc.
 Build exactly the latest spec (original or revised), with its defaults for any
 unanswered questions.
 
-1. Cut a branch from `development`: `fix/…` or `feat/…`. One issue per branch; duplicates
-   noted "fixed together" share one.
-2. Implement. For every R, add a test assertion in a `tests/test-v<ver>.js` suite named
-   after the requirement. Every "Done when" line must be covered.
-3. Check the reporter's scenario in the preview (see the `run` skill and the
-   `visual-preview-stub` memory). Take a before and an after screenshot.
-4. Bump `APP_VER`, add a shop-facing line to `CHANGELOG.md`, and run `npm run notes`
-   (`CLAUDE.md` › Release notes).
-5. Run the full test suite last, per the `slow-test-runs` memory: in the background, then
-   grep the log for `  FAIL  `.
-6. Open the PR into `development`. Its body has a table mapping each R to its test, the
-   screenshots, and the line `Fixes 221twoseven/Project-Scheduler-issues#N`. Tick the
-   TODO item if there is one.
-7. Comment on the issue:
+1. Follow the **`ship-release`** skill end to end. Use one issue per branch; issues noted
+   "fixed together" share one branch.
+2. Every R gets a test assertion named after it, and every "Done when" line must be
+   covered.
+3. The before/after screenshots replay the reporter's own scenario.
+4. The PR body maps R → test and carries `Fixes 221twoseven/Project-Scheduler-issues#N`.
+5. Comment on the issue:
    `**Fix shipped** · Claude · <date> · <PR link> · R1–Rn covered by <suite>`.
 
 If building turns up something the spec didn't foresee and that would change behaviour
