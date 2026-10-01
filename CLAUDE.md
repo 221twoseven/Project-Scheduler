@@ -32,7 +32,9 @@ Project rules and context for working in this repository. Read this before makin
   item, or the one the owner names, and don't ask "what's next". Only ⚠ schema items
   and architectural changes still need an explicit go (see "Change discipline"). The
   file holds the work, never process rules — those live here and in `CONTRIBUTING.md`.
-  GitHub Issues (the private tracker) is the user-feedback loop only; reports are folded
+  GitHub Issues (the private tracker) is the user-feedback loop only, worked through the
+  `triage-issues` skill (`.claude/skills/triage-issues/`: spec comment → owner reply →
+  fix); reports are folded
   into §3 by hand. The retired v1 and v1.x
   backlogs and all retired planning docs (UX audit, task briefs, proposals) live in
   **`docs/Archive/`** —
