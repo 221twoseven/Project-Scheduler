@@ -52,9 +52,9 @@ Project rules and context for working in this repository. Read this before makin
   branch beside a "functionality" branch): the two tracks — the §3 queue and the style
   guide's §13 steps — interleave through the one queue in `docs/TODO.md`.
 - **Pushes auto-deploy to GitHub Pages** via `.github/workflows/deploy-pages.yml`:
-  `main` → `/`, `development` → `/preview/`, `sandbox` → `/sandbox/` (a collaborator's
-  copy). The workflow rebuilds the whole site from all three branches each run, so it must
-  stay identical on all three. See `docs/Archive/Onboarding-Fork.md`.
+  `main` → `/`, `development` → `/preview/`. The workflow rebuilds the whole site from
+  both branches each run, so it must stay identical on both. (`sandbox` → `/sandbox/` was
+  retired 2026-10-01.)
 
 ## Shared infrastructure — SharePoint & Entra
 
