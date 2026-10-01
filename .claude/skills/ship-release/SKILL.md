@@ -156,6 +156,6 @@ Don't poll CI yourself.
 - SharePoint list or column changes: deliver a column spec for the owner to apply.
 - Entra/auth changes: client IDs, scopes, redirect URIs.
 - Edits to `reference/Timeline_50.html` or `msal-browser.min.js`.
-- Changes to `.github/workflows/deploy-pages.yml`: it must stay identical on all three
-  deploying branches.
+- Changes to `.github/workflows/deploy-pages.yml`: it must stay identical on `main` and
+  `development`.
 - `--no-verify`, force-push, or anything that bypasses the `main` ruleset.

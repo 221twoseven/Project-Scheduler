@@ -1,16 +1,15 @@
 name: Deploy Pages
 
-# One Pages site, three versions:
+# One Pages site, two versions:
 #   /          <- main         (production)
 #   /preview/  <- development  (shareable preview for testing)
-#   /sandbox/  <- sandbox      (the collaborator's own copy, can't reach main)
-# Every deploy rebuilds the WHOLE site from all three branches, because the Pages
+# Every deploy rebuilds the WHOLE site from both branches, because the Pages
 # artifact fully replaces the live site each run. Triggered by pushes to any of
-# them, so this workflow must exist on ALL THREE branches, identical — otherwise
+# them, so this workflow must exist on BOTH branches, identical — otherwise
 # a push to a branch whose workflow omits a subpath would wipe that subpath.
 on:
   push:
-    branches: [main, development, sandbox]
+    branches: [main, development]
   workflow_dispatch:
 
 permissions:
@@ -32,9 +31,9 @@ jobs:
       # ONLY the files listed below are published. The rest of the repo (docs/,
       # tests/, reference/, ...) stays off the public site on purpose. If the app
       # ever gains a new local asset (image, CSS file, favicon, script), add it to
-      # ALL THREE sparse-checkout lists — the guard step below fails the deploy if
+      # BOTH sparse-checkout lists — the guard step below fails the deploy if
       # (2026-09-27: the font moved to design/fonts/. The old fonts/ line stays until
-      # main and sandbox carry the move — a missing sparse path is harmless.)
+      # main carries the move — a missing sparse path is harmless.)
       # index.html references a file that would be missing from the site.
       - name: Checkout main into site root (production)
         uses: actions/checkout@v4
@@ -60,24 +59,12 @@ jobs:
             fonts/BrNStdBd.otf
           sparse-checkout-cone-mode: false
 
-      - name: Checkout sandbox into /sandbox (collaborator copy)
-        uses: actions/checkout@v4
-        with:
-          ref: sandbox
-          path: site/sandbox
-          sparse-checkout: |
-            index.html
-            msal-browser.min.js
-            design/fonts/BrNStdBd.otf
-            fonts/BrNStdBd.otf
-          sparse-checkout-cone-mode: false
-
       - name: Drop nested .git so it isn't published
-        run: rm -rf site/.git site/preview/.git site/sandbox/.git
+        run: rm -rf site/.git site/preview/.git
 
       - name: Guard — every local file the app references must be in the deploy
         run: |
-          for d in site site/preview site/sandbox; do
+          for d in site site/preview; do
             grep -oE '(src|href)="[^"]+"' "$d/index.html" \
               | sed -E 's/^(src|href)="//; s/"$//' \
               | grep -vE '^(https?:|//|#|data:|mailto:|javascript:)' \
