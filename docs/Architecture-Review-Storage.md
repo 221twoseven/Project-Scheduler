@@ -5,6 +5,12 @@
 no call was made to SharePoint or Graph. The one outside read was the private tracker
 repository (`gh api`, read-only) to confirm how the bot runs.
 
+**Vocabulary note (added later the same day):** this review was written hours before the
+owner defined **Systems** (`docs/TODO.md` §1, 2026-09-29). Read "the suite" as Systems,
+"sibling app" as product, "Client Manager" as Clients, "Personnel Manager" as People; the
+closeout and cost-code work belongs to the Office product; Timeline is a peer, not the
+default. The findings and recommendations are unchanged by the renaming.
+
 **Secrets check (Step 0):** no client secret, certificate or token is committed. The repo and
 its full history were searched for `client_secret`, `GRAPH_CLIENT_SECRET`, `thumbprint`,
 `certificate`; the only hits are the string inside the vendored `msal-browser.min.js`
@@ -35,7 +41,7 @@ ride the one shared suite registration (idea 4) so it is done once.
 | --- | --- | --- |
 | SPA registration: client/tenant IDs, delegated scopes, admin consent | `CLAUDE.md:75-82`; `docs/SETUP.md:19-66`; `docs/ARCHITECTURE.md:30-38`; `index.html:2139-2140, 2176` | Yes. `SETUP.md` lists 2 of the 4 scopes (TODO item 21 already tracks the drift). |
 | Bot registration ("ShopTimeline Feedback Bot"): permission, type, consent, site and role | `docs/TODO.md:389-393` (item 31); `docs/Milestones/Phase-7-Pilot-Readiness/2026-09-25-feedback-github-bridge.md:15-17, 43-46`; tracker `README.md` steps 1-4 | Yes: Application `Sites.Selected`, admin-consented 2026-09-25, `write` on TWOSEVENINC only. **The bot's client ID is not recorded anywhere in this repo** (only in the tracker's Actions secret `GRAPH_CLIENT_ID`). |
-| Bot auth method and expiry | milestone above `:57-58`; tracker `README.md` step 2 | Method: client secret (24-month lifetime, created on or before 2026-09-25). **Exact expiry date missing** — not in this repo or the tracker README; the run will fail with `token: 401` on that day. |
+| Bot auth method and expiry | milestone above `:57-58`; tracker `README.md` step 2 | Method: client secret ("GitHub Actions Poller", 24-month lifetime). **Expiry: 2028-09-23** — supplied by the owner on 2026-09-29 after this review found it unrecorded; the run fails with `token: 401` from that day. Belongs in `docs/SETUP.md` (item 21). |
 | SharePoint site URL(s) | `CLAUDE.md:68`; `docs/SETUP.md:70`; `index.html:2141-2142` | Yes — one site. |
 | List / column inventory | names: `CLAUDE.md:69-74`, `index.html:2143-2175`; columns: the mappers `index.html:2256-2340` and the constants' comments `2154-2170`; `docs/SETUP.md:71-79` (5 lists, Events columns with types); `docs/TODO.md` §6 (Staff/Feedback/Changelog/Config additions); `reference/Handoff-Notes.md` §5 (conventions) | Names: yes. **Types: partial** — recorded for Events, Config and the v1.x additions; the original Projects/Tasks/Staff/Tasks2 column types are not written down anywhere (the code implies them — see idea 2). No dump of what the *site* actually has exists in the repo. |
 | Permission-change history and why | `docs/Archive/TODO-v1-Archive.md:77, 306-310`; `docs/Archive/TODO-v1.x-Archive.md:294-301, 873-877`; `docs/Milestones/Phase-2.5-Feature-Interlude/2026-08-25-teams-picker.md:21-24`; `docs/Milestones/Phase-6-v1.x-Release-Train/2026-09-01-v180-permissions.md:37-41, 52-56`; `docs/Milestones/Phase-0-Foundations/2026-08-12-pages-preview-and-sandbox.md:27-31` (redirect URIs); commits `ac1ae92` (2026-08-25), `98cd369` (2026-09-01) | Yes. |
@@ -436,5 +442,6 @@ After the sequence, and not "do now": `provision.mjs` in the tracker repo (idea 
 3. **D4.** Is (b) — separate single-file apps under one Pages site with a vendored
    `common.js` — ready to be ruled? The seam's `store` + mappers + `toast`/`setSync` is that
    module, and the browser-storage key prefix has to be decided in the same breath.
-4. **Record what is missing.** The bot registration's client ID and the secret's exact
-   expiry date are in no file the repo controls; add both to `docs/SETUP.md` (item 21)?
+4. **Record what is missing.** The bot registration's client ID is in no file the repo
+   controls, and the secret's expiry (2028-09-23) is now only in this review; add both to
+   `docs/SETUP.md` (item 21)?

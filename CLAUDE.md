@@ -32,7 +32,9 @@ Project rules and context for working in this repository. Read this before makin
   item, or the one the owner names, and don't ask "what's next". Only ⚠ schema items
   and architectural changes still need an explicit go (see "Change discipline"). The
   file holds the work, never process rules — those live here and in `CONTRIBUTING.md`.
-  GitHub Issues (the private tracker) is the user-feedback loop only; reports are folded
+  GitHub Issues (the private tracker) is the user-feedback loop only, worked through the
+  `triage-issues` skill (`.claude/skills/triage-issues/`: spec comment → owner reply →
+  fix); reports are folded
   into §3 by hand. The retired v1 and v1.x
   backlogs and all retired planning docs (UX audit, task briefs, proposals) live in
   **`docs/Archive/`** —
@@ -157,6 +159,15 @@ integration, schema or auth changes, a notable refactor. Skip it only for trivia
 - Keep it plain-language and skimmable: what changed, why it mattered, the app REV(s), a
   pointer to the PR, and any known ceiling or follow-up. A non-developer should understand it.
 - Link any shareable artifact (explainer page, diagram) from the record.
+
+## Automations
+
+**Anything that runs outside `index.html` and touches the app's data** — a Power Automate
+flow, a GitHub Actions job, a service account, an integration (ADP, QuickBooks, …) —
+**gets an entry in `docs/Automations.md` in the same change that introduces it**: trigger,
+what it reads and writes, the account it runs as, where its definition lives, who hears
+about failures, how to turn it off. Flows are exported as packages to the private tracker
+repo's `flows/` folder, never to this public repo, and never hold secrets in an action.
 
 ## Architecture summary
 
