@@ -9,6 +9,9 @@ Format: `## <label> — <date>` then one `- ` line per change. Keep lines concre
 what changed *for the team*, not how. Developer-only tooling doesn't need a line.
 Collect lines for the next version under `## Unreleased` and rename it when you ship.
 
+## v1.26.2 — Oct 2, 2026
+- Undo notifications no longer cover the chart: they sit below the bars (or at the top right of the date header), each one has a × to close it, several quick edits share one notification, and dragging a bar that is under one goes straight through.
+
 ## v1.26.1 — Oct 2, 2026
 - Project page: clicking any empty part of the chart, including below the last row, now closes the phase panel, and anything you were typing in it is saved first. The panel's close control now reads Close × and is big enough to hit.
 

@@ -438,7 +438,10 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 /* D3: toasts dock bottom-right, capped at 3 visible with a "+N more" counter, and a
    width cap so long errors wrap instead of spanning the canvas. */
 #toasts{position:fixed;bottom:18px;right:18px;z-index:1000;display:flex;flex-direction:column;gap:8px;align-items:flex-end;pointer-events:none}
-.toast{background:#101A29;color:rgba(255,255,255,.92);font-size:12.5px;padding:9px 16px;border-radius:9px;box-shadow:0 8px 28px rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.1);animation:toast-in .22s ease-out;max-width:min(380px,calc(100vw - 36px));pointer-events:auto}
+.toast{background:#101A29;color:rgba(255,255,255,.92);font-size:12.5px;padding:9px 16px;border-radius:9px;box-shadow:0 8px 28px rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.1);animation:toast-in .22s ease-out;max-width:min(380px,calc(100vw - 36px));pointer-events:none}
+/* v1.26.2 (tracker #23): the toast's body lets a drag or resize start on whatever is
+   under it; only its controls take the pointer. */
+.toast .undo,.toast .toast-x,.toast details{pointer-events:auto}
 .toast-n{display:inline-block;margin-left:8px;padding:0 6px;border-radius:8px;background:rgba(255,255,255,.18);font-size:11px;font-weight:700}
 #toast-more{font-size:11px;font-weight:600;color:rgba(255,255,255,.75);background:#101A29;border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:3px 9px}
 .toast.err{border-color:rgba(255,110,110,.5);color:#FFC9C9}
@@ -1073,6 +1076,10 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
   color:#fff;font-family:inherit;font-size:11px;font-weight:700;padding:2px 8px;margin-left:11px;
   cursor:pointer}
 .toast .undo:hover{background:rgba(255,255,255,.16)}
+/* v1.26.2 (#23): a dismiss button; 24px hit target inside the toast's own height (§9) */
+.toast .toast-x{background:none;border:none;color:rgba(255,255,255,.65);font-family:inherit;font-size:16px;
+  line-height:1;width:24px;height:24px;margin:-6px -10px -6px 6px;border-radius:6px;cursor:pointer;vertical-align:middle}
+.toast .toast-x:hover{color:#fff;background:rgba(255,255,255,.16)}
 
 /* --- keyboard shortcuts (v1.6.1: a Help popover like the Legend — the modal sheet
    and its scrim retired; the .ks-g grid moved into #kbd-menu) --- */
@@ -1639,7 +1646,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.26.1'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.26.2'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -2522,54 +2529,87 @@ async function spSync(oldST,newST){
    "Details" — users read the sentence, whoever maintains the app opens the details. */
 function toast(msg,kind,undoable,details){
   const box=document.getElementById('toasts');
-  /* D3: never cover the bottom inspector dock — when a project page's dock is open,
-     the stack sits just above its top edge (recomputed per toast; toasts are short-lived). */
-  const dockRect=(d=>d&&d.getBoundingClientRect())(document.getElementById('pp-dock')
-    ||(document.body.classList.contains('me-dock-on')?document.getElementById('me-dock'):null));
-  box.style.bottom=(dockRect&&dockRect.height?window.innerHeight-dockRect.top+10:18)+'px';
   /* D3: an identical message right behind the last one bumps a ×N badge on it instead of
-     stacking a copy. Undo toasts never collapse — each carries its own reverser. */
+     stacking a copy. v1.26.2 (tracker #23): quick undoable edits stack into one
+     "N changes · Undo" whose Undo reverses the latest edit. */
   const prev=box.lastElementChild;
-  if(prev&&prev.classList.contains('toast')&&!prev.classList.contains('out')
-     &&!undoable&&!prev.querySelector('.undo')&&prev.dataset.msg===msg){prev._bump();return;}
+  if(prev&&prev.classList.contains('toast')&&!prev.classList.contains('out')){
+    if(!undoable&&!prev._undo&&prev.dataset.msg===msg){prev._bump();return;}
+    if(undoable&&prev._undo){prev._undo=undoable;prev._more();return;}
+  }
   const el=document.createElement('div');el.className='toast'+(kind==='err'?' err':'');
-  el.textContent=msg;el.dataset.msg=msg;
+  el.textContent=msg;el.dataset.msg=msg;el._undo=undoable||null;
+  const full=kind==='err'?5200:(undoable?5200:2600);
+  let tm,t0=0,left=full,count=1,badge=null;
+  const gone=()=>{el.remove();toastLayout();};
+  const hide=()=>{el.classList.add('out');setTimeout(gone,350);};
+  /* The fade pauses while the pointer is on the toast's controls and resumes with the time
+     that was left (#23: a pointer passing nearby no longer keeps a toast alive). */
+  const arm=()=>{clearTimeout(tm);t0=Date.now();tm=setTimeout(hide,left);};
+  const pause=()=>{clearTimeout(tm);left=Math.max(0,left-(Date.now()-t0));};
   if(undoable){
     const b=document.createElement('button');b.className='undo';b.textContent='Undo';
     /* Pass a function as `undoable` to run it instead of the ST undo stack —
-       draft-page mutations live outside ST and bring their own reverser. */
-    b.addEventListener('click',()=>{el.remove();toastLayout();typeof undoable==='function'?undoable():undo();});
+       draft-page mutations live outside ST and bring their own reverser. Read at click
+       time, so a stacked toast undoes the latest edit. */
+    b.addEventListener('click',()=>{gone();typeof el._undo==='function'?el._undo():undo();});
     el.appendChild(b);
   }
+  const x=document.createElement('button');x.className='toast-x';x.textContent='×';
+  x.title='Dismiss';x.setAttribute('aria-label','Dismiss');x.addEventListener('click',gone);
+  el.appendChild(x);
   if(details){
     const d=document.createElement('details');
     const s=document.createElement('summary');s.textContent='Details';d.appendChild(s);
     const t=document.createElement('div');t.className='toast-tech';t.textContent=details;d.appendChild(t);
     el.appendChild(d);
   }
-  /* Hovering pauses dismissal so Undo and Details are actually reachable. */
-  let tm,count=1,badge=null;
-  const hide=()=>{el.classList.add('out');setTimeout(()=>{el.remove();toastLayout();},350);};
-  const arm=()=>{clearTimeout(tm);tm=setTimeout(hide,kind==='err'?5200:(undoable?5200:2600));};
   el._bump=()=>{count++;
     if(!badge){badge=document.createElement('span');badge.className='toast-n';el.insertBefore(badge,el.childNodes[1]||null);}
-    badge.textContent='×'+count;arm();};
-  el.addEventListener('mouseenter',()=>clearTimeout(tm));
+    badge.textContent='×'+count;left=full;arm();};
+  el._more=()=>{count++;el.firstChild.nodeValue=count+' changes';left=full;arm();};
+  el.addEventListener('mouseenter',pause);
   el.addEventListener('mouseleave',arm);
   box.appendChild(el);
   toastLayout();
+  toastPlace();
   arm();
+}
+/* v1.26.2 (tracker #23): notifications never sit over bars. Project page: the blank strip
+   between the last row and the dock; when the stack would reach the rows, the top right of
+   the legend / date band instead (never the toolbar row, which holds buttons). Dashboard:
+   the top right of the date header. Other pages keep the stylesheet's bottom-right corner.
+   Placed when a toast arrives, so a stack never jumps while one fades. */
+function toastPlace(){
+  const box=document.getElementById('toasts');
+  const R=id=>{const e=document.getElementById(id);return e?e.getBoundingClientRect():null;};
+  box.style.top='';box.style.bottom='';
+  /* On a band above the rows the stack hangs downward, so only one toast shows there;
+     older ones wait hidden and drain on their own timers. */
+  const band=top=>{box.style.bottom='auto';box.style.top=top+'px';TOAST_MAX=1;toastLayout();};
+  TOAST_MAX=3;toastLayout();
+  if(document.body.classList.contains('pp-route')&&R('npv-body')){
+    const dock=[...document.querySelectorAll('.dash-insp')].map(d=>d.getBoundingClientRect()).find(r=>r.height);
+    box.style.bottom=((dock?window.innerHeight-dock.top:0)+10)+'px';
+    const sc=R('npv-scroll'),rows=Math.min(R('npv-body').bottom,sc?sc.bottom:Infinity);
+    const leg=R('npv-leg');
+    if(leg&&box.getBoundingClientRect().top<rows)band(leg.top+4);
+    return;
+  }
+  const hdr=R('hdr-wrap');
+  if(hdr&&hdr.height)band(hdr.top+6);
 }
 /* D3: at most 3 toasts visible; older ones hide behind a "+N more" counter at the top of
    the stack. Hidden toasts keep their timers, so the counter drains by itself. */
+let TOAST_MAX=3; /* v1.26.2 (#23): 1 when the stack sits on the legend band or the dashboard header, where it would grow down into the rows */
 function toastLayout(){
   const box=document.getElementById('toasts');
   const ts=[...box.querySelectorAll('.toast')];
-  ts.forEach((t,i)=>{t.style.display=i<ts.length-3?'none':'';});
+  ts.forEach((t,i)=>{t.style.display=i<ts.length-TOAST_MAX?'none':'';});
   let m=document.getElementById('toast-more');
-  if(ts.length>3){
+  if(ts.length>TOAST_MAX&&TOAST_MAX>1){
     if(!m){m=document.createElement('div');m.id='toast-more';box.prepend(m);}
-    m.textContent='+'+(ts.length-3)+' more';
+    m.textContent='+'+(ts.length-TOAST_MAX)+' more';
   }else if(m)m.remove();
 }
 const toastU=msg=>toast(msg,null,true);
@@ -10400,6 +10440,7 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.26.2",d:"Oct 2, 2026",n:["Undo notifications no longer cover the chart: they sit below the bars (or at the top right of the date header), each one has a × to close it, several quick edits share one notification, and dragging a bar that is under one goes straight through."]},
  {v:"v1.26.1",d:"Oct 2, 2026",n:["Project page: clicking any empty part of the chart, including below the last row, now closes the phase panel, and anything you were typing in it is saved first. The panel's close control now reads Close × and is big enough to hit."]},
  {v:"v1.26.0",d:"Oct 1, 2026",n:["A project's install date now comes from its Installation block under Departments (or its Shipping block when Installation is not scheduled). The LATE tag, the Installs / Ships date and Days out in the project header, the date line on the chart, the PM late prompt, the Meeting Sheet and the Due date sort all follow it, so moving the install moves them too.",
    "Project setup: on a saved project the editable Install date is replaced by a read-only Created on (when the project was first saved). A new project asks for one Target install / ship date, which lays out the schedule and becomes the Installation (or Shipping) block.",
