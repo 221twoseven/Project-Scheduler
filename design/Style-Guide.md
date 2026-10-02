@@ -195,6 +195,7 @@ mellowed bar that ships.*
 | Panel (white) | `#fff` | `#E2E8F0` |
 | Canvas workday | `#FCFDFE` | row line `rgba(0,0,0,.05)` |
 | Canvas weekend / holiday | `#EEF1F5` + 45° hatch `rgba(100,116,139,.044)` 4px/8px | — |
+| Canvas past days (`.past-col`) | `rgba(148,163,184,.06)` over the day columns, under rows and bars | — |
 | Department band (dept lens) | `rgba(87,104,127,.13)` | `rgba(0,0,0,.08)` |
 | Trail bar (`#dash-bar`) | `#fff` | `#E2E8F0` |
 | Selected list row `.cd-row.sel` | `#EDF3FA` + `inset 2px 0 0 var(--acc)` | hover `#F6F9FC` |
@@ -480,7 +481,7 @@ Compact tightens leading (`line-height:1.1`) but nothing informational drops bel
 ### 5.5 z-index ladder
 
 ```
-0      canvas backgrounds (.bg-col, tints)      1   weekend cols, month lines
+0      canvas backgrounds (.bg-col, tints)      1   weekend cols, month lines, past wash (.past-col)
 2      rows                                     5   deadline flags, holiday pills
 6      today line                               7-8 hover guide + tag
 9      #page (project / Company Data pages)     10  bars · #sidebar
@@ -610,6 +611,11 @@ Footer order (weakest → strongest, left → right): passive status text · Del
   font-family:inherit;background:#fff;color:#1E293B;outline:none}
 .ins-f input:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(59,127,214,.12)}
 .ins-f input.err{border-color:#CE4242}
+/* Team list search (v1.29.0) — the same grammar as .ins-f input, sized to its 12px list; hidden only
+   when viewerLock disabled it, so a viewer.project grant keeps the live search with the live checkboxes */
+.pg-rq{width:100%;box-sizing:border-box;min-height:24px;font-family:inherit;font-size:12px;padding:4px 8px;border:1px solid var(--ts-control-line);border-radius:6px;background:#fff;color:var(--ts-text)}
+.pg-rq:focus{border-color:var(--acc)}
+body.viewer .pg-rq:disabled{display:none}
 /* grids */
 .fg-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}   .fg-3{grid-template-columns:1fr 1fr 1fr}
 .ins-row{display:grid;grid-template-columns:1fr 1fr;gap:9px}  .ins-row3{grid-template-columns:1fr 1fr 64px}

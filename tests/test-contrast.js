@@ -83,7 +83,7 @@ if(tok('ts-muted')){
   }
 
   sec('the retired chrome greys survive only on canvas selectors');
-  const CANVAS=['.sb-sub','.sb-asn .d','.npv-mon','.npv-dnum','.npv-row.extra .npv-gut','.npv-leg .lg.lv0'];
+  const CANVAS=['.sb-sub','.sb-cl','.sb-asn .d','.sb-asn .c', /* v1.31.0 (#24): the client on the sidebar sub-lines — Design-Language §2.6 canvas ramp */'.npv-mon','.npv-dnum','.npv-row.extra .npv-gut','.npv-leg .lg.lv0'];
   const css=src.slice(0,src.indexOf('</style>'));
   const grey=/(?:^|[;{\s])color:(#(?:8B99AD|93A2B8|94A3B8|7488A3|A3B1C4|B4C0D0|8194AB)|var\(--txt-(?:dim|micro)\))(?=[;}])/gi;
   let hit,stray=[];const rr=/([^{}]+)\{([^{}]*)\}/g;
