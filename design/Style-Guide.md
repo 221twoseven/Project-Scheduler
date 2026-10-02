@@ -611,6 +611,11 @@ Footer order (weakest → strongest, left → right): passive status text · Del
   font-family:inherit;background:#fff;color:#1E293B;outline:none}
 .ins-f input:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(59,127,214,.12)}
 .ins-f input.err{border-color:#CE4242}
+/* Team list search (v1.29.0) — the same grammar as .ins-f input, sized to its 12px list; hidden only
+   when viewerLock disabled it, so a viewer.project grant keeps the live search with the live checkboxes */
+.pg-rq{width:100%;box-sizing:border-box;min-height:24px;font-family:inherit;font-size:12px;padding:4px 8px;border:1px solid var(--ts-control-line);border-radius:6px;background:#fff;color:#1E293B}
+.pg-rq:focus{border-color:var(--acc)}
+body.viewer .pg-rq:disabled{display:none}
 /* grids */
 .fg-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}   .fg-3{grid-template-columns:1fr 1fr 1fr}
 .ins-row{display:grid;grid-template-columns:1fr 1fr;gap:9px}  .ins-row3{grid-template-columns:1fr 1fr 64px}
