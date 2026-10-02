@@ -49,10 +49,13 @@ setTimeout(()=>{
 
   sec('2 · pmLateList matches comma-listed PMs');
   E('meName=()=>"Caroline"');
-  E('ST={...ST,projects:[{id:"pl1",name:"Late",projectManager:"Stan, Caroline",deadline:"2026-01-01",status:"in-fabrication"},{id:"pl2",name:"Solo",projectManager:"Stan",deadline:"2026-01-01",status:"in-fabrication"}]}');
+  /* v1.26.0 (#15): lateness follows the Installation block's end, so each project carries
+     an install that ended on the old deadline; older builds read the deadline and ignore it. */
+  E('ST={...ST,projects:[{id:"pl1",name:"Late",projectManager:"Stan, Caroline",deadline:"2026-01-01",status:"in-fabrication"},{id:"pl2",name:"Solo",projectManager:"Stan",deadline:"2026-01-01",status:"in-fabrication"}],'
+   +'tasks:[...(ST.tasks||[]),{id:"pli1",projectId:"pl1",department:"install",assignee:[],startDate:"2025-12-31",endDate:"2026-01-01",estimatedDays:2},{id:"pli2",projectId:"pl2",department:"install",assignee:[],startDate:"2025-12-31",endDate:"2026-01-01",estimatedDays:2}]}');
   ok('a two-PM project prompts the second PM too',E('pmLateList().length')===1,E('pmLateList().length'));
   ok('…and not projects the user is no PM of',E('pmLateList()[0].id')==='pl1');
-  E('ST={...ST,projects:[]}');
+  E('ST={...ST,projects:[],tasks:(ST.tasks||[]).filter(t=>t.id!=="pli1"&&t.id!=="pli2")}');
 
   sec('3 · saved views restore an explicitly-empty status set');
   E('applyViewState({status:[]})');

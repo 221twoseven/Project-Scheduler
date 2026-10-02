@@ -1029,6 +1029,8 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 /* v1.25.2 (#26): why a typed date moved, on its own line under the date pair */
 .ins-depts .idr .dnote{flex-basis:100%;margin:0 0 3px 22px}
 .ins-depts .idr.off .dnote{display:none}
+/* v1.26.0 (#20): the read-only "Created on" reads as a fact, not a control to edit */
+#pp-created[readonly]{background:#F7FAFD;border-color:#EDF2F7;color:#33415A}
 .ins-depts .idr .ddates input{flex:1;min-width:0;border:1px solid var(--ts-control-line);border-radius:5px;
   padding:2px 4px;font-size:11px;font-family:var(--mono);color:#33415A;box-sizing:border-box}
 .ins-depts .idr .ddates .da{flex-shrink:0;font-size:11px;color:var(--ts-muted)}
@@ -1634,7 +1636,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.25.2'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.26.0'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -1758,6 +1760,29 @@ const PCOLS=['#2B73CF','#BE531B','#268449','#9050C3','#148079','#936E12','#C0448
 /* Red is reserved exclusively for installations and shipping — the two ways a job ends */
 const INSTALL_RED='#CE4242';
 const isEndDept=id=>id==='install'||id==='shipping';
+/* v1.26.0 (tracker #15, #20): a project's due date is the end of its Installation block
+   (the latest end if there are several), else the end of its Shipping block, else none.
+   The Setup "install date" (p.deadline) only anchors the first layout of a new job; it is
+   no longer shown on a saved project or read for lateness, so a job with neither block has
+   no due date and is never late. One rule for the sidebar chip, the chart drop-line, the
+   header strip, the tooltip, the PM late prompt, the Meeting Sheet and the Due-date sort. */
+function dueOf(tasks){
+  for(const k of ['install','shipping']){
+    let d='';
+    for(const t of (tasks||[]))if(t.department===k&&t.endDate&&t.endDate>d)d=t.endDate;
+    if(d)return{d,k};
+  }
+  return null;
+}
+function dueDate(p){const b=p?dueOf(tasksOf(p.id).filter(t=>!t.__ghost)):null;return b?b.d:'';}
+function dueKind(p){const b=p?dueOf(tasksOf(p.id).filter(t=>!t.__ghost)):null;return b?b.k:'';}
+function dueText(p){ /* " · installs Oct 9 (12d left)" for the project tooltip, or nothing */
+  const d=dueDate(p);if(!d)return '';
+  const n=diffDays(today(),parseDate(d));
+  return ' · '+(dueKind(p)==='shipping'?'ships ':'installs ')+fmtNice(d)
+    +(projectStatus(p)!=='complete'?' ('+(n>=0?n+'d left':Math.abs(n)+'d over')+')':'');
+}
+const byDue=(a,b)=>String(dueDate(a)||'9999').localeCompare(String(dueDate(b)||'9999'));
 function isInstall(t){return isEndDept(t.department);}
 const endName=id=>id==='shipping'?'Shipping':'Install';
 /* A bar's crew. Stored as an array (install), a JSON string (legacy install rows) or a
@@ -1911,6 +1936,7 @@ function dw(){return DW_PX!=null?DW_PX:vpw()/FIT;}
 function d2x(d){return diffDays(TL_S,d)*dw();}
 function x2d(x){return addDays(TL_S,Math.round(x/dw()));}
 function fmtNice(s){return parseDate(s).toLocaleDateString('en-US',{month:'short',day:'numeric'});}
+function fmtNiceY(s){return parseDate(s).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});}
 /* Relative "time ago" for the last-updated tooltip line. Falls back to a short date past a week. */
 function timeAgo(iso){
   if(!iso)return '';
@@ -3220,7 +3246,7 @@ function projCompare(a,b){
   if(av!=null&&bv!=null&&av!==bv)return av-bv;
   if(av!=null&&bv==null)return -1;
   if(bv!=null&&av==null)return 1;
-  return (a.deadline||'').localeCompare(b.deadline||'');
+  return (dueDate(a)||'').localeCompare(dueDate(b)||'');
 }
 function currentProjOrder(){return [...ST.projects].sort(projCompare);}
 function sortProjectsBy(cmp,label,groupBy){
@@ -3246,13 +3272,13 @@ function groupLabelOf(k){
 }
 /* B5: which group headers are collapsed under the current mode — each mode keeps its own set */
 function grpSet(){return GRP_COLLAPSED[GROUP_BY]||(GRP_COLLAPSED[GROUP_BY]=new Set());}
-document.getElementById('sort-deadline').addEventListener('click',()=>sortProjectsBy((a,b)=>String(a.deadline||'9999').localeCompare(String(b.deadline||'9999')),'due date',null));
-document.getElementById('sort-client').addEventListener('click',()=>sortProjectsBy((a,b)=>String(a.client||'').localeCompare(String(b.client||''))||String(a.deadline||'9999').localeCompare(String(b.deadline||'9999')),'client','client'));
-document.getElementById('sort-pm').addEventListener('click',()=>sortProjectsBy((a,b)=>canonName(roleList(a.projectManager)[0]||'').localeCompare(canonName(roleList(b.projectManager)[0]||''))||String(a.deadline||'9999').localeCompare(String(b.deadline||'9999')),'project manager','pm'));
+document.getElementById('sort-deadline').addEventListener('click',()=>sortProjectsBy((a,b)=>byDue(a,b),'due date',null));
+document.getElementById('sort-client').addEventListener('click',()=>sortProjectsBy((a,b)=>String(a.client||'').localeCompare(String(b.client||''))||byDue(a,b),'client','client'));
+document.getElementById('sort-pm').addEventListener('click',()=>sortProjectsBy((a,b)=>canonName(roleList(a.projectManager)[0]||'').localeCompare(canonName(roleList(b.projectManager)[0]||''))||byDue(a,b),'project manager','pm'));
 document.getElementById('sort-status').addEventListener('click',()=>sortProjectsBy((a,b)=>{
   /* Rank by the live status list so a new status can never fall to an unsorted tail. */
   const o={};ALL_STATUSES.forEach((v,i)=>o[v]=i+1);
-  return (o[projectStatus(a)]||99)-(o[projectStatus(b)]||99)||String(a.deadline||'9999').localeCompare(String(b.deadline||'9999'));
+  return (o[projectStatus(a)]||99)-(o[projectStatus(b)]||99)||byDue(a,b);
 },'status','status'));
 
 function reorderProject(dragId,beforeId){
@@ -3283,12 +3309,13 @@ function buildRows(){
   const rows=[];
   if(LENS==='project'){
     let projs=currentProjOrder().filter(p=>SHOW_STATUS.has(projectStatus(p))&&clientHit(p)&&projHasPerson(p));
-    /* v1.6.1: projects with no current work — every phase wrapped before today (or,
-       bare of phases, a past deadline) — sink to the bottom, stably, so the live
-       board leads. Runs before grouping, so they sink inside their groups too. */
+    /* v1.6.1: projects with no current work — every phase wrapped before today — sink
+       to the bottom, stably, so the live board leads. Runs before grouping, so they sink
+       inside their groups too. (v1.26.0: a job bare of phases has no due date, so it no
+       longer sinks on its old Setup date.) */
     {const t0=fmtDate(today());
      const past=p=>{const ts=tasksOf(p.id);
-       return ts.length?ts.every(t=>t.endDate<t0):!!(p.deadline&&p.deadline<t0);};
+       return ts.length?ts.every(t=>t.endDate<t0):false;};
      projs=[...projs.filter(p=>!past(p)),...projs.filter(past)];}
     const pushProj=p=>{
       rows.push({kind:'projHead',key:'P'+p.id,projectId:p.id,lanes:1});
@@ -3340,8 +3367,7 @@ function esc(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').
 function computeRange(){
   const t=today();
   let s=addDays(t,-40),e=addDays(t,180);
-  for(const x of ST.tasks){const a=parseDate(x.startDate),b=parseDate(x.endDate);if(a<s)s=a;if(b>e)e=b;}
-  for(const p of ST.projects){const d=parseDate(p.deadline);if(d>e)e=d;}
+  for(const x of ST.tasks){const a=parseDate(x.startDate),b=parseDate(x.endDate);if(a<s)s=a;if(b>e)e=b;} /* v1.26.0: the due date is a task end, so the tasks alone bound the range */
   return {s:new Date(s.getFullYear(),s.getMonth(),1),e:new Date(e.getFullYear(),e.getMonth()+2,0)};
 }
 
@@ -3627,9 +3653,10 @@ function renderSidebar(){
       const nm=document.createElement('span');nm.className='sb-name';nm.textContent=p.name;col.appendChild(nm);
       const l2=document.createElement('span');l2.className='sb-l2';
       const sub=document.createElement('span');sub.className='sb-sub';
-      sub.textContent=(p.jobCode?p.jobCode+' · ':'')+(p.deadline?fmtNice(p.deadline):'');l2.appendChild(sub);
-      if(p.deadline&&projectStatus(p)!=='complete'){
-        const dl=diffDays(today(),parseDate(p.deadline));
+      const due=dueDate(p); /* v1.26.0 (#15): the Installation (else Shipping) block decides, not the Setup date */
+      sub.textContent=[p.jobCode,due?fmtNice(due):''].filter(Boolean).join(' · ');l2.appendChild(sub);
+      if(due&&projectStatus(p)!=='complete'){
+        const dl=diffDays(today(),parseDate(due));
         if(dl<0){const c=document.createElement('span');c.className='sb-chip late';c.textContent='LATE '+Math.abs(dl)+'d';l2.appendChild(c);}
         else if(dl<=5){const c=document.createElement('span');c.className='sb-chip soon';c.textContent=dl===0?'TODAY':dl+'d';l2.appendChild(c);}
       }
@@ -3783,8 +3810,9 @@ function renderGantt(){
       const r=ROWS[i];
       if(r.kind!=='projHead')continue;
       const p=projById(r.projectId);
-      if(!p||!p.deadline)continue;
-      const dl=parseDate(p.deadline);
+      const due=p?dueDate(p):''; /* v1.26.0: the drop-line marks the due date */
+      if(!due)continue;
+      const dl=parseDate(due);
       if(dl<TL_S||dl>TL_E)continue;
       /* The drop-line falls from the pennant through the project's expanded task rows. */
       let j=i+1;while(j<ROWS.length&&ROWS[j].projectId===r.projectId)j++;
@@ -3792,7 +3820,7 @@ function renderGantt(){
       const f=document.createElement('div');f.className='dl-flag';
       f.style.left=(d2x(dl)+DW_-1)+'px';f.style.top=r.top+'px';f.style.height=(bot-r.top)+'px';
       f.style.color=projColor(p.id);
-      f.title='Deadline '+fmtNice(p.deadline);
+      f.title=(dueKind(p)==='shipping'?'Ships ':'Installs ')+fmtNice(due);
       canvas.appendChild(f);
     }
   }
@@ -4317,7 +4345,7 @@ function showTooltipProj(p,s,e,ev){
   const upd=(p.updatedBy||p.updatedAt)?'<div class="tt-dim tt-upd">Updated by '+esc(p.updatedBy?dispName(p.updatedBy):'—')+(p.updatedAt?' · '+esc(timeAgo(p.updatedAt)):'')+'</div>':'';
   el.innerHTML='<div class="tt-title">'+esc(p.name)+'</div>'
     +'<div class="tt-dim">'+esc(p.client||'')+(p.jobCode?' · '+esc(p.jobCode):'')+'</div>'
-    +'<div class="tt-dim">'+fmtNice(fmtDate(s))+' → '+fmtNice(fmtDate(e))+' · deadline '+fmtNice(p.deadline)+(projectStatus(p)!=='complete'?' ('+(diffDays(today(),parseDate(p.deadline))>=0?diffDays(today(),parseDate(p.deadline))+'d left':Math.abs(diffDays(today(),parseDate(p.deadline)))+'d over')+')':'')+'</div>'
+    +'<div class="tt-dim">'+fmtNice(fmtDate(s))+' → '+fmtNice(fmtDate(e))+dueText(p)+'</div>'
     +'<div class="tt-dim">PM '+esc(roleList(p.projectManager).map(canonName).map(dispName).join(', ')||'—')+' · D '+esc(roleList(p.drafter).map(canonName).map(dispName).join(', ')||'—')+' · F '+esc(roleList(p.leadFab).map(canonName).map(dispName).join(', ')||'—')+(p.fabricators?' · Crew '+esc(roleList(p.fabricators).map(canonName).map(dispName).join(', ')):'')+'</div>'
     +upd
     +'<div><span class="tt-badge">'+esc(STATUS_LBL[projectStatus(p)])+'</span></div>';
@@ -6362,7 +6390,12 @@ function ppInspector(){
       + '<div class="ins-f"><label>Client</label><input id="pp-client" list="cl-dl" value="'+esc(p.client||'')+'" placeholder="Who it\'s for"><datalist id="cl-dl">'+clientOptions()+'</datalist></div>'
       + '<div class="ins-row">'
       + '<div class="ins-f"><label>Job code</label><input id="pp-code" value="'+esc(p.jobCode||'')+'" placeholder="H1-2049"></div>'
-      + '<div class="ins-f"><label>Install date</label><input id="pp-deadline" type="date" value="'+esc(p.deadline||'')+'"></div>'
+      /* v1.26.0 (#20): a new job asks for the one date the layout builds backward from; once
+         saved, install and shipping dates live only in Departments, and Setup shows when
+         the project was first saved instead. */
+      + (ROUTE.creating
+         ? '<div class="ins-f"><label>Target install / ship date</label><input id="pp-deadline" type="date" value="'+esc(p.deadline||'')+'"></div>'
+         : '<div class="ins-f"><label>Created on</label><input id="pp-created" value="'+esc(p.createdAt?fmtNiceY(p.createdAt):'—')+'" readonly title="Recorded when the project was first saved"></div>')
       + '</div>'
       + '<div class="ins-f"><label>Status</label><select id="pp-status">'
       /* 3.5/D8: the dropdown shows the STORED truth. "Automatic" is the failsafe —
@@ -6602,7 +6635,8 @@ function ppPaintMeta(p){
     if(t.startDate&&(!s||t.startDate<s))s=t.startDate;
     if(t.endDate&&(!e||e<t.endDate))e=t.endDate;
   }
-  const dl=p.deadline||'';
+  const due=dueOf(ts); /* v1.26.0 (#15/#20): Installation, else Shipping, else nothing */
+  const dl=due?due.d:'';
   const todayIso=fmtDate(new Date()); /* not "today" — that shadows the global today() */
   const left=dl?diffDays(parseDate(todayIso),parseDate(dl)):null;
   const late=!!(dl&&e&&e>dl);
@@ -6617,13 +6651,13 @@ function ppPaintMeta(p){
   /* esc() was escaping the entity, so the strip literally said "&mdash;". */
   h+=cell('Client',p.client?esc(p.client):'\u2014');
   h+=cell('Job',p.jobCode?esc(p.jobCode):'\u2014');
-  h+=cell('Installs',dl?esc(fmtNice(dl)):'&mdash;');
+  if(dl)h+=cell(due.k==='shipping'?'Ships':'Installs',esc(fmtNice(dl)));
   if(left!==null&&!done)h+=cell(left<0?'Overdue by':'Days out',Math.abs(left)+'d',left<0);
   h+=cell('Shop starts',s?esc(fmtNice(s)):'&mdash;');
   h+=cell('Work ends',e?esc(fmtNice(e)):'&mdash;',late&&!done);
   h+=cell('Phases',ts.filter(t=>t.department!=='pm').length);
   h+=cell('Milestones & notes',evN+tkN);
-  if(late&&!done)h+='<div class="m"><span class="v warn">&#9888; Work runs past the install date</span></div>';
+  if(late&&!done)h+='<div class="m"><span class="v warn">&#9888; Work runs past the '+(due.k==='shipping'?'ship':'install')+' date</span></div>';
   box.innerHTML=h;
   /* REV87: the footer's complete button mirrors the stored status */
   const cmp=document.getElementById('pp-complete');
@@ -7359,7 +7393,10 @@ function npvRender(){
     NPV_GEO=null;return;
   }
 
-  const dl=parseDate(readPageDraft().base.deadline);
+  /* v1.26.0: the range and the footer's lead time run to the due date; the target date
+     stands in only while nothing on-site is scheduled. */
+  const due=dueOf(NPV_ALL);
+  const dl=due?parseDate(due.d):parseDate(readPageDraft().base.deadline);
   let lo=parseDate(NPV_TASKS[0].startDate),hi=dl;
   for(const t of NPV_TASKS){
     const a=parseDate(t.startDate),b=parseDate(t.endDate);
@@ -8929,7 +8966,7 @@ function savePageProject(){
       const box=document.getElementById('pp-r-pm');
       if(box){box.classList.add('err');if(deadline){const ck=box.querySelector('input');if(ck)ck.focus();}}
     }
-    const miss=[!name&&'a name',!deadline&&'an install date',!pm&&'a Project Manager'].filter(Boolean);
+    const miss=[!name&&'a name',!deadline&&'a target install / ship date',!pm&&'a Project Manager'].filter(Boolean);
     toast('Give it '+miss.join(' and ')+'.','err');
     return;
   }
@@ -9868,19 +9905,19 @@ function pmLateList(){
   const td=fmtDate(today());
   /* REV90: PM is a comma list ("Stan, Caroline") — match through roleList like every
      other reader, or multi-PM projects prompt nobody. */
-  return ST.projects.filter(p=>roleList(p.projectManager).map(canonName).includes(me)&&p.deadline&&p.deadline<td
-    &&projectStatus(p)!=='complete');
+  return ST.projects.filter(p=>{const d=dueDate(p); /* v1.26.0: the due date, never the Setup date */
+    return roleList(p.projectManager).map(canonName).includes(me)&&d&&d<td&&projectStatus(p)!=='complete';});
 }
 function pmLatePaint(){
   const late=pmLateList();
   const ov=document.getElementById('pmlate-overlay');
   if(!late.length){ov.classList.add('hidden');return;}
   document.getElementById('pmlate-list').innerHTML=late.map(p=>{
-    const over=diffDays(parseDate(p.deadline),today());
+    const d=dueDate(p),over=diffDays(parseDate(d),today());
     return '<div class="pml-row" data-id="'+esc(p.id)+'">'
       +'<span class="pml-name">'+esc(p.name||'')+'</span>'
       +'<span class="pml-code">'+esc(p.jobCode||'')+'</span>'
-      +'<span class="pml-late">installed '+esc(fmtNice(p.deadline))+' · '+over+'d ago</span>'
+      +'<span class="pml-late">'+(dueKind(p)==='shipping'?'shipped ':'installed ')+esc(fmtNice(d))+' · '+over+'d ago</span>'
       +'<button class="btn btn-ghost" data-act="open" data-id="'+esc(p.id)+'" title="Open the project to extend its schedule">Open</button>'
       +'<button class="btn" data-act="done" data-id="'+esc(p.id)+'" title="The job has ended — mark it complete">Mark complete</button>'
       +'</div>';
@@ -10341,6 +10378,9 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.26.0",d:"Oct 1, 2026",n:["A project's install date now comes from its Installation block under Departments (or its Shipping block when Installation is not scheduled). The LATE tag, the Installs / Ships date and Days out in the project header, the date line on the chart, the PM late prompt, the Meeting Sheet and the Due date sort all follow it, so moving the install moves them too.",
+   "Project setup: on a saved project the editable Install date is replaced by a read-only Created on (when the project was first saved). A new project asks for one Target install / ship date, which lays out the schedule and becomes the Installation (or Shipping) block.",
+   "A project with neither Installation nor Shipping scheduled shows no install date and is never marked late."]},
  {v:"v1.25.2",d:"Oct 1, 2026",n:["Project setup: Installation and Shipping dates now stay exactly as you type them, weekends and holidays included, and their day count is calendar days.",
    "Project setup: when a shop department date lands on a weekend or holiday it still moves to a workday, but a note under the field now says why, and the start can no longer end up after the end."]},
  {v:"v1.25.1",d:"Sep 30, 2026",n:["Open Issues: the reply toggle under a report now reads \"developer comments\"."]},
@@ -10543,23 +10583,22 @@ function buildMeetingSheet(){
     const gr=document.createElement('tr');gr.className='meet-pm';
     gr.innerHTML='<td colspan="7">'+esc(dispName(k))+' · '+groups[k].length+' project'+(groups[k].length>1?'s':'')+'</td>'; /* v1.19.2: nickname everywhere (group KEY stays canonical) */
     tb.appendChild(gr);
-    const rows=[...groups[k]].sort((a,b)=>String(a.deadline||'9999').localeCompare(String(b.deadline||'9999')));
+    const rows=[...groups[k]].sort((a,b)=>byDue(a,b));
     for(const p of rows){
       const st=projectStatus(p);
       const ts=tasksOf(p.id);
       let ps=null,pe=null;
       for(const x of ts){const a=parseDate(x.startDate),b=parseDate(x.endDate);if(!ps||a<ps)ps=a;if(!pe||b>pe)pe=b;}
-      if(p.deadline){const d=parseDate(p.deadline);if(!pe||d>pe)pe=d;}
       let pct=0;
       if(ps&&pe&&pe>ps)pct=Math.max(0,Math.min(100,Math.round((today()-ps)/(pe-ps)*100)));
-      const days=workdaysUntil(p.deadline);
+      const due=dueDate(p),days=workdaysUntil(due); /* v1.26.0: the due date, not the Setup date */
       const tr=document.createElement('tr');tr.className='meet-row';
       tr.innerHTML='<td><span class="mr-name">'+esc(p.name)+'</span><span class="mr-sub">'+esc([p.jobCode,p.client].filter(Boolean).join(' · '))+'</span></td>'
         +'<td><span class="mr-pill" data-st="'+st+'">'+esc(STATUS_LBL[st]||st)+'</span></td>'
         +'<td class="mr-phase">'+esc(phaseNow(p))+'</td>'
         +'<td><div class="meet-mini"><div class="mm-fill" style="width:'+pct+'%;background:'+(MEET_FILL[st]||'#B4B2A9')+'"></div></div>'
         +(ps&&pe?'<div class="mm-dates">'+fmtNice(fmtDate(ps))+' → '+fmtNice(fmtDate(pe))+'</div>':'')+'</td>'
-        +'<td class="mr-dl">'+(p.deadline?fmtNice(p.deadline):'TBD')+'</td>'
+        +'<td class="mr-dl">'+(due?fmtNice(due):'TBD')+'</td>'
         +'<td class="mr-days">'+(days===null?'—':days)+'</td>'
         +'<td class="mr-notes"></td>';
       tb.appendChild(tr);
