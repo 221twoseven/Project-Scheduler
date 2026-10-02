@@ -1026,6 +1026,9 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
   margin-left:22px;min-width:0}
 .ins-depts .idr.off .ddates{display:none}
 .ins-depts .idr.off .dother{display:none}
+/* v1.25.2 (#26): why a typed date moved, on its own line under the date pair */
+.ins-depts .idr .dnote{flex-basis:100%;margin:0 0 3px 22px}
+.ins-depts .idr.off .dnote{display:none}
 .ins-depts .idr .ddates input{flex:1;min-width:0;border:1px solid var(--ts-control-line);border-radius:5px;
   padding:2px 4px;font-size:11px;font-family:var(--mono);color:#33415A;box-sizing:border-box}
 .ins-depts .idr .ddates .da{flex-shrink:0;font-size:11px;color:var(--ts-muted)}
@@ -1631,7 +1634,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.25.1'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.25.2'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -5682,7 +5685,7 @@ function renderProjectPage(){
      a resize must never close the phase form or move the dock up a level. */
   const keepSel=PP_KEEP?PP_SEL:null;
   if(!PP_KEEP){
-    NPV_MANUAL={};NPV_TASKS=[];NPV_ALL=[];NPV_ORDER=[];NPV_ORDER_DIRTY=false;
+    NPV_MANUAL={};NPV_TASKS=[];NPV_ALL=[];NPV_ORDER=[];NPV_ORDER_DIRTY=false;PP_DNOTE=null;
     NPV_EVENTS=[];NPV_TODOS=[];NPV_LINES=[];NPV_UNDO=[];NPV_REDO=[];NPV_CAL_OPEN=new Map();NPV_CAL_MK=false;
     PP_CLOG=false; /* v1.19.0: arriving fresh always shows the edit dock */
     if(isNew){
@@ -6178,12 +6181,14 @@ function insDeptList(p,boxId){
          + '<input type="date" class="dstart" data-dept="'+esc(id)+'" value="'+esc((bar&&bar.startDate)||'')+'"'+(active?'':' disabled')+'>'
          + '<span class="da">&rarr;</span>'
          + '<input type="date" class="dend" data-dept="'+esc(id)+'" value="'+esc((bar&&bar.endDate)||'')+'"'+(active?'':' disabled')+'>'
-         + '</span>';
+         + '</span>'
+         + '<span class="ins-note dnote hidden" data-dept="'+esc(id)+'"></span>';
       }
       h+='</div>';
     }
   });
   box.innerHTML=h;
+  ppPaintDateNote();
   box.querySelectorAll('input[type=checkbox]').forEach(ck=>ck.addEventListener('change',()=>{
     const row=ck.closest('.idr');
     row.classList.toggle('off',!ck.checked);
@@ -6194,8 +6199,7 @@ function insDeptList(p,boxId){
 }
 
 /* N13: commit a department date edit through the same paths a drag uses — straight to
-   ST on a saved page, into the manual overlay on a draft. Dates snap forward to a
-   workday; days recount from the window. */
+   ST on a saved page, into the manual overlay on a draft. Days recount from the window. */
 function wdSnap(iso){
   let d=parseDate(iso),n=0;
   while(!isWorking(d)&&n<14){d=addDays(d,1);n++;}
@@ -6205,18 +6209,64 @@ function wdSnap(iso){
 function fwdN(start,n){let e=new Date(start);for(let i=1;i<n;i++){e=addDays(e,1);while(!isWorking(e))e=addDays(e,1);}return e;}
 /* A resized edge lands on a workday: the start snaps forward (dir=1), the end back (dir=-1). */
 const snap=(d,dir)=>{while(!isWorking(d))d=addDays(d,dir);return d;};
+/* v1.25.2 (tracker #26): on-site work — Installation and Shipping — happens on weekends
+   and holidays too, so a typed date is kept exactly as typed and its day count is
+   calendar days. Shop departments keep workday snapping (start forward, end back, the
+   way a drag does), but never silently: typedDates also returns a plain-language note
+   saying what moved and why, painted under the field that was edited. The start can
+   never end up after the end — the other date moves to match, and the note says so.
+   One rule for both typed-date paths (the Departments rows and the phase panel). */
+function deptDayCount(dept,s,e){return isEndDept(dept)?Math.max(1,diffDays(s,e)+1):wdCount(s,e);}
+function deptEndAfter(dept,start,n){return isEndDept(dept)?addDays(start,Math.max(1,n)-1):fwdN(start,n);}
+function fmtDow(iso){return parseDate(iso).toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});}
+function typedDates(dept,s0,e0,which,val){
+  let s=s0,e=e0;const why=[];
+  const off=iso=>!isEndDept(dept)&&!isWorking(parseDate(iso));
+  const because=iso=>fmtDow(iso)+' is '+(holidayName(parseDate(iso))||'a weekend');
+  if(which==='s'){
+    s=val;
+    if(off(val)){s=wdSnap(val);why.push(because(val)+', so the start moved to '+fmtDow(s)+'.');}
+  }else{
+    e=val;
+    if(off(val)){
+      e=fmtDate(snap(parseDate(val),-1));
+      if(parseDate(e)<parseDate(s))e=wdSnap(val); /* nothing workable before the start: go forward instead */
+      why.push(because(val)+', so the end moved to '+fmtDow(e)+'.');
+    }
+  }
+  if(parseDate(e)<parseDate(s)){
+    if(which==='s'){e=s;why.push('The end cannot be before the start, so it moved to '+fmtDow(e)+'.');}
+    else{s=e;why.push('The start cannot be after the end, so it moved to '+fmtDow(s)+'.');}
+  }
+  return{s,e,days:deptDayCount(dept,parseDate(s),parseDate(e)),note:why.join(' ')};
+}
+let PP_DNOTE=null; /* {proj,key,text}: why the last typed date moved, shown under that field */
+function ppDateNote(key,text){const p=ppProject();PP_DNOTE=text?{proj:p?p.id:'',key,text}:null;}
+function ppDateNoteText(key){const p=ppProject();return PP_DNOTE&&PP_DNOTE.key===key&&PP_DNOTE.proj===(p?p.id:'')?PP_DNOTE.text:'';}
+function ppDateNoteHTML(sel){const t=ppDateNoteText('p:'+(NPV_LIVE?sel.id:ppDraftKeyFor(sel)));return t?'<div class="ins-note dnote">'+esc(t)+'</div>':'';}
+function ppPaintDateNote(){
+  const rows=document.querySelectorAll('#pp-depts .dnote');
+  if(!rows.length)return;
+  const p=ppProject(),on=PP_DNOTE&&PP_DNOTE.proj===(p?p.id:'')?PP_DNOTE:null;
+  rows.forEach(el=>{
+    const t=on&&on.key==='d:'+el.dataset.dept?on.text:'';el.textContent=t;el.classList.toggle('hidden',!t);
+  });
+}
 function ppDeptDates(dept,which,val){
   const bar=(NPV_ALL||[]).find(t=>t.department===dept);
   if(!bar||!val)return;
-  let s=bar.startDate,e=bar.endDate;
-  if(which==='s')s=wdSnap(val);else e=wdSnap(val);
-  if(parseDate(e)<parseDate(s)){if(which==='s')e=s;else s=e;}
-  const days=wdCount(parseDate(s),parseDate(e));
+  const r=typedDates(dept,bar.startDate,bar.endDate,which,val);
+  ppDateNote('d:'+dept,r.note);
   const ck=document.querySelector('#pp-depts input[data-dept="'+dept+'"]');
-  const dd=ck?ck.closest('.idr').querySelector('.ddays'):null;
-  if(dd)dd.value=days;
-  if(NPV_LIVE){commitPhaseDates(bar.id,s,e,days);npvRebuild();return;}
-  NPV_MANUAL[npvKey(bar)]={startDate:s,endDate:e,estimatedDays:days};
+  const idr=ck?ck.closest('.idr'):null;
+  if(idr){
+    const dd=idr.querySelector('.ddays');if(dd)dd.value=r.days;
+    /* the fields show where the dates actually landed, not what was typed */
+    const ds=idr.querySelector('.dstart'),de=idr.querySelector('.dend');
+    if(ds)ds.value=r.s;if(de)de.value=r.e;
+  }
+  if(NPV_LIVE){commitPhaseDates(bar.id,r.s,r.e,r.days);npvRebuild();return;}
+  NPV_MANUAL[npvKey(bar)]={startDate:r.s,endDate:r.e,estimatedDays:r.days};
   npvRebuild();
 }
 /* Keep the date fields tracking the bars — a drag, undo or days edit repaints them. */
@@ -6229,6 +6279,7 @@ function npvSyncDeptDates(){
     const v=inp.classList.contains('dstart')?(bar.startDate||''):(bar.endDate||'');
     if(inp.value!==v&&document.activeElement!==inp)inp.value=v;
   });
+  ppPaintDateNote();
 }
 
 /* E1: sections are columns in the bottom dock, always open — no accordion. */
@@ -6276,6 +6327,7 @@ function ppInspector(){
     f+='<div class="ins-row3">'
      + '<div class="ins-f"><label>Start</label><input type="date" data-f="startDate" value="'+esc(sel.startDate||'')+'"></div>'
      + '<div class="ins-f"><label>End</label><input type="date" data-f="endDate" value="'+esc(sel.endDate||'')+'"></div>'
+     + ppDateNoteHTML(sel)
      + '<div class="ins-f"><label>Days</label><input type="number" min="1" data-f="estimatedDays" value="'+(sel.estimatedDays||1)+'"></div>'
      + '</div>';
     /* v1.6.2: the notes textarea moved to its own dock section (after the agenda),
@@ -6456,7 +6508,7 @@ function ppBindInspector(p,sel){
         const bar=ck2?(NPV_ALL||[]).find(b=>b.department===ck2.dataset.dept):null;
         if(bar&&bar.startDate){
           const n=Math.max(1,parseInt(t.value,10)||1);
-          commitPhaseDates(bar.id,bar.startDate,fmtDate(fwdN(parseDate(bar.startDate),n)),n);
+          commitPhaseDates(bar.id,bar.startDate,fmtDate(deptEndAfter(bar.department,parseDate(bar.startDate),n)),n);
           npvRebuild();return;
         }
       }
@@ -8408,17 +8460,16 @@ function ppPopName(t,v){
   ppDraftLineFor(t).name=v;
   npvRebuild();
 }
-/* A date edit in the popover moves the bar the same way a drag would: snapped to a
-   workday, days recounted, into ST on a saved page and the manual overlay on a draft
-   (N13's rule, per-bar instead of per-department). */
+/* A date edit in the panel moves the bar the same way a drag would: through typedDates
+   (kept as typed for on-site work, snapped with a note for shop departments), days
+   recounted, into ST on a saved page and the manual overlay on a draft (N13's rule,
+   per-bar instead of per-department). */
 function ppPopDate(t,which,val){
   if(!val)return;
-  let s=t.startDate,e=t.endDate;
-  if(which==='s')s=wdSnap(val);else e=wdSnap(val);
-  if(parseDate(e)<parseDate(s)){if(which==='s')e=s;else s=e;}
-  const days=wdCount(parseDate(s),parseDate(e));
-  if(NPV_LIVE){commitPhaseDates(t.id,s,e,days);npvRebuild();return;}
-  NPV_MANUAL[npvKey(t)]={startDate:s,endDate:e,estimatedDays:days};
+  const r=typedDates(t.department,t.startDate,t.endDate,which,val);
+  ppDateNote('p:'+(NPV_LIVE?t.id:ppDraftKeyFor(t)),r.note);
+  if(NPV_LIVE){commitPhaseDates(t.id,r.s,r.e,r.days);npvRebuild();return;}
+  NPV_MANUAL[npvKey(t)]={startDate:r.s,endDate:r.e,estimatedDays:r.days};
   npvRebuild();
 }
 function ppPopDelete(t){
@@ -8465,7 +8516,7 @@ function ppCommitPhaseField(sel,f,value){
     if(NPV_LIVE)commitPhase(sel.id,'estimatedDays',n);
     /* draft: same semantics as dragging the right edge — a manual placement */
     else NPV_MANUAL[npvKey(sel)]={startDate:sel.startDate,
-      endDate:fmtDate(fwdN(parseDate(sel.startDate),n)),estimatedDays:n};
+      endDate:fmtDate(deptEndAfter(sel.department,parseDate(sel.startDate),n)),estimatedDays:n};
     npvRebuild();
   }
   else if(f==='notes'){
@@ -8557,6 +8608,7 @@ function npvPopPhaseHTML(sel){
    +'<div class="ins-f"><label>Start</label><input type="date" data-f="startDate" value="'+esc(sel.startDate||'')+'"></div>'
    +'<div class="ins-f"><label>End</label><input type="date" data-f="endDate" value="'+esc(sel.endDate||'')+'"></div>'
    +'</div>'
+   +ppDateNoteHTML(sel)
    +'<div class="ins-f pop-days"><label>Days</label><input type="number" min="1" data-f="estimatedDays" value="'+(sel.estimatedDays||1)+'"></div>';
   h+='<div class="ins-f"><label>Notes</label><textarea rows="2" data-f="notes" placeholder="Anything the shop needs to know">'+esc(sel.notes||'')+'</textarea></div>';
   h+='<div class="ins-acts"><button class="ins-btn dngr" data-pop-del title="Delete this phase">Delete</button></div>';
@@ -10289,6 +10341,8 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.25.2",d:"Oct 1, 2026",n:["Project setup: Installation and Shipping dates now stay exactly as you type them, weekends and holidays included, and their day count is calendar days.",
+   "Project setup: when a shop department date lands on a weekend or holiday it still moves to a workday, but a note under the field now says why, and the start can no longer end up after the end."]},
  {v:"v1.25.1",d:"Sep 30, 2026",n:["Open Issues: the reply toggle under a report now reads \"developer comments\"."]},
  {v:"v1.25.0",d:"Sep 30, 2026",n:["Open Issues: replies from the team now show under a report. Click \"1 reply from the team\" to read them, and the person who filed the report gets the reply by email with a link straight to it."]},
  {v:"v1.24.0",d:"Sep 27, 2026",n:["Easier to read: the grey helper text across the app (hints, section labels, empty-state notes, dates and codes in panels) is darker, and the boxes around form fields are clearer. Colours on the schedule itself are unchanged."]},
