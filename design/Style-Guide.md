@@ -195,6 +195,7 @@ mellowed bar that ships.*
 | Panel (white) | `#fff` | `#E2E8F0` |
 | Canvas workday | `#FCFDFE` | row line `rgba(0,0,0,.05)` |
 | Canvas weekend / holiday | `#EEF1F5` + 45° hatch `rgba(100,116,139,.044)` 4px/8px | — |
+| Canvas past days (`.past-col`) | `rgba(148,163,184,.06)` over the day columns, under rows and bars | — |
 | Department band (dept lens) | `rgba(87,104,127,.13)` | `rgba(0,0,0,.08)` |
 | Trail bar (`#dash-bar`) | `#fff` | `#E2E8F0` |
 | Selected list row `.cd-row.sel` | `#EDF3FA` + `inset 2px 0 0 var(--acc)` | hover `#F6F9FC` |
@@ -480,7 +481,7 @@ Compact tightens leading (`line-height:1.1`) but nothing informational drops bel
 ### 5.5 z-index ladder
 
 ```
-0      canvas backgrounds (.bg-col, tints)      1   weekend cols, month lines
+0      canvas backgrounds (.bg-col, tints)      1   weekend cols, month lines, past wash (.past-col)
 2      rows                                     5   deadline flags, holiday pills
 6      today line                               7-8 hover guide + tag
 9      #page (project / Company Data pages)     10  bars · #sidebar
