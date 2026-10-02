@@ -223,8 +223,13 @@ decides, then its source in brackets.
 What the pilot can't start without.
 
 - [ ] **1. Terminology pass.** Rename two terms on screen: "Job code" becomes **Cost
-      Code**, and "Drafter" becomes **Technical Designer**.
+      Code**, and "Drafter" becomes **Technical Designer**. *The Drafter half shipped in
+      v1.31.1 (tracker #17, with #22's Project Team / Project Schedule headings); the Cost
+      Code half waits on tracker #21's revised spec. The §7.4 ledger holds the two
+      "Drafter" echoes that remain (the Changelog key and the D chip).*
       - *Where:* sidebar, bar labels, tooltip, Meeting Sheet, late prompt, New Project.
+        (Drafter had labels only on the project page and in the legend; the Cost Code
+        list is #21's.)
       - *Labels only.* The stored field names (`jobCode`, `drafter`) stay, because the
         schema is shared.
       - *How:* round two of `docs/Copy-Coach-and-Helpers.md` (round one shipped in
@@ -1383,6 +1388,14 @@ How to read the tags at the end of an entry:
       for status, 2026-09-25). Remove or relabel them with the next change to
       `renderReports` (item 39 shipped in v1.28.0 without touching that page); the
       `fbSetStatus` path stays for rows without a ticket. [item 31]
+- [ ] **Two "Drafter" echoes stay after the v1.31.1 rename (tracker #17).** (1) Changelog
+      rows (admin/PM) still read the stored key `drafter:` — `clogField` writes the key into
+      the Changelog list's `detail` column at save time, so a label map there would make new
+      rows differ from every old row; the fix is a read-side stored-name → plain-word map,
+      which the #21 spec (Q5) plans for `jobCode` and `drafter` together. Gate: #21
+      approved. (2) The "D" people chip (sidebar, project tooltip, Help legend swatch;
+      test-c3-status pins `PM,D,L`) still abbreviates the old word; "TD" widens every sidebar
+      row. Gate: owner ruling — asked in the v1.31.1 PR body. [item 1]
 
 ### 7.5 Deliberate design limits — no action planned; revisit only on real complaints
 

@@ -976,7 +976,7 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
   font-family:inherit;display:inline-flex;align-items:center;gap:5px;margin-left:auto}
 .ins-hd .x span{font-size:15px;line-height:1}
 .ins-hd .x:hover{color:var(--acc);border-color:var(--acc)}
-/* E1: sections run side by side as columns — Setup | Team | Departments | Agenda — all
+/* E1: sections run side by side as columns — Setup | Project Team | Project Schedule | Agenda — all
    open at once. When the columns' minimums no longer fit, the panel scrolls sideways;
    each column header stays put at the top of its own scrolling column. */
 .ins-body{flex:1;min-height:0;display:flex;align-items:stretch;overflow-x:auto;overflow-y:hidden}
@@ -1671,7 +1671,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.31.0'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.31.1'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -5816,7 +5816,7 @@ function ppProject(){
 }
 
 const PP_ROLES=[['pp-r-pm','Project manager','projectManagers','projectManager'],
-                ['pp-r-dr','Drafter','drafters','drafter'],
+                ['pp-r-dr','Technical Designer','drafters','drafter'], /* v1.31.1 (#17): the label only — the stored key and roster bucket keep their names */
                 ['pp-r-lf','Project lead',null,'leadFab'], /* v1.30.0 (#18): anyone on the roster, one or none (no bucket → single-choice list) */
                 ['pp-r-fb','Fabricators','leadFabs','fabricators']];
 /* The project's labor pool: everyone checked in any Team role, deduped. Crew pickers
@@ -6542,13 +6542,13 @@ function ppInspector(){
           return '<option value="auto"'+(stored==='auto'?' selected':'')+'>Automatic (currently: '+esc(STATUS_LBL[cur]||cur)+')</option>'
            + Object.keys(STATUS_LBL).map(s=>'<option value="'+s+'"'+(stored===s?' selected':'')+'>'+esc(STATUS_LBL[s])+'</option>').join('');})()
       + '</select></div>',null,true);
-    h+=ppSec('team','Team',
+    h+=ppSec('team','Project Team', /* v1.31.1 (#22): the id stays 'team' */
       '<div class="pg-roles">'+PP_ROLES.map(r=>'<div><span class="rl">'+esc(r[1])+'</span>'
         + '<input class="pg-rq" type="text" placeholder="Search…" aria-label="Search '+esc(r[1])+'" autocomplete="off" spellcheck="false" data-for="'+r[0]+'">' /* v1.29.0 (#19): outside .pg-rbox so its blur never commits a role and validation still focuses a checkbox */
         + '<div class="pg-rbox" id="'+r[0]+'"></div></div>').join('')+'</div>',null,false);
-    h+=ppSec('depts','Departments',
+    h+=ppSec('depts','Project Schedule', /* v1.31.1 (#22): the id stays 'depts' */
       '<div class="pg-depts" id="pp-depts"></div>'
-      + (vcan('phases')?'<div class="ins-note">Right-click the chart to add one where you want it.</div>':''),
+      + (vcan('phases')?'<div class="ins-note">Tick a department to add it to the schedule, or double-click the calendar to add a phase where you want it.</div>':''), /* v1.31.1: right-click has offered milestones and notes only since v1.2.1 */
       null,false);
     h+=ppAgendaHTML(p,null);
     h+='</div>';
@@ -9899,7 +9899,7 @@ function buildLegend(){
       'Red bars are installs or shipping — no other bar is ever red')
     +'<div class="lg-sec">People chips</div>'
     +row(bar('','<span class="role-tag">PM</span><span class="role-tag">D</span><span class="role-tag">L</span>'),
-      'Project manager · Drafter · Project lead')
+      'Project manager · Technical Designer · Project lead')
     +'<div class="lg-sec">Markers</div>'
     +row('<span class="lg-mk"><span class="today-line" style="left:8px;width:56px;height:100%"><span class="today-tag">TODAY</span></span></span>',
       'Today — the strongest line on the canvas')
@@ -10187,7 +10187,7 @@ const COACH_PP_STEPS=[
    on:()=>{if(NPV_MODE!=='calendar'){NPV_MODE='calendar';npvRender();}},
    b:'On the calendar every phase starts as a slim colour strip, so a stacked job still fits its weeks. Click a phase in this legend to show its title, again for its subtasks, again to shrink it back. Milestone and Note switch their text on. Collapse all resets.'},
   {sel:'#pp-insp',t:'The editor',
-   b:'With nothing selected you edit the project here — Setup, Team, Departments, Milestones and Notes. Select a phase and this becomes that phase’s form.'},
+   b:'With nothing selected you edit the project here — Setup, Project Team, Project Schedule, Milestones and Notes. Select a phase and this becomes that phase’s form.'},
   {sel:'#pp-save',t:'Nothing is real yet',
    b:'This page is a draft kept in this tab. Drafts survive a page refresh. Create project files it to SharePoint. Cancel or the × closes without saving.'},
   {sel:'.pg-auto',t:'Everything saves itself',
@@ -10573,6 +10573,9 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.31.1",d:"Oct 2, 2026",n:["Drafter is now called Technical Designer on the project page and in the Help legend.",
+   "On the project page, the Team section is now Project Team and the Departments section is now Project Schedule.",
+   "The hint under Project Schedule now says how a phase is actually added (tick a department, or double-click the calendar); right-click has offered only milestones and notes since v1.2.1."]},
  {v:"v1.31.0",d:"Oct 2, 2026",n:["Dashboard: each project now shows its client — under the name in the Projects view (client · cost code · date) and in front of the project name on the Departments view's person lines; hover a line to read the full text. Project names are shown as typed."]},
  {v:"v1.30.0",d:"Oct 2, 2026",n:["Project setup: the Team section's Lead fabricator is now Project lead — pick one person from any department (grouped by department), or leave it blank; the chart chip, the bar tooltip and the legend show L for the lead. Existing projects keep their lead."]},
  {v:"v1.29.0",d:"Oct 2, 2026",n:["Project setup: the Team lists are now alphabetical, each has a Search box that narrows the names as you type, people already checked stay at the top of their list, and the lists show about nine names before scrolling."]},

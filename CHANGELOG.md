@@ -9,6 +9,10 @@ Format: `## <label> — <date>` then one `- ` line per change. Keep lines concre
 what changed *for the team*, not how. Developer-only tooling doesn't need a line.
 Collect lines for the next version under `## Unreleased` and rename it when you ship.
 
+## v1.31.1 — Oct 2, 2026
+- Drafter is now called Technical Designer on the project page and in the Help legend.
+- On the project page, the Team section is now Project Team and the Departments section is now Project Schedule.
+- The hint under Project Schedule now says how a phase is actually added (tick a department, or double-click the calendar); right-click has offered only milestones and notes since v1.2.1.
 ## v1.31.0 — Oct 2, 2026
 - Dashboard: each project now shows its client — under the name in the Projects view (client · cost code · date) and in front of the project name on the Departments view's person lines; hover a line to read the full text. Project names are shown as typed.
 
