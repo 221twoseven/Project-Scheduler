@@ -9,6 +9,9 @@ Format: `## <label> — <date>` then one `- ` line per change. Keep lines concre
 what changed *for the team*, not how. Developer-only tooling doesn't need a line.
 Collect lines for the next version under `## Unreleased` and rename it when you ship.
 
+## v1.26.1 — Oct 2, 2026
+- Project page: clicking any empty part of the chart, including below the last row, now closes the phase panel, and anything you were typing in it is saved first. The panel's close control now reads Close × and is big enough to hit.
+
 ## v1.26.0 — Oct 1, 2026
 - A project's install date now comes from its Installation block under Departments (or its Shipping block when Installation is not scheduled). The LATE tag, the Installs / Ships date and Days out in the project header, the date line on the chart, the PM late prompt, the Meeting Sheet and the Due date sort all follow it, so moving the install moves them too.
 - Project setup: on a saved project the editable Install date is replaced by a read-only Created on (when the project was first saved). A new project asks for one Target install / ship date, which lays out the schedule and becomes the Installation (or Shipping) block.
