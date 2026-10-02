@@ -230,8 +230,9 @@ What the pilot can't start without.
       - *How:* round two of `docs/Copy-Coach-and-Helpers.md` (round one shipped in
         v1.15.1).
       - *Not in this item:* "flexible roles instead of fixed buckets" changes the data
-        model. Today there are four fixed role columns (PM, Drafter, Lead fabricator,
-        Fabricators) plus a legacy `metalFab`. That's Phase 8, §4 D10.
+        model. Today there are four fixed role columns (PM, Drafter, Project lead — Lead
+        fabricator until v1.30.0, tracker #18 — and Fabricators) plus a legacy `metalFab`.
+        That's Phase 8, §4 D10.
       [brief §7 Terminology]
 - [ ] **2. Lock dates: give it one meaning, then explain it.** Confirmed P0 by user
       feedback (owner, 2026-09-24).

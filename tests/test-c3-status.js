@@ -96,7 +96,8 @@ setTimeout(()=>{
   ok('red = installation is documented',
      [...menu.querySelectorAll('.lg-bar')].some(s=>norm(s.style.background)===norm(E('INSTALL_RED'))));
   const chips=[...menu.querySelectorAll('.role-tag')].map(c=>c.textContent);
-  ok('PM/D/F chip letters are documented',chips.join(',')==='PM,D,F',chips.join(','));
+  const LEAD=src.indexOf("'Project lead'")>=0; /* v1.30.0 (#18): the third chip is L for Project lead; the reference build still says F */
+  ok('PM/D/'+(LEAD?'L':'F')+' chip letters are documented',chips.join(',')===(LEAD?'PM,D,L':'PM,D,F'),chips.join(','));
   ok('Today marker is documented',!!menu.querySelector('.today-tag'));
   ok('deadline marker is documented',!!menu.querySelector('.dl-flag'));
   doc.dispatchEvent(new win.KeyboardEvent('keydown',{key:'Escape',bubbles:true}));

@@ -9,6 +9,9 @@ Format: `## <label> — <date>` then one `- ` line per change. Keep lines concre
 what changed *for the team*, not how. Developer-only tooling doesn't need a line.
 Collect lines for the next version under `## Unreleased` and rename it when you ship.
 
+## v1.30.0 — Oct 2, 2026
+- Project setup: the Team section's Lead fabricator is now Project lead — pick one person from any department (grouped by department), or leave it blank; the chart chip, the bar tooltip and the legend show L for the lead. Existing projects keep their lead.
+
 ## v1.29.0 — Oct 2, 2026
 - Project setup: the Team lists are now alphabetical, each has a Search box that narrows the names as you type, people already checked stay at the top of their list, and the lists show about nine names before scrolling.
 
