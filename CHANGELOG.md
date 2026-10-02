@@ -9,6 +9,9 @@ Format: `## <label> — <date>` then one `- ` line per change. Keep lines concre
 what changed *for the team*, not how. Developer-only tooling doesn't need a line.
 Collect lines for the next version under `## Unreleased` and rename it when you ship.
 
+## v1.26.3 — Oct 2, 2026
+- People page: each column keeps its own width when you resize another, long text is cut off with … (hover for the full value), and a wide table scrolls sideways inside the list instead of running under the record panel. Double-click a column edge to fit it; right-click the header for Reset widths.
+
 ## v1.26.2 — Oct 2, 2026
 - Undo notifications no longer cover the chart: they sit below the bars (or at the top right of the date header), each one has a × to close it, several quick edits share one notification, and dragging a bar that is under one goes straight through.
 
