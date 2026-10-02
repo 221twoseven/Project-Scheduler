@@ -35,9 +35,9 @@ setTimeout(main,1300);
 
 function main(){
   sec('source markers');
-  ok('grid columns read their widths from vars', /--cdc1,minmax\(0,1\.05fr\)/.test(src));
+  ok('grid columns read their widths from vars', /--cdc1,(minmax\(0,1\.05fr\)|\d+px)/.test(src)); /* v1.26.3 (#13): px fallbacks */
   ok('renderCompanyPage carries scroll across the repaint',
-     /const sc0=document\.getElementById\('cd-rows'\),st0=sc0\?sc0\.scrollTop:0;/.test(src)
+     /const sc0=document\.getElementById\('cd-rows'\),st0=sc0\?sc0\.scrollTop:0[;,]/.test(src) /* v1.26.3 (#27): scrollLeft rides on the same line */
      &&src.indexOf("sc1.scrollTop=st0")>=0);
   ok('KBD popover teaches the arrows', /\['↑ ↓','Move selection'\],\['⌘ Z','Undo'\],(\['⌘ Y','Redo'\],)?\['Esc','Back to the timeline'\]/.test(src)); /* v1.20.0 added Redo */
   ok('driver rides the tristate mappers',

@@ -545,11 +545,11 @@ Each report filed in the app becomes an issue in the private tracker
 names stay there. These haven't been placed in a band yet. Already placed or closed: #1
 is item 32 (P0), #7 is part of item 3, and #11 and #14 were done by the bridge itself.
 
-- [ ] **33. Today button: put the current week at the left edge.** Today currently centres
-      on today's date (`scrollToToday` → `centerDate`). The ask is to put the first day of
-      the current week at the left edge of the canvas instead. Small: one alignment
-      change, plus the `T` key. It conflicts with a §7.5 ceiling ("only Today and `T`
-      centre it", B3b / REV101); the owner decides which behaviour wins. [tracker #2]
+- [x] **33. Today button: put the current week at the left edge.** Shipped v1.27.0 (PR #82,
+      2026-10-02): Today, `T`, the popover's Today pick and the default view all put Monday
+      of the current week at the left edge (`weekLeftX`); the other jumps still centre. The
+      owner's Proceed added a light grey wash over past days (`.past-col`). The §7.5
+      ceiling was rewritten in place. [tracker #2]
 - [ ] **34. Name a repeat block (e.g. "possible mock-up days").** A second Fabrication
       block can only read "Main Shop Fab", while the Excel calendar names the sub-range.
       This already exists — phases have a custom `label` (an inspector field, shown in
@@ -1391,9 +1391,12 @@ How to read the tags at the end of an entry:
 - The bottom dock's minimum column widths are fixed (U2 / E1).
 - In-Design and In-Fabrication bars are both full strength on purpose; the pill word tells
   them apart (U8).
-- The default view puts today left of centre on first load and on every routed arrival;
-  only the Today button and `T` centre it (B3b / REV101). Challenged by tracker #2, item
-  33.
+- The default view, the Today button, `T` and the popover's Today pick all put Monday of
+  the current week at the left edge (v1.27.0, tracker #2, item 33; it replaced B3b /
+  REV101's "centre today"). The other jumps (G, month click, +1 / +3 mo, Next install,
+  edge chips) keep centring their date. At a drag-set fit beyond ~250 days the canvas ends
+  before Monday can reach the edge; the three zoom buttons stop at 91 days, where it is
+  exact.
 - Calendar level-0 strips are ~9 px click targets, under the 24 px guideline; one click
   expands them (v1.21.0).
 - Calendar detail levels and marker-text state reset on each project visit. They'd

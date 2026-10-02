@@ -353,6 +353,9 @@ body.compact .sb-chip{line-height:1.2;padding:.5px 6px}
    strips (owner objective 13). Quiet mode keeps them; the day header still marks
    weekends at Day/2-Day zoom. */
 body.vivid .wknd-col{display:none}
+/* v1.27.0 (tracker #2): past days wear the §2.4 weekend grey at low alpha, under rows and
+   bars (z1) so bar text keeps its contrast; .06 sits between the workday and weekend greys. */
+.past-col{position:absolute;top:0;left:0;pointer-events:none;z-index:1;background:rgba(148,163,184,.06)}
 /* C2: quiet canvas — month boundary hairline, and the month header loses its white-on-color text */
 .mon-line{position:absolute;top:0;bottom:0;width:1px;background:var(--side-line);pointer-events:none;z-index:1}
 body:not(.vivid) .hdr-m-cell{text-shadow:none;border-right-color:rgba(13,19,29,.10)}
@@ -1248,16 +1251,18 @@ body.cd-route #dash-bar{display:none!important}
 .cd-body{flex:1;display:flex;min-height:0}
 /* v1.14.0: the people index carries at-a-glance columns (title/phone/email/perms) —
    the pane earns more width for them. */
-.cd-list{width:56%;min-width:320px;max-width:820px;border-right:1px solid #E2E8F0;display:flex;flex-direction:column;min-height:0}
+.cd-list{width:56%;min-width:320px;max-width:820px;border-right:1px solid #E2E8F0;display:flex;flex-direction:column;min-height:0;overflow:hidden} /* v1.26.3 (#27): the pane clips; nothing paints over the divider */
 .cd-cols{display:grid;gap:4px 12px;align-items:center;padding:6px 14px 4px;
   font-size:var(--fs-fine);font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ts-muted);border-bottom:1px solid #EDF1F7}
-/* v1.17.0: each column reads its width from a var so the header grips can resize
-   it — unset vars fall back to the flexible fr defaults.
-   ponytail: a drag pins ONE column to px; the untouched fr columns share the rest —
-   no full colgroup model, add one only if that ever fights the user. */
+/* v1.17.0: each column reads its width from a var so the header grips can resize it.
+   v1.26.3 (tracker #13): every column is a fixed px track — a drag moves ONE track and its
+   right-hand neighbours slide over unchanged; the row box is as wide as its tracks (never
+   narrower than the pane), so a wide table scrolls sideways inside #cd-rows and leftover
+   space stays empty on the right. The px fallbacks show until cdFitCol has measured. */
 .cd-cols,.cd-row.pp7{grid-template-columns:
-  var(--cdc1,minmax(0,1.05fr)) var(--cdc2,minmax(0,.9fr)) var(--cdc3,minmax(0,.7fr))
-  var(--cdc4,minmax(0,1.15fr)) var(--cdc5,minmax(52px,auto)) var(--cdc6,auto) var(--cdc7,auto) var(--cdc8,auto)}
+  var(--cdc1,170px) var(--cdc2,150px) var(--cdc3,110px) var(--cdc4,190px)
+  var(--cdc5,64px) var(--cdc6,48px) var(--cdc7,92px) var(--cdc8,96px);
+  width:max-content;min-width:100%;box-sizing:border-box}
 /* v1.22.0: the schedule editor — seven day boxes on one row, two time inputs beside each other */
 .cd-sched{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center}
 .cd-sched label{display:flex;align-items:center;gap:4px;font-size:12.5px;color:#33415A;text-transform:none;letter-spacing:0;font-weight:400;margin-bottom:0}
@@ -1267,8 +1272,11 @@ body.cd-route #dash-bar{display:none!important}
 /* v1.17.1: the grips live on the HEADER ROW as <i> elements — v1.17.0 had them as
    spans inside the cells, where the `.cd-cols span` rule out-specified `.cd-grip`
    and collapsed them to 0px (nothing to grab). Full header height, visible line. */
-.cd-cols{position:relative}
-.cd-cols span{min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+/* v1.26.3 (#27): the header lives inside the scroller and sticks to its top, so header and
+   rows scroll sideways together and the header can never run under the record panel. */
+.cd-cols{position:sticky;top:0;z-index:1;background:var(--paper,#fff)}
+/* v1.26.3 (#13): every People cell cuts off with an ellipsis at its own column edge */
+.cd-cols span,.cd-row.pp7>*{min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 .cd-grip{position:absolute;top:0;bottom:0;width:11px;cursor:col-resize;z-index:2}
 .cd-grip::after{content:'';position:absolute;left:5px;top:3px;bottom:3px;width:1px;background:#D8E2EF}
 .cd-grip:hover::after{left:4px;width:3px;background:#94A3B8}
@@ -1286,7 +1294,7 @@ body.cd-route #dash-bar{display:none!important}
 .cd-tools{display:flex;gap:8px;padding:10px 14px;border-bottom:1px solid #EDF2F7}
 .cd-tools input,.cd-tools select{font-family:inherit;font-size:12px;padding:5px 8px;border:1px solid #CBD6E4;border-radius:6px;color:#33415A;min-width:0}
 .cd-tools input{flex:1}
-.cd-rows{overflow-y:auto;flex:1}
+.cd-rows{overflow:auto;flex:1;scroll-padding-top:28px} /* v1.26.3 (#27): one scroller for header and rows, both axes */
 .cd-row{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr) minmax(0,.8fr) auto;gap:4px 12px;align-items:center;
   padding:7px 14px;border-bottom:1px solid #F1F5F9;cursor:pointer}
 .cd-row.cl{grid-template-columns:minmax(0,1.4fr) minmax(0,.6fr) auto}
@@ -1404,11 +1412,11 @@ body.cd-route #dash-bar{display:none!important}
   </div>
   <div class="tb-row tb-timeline">
     <div class="sf-wrap">
-      <button id="btn-today" class="t-btn" title="Center the timeline on today (T)">Today</button>
+      <button id="btn-today" class="t-btn" title="Show this week from Monday (T)">Today</button>
       <div id="goto-menu" class="tb-menu hidden">
         <div class="gp-row"><input id="goto-date" type="date" title="Pick a date — Enter centers the timeline on it"><span class="gp-key">G</span></div>
         <div class="gp-picks">
-          <button class="sm-all" data-goto="today" title="Center the timeline on today">Today</button>
+          <button class="sm-all" data-goto="today" title="Show this week from Monday">Today</button>
           <button class="sm-all" data-goto="m1" title="Center the timeline one month ahead">+1 mo</button>
           <button class="sm-all" data-goto="m3" title="Center the timeline three months ahead">+3 mo</button>
           <button class="sm-all" data-goto="install" title="Center on the next upcoming installation">Next install</button>
@@ -1646,7 +1654,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.26.2'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.27.0'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -4002,6 +4010,10 @@ function buildCanvasBgInto(canvas,totalW,DW_){
     if(!off)flush(d);
     d=addDays(d,1);
   }
+  /* v1.27.0 (tracker #2, owner): the past wears a light grey wash so the eye lands on today
+     and the work ahead. One div under the rows and bars; the weekend hatch reads through it. */
+  {const px=Math.min(totalW,d2x(today()));
+   if(px>0){const pd=document.createElement('div');pd.className='past-col';pd.style.width=px+'px';pd.style.height=TOTAL_H+'px';bgFrag.appendChild(pd);}}
   /* Each holiday wears its name as a discrete pill at the top of its grey column. */
   let hd=new Date(TL_S);
   while(hd<=TL_E){
@@ -4615,6 +4627,20 @@ function cdApplySizes(){
   const list=document.querySelector('.cd-list');if(!list)return;
   if(CD_LISTW){list.style.width=CD_LISTW+'px';list.style.maxWidth='none';}
   if(CD_COLW&&ROUTE.view==='people')CD_COLW.forEach((w,i)=>{if(w)list.style.setProperty('--cdc'+(i+1),w+'px');});
+  /* v1.26.3 (#13): a column nobody pinned fits its content on every paint; pinned ones never move */
+  if(ROUTE.view==='people')for(let i=0;i<8;i++)if(!(CD_COLW&&CD_COLW[i]))cdFitCol(i,false);
+  cdGripSync();
+}
+/* v1.26.3 (#13): fit column i to its widest header or cell text, capped. Measures real
+   layout — with no layout (jsdom) it reads 0 and leaves the stylesheet default alone. */
+const CD_COLCAP=280;
+function cdFitCol(i,persist){
+  const list=document.querySelector('.cd-list');if(!list)return;
+  const cells=document.querySelectorAll('.cd-cols>span:nth-child('+(i+1)+'),.cd-row.pp7>:nth-child('+(i+1)+')');
+  const w=Math.max(0,...[...cells].map(c=>c.scrollWidth));if(!w)return;
+  const px=Math.min(CD_COLCAP,Math.max(36,w+2));
+  list.style.setProperty('--cdc'+(i+1),px+'px');
+  if(persist){CD_COLW=CD_COLW||[];CD_COLW[i]=px;try{localStorage.setItem('shopTimelineCdColW',JSON.stringify(CD_COLW));}catch(e){}}
   cdGripSync();
 }
 /* v1.17.1: seat each grip at its column's right edge (they track live during a drag) */
@@ -5018,7 +5044,7 @@ function renderCompanyPage(){
   const isPeople=ROUTE.view==='people';
   /* v1.17.0 (owner: "the table jumped while I sat idle"): a data poll repaints this
      whole page — carry the two panes' scroll positions across the rebuild. */
-  const sc0=document.getElementById('cd-rows'),st0=sc0?sc0.scrollTop:0;
+  const sc0=document.getElementById('cd-rows'),st0=sc0?sc0.scrollTop:0,sl0=sc0?sc0.scrollLeft:0;
   const dt0=document.getElementById('cd-detail'),dst0=dt0?dt0.scrollTop:0;
   /* v1.8.0: no client list for viewers — the page bounces home (menu entry is hidden,
      this catches direct hashes and a roster that loads after the route). */
@@ -5053,10 +5079,14 @@ function renderCompanyPage(){
       +'<option value="dev">Developers</option><option value="fb">Feedback recipients</option>'
       +'<option value="viewer">Viewers</option></select>':'')
    +'</div>'
+   /* v1.26.3 (#27): the header row sits inside the scroller (sticky) so it scrolls with the rows */
+   +'<div class="cd-rows" id="cd-rows">'
    +(isPeople?'<div class="cd-cols"><span>Name</span><span>Title</span><span>Phone</span><span>Email</span><span>Perms</span><span class="cd-drv">Driver</span><span>Status</span><span>Schedule</span></div>':'')
-   +'<div class="cd-rows" id="cd-rows"></div></div>'
+   +'<div id="cd-rows-in"></div></div></div>'
    +'<div id="cd-split" title="Drag to resize the two panes"></div>'
-   +'<div class="cd-detail" id="cd-detail"></div></div></div>';
+   +'<div class="cd-detail" id="cd-detail"></div>'
+   +(isPeople?'<div id="cd-colmenu" class="tb-menu hidden"><div class="sm-item" id="cd-reset-w">Reset widths</div></div>':'')
+   +'</div></div>';
   pg.innerHTML=h;
   const q=document.getElementById('cd-q');q.value=CD_Q;
   q.addEventListener('input',()=>{CD_Q=q.value;cdPaintRows();});
@@ -5069,9 +5099,23 @@ function renderCompanyPage(){
   document.getElementById('cd-split').addEventListener('mousedown',cdSplitDrag);
   const hdr=document.querySelector('.cd-cols');
   if(hdr)[...hdr.children].filter(el=>el.tagName==='SPAN').forEach((sp,i)=>{
-    const g=document.createElement('i');g.className='cd-grip';g.title='Drag to resize this column';
-    g.addEventListener('mousedown',e=>cdColDrag(e,sp,i));hdr.appendChild(g);});
-  cdApplySizes();
+    const g=document.createElement('i');g.className='cd-grip';g.title='Drag to resize this column · double-click to fit it';
+    g.addEventListener('mousedown',e=>cdColDrag(e,sp,i));
+    g.addEventListener('dblclick',()=>cdFitCol(i,true)); /* v1.26.3 (#13) */
+    hdr.appendChild(g);});
+  /* v1.26.3 (#13): the column menu — right-click on the header row; Reset widths clears
+     every pin and the memory. Built on .tb-menu, so outside click and Esc close it. */
+  const cm=document.getElementById('cd-colmenu');
+  if(hdr&&cm){
+    hdr.addEventListener('contextmenu',ev=>{ev.preventDefault();closeMenus();
+      const op=cm.offsetParent,r=op?op.getBoundingClientRect():{left:0,top:0};
+      cm.style.left=(ev.clientX-r.left)+'px';cm.style.top=(ev.clientY-r.top)+'px';cm.classList.remove('hidden');});
+    cm.addEventListener('click',ev=>ev.stopPropagation());
+    document.getElementById('cd-reset-w').addEventListener('click',()=>{
+      CD_COLW=null;try{localStorage.removeItem('shopTimelineCdColW');}catch(e){}
+      const list=document.querySelector('.cd-list');for(let i=1;i<=8;i++)list.style.removeProperty('--cdc'+i);
+      cdApplySizes();closeMenus();});
+  }
   /* Both exits honour a mid-edit buffer the way Esc does — leaving via × used to
      discard the typed record silently AND strand CD_EDIT set on the timeline, where
      it short-circuits every poll tick until a Company Data page was revisited. */
@@ -5093,13 +5137,14 @@ function renderCompanyPage(){
     const f=document.querySelector('#cd-detail input');if(f)f.focus();
   });
   cdPaintRows();cdPaintDetail();
-  const sc1=document.getElementById('cd-rows');if(sc1)sc1.scrollTop=st0;
+  cdApplySizes(); /* v1.26.3 (#13): after the paint, so the fit can measure the rows */
+  const sc1=document.getElementById('cd-rows');if(sc1){sc1.scrollTop=st0;sc1.scrollLeft=sl0;}
   const dt1=document.getElementById('cd-detail');if(dt1)dt1.scrollTop=dst0;
 }
 
 function cdPaintRows(){
   const isPeople=ROUTE.view==='people';
-  const box=document.getElementById('cd-rows');if(!box)return;
+  const box=document.getElementById('cd-rows-in');if(!box)return; /* v1.26.3 (#27): the header shares #cd-rows */
   const qq=CD_Q.trim().toLowerCase();
   let rows;
   if(isPeople){
@@ -5134,6 +5179,8 @@ function cdPaintRows(){
         +'<b>'+esc(c.name)+'</b><span class="cd-mut">'+esc(c.alias||'')+'</span><span></span></div>');
   }
   box.innerHTML=rows.join('')||'<div class="cd-empty">'+(qq||CD_DEPT!=='all'||CD_PF!=='all'?'No matches.':'Nothing here yet — add the first one.')+'</div>';
+  /* v1.26.3 (#13): a cut-off value shows in full on hover (permission chips carry their own) */
+  box.querySelectorAll('.cd-row.pp7>b,.cd-row.pp7>.cd-mut,.cd-row.pp7>.cd-avail').forEach(c=>{c.title=c.textContent;});
   box.querySelectorAll('.cd-row').forEach(r=>r.addEventListener('click',()=>{
     if(CD_EDIT&&!confirm('Discard the changes to this record?'))return;
     CD_EDIT=null;CD_SEL=r.dataset.id;
@@ -9278,24 +9325,27 @@ document.addEventListener('keydown',ev=>{
 });
 
 /* ===================== TOOLBAR ===================== */
-/* B3: one centering rule for every jump — smooth unless prefers-reduced-motion (T6). */
-function centerX(cx){
+/* B3: one scroll rule for every jump — smooth unless prefers-reduced-motion (T6). */
+function scrollX(left){
   const sc=document.getElementById('gantt-scroll');
   if(!sc)return;
-  const left=Math.max(0,cx-sc.clientWidth/2);
   const reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if(!reduce&&sc.scrollTo){try{sc.scrollTo({left,behavior:'smooth'});return;}catch(e){}}
   sc.scrollLeft=left;
 }
+function centerX(cx){const sc=document.getElementById('gantt-scroll');if(sc)scrollX(Math.max(0,cx-sc.clientWidth/2));}
 function centerDate(d){centerX(d2x(d)+dw()/2);}
-function scrollToToday(){centerDate(today());}
-/* Park today just inside the left edge so the view reads forward into the work ahead
-   instead of centring on history. Roughly a day and a half of past is kept as context.
-   Startup only — the Today button and T key center instead (B3). */
+/* v1.27.0 (tracker #2): Today and T put Monday of the current week at the left edge, so the
+   view reads forward into the work ahead; start-up and every routed arrival land on the
+   same x, instantly, so the default view and the Today press agree. The other jumps (G,
+   month click, +1 / +3 mo, Next install, edge chips) still centre their date.
+   Ceiling: at a drag-set fit beyond ~250 days on screen the canvas ends before Monday can
+   reach the edge (computeRange); the three zoom buttons stop at 91 days, where it is exact. */
+function weekLeftX(){const t=today(),w=t.getDay();return Math.max(0,d2x(addDays(t,-(w===0?6:w-1))));}
+function scrollToToday(){scrollX(weekLeftX());}
 function scrollTodayLeft(){
   const sc=document.getElementById('gantt-scroll');
-  if(!sc)return;
-  sc.scrollLeft=Math.max(0,d2x(today())-dw()*1.5);
+  if(sc)sc.scrollLeft=weekLeftX();
 }
 document.getElementById('btn-today').addEventListener('click',scrollToToday);
 /* Undo/redo toolbar buttons — one pair, live on every page; tooltip names the hotkey. */
@@ -9331,6 +9381,7 @@ document.getElementById('goto-date').addEventListener('keydown',ev=>{
 });
 for(const b of document.querySelectorAll('#goto-menu [data-goto]'))b.addEventListener('click',()=>{
   const kind=b.dataset.goto,d=today();
+  if(kind==='today'){scrollToToday();closeMenus();return;} /* v1.27.0 (#2): the two Today controls agree */
   if(kind==='install'){
     const nx=visTasks().filter(t=>isInstall(t)&&parseDate(t.startDate)>=d)
       .sort((a,c)=>a.startDate<c.startDate?-1:1)[0];
@@ -10226,7 +10277,7 @@ document.getElementById('mi-tour').addEventListener('click',()=>{
 /* v1.6.1: keyboard shortcuts are a Help popover like the Legend — same tb-menu
    machinery, so opening one mutes the other and outside-click/Esc close both.
    Content is route-aware: the timeline's keys or the project page's. */
-const KBD_TL=[['N','New project'],['/','Search'],['T','Center on today'],['G','Go to date'],
+const KBD_TL=[['N','New project'],['/','Search'],['T','This week from Monday'],['G','Go to date'],
   ['W','Week scale'],['M','Month scale'],['+ −','Step the zoom'],['⌘ Z','Undo'],['⌘ Y','Redo'],
   ['Esc','Close / clear'],['?','This list']];
 const KBD_PP=[['S','New subtask'],['E','New milestone'],['T','New note'],['R','Rename selected'],
@@ -10440,6 +10491,9 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.27.0",d:"Oct 2, 2026",n:["Today (and the T key) now puts Monday of the current week at the left edge of the timeline, in every zoom, and the timeline opens that way too; the other jumps still centre their date.",
+   "Days before today wear a light grey wash on the timeline, so the eye lands on today and the work ahead."]},
+ {v:"v1.26.3",d:"Oct 2, 2026",n:["People page: each column keeps its own width when you resize another, long text is cut off with … (hover for the full value), and a wide table scrolls sideways inside the list instead of running under the record panel. Double-click a column edge to fit it; right-click the header for Reset widths."]},
  {v:"v1.26.2",d:"Oct 2, 2026",n:["Undo notifications no longer cover the chart: they sit below the bars (or at the top right of the date header), each one has a × to close it, several quick edits share one notification, and dragging a bar that is under one goes straight through."]},
  {v:"v1.26.1",d:"Oct 2, 2026",n:["Project page: clicking any empty part of the chart, including below the last row, now closes the phase panel, and anything you were typing in it is saved first. The panel's close control now reads Close × and is big enough to hit."]},
  {v:"v1.26.0",d:"Oct 1, 2026",n:["A project's install date now comes from its Installation block under Departments (or its Shipping block when Installation is not scheduled). The LATE tag, the Installs / Ships date and Days out in the project header, the date line on the chart, the PM late prompt, the Meeting Sheet and the Due date sort all follow it, so moving the install moves them too.",
