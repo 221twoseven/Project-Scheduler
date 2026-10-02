@@ -91,14 +91,18 @@ setTimeout(()=>{
   ok('Next install centers the upcoming install',Math.abs(sc.scrollLeft-center(INSTALL_ISO))<1,
      sc.scrollLeft+' vs '+center(INSTALL_ISO));
 
-  sec('Today centers (was: scrolls into view)');
+  /* v1.27.0 (tracker #2): Today and T put Monday of the current week at the left edge;
+     older builds centre today. */
+  const WEEK=/function weekLeftX/.test(fs.readFileSync(FILE,'utf8'));
+  const todayX=()=>WEEK?E('weekLeftX()'):center(iso(D0));
+  sec(WEEK?'Today puts Monday of this week at the left edge':'Today centers (was: scrolls into view)');
   sc.scrollLeft=0;
   click(doc.getElementById('btn-today'));
-  ok('the Today button centers today',Math.abs(sc.scrollLeft-center(iso(D0)))<1,
-     sc.scrollLeft+' vs '+center(iso(D0)));
+  ok(WEEK?'the Today button puts Monday at the left edge':'the Today button centers today',Math.abs(sc.scrollLeft-todayX())<1,
+     sc.scrollLeft+' vs '+todayX());
   sc.scrollLeft=0;
   press('t');
-  ok('the T key does the same',Math.abs(sc.scrollLeft-center(iso(D0)))<1);
+  ok('the T key does the same',Math.abs(sc.scrollLeft-todayX())<1);
 
   /* v1.6.1: the legend's Navigate section retired — Go to date keeps its G-key and
      month-name-click paths (asserted above), and the legend is just a legend again. */
@@ -114,7 +118,7 @@ setTimeout(()=>{
     win.location.hash='#/';win.dispatchEvent(new win.Event('hashchange')); /* what goTimeline does */
     setTimeout(()=>{
       const sc2=doc.getElementById('gantt-scroll');
-      const park=E("Math.max(0,d2x(today())-dw()*1.5)");
+      const park=WEEK?E('weekLeftX()'):E("Math.max(0,d2x(today())-dw()*1.5)"); /* v1.27.0: the same x as Today */
       ok('today sits inside the range, so the park is past the left edge',park>0,String(park));
       ok('the timeline lands parked on today, not at scrollLeft 0',
          Math.abs(sc2.scrollLeft-park)<1,sc2.scrollLeft+' vs '+park);

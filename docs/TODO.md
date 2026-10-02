@@ -223,15 +223,21 @@ decides, then its source in brackets.
 What the pilot can't start without.
 
 - [ ] **1. Terminology pass.** Rename two terms on screen: "Job code" becomes **Cost
-      Code**, and "Drafter" becomes **Technical Designer**.
+      Code**, and "Drafter" becomes **Technical Designer**. *The Drafter half shipped in
+      v1.31.1 (tracker #17, with #22's Project Team / Project Schedule headings); the Cost
+      Code half waits on tracker #21's revised spec. The §7.4 ledger holds the two
+      "Drafter" echoes that remain (the Changelog key and the D chip).*
       - *Where:* sidebar, bar labels, tooltip, Meeting Sheet, late prompt, New Project.
+        (Drafter had labels only on the project page and in the legend; the Cost Code
+        list is #21's.)
       - *Labels only.* The stored field names (`jobCode`, `drafter`) stay, because the
         schema is shared.
       - *How:* round two of `docs/Copy-Coach-and-Helpers.md` (round one shipped in
         v1.15.1).
       - *Not in this item:* "flexible roles instead of fixed buckets" changes the data
-        model. Today there are four fixed role columns (PM, Drafter, Lead fabricator,
-        Fabricators) plus a legacy `metalFab`. That's Phase 8, §4 D10.
+        model. Today there are four fixed role columns (PM, Drafter, Project lead — Lead
+        fabricator until v1.30.0, tracker #18 — and Fabricators) plus a legacy `metalFab`.
+        That's Phase 8, §4 D10.
       [brief §7 Terminology]
 - [ ] **2. Lock dates: give it one meaning, then explain it.** Confirmed P0 by user
       feedback (owner, 2026-09-24).
@@ -470,8 +476,8 @@ release. Where the app has a part, it's listed.
         demand (`gh workflow run`). The first day's two-way rule — resolving in the app
         closed the ticket — was dropped, because it re-closed reopened tickets. Side
         effect: once a report has a ticket, the developer page's Mark resolved / Reopen
-        buttons are overridden by the next run. Ledgered in §7.4; remove them when item 39
-        touches that page.
+        buttons are overridden by the next run. Ledgered in §7.4; remove them with the
+        next change to `renderReports` (item 39 shipped without touching that page).
       - *Day one:* the first run filed tracker #1–#12 from 13 rows, carried in as items
         32–40. Open rows were back-filled; resolved history stays on the list. Commits
         in this repository close tickets with
@@ -545,11 +551,11 @@ Each report filed in the app becomes an issue in the private tracker
 names stay there. These haven't been placed in a band yet. Already placed or closed: #1
 is item 32 (P0), #7 is part of item 3, and #11 and #14 were done by the bridge itself.
 
-- [ ] **33. Today button: put the current week at the left edge.** Today currently centres
-      on today's date (`scrollToToday` → `centerDate`). The ask is to put the first day of
-      the current week at the left edge of the canvas instead. Small: one alignment
-      change, plus the `T` key. It conflicts with a §7.5 ceiling ("only Today and `T`
-      centre it", B3b / REV101); the owner decides which behaviour wins. [tracker #2]
+- [x] **33. Today button: put the current week at the left edge.** Shipped v1.27.0 (PR #82,
+      2026-10-02): Today, `T`, the popover's Today pick and the default view all put Monday
+      of the current week at the left edge (`weekLeftX`); the other jumps still centre. The
+      owner's Proceed added a light grey wash over past days (`.past-col`). The §7.5
+      ceiling was rewritten in place. [tracker #2]
 - [ ] **34. Name a repeat block (e.g. "possible mock-up days").** A second Fabrication
       block can only read "Main Shop Fab", while the Excel calendar names the sub-range.
       This already exists — phases have a custom `label` (an inspector field, shown in
@@ -578,12 +584,13 @@ is item 32 (P0), #7 is part of item 3, and #11 and #14 were done by the bridge i
       (Meeting Sheet), with the paper size selectable. Printing today covers the Meeting
       Sheet and print styles. Route: the browser's print-to-PDF, with `@page` sizes per
       view and a size choice in the Print menu. [tracker #8, #9]
-- [ ] **39. Open Issues page cuts titles at 80 characters — add a Subject.** A report's
-      Title is the first 80 characters of its description (`sendFeedback`). Add a
-      one-line **Subject** field to the form and store it as `Title` (no new column); the
-      Open Issues page shows the subject, and the full description stays on the report.
-      The reporter also asks for the list to be public. It's already visible to every
-      signed-in user, so confirm whether "public" means "not truncated". [tracker #10]
+- [x] **39. Open Issues page cuts titles at 80 characters — add a Subject.** Shipped
+      v1.28.0 (PR #83, 2026-10-02): the report form asks for a required one-line Subject
+      (up to 120 characters) stored as `Title` (no new column) and shown on Open Issues;
+      the full description folds under the subject for every signed-in person (the
+      owner's default for "public"); old reports keep their stored titles and unfold
+      their text too. The developer page was not touched, so the §7.4 ledger entry on its
+      buttons now waits for the next change to `renderReports`. [tracker #10]
 - [ ] **40. A custom domain for the app.** The ask: `twoseven.net/timeline`, password
       protected.
       - GitHub Pages custom domains work per host name: `timeline.twoseven.net` (a CNAME
@@ -1378,8 +1385,17 @@ How to read the tags at the end of an entry:
       `CLAUDE.md` line count; the tests/README suite count). Item 21.
 - [ ] **Developer Bug Reports page buttons.** Once a report has a `ghIssue`, the tracker
       poller overrides its Mark resolved / Reopen buttons (GitHub is the source of truth
-      for status, 2026-09-25). Remove or relabel them the next time that page is touched
-      (item 39); the `fbSetStatus` path stays for rows without a ticket. [item 31]
+      for status, 2026-09-25). Remove or relabel them with the next change to
+      `renderReports` (item 39 shipped in v1.28.0 without touching that page); the
+      `fbSetStatus` path stays for rows without a ticket. [item 31]
+- [ ] **Two "Drafter" echoes stay after the v1.31.1 rename (tracker #17).** (1) Changelog
+      rows (admin/PM) still read the stored key `drafter:` — `clogField` writes the key into
+      the Changelog list's `detail` column at save time, so a label map there would make new
+      rows differ from every old row; the fix is a read-side stored-name → plain-word map,
+      which the #21 spec (Q5) plans for `jobCode` and `drafter` together. Gate: #21
+      approved. (2) The "D" people chip (sidebar, project tooltip, Help legend swatch;
+      test-c3-status pins `PM,D,L`) still abbreviates the old word; "TD" widens every sidebar
+      row. Gate: owner ruling — asked in the v1.31.1 PR body. [item 1]
 
 ### 7.5 Deliberate design limits — no action planned; revisit only on real complaints
 
@@ -1391,9 +1407,12 @@ How to read the tags at the end of an entry:
 - The bottom dock's minimum column widths are fixed (U2 / E1).
 - In-Design and In-Fabrication bars are both full strength on purpose; the pill word tells
   them apart (U8).
-- The default view puts today left of centre on first load and on every routed arrival;
-  only the Today button and `T` centre it (B3b / REV101). Challenged by tracker #2, item
-  33.
+- The default view, the Today button, `T` and the popover's Today pick all put Monday of
+  the current week at the left edge (v1.27.0, tracker #2, item 33; it replaced B3b /
+  REV101's "centre today"). The other jumps (G, month click, +1 / +3 mo, Next install,
+  edge chips) keep centring their date. At a drag-set fit beyond ~250 days the canvas ends
+  before Monday can reach the edge; the three zoom buttons stop at 91 days, where it is
+  exact.
 - Calendar level-0 strips are ~9 px click targets, under the 24 px guideline; one click
   expands them (v1.21.0).
 - Calendar detail levels and marker-text state reset on each project visit. They'd
