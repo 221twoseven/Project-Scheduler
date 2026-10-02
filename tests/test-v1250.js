@@ -50,6 +50,7 @@ function main(){
 
       sec('a new report stamps who sent it');
       E(`location.hash='#/issues';applyRoute()`);
+      if(q('#fb-subject'))q('#fb-subject').value='Broke'; /* v1.28.0 (#10): the subject is required */
       q('#fb-desc').value='Something broke';
       q('#fb-email').value='someone-else@example.com';
       q('#fb-send').dispatchEvent(new win.MouseEvent('click',{bubbles:true}));
