@@ -112,10 +112,13 @@ function stage2(){
     ok('a start edit moves the phase', E("ST.tasks.find(t=>t.appId==='td1'||t.label==='Exterior Windows').startDate")==='2026-08-04');
     ok('the day count followed', q('#pp-depts input[data-dept="td"]').closest('.idr').querySelector('.ddays').value==='4');
     const de2=q('#pp-depts .dend[data-dept="td"]');
-    de2.value='2026-08-09';change(de2);   /* a Sunday — must snap to Monday */
+    de2.value='2026-08-09';change(de2);   /* a Sunday — must snap to a workday */
     setTimeout(()=>{
-      ok('an end edit snaps to the next workday',
-         E("ST.tasks.find(t=>t.label==='Exterior Windows').endDate")==='2026-08-10',
+      /* v1.25.2 (tracker #26): a typed end now snaps BACK to the Friday before, the way
+         a resize does, and a note says why; older builds snapped forward to Monday. */
+      const want=/function typedDates/.test(src)?'2026-08-07':'2026-08-10';
+      ok('an end edit snaps to a workday ('+(want==='2026-08-07'?'back to Friday':'forward to Monday')+')',
+         E("ST.tasks.find(t=>t.label==='Exterior Windows').endDate")===want,
          E("ST.tasks.find(t=>t.label==='Exterior Windows').endDate"));
       stage3();
     },300);

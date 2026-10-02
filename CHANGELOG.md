@@ -9,6 +9,10 @@ Format: `## <label> — <date>` then one `- ` line per change. Keep lines concre
 what changed *for the team*, not how. Developer-only tooling doesn't need a line.
 Collect lines for the next version under `## Unreleased` and rename it when you ship.
 
+## v1.25.2 — Oct 1, 2026
+- Project setup: Installation and Shipping dates now stay exactly as you type them, weekends and holidays included, and their day count is calendar days.
+- Project setup: when a shop department date lands on a weekend or holiday it still moves to a workday, but a note under the field now says why, and the start can no longer end up after the end.
+
 ## v1.25.1 — Sep 30, 2026
 - Open Issues: the reply toggle under a report now reads "developer comments".
 
