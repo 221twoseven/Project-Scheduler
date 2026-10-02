@@ -676,15 +676,26 @@ so the menu walks on Tab.
   max-width:260px;z-index:999;pointer-events:none;box-shadow:0 10px 32px rgba(0,0,0,.32);border:1px solid rgba(255,255,255,.08)}
 .tt-title{font-size:13px;font-weight:700;margin-bottom:3px}   .tt-dim{color:rgba(255,255,255,.5);font-size:11px}
 .tt-warn{color:#FFCE6B;font-size:11px;margin-top:5px}
-#toasts{position:fixed;bottom:18px;right:18px;z-index:1000;display:flex;flex-direction:column;gap:8px;align-items:flex-end}
+#toasts{position:fixed;bottom:18px;right:18px;z-index:1000;display:flex;flex-direction:column;gap:8px;align-items:flex-end;pointer-events:none}
+/* top/bottom are set per toast by toastPlace(): under the project rows, the legend band, or the dashboard header */
 .toast{background:#101A29;color:rgba(255,255,255,.92);font-size:12.5px;padding:9px 16px;border-radius:9px;
-  box-shadow:0 8px 28px rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.1);animation:toast-in .22s ease-out;max-width:min(380px,calc(100vw - 36px))}
+  box-shadow:0 8px 28px rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.1);animation:toast-in .22s ease-out;max-width:min(380px,calc(100vw - 36px));pointer-events:none}
+.toast .undo,.toast .toast-x,.toast details{pointer-events:auto}
 .toast.err{border-color:rgba(255,110,110,.5);color:#FFC9C9}
 .toast .undo{background:none;border:1px solid rgba(255,255,255,.42);border-radius:5px;color:#fff;font-size:11px;font-weight:700;padding:2px 8px;margin-left:11px;cursor:pointer}
+.toast .toast-x{background:none;border:none;color:rgba(255,255,255,.65);font-size:16px;line-height:1;width:24px;height:24px;margin:-6px -10px -6px 6px;border-radius:6px;cursor:pointer}
 ```
 
-Every mutation gets a toast with **Undo**. Errors dock bottom-right, collapse duplicates,
-cap at 3 with a `+N more` counter, and may carry a `<details>` with mono technical text.
+Every mutation gets a toast with **Undo**. Toasts never sit over bars: on the project page
+they sit in the blank strip under the rows (or at the top right of the legend/date band when
+that strip is too small), on the dashboard at the top right of the date header, elsewhere
+bottom-right (v1.26.2, tracker #23). Each carries a × (24px hit target); duplicates collapse
+into a ×N badge; quick undoable edits collapse into one "N changes · Undo"; the stack caps at
+3 with a `+N more` counter in the strip and the corner, and at 1 on the band and the header
+(where it would hang down into the rows); a toast may carry a `<details>` with mono technical
+text. The
+toast body is `pointer-events:none`, so a drag starts on whatever is under it; only Undo, ×
+and Details take the pointer.
 
 ### 7.9 Modal
 
