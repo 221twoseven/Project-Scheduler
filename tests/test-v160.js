@@ -49,13 +49,15 @@ setTimeout(()=>{
 
     sec('a filled report posts the right fields');
     q('#fb-kind input[value="feature"]').checked=true;
+    const SUBJ=q('#fb-subject'); /* v1.28.0 (#10): the Title is the subject, not the description's first 80 characters */
+    if(SUBJ)SUBJ.value='Dark mode for the night crew';
     q('#fb-desc').value='Please add a dark mode for the night crew';
     click(q('#fb-send'));
     setTimeout(()=>{
       const p=posts();
       ok('exactly one POST to the feedback list', p.length===1, p.length+' posts');
       const f=p.length?p[0].body.fields:{};
-      ok('Title carries the kind and the ask', /^Feature — Please add a dark mode/.test(f.Title||''), f.Title);
+      ok('Title carries the kind and the ask', SUBJ?f.Title==='Feature — Dark mode for the night crew':/^Feature — Please add a dark mode/.test(f.Title||''), f.Title);
       ok('kind field says feature', f.kind==='feature');
       ok('name + email ride along', f.name==='Sam'&&f.email==='user@example.com', f.name+'/'+f.email);
       ok('description is the typed text', f.description==='Please add a dark mode for the night crew');

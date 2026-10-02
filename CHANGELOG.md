@@ -9,6 +9,22 @@ Format: `## <label> — <date>` then one `- ` line per change. Keep lines concre
 what changed *for the team*, not how. Developer-only tooling doesn't need a line.
 Collect lines for the next version under `## Unreleased` and rename it when you ship.
 
+## v1.30.0 — Oct 2, 2026
+- Project setup: the Team section's Lead fabricator is now Project lead — pick one person from any department (grouped by department), or leave it blank; the chart chip, the bar tooltip and the legend show L for the lead. Existing projects keep their lead.
+
+## v1.29.0 — Oct 2, 2026
+- Project setup: the Team lists are now alphabetical, each has a Search box that narrows the names as you type, people already checked stay at the top of their list, and the lists show about nine names before scrolling.
+
+## v1.28.0 — Oct 2, 2026
+- Report a bug or idea: the form now asks for a one-line Subject, which is what the Open Issues page shows, and clicking a report there unfolds its full text. Nothing is cut off at 80 characters any more.
+
+## v1.27.0 — Oct 2, 2026
+- Today (and the T key) now puts Monday of the current week at the left edge of the timeline, in every zoom, and the timeline opens that way too; the other jumps still centre their date.
+- Days before today wear a light grey wash on the timeline, so the eye lands on today and the work ahead.
+
+## v1.26.3 — Oct 2, 2026
+- People page: each column keeps its own width when you resize another, long text is cut off with … (hover for the full value), and a wide table scrolls sideways inside the list instead of running under the record panel. Double-click a column edge to fit it; right-click the header for Reset widths.
+
 ## v1.26.2 — Oct 2, 2026
 - Undo notifications no longer cover the chart: they sit below the bars (or at the top right of the date header), each one has a × to close it, several quick edits share one notification, and dragging a bar that is under one goes straight through.
 
