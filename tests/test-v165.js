@@ -46,7 +46,10 @@ const tasks=[
   mkTask('t2','p2','pm','',D(-2),D(6)),
   mkTask('t3','p3','pm','',D(-2),D(6)),
   mkTask('t4','p4','pm','',D(2),D(9)),
-  mkTask('t5','p1','fab','Caroline B.',D(0),D(4))]; /* explicit legacy crew */
+  mkTask('t5','p1','fab','Caroline B.',D(0),D(4)), /* explicit legacy crew */
+  /* v1.26.0 (#15): lateness follows the Installation block's end, not the Setup date, so
+     p5 carries the install that ended three days ago (older builds read the deadline). */
+  mkTask('t6','p5','install','[]',D(-5),D(-3))];
 const staff=[
   {appId:'s1',Title:'Caroline Bondi',depts:JSON.stringify(['pm']),ooo:'[]',email:'',role:'PM'},
   {appId:'s2',Title:'Stan Kim',depts:JSON.stringify(['pm']),ooo:'[]',email:'',role:'PM'},

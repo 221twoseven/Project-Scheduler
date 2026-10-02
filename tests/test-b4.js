@@ -16,13 +16,18 @@ let pass=0,fail=0;
 const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 
+/* v1.26.0 (#15/#20): the drop-line marks the due date, which is the Installation block's
+   end, not the Setup date. On that build each project carries an Installation block
+   ending on the date the old seed put in Setup, so the markers land where they always did. */
+const DUE=/function dueOf/.test(src);
 const proj=(id,name,dl)=>({appId:id,Title:name,client:'',jobCode:id.toUpperCase(),
   deadline:dl,status:'in-fabrication',projectManager:'Stan',drafter:'',
-  leadFab:'',activeDepartments:JSON.stringify(['pm','fab']),createdAt:'2026-07-01'});
-const task=(id,pid,s,e)=>({appId:id,projectId:pid,department:'fab',assignee:'Nick',
+  leadFab:'',activeDepartments:JSON.stringify(DUE?['pm','fab','install']:['pm','fab']),createdAt:'2026-07-01'});
+const task=(id,pid,s,e,dept)=>({appId:id,projectId:pid,department:dept||'fab',assignee:dept?'[]':'Nick',
   startDate:s,endDate:e,estimatedDays:5,ticketNodes:'[]',notes:'',pinned:false,label:''});
 const projects=[proj('p1','Hermes Windows','2026-12-20'),proj('p2','Near Now','2026-09-01')];
 const tasks=[task('t1','p1','2026-12-01','2026-12-10'),task('t2','p2','2026-08-10','2026-08-20')];
+if(DUE)tasks.push(task('i1','p1','2026-12-18','2026-12-20','install'),task('i2','p2','2026-08-31','2026-09-01','install'));
 
 const dom=boot(FILE,{data:{projects,tasks,staff:[],todos:[]}});
 const win=dom.window,doc=win.document;

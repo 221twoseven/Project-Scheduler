@@ -37,6 +37,13 @@ const tasks=[
   endDate:'2026-08-21',estimatedDays:14,ticketNodes:'[]',notes:'',pinned:false,label:''},
  {appId:'td2',projectId:'p2',department:'td',assignee:'Peter',startDate:'2026-08-03',
   endDate:'2026-08-10',estimatedDays:6,ticketNodes:'[]',notes:'',pinned:false,label:''}];
+/* v1.26.0 (#15): lateness follows the Installation block's end, not the Setup date, so
+   on that build each project carries the install that already passed. */
+if(/function dueOf/.test(src))tasks.push(
+ {appId:'i1',projectId:'p1',department:'install',assignee:'[]',startDate:'2026-08-19',
+  endDate:'2026-08-20',estimatedDays:2,ticketNodes:'[]',notes:'',pinned:false,label:''},
+ {appId:'i2',projectId:'p2',department:'install',assignee:'[]',startDate:'2026-08-13',
+  endDate:'2026-08-14',estimatedDays:2,ticketNodes:'[]',notes:'',pinned:false,label:''});
 
 /* meName() resolves through the shared staff list — seed Sam with the stubbed
    sign-in's email so the identity chain lands. */

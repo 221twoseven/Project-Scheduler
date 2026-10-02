@@ -9,6 +9,11 @@ Format: `## <label> — <date>` then one `- ` line per change. Keep lines concre
 what changed *for the team*, not how. Developer-only tooling doesn't need a line.
 Collect lines for the next version under `## Unreleased` and rename it when you ship.
 
+## v1.26.0 — Oct 1, 2026
+- A project's install date now comes from its Installation block under Departments (or its Shipping block when Installation is not scheduled). The LATE tag, the Installs / Ships date and Days out in the project header, the date line on the chart, the PM late prompt, the Meeting Sheet and the Due date sort all follow it, so moving the install moves them too.
+- Project setup: on a saved project the editable Install date is replaced by a read-only Created on (when the project was first saved). A new project asks for one Target install / ship date, which lays out the schedule and becomes the Installation (or Shipping) block.
+- A project with neither Installation nor Shipping scheduled shows no install date and is never marked late.
+
 ## v1.25.2 — Oct 1, 2026
 - Project setup: Installation and Shipping dates now stay exactly as you type them, weekends and holidays included, and their day count is calendar days.
 - Project setup: when a shop department date lands on a weekend or holiday it still moves to a workday, but a note under the field now says why, and the start can no longer end up after the end.
