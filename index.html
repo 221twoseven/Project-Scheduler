@@ -947,9 +947,12 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 .ins-hd .dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
 .ins-hd .t{flex:1;font-size:12.5px;font-weight:700;color:#1E293B;overflow:hidden;
   white-space:nowrap;text-overflow:ellipsis}
-.ins-hd .x{background:none;border:none;color:var(--ts-muted);font-size:17px;line-height:1;cursor:pointer;
-  padding:0 2px;font-family:inherit}
-.ins-hd .x:hover{color:var(--acc)}
+/* v1.26.1 (tracker #25): a labelled Close, not a bare ×, 24px tall for the hit target (§9) */
+.ins-hd .x{background:#fff;border:1px solid var(--ts-control-line);border-radius:5px;color:var(--ts-muted);
+  font-size:11.5px;font-weight:600;line-height:1;cursor:pointer;padding:0 8px;min-height:24px;
+  font-family:inherit;display:inline-flex;align-items:center;gap:5px;margin-left:auto}
+.ins-hd .x span{font-size:15px;line-height:1}
+.ins-hd .x:hover{color:var(--acc);border-color:var(--acc)}
 /* E1: sections run side by side as columns — Setup | Team | Departments | Agenda — all
    open at once. When the columns' minimums no longer fit, the panel scrolls sideways;
    each column header stays put at the top of its own scrolling column. */
@@ -1636,7 +1639,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.26.0'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.26.1'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -6329,7 +6332,7 @@ function ppInspector(){
     const d=deptById(sel.department)||{};
     h+='<div class="ins-hd"><span class="dot" style="background:'+(DEPT_COLORS[sel.department]||'#8A98AE')+'"></span>'
      + '<span class="t">'+esc(phaseLabel(sel))+'</span>'
-     + '<button class="x" id="ins-x" title="Deselect (Esc)">&times;</button></div>';
+     + '<button class="x" id="ins-x" title="Close this panel and go back to the project (Esc)" aria-label="Close (Esc)">Close <span aria-hidden="true">&times;</span></button></div>';
     h+='<div class="ins-body">';
     let f='<div class="ins-f"><label>Name</label>'
      + '<input id="ins-name" data-f="label" value="'+esc(sel.label||'')+'" placeholder="'+esc(d.name||sel.department)+'"></div>'
@@ -6476,6 +6479,10 @@ function ppBindInspector(p,sel){
   const box=document.getElementById('pp-insp');
   if(!box)return;
   const x=document.getElementById('ins-x');
+  /* v1.26.1 (#25): close on the press, not the click. Moving focus to the button would
+     commit a pending edit, repaint the panel and replace the button before its click
+     arrived, so the first click saved and only a second one closed. Commit, then close. */
+  if(x)x.addEventListener('mousedown',ev=>{ev.preventDefault();npvBlur();ppSelect(null);});
   if(x)x.addEventListener('click',()=>ppSelect(null));
 
   if(sel){
@@ -6986,7 +6993,14 @@ function npvCalHit(ev){
    Touching the chart now releases focus, so keys work the moment you're on the canvas. */
 function npvBlur(){
   const a=document.activeElement;
-  if(a&&a.blur&&a.matches&&a.matches('input,textarea,select'))a.blur();
+  if(a&&a.blur&&a.matches&&a.matches('input,textarea,select')){
+    /* v1.26.1 (#25): a value typed but not yet committed is saved before the field goes
+       away (deselecting repaints the panel). Browsers also fire change on blur; a second
+       identical commit is a no-op. */
+    if(a.matches('input,textarea')&&a.value!==a.defaultValue&&a.closest('#pp-insp,#npv-pop,#pp-depts'))
+      a.dispatchEvent(new Event('change',{bubbles:true}));
+    a.blur();
+  }
 }
 function npvCloseMenu(){
   const m=document.getElementById('npv-menu');
@@ -7605,8 +7619,12 @@ function npvBindHost(host){
     host.dataset.bound='1';
     let dnX=0,dnY=0;
     const blank=tg=>!!tg&&!!tg.closest&&!tg.closest('.npv-bar')&&!tg.closest('.npv-gut')
-      &&!tg.closest('.cal-band')&&!tg.closest('#npv-menu');
-    host.addEventListener('mousedown',ev=>{
+      &&!tg.closest('.cal-band')&&!tg.closest('#npv-menu')&&!tg.closest('.npv-axis');
+    /* v1.26.1 (tracker #25): the press listener sits on the scroll box, not the row body,
+       so the empty space below the last row (and the empty right side) counts as chart
+       space too: one deselect rule for every blank pixel of the chart. The date axis is
+       excluded (it pans and zooms). */
+    (host.closest('.npv-scroll')||host).addEventListener('mousedown',ev=>{
       npvBlur();
       dnX=ev.clientX;dnY=ev.clientY;
       /* N11: the two surfaces mute each other — any press on the chart closes an open
@@ -7619,7 +7637,11 @@ function npvBindHost(host){
          on the CALENDAR blank space never deselects at all — the expanded phase
          persists until its own band is clicked a second time (the toggle below);
          Esc/breadcrumb/× still peel the selection. */
-      if(NPV_MODE!=='calendar'&&blank(ev.target)&&PP_SEL&&!hadMenu&&!ev._hadPop)ppSelect(null,true);
+      /* A press on the scroll box's own horizontal scrollbar is a scroll, not a click on
+         empty space: the bar's band is the box's height minus its client height. */
+      const sc=ev.currentTarget,sbH=sc.offsetHeight-sc.clientHeight;
+      const onScrollbar=sbH>0&&ev.target===sc&&ev.clientY>=sc.getBoundingClientRect().bottom-sbH;
+      if(NPV_MODE!=='calendar'&&blank(ev.target)&&!onScrollbar&&PP_SEL&&!hadMenu&&!ev._hadPop)ppSelect(null,true);
     });
     /* N11: left-click only selects and edits — empty canvas deselects (above) and no
        longer opens the create menu; that lives on right-click alone, both modes. */
@@ -8014,7 +8036,7 @@ function npvBindHost(host){
       /* The chart closes its own layers. This handler runs first, in capture, so
          doing it here too would clear the menu before the chart could see it was
          open — and a click meant to dismiss would open a fresh one. */
-      if(tg.closest('#npv-body')||tg.closest('#npv-menu'))return;
+      if(tg.closest('#npv-scroll')||tg.closest('#npv-menu'))return; /* v1.26.1 (#25): the chart's press listener now covers the whole scroll box */
       npvCloseMenu();
     },true);
     /* Scrolling detaches the menu/popover from its anchor, so it closes — unless the
@@ -8628,7 +8650,7 @@ function npvPopPhaseHTML(sel){
   const p=ppProject();
   let h='<div class="ins-hd"><span class="dot" style="background:'+(DEPT_COLORS[sel.department]||'#8A98AE')+'"></span>'
    +'<span class="t">'+esc(phaseLabel(sel))+'</span>'
-   +'<button class="x" data-pop-x title="Close (Esc)">&times;</button></div><div class="pop-body">';
+   +'<button class="x" data-pop-x title="Close (Esc)" aria-label="Close (Esc)">Close <span aria-hidden="true">&times;</span></button></div><div class="pop-body">';
   h+='<div class="ins-f"><label>Name</label><input data-f="label" value="'+esc(sel.label||'')+'" placeholder="'+esc(d.name||sel.department)+'"></div>';
   h+='<div class="ins-f"><label>Department</label><select data-f="department"'
    +(NPV_LIVE?'':' disabled title="Until the project is created, departments are chosen in the checklist"')
@@ -8687,7 +8709,7 @@ function npvPopMarkHTML(kind,it){
   const ev=kind==='ev';
   let h='<div class="ins-hd"><span class="dot '+kind+'"></span>'
    +'<span class="t">'+esc((ev?it.name:it.title)||(ev?'Milestone':'Note'))+'</span>'
-   +'<button class="x" data-pop-x title="Close (Esc)">&times;</button></div><div class="pop-body">';
+   +'<button class="x" data-pop-x title="Close (Esc)" aria-label="Close (Esc)">Close <span aria-hidden="true">&times;</span></button></div><div class="pop-body">';
   h+='<div class="ins-f"><label>Date</label><input type="date" data-f="'+(ev?'date':'due')+'" value="'+esc(ev?it.date:it.due)+'"></div>';
   h+='<div class="ins-f"><label>Name</label><input data-f="'+(ev?'name':'title')+'" value="'+esc(ev?it.name:it.title)+'" placeholder="'+(ev?'Client approval':'Order acrylic')+'"></div>';
   if(ev)h+='<div class="ins-f"><label>Phase</label><select data-f="dept">'+deptOptions(it.dept)+'</select></div>';
@@ -10378,6 +10400,7 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.26.1",d:"Oct 2, 2026",n:["Project page: clicking any empty part of the chart, including below the last row, now closes the phase panel, and anything you were typing in it is saved first. The panel's close control now reads Close × and is big enough to hit."]},
  {v:"v1.26.0",d:"Oct 1, 2026",n:["A project's install date now comes from its Installation block under Departments (or its Shipping block when Installation is not scheduled). The LATE tag, the Installs / Ships date and Days out in the project header, the date line on the chart, the PM late prompt, the Meeting Sheet and the Due date sort all follow it, so moving the install moves them too.",
    "Project setup: on a saved project the editable Install date is replaced by a read-only Created on (when the project was first saved). A new project asks for one Target install / ship date, which lays out the schedule and becomes the Installation (or Shipping) block.",
    "A project with neither Installation nor Shipping scheduled shows no install date and is never marked late."]},
