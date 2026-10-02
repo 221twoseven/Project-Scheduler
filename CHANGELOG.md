@@ -9,6 +9,8 @@ Format: `## <label> — <date>` then one `- ` line per change. Keep lines concre
 what changed *for the team*, not how. Developer-only tooling doesn't need a line.
 Collect lines for the next version under `## Unreleased` and rename it when you ship.
 
+## v1.32.0 — Oct 2, 2026
+- Project Schedule: a department can now have several separate work periods on one project. Press + beside a department (or right-click its row on the chart) to add another range after the last one; each range has its own dates and day count, draws as its own bar with the gap left empty, and an extra range is removed with ×.
 ## v1.31.1 — Oct 2, 2026
 - Drafter is now called Technical Designer on the project page and in the Help legend.
 - On the project page, the Team section is now Project Team and the Departments section is now Project Schedule.
