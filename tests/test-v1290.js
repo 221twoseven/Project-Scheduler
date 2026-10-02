@@ -106,7 +106,18 @@ function savedPart(){
     change(rq('pp-r-pm'));
     setTimeout(()=>{
       ok('a change event on the search box saves nothing', patches().length===n0+1, patches().length-n0);
-      sourcePart();
+      /* a Setup field change repaints the whole panel (ppInspector) — the typed search comes back */
+      const st=q('#pp-status');st.value='on-hold';change(st);
+      setTimeout(()=>{
+        /* Matthew is checked now too, so the repaint sorts him up beside Hubert (checked first) */
+        ok('the typed search survives a full repaint of the setup panel', rq('pp-r-pm').value==='ma'&&vis('pp-r-pm').join(', ')==='Hubert Li, Matthew Schulz, Mac Milsark, Robert Maciel', rq('pp-r-pm').value+' / '+vis('pp-r-pm').join(', '));
+        ok('and the other boxes stay unfiltered', vis('pp-r-dr').length===texts('pp-r-dr').length);
+        go('#/project/new');
+        setTimeout(()=>{
+          ok('another project opens with empty search boxes', rq('pp-r-pm').value===''&&vis('pp-r-pm').length===10, rq('pp-r-pm').value);
+          sourcePart();
+        },800);
+      },500);
     },300);
   },500);
 }
@@ -117,6 +128,7 @@ function sourcePart(){
   ok('plan 4: one .pg-rbox max-height rule, at least 180px (the old 160px override is gone)', m.length===1&&parseInt(m[0][1],10)>=180, m.map(x=>x[1]).join(','));
   ok('a locked viewer loses the search with the checkboxes; a granted viewer keeps both', /body\.viewer \.pg-rq:disabled\{display:none\}/.test(src));
   ok('the search box uses the control-line token, not an ad-hoc hex border', /\.pg-rq\{[^}]*border:1px solid var\(--ts-control-line\)/.test(src));
+  ok('and the chrome text token (§2.6: no ad-hoc hex in new code)', /\.pg-rq\{[^}]*color:var\(--ts-text\)/.test(src));
   ok('the search box meets the 24px hit target', /\.pg-rq\{[^}]*min-height:24px/.test(src));
   done();
 }

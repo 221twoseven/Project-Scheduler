@@ -22,9 +22,9 @@ Project lead list that tracker #18 will add inherits the search for free.
 
 ## Known ceilings
 
-- The typed filter is not remembered across a full repaint of the setup panel (a
-  colleague's save arriving on the 90-second poll, a Setup text or date field change,
-  or a failed Create validation). The box comes back empty; the ticks are kept.
+- The typed search is kept per box while the same project is open (it survives a Setup
+  field change, a department tick and the 90-second poll) and forgotten when another
+  project opens. It is not saved anywhere.
 - The Crew pickers on phases (dock, popover, task modal) are not Team lists and are
   unchanged.
 - Viewers without the project-setup grant see neither the checkboxes nor the search box,

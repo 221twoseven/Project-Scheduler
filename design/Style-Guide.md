@@ -613,7 +613,7 @@ Footer order (weakest → strongest, left → right): passive status text · Del
 .ins-f input.err{border-color:#CE4242}
 /* Team list search (v1.29.0) — the same grammar as .ins-f input, sized to its 12px list; hidden only
    when viewerLock disabled it, so a viewer.project grant keeps the live search with the live checkboxes */
-.pg-rq{width:100%;box-sizing:border-box;min-height:24px;font-family:inherit;font-size:12px;padding:4px 8px;border:1px solid var(--ts-control-line);border-radius:6px;background:#fff;color:#1E293B}
+.pg-rq{width:100%;box-sizing:border-box;min-height:24px;font-family:inherit;font-size:12px;padding:4px 8px;border:1px solid var(--ts-control-line);border-radius:6px;background:#fff;color:var(--ts-text)}
 .pg-rq:focus{border-color:var(--acc)}
 body.viewer .pg-rq:disabled{display:none}
 /* grids */
