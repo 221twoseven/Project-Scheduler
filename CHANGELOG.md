@@ -9,6 +9,9 @@ Format: `## <label> — <date>` then one `- ` line per change. Keep lines concre
 what changed *for the team*, not how. Developer-only tooling doesn't need a line.
 Collect lines for the next version under `## Unreleased` and rename it when you ship.
 
+## v1.28.0 — Oct 2, 2026
+- Report a bug or idea: the form now asks for a one-line Subject, which is what the Open Issues page shows, and clicking a report there unfolds its full text. Nothing is cut off at 80 characters any more.
+
 ## v1.27.0 — Oct 2, 2026
 - Today (and the T key) now puts Monday of the current week at the left edge of the timeline, in every zoom, and the timeline opens that way too; the other jumps still centre their date.
 - Days before today wear a light grey wash on the timeline, so the eye lands on today and the work ahead.

@@ -470,8 +470,8 @@ release. Where the app has a part, it's listed.
         demand (`gh workflow run`). The first day's two-way rule — resolving in the app
         closed the ticket — was dropped, because it re-closed reopened tickets. Side
         effect: once a report has a ticket, the developer page's Mark resolved / Reopen
-        buttons are overridden by the next run. Ledgered in §7.4; remove them when item 39
-        touches that page.
+        buttons are overridden by the next run. Ledgered in §7.4; remove them with the
+        next change to `renderReports` (item 39 shipped without touching that page).
       - *Day one:* the first run filed tracker #1–#12 from 13 rows, carried in as items
         32–40. Open rows were back-filled; resolved history stays on the list. Commits
         in this repository close tickets with
@@ -578,12 +578,13 @@ is item 32 (P0), #7 is part of item 3, and #11 and #14 were done by the bridge i
       (Meeting Sheet), with the paper size selectable. Printing today covers the Meeting
       Sheet and print styles. Route: the browser's print-to-PDF, with `@page` sizes per
       view and a size choice in the Print menu. [tracker #8, #9]
-- [ ] **39. Open Issues page cuts titles at 80 characters — add a Subject.** A report's
-      Title is the first 80 characters of its description (`sendFeedback`). Add a
-      one-line **Subject** field to the form and store it as `Title` (no new column); the
-      Open Issues page shows the subject, and the full description stays on the report.
-      The reporter also asks for the list to be public. It's already visible to every
-      signed-in user, so confirm whether "public" means "not truncated". [tracker #10]
+- [x] **39. Open Issues page cuts titles at 80 characters — add a Subject.** Shipped
+      v1.28.0 (PR #83, 2026-10-02): the report form asks for a required one-line Subject
+      (up to 120 characters) stored as `Title` (no new column) and shown on Open Issues;
+      the full description folds under the subject for every signed-in person (the
+      owner's default for "public"); old reports keep their stored titles and unfold
+      their text too. The developer page was not touched, so the §7.4 ledger entry on its
+      buttons now waits for the next change to `renderReports`. [tracker #10]
 - [ ] **40. A custom domain for the app.** The ask: `twoseven.net/timeline`, password
       protected.
       - GitHub Pages custom domains work per host name: `timeline.twoseven.net` (a CNAME
@@ -1378,8 +1379,9 @@ How to read the tags at the end of an entry:
       `CLAUDE.md` line count; the tests/README suite count). Item 21.
 - [ ] **Developer Bug Reports page buttons.** Once a report has a `ghIssue`, the tracker
       poller overrides its Mark resolved / Reopen buttons (GitHub is the source of truth
-      for status, 2026-09-25). Remove or relabel them the next time that page is touched
-      (item 39); the `fbSetStatus` path stays for rows without a ticket. [item 31]
+      for status, 2026-09-25). Remove or relabel them with the next change to
+      `renderReports` (item 39 shipped in v1.28.0 without touching that page); the
+      `fbSetStatus` path stays for rows without a ticket. [item 31]
 
 ### 7.5 Deliberate design limits — no action planned; revisit only on real complaints
 
