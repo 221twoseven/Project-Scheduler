@@ -59,7 +59,10 @@ development. Existing rows are untouched (no `range` → the primary block or a 
   then draw on top of one another on the one row (the dashboard lanes them). Laning the project
   row waits for a real complaint.
 - A range dragged earlier than the primary stays a range (it is not re-parented); the row's
-  day count remains the primary's.
+  day count, a new subtask's nesting and the draft's selection fallback all keep following
+  the primary (the first bar that is not a range), wherever the range sorts.
+- A right-click day that falls inside a range hops past every range it lands in, so
+  back-to-back ranges never take a hidden duplicate.
 - Duplicate copies a range at the same dates (on top of the source) — the user drags it apart,
   as with any Duplicate.
 - Unticking a department deletes every row of the department, ranges included (the confirm

@@ -1056,7 +1056,7 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
    date line (.rng) with its day count and a ×. Icon-size .ins-btn recipe, 24px hit box (§9). */
 .ins-depts .idr .radd,.ins-depts .idr .rx{flex-shrink:0;width:24px;height:24px;padding:0;display:inline-flex;align-items:center;justify-content:center;
   background:#fff;border:1px solid var(--ts-control-line);border-radius:6px;color:#33415A;font-family:inherit;font-size:14px;line-height:1;font-weight:600;cursor:pointer}
-.ins-depts .idr .radd:hover,.ins-depts .idr .rx:hover{background:#F3F6FA}
+.ins-depts .idr .radd:hover,.ins-depts .idr .rx:hover{background:var(--side)}
 .ins-depts .idr.off .radd{display:none}
 .ins-depts .idr .ddates.rng{flex-wrap:wrap;row-gap:3px}                     /* the count and × wrap under the dates when the column is narrow */
 .ins-depts .idr .ddates.rng input[type=date]{flex:1 1 90px}                 /* a natural basis, so the dates keep their width and the extras wrap */
@@ -2382,7 +2382,7 @@ function schedParse(v){
 function projToFields(p){const f={Title:p.name||'',client:p.client||'',jobCode:p.jobCode||'',deadline:p.deadline||null,status:p.status||'auto',projectManager:p.projectManager||'',drafter:p.drafter||'',leadFab:p.leadFab||'',fabricators:p.fabricators||'',metalFab:p.metalFab||'',activeDepartments:JSON.stringify(p.activeDepartments||[]),appId:p.id,createdAt:p.createdAt||null};if(p.sortIndex!=null)f.sortIndex=p.sortIndex;return f;}
 function fieldsToProj(f){return{id:f.appId,name:f.Title||'',client:f.client||'',jobCode:f.jobCode||'',deadline:isoDay(f.deadline),status:f.status||'auto',projectManager:f.projectManager||'',drafter:f.drafter||'',leadFab:f.leadFab||'',fabricators:f.fabricators||'',metalFab:f.metalFab||'',activeDepartments:safeArr(f.activeDepartments),sortIndex:f.sortIndex==null?null:Number(f.sortIndex),createdAt:isoDay(f.createdAt)};}
 function taskToFields(t){const d=deptById(t.department);return{Title:(d?d.name:t.department)||'Task',projectId:t.projectId,department:t.department,assignee:Array.isArray(t.assignee)?JSON.stringify(t.assignee):(t.assignee||''),startDate:t.startDate||null,endDate:t.endDate||null,estimatedDays:t.estimatedDays||1,ticketNodes:JSON.stringify(t.ticketNodes||[]),notes:t.notes||'',pinned:!!t.pinned,label:t.label||'',...(t.range?{range:true}:{}),appId:t.id};} /* v1.32.0 (#16): `range` is written only when set (tristate — a site without the column never sees it on ordinary saves) */
-function fieldsToTask(f){const a=(isEndDept(f.department)&&typeof f.assignee==='string'&&f.assignee.trim().startsWith('['))?safeArr(f.assignee):(f.assignee||'');return{id:f.appId,projectId:f.projectId,department:f.department,assignee:a,startDate:isoDay(f.startDate),endDate:isoDay(f.endDate),estimatedDays:Number(f.estimatedDays)||1,ticketNodes:safeArr(f.ticketNodes),notes:f.notes||'',pinned:!!f.pinned,label:f.label||'',range:!!f.range};}
+function fieldsToTask(f){const a=(isEndDept(f.department)&&typeof f.assignee==='string'&&f.assignee.trim().startsWith('['))?safeArr(f.assignee):(f.assignee||'');return{id:f.appId,projectId:f.projectId,department:f.department,assignee:a,startDate:isoDay(f.startDate),endDate:isoDay(f.endDate),estimatedDays:Number(f.estimatedDays)||1,ticketNodes:safeArr(f.ticketNodes),notes:f.notes||'',pinned:!!f.pinned,label:f.label||'',...(f.range?{range:true}:{})};} /* v1.32.0 (#16): tristate on the read side too — a loaded non-range row keeps its pre-v1.32.0 shape, so stripStamps() still matches a row created in this session and the poll never wipes the undo stack over it */
 /* v1.7.1: phone rides the person record (column created by the owner 2026-09-01). */
 /* v1.8.0 (§3 item 12): the admin / feedbackRecipient flags. A flag is TRISTATE on the
    person object: true/false once the row carries a column value, null when it never
@@ -6255,9 +6255,10 @@ function ppDraftResolve(key){
   if(!key)return null;
   if(key.startsWith('l:')){const lid=key.slice(2);return NPV_TASKS.find(t=>String(t.id).split('::')[1]===lid)||null;}
   if(key.startsWith('d:')){const dp=key.slice(2);
-    /* an edit can seed the dept into lines mid-selection — fall back to its first bar */
+    /* an edit can seed the dept into lines mid-selection — fall back to its primary (never a
+       range that sorts first — v1.32.0 #16), then to its first bar */
     return NPV_TASKS.find(t=>t.department===dp&&String(t.id).indexOf('::')<0)
-         ||NPV_TASKS.find(t=>t.department===dp)||null;}
+         ||NPV_TASKS.find(t=>t.department===dp&&!t.range)||NPV_TASKS.find(t=>t.department===dp)||null;}
   return NPV_TASKS.find(t=>t.id===key)||null;
 }
 function ppSelect(id,quiet){
@@ -6748,7 +6749,7 @@ function ppBindInspector(p,sel){
          the bidirectional pair. (Drafts already recompute through the scheduler.) */
       if(t.classList&&t.classList.contains('ddays')&&NPV_LIVE){
         const ck2=t.closest('.idr').querySelector('input[data-dept]');
-        const bar=ck2?(NPV_ALL||[]).find(b=>b.department===ck2.dataset.dept):null;
+        const bar=ck2?npvPrimary(ck2.dataset.dept):null; /* v1.32.0 (#16): the row's count is the primary's, never a range that sorts first */
         if(bar&&bar.startDate){
           const n=Math.max(1,parseInt(t.value,10)||1);
           commitPhaseDates(bar.id,bar.startDate,fmtDate(deptEndAfter(bar.department,parseDate(bar.startDate),n)),n);
@@ -7442,7 +7443,7 @@ function npvCreateSubtask(dept,date,newDept,name,popAt){
        manual placement so it survives the per-keystroke rebuild (REV55). Without
        this the new line spans the whole window: an exact copy of the parent bar,
        frozen in place by the nesting clamp. */
-    const w0=NPV_TASKS.find(t=>t.department===dept);
+    const w0=npvPrimary(dept); /* v1.32.0 (#16): the primary, not a range that sorts first */
     if(w0){
       const half=Math.max(1,Math.round((w0.estimatedDays
         ||wdCount(parseDate(w0.startDate),parseDate(w0.endDate)))/2));
@@ -7464,7 +7465,7 @@ function npvCreateSubtask(dept,date,newDept,name,popAt){
   }
   const p=ppProject();if(!p)return;
   const kids=NPV_TASKS.filter(t=>t.department===dept);
-  const sib=kids[0];
+  const sib=npvPrimary(dept); /* v1.32.0 (#16): a subtask nests under the primary, not under a range that sorts first */
   /* No parent bar means this creates the department's PRIMARY bar — a phase, not a
      subtask — so it rides the phases door (the S key maps to 'subtasks'). */
   if(!sib&&isViewer()&&!vcan('phases')){toast('View-only access — ask an admin to change the schedule','err');return;}
@@ -7504,13 +7505,14 @@ function npvCreateRange(dept,date){
   if(!dept)return;
   if(NPV_LIVE&&isViewer()&&!vcan('phases')){toast('View-only access — ask an admin to change the schedule','err');return;}
   const prim=npvPrimary(dept);if(!prim)return;
-  const tops=NPV_TASKS.filter(t=>t.department===dept&&(t===prim||t.range));
+  const tops=NPV_TASKS.filter(t=>t.department===dept&&(t===prim||t.range)).sort((a,b)=>String(a.startDate).localeCompare(String(b.startDate)));
   const nm=(deptById(dept)||{}).name||dept;
   const days=prim.estimatedDays||(deptById(dept)||{}).est||1;                          /* the row's "d" */
   const after=iso=>{const d=fmtDate(addDays(parseDate(iso),1));return isEndDept(dept)?d:wdSnap(d);};
   let start=date?(isEndDept(dept)?date:wdSnap(date)):after(tops.reduce((m,t)=>t.endDate>m?t.endDate:m,''));
-  const inside=tops.find(t=>start>=t.startDate&&start<=t.endDate);
-  if(inside)start=after(inside.endDate);
+  /* hop past every range the start lands in — back-to-back ranges would otherwise take a hidden duplicate */
+  for(let inside=tops.find(t=>start>=t.startDate&&start<=t.endDate),n=0;inside&&n<tops.length;n++)
+    {start=after(inside.endDate);inside=tops.find(t=>start>=t.startDate&&start<=t.endDate);}
   const end=fmtDate(deptEndAfter(dept,parseDate(start),days));
   if(NPV_LIVE){
     const t={...prim,id:genId(),label:'',ticketNodes:[],notes:'',pinned:false,range:true,startDate:start,endDate:end,estimatedDays:days};
