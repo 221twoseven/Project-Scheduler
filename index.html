@@ -241,11 +241,12 @@ body.viewer #pp-insp input:disabled,body.viewer #pp-insp select:disabled,body.vi
 body.viewer .npv-pop input:disabled,body.viewer .npv-pop select:disabled,body.viewer .npv-pop textarea:disabled,
 body.viewer #task-overlay input:disabled,body.viewer #task-overlay select:disabled,body.viewer #task-overlay textarea:disabled{
   border-color:transparent;background:transparent;-webkit-appearance:none;appearance:none;color:inherit;opacity:1;cursor:default}
-body.viewer #pp-insp input[type=checkbox]:disabled,body.viewer .npv-pop input[type=checkbox]:disabled,
+body.viewer #pp-insp input[type=checkbox]:disabled,body.viewer #pp-insp input[type=radio]:disabled,body.viewer .npv-pop input[type=checkbox]:disabled,
 body.viewer #task-overlay input[type=checkbox]:disabled{display:none}
-body.viewer #pp-insp label:has(>input[type=checkbox]:disabled:not(:checked)),
+body.viewer #pp-insp label:has(>input[type=checkbox]:disabled:not(:checked)),body.viewer #pp-insp label:has(>input[type=radio]:disabled:not(:checked)),
 body.viewer .npv-pop label:has(>input[type=checkbox]:disabled:not(:checked)),
 body.viewer #task-overlay label:has(>input[type=checkbox]:disabled:not(:checked)){display:none}
+body.viewer #pp-insp .pg-rbox:has(input[type=radio]:disabled) .rl-grp{display:none} /* v1.30.0 (#18): a locked Project lead list reads as the one name, no department headers */
 .sbf-lbl{font-size:var(--fs-micro);font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ts-muted)}
 .sbf-btn{flex:1;background:#fff;border:1px solid var(--side-line);border-radius:6px;padding:5px 0;font-size:11px;font-weight:600;color:#475569;cursor:pointer;font-family:inherit}
 .sbf-btn:hover{background:#E8EEF7;color:#1E293B}
@@ -278,6 +279,14 @@ body.viewer #task-overlay label:has(>input[type=checkbox]:disabled:not(:checked)
 .sb-2l .sb-name{flex:none}
 .sb-l2{display:flex;align-items:center;gap:6px;min-width:0}
 .sb-2l .sb-sub{font-size:11px;max-width:none;flex-shrink:1}
+/* v1.31.0 (#24): the client on a project row's second line — prose (sans), the quiet grey of
+   the sub-line it sits on, cut first (a 1.5em floor keeps an ellipsis and the hover target).
+   The dot rides on the code · date part, which never shrinks — except beside a LATE / soon
+   chip, where it may truncate again as before this change, else the chip would overflow the
+   row onto the Spotlight button. No dot when neither code nor date follows. */
+.sb-cl{font-size:11px;color:var(--txt-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:1.5em;flex-shrink:1}
+.sb-cl+.sb-sub:last-child{flex-shrink:0}
+.sb-cl+.sb-sub:not(:empty)::before{content:"· "}
 .sb-chip{font-family:var(--mono);font-size:var(--fs-fine);font-weight:600;letter-spacing:.03em;padding:1.5px 6px;border-radius:8px;flex-shrink:0;line-height:1.5}
 .sb-chip.late{background:#FDE2E2;color:#B91C1C}
 .sb-chip.soon{background:#FCEEC8;color:#8F5E08}
@@ -285,7 +294,7 @@ body.viewer #task-overlay label:has(>input[type=checkbox]:disabled:not(:checked)
    32px rows also need tighter leading (nothing informational drops below 11px) */
 body.snug .sb-2l,body.compact .sb-2l{gap:0}
 body.compact .sb-2l .sb-name{font-size:12px;line-height:1.1}
-body.compact .sb-2l .sb-sub{line-height:1.1}
+body.compact .sb-2l .sb-sub,body.compact .sb-2l .sb-cl{line-height:1.1}
 body.compact .sb-chip{line-height:1.2;padding:.5px 6px}
 .sb-row.task-row{padding-left:32px;background:#F2F5FA}
 .sb-row.task-row .sb-name{font-weight:450;font-size:12px}
@@ -300,6 +309,7 @@ body.compact .sb-chip{line-height:1.2;padding:.5px 6px}
 .sb-asn{display:flex;gap:5px;align-items:baseline;max-width:100%;font-size:var(--fs-fine);color:#5E7292;white-space:nowrap;line-height:1.25}
 .sb-asn .n{overflow:hidden;text-overflow:ellipsis;min-width:0}
 .sb-asn .d{font-family:var(--mono);color:#93A2B8;flex-shrink:0;letter-spacing:.02em}
+.sb-asn .c{color:var(--txt-micro)} /* v1.31.0 (#24): muted client prefix on a Departments line — the dates' grey, by its token */
 .sb-row.drop-hi{background:rgba(47,111,228,.12)!important;outline:2px solid rgba(47,111,228,.4);outline-offset:-2px}
 .sb-edit{background:none;border:none;color:#A8B6C8;font-size:12px;cursor:pointer;padding:2px 5px;border-radius:3px;opacity:0;transition:opacity .15s;flex-shrink:0}
 .sb-row:hover .sb-edit{opacity:1}
@@ -336,6 +346,10 @@ body.compact .sb-chip{line-height:1.2;padding:.5px 6px}
 .fb-cm summary{cursor:pointer;color:var(--ts-muted);font-size:11.5px}
 .fb-cm-one{margin:4px 0 0 12px;padding-left:8px;border-left:2px solid #E2E8F0}
 .fb-cm-one .clog-when{width:auto;font-size:11px}
+/* v1.28.0 (tracker #10): a report's full text folds under its subject (native <details>, like
+   .fb-cm). The padding/negative-margin pair lifts the summary's hit box to 24px (§9) without
+   changing the row height. */
+.fb-dd summary{cursor:pointer;padding:5px 0;margin:-5px 0}
 .clog-row.fb-hit{background:#EDF3FA;box-shadow:inset 2px 0 0 var(--acc)} /* the .cd-row.sel recipe */
 .rn-list{padding:6px 0}
 .rn-ver{padding:10px 22px;border-bottom:1px solid #EEF2F7}
@@ -353,6 +367,9 @@ body.compact .sb-chip{line-height:1.2;padding:.5px 6px}
    strips (owner objective 13). Quiet mode keeps them; the day header still marks
    weekends at Day/2-Day zoom. */
 body.vivid .wknd-col{display:none}
+/* v1.27.0 (tracker #2): past days wear the §2.4 weekend grey at low alpha, under rows and
+   bars (z1) so bar text keeps its contrast; .06 sits between the workday and weekend greys. */
+.past-col{position:absolute;top:0;left:0;pointer-events:none;z-index:1;background:rgba(148,163,184,.06)}
 /* C2: quiet canvas — month boundary hairline, and the month header loses its white-on-color text */
 .mon-line{position:absolute;top:0;bottom:0;width:1px;background:var(--side-line);pointer-events:none;z-index:1}
 body:not(.vivid) .hdr-m-cell{text-shadow:none;border-right-color:rgba(13,19,29,.10)}
@@ -602,9 +619,13 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 .pg-roles{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
 .pg-roles>div{display:flex;flex-direction:column;gap:5px}
 .pg-roles .rl{font-size:var(--fs-fine);font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ts-muted)}
-.pg-rbox{background:#F7FAFD;border:1px solid #D8E2EF;border-radius:8px;padding:8px 10px;max-height:132px;overflow:auto}
+.pg-rbox{background:#F7FAFD;border:1px solid #D8E2EF;border-radius:8px;padding:8px 10px;max-height:180px;overflow:auto} /* v1.29.0 (#19): nine names before the scrollbar (was 132 → 160 → 180) */
 .pg-rbox label{display:flex;gap:6px;align-items:center;font-size:12px;color:#33415A;cursor:pointer;user-select:none;padding:1.5px 0}
 .pg-rbox input{width:13px;height:13px;flex-shrink:0;accent-color:#3B7FD6}
+.pg-rq{width:100%;box-sizing:border-box;min-height:24px;font-family:inherit;font-size:12px;padding:4px 8px;border:1px solid var(--ts-control-line);border-radius:6px;background:#fff;color:var(--ts-text)} /* v1.29.0 (#19): the Team list search, same grammar as .ins-f input; text from the chrome token (§2.6) */
+.pg-rq:focus{border-color:var(--acc)}
+.pg-rbox .rl-grp{font-size:var(--fs-fine);font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ts-muted);margin:6px 0 2px} /* v1.30.0 (#18): department header in the Project lead list */
+body.viewer .pg-rq:disabled{display:none} /* locked viewers lose the box with the checkboxes; a viewer.project grant keeps both */
 .pg-depts{background:#F7FAFD;border:1px solid #D8E2EF;border-radius:8px;padding:10px 12px;column-count:2;column-gap:26px}
 @media(max-width:820px){.pg-roles{grid-template-columns:repeat(2,1fr)}.pg-depts{column-count:1}}
 
@@ -681,7 +702,6 @@ body.vivid .npv-we{display:none} /* v1.0.2: no weekend strips over the vivid tin
 
 /* --- configurator uses the whole frame --- */
 .pg.split{max-width:none;padding:22px 30px 90px}
-.pg-rbox{max-height:160px}   /* 132px was slicing the last name in half */
 .pg.split .pg-roles{grid-template-columns:repeat(2,1fr);gap:14px}
 
 /* --- preview: bigger, wider gutter --- */
@@ -956,7 +976,7 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
   font-family:inherit;display:inline-flex;align-items:center;gap:5px;margin-left:auto}
 .ins-hd .x span{font-size:15px;line-height:1}
 .ins-hd .x:hover{color:var(--acc);border-color:var(--acc)}
-/* E1: sections run side by side as columns — Setup | Team | Departments | Agenda — all
+/* E1: sections run side by side as columns — Setup | Project Team | Project Schedule | Agenda — all
    open at once. When the columns' minimums no longer fit, the panel scrolls sideways;
    each column header stays put at the top of its own scrolling column. */
 .ins-body{flex:1;min-height:0;display:flex;align-items:stretch;overflow-x:auto;overflow-y:hidden}
@@ -1032,6 +1052,16 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
   margin-left:22px;min-width:0}
 .ins-depts .idr.off .ddates{display:none}
 .ins-depts .idr.off .dother{display:none}
+/* v1.32.0 (#16): another work period — + beside the department name, each extra range on its own
+   date line (.rng) with its day count and a ×. Icon-size .ins-btn recipe, 24px hit box (§9). */
+.ins-depts .idr .radd,.ins-depts .idr .rx{flex-shrink:0;width:24px;height:24px;padding:0;display:inline-flex;align-items:center;justify-content:center;
+  background:#fff;border:1px solid var(--ts-control-line);border-radius:6px;color:#33415A;font-family:inherit;font-size:14px;line-height:1;font-weight:600;cursor:pointer}
+.ins-depts .idr .radd:hover,.ins-depts .idr .rx:hover{background:var(--side)}
+.ins-depts .idr.off .radd{display:none}
+.ins-depts .idr .ddates.rng{flex-wrap:wrap;row-gap:3px}                     /* the count and × wrap under the dates when the column is narrow */
+.ins-depts .idr .ddates.rng input[type=date]{flex:1 1 90px}                 /* a natural basis, so the dates keep their width and the extras wrap */
+.ins-depts .idr .ddates .rdays{flex:0 0 46px;margin-left:auto;text-align:right;font-family:inherit;font-size:11.5px;padding:3px 5px}
+.ins-depts .idr .ddates .dlbl{width:auto}
 /* v1.25.2 (#26): why a typed date moved, on its own line under the date pair */
 .ins-depts .idr .dnote{flex-basis:100%;margin:0 0 3px 22px}
 .ins-depts .idr.off .dnote{display:none}
@@ -1248,16 +1278,18 @@ body.cd-route #dash-bar{display:none!important}
 .cd-body{flex:1;display:flex;min-height:0}
 /* v1.14.0: the people index carries at-a-glance columns (title/phone/email/perms) —
    the pane earns more width for them. */
-.cd-list{width:56%;min-width:320px;max-width:820px;border-right:1px solid #E2E8F0;display:flex;flex-direction:column;min-height:0}
+.cd-list{width:56%;min-width:320px;max-width:820px;border-right:1px solid #E2E8F0;display:flex;flex-direction:column;min-height:0;overflow:hidden} /* v1.26.3 (#27): the pane clips; nothing paints over the divider */
 .cd-cols{display:grid;gap:4px 12px;align-items:center;padding:6px 14px 4px;
   font-size:var(--fs-fine);font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ts-muted);border-bottom:1px solid #EDF1F7}
-/* v1.17.0: each column reads its width from a var so the header grips can resize
-   it — unset vars fall back to the flexible fr defaults.
-   ponytail: a drag pins ONE column to px; the untouched fr columns share the rest —
-   no full colgroup model, add one only if that ever fights the user. */
+/* v1.17.0: each column reads its width from a var so the header grips can resize it.
+   v1.26.3 (tracker #13): every column is a fixed px track — a drag moves ONE track and its
+   right-hand neighbours slide over unchanged; the row box is as wide as its tracks (never
+   narrower than the pane), so a wide table scrolls sideways inside #cd-rows and leftover
+   space stays empty on the right. The px fallbacks show until cdFitCol has measured. */
 .cd-cols,.cd-row.pp7{grid-template-columns:
-  var(--cdc1,minmax(0,1.05fr)) var(--cdc2,minmax(0,.9fr)) var(--cdc3,minmax(0,.7fr))
-  var(--cdc4,minmax(0,1.15fr)) var(--cdc5,minmax(52px,auto)) var(--cdc6,auto) var(--cdc7,auto) var(--cdc8,auto)}
+  var(--cdc1,170px) var(--cdc2,150px) var(--cdc3,110px) var(--cdc4,190px)
+  var(--cdc5,64px) var(--cdc6,48px) var(--cdc7,92px) var(--cdc8,96px);
+  width:max-content;min-width:100%;box-sizing:border-box}
 /* v1.22.0: the schedule editor — seven day boxes on one row, two time inputs beside each other */
 .cd-sched{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center}
 .cd-sched label{display:flex;align-items:center;gap:4px;font-size:12.5px;color:#33415A;text-transform:none;letter-spacing:0;font-weight:400;margin-bottom:0}
@@ -1267,8 +1299,11 @@ body.cd-route #dash-bar{display:none!important}
 /* v1.17.1: the grips live on the HEADER ROW as <i> elements — v1.17.0 had them as
    spans inside the cells, where the `.cd-cols span` rule out-specified `.cd-grip`
    and collapsed them to 0px (nothing to grab). Full header height, visible line. */
-.cd-cols{position:relative}
-.cd-cols span{min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+/* v1.26.3 (#27): the header lives inside the scroller and sticks to its top, so header and
+   rows scroll sideways together and the header can never run under the record panel. */
+.cd-cols{position:sticky;top:0;z-index:1;background:var(--paper,#fff)}
+/* v1.26.3 (#13): every People cell cuts off with an ellipsis at its own column edge */
+.cd-cols span,.cd-row.pp7>*{min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 .cd-grip{position:absolute;top:0;bottom:0;width:11px;cursor:col-resize;z-index:2}
 .cd-grip::after{content:'';position:absolute;left:5px;top:3px;bottom:3px;width:1px;background:#D8E2EF}
 .cd-grip:hover::after{left:4px;width:3px;background:#94A3B8}
@@ -1286,7 +1321,7 @@ body.cd-route #dash-bar{display:none!important}
 .cd-tools{display:flex;gap:8px;padding:10px 14px;border-bottom:1px solid #EDF2F7}
 .cd-tools input,.cd-tools select{font-family:inherit;font-size:12px;padding:5px 8px;border:1px solid #CBD6E4;border-radius:6px;color:#33415A;min-width:0}
 .cd-tools input{flex:1}
-.cd-rows{overflow-y:auto;flex:1}
+.cd-rows{overflow:auto;flex:1;scroll-padding-top:28px} /* v1.26.3 (#27): one scroller for header and rows, both axes */
 .cd-row{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr) minmax(0,.8fr) auto;gap:4px 12px;align-items:center;
   padding:7px 14px;border-bottom:1px solid #F1F5F9;cursor:pointer}
 .cd-row.cl{grid-template-columns:minmax(0,1.4fr) minmax(0,.6fr) auto}
@@ -1404,11 +1439,11 @@ body.cd-route #dash-bar{display:none!important}
   </div>
   <div class="tb-row tb-timeline">
     <div class="sf-wrap">
-      <button id="btn-today" class="t-btn" title="Center the timeline on today (T)">Today</button>
+      <button id="btn-today" class="t-btn" title="Show this week from Monday (T)">Today</button>
       <div id="goto-menu" class="tb-menu hidden">
         <div class="gp-row"><input id="goto-date" type="date" title="Pick a date — Enter centers the timeline on it"><span class="gp-key">G</span></div>
         <div class="gp-picks">
-          <button class="sm-all" data-goto="today" title="Center the timeline on today">Today</button>
+          <button class="sm-all" data-goto="today" title="Show this week from Monday">Today</button>
           <button class="sm-all" data-goto="m1" title="Center the timeline one month ahead">+1 mo</button>
           <button class="sm-all" data-goto="m3" title="Center the timeline three months ahead">+3 mo</button>
           <button class="sm-all" data-goto="install" title="Center on the next upcoming installation">Next install</button>
@@ -1646,7 +1681,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.26.2'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.32.0'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -1793,6 +1828,9 @@ function dueText(p){ /* " · installs Oct 9 (12d left)" for the project tooltip,
     +(projectStatus(p)!=='complete'?' ('+(n>=0?n+'d left':Math.abs(n)+'d over')+')':'');
 }
 const byDue=(a,b)=>String(dueDate(a)||'9999').localeCompare(String(dueDate(b)||'9999'));
+/* v1.31.0 (#24): the client to put IN FRONT of a project name on the dashboard's Departments
+   lines — empty when the name already starts with it ("Dior - HOD Holiday" stays as typed). */
+function clientLead(p){const c=(p&&p.client||'').trim();return c&&!String(p.name||'').toLowerCase().startsWith(c.toLowerCase())?c:'';}
 function isInstall(t){return isEndDept(t.department);}
 const endName=id=>id==='shipping'?'Shipping':'Install';
 /* A bar's crew. Stored as an array (install), a JSON string (legacy install rows) or a
@@ -2343,8 +2381,8 @@ function schedParse(v){
 
 function projToFields(p){const f={Title:p.name||'',client:p.client||'',jobCode:p.jobCode||'',deadline:p.deadline||null,status:p.status||'auto',projectManager:p.projectManager||'',drafter:p.drafter||'',leadFab:p.leadFab||'',fabricators:p.fabricators||'',metalFab:p.metalFab||'',activeDepartments:JSON.stringify(p.activeDepartments||[]),appId:p.id,createdAt:p.createdAt||null};if(p.sortIndex!=null)f.sortIndex=p.sortIndex;return f;}
 function fieldsToProj(f){return{id:f.appId,name:f.Title||'',client:f.client||'',jobCode:f.jobCode||'',deadline:isoDay(f.deadline),status:f.status||'auto',projectManager:f.projectManager||'',drafter:f.drafter||'',leadFab:f.leadFab||'',fabricators:f.fabricators||'',metalFab:f.metalFab||'',activeDepartments:safeArr(f.activeDepartments),sortIndex:f.sortIndex==null?null:Number(f.sortIndex),createdAt:isoDay(f.createdAt)};}
-function taskToFields(t){const d=deptById(t.department);return{Title:(d?d.name:t.department)||'Task',projectId:t.projectId,department:t.department,assignee:Array.isArray(t.assignee)?JSON.stringify(t.assignee):(t.assignee||''),startDate:t.startDate||null,endDate:t.endDate||null,estimatedDays:t.estimatedDays||1,ticketNodes:JSON.stringify(t.ticketNodes||[]),notes:t.notes||'',pinned:!!t.pinned,label:t.label||'',appId:t.id};}
-function fieldsToTask(f){const a=(isEndDept(f.department)&&typeof f.assignee==='string'&&f.assignee.trim().startsWith('['))?safeArr(f.assignee):(f.assignee||'');return{id:f.appId,projectId:f.projectId,department:f.department,assignee:a,startDate:isoDay(f.startDate),endDate:isoDay(f.endDate),estimatedDays:Number(f.estimatedDays)||1,ticketNodes:safeArr(f.ticketNodes),notes:f.notes||'',pinned:!!f.pinned,label:f.label||''};}
+function taskToFields(t){const d=deptById(t.department);return{Title:(d?d.name:t.department)||'Task',projectId:t.projectId,department:t.department,assignee:Array.isArray(t.assignee)?JSON.stringify(t.assignee):(t.assignee||''),startDate:t.startDate||null,endDate:t.endDate||null,estimatedDays:t.estimatedDays||1,ticketNodes:JSON.stringify(t.ticketNodes||[]),notes:t.notes||'',pinned:!!t.pinned,label:t.label||'',...(t.range?{range:true}:{}),appId:t.id};} /* v1.32.0 (#16): `range` is written only when set (tristate — a site without the column never sees it on ordinary saves) */
+function fieldsToTask(f){const a=(isEndDept(f.department)&&typeof f.assignee==='string'&&f.assignee.trim().startsWith('['))?safeArr(f.assignee):(f.assignee||'');return{id:f.appId,projectId:f.projectId,department:f.department,assignee:a,startDate:isoDay(f.startDate),endDate:isoDay(f.endDate),estimatedDays:Number(f.estimatedDays)||1,ticketNodes:safeArr(f.ticketNodes),notes:f.notes||'',pinned:!!f.pinned,label:f.label||'',...(f.range?{range:true}:{})};} /* v1.32.0 (#16): tristate on the read side too — a loaded non-range row keeps its pre-v1.32.0 shape, so stripStamps() still matches a row created in this session and the poll never wipes the undo stack over it */
 /* v1.7.1: phone rides the person record (column created by the owner 2026-09-01). */
 /* v1.8.0 (§3 item 12): the admin / feedbackRecipient flags. A flag is TRISTATE on the
    person object: true/false once the row carries a column value, null when it never
@@ -3695,6 +3733,8 @@ function renderSidebar(){
       const col=document.createElement('span');col.className='sb-2l';
       const nm=document.createElement('span');nm.className='sb-name';nm.textContent=p.name;col.appendChild(nm);
       const l2=document.createElement('span');l2.className='sb-l2';
+      const cl=(p.client||'').trim();
+      if(cl){const c=document.createElement('span');c.className='sb-cl';c.textContent=cl;c.title=cl;l2.appendChild(c);} /* v1.31.0 (#24): client first on line 2 — cut first when space runs out, whole on hover */
       const sub=document.createElement('span');sub.className='sb-sub';
       const due=dueDate(p); /* v1.26.0 (#15): the Installation (else Shipping) block decides, not the Setup date */
       sub.textContent=[p.jobCode,due?fmtNice(due):''].filter(Boolean).join(' · ');l2.appendChild(sub);
@@ -3764,7 +3804,11 @@ function renderSidebar(){
       for(const t of show){
         const p=projById(t.projectId);
         const a=document.createElement('span');a.className='sb-asn';
-        const n=document.createElement('span');n.className='n';n.textContent=(p?p.name:'—')+(t.label&&String(t.label).trim()?' · '+phaseLabel(t):''); /* v1.20.9: a subtask reads by its own name at a glance */
+        const n=document.createElement('span');n.className='n';
+        const lead=clientLead(p);
+        if(lead){const c=document.createElement('span');c.className='c';c.textContent=lead;n.appendChild(c);} /* v1.31.0 (#24): muted client in front of the name, unless the name already starts with it */
+        n.appendChild(document.createTextNode((lead?' · ':'')+(p?p.name:'—')+(t.label&&String(t.label).trim()?' · '+phaseLabel(t):''))); /* v1.20.9: a subtask reads by its own name at a glance */
+        a.title=n.textContent; /* v1.31.0 (#24): the whole line on hover when it is cut off */
         const d=document.createElement('span');d.className='d';
         d.textContent=fmtNice(t.startDate)+'–'+fmtNice(t.endDate);
         a.appendChild(n);a.appendChild(d);box.appendChild(a);
@@ -4002,6 +4046,10 @@ function buildCanvasBgInto(canvas,totalW,DW_){
     if(!off)flush(d);
     d=addDays(d,1);
   }
+  /* v1.27.0 (tracker #2, owner): the past wears a light grey wash so the eye lands on today
+     and the work ahead. One div under the rows and bars; the weekend hatch reads through it. */
+  {const px=Math.min(totalW,d2x(today()));
+   if(px>0){const pd=document.createElement('div');pd.className='past-col';pd.style.width=px+'px';pd.style.height=TOTAL_H+'px';bgFrag.appendChild(pd);}}
   /* Each holiday wears its name as a discrete pill at the top of its grey column. */
   let hd=new Date(TL_S);
   while(hd<=TL_E){
@@ -4168,7 +4216,7 @@ function makeSummaryBar(p,s,e,row){
     if(w>=BAR_W_CHIPS)inner+=[
       p.projectManager&&('<span class="role-tag">PM</span>'+esc(roleList(p.projectManager).map(canonName).map(dispName).join(', '))),
       p.drafter&&('<span class="role-tag">D</span>'+esc(roleList(p.drafter).map(canonName).map(dispName).join(', '))),
-      p.leadFab&&('<span class="role-tag">F</span>'+esc(roleList(p.leadFab).map(canonName).map(dispName).join(', ')))
+      p.leadFab&&('<span class="role-tag">L</span>'+esc(roleList(p.leadFab).map(canonName).map(dispName).join(', '))) /* v1.30.0 (#18): L = project lead (was F) */
     ].filter(Boolean).join('');
     lbl.innerHTML=inner;
     bar.appendChild(lbl);
@@ -4389,7 +4437,7 @@ function showTooltipProj(p,s,e,ev){
   el.innerHTML='<div class="tt-title">'+esc(p.name)+'</div>'
     +'<div class="tt-dim">'+esc(p.client||'')+(p.jobCode?' · '+esc(p.jobCode):'')+'</div>'
     +'<div class="tt-dim">'+fmtNice(fmtDate(s))+' → '+fmtNice(fmtDate(e))+dueText(p)+'</div>'
-    +'<div class="tt-dim">PM '+esc(roleList(p.projectManager).map(canonName).map(dispName).join(', ')||'—')+' · D '+esc(roleList(p.drafter).map(canonName).map(dispName).join(', ')||'—')+' · F '+esc(roleList(p.leadFab).map(canonName).map(dispName).join(', ')||'—')+(p.fabricators?' · Crew '+esc(roleList(p.fabricators).map(canonName).map(dispName).join(', ')):'')+'</div>'
+    +'<div class="tt-dim">PM '+esc(roleList(p.projectManager).map(canonName).map(dispName).join(', ')||'—')+' · D '+esc(roleList(p.drafter).map(canonName).map(dispName).join(', ')||'—')+' · L '+esc(roleList(p.leadFab).map(canonName).map(dispName).join(', ')||'—')+(p.fabricators?' · Crew '+esc(roleList(p.fabricators).map(canonName).map(dispName).join(', ')):'')+'</div>'
     +upd
     +'<div><span class="tt-badge">'+esc(STATUS_LBL[projectStatus(p)])+'</span></div>';
   el.classList.remove('hidden');posTooltip(ev);
@@ -4405,17 +4453,34 @@ function hideTooltip(){document.getElementById('tooltip').classList.add('hidden'
 
 /* ===================== PROJECT PAGE HELPERS ===================== */
 /* Multi-select role checkboxes for the project page */
-function fillRoleChecks(elId,names,currentStr){
+function fillRoleChecks(elId,names,currentStr,single){
   const el=document.getElementById(elId);el.innerHTML='';
   const sel=new Set(roleList(currentStr).map(canonName)); /* v1.6.5: legacy value checks its roster person, not a phantom box */
-  const all=[...new Set([...(names||[]),...sel])];
-  if(!all.length){el.innerHTML='<div class="tn-empty">No names yet — add people under Company Data &rsaquo; People.</div>';return;}
-  for(const n of all){
-    const lb=document.createElement('label');
-    const ck=document.createElement('input');ck.type='checkbox';ck.value=n;ck.checked=sel.has(n);
-    lb.appendChild(ck);lb.appendChild(document.createTextNode(dispName(n))); /* v1.19.2: nickname everywhere (owner); the VALUE stays the full name — identity never changes shape */
-    el.appendChild(lb);
+  const EMPTY='<div class="tn-empty">No names yet — add people under Company Data &rsaquo; People.</div>';
+  const byShown=(a,b)=>dispName(a).localeCompare(dispName(b));
+  const row=(v,txt,on)=>{const lb=document.createElement('label');
+    const ck=document.createElement('input');ck.type=single?'radio':'checkbox';if(single)ck.name=elId;ck.value=v;ck.checked=on;
+    lb.appendChild(ck);lb.appendChild(document.createTextNode(txt)); /* v1.19.2: nickname everywhere (owner); the VALUE stays the full name — identity never changes shape */
+    el.appendChild(lb);};
+  if(single){ /* v1.30.0 (#18): Project lead — one person from any department, or none; grouped by
+                 department (a person files under their first), alphabetical inside each group */
+    const cur=[...sel],one=cur.length===1&&!!personByName(cur[0]);
+    if(!PEOPLE.length&&!cur.length){el.innerHTML=EMPTY;return;}
+    row('','None',!cur.length);
+    if(cur.length&&!one)row(cur.join(', '),cur.map(dispName).join(', '),true); /* legacy: two leads, or a name off the roster — kept as-is until someone picks another */
+    const grp={};
+    for(const p of PEOPLE){const k=pdCanon((p.depts||[])[0]||''),g=SM_DEPTS.some(d=>d[0]===k)?k:'';(grp[g]||(grp[g]=[])).push(p.name);} /* an unknown dept id folds into "No department" — nobody drops out */
+    for(const [id,lbl] of [...SM_DEPTS,['','No department']]){
+      const ns=(grp[id]||[]).sort(byShown);if(!ns.length)continue;
+      const h=document.createElement('div');h.className='rl-grp';h.textContent=lbl;el.appendChild(h);
+      for(const n of ns)row(n,dispName(n),one&&n===cur[0]);
+    }
+    return;
   }
+  const all=[...new Set([...(names||[]),...sel])]
+    .sort((a,b)=>(sel.has(b)-sel.has(a))||byShown(a,b)); /* v1.29.0 (#19): checked first, then by the name as shown; settled at build time so a tick never re-sorts under the pointer */
+  if(!all.length){el.innerHTML=EMPTY;return;}
+  for(const n of all)row(n,dispName(n),sel.has(n));
 }
 function roleChecked(elId){return [...document.querySelectorAll('#'+elId+' input:checked')].map(c=>c.value).join(', ');}
 
@@ -4615,6 +4680,20 @@ function cdApplySizes(){
   const list=document.querySelector('.cd-list');if(!list)return;
   if(CD_LISTW){list.style.width=CD_LISTW+'px';list.style.maxWidth='none';}
   if(CD_COLW&&ROUTE.view==='people')CD_COLW.forEach((w,i)=>{if(w)list.style.setProperty('--cdc'+(i+1),w+'px');});
+  /* v1.26.3 (#13): a column nobody pinned fits its content on every paint; pinned ones never move */
+  if(ROUTE.view==='people')for(let i=0;i<8;i++)if(!(CD_COLW&&CD_COLW[i]))cdFitCol(i,false);
+  cdGripSync();
+}
+/* v1.26.3 (#13): fit column i to its widest header or cell text, capped. Measures real
+   layout — with no layout (jsdom) it reads 0 and leaves the stylesheet default alone. */
+const CD_COLCAP=280;
+function cdFitCol(i,persist){
+  const list=document.querySelector('.cd-list');if(!list)return;
+  const cells=document.querySelectorAll('.cd-cols>span:nth-child('+(i+1)+'),.cd-row.pp7>:nth-child('+(i+1)+')');
+  const w=Math.max(0,...[...cells].map(c=>c.scrollWidth));if(!w)return;
+  const px=Math.min(CD_COLCAP,Math.max(36,w+2));
+  list.style.setProperty('--cdc'+(i+1),px+'px');
+  if(persist){CD_COLW=CD_COLW||[];CD_COLW[i]=px;try{localStorage.setItem('shopTimelineCdColW',JSON.stringify(CD_COLW));}catch(e){}}
   cdGripSync();
 }
 /* v1.17.1: seat each grip at its column's right edge (they track live during a drag) */
@@ -5018,7 +5097,7 @@ function renderCompanyPage(){
   const isPeople=ROUTE.view==='people';
   /* v1.17.0 (owner: "the table jumped while I sat idle"): a data poll repaints this
      whole page — carry the two panes' scroll positions across the rebuild. */
-  const sc0=document.getElementById('cd-rows'),st0=sc0?sc0.scrollTop:0;
+  const sc0=document.getElementById('cd-rows'),st0=sc0?sc0.scrollTop:0,sl0=sc0?sc0.scrollLeft:0;
   const dt0=document.getElementById('cd-detail'),dst0=dt0?dt0.scrollTop:0;
   /* v1.8.0: no client list for viewers — the page bounces home (menu entry is hidden,
      this catches direct hashes and a roster that loads after the route). */
@@ -5053,10 +5132,14 @@ function renderCompanyPage(){
       +'<option value="dev">Developers</option><option value="fb">Feedback recipients</option>'
       +'<option value="viewer">Viewers</option></select>':'')
    +'</div>'
+   /* v1.26.3 (#27): the header row sits inside the scroller (sticky) so it scrolls with the rows */
+   +'<div class="cd-rows" id="cd-rows">'
    +(isPeople?'<div class="cd-cols"><span>Name</span><span>Title</span><span>Phone</span><span>Email</span><span>Perms</span><span class="cd-drv">Driver</span><span>Status</span><span>Schedule</span></div>':'')
-   +'<div class="cd-rows" id="cd-rows"></div></div>'
+   +'<div id="cd-rows-in"></div></div></div>'
    +'<div id="cd-split" title="Drag to resize the two panes"></div>'
-   +'<div class="cd-detail" id="cd-detail"></div></div></div>';
+   +'<div class="cd-detail" id="cd-detail"></div>'
+   +(isPeople?'<div id="cd-colmenu" class="tb-menu hidden"><div class="sm-item" id="cd-reset-w">Reset widths</div></div>':'')
+   +'</div></div>';
   pg.innerHTML=h;
   const q=document.getElementById('cd-q');q.value=CD_Q;
   q.addEventListener('input',()=>{CD_Q=q.value;cdPaintRows();});
@@ -5069,9 +5152,23 @@ function renderCompanyPage(){
   document.getElementById('cd-split').addEventListener('mousedown',cdSplitDrag);
   const hdr=document.querySelector('.cd-cols');
   if(hdr)[...hdr.children].filter(el=>el.tagName==='SPAN').forEach((sp,i)=>{
-    const g=document.createElement('i');g.className='cd-grip';g.title='Drag to resize this column';
-    g.addEventListener('mousedown',e=>cdColDrag(e,sp,i));hdr.appendChild(g);});
-  cdApplySizes();
+    const g=document.createElement('i');g.className='cd-grip';g.title='Drag to resize this column · double-click to fit it';
+    g.addEventListener('mousedown',e=>cdColDrag(e,sp,i));
+    g.addEventListener('dblclick',()=>cdFitCol(i,true)); /* v1.26.3 (#13) */
+    hdr.appendChild(g);});
+  /* v1.26.3 (#13): the column menu — right-click on the header row; Reset widths clears
+     every pin and the memory. Built on .tb-menu, so outside click and Esc close it. */
+  const cm=document.getElementById('cd-colmenu');
+  if(hdr&&cm){
+    hdr.addEventListener('contextmenu',ev=>{ev.preventDefault();closeMenus();
+      const op=cm.offsetParent,r=op?op.getBoundingClientRect():{left:0,top:0};
+      cm.style.left=(ev.clientX-r.left)+'px';cm.style.top=(ev.clientY-r.top)+'px';cm.classList.remove('hidden');});
+    cm.addEventListener('click',ev=>ev.stopPropagation());
+    document.getElementById('cd-reset-w').addEventListener('click',()=>{
+      CD_COLW=null;try{localStorage.removeItem('shopTimelineCdColW');}catch(e){}
+      const list=document.querySelector('.cd-list');for(let i=1;i<=8;i++)list.style.removeProperty('--cdc'+i);
+      cdApplySizes();closeMenus();});
+  }
   /* Both exits honour a mid-edit buffer the way Esc does — leaving via × used to
      discard the typed record silently AND strand CD_EDIT set on the timeline, where
      it short-circuits every poll tick until a Company Data page was revisited. */
@@ -5093,13 +5190,14 @@ function renderCompanyPage(){
     const f=document.querySelector('#cd-detail input');if(f)f.focus();
   });
   cdPaintRows();cdPaintDetail();
-  const sc1=document.getElementById('cd-rows');if(sc1)sc1.scrollTop=st0;
+  cdApplySizes(); /* v1.26.3 (#13): after the paint, so the fit can measure the rows */
+  const sc1=document.getElementById('cd-rows');if(sc1){sc1.scrollTop=st0;sc1.scrollLeft=sl0;}
   const dt1=document.getElementById('cd-detail');if(dt1)dt1.scrollTop=dst0;
 }
 
 function cdPaintRows(){
   const isPeople=ROUTE.view==='people';
-  const box=document.getElementById('cd-rows');if(!box)return;
+  const box=document.getElementById('cd-rows-in');if(!box)return; /* v1.26.3 (#27): the header shares #cd-rows */
   const qq=CD_Q.trim().toLowerCase();
   let rows;
   if(isPeople){
@@ -5134,6 +5232,8 @@ function cdPaintRows(){
         +'<b>'+esc(c.name)+'</b><span class="cd-mut">'+esc(c.alias||'')+'</span><span></span></div>');
   }
   box.innerHTML=rows.join('')||'<div class="cd-empty">'+(qq||CD_DEPT!=='all'||CD_PF!=='all'?'No matches.':'Nothing here yet — add the first one.')+'</div>';
+  /* v1.26.3 (#13): a cut-off value shows in full on hover (permission chips carry their own) */
+  box.querySelectorAll('.cd-row.pp7>b,.cd-row.pp7>.cd-mut,.cd-row.pp7>.cd-avail').forEach(c=>{c.title=c.textContent;});
   box.querySelectorAll('.cd-row').forEach(r=>r.addEventListener('click',()=>{
     if(CD_EDIT&&!confirm('Discard the changes to this record?'))return;
     CD_EDIT=null;CD_SEL=r.dataset.id;
@@ -5726,8 +5826,8 @@ function ppProject(){
 }
 
 const PP_ROLES=[['pp-r-pm','Project manager','projectManagers','projectManager'],
-                ['pp-r-dr','Drafter','drafters','drafter'],
-                ['pp-r-lf','Lead fabricator','leadFabs','leadFab'],
+                ['pp-r-dr','Technical Designer','drafters','drafter'], /* v1.31.1 (#17): the label only — the stored key and roster bucket keep their names */
+                ['pp-r-lf','Project lead',null,'leadFab'], /* v1.30.0 (#18): anyone on the roster, one or none (no bucket → single-choice list) */
                 ['pp-r-fb','Fabricators','leadFabs','fabricators']];
 /* The project's labor pool: everyone checked in any Team role, deduped. Crew pickers
    cull to this — the pool moves fluidly between subtasks, but it's picked once, in the
@@ -5737,8 +5837,11 @@ function projTeam(p){return [...new Set(PP_ROLES.flatMap(r=>roleList(p&&p[r[3]])
 function ppColor(p){return p&&p.id?projColor(p.id):'#94A3B8';}
 
 
+let PG_RQ={},PG_RQ_PID=null; /* v1.29.0 (#19): the Team lists' typed search text, per box, for one project */
+let PG_RADIO_T=null;         /* v1.30.0 (#18): the pending Project lead save (arrow-key runs coalesce) */
 function renderProjectPage(){
   const isNew=ROUTE.creating;
+  {const pid=isNew?'new':ROUTE.id;if(PG_RQ_PID!==pid){PG_RQ={};PG_RQ_PID=pid;}}
   /* v1.8.0: creating projects is admin-only — covers the button, the N key and a
      direct #/project/new hash (also a roster that loads after the route). */
   if(isNew&&isViewer()){
@@ -6152,9 +6255,10 @@ function ppDraftResolve(key){
   if(!key)return null;
   if(key.startsWith('l:')){const lid=key.slice(2);return NPV_TASKS.find(t=>String(t.id).split('::')[1]===lid)||null;}
   if(key.startsWith('d:')){const dp=key.slice(2);
-    /* an edit can seed the dept into lines mid-selection — fall back to its first bar */
+    /* an edit can seed the dept into lines mid-selection — fall back to its primary (never a
+       range that sorts first — v1.32.0 #16), then to its first bar */
     return NPV_TASKS.find(t=>t.department===dp&&String(t.id).indexOf('::')<0)
-         ||NPV_TASKS.find(t=>t.department===dp)||null;}
+         ||NPV_TASKS.find(t=>t.department===dp&&!t.range)||NPV_TASKS.find(t=>t.department===dp)||null;}
   return NPV_TASKS.find(t=>t.id===key)||null;
 }
 function ppSelect(id,quiet){
@@ -6219,6 +6323,8 @@ function insDeptList(p,boxId){
   if(!box)return;
   box.classList.add('ins-depts');
   const D=(!p&&PP_FORM)?PP_FORM:null;
+  const canR=vcan('phases'); /* v1.32.0 (#16): + and × ride the phases door, like the chart's add paths */
+  const keyOf=t=>p?t.id:ppDraftKeyFor(t); /* the rebuild-stable handle a date line edits by */
   let h='';
   GROUPS.forEach((g,gi)=>{
     h+='<div class="idg">'+(gi+1)+' \u00b7 '+esc(g.label)+'</div>';
@@ -6227,14 +6333,20 @@ function insDeptList(p,boxId){
       const active=p?(p.activeDepartments||[]).includes(id)
                    :(D?D.activeDepartments.includes(id)
                       :DEFAULT_DEPTS.includes(id));
-      const ex=p?ST.tasks.find(t=>t.projectId===p.id&&t.department===id):null;
+      /* v1.32.0 (#16): every row of the department — the primary (the first bar that is not a
+         range) keeps the day count and the first date line; each extra range gets its own line */
+      const all=p?ST.tasks.filter(t=>t.projectId===p.id&&t.department===id):((typeof NPV_ALL!=='undefined'&&NPV_ALL)||[]).filter(t=>t.department===id);
+      const prim=all.find(t=>!t.range)||all[0]||null;
+      const ex=p?prim:null;
+      const ranges=all.filter(t=>t!==prim&&t.range).sort((a,b)=>String(a.startDate).localeCompare(String(b.startDate)));
       if(d.retired&&!active&&!ex)continue; /* retired dept: offered nowhere, shown only where it's already in use */
       const days=ex?(ex.estimatedDays||d.est||1):((D&&D.est[id])||d.est||1);
       const other=d.freeText?(ex?(ex.assignee||''):((D&&D.otherLabels[id])||'')):null;
       h+='<div class="idr'+(active?'':' off')+'">'
        + '<input type="checkbox" data-dept="'+esc(id)+'"'+(active?' checked':'')
        +   (id==='pm'?' checked disabled':'')+'>'
-       + '<span class="dname">'+esc(d.freeText?'Other':d.name)+'</span>';
+       + '<span class="dname">'+esc(d.freeText?'Other':d.name)+'</span>'
+       + (id!=='pm'&&canR?'<button type="button" class="radd" data-dept="'+esc(id)+'" title="Add another range after the last one" aria-label="Add another '+esc(d.freeText?'Other':d.name)+' range">+</button>':''); /* v1.32.0 (#16) */
       if(id==='pm')
         h+='<span class="dlbl" style="width:auto">spans job</span>';
       else
@@ -6247,13 +6359,21 @@ function insDeptList(p,boxId){
       /* N13: manual dates beside the day quantity — edit days and the end moves;
          edit a date and the days recount. Same bar a drag would move. */
       if(id!=='pm'){
-        const bar=p?ex:((typeof NPV_ALL!=='undefined'&&NPV_ALL)||[]).find(t=>t.department===id);
-        h+='<span class="ddates">'
-         + '<input type="date" class="dstart" data-dept="'+esc(id)+'" value="'+esc((bar&&bar.startDate)||'')+'"'+(active?'':' disabled')+'>'
-         + '<span class="da">&rarr;</span>'
-         + '<input type="date" class="dend" data-dept="'+esc(id)+'" value="'+esc((bar&&bar.endDate)||'')+'"'+(active?'':' disabled')+'>'
-         + '</span>'
-         + '<span class="ins-note dnote hidden" data-dept="'+esc(id)+'"></span>';
+        const bar=p?ex:prim;
+        /* v1.32.0 (#16): one date line per bar — the primary's first (its .dstart[data-dept] is the
+           row's, as before), then a line per range with its own day count and a ×. data-key is
+           the handle the change delegate edits by (a task id, or the draft's 'l:'/'d:' key). */
+        const line=(t,rng)=>{const k=t?keyOf(t):'',ka=k?' data-key="'+esc(k)+'"':'';
+          return '<span class="ddates'+(rng?' rng':'')+'"'+ka+'>'
+           + '<input type="date" class="dstart" data-dept="'+esc(id)+'"'+ka+' value="'+esc((t&&t.startDate)||'')+'"'+(active?'':' disabled')+'>'
+           + '<span class="da">&rarr;</span>'
+           + '<input type="date" class="dend" data-dept="'+esc(id)+'"'+ka+' value="'+esc((t&&t.endDate)||'')+'"'+(active?'':' disabled')+'>'
+           + (rng?'<input type="number" class="rdays" min="1"'+ka+' value="'+(t.estimatedDays||1)+'"'+(active?'':' disabled')+' aria-label="Days in this range"><span class="dlbl">d</span>'
+                + (canR?'<button type="button" class="rx"'+ka+' title="Remove this range" aria-label="Remove this range">&times;</button>':''):'')
+           + '</span>'
+           + '<span class="ins-note dnote hidden" data-dept="'+esc(id)+'"'+ka+'></span>';};
+        h+=line(bar,false);
+        for(const r of ranges)h+=line(r,true);
       }
       h+='</div>';
     }
@@ -6265,7 +6385,7 @@ function insDeptList(p,boxId){
     row.classList.toggle('off',!ck.checked);
     const dd=row.querySelector('.ddays');if(dd)dd.disabled=!ck.checked;
     const ot=row.querySelector('.dother');if(ot)ot.disabled=!ck.checked;
-    row.querySelectorAll('.dstart,.dend').forEach(i=>{i.disabled=!ck.checked;});
+    row.querySelectorAll('.dstart,.dend,.rdays').forEach(i=>{i.disabled=!ck.checked;});
   }));
 }
 
@@ -6320,20 +6440,25 @@ function ppPaintDateNote(){
   if(!rows.length)return;
   const p=ppProject(),on=PP_DNOTE&&PP_DNOTE.proj===(p?p.id:'')?PP_DNOTE:null;
   rows.forEach(el=>{
-    const t=on&&on.key==='d:'+el.dataset.dept?on.text:'';el.textContent=t;el.classList.toggle('hidden',!t);
+    const k=el.dataset.key?'k:'+el.dataset.key:'d:'+el.dataset.dept; /* v1.32.0 (#16): one note per date line */
+    const t=on&&on.key===k?on.text:'';el.textContent=t;el.classList.toggle('hidden',!t);
   });
 }
-function ppDeptDates(dept,which,val){
-  const bar=(NPV_ALL||[]).find(t=>t.department===dept);
+/* v1.32.0 (#16): the bar behind a date line, from its data-key — a task id on a saved page, the
+   draft's rebuild-stable 'l:'/'d:' key on a draft (raw draft ids regenerate every keystroke). */
+function ppLineBar(key){return key?(NPV_LIVE?taskById(key):ppDraftResolve(key)):null;}
+function ppDeptDates(key,which,val){
+  const bar=ppLineBar(key);
   if(!bar||!val)return;
+  const dept=bar.department;
   const r=typedDates(dept,bar.startDate,bar.endDate,which,val);
-  ppDateNote('d:'+dept,r.note);
-  const ck=document.querySelector('#pp-depts input[data-dept="'+dept+'"]');
-  const idr=ck?ck.closest('.idr'):null;
-  if(idr){
-    const dd=idr.querySelector('.ddays');if(dd)dd.value=r.days;
-    /* the fields show where the dates actually landed, not what was typed */
-    const ds=idr.querySelector('.dstart'),de=idr.querySelector('.dend');
+  ppDateNote('k:'+key,r.note);
+  const line=document.querySelector('#pp-depts .ddates[data-key="'+key+'"]');
+  if(line){
+    /* the fields show where the dates actually landed, not what was typed; the day count is the
+       range's own on a range line, the row's .ddays on the primary line */
+    const dd=line.querySelector('.rdays')||line.closest('.idr').querySelector('.ddays');if(dd)dd.value=r.days;
+    const ds=line.querySelector('.dstart'),de=line.querySelector('.dend');
     if(ds)ds.value=r.s;if(de)de.value=r.e;
   }
   if(NPV_LIVE){commitPhaseDates(bar.id,r.s,r.e,r.days);npvRebuild();return;}
@@ -6345,9 +6470,14 @@ function npvSyncDeptDates(){
   const box=document.getElementById('pp-depts');
   if(!box)return;
   box.querySelectorAll('.dstart,.dend').forEach(inp=>{
-    const bar=(NPV_ALL||[]).find(t=>t.department===inp.dataset.dept);
+    const bar=inp.dataset.key?ppLineBar(inp.dataset.key):(NPV_ALL||[]).find(t=>t.department===inp.dataset.dept);
     if(!bar)return;
     const v=inp.classList.contains('dstart')?(bar.startDate||''):(bar.endDate||'');
+    if(inp.value!==v&&document.activeElement!==inp)inp.value=v;
+  });
+  box.querySelectorAll('.rdays').forEach(inp=>{ /* v1.32.0 (#16) */
+    const bar=ppLineBar(inp.dataset.key);if(!bar)return;
+    const v=String(bar.estimatedDays||1);
     if(inp.value!==v&&document.activeElement!==inp)inp.value=v;
   });
   ppPaintDateNote();
@@ -6449,12 +6579,13 @@ function ppInspector(){
           return '<option value="auto"'+(stored==='auto'?' selected':'')+'>Automatic (currently: '+esc(STATUS_LBL[cur]||cur)+')</option>'
            + Object.keys(STATUS_LBL).map(s=>'<option value="'+s+'"'+(stored===s?' selected':'')+'>'+esc(STATUS_LBL[s])+'</option>').join('');})()
       + '</select></div>',null,true);
-    h+=ppSec('team','Team',
+    h+=ppSec('team','Project Team', /* v1.31.1 (#22): the id stays 'team' */
       '<div class="pg-roles">'+PP_ROLES.map(r=>'<div><span class="rl">'+esc(r[1])+'</span>'
+        + '<input class="pg-rq" type="text" placeholder="Search…" aria-label="Search '+esc(r[1])+'" autocomplete="off" spellcheck="false" data-for="'+r[0]+'">' /* v1.29.0 (#19): outside .pg-rbox so its blur never commits a role and validation still focuses a checkbox */
         + '<div class="pg-rbox" id="'+r[0]+'"></div></div>').join('')+'</div>',null,false);
-    h+=ppSec('depts','Departments',
+    h+=ppSec('depts','Project Schedule', /* v1.31.1 (#22): the id stays 'depts' */
       '<div class="pg-depts" id="pp-depts"></div>'
-      + (vcan('phases')?'<div class="ins-note">Right-click the chart to add one where you want it.</div>':''),
+      + (vcan('phases')?'<div class="ins-note">Tick a department to add it to the schedule, or double-click the calendar to add a phase where you want it. Press + beside a department to add another range.</div>':''), /* v1.31.1: right-click has offered milestones and notes only since v1.2.1 */
       null,false);
     h+=ppAgendaHTML(p,null);
     h+='</div>';
@@ -6567,39 +6698,88 @@ function ppBindInspector(p,sel){
       if(ROUTE.creating)el.addEventListener('input',npvQueue);
     });
     for(const r of PP_ROLES)
-      fillRoleChecks(r[0],STAFF[r[2]]||[],(ROUTE.creating&&PP_FORM?PP_FORM[r[3]]:p[r[3]])||'');
+      fillRoleChecks(r[0],STAFF[r[2]]||[],(ROUTE.creating&&PP_FORM?PP_FORM[r[3]]:p[r[3]])||'',!r[2]);
     insDeptList(ROUTE.creating?null:p,'pp-depts');
     /* REV90: bind once per page build — #pp-insp persists across ppInspector() repaints
        (only its innerHTML is replaced), so re-adding stacked N delegated listeners and
        one checkbox change committed N times, flooding the undo stack. */
     if(!box.dataset.bound){box.dataset.bound='1';
+    /* v1.29.0 (#19): each Team list's Search box hides the names that don't match any part of
+       the shown or stored name; checked names stay visible, and hidden checkboxes stay in the
+       DOM so roleChecked() still reads them. The typed text is kept per box (PG_RQ) and put
+       back after any repaint of this project's panel — a Setup field change, a department
+       tick, the poll — and forgotten when another project opens (renderProjectPage). */
+    box.addEventListener('input',ev=>{
+      const t=ev.target;
+      if(!t||!t.classList||!t.classList.contains('pg-rq'))return;
+      PG_RQ[t.dataset.for]=t.value;
+      const q=t.value.trim().toLowerCase();
+      document.querySelectorAll('#'+t.dataset.for+' label').forEach(l=>{const ck=l.querySelector('input');
+        l.classList.toggle('hidden',!!q&&!(ck&&(ck.checked||ck.value===''))&&(l.textContent+' '+(ck?ck.value:'')).toLowerCase().indexOf(q)<0);}); /* v1.30.0 (#18): the "None" choice stays too */
+      /* v1.30.0 (#18): a department header folds away while every name under it is hidden */
+      document.querySelectorAll('#'+t.dataset.for+' .rl-grp').forEach(h=>{let n=h.nextElementSibling,any=false;
+        while(n&&!n.classList.contains('rl-grp')){if(!n.classList.contains('hidden'))any=true;n=n.nextElementSibling;}
+        h.classList.toggle('hidden',!any);});
+    });
+    /* v1.32.0 (#16): + beside a department adds another range after its last one; × on a range's
+       date line removes that range (saved: the usual undo toast; draft: the line and its placement
+       go, with an undo of their own). The list repaints itself — ppInspector() is the only painter. */
+    box.addEventListener('click',ev=>{
+      const b=ev.target&&ev.target.closest?ev.target.closest('.radd,.rx'):null;
+      if(!b)return;
+      ev.preventDefault();
+      if(b.classList.contains('radd')){npvCreateRange(b.dataset.dept);return;}
+      const bar=ppLineBar(b.dataset.key);if(!bar)return;
+      const nm=(deptById(bar.department)||{}).name||bar.department;
+      if(NPV_LIVE){ppDeletePhase(bar.id);ppInspector();return;}
+      const l=ppDraftLineFor(bar),k=npvKey(bar),prevM=NPV_MANUAL[k];
+      NPV_LINES=NPV_LINES.filter(x=>x.id!==l.id);delete NPV_MANUAL[k];
+      npvRebuild();ppInspector();
+      npvToastU('Removed a '+nm+' range',()=>{NPV_LINES.push(l);if(prevM)NPV_MANUAL[k]=prevM;npvRebuild();ppInspector();});
+    });
     box.addEventListener('change',ev=>{
       const t=ev.target;
       if(!t||!t.closest)return;
       /* N13: date edits route to the bar, not to the checklist commit. */
       if(t.classList&&(t.classList.contains('dstart')||t.classList.contains('dend'))){
-        ppDeptDates(t.dataset.dept,t.classList.contains('dstart')?'s':'e',t.value);
+        ppDeptDates(t.dataset.key||('d:'+t.dataset.dept),t.classList.contains('dstart')?'s':'e',t.value); /* v1.32.0 (#16): by the line's key */
         return;
       }
       /* N13: on a saved page a days edit moves the phase's end — the other half of
          the bidirectional pair. (Drafts already recompute through the scheduler.) */
       if(t.classList&&t.classList.contains('ddays')&&NPV_LIVE){
         const ck2=t.closest('.idr').querySelector('input[data-dept]');
-        const bar=ck2?(NPV_ALL||[]).find(b=>b.department===ck2.dataset.dept):null;
+        const bar=ck2?npvPrimary(ck2.dataset.dept):null; /* v1.32.0 (#16): the row's count is the primary's, never a range that sorts first */
         if(bar&&bar.startDate){
           const n=Math.max(1,parseInt(t.value,10)||1);
           commitPhaseDates(bar.id,bar.startDate,fmtDate(deptEndAfter(bar.department,parseDate(bar.startDate),n)),n);
           npvRebuild();return;
         }
       }
+      /* v1.32.0 (#16): a range's own day count moves that range's end — saved page and draft */
+      if(t.classList&&t.classList.contains('rdays')){
+        const bar=ppLineBar(t.dataset.key);
+        if(bar&&bar.startDate){
+          const n=Math.max(1,parseInt(t.value,10)||1),e=fmtDate(deptEndAfter(bar.department,parseDate(bar.startDate),n));
+          if(NPV_LIVE)commitPhaseDates(bar.id,bar.startDate,e,n);
+          else NPV_MANUAL[npvKey(bar)]={startDate:bar.startDate,endDate:e,estimatedDays:n};
+          npvRebuild();
+        }
+        return;
+      }
       if(t.closest('.pg-rbox')){
         if(ROUTE.creating){npvQueue();return;}
-        const patch={};
+        const patch={},pid=p.id;
         for(const r of PP_ROLES)patch[r[3]]=roleChecked(r[0]);
-        PP_QUIET=true;
-        try{saveState({projects:ST.projects.map(y=>y.id===p.id?{...y,...patch}:y),tasks:ST.tasks});}
-        finally{PP_QUIET=false;}
-        npvRebuild();return;
+        const commit=()=>{PP_QUIET=true;
+          try{saveState({projects:ST.projects.map(y=>y.id===pid?{...y,...patch}:y),tasks:ST.tasks});}
+          finally{PP_QUIET=false;}
+          if(ROUTE.view==='project'&&ROUTE.id===pid)npvRebuild();};
+        /* v1.30.0 (#18): the Project lead radios move AND check on every arrow key, each firing change;
+           a run of them becomes one save (one PATCH, one undo entry) — the patch is read now, saved
+           300 ms after the last step. Checkboxes still commit at once. */
+        if(t.type==='radio'){clearTimeout(PG_RADIO_T);PG_RADIO_T=setTimeout(commit,300);return;}
+        commit();return;
       }
       if(t.closest('#pp-depts')){
         if(ROUTE.creating){npvQueue();return;}
@@ -6607,6 +6787,10 @@ function ppBindInspector(p,sel){
       }
     });
     }
+    /* v1.29.0 (#19): put the remembered search text back into each box and re-filter — after the
+       listeners are bound, so the first paint of a recreated panel is filtered too. */
+    for(const r of PP_ROLES){const q=PG_RQ[r[0]];if(!q)continue;
+      const b=box.querySelector('.pg-rq[data-for="'+r[0]+'"]');if(b){b.value=q;b.dispatchEvent(new Event('input',{bubbles:true}));}}
   }
 
   box.querySelectorAll('[data-ag]').forEach(b=>b.addEventListener('click',()=>{
@@ -6733,7 +6917,7 @@ let NPV_MANUAL={};
 let NPV_ORDER=[];        /* department ids, top-to-bottom display order */
 let NPV_EVENTS=[];       /* draft events  {id,name,date,dept} */
 let NPV_TODOS=[];        /* draft tasks   {id,title,who,due,priority,dept} */
-let NPV_LINES=[];        /* named phase lines {id,name,dept,who} */
+let NPV_LINES=[];        /* named phase lines {id,name,dept,who,seed?,notes?,range?} — range: another work period (#16) */
 let NPV_MODE='gantt';    /* 'gantt' | 'calendar' */
 /* v1.5.0 (08-31 obj 8): project-gantt zoom — null fits the whole job (the historical
    behavior); 7/30/91 pin a week/month/quarter across the panel. Per-browser pref. */
@@ -6830,7 +7014,16 @@ function npvSetGut(w){
   document.documentElement.style.setProperty('--npv-gut',NPV_GUT+'px');
 }
 
-function npvKey(t){return t.department+'::'+(t.label||'')+'::'+(Array.isArray(t.assignee)?t.assignee.join(','):(t.assignee||''));}
+function npvKey(t){
+  /* v1.32.0 (#16): a draft range keys its placement by its line id — two unlabeled ranges with the
+     same crew would otherwise share one key. Every other bar keeps the old key byte for byte. */
+  const lid=t.range?String(t.id).split('::')[1]:'';
+  if(lid)return t.department+'::#'+lid;
+  return t.department+'::'+(t.label||'')+'::'+(Array.isArray(t.assignee)?t.assignee.join(','):(t.assignee||''));}
+/* v1.32.0 (#16): the department's primary bar — the first bar that is not a range (a range dragged
+   ahead of it must not take over the row); a department with nothing but ranges left falls back
+   to its first bar. */
+function npvPrimary(dept){return NPV_TASKS.find(z=>z.department===dept&&!z.range)||NPV_TASKS.find(z=>z.department===dept)||null;}
 function wdCount(a,b){let n=0,c=new Date(a);while(c<=b){if(isWorking(c))n++;c=addDays(c,1);}return Math.max(1,n);}
 
 /* Read the left-hand form without saving anything. */
@@ -6949,7 +7142,7 @@ function applyPhaseLines(tasks){
        (seed:true — an unowned umbrella is blank on both counts but is still a real
        bar; dropping it here swallowed the department's primary bar on the first
        subtask). Blank placeholder lines typed into the panel still don't render. */
-    if(!l.dept||(!(l.name||'').trim()&&!(l.who||'').trim()&&!l.seed))continue;
+    if(!l.dept||(!(l.name||'').trim()&&!(l.who||'').trim()&&!l.seed&&!l.range))continue; /* v1.32.0 (#16): a range line is blank on both counts and still real */
     (byDept[l.dept]=byDept[l.dept]||[]).push(l);
   }
   if(!Object.keys(byDept).length)return tasks;
@@ -6960,7 +7153,7 @@ function applyPhaseLines(tasks){
     if(expanded[t.department])continue;
     expanded[t.department]=true;
     for(const l of lines){
-      out.push({...t,id:t.id+'::'+l.id,label:l.name.trim(),
+      out.push({...t,id:t.id+'::'+l.id,label:l.name.trim(),range:!!l.range,
         assignee:l.who?l.who:(deptById(t.department)||{}).roster?t.assignee:'',
         notes:l.notes!==undefined?l.notes:t.notes}); /* 3.5: the inspector edits notes on the line */
     }
@@ -6982,9 +7175,16 @@ function npvRowPlan(){
     if(seen[t.department])continue;
     seen[t.department]=true;
     const kids=byDept[t.department];
-    if(kids.length<2){plan.push({kind:'leaf',dept:t.department,t:kids[0].t,i:kids[0].i});continue;}
+    /* v1.32.0 (#16): a range (t.range) is another top bar of the department's own row — never a
+       subtask: it does not nest, does not open, and the envelope track below spans the primary
+       and its subtasks only, so the gaps between ranges stay empty. The primary is the first
+       bar that is not a range (npvPrimary), whatever the sort put first. */
+    const prim=kids.find(k=>!k.t.range)||kids[0];
+    const tops=[prim,...kids.filter(k=>k!==prim&&k.t.range)];
+    const subs=kids.filter(k=>k!==prim&&!k.t.range);
+    if(!subs.length){plan.push({kind:'leaf',dept:t.department,t:prim.t,i:prim.i,bars:tops});continue;}
     let s='',e='';
-    for(const k of kids){
+    for(const k of [prim,...subs]){
       if(k.t.startDate&&(!s||k.t.startDate<s))s=k.t.startDate;
       if(k.t.endDate&&(!e||k.t.endDate>e))e=k.t.endDate;
     }
@@ -6995,8 +7195,8 @@ function npvRowPlan(){
        parent flag; first-in-sort is the parent (unlabeled bars sort ahead of named
        subtasks, so the original phase bar stays parent). Store a flag if anyone
        needs to re-parent. */
-    plan.push({kind:'parent',dept:t.department,kids:kids,open:open,s:s,e:e,t:kids[0].t,i:kids[0].i});
-    if(open)for(const k of kids.slice(1))plan.push({kind:'child',dept:t.department,t:k.t,i:k.i});
+    plan.push({kind:'parent',dept:t.department,kids:[prim,...subs],bars:tops,open:open,s:s,e:e,t:prim.t,i:prim.i});
+    if(open)for(const k of subs)plan.push({kind:'child',dept:t.department,t:k.t,i:k.i,bars:[k]});
   }
   return plan;
 }
@@ -7100,11 +7300,12 @@ function npvDeptMenu(x,y,dept,hit){
   const kids=NPV_TASKS.filter(t=>t.department===dept);
   const col=DEPT_COLORS[dept]||'#8A98AE';
   let h='';
-  if(kids.length>1)
+  if(kids.filter(t=>!t.range).length>1) /* v1.32.0 (#16): ranges are top bars — nothing to expand unless there are subtasks */
     h+='<button data-act="tog"><span class="mi" style="background:'+col+'"></span>'
      + (open?'Collapse':'Expand')+' subtasks</button>';
   h+='<button data-act="sub"><span class="mi" style="background:'+col+'"></span>'
    +   'New subtask<span class="k">S</span></button>'
+   + '<button data-act="rng"><span class="mi" style="background:'+col+'"></span>Add another range</button>' /* v1.32.0 (#16): after the last one */
    + '<button data-act="ev"><span class="mi ev"></span>New milestone<span class="k">E</span></button>'
    + '<button data-act="tk"><span class="mi tk"></span>New note<span class="k">T</span></button>';
   /* N11: "Remove from job" left with the other destructive actions — untick the
@@ -7113,6 +7314,7 @@ function npvDeptMenu(x,y,dept,hit){
     const day=(hit&&hit.date)||(kids[0]&&kids[0].startDate)||'';
     if(act==='tog')npvToggleDept(dept);
     else if(act==='sub')npvCreateSubtask(dept,day,false);
+    else if(act==='rng')npvCreateRange(dept); /* v1.32.0 (#16) */
     else if(act==='ev')npvCreateEvent(dept,day);
     else if(act==='tk')npvCreateTask(dept,day);
   });
@@ -7124,15 +7326,15 @@ function npvDuplicatePhase(t){
     const src=ppDraftLineFor(t);
     const who=src.who||(Array.isArray(t.assignee)?t.assignee.join(', '):(t.assignee||''));
     const l={id:genId(),name:(t.label||((deptById(t.department)||{}).name||t.department))+' copy',
-      dept:t.department,who:who,notes:src.notes||''};
+      dept:t.department,who:who,notes:src.notes||'',range:!!t.range}; /* v1.32.0 (#16): a copied range stays a range */
     NPV_LINES.push(l);
-    NPV_MANUAL[npvKey({department:t.department,label:l.name,assignee:who})]=
-      {startDate:t.startDate,endDate:t.endDate,estimatedDays:t.estimatedDays};
+    const dk=l.range?t.department+'::#'+l.id:npvKey({department:t.department,label:l.name,assignee:who});
+    NPV_MANUAL[dk]={startDate:t.startDate,endDate:t.endDate,estimatedDays:t.estimatedDays};
     NPV_OPEN.add(t.department);NPV_CAL_OPEN.set(t.department,2);saveUI();npvRebuild();
     ppSelect('l:'+l.id,true);
     npvToastU('Duplicated '+phaseLabel(t),()=>{
       NPV_LINES=NPV_LINES.filter(x=>x.id!==l.id);
-      delete NPV_MANUAL[npvKey({department:t.department,label:l.name,assignee:who})];
+      delete NPV_MANUAL[dk];
       ppSelect(null,true);npvRebuild();
     });
     return;
@@ -7164,6 +7366,7 @@ function npvOpenMenu(clientX,clientY,hit,page){
     h+='<div class="mh">'+esc(dn)+' &middot; '+esc(dateTxt)+'</div>'
      + '<button data-act="sub"><span class="mi" style="background:'
      +   (DEPT_COLORS[dept]||'#8A98AE')+'"></span>New subtask here<span class="k">S</span></button>'
+     + (hit.row.kind!=='child'?'<button data-act="rng"><span class="mi" style="background:'+(DEPT_COLORS[dept]||'#8A98AE')+'"></span>Add another range here</button>':'') /* v1.32.0 (#16): on the department's row, not a subtask's */
      + '<button data-act="ev"><span class="mi ev"></span>New milestone<span class="k">E</span></button>'
      + '<button data-act="tk"><span class="mi tk"></span>New note<span class="k">T</span></button>';
     if(hit.row.kind==='parent')
@@ -7190,6 +7393,7 @@ function npvOpenMenu(clientX,clientY,hit,page){
     npvCloseMenu();
     if(act==='tog')npvToggleDept(dept);
     else if(act==='sub')npvCreateSubtask(dept,hit.date,false);
+    else if(act==='rng')npvCreateRange(dept,hit.date); /* v1.32.0 (#16) */
     else if(act==='dept')npvCreateSubtask(b.dataset.dept,hit.date,true,null,hit.pop);
     else if(act==='ev')npvCreateEvent(dept,hit.date);
     else if(act==='tk')npvCreateTask(dept,hit.date);
@@ -7239,7 +7443,7 @@ function npvCreateSubtask(dept,date,newDept,name,popAt){
        manual placement so it survives the per-keystroke rebuild (REV55). Without
        this the new line spans the whole window: an exact copy of the parent bar,
        frozen in place by the nesting clamp. */
-    const w0=NPV_TASKS.find(t=>t.department===dept);
+    const w0=npvPrimary(dept); /* v1.32.0 (#16): the primary, not a range that sorts first */
     if(w0){
       const half=Math.max(1,Math.round((w0.estimatedDays
         ||wdCount(parseDate(w0.startDate),parseDate(w0.endDate)))/2));
@@ -7261,7 +7465,7 @@ function npvCreateSubtask(dept,date,newDept,name,popAt){
   }
   const p=ppProject();if(!p)return;
   const kids=NPV_TASKS.filter(t=>t.department===dept);
-  const sib=kids[0];
+  const sib=npvPrimary(dept); /* v1.32.0 (#16): a subtask nests under the primary, not under a range that sorts first */
   /* No parent bar means this creates the department's PRIMARY bar — a phase, not a
      subtask — so it rides the phases door (the S key maps to 'subtasks'). */
   if(!sib&&isViewer()&&!vcan('phases')){toast('View-only access — ask an admin to change the schedule','err');return;}
@@ -7290,6 +7494,37 @@ function npvCreateSubtask(dept,date,newDept,name,popAt){
   ppSelect(t.id);
   if(popAt)npvEditPop('phase',ppSelected(),popAt[0],popAt[1],true);
   toastU('Added a '+((deptById(dept)||{}).name||dept)+' bar');
+}
+/* v1.32.0 (#16): another work period for a department — a top bar on the department's own row
+   (never a subtask: no nesting, no clamp, not carried by Link), born the day after the
+   department's last range (a workday for shop departments, a calendar day for Installation and
+   Shipping) at the row's day count; a right-click day inside an existing range also lands after
+   it, so ranges never overlap by placement. Deliberately NOT selected: selecting swaps the dock
+   to the phase pane and hides the list the + lives in, so + twice in a row would be impossible. */
+function npvCreateRange(dept,date){
+  if(!dept)return;
+  if(NPV_LIVE&&isViewer()&&!vcan('phases')){toast('View-only access — ask an admin to change the schedule','err');return;}
+  const prim=npvPrimary(dept);if(!prim)return;
+  const tops=NPV_TASKS.filter(t=>t.department===dept&&(t===prim||t.range)).sort((a,b)=>String(a.startDate).localeCompare(String(b.startDate)));
+  const nm=(deptById(dept)||{}).name||dept;
+  const days=prim.estimatedDays||(deptById(dept)||{}).est||1;                          /* the row's "d" */
+  const after=iso=>{const d=fmtDate(addDays(parseDate(iso),1));return isEndDept(dept)?d:wdSnap(d);};
+  let start=date?(isEndDept(dept)?date:wdSnap(date)):after(tops.reduce((m,t)=>t.endDate>m?t.endDate:m,''));
+  /* hop past every range the start lands in — back-to-back ranges would otherwise take a hidden duplicate */
+  for(let inside=tops.find(t=>start>=t.startDate&&start<=t.endDate),n=0;inside&&n<tops.length;n++)
+    {start=after(inside.endDate);inside=tops.find(t=>start>=t.startDate&&start<=t.endDate);}
+  const end=fmtDate(deptEndAfter(dept,parseDate(start),days));
+  if(NPV_LIVE){
+    const t={...prim,id:genId(),label:'',ticketNodes:[],notes:'',pinned:false,range:true,startDate:start,endDate:end,estimatedDays:days};
+    delete t.__manual;delete t.updatedBy;delete t.updatedAt;
+    PP_QUIET=true;try{saveState({projects:ST.projects,tasks:[...ST.tasks,t]});}finally{PP_QUIET=false;}
+    npvRebuild();ppInspector();toastU('Added a '+nm+' range');return;
+  }
+  ppSeedLines(dept);                                                                    /* line-back the primary first */
+  const l={id:genId(),name:'',dept:dept,who:'',range:true};NPV_LINES.push(l);
+  const k=dept+'::#'+l.id;NPV_MANUAL[k]={startDate:start,endDate:end,estimatedDays:days};
+  npvRebuild();ppInspector();
+  npvToastU('Added a '+nm+' range',()=>{NPV_LINES=NPV_LINES.filter(x=>x.id!==l.id);delete NPV_MANUAL[k];npvRebuild();ppInspector();});
 }
 /* No thing on this chart is ever created without a date again. An undated event isn't
    drawn, which read as "it went somewhere random". */
@@ -7561,7 +7796,7 @@ function npvRender(){
        + '<span class="npv-tri" data-dept="'+esc(row.dept)+'" title="Show subtasks">&#9654;</span>'
        + esc(nm)+'<span class="npv-n">'+(row.kids.length-1)+'</span></div>'
        + '<div class="npv-env" style="left:'+ex+'px;width:'+ew+'px;background:'+col+'"></div>'
-       + barFor(row.t,row.i)
+       + row.bars.map(b=>barFor(b.t,b.i)).join('') /* v1.32.0 (#16): the primary and every range, each its own bar */
        + '</div>';
       continue;
     }
@@ -7575,7 +7810,7 @@ function npvRender(){
      + (child?'<span class="npv-elbow">&#9492;</span>'
              :'<span class="npv-grip">&#9679;&#9679;</span>')
      + esc(gut)+'</div>'
-     + barFor(t,i,child?'kid':'')
+     + row.bars.map(b=>barFor(b.t,b.i,child?'kid':'')).join('') /* v1.32.0 (#16): a leaf row carries its ranges too */
      + '</div>';
   }
 
@@ -7701,7 +7936,7 @@ function npvBindHost(host){
              double-click (rename intent, handled below) — it must not toggle the
              selection away mid-gesture. */
           const cur=ppSelected();
-          if(cur&&cur.id===t.id&&NPV_TASKS.find(x=>x.department===t.department)===t){
+          if(cur&&cur.id===t.id&&npvPrimary(t.department)===t){ /* v1.32.0 (#16): the primary, not whichever bar sorts first */
             if(ev.detail===1){NPV_CAL_OPEN.delete(t.department);ppSelect(null,true);}
             return;}
           NPV_CAL_OPEN.set(t.department,2);
@@ -7816,10 +8051,10 @@ function npvBindHost(host){
       const s0=parseDate(t.startDate),e0=parseDate(t.endDate);
       const twins=NPV_TASKS.filter(z=>z.department===t.department&&(z.label||'')===(t.label||'')
         &&z.startDate===t.startDate&&z.endDate===t.endDate);
-      const pi=NPV_TASKS.findIndex(z=>z.department===t.department);
+      const pi=NPV_TASKS.indexOf(npvPrimary(t.department)); /* v1.32.0 (#16): the first non-range bar */
       const isParent=pi===i;
       let cLo=null,cHi=null;
-      if(!isParent){
+      if(!isParent&&!t.range){ /* v1.32.0 (#16): a range is never clamped to the primary's window */
         const par=NPV_TASKS[pi],ps=parseDate(par.startDate),pe=parseDate(par.endDate);
         /* REV56 nesting clamp — window fixed at drag start, same as the Gantt. */
         if(s0>=ps&&e0<=pe){cLo=ps;cHi=pe;}
@@ -7954,7 +8189,7 @@ function npvBindHost(host){
         const ns=fmtDate(addDays(s0,days)),ne=fmtDate(addDays(e0,days));
         if(NPV_LIVE){
           const ids=(isParent&&LINK_SUBS
-            ?NPV_TASKS.filter(z=>z.department===t.department):twins).map(z=>z.id);
+            ?NPV_TASKS.filter(z=>z.department===t.department&&!z.range):twins).map(z=>z.id); /* v1.32.0 (#16): Link never carries a range */
           if(ids.length>1)commitPhaseShift(ids,days); /* toasts itself */
           else{
             commitPhaseDates(t.id,ns,ne);
@@ -7966,7 +8201,7 @@ function npvBindHost(host){
         }
         /* 3.5/I5: Link carries subtasks on drafts too; the move joins the draft
            undo stack like every other draft mutation (I10). */
-        const dlist=(isParent&&LINK_SUBS)?NPV_TASKS.filter(z=>z.department===t.department):twins;
+        const dlist=(isParent&&LINK_SUBS)?NPV_TASKS.filter(z=>z.department===t.department&&!z.range):twins; /* v1.32.0 (#16) */
         const dprevs=dlist.map(z=>({k:npvKey(z),p:NPV_MANUAL[npvKey(z)]}));
         for(const z of dlist)NPV_MANUAL[npvKey(z)]={
           startDate:fmtDate(addDays(parseDate(z.startDate),days)),
@@ -8333,8 +8568,8 @@ function npvPaintCalendar(lo,hi,dl){
       if(selKey&&calKey(t)!==selKey)return;
       /* REV56: same hierarchy the Gantt shows — a department's first bar is the
          parent at full colour, its subtasks a lighter shade of the same hue. */
-      const pi=NPV_TASKS.findIndex(z=>z.department===t.department);
-      const kid=pi!==ti;
+      const pi=NPV_TASKS.indexOf(npvPrimary(t.department));
+      const kid=pi!==ti&&!t.range; /* v1.32.0 (#16): a range is a top bar — full colour, follows the department's level */
       /* REV84: phases collapse by default — a subtask band (a kid whose label/window
          differs from the parent's, i.e. not an N16 roster twin) stays hidden until its
          phase is expanded. v1.0.4 (obj 8): expansion is its own per-phase state
@@ -8894,7 +9129,7 @@ function npvBindDrag(){
         const k=NPV_TASKS[+b.dataset.i];return k&&k.department===t.department;}):[];
       const kidLefts=kidEls.map(b=>parseFloat(b.style.left)||0);
       let cLo=null,cHi=null;
-      if(prow&&!isParent){
+      if(prow&&!isParent&&!t.range){ /* v1.32.0 (#16): a range is never clamped to the primary's window */
         const ps=parseDate(prow.t.startDate),pe=parseDate(prow.t.endDate);
         if(s0>=ps&&e0<=pe){cLo=ps;cHi=pe;}
       }
@@ -8986,7 +9221,7 @@ function npvBindDrag(){
           }
           /* Draft: same manual-placement pin as a resize. 3.5/I5: Link carries the
              department's subtasks; I10: the reverser joins the draft undo stack. */
-          const dlist=linked?NPV_TASKS.filter(z=>z.department===t.department):[t];
+          const dlist=linked?NPV_TASKS.filter(z=>z.department===t.department&&!z.range):[t]; /* v1.32.0 (#16): Link never carries a range */
           const dprevs=dlist.map(z=>({k:npvKey(z),p:NPV_MANUAL[npvKey(z)]}));
           const k0=PP_SEL;
           for(const z of dlist)NPV_MANUAL[npvKey(z)]={
@@ -9278,24 +9513,27 @@ document.addEventListener('keydown',ev=>{
 });
 
 /* ===================== TOOLBAR ===================== */
-/* B3: one centering rule for every jump — smooth unless prefers-reduced-motion (T6). */
-function centerX(cx){
+/* B3: one scroll rule for every jump — smooth unless prefers-reduced-motion (T6). */
+function scrollX(left){
   const sc=document.getElementById('gantt-scroll');
   if(!sc)return;
-  const left=Math.max(0,cx-sc.clientWidth/2);
   const reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if(!reduce&&sc.scrollTo){try{sc.scrollTo({left,behavior:'smooth'});return;}catch(e){}}
   sc.scrollLeft=left;
 }
+function centerX(cx){const sc=document.getElementById('gantt-scroll');if(sc)scrollX(Math.max(0,cx-sc.clientWidth/2));}
 function centerDate(d){centerX(d2x(d)+dw()/2);}
-function scrollToToday(){centerDate(today());}
-/* Park today just inside the left edge so the view reads forward into the work ahead
-   instead of centring on history. Roughly a day and a half of past is kept as context.
-   Startup only — the Today button and T key center instead (B3). */
+/* v1.27.0 (tracker #2): Today and T put Monday of the current week at the left edge, so the
+   view reads forward into the work ahead; start-up and every routed arrival land on the
+   same x, instantly, so the default view and the Today press agree. The other jumps (G,
+   month click, +1 / +3 mo, Next install, edge chips) still centre their date.
+   Ceiling: at a drag-set fit beyond ~250 days on screen the canvas ends before Monday can
+   reach the edge (computeRange); the three zoom buttons stop at 91 days, where it is exact. */
+function weekLeftX(){const t=today(),w=t.getDay();return Math.max(0,d2x(addDays(t,-(w===0?6:w-1))));}
+function scrollToToday(){scrollX(weekLeftX());}
 function scrollTodayLeft(){
   const sc=document.getElementById('gantt-scroll');
-  if(!sc)return;
-  sc.scrollLeft=Math.max(0,d2x(today())-dw()*1.5);
+  if(sc)sc.scrollLeft=weekLeftX();
 }
 document.getElementById('btn-today').addEventListener('click',scrollToToday);
 /* Undo/redo toolbar buttons — one pair, live on every page; tooltip names the hotkey. */
@@ -9331,6 +9569,7 @@ document.getElementById('goto-date').addEventListener('keydown',ev=>{
 });
 for(const b of document.querySelectorAll('#goto-menu [data-goto]'))b.addEventListener('click',()=>{
   const kind=b.dataset.goto,d=today();
+  if(kind==='today'){scrollToToday();closeMenus();return;} /* v1.27.0 (#2): the two Today controls agree */
   if(kind==='install'){
     const nx=visTasks().filter(t=>isInstall(t)&&parseDate(t.startDate)>=d)
       .sort((a,c)=>a.startDate<c.startDate?-1:1)[0];
@@ -9774,8 +10013,8 @@ function buildLegend(){
     +row('<span class="job-bar lg-bar" style="background-color:'+INSTALL_RED+';color:'+labelColor(INSTALL_RED)+'"></span>',
       'Red bars are installs or shipping — no other bar is ever red')
     +'<div class="lg-sec">People chips</div>'
-    +row(bar('','<span class="role-tag">PM</span><span class="role-tag">D</span><span class="role-tag">F</span>'),
-      'Project manager · Drafter · Lead fabricator')
+    +row(bar('','<span class="role-tag">PM</span><span class="role-tag">D</span><span class="role-tag">L</span>'),
+      'Project manager · Technical Designer · Project lead')
     +'<div class="lg-sec">Markers</div>'
     +row('<span class="lg-mk"><span class="today-line" style="left:8px;width:56px;height:100%"><span class="today-tag">TODAY</span></span></span>',
       'Today — the strongest line on the canvas')
@@ -10063,7 +10302,7 @@ const COACH_PP_STEPS=[
    on:()=>{if(NPV_MODE!=='calendar'){NPV_MODE='calendar';npvRender();}},
    b:'On the calendar every phase starts as a slim colour strip, so a stacked job still fits its weeks. Click a phase in this legend to show its title, again for its subtasks, again to shrink it back. Milestone and Note switch their text on. Collapse all resets.'},
   {sel:'#pp-insp',t:'The editor',
-   b:'With nothing selected you edit the project here — Setup, Team, Departments, Milestones and Notes. Select a phase and this becomes that phase’s form.'},
+   b:'With nothing selected you edit the project here — Setup, Project Team, Project Schedule, Milestones and Notes. Select a phase and this becomes that phase’s form.'},
   {sel:'#pp-save',t:'Nothing is real yet',
    b:'This page is a draft kept in this tab. Drafts survive a page refresh. Create project files it to SharePoint. Cancel or the × closes without saving.'},
   {sel:'.pg-auto',t:'Everything saves itself',
@@ -10226,7 +10465,7 @@ document.getElementById('mi-tour').addEventListener('click',()=>{
 /* v1.6.1: keyboard shortcuts are a Help popover like the Legend — same tb-menu
    machinery, so opening one mutes the other and outside-click/Esc close both.
    Content is route-aware: the timeline's keys or the project page's. */
-const KBD_TL=[['N','New project'],['/','Search'],['T','Center on today'],['G','Go to date'],
+const KBD_TL=[['N','New project'],['/','Search'],['T','This week from Monday'],['G','Go to date'],
   ['W','Week scale'],['M','Month scale'],['+ −','Step the zoom'],['⌘ Z','Undo'],['⌘ Y','Redo'],
   ['Esc','Close / clear'],['?','This list']];
 const KBD_PP=[['S','New subtask'],['E','New milestone'],['T','New note'],['R','Rename selected'],
@@ -10263,12 +10502,12 @@ function openFeedback(){
   closeMenus();
   if(!ACCOUNT){toast('Sign in first — reports carry your name.','err');return;}
   location.hash='#/issues';applyRoute();
-  const d=document.getElementById('fb-desc');if(d)d.focus();
+  const d=document.getElementById('fb-subject')||document.getElementById('fb-desc');if(d)d.focus(); /* v1.28.0: the subject is the first required field */
 }
 /* On success the page stays put: the form clears and the list refreshes. */
 function closeFeedback(){
-  const d=document.getElementById('fb-desc'),s=document.getElementById('fb-shot');
-  if(d)d.value='';if(s)s.value='';
+  const d=document.getElementById('fb-desc'),s=document.getElementById('fb-shot'),j=document.getElementById('fb-subject');
+  if(d)d.value='';if(s)s.value='';if(j)j.value='';
   fbPaintList(true);
 }
 /* ===== The feedback list, read back (v1.20.0) — feeds Open Issues + the dev page ===== */
@@ -10301,9 +10540,11 @@ function fbRepliesHtml(r,open){
     +r.comments.map(c=>'<div class="fb-cm-one"><span class="clog-when">'+esc(clogWhen(c.at))+'</span>'
       +'<div class="clog-det">'+esc(c.text)+'</div></div>').join('')+'</details>';
 }
-/* The public Open Issues list: kind + a one-line summary + when. Deliberately vague —
-   no names, no full descriptions; those live on the dev page and the email. Replies are
-   public: they were written (with /reply) to be read. */
+/* The public Open Issues list: kind + the subject + when; names stay off the page (they
+   live on the dev page and the email). v1.28.0 (tracker #10, owner default Q1): the full
+   description folds under the subject for every signed-in person, the same native
+   <details> the developer comments use. Replies are public: they were written (with
+   /reply) to be read. */
 let FB_PAINT=0; /* a stale (slow/failed) fetch must never overpaint a newer one */
 function fbPaintList(force){
   const ids=['fb-list','fb-done'],els=()=>ids.map(id=>document.getElementById(id));
@@ -10313,9 +10554,14 @@ function fbPaintList(force){
   const hit=ROUTE&&ROUTE.view==='issues'?ROUTE.id:null; /* #/issues/<spId> — the reply email's link */
   const row=r=>{
     const t=String(r.title||'').replace(/^(Bug|Feature)\s+—\s+/,''),me=hit&&String(r.spId)===hit;
+    /* the subject is the summary of a <details> holding the full text; a row with no
+       description keeps the plain title */
+    const head=r.description
+      ?'<details class="fb-dd"'+(me?' open':'')+'><summary><b>'+esc(t)+'</b></summary><div class="clog-det">'+esc(r.description)+'</div></details>'
+      :'<b>'+esc(t)+'</b>';
     return '<div class="clog-row'+(me?' fb-hit':'')+'" data-spid="'+esc(r.spId)+'">'
       +'<span class="cd-perm" title="'+(r.kind==='bug'?'Bug report':'Feature request')+'">'+(r.kind==='bug'?'BUG':'IDEA')+'</span>'
-      +'<div class="clog-what"><b>'+esc(t)+'</b>'+fbRepliesHtml(r,me)+'</div>'
+      +'<div class="clog-what">'+head+fbRepliesHtml(r,me)+'</div>'
       +'<span class="clog-when">'+esc(clogWhen(r.at))+'</span></div>';
   };
   const empty=m=>'<div class="clog-empty">'+m+'</div>';
@@ -10342,6 +10588,8 @@ function fbFormHtml(){
    +'<label><input type="radio" name="fb-kind" value="bug" checked> Bug</label> '
    +'<label><input type="radio" name="fb-kind" value="feature"> Feature request</label>'
    +'</div></div>'
+   /* v1.28.0 (tracker #10): one required line that becomes the row's Title and the Open Issues label */
+   +'<div class="fg"><label>Subject</label><input id="fb-subject" type="text" maxlength="120" placeholder="One line — what it’s about"></div>'
    +'<div class="fg"><label>What happened / what do you need?</label><textarea id="fb-desc" rows="6" placeholder="What you did, what you expected, what you got instead"></textarea></div>'
    +'<div class="fg"><label>Screenshot (optional)</label><input id="fb-shot" type="file" accept="image/*"></div>'
    +'<div class="m-actions"><span></span><div class="m-right">'
@@ -10440,6 +10688,17 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.32.0",d:"Oct 2, 2026",n:["Project Schedule: a department can now have several separate work periods on one project. Press + beside a department (or right-click its row on the chart) to add another range after the last one; each range has its own dates and day count, draws as its own bar with the gap left empty, and an extra range is removed with ×."]},
+ {v:"v1.31.1",d:"Oct 2, 2026",n:["Drafter is now called Technical Designer on the project page and in the Help legend.",
+   "On the project page, the Team section is now Project Team and the Departments section is now Project Schedule.",
+   "The hint under Project Schedule now says how a phase is actually added (tick a department, or double-click the calendar); right-click has offered only milestones and notes since v1.2.1."]},
+ {v:"v1.31.0",d:"Oct 2, 2026",n:["Dashboard: each project now shows its client — under the name in the Projects view (client · cost code · date) and in front of the project name on the Departments view's person lines; hover a line to read the full text. Project names are shown as typed."]},
+ {v:"v1.30.0",d:"Oct 2, 2026",n:["Project setup: the Team section's Lead fabricator is now Project lead — pick one person from any department (grouped by department), or leave it blank; the chart chip, the bar tooltip and the legend show L for the lead. Existing projects keep their lead."]},
+ {v:"v1.29.0",d:"Oct 2, 2026",n:["Project setup: the Team lists are now alphabetical, each has a Search box that narrows the names as you type, people already checked stay at the top of their list, and the lists show about nine names before scrolling."]},
+ {v:"v1.28.0",d:"Oct 2, 2026",n:["Report a bug or idea: the form now asks for a one-line Subject, which is what the Open Issues page shows, and clicking a report there unfolds its full text. Nothing is cut off at 80 characters any more."]},
+ {v:"v1.27.0",d:"Oct 2, 2026",n:["Today (and the T key) now puts Monday of the current week at the left edge of the timeline, in every zoom, and the timeline opens that way too; the other jumps still centre their date.",
+   "Days before today wear a light grey wash on the timeline, so the eye lands on today and the work ahead."]},
+ {v:"v1.26.3",d:"Oct 2, 2026",n:["People page: each column keeps its own width when you resize another, long text is cut off with … (hover for the full value), and a wide table scrolls sideways inside the list instead of running under the record panel. Double-click a column edge to fit it; right-click the header for Reset widths."]},
  {v:"v1.26.2",d:"Oct 2, 2026",n:["Undo notifications no longer cover the chart: they sit below the bars (or at the top right of the date header), each one has a × to close it, several quick edits share one notification, and dragging a bar that is under one goes straight through."]},
  {v:"v1.26.1",d:"Oct 2, 2026",n:["Project page: clicking any empty part of the chart, including below the last row, now closes the phase panel, and anything you were typing in it is saved first. The panel's close control now reads Close × and is big enough to hit."]},
  {v:"v1.26.0",d:"Oct 1, 2026",n:["A project's install date now comes from its Installation block under Departments (or its Shipping block when Installation is not scheduled). The LATE tag, the Installs / Ships date and Days out in the project header, the date line on the chart, the PM late prompt, the Meeting Sheet and the Due date sort all follow it, so moving the install moves them too.",
@@ -10521,7 +10780,10 @@ function renderReleases(){
       +'<ul class="rn-notes">'+r.n.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul></div>').join('')+'</div>');
 }
 async function sendFeedback(){
-  const desc=document.getElementById('fb-desc').value.trim();
+  /* v1.28.0 (tracker #10): a one-line subject is required and becomes the row's Title
+     (keeping the Bug/Feature prefix the readers strip); the description stays the body. */
+  const subj=document.getElementById('fb-subject').value.trim(),desc=document.getElementById('fb-desc').value.trim();
+  if(!subj){toast('Give it a one-line subject first.','err');document.getElementById('fb-subject').focus();return;}
   if(!desc){toast('Say a few words about it first.','err');document.getElementById('fb-desc').focus();return;}
   const kind=(document.querySelector('#fb-kind input:checked')||{}).value||'bug';
   const btn=document.getElementById('fb-send');
@@ -10541,7 +10803,7 @@ async function sendFeedback(){
       else toast('The screenshot upload failed — sending the report without it.','err');
     }
     await gfetch(listUrl(LIST_FEEDBACK)+'/items',{method:'POST',body:JSON.stringify({fields:{
-      Title:(kind==='bug'?'Bug':'Feature')+' — '+desc.slice(0,80),
+      Title:(kind==='bug'?'Bug':'Feature')+' — '+subj,
       kind:kind,
       name:document.getElementById('fb-name').value.trim(),
       email:document.getElementById('fb-email').value.trim(),
@@ -10561,7 +10823,7 @@ async function sendFeedback(){
         const mr=await fetch('https://graph.microsoft.com/v1.0/me/sendMail',{method:'POST',
           headers:{Authorization:'Bearer '+mt,'Content-Type':'application/json'},
           body:JSON.stringify({message:{
-            subject:'[Shop Timeline] '+(kind==='bug'?'Bug':'Feature')+' — '+desc.slice(0,80),
+            subject:'[Shop Timeline] '+(kind==='bug'?'Bug':'Feature')+' — '+subj,
             body:{contentType:'Text',content:
               (kind==='bug'?'Bug report':'Feature request')+' from '
               +document.getElementById('fb-name').value.trim()
