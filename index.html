@@ -1683,7 +1683,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.34.0'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.34.1'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -6472,7 +6472,9 @@ function insDeptList(p,boxId){
       const ex=p?prim:null;
       const ranges=all.filter(t=>t!==prim&&t.range).sort((a,b)=>String(a.startDate).localeCompare(String(b.startDate)));
       if(d.retired&&!active&&!ex)continue; /* retired dept: offered nowhere, shown only where it's already in use */
-      const days=ex?(ex.estimatedDays||d.est||1):((D&&D.est[id])||d.est||1);
+      /* v1.34.1 (#32): a draft bar with hand-set dates shows its own count, so a days edit made in
+         the panel or the popover reads back here too — the form's estimate only covers untouched bars */
+      const days=ex?(ex.estimatedDays||d.est||1):((prim&&prim.__manual&&prim.estimatedDays)||(D&&D.est[id])||d.est||1);
       const other=d.freeText?(ex?(ex.assignee||''):((D&&D.otherLabels[id])||'')):null;
       h+='<div class="idr'+(active?'':' off')+'">'
        + '<input type="checkbox" data-dept="'+esc(id)+'"'+(active?' checked':'')
@@ -6595,6 +6597,18 @@ function ppDeptDates(key,which,val){
   }
   if(NPV_LIVE){commitPhaseDates(bar.id,r.s,r.e,r.days);npvRebuild();return;}
   NPV_MANUAL[npvKey(bar)]={startDate:r.s,endDate:r.e,estimatedDays:r.days};
+  npvRebuild();
+}
+/* v1.34.1 (tracker #32): one rule for every days field — the Departments row, the bottom
+   panel and the bar's popover. The start stays where it is; the end is the start plus N
+   days (workdays for shop departments, calendar days for Installation and Shipping). Into
+   ST on a saved page, into the manual overlay on a draft. */
+function ppDeptDays(bar,n){
+  n=Math.max(1,parseInt(n,10)||1);
+  if(!bar.startDate){if(NPV_LIVE)commitPhase(bar.id,'estimatedDays',n);npvRebuild();return;}
+  const e=fmtDate(deptEndAfter(bar.department,parseDate(bar.startDate),n));
+  if(NPV_LIVE)commitPhaseDates(bar.id,bar.startDate,e,n);
+  else NPV_MANUAL[npvKey(bar)]={startDate:bar.startDate,endDate:e,estimatedDays:n};
   npvRebuild();
 }
 /* Keep the date fields tracking the bars — a drag, undo or days edit repaints them. */
@@ -6877,26 +6891,19 @@ function ppBindInspector(p,sel){
         ppDeptDates(t.dataset.key||('d:'+t.dataset.dept),t.classList.contains('dstart')?'s':'e',t.value); /* v1.32.0 (#16): by the line's key */
         return;
       }
-      /* N13: on a saved page a days edit moves the phase's end — the other half of
-         the bidirectional pair. (Drafts already recompute through the scheduler.) */
-      if(t.classList&&t.classList.contains('ddays')&&NPV_LIVE){
+      /* N13: a days edit moves the phase's end — the other half of the bidirectional pair.
+         v1.34.1 (tracker #32): on a draft too, once the bar has hand-set dates (typed or
+         dragged); an untouched draft bar still falls through to the scheduler below, which
+         lays the job out backward from the target date with the new estimate. */
+      if(t.classList&&t.classList.contains('ddays')){
         const ck2=t.closest('.idr').querySelector('input[data-dept]');
         const bar=ck2?npvPrimary(ck2.dataset.dept):null; /* v1.32.0 (#16): the row's count is the primary's, never a range that sorts first */
-        if(bar&&bar.startDate){
-          const n=Math.max(1,parseInt(t.value,10)||1);
-          commitPhaseDates(bar.id,bar.startDate,fmtDate(deptEndAfter(bar.department,parseDate(bar.startDate),n)),n);
-          npvRebuild();return;
-        }
+        if(bar&&(NPV_LIVE||NPV_MANUAL[npvKey(bar)])){ppDeptDays(bar,t.value);return;}
       }
       /* v1.32.0 (#16): a range's own day count moves that range's end — saved page and draft */
       if(t.classList&&t.classList.contains('rdays')){
         const bar=ppLineBar(t.dataset.key);
-        if(bar&&bar.startDate){
-          const n=Math.max(1,parseInt(t.value,10)||1),e=fmtDate(deptEndAfter(bar.department,parseDate(bar.startDate),n));
-          if(NPV_LIVE)commitPhaseDates(bar.id,bar.startDate,e,n);
-          else NPV_MANUAL[npvKey(bar)]={startDate:bar.startDate,endDate:e,estimatedDays:n};
-          npvRebuild();
-        }
+        if(bar)ppDeptDays(bar,t.value);
         return;
       }
       if(t.closest('.pg-rbox')){
@@ -8978,12 +8985,9 @@ function ppCommitPhaseField(sel,f,value){
   else if(f==='startDate'){ppPopDate(sel,'s',value);}
   else if(f==='endDate'){ppPopDate(sel,'e',value);}
   else if(f==='estimatedDays'){
-    const n=Math.max(1,parseInt(value,10)||1);
-    if(NPV_LIVE)commitPhase(sel.id,'estimatedDays',n);
-    /* draft: same semantics as dragging the right edge — a manual placement */
-    else NPV_MANUAL[npvKey(sel)]={startDate:sel.startDate,
-      endDate:fmtDate(deptEndAfter(sel.department,parseDate(sel.startDate),n)),estimatedDays:n};
-    npvRebuild();
+    /* same semantics as dragging the right edge — v1.34.1 (#32): on a saved page too, the end
+       moves with the count instead of the number changing alone */
+    ppDeptDays(sel,value);
   }
   else if(f==='notes'){
     if(NPV_LIVE)commitPhase(sel.id,'notes',value);
@@ -10828,6 +10832,8 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.34.1",d:"Oct 5, 2026",n:["Project setup, Departments: changing a department's days after typing its start date now moves the end date; the start stays where you put it.",
+   "The Days field in the phase panel and the bar's edit popover does the same on a saved project (it used to change the number without moving the end)."]},
  {v:"v1.34.0",d:"Oct 5, 2026",n:["Open Issues: the Resolved column now shows the date a report was resolved, not the date it was sent, and lists the most recently resolved first.",
    "Open Issues: the team can post a note under a report (a `/comment` on its ticket) that shows as a developer comment in the app without emailing the person who filed it; `/reply` still does both."]},
  {v:"v1.33.1",d:"Oct 5, 2026",n:["Project Schedule: each department's day count now sits beside its own date range, next to the dates it counts — the same spot every extra work period already uses."]},
