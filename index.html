@@ -336,6 +336,10 @@ body.compact .sb-chip{line-height:1.2;padding:.5px 6px}
 .fb-cm summary{cursor:pointer;color:var(--ts-muted);font-size:11.5px}
 .fb-cm-one{margin:4px 0 0 12px;padding-left:8px;border-left:2px solid #E2E8F0}
 .fb-cm-one .clog-when{width:auto;font-size:11px}
+/* v1.28.0 (tracker #10): a report's full text folds under its subject (native <details>, like
+   .fb-cm). The padding/negative-margin pair lifts the summary's hit box to 24px (§9) without
+   changing the row height. */
+.fb-dd summary{cursor:pointer;padding:5px 0;margin:-5px 0}
 .clog-row.fb-hit{background:#EDF3FA;box-shadow:inset 2px 0 0 var(--acc)} /* the .cd-row.sel recipe */
 .rn-list{padding:6px 0}
 .rn-ver{padding:10px 22px;border-bottom:1px solid #EEF2F7}
@@ -1654,7 +1658,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.27.0'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.28.0'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -10314,12 +10318,12 @@ function openFeedback(){
   closeMenus();
   if(!ACCOUNT){toast('Sign in first — reports carry your name.','err');return;}
   location.hash='#/issues';applyRoute();
-  const d=document.getElementById('fb-desc');if(d)d.focus();
+  const d=document.getElementById('fb-subject')||document.getElementById('fb-desc');if(d)d.focus(); /* v1.28.0: the subject is the first required field */
 }
 /* On success the page stays put: the form clears and the list refreshes. */
 function closeFeedback(){
-  const d=document.getElementById('fb-desc'),s=document.getElementById('fb-shot');
-  if(d)d.value='';if(s)s.value='';
+  const d=document.getElementById('fb-desc'),s=document.getElementById('fb-shot'),j=document.getElementById('fb-subject');
+  if(d)d.value='';if(s)s.value='';if(j)j.value='';
   fbPaintList(true);
 }
 /* ===== The feedback list, read back (v1.20.0) — feeds Open Issues + the dev page ===== */
@@ -10352,9 +10356,11 @@ function fbRepliesHtml(r,open){
     +r.comments.map(c=>'<div class="fb-cm-one"><span class="clog-when">'+esc(clogWhen(c.at))+'</span>'
       +'<div class="clog-det">'+esc(c.text)+'</div></div>').join('')+'</details>';
 }
-/* The public Open Issues list: kind + a one-line summary + when. Deliberately vague —
-   no names, no full descriptions; those live on the dev page and the email. Replies are
-   public: they were written (with /reply) to be read. */
+/* The public Open Issues list: kind + the subject + when; names stay off the page (they
+   live on the dev page and the email). v1.28.0 (tracker #10, owner default Q1): the full
+   description folds under the subject for every signed-in person, the same native
+   <details> the developer comments use. Replies are public: they were written (with
+   /reply) to be read. */
 let FB_PAINT=0; /* a stale (slow/failed) fetch must never overpaint a newer one */
 function fbPaintList(force){
   const ids=['fb-list','fb-done'],els=()=>ids.map(id=>document.getElementById(id));
@@ -10364,9 +10370,14 @@ function fbPaintList(force){
   const hit=ROUTE&&ROUTE.view==='issues'?ROUTE.id:null; /* #/issues/<spId> — the reply email's link */
   const row=r=>{
     const t=String(r.title||'').replace(/^(Bug|Feature)\s+—\s+/,''),me=hit&&String(r.spId)===hit;
+    /* the subject is the summary of a <details> holding the full text; a row with no
+       description keeps the plain title */
+    const head=r.description
+      ?'<details class="fb-dd"'+(me?' open':'')+'><summary><b>'+esc(t)+'</b></summary><div class="clog-det">'+esc(r.description)+'</div></details>'
+      :'<b>'+esc(t)+'</b>';
     return '<div class="clog-row'+(me?' fb-hit':'')+'" data-spid="'+esc(r.spId)+'">'
       +'<span class="cd-perm" title="'+(r.kind==='bug'?'Bug report':'Feature request')+'">'+(r.kind==='bug'?'BUG':'IDEA')+'</span>'
-      +'<div class="clog-what"><b>'+esc(t)+'</b>'+fbRepliesHtml(r,me)+'</div>'
+      +'<div class="clog-what">'+head+fbRepliesHtml(r,me)+'</div>'
       +'<span class="clog-when">'+esc(clogWhen(r.at))+'</span></div>';
   };
   const empty=m=>'<div class="clog-empty">'+m+'</div>';
@@ -10393,6 +10404,8 @@ function fbFormHtml(){
    +'<label><input type="radio" name="fb-kind" value="bug" checked> Bug</label> '
    +'<label><input type="radio" name="fb-kind" value="feature"> Feature request</label>'
    +'</div></div>'
+   /* v1.28.0 (tracker #10): one required line that becomes the row's Title and the Open Issues label */
+   +'<div class="fg"><label>Subject</label><input id="fb-subject" type="text" maxlength="120" placeholder="One line — what it’s about"></div>'
    +'<div class="fg"><label>What happened / what do you need?</label><textarea id="fb-desc" rows="6" placeholder="What you did, what you expected, what you got instead"></textarea></div>'
    +'<div class="fg"><label>Screenshot (optional)</label><input id="fb-shot" type="file" accept="image/*"></div>'
    +'<div class="m-actions"><span></span><div class="m-right">'
@@ -10491,6 +10504,7 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.28.0",d:"Oct 2, 2026",n:["Report a bug or idea: the form now asks for a one-line Subject, which is what the Open Issues page shows, and clicking a report there unfolds its full text. Nothing is cut off at 80 characters any more."]},
  {v:"v1.27.0",d:"Oct 2, 2026",n:["Today (and the T key) now puts Monday of the current week at the left edge of the timeline, in every zoom, and the timeline opens that way too; the other jumps still centre their date.",
    "Days before today wear a light grey wash on the timeline, so the eye lands on today and the work ahead."]},
  {v:"v1.26.3",d:"Oct 2, 2026",n:["People page: each column keeps its own width when you resize another, long text is cut off with … (hover for the full value), and a wide table scrolls sideways inside the list instead of running under the record panel. Double-click a column edge to fit it; right-click the header for Reset widths."]},
@@ -10575,7 +10589,10 @@ function renderReleases(){
       +'<ul class="rn-notes">'+r.n.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul></div>').join('')+'</div>');
 }
 async function sendFeedback(){
-  const desc=document.getElementById('fb-desc').value.trim();
+  /* v1.28.0 (tracker #10): a one-line subject is required and becomes the row's Title
+     (keeping the Bug/Feature prefix the readers strip); the description stays the body. */
+  const subj=document.getElementById('fb-subject').value.trim(),desc=document.getElementById('fb-desc').value.trim();
+  if(!subj){toast('Give it a one-line subject first.','err');document.getElementById('fb-subject').focus();return;}
   if(!desc){toast('Say a few words about it first.','err');document.getElementById('fb-desc').focus();return;}
   const kind=(document.querySelector('#fb-kind input:checked')||{}).value||'bug';
   const btn=document.getElementById('fb-send');
@@ -10595,7 +10612,7 @@ async function sendFeedback(){
       else toast('The screenshot upload failed — sending the report without it.','err');
     }
     await gfetch(listUrl(LIST_FEEDBACK)+'/items',{method:'POST',body:JSON.stringify({fields:{
-      Title:(kind==='bug'?'Bug':'Feature')+' — '+desc.slice(0,80),
+      Title:(kind==='bug'?'Bug':'Feature')+' — '+subj,
       kind:kind,
       name:document.getElementById('fb-name').value.trim(),
       email:document.getElementById('fb-email').value.trim(),
@@ -10615,7 +10632,7 @@ async function sendFeedback(){
         const mr=await fetch('https://graph.microsoft.com/v1.0/me/sendMail',{method:'POST',
           headers:{Authorization:'Bearer '+mt,'Content-Type':'application/json'},
           body:JSON.stringify({message:{
-            subject:'[Shop Timeline] '+(kind==='bug'?'Bug':'Feature')+' — '+desc.slice(0,80),
+            subject:'[Shop Timeline] '+(kind==='bug'?'Bug':'Feature')+' — '+subj,
             body:{contentType:'Text',content:
               (kind==='bug'?'Bug report':'Feature request')+' from '
               +document.getElementById('fb-name').value.trim()
