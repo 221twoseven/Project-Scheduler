@@ -1,7 +1,7 @@
 # 2026-10-05 — Departments lines read the Cost Code (v1.35.0)
 
 **Date:** 2026-10-05 · **App version:** v1.35.0 · **Where:** `index.html` (`renderSidebar`
-lane lines, one CSS rule) · **PR:** #TBD · **Tracker:** #33
+lane lines, one CSS rule) · **PR:** #95 · **Tracker:** #33
 
 ## What changed
 
