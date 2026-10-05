@@ -629,7 +629,7 @@ is item 32 (P0), #7 is part of item 3, and #11 and #14 were done by the bridge i
       shifts its neighbours). Company Data table CSS (`table-layout`, per-column widths).
       [tracker #13]
 - [x] **42. Departments view: a project's line reads its Cost Code, not its name.** Shipped
-      v1.35.0 (PR #TBD, 2026-10-05): the line under a person shows the Cost Code in the
+      v1.35.0 (PR #95, 2026-10-05): the line under a person shows the Cost Code in the
       dates' mono type so it fits whole at the default sidebar width; the hover tip reads
       "Client · Project name · Cost code". A project with no code keeps its name (and item
       24's muted client in front). Print follows the screen, so a coded line prints as code
