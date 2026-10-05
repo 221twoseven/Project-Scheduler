@@ -1681,7 +1681,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.32.0'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.33.0'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -2651,6 +2651,91 @@ function toastLayout(){
   }else if(m)m.remove();
 }
 const toastU=msg=>toast(msg,null,true);
+
+/* ===== v1.33.0: update check ===== */
+/* GitHub Pages serves index.html with max-age=600, which the page's no-cache metas don't
+   override, so an open tab ran an old build until someone happened to reload it. Every
+   12 h, and when the tab comes back into view (at most once per 30 min), the app GETs
+   its own index.html with cache:'no-store', reads the APP_VER in it and re-reads
+   ShopTimeline_Config. Newer build → a toast with Reload that stays until acted on.
+   Config key update.minVersion (the owner's lever: App settings ▸ "Ask everyone to
+   reload", or the list item) newer than the running build → a "retired" notice that
+   reloads by itself after UPD_GRACE seconds, never mid-drag, mid-save or over an unsaved
+   draft. Never tied to the 90 s data poll: this is one document GET, not Graph.
+   ponytail: retire holds until the served build satisfies minVersion — a minVersion set
+   from /preview/ never loops production tabs through a reload that can't help. */
+const UPD_MS=12*3600e3,UPD_FOCUS_MS=30*60e3,SEEN_VER_KEY='shopTimelineSeenVer';
+let UPD_GRACE=30,UPD_LAST=Date.now(),UPD_SHOWN='',UPD_RETIRE=null;
+/* Tolerates a hand-typed "v1.34.0" on the list (a NaN part would otherwise read as equal). */
+function verCmp(a,b){const p=s=>String(s).trim().replace(/^v/i,'').split('.').map(Number);const x=p(a),y=p(b);for(let i=0;i<3;i++){const d=(x[i]||0)-(y[i]||0);if(d)return d;}return 0;}
+/* One toast per purpose (id) with its own button label; it stays until acted on unless
+   ttl is given. Same strip and controls as toast() — Design-Language §6. */
+function updToast(id,msg,label,fn,kind,ttl){
+  const box=document.getElementById('toasts');
+  let el=document.getElementById(id);
+  if(!el){el=document.createElement('div');el.id=id;box.appendChild(el);}
+  el.className='toast'+(kind==='err'?' err':'');el.textContent=msg;
+  const gone=()=>{el.remove();toastLayout();};
+  const b=document.createElement('button');b.className='undo';b.textContent=label;b.addEventListener('click',()=>{gone();fn();});el.appendChild(b);
+  const x=document.createElement('button');x.className='toast-x';x.textContent='×';x.title='Dismiss';x.setAttribute('aria-label','Dismiss');
+  x.addEventListener('click',gone);el.appendChild(x);
+  if(ttl)setTimeout(()=>{if(el.isConnected){el.classList.add('out');setTimeout(gone,350);}},ttl);
+  toastLayout();toastPlace();
+  return el;
+}
+function updReload(){ppDraftStash();location.reload();}
+/* The poll's own "don't disturb" list, plus a dirty draft: never yank the page mid-edit. */
+function updBusy(){
+  const a=document.activeElement;
+  return !!(DRAG||PENDING_SYNC||SYNCING||CD_EDIT||ppDraftDirty()
+    ||document.getElementById('npv-pop')
+    ||(a&&a.closest&&a.closest('#page,#me-dock,.overlay:not(.hidden)')));
+}
+async function updCheck(force){
+  if(!force&&Date.now()-UPD_LAST<UPD_FOCUS_MS)return;
+  UPD_LAST=Date.now();
+  let latest='';
+  try{
+    const r=await fetch(location.pathname+'?v='+Date.now(),{cache:'no-store'});
+    const m=/APP_VER\s*=\s*'(\d[^']*)'/.exec(await r.text());if(m)latest=m[1];
+  }catch(e){}
+  /* Refresh only the raw values (minVersion) — never loadConfig(): a blip here must not
+     flip CFG_OK or overwrite the grants, which stay read-at-load by design. */
+  if(ACCOUNT)try{
+    const r=await gpageAll(listUrl(LIST_CONFIG)+'/items?expand=fields&$top=200');
+    const raw={};for(const it of r){raw[it.fields.Title]=String(it.fields.value||'');SP_CFG_IDS[it.fields.Title]=it.id;}
+    CFG_RAW=raw;
+  }catch(e){}
+  updApply(latest);
+}
+function updApply(latest){
+  const min=CFG_RAW['update.minVersion']||'';
+  if(min&&verCmp(APP_VER,min)<0&&latest&&verCmp(latest,min)>=0)return updRetire();
+  if(latest&&verCmp(latest,APP_VER)>0&&UPD_SHOWN!==latest){UPD_SHOWN=latest;
+    const el=updToast('upd-toast','v'+latest+' is available','Reload',updReload);
+    /* × only snoozes it: the next check (30 min focus / 12 h) offers again. */
+    el.querySelector('.toast-x').addEventListener('click',()=>{UPD_SHOWN='';});}
+}
+function updRetire(){
+  if(UPD_RETIRE)return;
+  let left=UPD_GRACE;
+  const txt=()=>'This version has been retired — reloading in '+left+' s';
+  const el=updToast('upd-toast',txt(),'Reload now',updReload,'err');
+  el.querySelector('.toast-x').remove(); /* not dismissable: the reload is the way out */
+  UPD_RETIRE=setInterval(()=>{
+    if(updBusy())return; /* hold the countdown while someone is mid-edit */
+    if(el.nextElementSibling){el.parentNode.appendChild(el);toastLayout();} /* stay newest: never hidden behind later toasts */
+    left--;el.firstChild.nodeValue=txt();
+    if(left<=0){clearInterval(UPD_RETIRE);updReload();}
+  },1000);
+}
+/* After a reload onto a new build: one "Updated to vX" toast that opens the release
+   notes. A browser that has never seen the app just records the version. */
+function updSeen(){
+  let seen='';try{seen=localStorage.getItem(SEEN_VER_KEY)||'';}catch(e){}
+  try{localStorage.setItem(SEEN_VER_KEY,APP_VER);}catch(e){}
+  if(seen&&seen!==APP_VER)updToast('upd-new','Updated to v'+APP_VER,'What’s new',()=>{location.hash='#/releases';},null,9000);
+}
 function setSync(state,msg){
   const el=document.getElementById('sync-pill');
   el.className=state;
@@ -2979,13 +3064,15 @@ const CFG_META=[
 ];
 const CFG_DEFAULTS=Object.fromEntries(CFG_META.map(m=>[m[0],false]));
 let CFG={...CFG_DEFAULTS},CFG_OK=false,SP_CFG_IDS={};
+let CFG_RAW={}; /* v1.33.0: every key's value as text, for string keys (update.minVersion) */
 const CFG_KEY='shopTimelineCfg';
 async function loadConfig(){
   try{
     const r=await gpageAll(listUrl(LIST_CONFIG)+'/items?expand=fields&$top=200');
-    CFG={...CFG_DEFAULTS};SP_CFG_IDS={};
-    for(const it of r){const k=it.fields.Title;if(!(k in CFG_DEFAULTS))continue;
-      SP_CFG_IDS[k]=it.id;CFG[k]=String(it.fields.value||'')==='1';}
+    CFG={...CFG_DEFAULTS};SP_CFG_IDS={};CFG_RAW={};
+    for(const it of r){const k=it.fields.Title;SP_CFG_IDS[k]=it.id;CFG_RAW[k]=String(it.fields.value||'');
+      if(!(k in CFG_DEFAULTS))continue;
+      CFG[k]=CFG_RAW[k]==='1';}
     CFG_OK=true;
   }catch(e){
     CFG_OK=false;
@@ -2993,13 +3080,15 @@ async function loadConfig(){
   }
 }
 function saveConfigKey(k,v){
-  CFG[k]=!!v;
+  /* v1.33.0: a string value is written as-is (update.minVersion); switches stay '1'/''. */
+  const sv=typeof v==='string'?v:(v?'1':'');
+  if(typeof v==='string')CFG_RAW[k]=v;else CFG[k]=!!v;
   try{localStorage.setItem(CFG_KEY,JSON.stringify(CFG));}catch(e){}
   if(CFG_OK){
     setSync('busy');
     (SP_CFG_IDS[k]
-      ?gfetch(listUrl(LIST_CONFIG)+'/items/'+SP_CFG_IDS[k]+'/fields',{method:'PATCH',body:JSON.stringify({value:v?'1':''})})
-      :gfetch(listUrl(LIST_CONFIG)+'/items',{method:'POST',body:JSON.stringify({fields:{Title:k,value:v?'1':''}})}).then(r=>{SP_CFG_IDS[k]=r.id;}))
+      ?gfetch(listUrl(LIST_CONFIG)+'/items/'+SP_CFG_IDS[k]+'/fields',{method:'PATCH',body:JSON.stringify({value:sv})})
+      :gfetch(listUrl(LIST_CONFIG)+'/items',{method:'POST',body:JSON.stringify({fields:{Title:k,value:sv}})}).then(r=>{SP_CFG_IDS[k]=r.id;}))
     .then(()=>setSync('ok','synced '+stamp()))
     .catch(e=>{console.error(e);
       PENDING_CFG={...(PENDING_CFG||{}),[k]:v}; /* park the key so the pill can replay it */
@@ -4763,8 +4852,24 @@ function renderAppSettings(){
    +CFG_META.filter(m=>m[0].indexOf('viewer.')===0).map(row).join('')
    +'<h3>Experimental</h3>'
    +CFG_META.filter(m=>m[0].indexOf('exp.')===0).map(row).join('')
+   /* v1.33.0: the force-update lever — writes update.minVersion; tabs on an older build
+      show the retired notice and reload (see updCheck). Press it from the build everyone
+      should run, i.e. production, not /preview/. */
+   +'<h3>Updates</h3>'
+   +'<div class="as-note">Every open tab checks for a newer build twice a day and when it comes back into view, and offers Reload. '
+   +'This button makes it mandatory: it sets <code>update.minVersion</code> to v'+esc(APP_VER)+', and any tab on an older build reloads within '+UPD_GRACE+' seconds '
+   +'(never mid-drag or over an unsaved draft). Press it from the build everyone should run — production, not /preview/. '
+   +'Currently: '+(CFG_RAW['update.minVersion']?'v'+esc(CFG_RAW['update.minVersion']):'not set')+'.</div>'
+   +'<button class="btn" id="as-reload-all"'+(CFG_OK?'':' disabled title="Needs the ShopTimeline_Config list"')+'>Ask everyone to reload</button>'
    +'</div></div>';
   pg.innerHTML=h;
+  document.getElementById('as-reload-all').addEventListener('click',()=>{
+    if(/\/preview\//.test(location.pathname)){toast('Press this from the production build, not /preview/ — a minVersion production can’t reach retires nothing.','err');return;}
+    if(!confirm('Every open tab on a build older than v'+APP_VER+' will reload within '+UPD_GRACE+' seconds. Continue?'))return;
+    saveConfigKey('update.minVersion',APP_VER);
+    toast('Asked everyone on an older build to reload.');
+    renderAppSettings();
+  });
   /* Both exits honour a mid-edit buffer the way Esc does — leaving via × used to
      discard the typed record silently AND strand CD_EDIT set on the timeline, where
      it short-circuits every poll tick until a Company Data page was revisited. */
@@ -10688,6 +10793,8 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.33.0",d:"Oct 5, 2026",n:["The app now notices when a newer version has been published — it checks twice a day and whenever you come back to the tab — and shows \"vX is available\" with a Reload button, so a tab left open no longer runs an old build for days. After the reload, a one-time \"Updated to vX\" toast opens the release notes.",
+   "A developer can ask every open tab to reload onto the current build from Help ▸ App settings; a tab on an older build shows \"This version has been retired\" and reloads within 30 seconds, never mid-drag or over an unsaved draft."]},
  {v:"v1.32.0",d:"Oct 2, 2026",n:["Project Schedule: a department can now have several separate work periods on one project. Press + beside a department (or right-click its row on the chart) to add another range after the last one; each range has its own dates and day count, draws as its own bar with the gap left empty, and an extra range is removed with ×."]},
  {v:"v1.31.1",d:"Oct 2, 2026",n:["Drafter is now called Technical Designer on the project page and in the Help legend.",
    "On the project page, the Team section is now Project Team and the Departments section is now Project Schedule.",
@@ -11015,6 +11122,12 @@ async function boot(){
      itself declines to stack on the tour or another overlay, and asks at most
      once a day; a suppressed ask (tour up, project view) just tries next load. */
   if(ACCOUNT&&ROUTE.view==='timeline')setTimeout(pmLateShow,1200);
+  /* v1.33.0: the update check — see updCheck. A build that boots already retired (served
+     from the 10-minute Pages cache after the lever was pulled) probes at once. */
+  updSeen();
+  if(CFG_RAW['update.minVersion']&&verCmp(APP_VER,CFG_RAW['update.minVersion'])<0)updCheck(true);
+  setInterval(()=>updCheck(true),UPD_MS);
+  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')updCheck();});
   /* Poll so other people's changes appear (skips while dragging, saving, or editing).
      POLL_MS is the freshness-vs-Graph-cost knob: bigger = fewer calls, staler view. */
   const POLL_MS=90000;

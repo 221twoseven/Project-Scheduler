@@ -369,6 +369,21 @@ What the pilot can't start without.
       `grp:'install'`). First, reproduce it on the real project: is Shipping ticked in the
       project's departments? Does the block exist without dates? Where does a milestone go
       when its phase has no bar? A bug; P0 for the pilot. [tracker #1]
+- [x] **46. Update check.** Shipped v1.33.0 (PR #90, 2026-10-05). GitHub Pages serves
+      `index.html` with `Cache-Control: max-age=600`, which the page's no-cache meta tags
+      don't override, and the 90 s poll fetches data only — so a tab left open ran the old
+      build for days. Now the app notices a newer build (a 12 h timer, plus a check when
+      the tab comes back into view, throttled to once per 30 min: one GET of its own
+      `index.html` with `cache:'no-store'`, compare the `APP_VER` inside), shows "vX is
+      available — Reload" and keeps it until acted on; nothing reloads by itself. Honours
+      a `ShopTimeline_Config` key `update.minVersion`: a running build older than it shows
+      "This version has been retired" and reloads after 30 s, holding while a drag is live,
+      a save is in flight or the draft is dirty. The lever is **Help ▸ App settings ▸ Ask
+      everyone to reload** (writes the key; pressed from production, never from
+      `/preview/` — a minVersion the served build can't satisfy never starts a reload
+      loop) or a plain list edit. After a reload onto a new build, a one-time "Updated to
+      vX — What's new" toast opens Help ▸ Release notes; first-ever visitors get none.
+      [owner ask 2026-10-05]
 
 ### P0 — outside the app: owners, not releases [brief §1, §6, §7.1, §9, §11]
 
