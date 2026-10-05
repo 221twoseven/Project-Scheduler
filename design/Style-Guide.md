@@ -643,6 +643,8 @@ input:checked ~ .pin-track{background:var(--warn)}   input:checked ~ .pin-track 
 .sb-count{font-family:var(--mono);font-size:var(--fs-fine);font-weight:600;background:rgba(87,104,127,.16);border-radius:8px;padding:1px 7px;color:#57687F}
 .cd-perm{font-family:var(--mono);font-size:var(--fs-fine);font-weight:700;letter-spacing:.06em;color:#3B6FB5;background:#EAF1FB;border-radius:5px;padding:0 4px}
 .cd-perm.dev{color:#7C4FB0;background:#F2EBFA}
+.fb-st{flex:0 0 74px;text-align:center;box-sizing:border-box;white-space:nowrap}   /* v1.39.0: the report status tag (PENDING / IN REVIEW / RESOLVED) — a .cd-perm of one width, like .fb-kind */
+.fb-st.fb-pend{color:var(--ts-muted);background:#F1F5F9}                              /* pending: the one muted variant */
 .md-tag{font-size:11px;font-weight:700;letter-spacing:.06em;color:#1A7F4E;background:#DCF3E6;border-radius:6px;padding:0 5px}
 kbd{font-family:var(--mono);font-size:var(--fs-fine);background:#EDF1F7;border:1px solid #CBD6E4;border-bottom-width:2px;border-radius:4px;padding:1px 5px;color:#44536C}
 ```

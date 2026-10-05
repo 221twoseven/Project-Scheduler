@@ -9,6 +9,9 @@ Format: `## <label> — <date>` then one `- ` line per change. Keep lines concre
 what changed *for the team*, not how. Developer-only tooling doesn't need a line.
 Collect lines for the next version under `## Unreleased` and rename it when you ship.
 
+## v1.39.0 — Oct 5, 2026
+- Open Issues: every open report now carries a status tag — PENDING until the team has looked at it, IN REVIEW once someone has replied on its ticket. Resolved reports keep their own column.
+
 ## v1.34.0 — Oct 5, 2026
 - Open Issues: the Resolved column now shows the date a report was resolved, not the date it was sent, and lists the most recently resolved first.
 - Open Issues: the team can post a note under a report (a `/comment` on its ticket) that shows as a developer comment in the app without emailing the person who filed it; `/reply` still does both.

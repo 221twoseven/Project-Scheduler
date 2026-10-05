@@ -628,6 +628,14 @@ is item 32 (P0), #7 is part of item 3, and #11 and #14 were done by the bridge i
       the full width, and make a width change affect only that column (today resizing one
       shifts its neighbours). Company Data table CSS (`table-layout`, per-column widths).
       [tracker #13]
+- [x] **A status on every open report: pending, in review, resolved.** Shipped v1.39.0
+      (2026-10-05): the tracker's poller reads the status off the ticket — closed →
+      `resolved`, open with a team comment (a spec, a Fix shipped note, a `/reply` or
+      `/comment`) → `review`, open and untouched → empty — and writes the row only when it
+      differs. Open Issues tags each open row PENDING or IN REVIEW; the developer page shows
+      all three and, on rows with a ticket, "Status follows the ticket" with the link in
+      place of Mark resolved / Reopen (§7.4 ledger entry ticked). Nothing is set by hand and
+      a status change sends no email. [tracker #29]
 
 ### Queued for Phase 8 — waiting on other work (see "What waits on what", §2)
 
@@ -1410,10 +1418,10 @@ How to read the tags at the end of an entry:
 - [ ] **Shop-terminal account type.** D14. [v1.x §2]
 - [ ] **Docs out of date** (ARCHITECTURE: 5 lists vs 9; SETUP: 2 scopes vs 4; the
       `CLAUDE.md` line count; the tests/README suite count). Item 21.
-- [ ] **Developer Bug Reports page buttons.** Once a report has a `ghIssue`, the tracker
+- [x] **Developer Bug Reports page buttons.** Once a report has a `ghIssue`, the tracker
       poller overrides its Mark resolved / Reopen buttons (GitHub is the source of truth
-      for status, 2026-09-25). Remove or relabel them with the next change to
-      `renderReports` (item 39 shipped in v1.28.0 without touching that page); the
+      for status, 2026-09-25). Done in v1.39.0 (tracker #29): a row with a ticket shows
+      "Status follows the ticket" and the ticket link instead of the button; the
       `fbSetStatus` path stays for rows without a ticket. [item 31]
 - [ ] **Two "Drafter" echoes stay after the v1.31.1 rename (tracker #17).** (1) Changelog
       rows (admin/PM) still read the stored key `drafter:` — `clogField` writes the key into
