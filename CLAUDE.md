@@ -200,8 +200,10 @@ dashboard for projects, tasks, staff, and to-dos.
   toasts; consecutive failures merge into one retryable pending diff (REV90). Missing optional Lists (`ShopTimeline_Staff`,
   `ShopTimeline_Tasks2`) degrade gracefully to browser-local storage; a missing
   `ShopTimeline_Events` falls back to saving events on host phases (the pre-REV54 way).
-- **Hosting:** GitHub Pages serving the static `index.html`; `no-cache` meta tags force
-  fresh loads.
+- **Hosting:** GitHub Pages serving the static `index.html` with `max-age=600` (the
+  `no-cache` meta tags don't override it); an in-app update check (v1.33.0: a 12 h timer
+  plus tab focus, a no-store GET of `index.html`) offers Reload, and the Config key
+  `update.minVersion` retires older builds.
 - **Testing:** a jsdom harness that stubs MSAL and `fetch` and records every Graph call,
   so persistence is verified against the real outgoing request bodies.
 

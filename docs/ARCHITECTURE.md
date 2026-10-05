@@ -145,6 +145,11 @@ conventions, traps, and version history (REV34–REV50).
 
 ## Hosting
 
-GitHub Pages serves the static `index.html` from `main`. `no-cache` meta tags force fresh
-loads. There is **no Teams-specific code** in the app — it is a standalone web app (it can
+GitHub Pages serves the static `index.html` from `main` with `Cache-Control: max-age=600`
+(the page's `no-cache` meta tags don't override that header), so a fresh visit picks up a
+new build within ten minutes and a plain reload at once. An open tab finds out by itself
+(v1.33.0): every 12 h and when the tab comes back into view it re-fetches its own
+`index.html` with `cache:'no-store'`, compares the `APP_VER` inside and offers Reload; the
+`ShopTimeline_Config` key `update.minVersion` (Help ▸ App settings ▸ "Ask everyone to
+reload") retires older builds, which reload on their own once nothing is mid-edit. There is **no Teams-specific code** in the app — it is a standalone web app (it can
 be linked from Teams, but nothing in the code depends on Teams).

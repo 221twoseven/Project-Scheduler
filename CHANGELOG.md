@@ -9,6 +9,9 @@ Format: `## <label> — <date>` then one `- ` line per change. Keep lines concre
 what changed *for the team*, not how. Developer-only tooling doesn't need a line.
 Collect lines for the next version under `## Unreleased` and rename it when you ship.
 
+## v1.33.0 — Oct 5, 2026
+- The app now notices when a newer version has been published — it checks twice a day and whenever you come back to the tab — and shows "vX is available" with a Reload button, so a tab left open no longer runs an old build for days. After the reload, a one-time "Updated to vX" toast opens the release notes.
+- A developer can ask every open tab to reload onto the current build from Help ▸ App settings; a tab on an older build shows "This version has been retired" and reloads within 30 seconds — but never while you're creating a project, editing, dragging or saving, so nobody loses work; an unsaved New Project draft is kept across the reload.
 ## v1.32.0 — Oct 2, 2026
 - Project Schedule: a department can now have several separate work periods on one project. Press + beside a department (or right-click its row on the chart) to add another range after the last one; each range has its own dates and day count, draws as its own bar with the gap left empty, and an extra range is removed with ×.
 ## v1.31.1 — Oct 2, 2026
