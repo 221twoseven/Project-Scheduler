@@ -13,7 +13,7 @@ its entry. If it's turned off, mark it *retired* and keep the entry.
 
 | Automation | Kind | What it does | Owner | Status |
 |---|---|---|---|---|
-| [Feedback poller](#feedback-poller) | GitHub Actions | Files each feedback report as a tracker issue; syncs status and `/reply` comments back to the list | Robert | live since 2026-09-25 |
+| [Feedback poller](#feedback-poller) | GitHub Actions | Files each feedback report as a tracker issue; syncs status, the resolved date and `/reply` / `/comment` comments back to the list | Robert | live since 2026-09-25 |
 | [Reply email](#reply-email) | Power Automate | Emails a new `/reply` to the person who filed the report, and tells them they can answer | Robert | live since 2026-09-30; subject and body change pending (2026-10-01) |
 | [Email reply in](#email-reply-in) | Power Automate | Sends the reporter's email answer to the tracker, where it becomes a comment on the ticket | Robert | **to build** (tracker README step 10) |
 | 27 Events → Outlook | Power Automate | Syncs the company calendar list to Outlook | unknown | **undocumented**: TODO §5, item 12 |
@@ -32,14 +32,16 @@ it off.
 
 - **Does:** reads `ShopTimeline_Feedback` and opens one issue per new report in the private
   tracker `221twoseven/Project-Scheduler-issues`, with the screenshot. Closing or reopening
-  an issue sets the row's `status`. Comments starting with `/reply` are copied to the row's
-  `comments` column, and a new one also goes to `lastComment`. An `email-reply` dispatch
+  an issue sets the row's `status`; closing also stamps `resolvedAt` with the ticket's close time
+  (cleared on reopen; rows closed before the column existed are back-filled). Comments starting
+  with `/reply` or `/comment` are copied to the row's `comments` column, and a new `/reply` also
+  goes to `lastComment` (a `/comment` shows in the app but is never emailed). An `email-reply` dispatch
   from *Email reply in* is posted on the report's ticket as a **Reply from the reporter**
   comment. That happens only when the sender is the reporter (`reporterUpn` or the form's
   `email`), and the quoted original is cut off. That path writes nothing to the list.
 - **Trigger:** issue closed or reopened, any issue comment, hourly (best-effort), manual
   run, `repository_dispatch` (`email-reply`).
-- **Reads / writes:** `ShopTimeline_Feedback` columns `ghIssue`, `status`, `comments` and
+- **Reads / writes:** `ShopTimeline_Feedback` columns `ghIssue`, `status`, `resolvedAt` (optional), `comments` and
   `lastComment`, plus the `/ShopTimeline Feedback/` screenshot folder (read only).
 - **Runs as:** the Entra app **ShopTimeline Feedback Bot**. It has `Sites.Selected`,
   write access on TWOSEVENINC only, and a client secret stored in the tracker's Actions

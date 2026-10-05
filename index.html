@@ -957,6 +957,7 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 .clog-when{color:var(--ts-muted);white-space:nowrap;flex-shrink:0;width:96px}
 .clog-who{font-weight:700;color:#33415A;flex-shrink:0;width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .clog-what{flex:1;min-width:0;color:#1E293B}
+.fb-kind{flex:0 0 44px;text-align:center;box-sizing:border-box} /* v1.34.0: BUG and IDEA chips share one width, so every subject starts on the same line */
 .clog-proj{color:#33415A}
 .clog-field{color:var(--ts-muted)}
 .clog-det{white-space:pre-wrap;word-break:break-word;color:#5B6B84;font-size:11.5px;margin-top:2px}
@@ -1682,7 +1683,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.33.1'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.34.0'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -10652,14 +10653,19 @@ async function fbFetch(force){
     name:f.name||'',email:f.email||'',description:f.description||'',appVersion:f.appVersion||'',
     /* v1.20.1: `status` column — 'resolved' or empty/absent (= open), the staff-flag
        tristate convention; a build older than the column just reads everything open */
-    status:String(f.status||''),comments:fbComments(f.comments)};});
+    status:String(f.status||''),comments:fbComments(f.comments),
+    /* v1.34.0: when it was resolved — the poller stamps `resolvedAt` (the ticket's close time)
+       once the column exists; before that, the row's last change (the status flip) stands in */
+    resolvedAt:String(f.resolvedAt||''),modified:it.lastModifiedDateTime||''};});
   rows.sort((a,b)=>a.at>b.at?-1:a.at<b.at?1:0);
   FB_CACHE=rows;FB_AT=Date.now();
   return rows;
 }
 /* v1.25.0: the team's replies. The tracker's poller copies each GitHub comment that
    starts with /reply into the row's `comments` column as JSON [{at,text}]; anything
-   else (missing column, hand-edited junk) reads as no replies. */
+   else (missing column, hand-edited junk) reads as no replies. v1.34.0: a /comment on the
+   ticket lands here too (kind:'comment') — shown the same way, never emailed. */
+const fbDoneAt=r=>r.resolvedAt||r.modified||r.at; /* v1.34.0: the Resolved column's date */
 function fbComments(raw){
   let a;try{a=JSON.parse(raw||'[]');}catch(e){return [];}
   return Array.isArray(a)?a.filter(c=>c&&c.text).map(c=>({at:String(c.at||''),text:String(c.text)})):[];
@@ -10691,16 +10697,19 @@ function fbPaintList(force){
       ?'<details class="fb-dd"'+(me?' open':'')+'><summary><b>'+esc(t)+'</b></summary><div class="clog-det">'+esc(r.description)+'</div></details>'
       :'<b>'+esc(t)+'</b>';
     return '<div class="clog-row'+(me?' fb-hit':'')+'" data-spid="'+esc(r.spId)+'">'
-      +'<span class="cd-perm" title="'+(r.kind==='bug'?'Bug report':'Feature request')+'">'+(r.kind==='bug'?'BUG':'IDEA')+'</span>'
+      +'<span class="cd-perm fb-kind" title="'+(r.kind==='bug'?'Bug report':'Feature request')+'">'+(r.kind==='bug'?'BUG':'IDEA')+'</span>'
       +'<div class="clog-what">'+head+fbRepliesHtml(r,me)+'</div>'
-      +'<span class="clog-when">'+esc(clogWhen(r.at))+'</span></div>';
+      +(r.status==='resolved'
+        ?'<span class="clog-when" title="Resolved on">'+esc(clogWhen(fbDoneAt(r)))+'</span>'   /* v1.34.0: when it was dealt with, not when it was sent */
+        :'<span class="clog-when">'+esc(clogWhen(r.at))+'</span>')+'</div>';
   };
   const empty=m=>'<div class="clog-empty">'+m+'</div>';
   fbFetch(force).then(rows=>{
     const [el,dn]=els();
     if(!el||gen!==FB_PAINT)return;
     /* Open means open — resolved reports move to the third column (v1.20.7; before that they only lived on the dev page). */
-    const open=rows.filter(r=>r.status!=='resolved'),done=rows.filter(r=>r.status==='resolved');
+    const open=rows.filter(r=>r.status!=='resolved'),done=rows.filter(r=>r.status==='resolved')
+      .sort((a,b)=>fbDoneAt(b).localeCompare(fbDoneAt(a))); /* v1.34.0: most recently resolved first */
     el.innerHTML=open.length?open.map(row).join(''):empty(rows.length?'No open issues — everything filed has been resolved.':'Nothing filed yet — be the first.');
     if(dn)dn.innerHTML=done.length?done.map(row).join(''):empty('Nothing resolved yet.');
     const h=document.querySelector('.clog-row.fb-hit');if(h&&h.scrollIntoView)h.scrollIntoView({block:'center'});
@@ -10778,7 +10787,7 @@ function renderReports(){
       const res=r.status==='resolved';
       return '<div class="clog-row'+(res?' fbr-res':'')+'">'
       +'<span class="clog-when">'+esc(clogWhen(r.at))+'</span>'
-      +'<span class="cd-perm">'+(r.kind==='bug'?'BUG':'IDEA')+'</span>'
+      +'<span class="cd-perm fb-kind">'+(r.kind==='bug'?'BUG':'IDEA')+'</span>'
       +(res?'<span class="cd-perm" title="Marked resolved — hidden from the public Open Issues list">RESOLVED</span>':'')
       +'<div class="clog-what"><b>'+esc(String(r.title||'').replace(/^(Bug|Feature)\s+—\s+/,''))+'</b>'
       +' <span class="clog-field">'+esc((r.name||'—')+(r.email?' <'+r.email+'>':'')+(r.appVersion?' · v'+r.appVersion:''))+'</span>'
@@ -10819,6 +10828,8 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.34.0",d:"Oct 5, 2026",n:["Open Issues: the Resolved column now shows the date a report was resolved, not the date it was sent, and lists the most recently resolved first.",
+   "Open Issues: the team can post a note under a report (a `/comment` on its ticket) that shows as a developer comment in the app without emailing the person who filed it; `/reply` still does both."]},
  {v:"v1.33.1",d:"Oct 5, 2026",n:["Project Schedule: each department's day count now sits beside its own date range, next to the dates it counts — the same spot every extra work period already uses."]},
  {v:"v1.33.0",d:"Oct 5, 2026",n:["The app now notices when a newer version has been published — it checks twice a day and whenever you come back to the tab — and shows \"vX is available\" with a Reload button, so a tab left open no longer runs an old build for days. After the reload, a one-time \"Updated to vX\" toast opens the release notes.",
    "A developer can ask every open tab to reload onto the current build from Help ▸ App settings; a tab on an older build shows \"This version has been retired\" and reloads within 30 seconds — but never while you're creating a project, editing, dragging or saving, so nobody loses work; an unsaved New Project draft is kept across the reload."]},
