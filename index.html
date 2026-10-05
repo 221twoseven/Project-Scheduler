@@ -609,9 +609,12 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 .pg-roles{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
 .pg-roles>div{display:flex;flex-direction:column;gap:5px}
 .pg-roles .rl{font-size:var(--fs-fine);font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ts-muted)}
-.pg-rbox{background:#F7FAFD;border:1px solid #D8E2EF;border-radius:8px;padding:8px 10px;max-height:132px;overflow:auto}
+.pg-rbox{background:#F7FAFD;border:1px solid #D8E2EF;border-radius:8px;padding:8px 10px;max-height:180px;overflow:auto} /* v1.29.0 (#19): nine names before the scrollbar (was 132 → 160 → 180) */
 .pg-rbox label{display:flex;gap:6px;align-items:center;font-size:12px;color:#33415A;cursor:pointer;user-select:none;padding:1.5px 0}
 .pg-rbox input{width:13px;height:13px;flex-shrink:0;accent-color:#3B7FD6}
+.pg-rq{width:100%;box-sizing:border-box;min-height:24px;font-family:inherit;font-size:12px;padding:4px 8px;border:1px solid var(--ts-control-line);border-radius:6px;background:#fff;color:var(--ts-text)} /* v1.29.0 (#19): the Team list search, same grammar as .ins-f input; text from the chrome token (§2.6) */
+.pg-rq:focus{border-color:var(--acc)}
+body.viewer .pg-rq:disabled{display:none} /* locked viewers lose the box with the checkboxes; a viewer.project grant keeps both */
 .pg-depts{background:#F7FAFD;border:1px solid #D8E2EF;border-radius:8px;padding:10px 12px;column-count:2;column-gap:26px}
 @media(max-width:820px){.pg-roles{grid-template-columns:repeat(2,1fr)}.pg-depts{column-count:1}}
 
@@ -688,7 +691,6 @@ body.vivid .npv-we{display:none} /* v1.0.2: no weekend strips over the vivid tin
 
 /* --- configurator uses the whole frame --- */
 .pg.split{max-width:none;padding:22px 30px 90px}
-.pg-rbox{max-height:160px}   /* 132px was slicing the last name in half */
 .pg.split .pg-roles{grid-template-columns:repeat(2,1fr);gap:14px}
 
 /* --- preview: bigger, wider gutter --- */
@@ -1658,7 +1660,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.28.0'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.29.0'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -4424,7 +4426,8 @@ function hideTooltip(){document.getElementById('tooltip').classList.add('hidden'
 function fillRoleChecks(elId,names,currentStr){
   const el=document.getElementById(elId);el.innerHTML='';
   const sel=new Set(roleList(currentStr).map(canonName)); /* v1.6.5: legacy value checks its roster person, not a phantom box */
-  const all=[...new Set([...(names||[]),...sel])];
+  const all=[...new Set([...(names||[]),...sel])]
+    .sort((a,b)=>(sel.has(b)-sel.has(a))||dispName(a).localeCompare(dispName(b))); /* v1.29.0 (#19): checked first, then by the name as shown; settled at build time so a tick never re-sorts under the pointer */
   if(!all.length){el.innerHTML='<div class="tn-empty">No names yet — add people under Company Data &rsaquo; People.</div>';return;}
   for(const n of all){
     const lb=document.createElement('label');
@@ -5788,8 +5791,10 @@ function projTeam(p){return [...new Set(PP_ROLES.flatMap(r=>roleList(p&&p[r[3]])
 function ppColor(p){return p&&p.id?projColor(p.id):'#94A3B8';}
 
 
+let PG_RQ={},PG_RQ_PID=null; /* v1.29.0 (#19): the Team lists' typed search text, per box, for one project */
 function renderProjectPage(){
   const isNew=ROUTE.creating;
+  {const pid=isNew?'new':ROUTE.id;if(PG_RQ_PID!==pid){PG_RQ={};PG_RQ_PID=pid;}}
   /* v1.8.0: creating projects is admin-only — covers the button, the N key and a
      direct #/project/new hash (also a roster that loads after the route). */
   if(isNew&&isViewer()){
@@ -6502,6 +6507,7 @@ function ppInspector(){
       + '</select></div>',null,true);
     h+=ppSec('team','Team',
       '<div class="pg-roles">'+PP_ROLES.map(r=>'<div><span class="rl">'+esc(r[1])+'</span>'
+        + '<input class="pg-rq" type="text" placeholder="Search…" aria-label="Search '+esc(r[1])+'" autocomplete="off" spellcheck="false" data-for="'+r[0]+'">' /* v1.29.0 (#19): outside .pg-rbox so its blur never commits a role and validation still focuses a checkbox */
         + '<div class="pg-rbox" id="'+r[0]+'"></div></div>').join('')+'</div>',null,false);
     h+=ppSec('depts','Departments',
       '<div class="pg-depts" id="pp-depts"></div>'
@@ -6624,6 +6630,19 @@ function ppBindInspector(p,sel){
        (only its innerHTML is replaced), so re-adding stacked N delegated listeners and
        one checkbox change committed N times, flooding the undo stack. */
     if(!box.dataset.bound){box.dataset.bound='1';
+    /* v1.29.0 (#19): each Team list's Search box hides the names that don't match any part of
+       the shown or stored name; checked names stay visible, and hidden checkboxes stay in the
+       DOM so roleChecked() still reads them. The typed text is kept per box (PG_RQ) and put
+       back after any repaint of this project's panel — a Setup field change, a department
+       tick, the poll — and forgotten when another project opens (renderProjectPage). */
+    box.addEventListener('input',ev=>{
+      const t=ev.target;
+      if(!t||!t.classList||!t.classList.contains('pg-rq'))return;
+      PG_RQ[t.dataset.for]=t.value;
+      const q=t.value.trim().toLowerCase();
+      document.querySelectorAll('#'+t.dataset.for+' label').forEach(l=>{const ck=l.querySelector('input');
+        l.classList.toggle('hidden',!!q&&!(ck&&ck.checked)&&(l.textContent+' '+(ck?ck.value:'')).toLowerCase().indexOf(q)<0);});
+    });
     box.addEventListener('change',ev=>{
       const t=ev.target;
       if(!t||!t.closest)return;
@@ -6658,6 +6677,10 @@ function ppBindInspector(p,sel){
       }
     });
     }
+    /* v1.29.0 (#19): put the remembered search text back into each box and re-filter — after the
+       listeners are bound, so the first paint of a recreated panel is filtered too. */
+    for(const r of PP_ROLES){const q=PG_RQ[r[0]];if(!q)continue;
+      const b=box.querySelector('.pg-rq[data-for="'+r[0]+'"]');if(b){b.value=q;b.dispatchEvent(new Event('input',{bubbles:true}));}}
   }
 
   box.querySelectorAll('[data-ag]').forEach(b=>b.addEventListener('click',()=>{
@@ -10504,6 +10527,7 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.29.0",d:"Oct 2, 2026",n:["Project setup: the Team lists are now alphabetical, each has a Search box that narrows the names as you type, people already checked stay at the top of their list, and the lists show about nine names before scrolling."]},
  {v:"v1.28.0",d:"Oct 2, 2026",n:["Report a bug or idea: the form now asks for a one-line Subject, which is what the Open Issues page shows, and clicking a report there unfolds its full text. Nothing is cut off at 80 characters any more."]},
  {v:"v1.27.0",d:"Oct 2, 2026",n:["Today (and the T key) now puts Monday of the current week at the left edge of the timeline, in every zoom, and the timeline opens that way too; the other jumps still centre their date.",
    "Days before today wear a light grey wash on the timeline, so the eye lands on today and the work ahead."]},
