@@ -1058,10 +1058,11 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
   background:#fff;border:1px solid var(--ts-control-line);border-radius:6px;color:#33415A;font-family:inherit;font-size:14px;line-height:1;font-weight:600;cursor:pointer}
 .ins-depts .idr .radd:hover,.ins-depts .idr .rx:hover{background:var(--side)}
 .ins-depts .idr.off .radd{display:none}
-.ins-depts .idr .ddates.rng{flex-wrap:wrap;row-gap:3px}                     /* the count and × wrap under the dates when the column is narrow */
-.ins-depts .idr .ddates.rng input[type=date]{flex:1 1 90px}                 /* a natural basis, so the dates keep their width and the extras wrap */
-.ins-depts .idr .ddates .rdays{flex:0 0 46px;margin-left:auto;text-align:right;font-family:inherit;font-size:11.5px;padding:3px 5px}
+.ins-depts .idr .ddates{flex-wrap:wrap;row-gap:3px}                         /* the count and × wrap under the dates when the column is narrow (v1.33.1: every line, the primary's count lives here too) */
+.ins-depts .idr .ddates input[type=date]{flex:1 1 90px}                     /* a natural basis, so the dates keep their width and the extras wrap */
+.ins-depts .idr .ddates .rdays,.ins-depts .idr .ddates .ddays{flex:0 0 46px;margin-left:auto;text-align:right;font-family:inherit;font-size:11.5px;padding:3px 5px}
 .ins-depts .idr .ddates .dlbl{width:auto}
+.ins-depts .idr:has(.rx) .ddates:not(.rng){padding-right:29px}        /* v1.33.1: the primary's count lines up with the ranges' (24px × + 5px gap) */
 /* v1.25.2 (#26): why a typed date moved, on its own line under the date pair */
 .ins-depts .idr .dnote{flex-basis:100%;margin:0 0 3px 22px}
 .ins-depts .idr.off .dnote{display:none}
@@ -1681,7 +1682,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.33.0'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.33.1'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -6479,9 +6480,8 @@ function insDeptList(p,boxId){
        + (id!=='pm'&&canR?'<button type="button" class="radd" data-dept="'+esc(id)+'" title="Add another range after the last one" aria-label="Add another '+esc(d.freeText?'Other':d.name)+' range">+</button>':''); /* v1.32.0 (#16) */
       if(id==='pm')
         h+='<span class="dlbl" style="width:auto">spans job</span>';
-      else
-        h+='<input type="number" class="ddays" min="1" value="'+days+'"'
-         + (active?'':' disabled')+'><span class="dlbl">d</span>';
+      /* v1.33.1: the day count sits beside its own date pair on the primary line (below), the
+         way each range's already does — the header row keeps only the name and the +. */
       /* N13: the process name sits on its own line under the "Other" choice. */
       if(d.freeText)
         h+='<input type="text" class="dother" data-dept="'+esc(id)+'" placeholder="process name" '
@@ -6499,7 +6499,8 @@ function insDeptList(p,boxId){
            + '<span class="da">&rarr;</span>'
            + '<input type="date" class="dend" data-dept="'+esc(id)+'"'+ka+' value="'+esc((t&&t.endDate)||'')+'"'+(active?'':' disabled')+'>'
            + (rng?'<input type="number" class="rdays" min="1"'+ka+' value="'+(t.estimatedDays||1)+'"'+(active?'':' disabled')+' aria-label="Days in this range"><span class="dlbl">d</span>'
-                + (canR?'<button type="button" class="rx"'+ka+' title="Remove this range" aria-label="Remove this range">&times;</button>':''):'')
+                + (canR?'<button type="button" class="rx"'+ka+' title="Remove this range" aria-label="Remove this range">&times;</button>':'')
+                :'<input type="number" class="ddays" min="1" value="'+days+'"'+(active?'':' disabled')+' aria-label="Days"><span class="dlbl">d</span>')
            + '</span>'
            + '<span class="ins-note dnote hidden" data-dept="'+esc(id)+'"'+ka+'></span>';};
         h+=line(bar,false);
@@ -10818,6 +10819,7 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.33.1",d:"Oct 5, 2026",n:["Project Schedule: each department's day count now sits beside its own date range, next to the dates it counts — the same spot every extra work period already uses."]},
  {v:"v1.33.0",d:"Oct 5, 2026",n:["The app now notices when a newer version has been published — it checks twice a day and whenever you come back to the tab — and shows \"vX is available\" with a Reload button, so a tab left open no longer runs an old build for days. After the reload, a one-time \"Updated to vX\" toast opens the release notes.",
    "A developer can ask every open tab to reload onto the current build from Help ▸ App settings; a tab on an older build shows \"This version has been retired\" and reloads within 30 seconds — but never while you're creating a project, editing, dragging or saving, so nobody loses work; an unsaved New Project draft is kept across the reload."]},
  {v:"v1.32.0",d:"Oct 2, 2026",n:["Project Schedule: a department can now have several separate work periods on one project. Press + beside a department (or right-click its row on the chart) to add another range after the last one; each range has its own dates and day count, draws as its own bar with the gap left empty, and an extra range is removed with ×."]},
