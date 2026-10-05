@@ -353,6 +353,9 @@ body.compact .sb-chip{line-height:1.2;padding:.5px 6px}
    strips (owner objective 13). Quiet mode keeps them; the day header still marks
    weekends at Day/2-Day zoom. */
 body.vivid .wknd-col{display:none}
+/* v1.27.0 (tracker #2): past days wear the §2.4 weekend grey at low alpha, under rows and
+   bars (z1) so bar text keeps its contrast; .06 sits between the workday and weekend greys. */
+.past-col{position:absolute;top:0;left:0;pointer-events:none;z-index:1;background:rgba(148,163,184,.06)}
 /* C2: quiet canvas — month boundary hairline, and the month header loses its white-on-color text */
 .mon-line{position:absolute;top:0;bottom:0;width:1px;background:var(--side-line);pointer-events:none;z-index:1}
 body:not(.vivid) .hdr-m-cell{text-shadow:none;border-right-color:rgba(13,19,29,.10)}
@@ -1409,11 +1412,11 @@ body.cd-route #dash-bar{display:none!important}
   </div>
   <div class="tb-row tb-timeline">
     <div class="sf-wrap">
-      <button id="btn-today" class="t-btn" title="Center the timeline on today (T)">Today</button>
+      <button id="btn-today" class="t-btn" title="Show this week from Monday (T)">Today</button>
       <div id="goto-menu" class="tb-menu hidden">
         <div class="gp-row"><input id="goto-date" type="date" title="Pick a date — Enter centers the timeline on it"><span class="gp-key">G</span></div>
         <div class="gp-picks">
-          <button class="sm-all" data-goto="today" title="Center the timeline on today">Today</button>
+          <button class="sm-all" data-goto="today" title="Show this week from Monday">Today</button>
           <button class="sm-all" data-goto="m1" title="Center the timeline one month ahead">+1 mo</button>
           <button class="sm-all" data-goto="m3" title="Center the timeline three months ahead">+3 mo</button>
           <button class="sm-all" data-goto="install" title="Center on the next upcoming installation">Next install</button>
@@ -1651,7 +1654,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.26.3'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.27.0'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -4007,6 +4010,10 @@ function buildCanvasBgInto(canvas,totalW,DW_){
     if(!off)flush(d);
     d=addDays(d,1);
   }
+  /* v1.27.0 (tracker #2, owner): the past wears a light grey wash so the eye lands on today
+     and the work ahead. One div under the rows and bars; the weekend hatch reads through it. */
+  {const px=Math.min(totalW,d2x(today()));
+   if(px>0){const pd=document.createElement('div');pd.className='past-col';pd.style.width=px+'px';pd.style.height=TOTAL_H+'px';bgFrag.appendChild(pd);}}
   /* Each holiday wears its name as a discrete pill at the top of its grey column. */
   let hd=new Date(TL_S);
   while(hd<=TL_E){
@@ -9318,24 +9325,27 @@ document.addEventListener('keydown',ev=>{
 });
 
 /* ===================== TOOLBAR ===================== */
-/* B3: one centering rule for every jump — smooth unless prefers-reduced-motion (T6). */
-function centerX(cx){
+/* B3: one scroll rule for every jump — smooth unless prefers-reduced-motion (T6). */
+function scrollX(left){
   const sc=document.getElementById('gantt-scroll');
   if(!sc)return;
-  const left=Math.max(0,cx-sc.clientWidth/2);
   const reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if(!reduce&&sc.scrollTo){try{sc.scrollTo({left,behavior:'smooth'});return;}catch(e){}}
   sc.scrollLeft=left;
 }
+function centerX(cx){const sc=document.getElementById('gantt-scroll');if(sc)scrollX(Math.max(0,cx-sc.clientWidth/2));}
 function centerDate(d){centerX(d2x(d)+dw()/2);}
-function scrollToToday(){centerDate(today());}
-/* Park today just inside the left edge so the view reads forward into the work ahead
-   instead of centring on history. Roughly a day and a half of past is kept as context.
-   Startup only — the Today button and T key center instead (B3). */
+/* v1.27.0 (tracker #2): Today and T put Monday of the current week at the left edge, so the
+   view reads forward into the work ahead; start-up and every routed arrival land on the
+   same x, instantly, so the default view and the Today press agree. The other jumps (G,
+   month click, +1 / +3 mo, Next install, edge chips) still centre their date.
+   Ceiling: at a drag-set fit beyond ~250 days on screen the canvas ends before Monday can
+   reach the edge (computeRange); the three zoom buttons stop at 91 days, where it is exact. */
+function weekLeftX(){const t=today(),w=t.getDay();return Math.max(0,d2x(addDays(t,-(w===0?6:w-1))));}
+function scrollToToday(){scrollX(weekLeftX());}
 function scrollTodayLeft(){
   const sc=document.getElementById('gantt-scroll');
-  if(!sc)return;
-  sc.scrollLeft=Math.max(0,d2x(today())-dw()*1.5);
+  if(sc)sc.scrollLeft=weekLeftX();
 }
 document.getElementById('btn-today').addEventListener('click',scrollToToday);
 /* Undo/redo toolbar buttons — one pair, live on every page; tooltip names the hotkey. */
@@ -9371,6 +9381,7 @@ document.getElementById('goto-date').addEventListener('keydown',ev=>{
 });
 for(const b of document.querySelectorAll('#goto-menu [data-goto]'))b.addEventListener('click',()=>{
   const kind=b.dataset.goto,d=today();
+  if(kind==='today'){scrollToToday();closeMenus();return;} /* v1.27.0 (#2): the two Today controls agree */
   if(kind==='install'){
     const nx=visTasks().filter(t=>isInstall(t)&&parseDate(t.startDate)>=d)
       .sort((a,c)=>a.startDate<c.startDate?-1:1)[0];
@@ -10266,7 +10277,7 @@ document.getElementById('mi-tour').addEventListener('click',()=>{
 /* v1.6.1: keyboard shortcuts are a Help popover like the Legend — same tb-menu
    machinery, so opening one mutes the other and outside-click/Esc close both.
    Content is route-aware: the timeline's keys or the project page's. */
-const KBD_TL=[['N','New project'],['/','Search'],['T','Center on today'],['G','Go to date'],
+const KBD_TL=[['N','New project'],['/','Search'],['T','This week from Monday'],['G','Go to date'],
   ['W','Week scale'],['M','Month scale'],['+ −','Step the zoom'],['⌘ Z','Undo'],['⌘ Y','Redo'],
   ['Esc','Close / clear'],['?','This list']];
 const KBD_PP=[['S','New subtask'],['E','New milestone'],['T','New note'],['R','Rename selected'],
@@ -10480,6 +10491,8 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.27.0",d:"Oct 2, 2026",n:["Today (and the T key) now puts Monday of the current week at the left edge of the timeline, in every zoom, and the timeline opens that way too; the other jumps still centre their date.",
+   "Days before today wear a light grey wash on the timeline, so the eye lands on today and the work ahead."]},
  {v:"v1.26.3",d:"Oct 2, 2026",n:["People page: each column keeps its own width when you resize another, long text is cut off with … (hover for the full value), and a wide table scrolls sideways inside the list instead of running under the record panel. Double-click a column edge to fit it; right-click the header for Reset widths."]},
  {v:"v1.26.2",d:"Oct 2, 2026",n:["Undo notifications no longer cover the chart: they sit below the bars (or at the top right of the date header), each one has a × to close it, several quick edits share one notification, and dragging a bar that is under one goes straight through."]},
  {v:"v1.26.1",d:"Oct 2, 2026",n:["Project page: clicking any empty part of the chart, including below the last row, now closes the phase panel, and anything you were typing in it is saved first. The panel's close control now reads Close × and is big enough to hit."]},
