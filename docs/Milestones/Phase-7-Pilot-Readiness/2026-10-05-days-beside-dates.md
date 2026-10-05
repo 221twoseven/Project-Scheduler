@@ -1,7 +1,7 @@
 # 2026-10-05 — Day count beside its dates (v1.33.1)
 
 **Date:** 2026-10-05 · **App version:** v1.33.1 · **Where:** `index.html`,
-`design/Design-Language.md` · **PR:** (fill in on merge)
+`design/Design-Language.md` · **PR:** #92
 
 ## What changed
 
