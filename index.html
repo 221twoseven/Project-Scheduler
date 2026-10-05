@@ -310,6 +310,7 @@ body.compact .sb-chip{line-height:1.2;padding:.5px 6px}
 .sb-asn .n{overflow:hidden;text-overflow:ellipsis;min-width:0}
 .sb-asn .d{font-family:var(--mono);color:#93A2B8;flex-shrink:0;letter-spacing:.02em}
 .sb-asn .c{color:var(--txt-micro)} /* v1.31.0 (#24): muted client prefix on a Departments line — the dates' grey, by its token */
+.sb-asn .n.code{font-family:var(--mono);letter-spacing:.02em} /* v1.35.0 (#33): a cost code on the line is mono, like the dates beside it (Design-Language §3) */
 .sb-row.drop-hi{background:rgba(47,111,228,.12)!important;outline:2px solid rgba(47,111,228,.4);outline-offset:-2px}
 .sb-edit{background:none;border:none;color:#A8B6C8;font-size:12px;cursor:pointer;padding:2px 5px;border-radius:3px;opacity:0;transition:opacity .15s;flex-shrink:0}
 .sb-row:hover .sb-edit{opacity:1}
@@ -1683,7 +1684,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.34.0'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.35.0'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -3921,10 +3922,13 @@ function renderSidebar(){
         const p=projById(t.projectId);
         const a=document.createElement('span');a.className='sb-asn';
         const n=document.createElement('span');n.className='n';
-        const lead=clientLead(p);
-        if(lead){const c=document.createElement('span');c.className='c';c.textContent=lead;n.appendChild(c);} /* v1.31.0 (#24): muted client in front of the name, unless the name already starts with it */
-        n.appendChild(document.createTextNode((lead?' · ':'')+(p?p.name:'—')+(t.label&&String(t.label).trim()?' · '+phaseLabel(t):''))); /* v1.20.9: a subtask reads by its own name at a glance */
-        a.title=n.textContent; /* v1.31.0 (#24): the whole line on hover when it is cut off */
+        const lead=clientLead(p),code=String(p&&p.jobCode||'').trim(),lbl=t.label&&String(t.label).trim()?' · '+phaseLabel(t):''; /* v1.20.9: a custom label rides along so a subtask reads by its own name at a glance */
+        if(code){n.classList.add('code');n.textContent=code+lbl;} /* v1.35.0 (#33): the cost code stands in for the name — it fits whole where a name is cut; mono, like the dates */
+        else{
+          if(lead){const c=document.createElement('span');c.className='c';c.textContent=lead;n.appendChild(c);} /* v1.31.0 (#24): muted client in front of the name, unless the name already starts with it */
+          n.appendChild(document.createTextNode((lead?' · ':'')+(p?p.name:'—')+lbl));
+        }
+        a.title=[lead,p?p.name:'—',code].filter(Boolean).join(' · ')+lbl; /* v1.31.0 (#24): the whole line on hover when it is cut off; v1.35.0 (#33): client · name · code, whichever the project has */
         const d=document.createElement('span');d.className='d';
         d.textContent=fmtNice(t.startDate)+'–'+fmtNice(t.endDate);
         a.appendChild(n);a.appendChild(d);box.appendChild(a);
@@ -10828,6 +10832,7 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.35.0",d:"Oct 5, 2026",n:["Departments view: a project's line under a person now reads its Cost Code (in the same type as the dates) instead of the project name, so it fits whole; hover the line for the client, the full project name and the code. A project with no Cost Code still shows its name."]},
  {v:"v1.34.0",d:"Oct 5, 2026",n:["Open Issues: the Resolved column now shows the date a report was resolved, not the date it was sent, and lists the most recently resolved first.",
    "Open Issues: the team can post a note under a report (a `/comment` on its ticket) that shows as a developer comment in the app without emailing the person who filed it; `/reply` still does both."]},
  {v:"v1.33.1",d:"Oct 5, 2026",n:["Project Schedule: each department's day count now sits beside its own date range, next to the dates it counts — the same spot every extra work period already uses."]},

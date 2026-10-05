@@ -56,12 +56,12 @@ setTimeout(()=>{
      lane&&(lane.querySelector('.sb-2l .sb-sub')||{textContent:'(none)'}).textContent);
   const asns=lane?[...lane.querySelectorAll('.sb-asns .sb-asn')]:[];
   ok('the right side lists his assignments', asns.length>=1, asns.length+' lines');
-  ok('an assignment names its project', asns.some(a=>/Hermes|Tiffany/.test(a.textContent)),
+  ok('an assignment names its project (by cost code since v1.35.0, #33)', asns.some(a=>/Hermes|Tiffany|H1|T2/.test(a.textContent)),
      asns.map(a=>a.textContent).join(' | '));
   ok('…with its dates', asns.some(a=>/[A-Z][a-z]{2} \d+–[A-Z][a-z]{2} \d+/.test(a.textContent)),
      asns.map(a=>a.textContent).join(' | '));
   ok('current work sorts before upcoming',
-     asns.length>=2?/Hermes/.test(asns[0].textContent):true,
+     asns.length>=2?/Hermes|H1/.test(asns[0].textContent):true,
      asns.map(a=>a.textContent).join(' | '));
 
   sec('obj 5 — dept-lens phase click navigates to the project page');
