@@ -2,7 +2,7 @@
 
 **Date:** 2026-10-05 · **App version:** v1.34.0 · **Where:** `index.html`, `docs/Automations.md`,
 `docs/TODO.md` §6, `.claude/skills/triage-issues/SKILL.md`, tracker repo `poll.mjs` + README
-(commit 12878d0) · **PR:** (fill in)
+(commit 12878d0) · **PR:** #93
 
 ## What changed
 
