@@ -1052,6 +1052,16 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
   margin-left:22px;min-width:0}
 .ins-depts .idr.off .ddates{display:none}
 .ins-depts .idr.off .dother{display:none}
+/* v1.32.0 (#16): another work period — + beside the department name, each extra range on its own
+   date line (.rng) with its day count and a ×. Icon-size .ins-btn recipe, 24px hit box (§9). */
+.ins-depts .idr .radd,.ins-depts .idr .rx{flex-shrink:0;width:24px;height:24px;padding:0;display:inline-flex;align-items:center;justify-content:center;
+  background:#fff;border:1px solid var(--ts-control-line);border-radius:6px;color:#33415A;font-family:inherit;font-size:14px;line-height:1;font-weight:600;cursor:pointer}
+.ins-depts .idr .radd:hover,.ins-depts .idr .rx:hover{background:var(--side)}
+.ins-depts .idr.off .radd{display:none}
+.ins-depts .idr .ddates.rng{flex-wrap:wrap;row-gap:3px}                     /* the count and × wrap under the dates when the column is narrow */
+.ins-depts .idr .ddates.rng input[type=date]{flex:1 1 90px}                 /* a natural basis, so the dates keep their width and the extras wrap */
+.ins-depts .idr .ddates .rdays{flex:0 0 46px;margin-left:auto;text-align:right;font-family:inherit;font-size:11.5px;padding:3px 5px}
+.ins-depts .idr .ddates .dlbl{width:auto}
 /* v1.25.2 (#26): why a typed date moved, on its own line under the date pair */
 .ins-depts .idr .dnote{flex-basis:100%;margin:0 0 3px 22px}
 .ins-depts .idr.off .dnote{display:none}
@@ -1671,7 +1681,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.31.1'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.32.0'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -2371,8 +2381,8 @@ function schedParse(v){
 
 function projToFields(p){const f={Title:p.name||'',client:p.client||'',jobCode:p.jobCode||'',deadline:p.deadline||null,status:p.status||'auto',projectManager:p.projectManager||'',drafter:p.drafter||'',leadFab:p.leadFab||'',fabricators:p.fabricators||'',metalFab:p.metalFab||'',activeDepartments:JSON.stringify(p.activeDepartments||[]),appId:p.id,createdAt:p.createdAt||null};if(p.sortIndex!=null)f.sortIndex=p.sortIndex;return f;}
 function fieldsToProj(f){return{id:f.appId,name:f.Title||'',client:f.client||'',jobCode:f.jobCode||'',deadline:isoDay(f.deadline),status:f.status||'auto',projectManager:f.projectManager||'',drafter:f.drafter||'',leadFab:f.leadFab||'',fabricators:f.fabricators||'',metalFab:f.metalFab||'',activeDepartments:safeArr(f.activeDepartments),sortIndex:f.sortIndex==null?null:Number(f.sortIndex),createdAt:isoDay(f.createdAt)};}
-function taskToFields(t){const d=deptById(t.department);return{Title:(d?d.name:t.department)||'Task',projectId:t.projectId,department:t.department,assignee:Array.isArray(t.assignee)?JSON.stringify(t.assignee):(t.assignee||''),startDate:t.startDate||null,endDate:t.endDate||null,estimatedDays:t.estimatedDays||1,ticketNodes:JSON.stringify(t.ticketNodes||[]),notes:t.notes||'',pinned:!!t.pinned,label:t.label||'',appId:t.id};}
-function fieldsToTask(f){const a=(isEndDept(f.department)&&typeof f.assignee==='string'&&f.assignee.trim().startsWith('['))?safeArr(f.assignee):(f.assignee||'');return{id:f.appId,projectId:f.projectId,department:f.department,assignee:a,startDate:isoDay(f.startDate),endDate:isoDay(f.endDate),estimatedDays:Number(f.estimatedDays)||1,ticketNodes:safeArr(f.ticketNodes),notes:f.notes||'',pinned:!!f.pinned,label:f.label||''};}
+function taskToFields(t){const d=deptById(t.department);return{Title:(d?d.name:t.department)||'Task',projectId:t.projectId,department:t.department,assignee:Array.isArray(t.assignee)?JSON.stringify(t.assignee):(t.assignee||''),startDate:t.startDate||null,endDate:t.endDate||null,estimatedDays:t.estimatedDays||1,ticketNodes:JSON.stringify(t.ticketNodes||[]),notes:t.notes||'',pinned:!!t.pinned,label:t.label||'',...(t.range?{range:true}:{}),appId:t.id};} /* v1.32.0 (#16): `range` is written only when set (tristate — a site without the column never sees it on ordinary saves) */
+function fieldsToTask(f){const a=(isEndDept(f.department)&&typeof f.assignee==='string'&&f.assignee.trim().startsWith('['))?safeArr(f.assignee):(f.assignee||'');return{id:f.appId,projectId:f.projectId,department:f.department,assignee:a,startDate:isoDay(f.startDate),endDate:isoDay(f.endDate),estimatedDays:Number(f.estimatedDays)||1,ticketNodes:safeArr(f.ticketNodes),notes:f.notes||'',pinned:!!f.pinned,label:f.label||'',...(f.range?{range:true}:{})};} /* v1.32.0 (#16): tristate on the read side too — a loaded non-range row keeps its pre-v1.32.0 shape, so stripStamps() still matches a row created in this session and the poll never wipes the undo stack over it */
 /* v1.7.1: phone rides the person record (column created by the owner 2026-09-01). */
 /* v1.8.0 (§3 item 12): the admin / feedbackRecipient flags. A flag is TRISTATE on the
    person object: true/false once the row carries a column value, null when it never
@@ -6245,9 +6255,10 @@ function ppDraftResolve(key){
   if(!key)return null;
   if(key.startsWith('l:')){const lid=key.slice(2);return NPV_TASKS.find(t=>String(t.id).split('::')[1]===lid)||null;}
   if(key.startsWith('d:')){const dp=key.slice(2);
-    /* an edit can seed the dept into lines mid-selection — fall back to its first bar */
+    /* an edit can seed the dept into lines mid-selection — fall back to its primary (never a
+       range that sorts first — v1.32.0 #16), then to its first bar */
     return NPV_TASKS.find(t=>t.department===dp&&String(t.id).indexOf('::')<0)
-         ||NPV_TASKS.find(t=>t.department===dp)||null;}
+         ||NPV_TASKS.find(t=>t.department===dp&&!t.range)||NPV_TASKS.find(t=>t.department===dp)||null;}
   return NPV_TASKS.find(t=>t.id===key)||null;
 }
 function ppSelect(id,quiet){
@@ -6312,6 +6323,8 @@ function insDeptList(p,boxId){
   if(!box)return;
   box.classList.add('ins-depts');
   const D=(!p&&PP_FORM)?PP_FORM:null;
+  const canR=vcan('phases'); /* v1.32.0 (#16): + and × ride the phases door, like the chart's add paths */
+  const keyOf=t=>p?t.id:ppDraftKeyFor(t); /* the rebuild-stable handle a date line edits by */
   let h='';
   GROUPS.forEach((g,gi)=>{
     h+='<div class="idg">'+(gi+1)+' \u00b7 '+esc(g.label)+'</div>';
@@ -6320,14 +6333,20 @@ function insDeptList(p,boxId){
       const active=p?(p.activeDepartments||[]).includes(id)
                    :(D?D.activeDepartments.includes(id)
                       :DEFAULT_DEPTS.includes(id));
-      const ex=p?ST.tasks.find(t=>t.projectId===p.id&&t.department===id):null;
+      /* v1.32.0 (#16): every row of the department — the primary (the first bar that is not a
+         range) keeps the day count and the first date line; each extra range gets its own line */
+      const all=p?ST.tasks.filter(t=>t.projectId===p.id&&t.department===id):((typeof NPV_ALL!=='undefined'&&NPV_ALL)||[]).filter(t=>t.department===id);
+      const prim=all.find(t=>!t.range)||all[0]||null;
+      const ex=p?prim:null;
+      const ranges=all.filter(t=>t!==prim&&t.range).sort((a,b)=>String(a.startDate).localeCompare(String(b.startDate)));
       if(d.retired&&!active&&!ex)continue; /* retired dept: offered nowhere, shown only where it's already in use */
       const days=ex?(ex.estimatedDays||d.est||1):((D&&D.est[id])||d.est||1);
       const other=d.freeText?(ex?(ex.assignee||''):((D&&D.otherLabels[id])||'')):null;
       h+='<div class="idr'+(active?'':' off')+'">'
        + '<input type="checkbox" data-dept="'+esc(id)+'"'+(active?' checked':'')
        +   (id==='pm'?' checked disabled':'')+'>'
-       + '<span class="dname">'+esc(d.freeText?'Other':d.name)+'</span>';
+       + '<span class="dname">'+esc(d.freeText?'Other':d.name)+'</span>'
+       + (id!=='pm'&&canR?'<button type="button" class="radd" data-dept="'+esc(id)+'" title="Add another range after the last one" aria-label="Add another '+esc(d.freeText?'Other':d.name)+' range">+</button>':''); /* v1.32.0 (#16) */
       if(id==='pm')
         h+='<span class="dlbl" style="width:auto">spans job</span>';
       else
@@ -6340,13 +6359,21 @@ function insDeptList(p,boxId){
       /* N13: manual dates beside the day quantity — edit days and the end moves;
          edit a date and the days recount. Same bar a drag would move. */
       if(id!=='pm'){
-        const bar=p?ex:((typeof NPV_ALL!=='undefined'&&NPV_ALL)||[]).find(t=>t.department===id);
-        h+='<span class="ddates">'
-         + '<input type="date" class="dstart" data-dept="'+esc(id)+'" value="'+esc((bar&&bar.startDate)||'')+'"'+(active?'':' disabled')+'>'
-         + '<span class="da">&rarr;</span>'
-         + '<input type="date" class="dend" data-dept="'+esc(id)+'" value="'+esc((bar&&bar.endDate)||'')+'"'+(active?'':' disabled')+'>'
-         + '</span>'
-         + '<span class="ins-note dnote hidden" data-dept="'+esc(id)+'"></span>';
+        const bar=p?ex:prim;
+        /* v1.32.0 (#16): one date line per bar — the primary's first (its .dstart[data-dept] is the
+           row's, as before), then a line per range with its own day count and a ×. data-key is
+           the handle the change delegate edits by (a task id, or the draft's 'l:'/'d:' key). */
+        const line=(t,rng)=>{const k=t?keyOf(t):'',ka=k?' data-key="'+esc(k)+'"':'';
+          return '<span class="ddates'+(rng?' rng':'')+'"'+ka+'>'
+           + '<input type="date" class="dstart" data-dept="'+esc(id)+'"'+ka+' value="'+esc((t&&t.startDate)||'')+'"'+(active?'':' disabled')+'>'
+           + '<span class="da">&rarr;</span>'
+           + '<input type="date" class="dend" data-dept="'+esc(id)+'"'+ka+' value="'+esc((t&&t.endDate)||'')+'"'+(active?'':' disabled')+'>'
+           + (rng?'<input type="number" class="rdays" min="1"'+ka+' value="'+(t.estimatedDays||1)+'"'+(active?'':' disabled')+' aria-label="Days in this range"><span class="dlbl">d</span>'
+                + (canR?'<button type="button" class="rx"'+ka+' title="Remove this range" aria-label="Remove this range">&times;</button>':''):'')
+           + '</span>'
+           + '<span class="ins-note dnote hidden" data-dept="'+esc(id)+'"'+ka+'></span>';};
+        h+=line(bar,false);
+        for(const r of ranges)h+=line(r,true);
       }
       h+='</div>';
     }
@@ -6358,7 +6385,7 @@ function insDeptList(p,boxId){
     row.classList.toggle('off',!ck.checked);
     const dd=row.querySelector('.ddays');if(dd)dd.disabled=!ck.checked;
     const ot=row.querySelector('.dother');if(ot)ot.disabled=!ck.checked;
-    row.querySelectorAll('.dstart,.dend').forEach(i=>{i.disabled=!ck.checked;});
+    row.querySelectorAll('.dstart,.dend,.rdays').forEach(i=>{i.disabled=!ck.checked;});
   }));
 }
 
@@ -6413,20 +6440,25 @@ function ppPaintDateNote(){
   if(!rows.length)return;
   const p=ppProject(),on=PP_DNOTE&&PP_DNOTE.proj===(p?p.id:'')?PP_DNOTE:null;
   rows.forEach(el=>{
-    const t=on&&on.key==='d:'+el.dataset.dept?on.text:'';el.textContent=t;el.classList.toggle('hidden',!t);
+    const k=el.dataset.key?'k:'+el.dataset.key:'d:'+el.dataset.dept; /* v1.32.0 (#16): one note per date line */
+    const t=on&&on.key===k?on.text:'';el.textContent=t;el.classList.toggle('hidden',!t);
   });
 }
-function ppDeptDates(dept,which,val){
-  const bar=(NPV_ALL||[]).find(t=>t.department===dept);
+/* v1.32.0 (#16): the bar behind a date line, from its data-key — a task id on a saved page, the
+   draft's rebuild-stable 'l:'/'d:' key on a draft (raw draft ids regenerate every keystroke). */
+function ppLineBar(key){return key?(NPV_LIVE?taskById(key):ppDraftResolve(key)):null;}
+function ppDeptDates(key,which,val){
+  const bar=ppLineBar(key);
   if(!bar||!val)return;
+  const dept=bar.department;
   const r=typedDates(dept,bar.startDate,bar.endDate,which,val);
-  ppDateNote('d:'+dept,r.note);
-  const ck=document.querySelector('#pp-depts input[data-dept="'+dept+'"]');
-  const idr=ck?ck.closest('.idr'):null;
-  if(idr){
-    const dd=idr.querySelector('.ddays');if(dd)dd.value=r.days;
-    /* the fields show where the dates actually landed, not what was typed */
-    const ds=idr.querySelector('.dstart'),de=idr.querySelector('.dend');
+  ppDateNote('k:'+key,r.note);
+  const line=document.querySelector('#pp-depts .ddates[data-key="'+key+'"]');
+  if(line){
+    /* the fields show where the dates actually landed, not what was typed; the day count is the
+       range's own on a range line, the row's .ddays on the primary line */
+    const dd=line.querySelector('.rdays')||line.closest('.idr').querySelector('.ddays');if(dd)dd.value=r.days;
+    const ds=line.querySelector('.dstart'),de=line.querySelector('.dend');
     if(ds)ds.value=r.s;if(de)de.value=r.e;
   }
   if(NPV_LIVE){commitPhaseDates(bar.id,r.s,r.e,r.days);npvRebuild();return;}
@@ -6438,9 +6470,14 @@ function npvSyncDeptDates(){
   const box=document.getElementById('pp-depts');
   if(!box)return;
   box.querySelectorAll('.dstart,.dend').forEach(inp=>{
-    const bar=(NPV_ALL||[]).find(t=>t.department===inp.dataset.dept);
+    const bar=inp.dataset.key?ppLineBar(inp.dataset.key):(NPV_ALL||[]).find(t=>t.department===inp.dataset.dept);
     if(!bar)return;
     const v=inp.classList.contains('dstart')?(bar.startDate||''):(bar.endDate||'');
+    if(inp.value!==v&&document.activeElement!==inp)inp.value=v;
+  });
+  box.querySelectorAll('.rdays').forEach(inp=>{ /* v1.32.0 (#16) */
+    const bar=ppLineBar(inp.dataset.key);if(!bar)return;
+    const v=String(bar.estimatedDays||1);
     if(inp.value!==v&&document.activeElement!==inp)inp.value=v;
   });
   ppPaintDateNote();
@@ -6548,7 +6585,7 @@ function ppInspector(){
         + '<div class="pg-rbox" id="'+r[0]+'"></div></div>').join('')+'</div>',null,false);
     h+=ppSec('depts','Project Schedule', /* v1.31.1 (#22): the id stays 'depts' */
       '<div class="pg-depts" id="pp-depts"></div>'
-      + (vcan('phases')?'<div class="ins-note">Tick a department to add it to the schedule, or double-click the calendar to add a phase where you want it.</div>':''), /* v1.31.1: right-click has offered milestones and notes only since v1.2.1 */
+      + (vcan('phases')?'<div class="ins-note">Tick a department to add it to the schedule, or double-click the calendar to add a phase where you want it. Press + beside a department to add another range.</div>':''), /* v1.31.1: right-click has offered milestones and notes only since v1.2.1 */
       null,false);
     h+=ppAgendaHTML(p,null);
     h+='</div>';
@@ -6684,24 +6721,51 @@ function ppBindInspector(p,sel){
         while(n&&!n.classList.contains('rl-grp')){if(!n.classList.contains('hidden'))any=true;n=n.nextElementSibling;}
         h.classList.toggle('hidden',!any);});
     });
+    /* v1.32.0 (#16): + beside a department adds another range after its last one; × on a range's
+       date line removes that range (saved: the usual undo toast; draft: the line and its placement
+       go, with an undo of their own). The list repaints itself — ppInspector() is the only painter. */
+    box.addEventListener('click',ev=>{
+      const b=ev.target&&ev.target.closest?ev.target.closest('.radd,.rx'):null;
+      if(!b)return;
+      ev.preventDefault();
+      if(b.classList.contains('radd')){npvCreateRange(b.dataset.dept);return;}
+      const bar=ppLineBar(b.dataset.key);if(!bar)return;
+      const nm=(deptById(bar.department)||{}).name||bar.department;
+      if(NPV_LIVE){ppDeletePhase(bar.id);ppInspector();return;}
+      const l=ppDraftLineFor(bar),k=npvKey(bar),prevM=NPV_MANUAL[k];
+      NPV_LINES=NPV_LINES.filter(x=>x.id!==l.id);delete NPV_MANUAL[k];
+      npvRebuild();ppInspector();
+      npvToastU('Removed a '+nm+' range',()=>{NPV_LINES.push(l);if(prevM)NPV_MANUAL[k]=prevM;npvRebuild();ppInspector();});
+    });
     box.addEventListener('change',ev=>{
       const t=ev.target;
       if(!t||!t.closest)return;
       /* N13: date edits route to the bar, not to the checklist commit. */
       if(t.classList&&(t.classList.contains('dstart')||t.classList.contains('dend'))){
-        ppDeptDates(t.dataset.dept,t.classList.contains('dstart')?'s':'e',t.value);
+        ppDeptDates(t.dataset.key||('d:'+t.dataset.dept),t.classList.contains('dstart')?'s':'e',t.value); /* v1.32.0 (#16): by the line's key */
         return;
       }
       /* N13: on a saved page a days edit moves the phase's end — the other half of
          the bidirectional pair. (Drafts already recompute through the scheduler.) */
       if(t.classList&&t.classList.contains('ddays')&&NPV_LIVE){
         const ck2=t.closest('.idr').querySelector('input[data-dept]');
-        const bar=ck2?(NPV_ALL||[]).find(b=>b.department===ck2.dataset.dept):null;
+        const bar=ck2?npvPrimary(ck2.dataset.dept):null; /* v1.32.0 (#16): the row's count is the primary's, never a range that sorts first */
         if(bar&&bar.startDate){
           const n=Math.max(1,parseInt(t.value,10)||1);
           commitPhaseDates(bar.id,bar.startDate,fmtDate(deptEndAfter(bar.department,parseDate(bar.startDate),n)),n);
           npvRebuild();return;
         }
+      }
+      /* v1.32.0 (#16): a range's own day count moves that range's end — saved page and draft */
+      if(t.classList&&t.classList.contains('rdays')){
+        const bar=ppLineBar(t.dataset.key);
+        if(bar&&bar.startDate){
+          const n=Math.max(1,parseInt(t.value,10)||1),e=fmtDate(deptEndAfter(bar.department,parseDate(bar.startDate),n));
+          if(NPV_LIVE)commitPhaseDates(bar.id,bar.startDate,e,n);
+          else NPV_MANUAL[npvKey(bar)]={startDate:bar.startDate,endDate:e,estimatedDays:n};
+          npvRebuild();
+        }
+        return;
       }
       if(t.closest('.pg-rbox')){
         if(ROUTE.creating){npvQueue();return;}
@@ -6853,7 +6917,7 @@ let NPV_MANUAL={};
 let NPV_ORDER=[];        /* department ids, top-to-bottom display order */
 let NPV_EVENTS=[];       /* draft events  {id,name,date,dept} */
 let NPV_TODOS=[];        /* draft tasks   {id,title,who,due,priority,dept} */
-let NPV_LINES=[];        /* named phase lines {id,name,dept,who} */
+let NPV_LINES=[];        /* named phase lines {id,name,dept,who,seed?,notes?,range?} — range: another work period (#16) */
 let NPV_MODE='gantt';    /* 'gantt' | 'calendar' */
 /* v1.5.0 (08-31 obj 8): project-gantt zoom — null fits the whole job (the historical
    behavior); 7/30/91 pin a week/month/quarter across the panel. Per-browser pref. */
@@ -6950,7 +7014,16 @@ function npvSetGut(w){
   document.documentElement.style.setProperty('--npv-gut',NPV_GUT+'px');
 }
 
-function npvKey(t){return t.department+'::'+(t.label||'')+'::'+(Array.isArray(t.assignee)?t.assignee.join(','):(t.assignee||''));}
+function npvKey(t){
+  /* v1.32.0 (#16): a draft range keys its placement by its line id — two unlabeled ranges with the
+     same crew would otherwise share one key. Every other bar keeps the old key byte for byte. */
+  const lid=t.range?String(t.id).split('::')[1]:'';
+  if(lid)return t.department+'::#'+lid;
+  return t.department+'::'+(t.label||'')+'::'+(Array.isArray(t.assignee)?t.assignee.join(','):(t.assignee||''));}
+/* v1.32.0 (#16): the department's primary bar — the first bar that is not a range (a range dragged
+   ahead of it must not take over the row); a department with nothing but ranges left falls back
+   to its first bar. */
+function npvPrimary(dept){return NPV_TASKS.find(z=>z.department===dept&&!z.range)||NPV_TASKS.find(z=>z.department===dept)||null;}
 function wdCount(a,b){let n=0,c=new Date(a);while(c<=b){if(isWorking(c))n++;c=addDays(c,1);}return Math.max(1,n);}
 
 /* Read the left-hand form without saving anything. */
@@ -7069,7 +7142,7 @@ function applyPhaseLines(tasks){
        (seed:true — an unowned umbrella is blank on both counts but is still a real
        bar; dropping it here swallowed the department's primary bar on the first
        subtask). Blank placeholder lines typed into the panel still don't render. */
-    if(!l.dept||(!(l.name||'').trim()&&!(l.who||'').trim()&&!l.seed))continue;
+    if(!l.dept||(!(l.name||'').trim()&&!(l.who||'').trim()&&!l.seed&&!l.range))continue; /* v1.32.0 (#16): a range line is blank on both counts and still real */
     (byDept[l.dept]=byDept[l.dept]||[]).push(l);
   }
   if(!Object.keys(byDept).length)return tasks;
@@ -7080,7 +7153,7 @@ function applyPhaseLines(tasks){
     if(expanded[t.department])continue;
     expanded[t.department]=true;
     for(const l of lines){
-      out.push({...t,id:t.id+'::'+l.id,label:l.name.trim(),
+      out.push({...t,id:t.id+'::'+l.id,label:l.name.trim(),range:!!l.range,
         assignee:l.who?l.who:(deptById(t.department)||{}).roster?t.assignee:'',
         notes:l.notes!==undefined?l.notes:t.notes}); /* 3.5: the inspector edits notes on the line */
     }
@@ -7102,9 +7175,16 @@ function npvRowPlan(){
     if(seen[t.department])continue;
     seen[t.department]=true;
     const kids=byDept[t.department];
-    if(kids.length<2){plan.push({kind:'leaf',dept:t.department,t:kids[0].t,i:kids[0].i});continue;}
+    /* v1.32.0 (#16): a range (t.range) is another top bar of the department's own row — never a
+       subtask: it does not nest, does not open, and the envelope track below spans the primary
+       and its subtasks only, so the gaps between ranges stay empty. The primary is the first
+       bar that is not a range (npvPrimary), whatever the sort put first. */
+    const prim=kids.find(k=>!k.t.range)||kids[0];
+    const tops=[prim,...kids.filter(k=>k!==prim&&k.t.range)];
+    const subs=kids.filter(k=>k!==prim&&!k.t.range);
+    if(!subs.length){plan.push({kind:'leaf',dept:t.department,t:prim.t,i:prim.i,bars:tops});continue;}
     let s='',e='';
-    for(const k of kids){
+    for(const k of [prim,...subs]){
       if(k.t.startDate&&(!s||k.t.startDate<s))s=k.t.startDate;
       if(k.t.endDate&&(!e||k.t.endDate>e))e=k.t.endDate;
     }
@@ -7115,8 +7195,8 @@ function npvRowPlan(){
        parent flag; first-in-sort is the parent (unlabeled bars sort ahead of named
        subtasks, so the original phase bar stays parent). Store a flag if anyone
        needs to re-parent. */
-    plan.push({kind:'parent',dept:t.department,kids:kids,open:open,s:s,e:e,t:kids[0].t,i:kids[0].i});
-    if(open)for(const k of kids.slice(1))plan.push({kind:'child',dept:t.department,t:k.t,i:k.i});
+    plan.push({kind:'parent',dept:t.department,kids:[prim,...subs],bars:tops,open:open,s:s,e:e,t:prim.t,i:prim.i});
+    if(open)for(const k of subs)plan.push({kind:'child',dept:t.department,t:k.t,i:k.i,bars:[k]});
   }
   return plan;
 }
@@ -7220,11 +7300,12 @@ function npvDeptMenu(x,y,dept,hit){
   const kids=NPV_TASKS.filter(t=>t.department===dept);
   const col=DEPT_COLORS[dept]||'#8A98AE';
   let h='';
-  if(kids.length>1)
+  if(kids.filter(t=>!t.range).length>1) /* v1.32.0 (#16): ranges are top bars — nothing to expand unless there are subtasks */
     h+='<button data-act="tog"><span class="mi" style="background:'+col+'"></span>'
      + (open?'Collapse':'Expand')+' subtasks</button>';
   h+='<button data-act="sub"><span class="mi" style="background:'+col+'"></span>'
    +   'New subtask<span class="k">S</span></button>'
+   + '<button data-act="rng"><span class="mi" style="background:'+col+'"></span>Add another range</button>' /* v1.32.0 (#16): after the last one */
    + '<button data-act="ev"><span class="mi ev"></span>New milestone<span class="k">E</span></button>'
    + '<button data-act="tk"><span class="mi tk"></span>New note<span class="k">T</span></button>';
   /* N11: "Remove from job" left with the other destructive actions — untick the
@@ -7233,6 +7314,7 @@ function npvDeptMenu(x,y,dept,hit){
     const day=(hit&&hit.date)||(kids[0]&&kids[0].startDate)||'';
     if(act==='tog')npvToggleDept(dept);
     else if(act==='sub')npvCreateSubtask(dept,day,false);
+    else if(act==='rng')npvCreateRange(dept); /* v1.32.0 (#16) */
     else if(act==='ev')npvCreateEvent(dept,day);
     else if(act==='tk')npvCreateTask(dept,day);
   });
@@ -7244,15 +7326,15 @@ function npvDuplicatePhase(t){
     const src=ppDraftLineFor(t);
     const who=src.who||(Array.isArray(t.assignee)?t.assignee.join(', '):(t.assignee||''));
     const l={id:genId(),name:(t.label||((deptById(t.department)||{}).name||t.department))+' copy',
-      dept:t.department,who:who,notes:src.notes||''};
+      dept:t.department,who:who,notes:src.notes||'',range:!!t.range}; /* v1.32.0 (#16): a copied range stays a range */
     NPV_LINES.push(l);
-    NPV_MANUAL[npvKey({department:t.department,label:l.name,assignee:who})]=
-      {startDate:t.startDate,endDate:t.endDate,estimatedDays:t.estimatedDays};
+    const dk=l.range?t.department+'::#'+l.id:npvKey({department:t.department,label:l.name,assignee:who});
+    NPV_MANUAL[dk]={startDate:t.startDate,endDate:t.endDate,estimatedDays:t.estimatedDays};
     NPV_OPEN.add(t.department);NPV_CAL_OPEN.set(t.department,2);saveUI();npvRebuild();
     ppSelect('l:'+l.id,true);
     npvToastU('Duplicated '+phaseLabel(t),()=>{
       NPV_LINES=NPV_LINES.filter(x=>x.id!==l.id);
-      delete NPV_MANUAL[npvKey({department:t.department,label:l.name,assignee:who})];
+      delete NPV_MANUAL[dk];
       ppSelect(null,true);npvRebuild();
     });
     return;
@@ -7284,6 +7366,7 @@ function npvOpenMenu(clientX,clientY,hit,page){
     h+='<div class="mh">'+esc(dn)+' &middot; '+esc(dateTxt)+'</div>'
      + '<button data-act="sub"><span class="mi" style="background:'
      +   (DEPT_COLORS[dept]||'#8A98AE')+'"></span>New subtask here<span class="k">S</span></button>'
+     + (hit.row.kind!=='child'?'<button data-act="rng"><span class="mi" style="background:'+(DEPT_COLORS[dept]||'#8A98AE')+'"></span>Add another range here</button>':'') /* v1.32.0 (#16): on the department's row, not a subtask's */
      + '<button data-act="ev"><span class="mi ev"></span>New milestone<span class="k">E</span></button>'
      + '<button data-act="tk"><span class="mi tk"></span>New note<span class="k">T</span></button>';
     if(hit.row.kind==='parent')
@@ -7310,6 +7393,7 @@ function npvOpenMenu(clientX,clientY,hit,page){
     npvCloseMenu();
     if(act==='tog')npvToggleDept(dept);
     else if(act==='sub')npvCreateSubtask(dept,hit.date,false);
+    else if(act==='rng')npvCreateRange(dept,hit.date); /* v1.32.0 (#16) */
     else if(act==='dept')npvCreateSubtask(b.dataset.dept,hit.date,true,null,hit.pop);
     else if(act==='ev')npvCreateEvent(dept,hit.date);
     else if(act==='tk')npvCreateTask(dept,hit.date);
@@ -7359,7 +7443,7 @@ function npvCreateSubtask(dept,date,newDept,name,popAt){
        manual placement so it survives the per-keystroke rebuild (REV55). Without
        this the new line spans the whole window: an exact copy of the parent bar,
        frozen in place by the nesting clamp. */
-    const w0=NPV_TASKS.find(t=>t.department===dept);
+    const w0=npvPrimary(dept); /* v1.32.0 (#16): the primary, not a range that sorts first */
     if(w0){
       const half=Math.max(1,Math.round((w0.estimatedDays
         ||wdCount(parseDate(w0.startDate),parseDate(w0.endDate)))/2));
@@ -7381,7 +7465,7 @@ function npvCreateSubtask(dept,date,newDept,name,popAt){
   }
   const p=ppProject();if(!p)return;
   const kids=NPV_TASKS.filter(t=>t.department===dept);
-  const sib=kids[0];
+  const sib=npvPrimary(dept); /* v1.32.0 (#16): a subtask nests under the primary, not under a range that sorts first */
   /* No parent bar means this creates the department's PRIMARY bar — a phase, not a
      subtask — so it rides the phases door (the S key maps to 'subtasks'). */
   if(!sib&&isViewer()&&!vcan('phases')){toast('View-only access — ask an admin to change the schedule','err');return;}
@@ -7410,6 +7494,37 @@ function npvCreateSubtask(dept,date,newDept,name,popAt){
   ppSelect(t.id);
   if(popAt)npvEditPop('phase',ppSelected(),popAt[0],popAt[1],true);
   toastU('Added a '+((deptById(dept)||{}).name||dept)+' bar');
+}
+/* v1.32.0 (#16): another work period for a department — a top bar on the department's own row
+   (never a subtask: no nesting, no clamp, not carried by Link), born the day after the
+   department's last range (a workday for shop departments, a calendar day for Installation and
+   Shipping) at the row's day count; a right-click day inside an existing range also lands after
+   it, so ranges never overlap by placement. Deliberately NOT selected: selecting swaps the dock
+   to the phase pane and hides the list the + lives in, so + twice in a row would be impossible. */
+function npvCreateRange(dept,date){
+  if(!dept)return;
+  if(NPV_LIVE&&isViewer()&&!vcan('phases')){toast('View-only access — ask an admin to change the schedule','err');return;}
+  const prim=npvPrimary(dept);if(!prim)return;
+  const tops=NPV_TASKS.filter(t=>t.department===dept&&(t===prim||t.range)).sort((a,b)=>String(a.startDate).localeCompare(String(b.startDate)));
+  const nm=(deptById(dept)||{}).name||dept;
+  const days=prim.estimatedDays||(deptById(dept)||{}).est||1;                          /* the row's "d" */
+  const after=iso=>{const d=fmtDate(addDays(parseDate(iso),1));return isEndDept(dept)?d:wdSnap(d);};
+  let start=date?(isEndDept(dept)?date:wdSnap(date)):after(tops.reduce((m,t)=>t.endDate>m?t.endDate:m,''));
+  /* hop past every range the start lands in — back-to-back ranges would otherwise take a hidden duplicate */
+  for(let inside=tops.find(t=>start>=t.startDate&&start<=t.endDate),n=0;inside&&n<tops.length;n++)
+    {start=after(inside.endDate);inside=tops.find(t=>start>=t.startDate&&start<=t.endDate);}
+  const end=fmtDate(deptEndAfter(dept,parseDate(start),days));
+  if(NPV_LIVE){
+    const t={...prim,id:genId(),label:'',ticketNodes:[],notes:'',pinned:false,range:true,startDate:start,endDate:end,estimatedDays:days};
+    delete t.__manual;delete t.updatedBy;delete t.updatedAt;
+    PP_QUIET=true;try{saveState({projects:ST.projects,tasks:[...ST.tasks,t]});}finally{PP_QUIET=false;}
+    npvRebuild();ppInspector();toastU('Added a '+nm+' range');return;
+  }
+  ppSeedLines(dept);                                                                    /* line-back the primary first */
+  const l={id:genId(),name:'',dept:dept,who:'',range:true};NPV_LINES.push(l);
+  const k=dept+'::#'+l.id;NPV_MANUAL[k]={startDate:start,endDate:end,estimatedDays:days};
+  npvRebuild();ppInspector();
+  npvToastU('Added a '+nm+' range',()=>{NPV_LINES=NPV_LINES.filter(x=>x.id!==l.id);delete NPV_MANUAL[k];npvRebuild();ppInspector();});
 }
 /* No thing on this chart is ever created without a date again. An undated event isn't
    drawn, which read as "it went somewhere random". */
@@ -7681,7 +7796,7 @@ function npvRender(){
        + '<span class="npv-tri" data-dept="'+esc(row.dept)+'" title="Show subtasks">&#9654;</span>'
        + esc(nm)+'<span class="npv-n">'+(row.kids.length-1)+'</span></div>'
        + '<div class="npv-env" style="left:'+ex+'px;width:'+ew+'px;background:'+col+'"></div>'
-       + barFor(row.t,row.i)
+       + row.bars.map(b=>barFor(b.t,b.i)).join('') /* v1.32.0 (#16): the primary and every range, each its own bar */
        + '</div>';
       continue;
     }
@@ -7695,7 +7810,7 @@ function npvRender(){
      + (child?'<span class="npv-elbow">&#9492;</span>'
              :'<span class="npv-grip">&#9679;&#9679;</span>')
      + esc(gut)+'</div>'
-     + barFor(t,i,child?'kid':'')
+     + row.bars.map(b=>barFor(b.t,b.i,child?'kid':'')).join('') /* v1.32.0 (#16): a leaf row carries its ranges too */
      + '</div>';
   }
 
@@ -7821,7 +7936,7 @@ function npvBindHost(host){
              double-click (rename intent, handled below) — it must not toggle the
              selection away mid-gesture. */
           const cur=ppSelected();
-          if(cur&&cur.id===t.id&&NPV_TASKS.find(x=>x.department===t.department)===t){
+          if(cur&&cur.id===t.id&&npvPrimary(t.department)===t){ /* v1.32.0 (#16): the primary, not whichever bar sorts first */
             if(ev.detail===1){NPV_CAL_OPEN.delete(t.department);ppSelect(null,true);}
             return;}
           NPV_CAL_OPEN.set(t.department,2);
@@ -7936,10 +8051,10 @@ function npvBindHost(host){
       const s0=parseDate(t.startDate),e0=parseDate(t.endDate);
       const twins=NPV_TASKS.filter(z=>z.department===t.department&&(z.label||'')===(t.label||'')
         &&z.startDate===t.startDate&&z.endDate===t.endDate);
-      const pi=NPV_TASKS.findIndex(z=>z.department===t.department);
+      const pi=NPV_TASKS.indexOf(npvPrimary(t.department)); /* v1.32.0 (#16): the first non-range bar */
       const isParent=pi===i;
       let cLo=null,cHi=null;
-      if(!isParent){
+      if(!isParent&&!t.range){ /* v1.32.0 (#16): a range is never clamped to the primary's window */
         const par=NPV_TASKS[pi],ps=parseDate(par.startDate),pe=parseDate(par.endDate);
         /* REV56 nesting clamp — window fixed at drag start, same as the Gantt. */
         if(s0>=ps&&e0<=pe){cLo=ps;cHi=pe;}
@@ -8074,7 +8189,7 @@ function npvBindHost(host){
         const ns=fmtDate(addDays(s0,days)),ne=fmtDate(addDays(e0,days));
         if(NPV_LIVE){
           const ids=(isParent&&LINK_SUBS
-            ?NPV_TASKS.filter(z=>z.department===t.department):twins).map(z=>z.id);
+            ?NPV_TASKS.filter(z=>z.department===t.department&&!z.range):twins).map(z=>z.id); /* v1.32.0 (#16): Link never carries a range */
           if(ids.length>1)commitPhaseShift(ids,days); /* toasts itself */
           else{
             commitPhaseDates(t.id,ns,ne);
@@ -8086,7 +8201,7 @@ function npvBindHost(host){
         }
         /* 3.5/I5: Link carries subtasks on drafts too; the move joins the draft
            undo stack like every other draft mutation (I10). */
-        const dlist=(isParent&&LINK_SUBS)?NPV_TASKS.filter(z=>z.department===t.department):twins;
+        const dlist=(isParent&&LINK_SUBS)?NPV_TASKS.filter(z=>z.department===t.department&&!z.range):twins; /* v1.32.0 (#16) */
         const dprevs=dlist.map(z=>({k:npvKey(z),p:NPV_MANUAL[npvKey(z)]}));
         for(const z of dlist)NPV_MANUAL[npvKey(z)]={
           startDate:fmtDate(addDays(parseDate(z.startDate),days)),
@@ -8453,8 +8568,8 @@ function npvPaintCalendar(lo,hi,dl){
       if(selKey&&calKey(t)!==selKey)return;
       /* REV56: same hierarchy the Gantt shows — a department's first bar is the
          parent at full colour, its subtasks a lighter shade of the same hue. */
-      const pi=NPV_TASKS.findIndex(z=>z.department===t.department);
-      const kid=pi!==ti;
+      const pi=NPV_TASKS.indexOf(npvPrimary(t.department));
+      const kid=pi!==ti&&!t.range; /* v1.32.0 (#16): a range is a top bar — full colour, follows the department's level */
       /* REV84: phases collapse by default — a subtask band (a kid whose label/window
          differs from the parent's, i.e. not an N16 roster twin) stays hidden until its
          phase is expanded. v1.0.4 (obj 8): expansion is its own per-phase state
@@ -9014,7 +9129,7 @@ function npvBindDrag(){
         const k=NPV_TASKS[+b.dataset.i];return k&&k.department===t.department;}):[];
       const kidLefts=kidEls.map(b=>parseFloat(b.style.left)||0);
       let cLo=null,cHi=null;
-      if(prow&&!isParent){
+      if(prow&&!isParent&&!t.range){ /* v1.32.0 (#16): a range is never clamped to the primary's window */
         const ps=parseDate(prow.t.startDate),pe=parseDate(prow.t.endDate);
         if(s0>=ps&&e0<=pe){cLo=ps;cHi=pe;}
       }
@@ -9106,7 +9221,7 @@ function npvBindDrag(){
           }
           /* Draft: same manual-placement pin as a resize. 3.5/I5: Link carries the
              department's subtasks; I10: the reverser joins the draft undo stack. */
-          const dlist=linked?NPV_TASKS.filter(z=>z.department===t.department):[t];
+          const dlist=linked?NPV_TASKS.filter(z=>z.department===t.department&&!z.range):[t]; /* v1.32.0 (#16): Link never carries a range */
           const dprevs=dlist.map(z=>({k:npvKey(z),p:NPV_MANUAL[npvKey(z)]}));
           const k0=PP_SEL;
           for(const z of dlist)NPV_MANUAL[npvKey(z)]={
@@ -10573,6 +10688,7 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.32.0",d:"Oct 2, 2026",n:["Project Schedule: a department can now have several separate work periods on one project. Press + beside a department (or right-click its row on the chart) to add another range after the last one; each range has its own dates and day count, draws as its own bar with the gap left empty, and an extra range is removed with ×."]},
  {v:"v1.31.1",d:"Oct 2, 2026",n:["Drafter is now called Technical Designer on the project page and in the Help legend.",
    "On the project page, the Team section is now Project Team and the Departments section is now Project Schedule.",
    "The hint under Project Schedule now says how a phase is actually added (tick a department, or double-click the calendar); right-click has offered only milestones and notes since v1.2.1."]},

@@ -1013,6 +1013,10 @@ constraint (D2, lifted 2026-09-24).
   `schedule` (JSON), `freelance`.
 - On `ShopTimeline_Feedback`: `ghIssue` — single line of text, the GitHub issue URL,
   written by the tracker repository's poller, never by the app (item 31).
+- On `ShopTimeline_Tasks`: `range` — Yes/No, default No (v1.32.0, tracker #16). The app
+  writes it only on rows that are extra work periods (tristate), so ordinary saves never
+  touch it; the first + on a saved project needs it. ⚠ Robert applies it before PR #88
+  merges to development.
 - Entra: `Mail.Send` delegated, consented.
 - Employee Contacts: read only. The app never writes to it or touches its schema.
 

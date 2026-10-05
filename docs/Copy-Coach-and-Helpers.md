@@ -72,7 +72,7 @@ asks for the real click).
 | Note text (agenda row) | Order acrylic |
 
 Inline helper notes on this page:
-- Project Schedule section (v1.31.1, tracker #22; was the Departments section's "Right-click the chart to add one where you want it." — right-click has offered milestones and notes only since v1.2.1): "Tick a department to add it to the schedule, or double-click the calendar to add a phase where you want it."
+- Project Schedule section (v1.31.1, tracker #22; was the Departments section's "Right-click the chart to add one where you want it." — right-click has offered milestones and notes only since v1.2.1): "Tick a department to add it to the schedule, or double-click the calendar to add a phase where you want it. Press + beside a department to add another range." (the last sentence from v1.32.0, tracker #16)
 - Crew picker: "Leave empty to cover it with the project team."
 - Empty agenda: "No milestones or notes yet. Right-click the chart on the day it
   happens, or use the buttons above." (viewers see only the first sentence)
