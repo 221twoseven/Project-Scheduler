@@ -279,6 +279,14 @@ body.viewer #pp-insp .pg-rbox:has(input[type=radio]:disabled) .rl-grp{display:no
 .sb-2l .sb-name{flex:none}
 .sb-l2{display:flex;align-items:center;gap:6px;min-width:0}
 .sb-2l .sb-sub{font-size:11px;max-width:none;flex-shrink:1}
+/* v1.31.0 (#24): the client on a project row's second line — prose (sans), the quiet grey of
+   the sub-line it sits on, cut first (a 1.5em floor keeps an ellipsis and the hover target).
+   The dot rides on the code · date part, which never shrinks — except beside a LATE / soon
+   chip, where it may truncate again as before this change, else the chip would overflow the
+   row onto the Spotlight button. No dot when neither code nor date follows. */
+.sb-cl{font-size:11px;color:var(--txt-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:1.5em;flex-shrink:1}
+.sb-cl+.sb-sub:last-child{flex-shrink:0}
+.sb-cl+.sb-sub:not(:empty)::before{content:"· "}
 .sb-chip{font-family:var(--mono);font-size:var(--fs-fine);font-weight:600;letter-spacing:.03em;padding:1.5px 6px;border-radius:8px;flex-shrink:0;line-height:1.5}
 .sb-chip.late{background:#FDE2E2;color:#B91C1C}
 .sb-chip.soon{background:#FCEEC8;color:#8F5E08}
@@ -286,7 +294,7 @@ body.viewer #pp-insp .pg-rbox:has(input[type=radio]:disabled) .rl-grp{display:no
    32px rows also need tighter leading (nothing informational drops below 11px) */
 body.snug .sb-2l,body.compact .sb-2l{gap:0}
 body.compact .sb-2l .sb-name{font-size:12px;line-height:1.1}
-body.compact .sb-2l .sb-sub{line-height:1.1}
+body.compact .sb-2l .sb-sub,body.compact .sb-2l .sb-cl{line-height:1.1}
 body.compact .sb-chip{line-height:1.2;padding:.5px 6px}
 .sb-row.task-row{padding-left:32px;background:#F2F5FA}
 .sb-row.task-row .sb-name{font-weight:450;font-size:12px}
@@ -301,6 +309,7 @@ body.compact .sb-chip{line-height:1.2;padding:.5px 6px}
 .sb-asn{display:flex;gap:5px;align-items:baseline;max-width:100%;font-size:var(--fs-fine);color:#5E7292;white-space:nowrap;line-height:1.25}
 .sb-asn .n{overflow:hidden;text-overflow:ellipsis;min-width:0}
 .sb-asn .d{font-family:var(--mono);color:#93A2B8;flex-shrink:0;letter-spacing:.02em}
+.sb-asn .c{color:var(--txt-micro)} /* v1.31.0 (#24): muted client prefix on a Departments line — the dates' grey, by its token */
 .sb-row.drop-hi{background:rgba(47,111,228,.12)!important;outline:2px solid rgba(47,111,228,.4);outline-offset:-2px}
 .sb-edit{background:none;border:none;color:#A8B6C8;font-size:12px;cursor:pointer;padding:2px 5px;border-radius:3px;opacity:0;transition:opacity .15s;flex-shrink:0}
 .sb-row:hover .sb-edit{opacity:1}
@@ -1662,7 +1671,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.30.0'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.31.0'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -1809,6 +1818,9 @@ function dueText(p){ /* " · installs Oct 9 (12d left)" for the project tooltip,
     +(projectStatus(p)!=='complete'?' ('+(n>=0?n+'d left':Math.abs(n)+'d over')+')':'');
 }
 const byDue=(a,b)=>String(dueDate(a)||'9999').localeCompare(String(dueDate(b)||'9999'));
+/* v1.31.0 (#24): the client to put IN FRONT of a project name on the dashboard's Departments
+   lines — empty when the name already starts with it ("Dior - HOD Holiday" stays as typed). */
+function clientLead(p){const c=(p&&p.client||'').trim();return c&&!String(p.name||'').toLowerCase().startsWith(c.toLowerCase())?c:'';}
 function isInstall(t){return isEndDept(t.department);}
 const endName=id=>id==='shipping'?'Shipping':'Install';
 /* A bar's crew. Stored as an array (install), a JSON string (legacy install rows) or a
@@ -3711,6 +3723,8 @@ function renderSidebar(){
       const col=document.createElement('span');col.className='sb-2l';
       const nm=document.createElement('span');nm.className='sb-name';nm.textContent=p.name;col.appendChild(nm);
       const l2=document.createElement('span');l2.className='sb-l2';
+      const cl=(p.client||'').trim();
+      if(cl){const c=document.createElement('span');c.className='sb-cl';c.textContent=cl;c.title=cl;l2.appendChild(c);} /* v1.31.0 (#24): client first on line 2 — cut first when space runs out, whole on hover */
       const sub=document.createElement('span');sub.className='sb-sub';
       const due=dueDate(p); /* v1.26.0 (#15): the Installation (else Shipping) block decides, not the Setup date */
       sub.textContent=[p.jobCode,due?fmtNice(due):''].filter(Boolean).join(' · ');l2.appendChild(sub);
@@ -3780,7 +3794,11 @@ function renderSidebar(){
       for(const t of show){
         const p=projById(t.projectId);
         const a=document.createElement('span');a.className='sb-asn';
-        const n=document.createElement('span');n.className='n';n.textContent=(p?p.name:'—')+(t.label&&String(t.label).trim()?' · '+phaseLabel(t):''); /* v1.20.9: a subtask reads by its own name at a glance */
+        const n=document.createElement('span');n.className='n';
+        const lead=clientLead(p);
+        if(lead){const c=document.createElement('span');c.className='c';c.textContent=lead;n.appendChild(c);} /* v1.31.0 (#24): muted client in front of the name, unless the name already starts with it */
+        n.appendChild(document.createTextNode((lead?' · ':'')+(p?p.name:'—')+(t.label&&String(t.label).trim()?' · '+phaseLabel(t):''))); /* v1.20.9: a subtask reads by its own name at a glance */
+        a.title=n.textContent; /* v1.31.0 (#24): the whole line on hover when it is cut off */
         const d=document.createElement('span');d.className='d';
         d.textContent=fmtNice(t.startDate)+'–'+fmtNice(t.endDate);
         a.appendChild(n);a.appendChild(d);box.appendChild(a);
@@ -10555,6 +10573,7 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.31.0",d:"Oct 2, 2026",n:["Dashboard: each project now shows its client — under the name in the Projects view (client · cost code · date) and in front of the project name on the Departments view's person lines; hover a line to read the full text. Project names are shown as typed."]},
  {v:"v1.30.0",d:"Oct 2, 2026",n:["Project setup: the Team section's Lead fabricator is now Project lead — pick one person from any department (grouped by department), or leave it blank; the chart chip, the bar tooltip and the legend show L for the lead. Existing projects keep their lead."]},
  {v:"v1.29.0",d:"Oct 2, 2026",n:["Project setup: the Team lists are now alphabetical, each has a Search box that narrows the names as you type, people already checked stay at the top of their list, and the lists show about nine names before scrolling."]},
  {v:"v1.28.0",d:"Oct 2, 2026",n:["Report a bug or idea: the form now asks for a one-line Subject, which is what the Open Issues page shows, and clicking a report there unfolds its full text. Nothing is cut off at 80 characters any more."]},
