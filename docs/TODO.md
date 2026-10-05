@@ -377,8 +377,12 @@ What the pilot can't start without.
       `index.html` with `cache:'no-store'`, compare the `APP_VER` inside), shows "vX is
       available — Reload" and keeps it until acted on; nothing reloads by itself. Honours
       a `ShopTimeline_Config` key `update.minVersion`: a running build older than it shows
-      "This version has been retired" and reloads after 30 s, holding while a drag is live,
-      a save is in flight or the draft is dirty. The lever is **Help ▸ App settings ▸ Ask
+      "This version has been retired" and reloads after 30 s. **Owner rule (2026-10-05): an
+      update never costs anyone work** — no check runs and no countdown ticks while someone
+      is on New Project (dirty or not), editing, dragging, in an overlay or menu, on the
+      tour, typing, or saving; even a deliberate Reload is refused while a save hasn't
+      landed or a record is mid-edit; a dirty draft is stashed and restored across the
+      reload. The lever is **Help ▸ App settings ▸ Ask
       everyone to reload** (writes the key; pressed from production, never from
       `/preview/` — a minVersion the served build can't satisfy never starts a reload
       loop) or a plain list edit. After a reload onto a new build, a one-time "Updated to

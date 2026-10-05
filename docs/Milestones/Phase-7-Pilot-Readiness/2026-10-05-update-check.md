@@ -22,9 +22,15 @@ Now:
   with **Ask everyone to reload**. It writes `update.minVersion` (the running version) to the
   `ShopTimeline_Config` list; the key can also be edited on the list. Every open tab reads
   that key on its next check. A tab on an older build shows **"This version has been retired
-  — reloading in 30 s"** and reloads on its own, holding the countdown while a bar is being
-  dragged, a save is in flight, or the New Project draft has unsaved typing. (Drafts also
-  survive the reload: they are stashed the same way as on a tab switch.)
+  — reloading in 30 s"** and reloads on its own.
+- **Owner rule, same day: an update never costs anyone work.** Three layers. No check runs
+  and no countdown ticks while the person is on New Project (dirty or not), editing a
+  project, dragging a bar on any surface, inside an overlay or menu, on the tour, typing in
+  any field or a bug report, or while a save is in flight or parked; a busy tab retries a
+  minute later. Even a deliberate click on Reload is refused, with the reason, while a save
+  hasn't reached SharePoint or a Company Data record is mid-edit (those can't be stashed).
+  And an unsaved New Project draft is stashed before the reload and restored after it, the
+  same way it survives a tab switch.
 - **After the reload, a one-time "Updated to vX — What's new" toast** opens Help ▸ Release
   notes, which are generated from `CHANGELOG.md`. The browser remembers the last version it
   showed; a first-ever visit gets no toast.

@@ -5,7 +5,10 @@
    and a version is offered once · R3 Config update.minVersion newer than the running build
    → the retired notice counts down and reloads on its own, holding while a drag is live
    (saved page) or the draft is dirty (New Project) · R4 after a reload onto a new build one
-   "Updated to vX" toast opens Help ▸ Release notes; a first visit gets none · D1 a
+   "Updated to vX" toast opens Help ▸ Release notes; a first visit gets none · R5 (owner
+   rule) an update never costs work: every busy state (New Project, drag, editor, overlay,
+   menu, tour, cursor in a field, save in flight or parked) holds the check and the
+   countdown, and a Reload that would lose a save or a mid-edit record is refused · D1 a
    minVersion the served build cannot satisfy never starts a reload loop.
    Run: node tests/test-v1330.js index.html  (or via tests/run.js) */
 const {boot}=require('./harness');
@@ -86,7 +89,7 @@ async function run(){
   ok('a second focus inside 30 min does not probe again', S.probes.length===1);
 
   sec('R2: a newer served build offers Reload and never reloads by itself');
-  E("updReload=()=>{window.__reloads=(window.__reloads||0)+1;}");
+  E("updGo=()=>{window.__reloads=(window.__reloads||0)+1;}"); /* the guard in updReload stays real */
   S.served='9.9.9';
   await E("updCheck(true)");
   const t=q('#upd-toast');
@@ -115,11 +118,17 @@ async function run(){
   S.cfgFail=false;
 
   sec('R3 on a saved project: update.minVersion retires the build; a live drag holds the countdown');
-  E("UPD_GRACE=2;DRAG={};location.hash='#/project/p1';applyRoute()");
+  E("UPD_GRACE=2;location.hash='#/project/p1';applyRoute()");
   await wait(600);
   ok('saved project page open', !!q('#npv-body'));
+  if(doc.activeElement&&doc.activeElement.blur)doc.activeElement.blur();
   S.min='9.9.9';
+  E("const _o=document.getElementById('upd-toast');if(_o)_o.remove();UPD_SHOWN='';DRAG={}");
   await E("updCheck(true)");
+  ok('R5: a tab mid-drag does not even check', !q('#upd-toast'), q('#upd-toast')&&q('#upd-toast').textContent);
+  E("DRAG=null;clearTimeout(UPD_RETRY);UPD_RETRY=null");
+  await E("updCheck(true)");
+  E("DRAG={}"); /* the drag starts after the notice is up */
   const r=q('#upd-toast');
   ok('the retired notice shows as an error strip', !!r&&/retired/.test(r.textContent)&&r.classList.contains('err'), r&&r.textContent);
   ok('it counts down from the grace period', !!r&&/reloading in 2 s/.test(r.textContent));
@@ -142,25 +151,68 @@ async function run(){
   ok('no retired notice while the served build is older than minVersion', !q('#upd-toast'));
   ok('nothing reloaded', reloads()===0);
 
-  sec('R3 on the New Project draft: a dirty draft holds the countdown');
+  sec('R3/R5 on the New Project draft: a check never runs there, and a countdown started elsewhere holds');
+  E("location.hash='#/';applyRoute()");
+  await wait(300);
+  if(doc.activeElement&&doc.activeElement.blur)doc.activeElement.blur();
+  S.served='9.9.9';S.min='9.9.9';
+  await E("updCheck(true)");
+  const r2=q('#upd-toast');
+  ok('the retired notice shows on the timeline', !!r2&&/retired/.test(r2.textContent));
   E("location.hash='#/project/new';applyRoute()");
   await wait(900);
   const nm=q('#pp-name');
   ok('draft page open', !!nm);
+  E("UPD_LAST=0");const np=S.probes.length;
+  focus();await wait(80);
+  ok('R5: no check runs on New Project, even a clean one', S.probes.length===np);
+  E("clearTimeout(UPD_RETRY);UPD_RETRY=null");
   input(nm,'Dirty draft');
   ok('the draft reads dirty', E("ppDraftDirty()")===true);
-  S.served='9.9.9';S.min='9.9.9';
-  await E("updCheck(true)");
-  const r2=q('#upd-toast');
-  ok('the retired notice shows on the draft', !!r2&&/retired/.test(r2.textContent));
   await wait(2600);
   ok('a dirty draft holds the countdown', reloads()===0&&!!r2&&/reloading in 2 s/.test(r2.textContent), r2&&r2.textContent);
   input(nm,'');
   if(doc.activeElement&&doc.activeElement.blur)doc.activeElement.blur();
   ok('the draft reads clean again', E("ppDraftDirty()")===false);
   await wait(2600);
-  ok('clean → it reloads', reloads()===1);
+  ok('R5: a clean draft still holds — New Project itself is busy', reloads()===0);
+  E("location.hash='#/';applyRoute()");
+  await wait(2600);
+  ok('leaving New Project → it reloads', reloads()===1);
   E("clearInterval(UPD_RETIRE)");
+
+  sec('R5: an update never costs work — every busy state holds, and a Reload that would lose a save is refused');
+  const busy=(setup,undo,label)=>{E(setup);const b=E("updBusy()");E(undo);ok(label+' counts as busy', b===true&&E("updBusy()")===false);};
+  ok('idle timeline is not busy', E("updBusy()")===false);
+  busy("DRAG={}","DRAG=null",'a timeline drag');
+  busy("COACH={}","COACH=null",'the tour');
+  busy("CD_EDIT={}","CD_EDIT=null",'a Company Data record mid-edit');
+  busy("SYNCING=1","SYNCING=0",'a save in flight');
+  busy("PENDING_SYNC={}","PENDING_SYNC=null",'a parked project save');
+  busy("PENDING_STAFF={}","PENDING_STAFF=null",'a parked staff save');
+  busy("document.getElementById('task-overlay').classList.remove('hidden')","document.getElementById('task-overlay').classList.add('hidden')",'an open overlay');
+  busy("const d=document.createElement('div');d.id='bz';d.className='cal-dragging';document.body.appendChild(d)","document.getElementById('bz').remove()",'a calendar drag');
+  busy("const i=document.createElement('input');i.id='bi';document.body.appendChild(i);i.focus()","document.getElementById('bi').blur();document.getElementById('bi').remove()",'a cursor in a field');
+  busy("const m=document.createElement('div');m.id='npv-menu';document.body.appendChild(m)","document.getElementById('npv-menu').remove()",'an open context menu');
+  E("UPD_LAST=0;CD_EDIT={}");const n0=S.probes.length;
+  focus();await wait(80);
+  ok('a busy tab does not probe on focus', S.probes.length===n0);
+  ok('…and arms one retry', E("!!UPD_RETRY"));
+  E("clearTimeout(UPD_RETRY);UPD_RETRY=null;CD_EDIT=null;UPD_SHOWN='';window.__reloads=0");
+  S.served='9.9.9';S.min='';
+  await E("updCheck(true)");
+  ok('offer shown again', !!q('#upd-toast'));
+  E("SYNCING=1");
+  click(q('#upd-toast button.undo'));
+  ok('Reload is refused while a save is in flight', reloads()===0);
+  ok('…the offer stays', !!q('#upd-toast'));
+  ok('…and says why', [...doc.querySelectorAll('.toast.err')].some(t=>/Not reloaded: a save is still going/.test(t.textContent)));
+  E("SYNCING=0;CD_EDIT={}");
+  click(q('#upd-toast button.undo'));
+  ok('Reload is refused while a record is mid-edit', reloads()===0&&!!q('#upd-toast'));
+  E("CD_EDIT=null");
+  click(q('#upd-toast button.undo'));
+  ok('free again → Reload reloads and the offer goes', reloads()===1&&!q('#upd-toast'));
 
   sec('R4: after a reload onto a new build — one "Updated to vX" toast opens Release notes');
   const dom2=boot(FILE,{data,localStorage:{shopTimelineSeenVer:'1.0.0'}});

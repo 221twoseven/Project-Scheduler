@@ -2676,23 +2676,48 @@ function updToast(id,msg,label,fn,kind,ttl){
   if(!el){el=document.createElement('div');el.id=id;box.appendChild(el);}
   el.className='toast'+(kind==='err'?' err':'');el.textContent=msg;
   const gone=()=>{el.remove();toastLayout();};
-  const b=document.createElement('button');b.className='undo';b.textContent=label;b.addEventListener('click',()=>{gone();fn();});el.appendChild(b);
+  const b=document.createElement('button');b.className='undo';b.textContent=label;b.addEventListener('click',()=>{if(fn()!==false)gone();});el.appendChild(b); /* a refused reload keeps the toast */
   const x=document.createElement('button');x.className='toast-x';x.textContent='×';x.title='Dismiss';x.setAttribute('aria-label','Dismiss');
   x.addEventListener('click',gone);el.appendChild(x);
   if(ttl)setTimeout(()=>{if(el.isConnected){el.classList.add('out');setTimeout(gone,350);}},ttl);
   toastLayout();toastPlace();
   return el;
 }
-function updReload(){ppDraftStash();location.reload();}
-/* The poll's own "don't disturb" list, plus a dirty draft: never yank the page mid-edit. */
-function updBusy(){
-  const a=document.activeElement;
-  return !!(DRAG||PENDING_SYNC||SYNCING||CD_EDIT||ppDraftDirty()
-    ||document.getElementById('npv-pop')
-    ||(a&&a.closest&&a.closest('#page,#me-dock,.overlay:not(.hidden)')));
+/* Owner rule (2026-10-05): an update never costs anyone work. Three layers —
+   updBusy() holds every check and the retired countdown while someone is on New
+   Project, editing, dragging or saving; updReload() refuses even a deliberate Reload
+   while a save hasn't landed or a record is mid-edit (those can't be stashed); and a
+   dirty draft is stashed before the reload and restored after it. */
+function updWhyNot(){
+  if(SYNCING)return 'a save is still going — try again in a moment';
+  if(PENDING_SYNC||PENDING_STAFF||PENDING_CLIENTS||PENDING_CFG)return 'a save hasn’t reached SharePoint yet — click the sync pill to retry, then reload';
+  if(CD_EDIT)return 'finish or cancel the record you’re editing first';
+  return '';
 }
+function updReload(){
+  const why=updWhyNot();
+  if(why){toast('Not reloaded: '+why+'.','err');return false;}
+  updGo();
+}
+function updGo(){ppDraftStash();location.reload();} /* the only line that leaves the page; suites stub it */
+/* The poll's own "don't disturb" list and then some: New Project (dirty or not), any
+   drag on any surface, any open editor, overlay or menu, the tour, a cursor in a field,
+   a typed bug report, a save in flight or parked. */
+function updBusy(){
+  const a=document.activeElement,fb=document.getElementById('fb-desc');
+  return !!(updWhyNot()||ROUTE.creating||DRAG||COACH
+    ||document.getElementById('npv-pop')||document.getElementById('npv-menu')
+    ||document.querySelector('.dragging,.cal-dragging,.is-drag-src,.npv-rename')
+    ||[...document.querySelectorAll('.overlay')].some(o=>!o.classList.contains('hidden'))
+    ||(fb&&fb.value.trim())
+    ||(a&&a.closest&&a.closest('#page,#me-dock,input,textarea,select,[contenteditable]')));
+}
+let UPD_RETRY=null;
 async function updCheck(force){
   if(!force&&Date.now()-UPD_LAST<UPD_FOCUS_MS)return;
+  /* Busy: don't even look. One retry a minute later (a single timer, however many
+     focus events arrive), so a release lands once the person is done. */
+  if(updBusy()){if(!UPD_RETRY)UPD_RETRY=setTimeout(()=>{UPD_RETRY=null;updCheck(true);},60e3);return;}
   UPD_LAST=Date.now();
   let latest='';
   try{
@@ -2725,8 +2750,8 @@ function updRetire(){
   UPD_RETIRE=setInterval(()=>{
     if(updBusy())return; /* hold the countdown while someone is mid-edit */
     if(el.nextElementSibling){el.parentNode.appendChild(el);toastLayout();} /* stay newest: never hidden behind later toasts */
-    left--;el.firstChild.nodeValue=txt();
-    if(left<=0){clearInterval(UPD_RETIRE);updReload();}
+    left=Math.max(0,left-1);el.firstChild.nodeValue=left?txt():'This version has been retired — reloading now';
+    if(left<=0&&updReload()!==false)clearInterval(UPD_RETIRE); /* a refused reload keeps trying each second */
   },1000);
 }
 /* After a reload onto a new build: one "Updated to vX" toast that opens the release
@@ -4858,7 +4883,7 @@ function renderAppSettings(){
    +'<h3>Updates</h3>'
    +'<div class="as-note">Every open tab checks for a newer build twice a day and when it comes back into view, and offers Reload. '
    +'This button makes it mandatory: it sets <code>update.minVersion</code> to v'+esc(APP_VER)+', and any tab on an older build reloads within '+UPD_GRACE+' seconds '
-   +'(never mid-drag or over an unsaved draft). Press it from the build everyone should run — production, not /preview/. '
+   +'once its user is not creating a project, editing, dragging or saving (nobody loses work; a dirty New Project draft is kept across the reload). Press it from the build everyone should run — production, not /preview/. '
    +'Currently: '+(CFG_RAW['update.minVersion']?'v'+esc(CFG_RAW['update.minVersion']):'not set')+'.</div>'
    +'<button class="btn" id="as-reload-all"'+(CFG_OK?'':' disabled title="Needs the ShopTimeline_Config list"')+'>Ask everyone to reload</button>'
    +'</div></div>';
@@ -10794,7 +10819,7 @@ async function fbSetStatus(spId,status,btn){
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
  {v:"v1.33.0",d:"Oct 5, 2026",n:["The app now notices when a newer version has been published — it checks twice a day and whenever you come back to the tab — and shows \"vX is available\" with a Reload button, so a tab left open no longer runs an old build for days. After the reload, a one-time \"Updated to vX\" toast opens the release notes.",
-   "A developer can ask every open tab to reload onto the current build from Help ▸ App settings; a tab on an older build shows \"This version has been retired\" and reloads within 30 seconds, never mid-drag or over an unsaved draft."]},
+   "A developer can ask every open tab to reload onto the current build from Help ▸ App settings; a tab on an older build shows \"This version has been retired\" and reloads within 30 seconds — but never while you're creating a project, editing, dragging or saving, so nobody loses work; an unsaved New Project draft is kept across the reload."]},
  {v:"v1.32.0",d:"Oct 2, 2026",n:["Project Schedule: a department can now have several separate work periods on one project. Press + beside a department (or right-click its row on the chart) to add another range after the last one; each range has its own dates and day count, draws as its own bar with the gap left empty, and an extra range is removed with ×."]},
  {v:"v1.31.1",d:"Oct 2, 2026",n:["Drafter is now called Technical Designer on the project page and in the Help legend.",
    "On the project page, the Team section is now Project Team and the Departments section is now Project Schedule.",
