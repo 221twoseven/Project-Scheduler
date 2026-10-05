@@ -135,6 +135,7 @@ async function partB(){
   E("location.hash='#/';applyRoute()");
   await wait(120);
   E('openFeedback()');
+  E("const s=document.getElementById('fb-subject');if(s)s.value='Zoom'"); /* v1.28.0 (#10): the subject is required */
   E("document.getElementById('fb-desc').value='The zoom is great'");
   const n1=calls().length;
   E('sendFeedback()');
@@ -186,6 +187,7 @@ async function partC(){
   E("savePeople(PEOPLE.map(p=>({...p,feedbackRecipient:p.feedbackRecipient==null?null:false})))");
   await wait(150);
   E('openFeedback()');
+  E("const s2=document.getElementById('fb-subject');if(s2)s2.value='Quiet'"); /* v1.28.0 (#10) */
   E("document.getElementById('fb-desc').value='quiet one'");
   const n1=calls().length;
   E('sendFeedback()');

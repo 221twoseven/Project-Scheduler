@@ -72,7 +72,10 @@ function stage1(){
 
   sec('nothing selected means the project');
   ok('inspector says Project', /Project/.test(q('.ins-hd .t').textContent));
-  ok('setup fields are present', !!doc.getElementById('pp-client')&&!!doc.getElementById('pp-deadline'));
+  /* v1.26.0 (#20): a saved project shows a read-only "Created on" where the editable
+     install date used to be; the date lives in Departments now. */
+  ok('setup fields are present', !!doc.getElementById('pp-client')
+     &&!!doc.getElementById(E('typeof dueOf')==='function'?'pp-created':'pp-deadline'));
   ok('client field is filled', doc.getElementById('pp-client').value==='Hermes');
   ok('team section exists', !!q('[data-sec="team"]'));
   ok('departments section exists', !!q('[data-sec="depts"]'));

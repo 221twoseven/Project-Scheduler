@@ -51,7 +51,7 @@ instead (so a full run is 7 steps, never both).
 | 10 | The schedule (Gantt/calendar) | The schedule | Every bar is a phase of work. Click one to edit it below, drag to move, grab an edge to resize, right-click to add a subtask, milestone or note. On the calendar, click a strip to open its phase and see its subtasks. *(v1.21.1 — was "The calendar shows one band per phase — click a band to open it and see its subtasks.")* |
 | 11 | The Gantt/Calendar toggle | Two views of the same dates | Gantt for the whole job at once, Calendar for week-by-week. G and C switch from the keyboard. |
 | 12 | The calendar legend (the step switches the chart to Calendar first, so the chips it points at are the live buttons) — *added v1.21.1, owner ask 2026-09-09* | Read the calendar at any depth | On the calendar every phase starts as a slim colour strip, so a stacked job still fits its weeks. Click a phase in this legend to show its title, again for its subtasks, again to shrink it back. Milestone and Note switch their text on. Collapse all resets. |
-| 13 | The bottom editor dock | The editor | With nothing selected you edit the project here — Setup, Team, Departments, Milestones and Notes. Select a phase and this becomes that phase's form. |
+| 13 | The bottom editor dock | The editor | With nothing selected you edit the project here — Setup, Project Team, Project Schedule, Milestones and Notes. Select a phase and this becomes that phase's form. |
 | 14a | Create project button (drafts only) | Nothing is real yet | This page is a draft kept in this tab. Drafts survive a page refresh. Create project files it to SharePoint. Cancel or the × closes without saving. |
 | 14b | The ✓ Changes saved tag (saved pages only) | Everything saves itself | Edits file to SharePoint as you make them. The pill in the toolbar shows sync. Done takes you back to the timeline. |
 
@@ -72,7 +72,7 @@ asks for the real click).
 | Note text (agenda row) | Order acrylic |
 
 Inline helper notes on this page:
-- Departments section: "Right-click the chart to add one where you want it."
+- Project Schedule section (v1.31.1, tracker #22; was the Departments section's "Right-click the chart to add one where you want it." — right-click has offered milestones and notes only since v1.2.1): "Tick a department to add it to the schedule, or double-click the calendar to add a phase where you want it. Press + beside a department to add another range." (the last sentence from v1.32.0, tracker #16)
 - Crew picker: "Leave empty to cover it with the project team."
 - Empty agenda: "No milestones or notes yet. Right-click the chart on the day it
   happens, or use the buttons above." (viewers see only the first sentence)
