@@ -171,14 +171,18 @@ function stageB2(){
     ok('Q1: a days change with no date typed creates no manual placement', !manualKeys().some(k=>k.startsWith('fab::')), manualKeys().join(','));
     ok('the scheduler\'s bar carries the new estimate', fb&&fb.estimatedDays===7&&!fb.__manual, span(fb));
     ok('the Technical Design placement survived the redraw', draftBar('td').endDate==='2026-10-09', span(draftBar('td')));
+    /* a drag writes the placement straight into NPV_MANUAL and redraws — the row's count must follow its dates */
+    E("NPV_MANUAL[npvKey(NPV_TASKS.find(t=>t.department==='td'))]={startDate:'2026-10-05',endDate:'2026-10-07',estimatedDays:3};npvRebuild()");
+    ok('R3: after a drag the row\'s count follows the bar (Oct 5 → Oct 7, 3 d)', fld('td','.dend').value==='2026-10-07'&&fld('td','.ddays').value==='3', fld('td','.dend').value+' / '+fld('td','.ddays').value);
     E("ppSelect(NPV_TASKS.find(t=>t.department==='td').id);npvEditPop('phase',ppSelected(),100,100)");
     ok('the draft popover opened on Technical Design', !!pop('estimatedDays'), pop('estimatedDays')&&pop('estimatedDays').value);
-    const pp=pop('estimatedDays'); pp.value='3'; change(pp);
+    const pp=pop('estimatedDays'); pp.value='4'; change(pp);
     setTimeout(()=>{
       const b=draftBar('td');
-      ok('Q2: 3 days in the draft popover gives Oct 5 → Oct 7', b&&b.startDate==='2026-10-05'&&b.endDate==='2026-10-07'&&b.estimatedDays===3, span(b));
+      ok('Q2: 4 days in the draft popover gives Oct 5 → Oct 8', b&&b.startDate==='2026-10-05'&&b.endDate==='2026-10-08'&&b.estimatedDays===4, span(b));
+      ok('the form\'s estimate followed the popover (the scheduler lays the rest out around 4)', E('PP_FORM.est.td')===4, E('PP_FORM.est.td'));
       E('npvPopClose();ppSelect(null)');
-      ok('R3: the Departments row reads back the popover\'s edit, Oct 5 → Oct 7, 3 days', fld('td','.dend').value==='2026-10-07'&&fld('td','.ddays').value==='3', fld('td','.dend').value+' / '+fld('td','.ddays').value);
+      ok('R3: the Departments row reads back the popover\'s edit, Oct 5 → Oct 8, 4 days', fld('td','.dend').value==='2026-10-08'&&fld('td','.ddays').value==='4', fld('td','.dend').value+' / '+fld('td','.ddays').value);
       const dd=fld('td','.ddays'); dd.value='5'; change(dd);
       setTimeout(()=>{
         const b2=draftBar('td');

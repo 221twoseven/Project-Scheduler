@@ -18,6 +18,11 @@ three doors — the Departments row, the bottom panel's Days field and the bar's
 On a saved project the panel and the popover used to change the number without moving the
 end; they move it now (spec Q2, default taken).
 
+Two smaller gaps the review turned up are closed in the same change: on the draft the
+Departments row now reads back a count set in the panel, the popover or by a drag (it
+used to keep showing the form's old estimate), and a days edit refreshes the draft's
+crash-restore stash the way a row edit always did.
+
 A draft bar nobody has typed or dragged still follows the scheduler: a days edit there
 changes the estimate and the scheduler lays the job out backward from the target date, as
 before (spec Q1, default taken). Undo for a days edit on the draft stays out of scope (Q3);
@@ -45,4 +50,7 @@ following (#26, #15/#20), and Create sending Oct 5, Oct 9 and 5 to SharePoint.
 
 ## Follow-up
 
-None.
+A drag-resize still counts workdays for every department (`wdCount` in the two drag
+paths), so a resized Installation bar over a weekend shows a smaller count than the typed
+rule gives (#26 leftover, not changed here — it alters drag behaviour the owner has not
+ruled on). Switching those two calls to `deptDayCount` closes it.

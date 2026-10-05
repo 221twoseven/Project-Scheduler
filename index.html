@@ -6607,9 +6607,13 @@ function ppDeptDays(bar,n){
   n=Math.max(1,parseInt(n,10)||1);
   if(!bar.startDate){if(NPV_LIVE)commitPhase(bar.id,'estimatedDays',n);npvRebuild();return;}
   const e=fmtDate(deptEndAfter(bar.department,parseDate(bar.startDate),n));
-  if(NPV_LIVE)commitPhaseDates(bar.id,bar.startDate,e,n);
-  else NPV_MANUAL[npvKey(bar)]={startDate:bar.startDate,endDate:e,estimatedDays:n};
-  npvRebuild();
+  if(NPV_LIVE){commitPhaseDates(bar.id,bar.startDate,e,n);npvRebuild();return;}
+  NPV_MANUAL[npvKey(bar)]={startDate:bar.startDate,endDate:e,estimatedDays:n};
+  /* the form's estimate follows too — the Departments list is unmounted while a phase is
+     selected, so the panel's and popover's edits would otherwise leave the scheduler laying
+     the other departments out around the old count */
+  if(PP_FORM&&!bar.range)PP_FORM.est[bar.department]=n;
+  npvRebuild();npvQueue(); /* npvQueue: the crash-restore stash, as a row edit gets */
 }
 /* Keep the date fields tracking the bars — a drag, undo or days edit repaints them. */
 function npvSyncDeptDates(){
@@ -6623,6 +6627,12 @@ function npvSyncDeptDates(){
   });
   box.querySelectorAll('.rdays').forEach(inp=>{ /* v1.32.0 (#16) */
     const bar=ppLineBar(inp.dataset.key);if(!bar)return;
+    const v=String(bar.estimatedDays||1);
+    if(inp.value!==v&&document.activeElement!==inp)inp.value=v;
+  });
+  box.querySelectorAll('.ddays').forEach(inp=>{ /* v1.34.1 (#32): the primary's count follows a drag too, once the bar has hand-set dates */
+    const ck=inp.closest('.idr').querySelector('input[data-dept]'),bar=ck?npvPrimary(ck.dataset.dept):null;
+    if(!bar||!(NPV_LIVE||bar.__manual))return;
     const v=String(bar.estimatedDays||1);
     if(inp.value!==v&&document.activeElement!==inp)inp.value=v;
   });
@@ -6898,7 +6908,7 @@ function ppBindInspector(p,sel){
       if(t.classList&&t.classList.contains('ddays')){
         const ck2=t.closest('.idr').querySelector('input[data-dept]');
         const bar=ck2?npvPrimary(ck2.dataset.dept):null; /* v1.32.0 (#16): the row's count is the primary's, never a range that sorts first */
-        if(bar&&(NPV_LIVE||NPV_MANUAL[npvKey(bar)])){ppDeptDays(bar,t.value);return;}
+        if(bar&&(NPV_LIVE||bar.__manual)){ppDeptDays(bar,t.value);return;}
       }
       /* v1.32.0 (#16): a range's own day count moves that range's end — saved page and draft */
       if(t.classList&&t.classList.contains('rdays')){
