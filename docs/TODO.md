@@ -575,18 +575,18 @@ is item 32 (P0), #7 is part of item 3, and #11 and #14 were done by the bridge i
       of the current week at the left edge (`weekLeftX`); the other jumps still centre. The
       owner's Proceed added a light grey wash over past days (`.past-col`). The §7.5
       ceiling was rewritten in place. [tracker #2]
-- [ ] **34. Name a repeat block (e.g. "possible mock-up days").** A second Fabrication
-      block can only read "Main Shop Fab", while the Excel calendar names the sub-range.
-      This already exists — phases have a custom `label` (an inspector field, shown in
-      sidebar rows and bar labels since v1.20.9) — but the reporter didn't find it. A
-      discoverability problem; rides on item 7. Also check the calendar (§7.3, L1092: it
-      shows the department name, not the label) and the project page. [tracker #3,
-      screenshot in the issue]
+- [x] **34. Name a repeat block (e.g. "possible mock-up days").** Shipped v1.38.0 (PR #99,
+      2026-10-05): double-click a bar or calendar band (or right-click → Rename)
+      renames it in place on the project page and the draft; the dashboard's Edit Phase
+      dialog gained a Name field and opens with it focused (a bar double-click can no
+      longer close it); calendar milestone bands and the Meeting Sheet's "Phase now" read
+      the block's name. The §7.3 L1092 entry is struck. [tracker #3, screenshot in the
+      issue]
 - [x] **35. Keep phase labels visible while scrolling.** The text inside a bar ("Technical
       Design", "Main Shop Fab") scrolls off with the bar. Keep it pinned at the left edge
       of the canvas, next to the sidebar, like a sticky caption. A design item
       (`Design-Language.md`, bar labels): `position: sticky` inside the bar, or repaint
-      the label on scroll. [tracker #4, screenshot in the issue] — v1.36.0: the label
+      the label on scroll. [tracker #4, screenshot in the issue] — v1.36.0 (PR #98): the label
       (and the project row's status pill) parks at the visible left edge on the dashboard
       and the project page, ellipsised at its bar's end.
 - [ ] **36. Create projects from the calendar.** Drag across dates on the calendar to
@@ -634,7 +634,7 @@ is item 32 (P0), #7 is part of item 3, and #11 and #14 were done by the bridge i
       shifts its neighbours). Company Data table CSS (`table-layout`, per-column widths).
       [tracker #13]
 - [x] **Departments: changing the days did not move the end date.** Shipped v1.34.1
-      (2026-10-05): one rule for every days field (the Departments row, the bottom panel,
+      (PR #96, 2026-10-05): one rule for every days field (the Departments row, the bottom panel,
       the bar's popover), on the draft and the saved page — the start stays, the end is the
       start plus N days (workdays for shop departments, calendar days for Installation and
       Shipping). A draft bar nobody has typed or dragged still follows the scheduler.
@@ -1240,8 +1240,9 @@ How to read the tags at the end of an entry:
 - [ ] **Vivid shows no weekend marker.** In Vivid mode the canvas doesn't mark weekends.
       (Holidays got name pills in v1.20.0, so the v1.x "(holidays included)" note is
       stale.) Gate: someone scheduling into a weekend that Vivid hid (v1.0.2). [L1088]
-- [ ] **Calendar milestones show the department name,** not a phase's custom label. Gate:
-      someone renaming a phase and expecting to see the new name (v1.6.1). [L1092]
+- [x] ~~**Calendar milestones show the department name,** not a phase's custom label. Gate:
+      someone renaming a phase and expecting to see the new name (v1.6.1).~~ Done v1.38.0
+      (item 34, tracker #3): a milestone on a named block leads with that name. [L1092]
 - [ ] **Lane summaries include upcoming work.** Department-lane summaries list upcoming
       assignments too; "in progress only" would be a one-line filter. Owner's call
       (v1.6.1). [L1095]

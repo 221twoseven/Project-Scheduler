@@ -12,6 +12,8 @@ const SUMBAR=require('fs').readFileSync(FILE,'utf8').indexOf('npv-env')<0;
    inspector). The old inline name field is retired â€” a left-click now opens an edit
    popover and a New action opens it on the fresh item; sniffed here to gate that branch. */
 const N11=/npvEditPop/.test(require('fs').readFileSync(FILE,'utf8'));
+/* v1.38.0 (tracker #3): the bar menu leads with Rename (in place) — the one edit on it */
+const REN=/npvRenameBar/.test(require('fs').readFileSync(FILE,'utf8'));
 
 let pass=0,fail=0;
 const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
@@ -153,8 +155,8 @@ function stage3(){
     ok('the browser menu is suppressed', ev.defaultPrevented);
     ok('a menu opened', !!menu());
     if(N11){
-      ok('it offers only add-new (N11)', !!byAct('sub')&&!!byAct('ev')&&!!byAct('tk')
-         &&!byAct('ren')&&!byAct('dup')&&!byAct('del'), menu().textContent.slice(0,60));
+      ok('it offers only add-new (N11; v1.38.0: plus Rename)', !!byAct('sub')&&!!byAct('ev')&&!!byAct('tk')
+         &&(!!byAct('ren')===REN)&&!byAct('dup')&&!byAct('del'), menu().textContent.slice(0,60));
       ok('the menu no longer carries an inline name field', !menu().querySelector('.mn'));
     }else{
       ok('it offers rename', !!byAct('ren'));

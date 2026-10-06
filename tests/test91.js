@@ -7,6 +7,8 @@ const {boot}=require('./harness');
 const fs=require('fs');
 const FILE=process.argv[2]||'index.html';
 const src=fs.readFileSync(FILE,'utf8');
+/* v1.38.0 (tracker #3): the bar menu leads with Rename (in place) — the one edit on it */
+const REN=/npvRenameBar/.test(src);
 
 if(!/npvEditPop/.test(src)){
   console.log('  SKIP  build predates the edit popover — nothing to assert');
@@ -108,7 +110,7 @@ function stage3(){
   const ev=rclick(q('#npv-body .npv-bar'));
   ok('the browser menu is suppressed', ev.defaultPrevented);
   setTimeout(()=>{
-    ok('the add-only menu opened', !!menu()&&!!byAct('ev')&&!byAct('ren'));
+    ok('the add-only menu opened (v1.38.0: plus Rename)', !!menu()&&!!byAct('ev')&&(!!byAct('ren')===REN)&&!byAct('del'));
     ok('the menu no longer carries an inline name field', !menu().querySelector('.mn'));
     const before=E('liveEvents(ppProject()).length');
     click(byAct('ev'));
