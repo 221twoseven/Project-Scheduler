@@ -582,11 +582,13 @@ is item 32 (P0), #7 is part of item 3, and #11 and #14 were done by the bridge i
       discoverability problem; rides on item 7. Also check the calendar (§7.3, L1092: it
       shows the department name, not the label) and the project page. [tracker #3,
       screenshot in the issue]
-- [ ] **35. Keep phase labels visible while scrolling.** The text inside a bar ("Technical
+- [x] **35. Keep phase labels visible while scrolling.** The text inside a bar ("Technical
       Design", "Main Shop Fab") scrolls off with the bar. Keep it pinned at the left edge
       of the canvas, next to the sidebar, like a sticky caption. A design item
       (`Design-Language.md`, bar labels): `position: sticky` inside the bar, or repaint
-      the label on scroll. [tracker #4, screenshot in the issue]
+      the label on scroll. [tracker #4, screenshot in the issue] — v1.36.0: the label
+      (and the project row's status pill) parks at the visible left edge on the dashboard
+      and the project page, ellipsised at its bar's end.
 - [ ] **36. Create projects from the calendar.** Drag across dates on the calendar to
       create a phase or milestone, then fill in the details in the bottom panel — simpler
       than building in the Gantt. The calendar can already resize and move existing bars

@@ -660,6 +660,7 @@ body.vivid .npv-we{display:none} /* v1.0.2: no weekend strips over the vivid tin
 .npv-gut{position:sticky;left:0;z-index:3;width:var(--npv-gut,150px);height:100%;display:flex;align-items:center;padding:0 8px;font-size:var(--fs-fine);font-weight:600;color:#475569;background:#fff;border-right:1px solid #EDF2F7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .npv-row:nth-child(odd) .npv-gut{background:#FCFDFE}
 .npv-bar{position:absolute;height:24px;top:5px;border-radius:4px;cursor:grab;display:flex;align-items:center;padding:0 6px;font-size:var(--fs-fine);font-weight:600;white-space:nowrap;overflow:hidden;z-index:2;user-select:none}
+.npv-lbl{margin-left:5px;min-width:0;overflow:hidden;text-overflow:ellipsis} /* v1.36.0 (#4): shrinks and ellipsises when the label is parked near the bar's end */
 .npv-bar.dragging{cursor:grabbing;opacity:.85;z-index:6}
 .npv-bar.manual{box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.85)}
 .npv-hdl{position:absolute;left:0;top:0;bottom:0;width:8px;cursor:ew-resize}
@@ -1683,7 +1684,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.34.0'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.36.0'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -4178,30 +4179,30 @@ function buildCanvasBgInto(canvas,totalW,DW_){
 }
 
 
-/* ===================== REV36: PROJECT LABEL PARKS AT TODAY ===================== */
-/* The project name used to sit at the bar's left edge, so it scrolled out of view on
-   any job that started before today. It now parks just right of the today line, giving
-   one readable column down the whole list. It never leaves its own bar: a job that
-   finished before today keeps its label at its right end, and a job that hasn't started
-   keeps it at its left end. Scrolling past today carries the labels along the left edge
-   so they stay readable out in the future. */
+/* ===================== REV36 / v1.36.0: BAR LABEL STICKS TO THE VISIBLE LEFT EDGE ===================== */
+/* The label used to sit at the bar's left edge, so it scrolled out of view on any job
+   that started before today. REV36 parked it just right of the Today line; v1.36.0
+   (tracker #4) parks it at the left edge of the visible chart instead — next to the
+   sidebar, whatever the view is scrolled to — so with the view a few days before today
+   the label no longer sits mid-canvas. It rides with the bar again once the bar's start
+   scrolls into view, and it never leaves its own bar: a parked label stops LBL_TAIL px
+   short of the bar's end and the .bar-lbl ellipsis trims it from there. Scrolling
+   recomputes it on the same rAF as the edge indicators (queueLabelReposition). */
 let TODAY_X=null;
-const LBL_MIN=170;        /* project summary bars — long names, need more room */
-const LBL_MIN_TASK=130;   /* phase bars — department names are shorter */
+const LBL_TAIL=40;        /* a parked label keeps this much of its bar's end — the ellipsis zone */
 /* §7 bar anatomy — the label sheds pieces as the bar narrows: chips drop first, then
    the job code, then everything but the status pill; under BAR_W_TICK no label renders
    and the bar itself (min-width dw(), never under 4px) is the identity tick. */
 const BAR_W_CHIPS=300,BAR_W_CODE=190,BAR_W_PILL=96,BAR_W_TICK=34;
 
 /* base = the bar's natural left inset, which differs by status (the coloured edge strip
-   on in-production bars takes a few px) and by whether a pin icon is present. */
-function labelLeftFor(barX,barW,base,minLbl){
+   on in-production bars takes a few px) and by whether a pin icon is present.
+   edge = the canvas x where a parked label starts (default: the dashboard viewport's left
+   edge plus a 14px inset); the project page passes its own, right of the name column. */
+function labelLeftFor(barX,barW,base,edge){
   base=(base===undefined)?10:base;
-  minLbl=(minLbl===undefined)?LBL_MIN:minLbl;
-  if(TODAY_X==null||barW<minLbl+base+14)return base;
-  const sc=document.getElementById('gantt-scroll');
-  const anchor=Math.max(TODAY_X,(sc?sc.scrollLeft:0)+8);
-  return Math.max(base,Math.min(Math.round(anchor-barX+6),Math.round(barW-minLbl)));
+  if(edge===undefined){const sc=document.getElementById('gantt-scroll');edge=(sc?sc.scrollLeft:0)+14;}
+  return Math.max(base,Math.min(Math.round(edge-barX),Math.round(barW-LBL_TAIL)));
 }
 
 /* Ticket-node diamonds sit above the label at z-index 13, so a label starting underneath
@@ -4224,16 +4225,17 @@ function dodgeTickNodes(bar,left){
 /* Runs after every bar and diamond is in the DOM, so it can see both. */
 function repositionBarLabels(){
   const bars=document.querySelectorAll('#gantt-canvas .job-bar');
+  const sc=document.getElementById('gantt-scroll');
+  const edge=(sc?sc.scrollLeft:0)+14; /* read once per frame, not once per bar */
   for(const bar of bars){
     const lbl=bar.querySelector('.bar-lbl');
     if(!lbl)continue;
     const bx=parseFloat(bar.style.left)||0,bw=parseFloat(bar.style.width)||0;
     const base=Number(lbl.dataset.base)||10;
-    const min=Number(lbl.dataset.min)||LBL_MIN;
-    let lx=labelLeftFor(bx,bw,base,min);
+    let lx=labelLeftFor(bx,bw,base,edge);
     lx=dodgeTickNodes(bar,lx);
     /* never let the dodge push the text off the end of its own bar */
-    lx=Math.max(base,Math.min(lx,Math.max(base,Math.round(bw-40))));
+    lx=Math.max(base,Math.min(lx,Math.round(bw-LBL_TAIL)));
     lbl.style.left=lx+'px';
   }
 }
@@ -4325,8 +4327,8 @@ function makeSummaryBar(p,s,e,row){
   if(w>=BAR_W_TICK){
     const lbl=document.createElement('div');lbl.className='bar-lbl';
     lbl.style.color=labelColor(sumCol);
-    lbl.dataset.base='10';lbl.dataset.min=String(LBL_MIN);
-    lbl.style.left=labelLeftFor(x,w,10,LBL_MIN)+'px';lbl.style.right='10px';
+    lbl.dataset.base='10';
+    lbl.style.left=labelLeftFor(x,w,10)+'px';lbl.style.right='10px';
     let inner='<span class="sum-pill">'+esc(STATUS_LBL[st])+'</span>';
     if(w>=BAR_W_PILL)inner+=esc(p.name)+(w>=BAR_W_CODE&&p.jobCode?' · '+esc(p.jobCode):'');
     if(w>=BAR_W_CHIPS)inner+=[
@@ -4366,8 +4368,8 @@ function makeTaskBar(t,row,lane,labelMode){
     const lbl=document.createElement('div');lbl.className='bar-lbl';
     lbl.style.color=labelColor(taskCol);
     const lblBase=8;
-    lbl.dataset.base=String(lblBase);lbl.dataset.min=String(LBL_MIN_TASK);
-    lbl.style.left=labelLeftFor(x,w,lblBase,LBL_MIN_TASK)+'px';
+    lbl.dataset.base=String(lblBase);
+    lbl.style.left=labelLeftFor(x,w,lblBase)+'px';
     lbl.style.right=(t.pinned?18:7)+'px';
     if(t.__ghost)lbl.textContent=(isInstall(t)?endName(t.department):phaseLabel(t))+' · '+(p?p.name:'?');
     else if(labelMode==='proj')lbl.textContent=(p?p.name+(p.jobCode?' · '+p.jobCode:''):'?')+(t.label&&String(t.label).trim()?' — '+phaseLabel(t):''); /* v1.20.9: subtask name rides along */
@@ -4479,6 +4481,7 @@ document.addEventListener('mousemove',ev=>{
   }else{
     DRAG.ghost.style.width=Math.max(DW_,DRAG.ow+dd*DW_)+'px';
   }
+  queueLabelReposition(); /* v1.36.0 (#4): the ghost's parked label follows its live left/width */
 });
 
 document.addEventListener('mouseup',ev=>{
@@ -7910,7 +7913,7 @@ function npvRender(){
      + 'title="'+esc(nm+(who?' · '+who:'')+' · '+fmtNice(t.startDate)+' → '+fmtNice(t.endDate)+' · '+(t.estimatedDays||1)+'d')+'">'
      + '<div class="npv-hdl" data-i="'+i+'" style="width:'+edgeZone(bw,8)+'px"></div>'
      + '<div class="npv-hdl r" data-i="'+i+'" style="width:'+edgeZone(bw,8)+'px"></div>'
-     + '<span style="margin-left:5px">'+esc(nm)+'</span></div>';
+     + '<span class="npv-lbl">'+esc(nm)+'</span></div>'; /* v1.36.0 (#4): npvStickLabels parks it at the visible edge */
   };
   for(const row of NPV_PLAN){
     if(row.kind==='parent'){
@@ -7992,6 +7995,7 @@ function npvRender(){
   host.classList.toggle('tinted',!!TINT);
   host.innerHTML=h;
   host.style.width=innerW+'px';
+  npvStickLabels();
 
   npvPaintFooter(dl);
   npvBindDrag();
@@ -8016,6 +8020,22 @@ function npvRender(){
   const mp=ppProject();
   if(mp)ppPaintMeta(mp);
 }
+/* v1.36.0 (tracker #4): the project page follows the dashboard's labelLeftFor rule — a bar
+   that starts under the name column keeps its name at the visible left edge (just right
+   of the gutter), rides with the bar once its start scrolls into view, and never leaves
+   its own bar: the margin stops LBL_TAIL px short of the bar's end and the .npv-lbl
+   ellipsis trims it from there. Runs after every gantt paint and on every scroll. */
+function npvStickLabels(){
+  const sc=document.getElementById('npv-scroll');if(!sc)return;
+  const edge=sc.scrollLeft+NPV_GUT+8;
+  for(const b of sc.querySelectorAll('.npv-bar')){
+    const l=b.querySelector('.npv-lbl');if(!l)continue;
+    const bx=parseFloat(b.style.left)||0,bw=parseFloat(b.style.width)||0;
+    /* the label is a flex child inside the bar's 6px padding, so its margin is the label
+       left measured from bx+6; base 5 = its resting margin */
+    l.style.marginLeft=labelLeftFor(bx+6,bw,5,edge)+'px';
+  }
+}
 /* REV48: bound once — npvRender only rewrites innerHTML, so re-binding stacked a fresh
    listener on the same element on every render. REV64: hoisted to the top of npvRender,
    before the early returns — the calendar branch exits before the gantt paint, so a page
@@ -8024,6 +8044,9 @@ function npvRender(){
 function npvBindHost(host){
   if(!host.dataset.bound){
     host.dataset.bound='1';
+    /* v1.36.0 (tracker #4): a sideways scroll re-parks every bar's label (one rAF per scroll burst). */
+    {let raf=0;const sc=host.closest('.npv-scroll');
+     if(sc)sc.addEventListener('scroll',()=>{if(raf)return;raf=requestAnimationFrame(()=>{raf=0;npvStickLabels();});});}
     let dnX=0,dnY=0;
     const blank=tg=>!!tg&&!!tg.closest&&!tg.closest('.npv-bar')&&!tg.closest('.npv-gut')
       &&!tg.closest('.cal-band')&&!tg.closest('#npv-menu')&&!tg.closest('.npv-axis');
@@ -9294,6 +9317,7 @@ function npvBindDrag(){
           tip.innerHTML='<div class="tt-title">'+fmtNice(fmtDate(edge(e2)))+'</div>';
           tip.classList.remove('hidden');posTooltip(e2);
         }
+        npvStickLabels(); /* v1.36.0 (#4): a parked label follows the bar's live left/width */
       };
       const up=e2=>{
         document.removeEventListener('mousemove',mv);
@@ -10828,6 +10852,7 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.36.0",d:"Oct 5, 2026",n:["Bar names and status pills stay readable while you scroll sideways: when a bar starts off-screen, its label (and the project row's status pill) now sits at the left edge of the chart next to the sidebar — on the dashboard and the project page — and rides along with the bar once its start comes into view. A label never spills past its bar's end; it is trimmed with \"…\" when the visible part is too short."]},
  {v:"v1.34.0",d:"Oct 5, 2026",n:["Open Issues: the Resolved column now shows the date a report was resolved, not the date it was sent, and lists the most recently resolved first.",
    "Open Issues: the team can post a note under a report (a `/comment` on its ticket) that shows as a developer comment in the app without emailing the person who filed it; `/reply` still does both."]},
  {v:"v1.33.1",d:"Oct 5, 2026",n:["Project Schedule: each department's day count now sits beside its own date range, next to the dates it counts — the same spot every extra work period already uses."]},
