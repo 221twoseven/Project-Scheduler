@@ -1170,7 +1170,10 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 .npv-pop .dot.tk{background:#fff;border:2px solid #3B7FD6;border-radius:50%;box-sizing:border-box}
 /* Explorer-style rename box that replaces a title on double-click. */
 .npv-rename{width:100%;box-sizing:border-box;font:inherit;color:#1E293B;border:1px solid var(--acc);
-  border-radius:4px;padding:0 4px;outline:none;background:#fff}
+  border-radius:4px;padding:0 4px;outline:none;background:#fff;user-select:text}
+/* v1.38.0 (tracker #3): the bar's text fills the bar so the rename box can replace it */
+.npv-bar .npv-txt{flex:1;min-width:0}
+.npv-bar .npv-rename{height:20px}
 .npv-body{cursor:default}
 
 /* ============ REV47: SUBTASKS ============ */
@@ -1546,6 +1549,8 @@ body.cd-route #dash-bar{display:none!important}
   <div class="modal">
     <h3 id="tm-head">Edit Phase</h3>
     <div class="modal-body">
+    <!-- v1.38.0 (tracker #3): the block's own name — blank reads as the department -->
+    <div class="fg"><label>Name</label><input id="tm-name" type="text" autocomplete="off"></div>
     <div class="fg-2">
       <div class="fg"><label>Project *</label><select id="tm-project"></select></div>
       <div class="fg"><label>Department</label><select id="tm-dept"></select></div>
@@ -1683,7 +1688,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.34.0'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.38.0'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -4688,7 +4693,11 @@ function openTaskModal(taskId,prefill){
     const op=document.createElement('option');op.value=d.id;op.textContent=d.name;dsel.appendChild(op);}
   dsel.value=t?t.department:(prefill&&prefill.department)||'td';
   tmAssigneeUI(dsel.value,t?t.assignee:(prefill&&prefill.assignee)||'');
-  dsel.onchange=()=>tmAssigneeUI(dsel.value,'');
+  /* v1.38.0 (tracker #3): Name — the placeholder is what a blank name reads as */
+  const nmEl=document.getElementById('tm-name');
+  nmEl.value=t?(t.label||''):'';
+  const nmPh=()=>{nmEl.placeholder=(t&&dsel.value===t.department)?phaseLabel({...t,label:''}):((deptById(dsel.value)||{}).name||'');};nmPh();
+  dsel.onchange=()=>{tmAssigneeUI(dsel.value,'');nmPh();};
   /* The crew pool culls to the selected project's team, so a project change re-fills it. */
   psel.onchange=()=>{if(!EDIT_TASK_ID)tmAssigneeUI(dsel.value,'');};
   const start=t?t.startDate:fmtDate(prefill&&prefill.start?prefill.start:today());
@@ -4707,12 +4716,19 @@ function openTaskModal(taskId,prefill){
   tov.querySelectorAll('input,select,textarea').forEach(el=>{el.disabled=false;el.removeAttribute('tabindex');});
   viewerLock(tov,'phases'); /* v1.8.0: visible, locked. The phase's own fields follow the PHASES door; only the Milestones block (data-vk) rides the subtasks grant — the whole-box 'subtasks' kind let that grant move dates and delete phases */
   TM_SNAP=tmSnap();
+  /* v1.38.0 (tracker #3): a bar double-click's second press lands on the dialog it just opened
+     (backdrop, a label, or a button under the pointer) — for 400 ms the dialog swallows presses
+     and clicks (see the capture listener below), so the second click neither closes it nor moves
+     focus, and an existing phase opens with Name ready to type over: a double-click reads as
+     "rename". */
+  TM_OPENED=Date.now();
+  if(t){nmEl.focus();nmEl.select();}
 }
 /* N2: what the modal's form serializes to — compared on close to catch silent discards. */
-let TM_SNAP='';
+let TM_SNAP='',TM_OPENED=0;
 function tmSnap(){
   const v=id=>{const e=document.getElementById(id);return e?e.value:'';};
-  return [v('tm-project'),v('tm-dept'),JSON.stringify(tmAssigneeValue()),
+  return [v('tm-project'),v('tm-dept'),JSON.stringify(tmAssigneeValue()),v('tm-name'),
     v('tm-start'),v('tm-end'),v('tm-est'),
     document.getElementById('tm-pin').checked,v('tm-notes'),
     JSON.stringify(TM_NODES)].join('|');
@@ -4726,6 +4742,9 @@ function closeTaskModal(force){
 
 document.getElementById('tm-cancel').addEventListener('click',()=>closeTaskModal());
 document.getElementById('task-overlay').addEventListener('click',ev=>{if(ev.target.id==='task-overlay')closeTaskModal();});
+['mousedown','click'].forEach(k=>document.getElementById('task-overlay').addEventListener(k,ev=>{
+  if(Date.now()-TM_OPENED<400){ev.preventDefault();ev.stopImmediatePropagation();} /* v1.38.0 (tracker #3) */
+},true));
 
 document.getElementById('tm-save').addEventListener('click',()=>{
   const projectId=document.getElementById('tm-project').value;
@@ -4734,6 +4753,7 @@ document.getElementById('tm-save').addEventListener('click',()=>{
     projectId,
     department:document.getElementById('tm-dept').value,
     assignee:tmAssigneeValue(),
+    label:document.getElementById('tm-name').value.trim(), /* v1.38.0 (tracker #3) */
     startDate:document.getElementById('tm-start').value,
     endDate:document.getElementById('tm-end').value,
     estimatedDays:Math.max(1,parseInt(document.getElementById('tm-est').value)||1),
@@ -7416,12 +7436,16 @@ function npvMenuShell(clientX,clientY,title,html,bind){
 function npvBarMenu(x,y,t){
   const d=deptById(t.department)||{};
   const col=DEPT_COLORS[t.department]||'#8A98AE';
-  const h='<button data-act="sub"><span class="mi" style="background:'+col+'"></span>'
+  /* v1.38.0 (tracker #3): Rename is the one edit on this add-only menu (owner default Q3) */
+  const h='<button data-act="ren"><span class="mi" style="background:'+col+'"></span>'
+        +   'Rename<span class="k">R</span></button>'
+        + '<button data-act="sub"><span class="mi" style="background:'+col+'"></span>'
         +   'New subtask<span class="k">S</span></button>'
         + '<button data-act="ev"><span class="mi ev"></span>New milestone<span class="k">E</span></button>'
         + '<button data-act="tk"><span class="mi tk"></span>New note<span class="k">T</span></button>';
   return npvMenuShell(x,y,esc(phaseLabel(t))+' &middot; '+esc(d.name||t.department),h,(act)=>{
-    if(act==='sub')npvCreateSubtask(t.department,t.startDate,false);
+    if(act==='ren')npvRenameBar(t);
+    else if(act==='sub')npvCreateSubtask(t.department,t.startDate,false);
     else if(act==='ev')npvCreateEvent(t.department,t.startDate);
     else if(act==='tk')npvCreateTask(t.department,t.startDate);
   });
@@ -7910,7 +7934,7 @@ function npvRender(){
      + 'title="'+esc(nm+(who?' · '+who:'')+' · '+fmtNice(t.startDate)+' → '+fmtNice(t.endDate)+' · '+(t.estimatedDays||1)+'d')+'">'
      + '<div class="npv-hdl" data-i="'+i+'" style="width:'+edgeZone(bw,8)+'px"></div>'
      + '<div class="npv-hdl r" data-i="'+i+'" style="width:'+edgeZone(bw,8)+'px"></div>'
-     + '<span style="margin-left:5px">'+esc(nm)+'</span></div>';
+     + '<span class="npv-txt" style="margin-left:5px">'+esc(nm)+'</span></div>';
   };
   for(const row of NPV_PLAN){
     if(row.kind==='parent'){
@@ -8099,6 +8123,12 @@ function npvBindHost(host){
         }
         return;
       }
+      /* v1.38.0 (tracker #3): the bar itself renames too — same box, on the bar's own text.
+         The popover the first click opened is closed first (or, when it landed under the
+         pointer, it hands the double-click on itself — see npvPopRender). */
+      const bar=tg.closest('.npv-bar');
+      if(bar){ev.preventDefault();npvPopClose();const t=NPV_TASKS[+bar.dataset.i];
+        if(t)npvInlineRename(t,npvRenameHost(bar));return;}
       const gut=tg.closest('.npv-gut');
       if(gut){const bar=gut.parentElement&&gut.parentElement.querySelector('.npv-bar');
         if(bar){ev.preventDefault();npvPopClose();const t=NPV_TASKS[+bar.dataset.i];if(t)npvInlineRename(t,gut);}}
@@ -8610,7 +8640,8 @@ function npvMarkers(){
     for(const t of NPV_TASKS)
       for(const n of (t.ticketNodes||[]))
         if(n.date)out.push({k:'ev',id:n.id,date:n.date,dept:(n.dept!==undefined?n.dept:t.department),
-          nm:n.target||'',pr:''});
+          nm:n.target||'',pr:'',
+          ph:(n.dept===undefined||n.dept===t.department)?phaseLabel(t):''}); /* v1.38.0 (tracker #3): a milestone on a block leads with the block's name (one that moved to another department keeps that department's) */
     for(const e of (ST.events||[]))
       if(e.projectId===pj.id&&e.date)
         out.push({k:'ev',id:e.id,date:e.date,dept:e.dept||'',nm:e.name||'',pr:''});
@@ -8744,7 +8775,7 @@ function npvPaintCalendar(lo,hi,dl){
          Gantt's diamonds. v1.6.1: a milestone on a phase leads with the phase name. */
       /* Same fallbacks as the Gantt diamonds — an unnamed marker used to render a bare
          "Fabrication: " band, and an unknown dept a bare ": ". */
-      const dn=mk.k==='ev'&&mk.dept?((deptById(mk.dept)||{}).name||''):'';
+      const dn=mk.k==='ev'?(mk.ph||(mk.dept?((deptById(mk.dept)||{}).name||''):'')):''; /* v1.38.0 (tracker #3): the block's own name first */
       const nm=mk.nm||(mk.k==='ev'?'Untitled milestone':'Untitled note');
       /* v1.21.0: markers pack — a marker takes the first lane with its day free, so a
          week's markers share a row unless two land on the same day. */
@@ -9013,8 +9044,28 @@ function npvPopClose(){
 function npvEditPop(kind,target,x,y,focusName){
   if(!target){npvPopClose();return;}
   npvCloseMenu();
-  NPV_POP={kind,id:(kind==='phase'?null:target),x:x||0,y:y||0,_new:!!focusName};
+  NPV_POP={kind,id:(kind==='phase'?null:target),x:x||0,y:y||0,_new:!!focusName,at:Date.now()};
   npvPopRender();
+}
+/* v1.38.0 (tracker #3): the in-place rename box on a bar's own text — the Gantt bar or the
+   Calendar band under the pointer (`at`, else the phase's first band). A collapsed strip or a
+   hidden subtask has no text to replace, so its phase is expanded first. Right-click Rename and
+   the popover's double-click hand-off both land here. */
+function npvRenameBar(t,at){
+  if(!t||!vcan('phases'))return;
+  const i=NPV_TASKS.findIndex(x=>x.id===t.id);if(i<0)return;
+  const sel=(NPV_MODE==='calendar'?'.cal-band.ph':'.npv-bar')+'[data-i="'+i+'"]';
+  const find=()=>{const p=at&&document.elementFromPoint?document.elementFromPoint(at[0],at[1]):null;
+    return (p&&p.closest&&p.closest('#npv-body '+sel))||document.querySelector('#npv-body '+sel);};
+  let el=find();
+  if(!el||(NPV_MODE==='calendar'&&el.classList.contains('slim'))){
+    NPV_OPEN.add(t.department);NPV_CAL_OPEN.set(t.department,2);npvRender();el=find();}
+  if(el)npvInlineRename(NPV_TASKS[i],NPV_MODE==='calendar'?(el.querySelector('.cal-txt')||el):npvRenameHost(el));
+}
+/* A Gantt bar too narrow to type in (a day or two at most zooms) renames on its row title. */
+function npvRenameHost(bar){
+  const gut=bar.parentElement&&bar.parentElement.querySelector('.npv-gut');
+  return (parseFloat(bar.style.width)<60&&gut)?gut:(bar.querySelector('.npv-txt')||bar);
 }
 function npvPopPosition(el,x,y){
   const W=el.offsetWidth||274,H=el.offsetHeight||300;
@@ -9030,6 +9081,15 @@ function npvPopRender(){
     document.body.appendChild(el);
     el.addEventListener('mousedown',e=>e.stopPropagation());
     el.addEventListener('contextmenu',e=>{e.preventDefault();e.stopPropagation();});
+    /* v1.38.0 (tracker #3): a double-click on a bar parks this popover under the pointer with
+       its first click, so the second lands here. Within half a second of opening that is a
+       rename intent: close and open the in-place box on the selected bar — unless the
+       double-click is inside one of the popover's own fields (a word-select is left alone). */
+    el.addEventListener('dblclick',e=>{
+      if(!NPV_POP||NPV_POP.kind!=='phase'||Date.now()-NPV_POP.at>500)return;
+      if(e.target.closest&&e.target.closest('input,select,textarea,button'))return;
+      e.preventDefault();const t=ppSelected();npvPopClose();npvRenameBar(t,[e.clientX,e.clientY]);
+    });
   }
   el.dataset.kind=NPV_POP.kind; /* v1.11.0: CSS grades the delete button by door */
   if(NPV_POP.kind==='phase'){
@@ -9151,7 +9211,7 @@ function npvInlineRename(t,hostEl){
   const cur=t.label||'';
   const inp=document.createElement('input');
   inp.className='npv-rename';inp.value=cur;
-  inp.placeholder=(deptById(t.department)||{}).name||t.department;
+  inp.placeholder=phaseLabel({...t,label:''}); /* v1.38.0: what a blank name reads as (an Other row: its process name) */
   hostEl.innerHTML='';hostEl.appendChild(inp);
   inp.focus();inp.select();
   let done=false;
@@ -10828,6 +10888,8 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.38.0",d:"Oct 5, 2026",n:["Name a block: double-click any bar on the project page or the calendar to rename it in place (Enter saves, Esc cancels), or right-click it and pick Rename; on the dashboard, Edit Phase now has a Name field and opens with it ready to type, so a second \"Main Shop Fab\" can read \"Possible mock up days\".",
+   "A block's own name now shows on its calendar milestone bands and in the Meeting Sheet's \"Phase now\" column, not just the department name."]},
  {v:"v1.34.0",d:"Oct 5, 2026",n:["Open Issues: the Resolved column now shows the date a report was resolved, not the date it was sent, and lists the most recently resolved first.",
    "Open Issues: the team can post a note under a report (a `/comment` on its ticket) that shows as a developer comment in the app without emailing the person who filed it; `/reply` still does both."]},
  {v:"v1.33.1",d:"Oct 5, 2026",n:["Project Schedule: each department's day count now sits beside its own date range, next to the dates it counts — the same spot every extra work period already uses."]},
@@ -11028,11 +11090,11 @@ function phaseNow(p){
   const ts=tasksOf(p.id).filter(x=>x.department!=='pm'&&!x.__ghost);
   const act=ts.filter(x=>parseDate(x.startDate)<=t&&t<=parseDate(x.endDate));
   if(act.length){
-    const names=[...new Set(act.map(x=>{const d=deptById(x.department);return (d&&d.freeText)?(x.assignee||'Other'):(d?d.name:x.department);}))];
+    const names=[...new Set(act.map(phaseLabel))]; /* v1.38.0 (tracker #3): a named block reads by its name */
     return names.slice(0,2).join(', ')+(names.length>2?' +'+(names.length-2):'');
   }
   const fut=ts.filter(x=>parseDate(x.startDate)>t).sort((a,b)=>String(a.startDate).localeCompare(String(b.startDate)));
-  if(fut.length){const d=deptById(fut[0].department);return 'Next: '+((d&&!d.freeText)?d.name:(fut[0].assignee||'Other'))+' '+fmtNice(fut[0].startDate);}
+  if(fut.length)return 'Next: '+phaseLabel(fut[0])+' '+fmtNice(fut[0].startDate);
   return ts.length?'Wrapped':'—';
 }
 /* U8: keys must match ALL_STATUSES — the pre-migration names left every
