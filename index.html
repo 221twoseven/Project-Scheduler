@@ -215,6 +215,22 @@ body.me-dock-col #md-thought,body.me-dock-col #md-tpop{display:none}
 #sb-head .sb-lens .t-btn{flex:1;background:#fff;color:#475569;border-right:1px solid var(--side-line);font-weight:600}
 #sb-head .sb-lens .t-btn:hover{background:#E8EEF7;color:#1E293B}
 #sb-head .sb-lens .t-btn.active{background:var(--acc);color:#fff}
+/* v1.37.0 (#6): the Active / Completed / All switch takes the header's second row (64px holds 26 + 24 + gap) */
+#sb-head{flex-wrap:wrap;row-gap:4px;align-content:center}
+#sb-head .sb-done{flex:0 0 100%;max-width:230px;border-color:var(--side-line);background:#fff;text-transform:none;letter-spacing:0}
+#sb-head .sb-done .t-btn{flex:1;height:24px;padding:0 6px;background:#fff;color:#475569;border-right:1px solid var(--side-line);font-weight:600;font-size:11px}
+#sb-head .sb-done .t-btn:last-child{border-right:none}
+#sb-head .sb-done .t-btn:hover{background:#E8EEF7;color:#1E293B}
+#sb-head .sb-done .t-btn.active{background:var(--acc);color:#fff}
+.sb-row.done .sb-name{color:var(--ts-muted);font-weight:500} /* muted by colour, not opacity — the tag must stay readable */
+.sb-row.done .c-dot{opacity:.5}
+.cd-perm.done{color:#5B6472;background:#E6E9EE;flex-shrink:0;margin-right:0;letter-spacing:0;padding:0 3px} /* 4.9:1 */
+/* the tag takes the client's room on line 2 (the default 300px sidebar can't hold tag + client + code · date);
+   the client stays on the project page and the Client sort. The code · date ellipsizes before running under the eye. */
+.sb-row.done .sb-l2{overflow:hidden;gap:4px}
+.sb-row.done .sb-cl{display:none}
+.sb-row.done .sb-cl+.sb-sub::before{content:none}
+.sb-row.done .sb-l2 .sb-sub{flex-shrink:1}
 .bar-lbl .sum-pill{position:static;transform:none;margin-right:8px}
 .crew-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(108px,1fr));gap:4px 10px;max-height:180px;overflow-y:auto;background:#F7FAFD;border:1px solid #D8E2EF;border-radius:8px;padding:10px}
 .crew-list label{display:flex;gap:6px;align-items:center;font-size:12px;color:#33415A;cursor:pointer;user-select:none;min-width:0;white-space:nowrap;overflow:hidden}
@@ -1515,6 +1531,12 @@ body.cd-route #dash-bar{display:none!important}
         <button id="btn-lens-dept" class="t-btn" title="Group the rows by department">Departments</button>
       </div>
       <button id="sb-all" title="Step every row through the view's levels — collapsed, groups, everything"><svg class="ico-s" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 5.5 8 2l3.5 3.5M4.5 10.5 8 14l3.5-3.5"/></svg> All</button>
+      <!-- v1.37.0 (#6): Active / Completed / All — three presets of the status filter, not a second mechanism -->
+      <div class="tog-grp sb-done" role="group" aria-label="Which projects to show">
+        <button class="t-btn" data-done="active" title="Projects still in progress (hides Complete)">Active</button>
+        <button class="t-btn" data-done="completed" title="Completed projects only — for revisions, closeout or billing">Completed</button>
+        <button class="t-btn" data-done="all" title="Every project, completed ones muted">All</button>
+      </div>
     </div>
     <div id="side-rows"></div>
     <div id="sb-foot">
@@ -1683,7 +1705,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.34.0'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.37.0'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -2212,7 +2234,7 @@ function loadLocalPrefs(){
     /* V4/B6: restore through the same applier a saved view uses. No search/tint/group
        here — search never persists between sessions, tint and group live in their own
        loose keys loaded elsewhere; a partial snapshot leaves those untouched. */
-    applyViewState({lens:ui.lens,status:ui.showStatus,person:ui.person,client:ui.clients,color:ui.colorMode,
+    applyViewState({lens:ui.lens,status:ui.done?ui.showStatus:undefined,person:ui.person,client:ui.clients,color:ui.colorMode,
       view:ui.view,fit:ui.fit,density:ui.density===undefined?'comfortable':ui.density,
       collapsedGroups:ui.collapsedGroups,collapsedDepts:ui.collapsedDepts||[]});
     if(ui.sideW)setSideW(ui.sideW);
@@ -3014,7 +3036,8 @@ function saveUI(){
     localStorage.setItem('shopTimelineGroup',s.group);
     localStorage.setItem(UI_KEY,JSON.stringify({collapsedDepts:s.collapsedDepts,
     collapsedGroups:s.collapsedGroups,
-    density:s.density,colorMode:s.color,view:s.view,fit:s.fit,sideW:SIDE_W,npvGut:NPV_GUT,showStatus:s.status,clients:s.client,person:s.person,lens:s.lens}));}catch(e){}}
+    density:s.density,colorMode:s.color,view:s.view,fit:s.fit,sideW:SIDE_W,npvGut:NPV_GUT,showStatus:s.status,clients:s.client,person:s.person,lens:s.lens,
+    done:1 /* v1.37.0 (#6): marks a status set saved since the switch existed — older saves are dropped so everyone opens on Active once */}));}catch(e){}}
 
 /* ===================== SEARCH FILTER ===================== */
 let FILTER='';
@@ -3202,8 +3225,14 @@ function taskMatch(t){
 /* Dim (don't remove) non-matching rows/bars so layout stays put */
 let SPOT=new Set(); /* spotlighted project ids — everything else dims */
 const ALL_STATUSES=['forecast','estimating','in-design','in-fabrication','on-hold','complete'];
-function defaultShowStatus(){return new Set(ALL_STATUSES);}
-let SHOW_STATUS=defaultShowStatus();
+/* v1.37.0 (#6): the sidebar's Active / Completed / All switch is three presets of this one
+   status set — the mode is READ from SHOW_STATUS, never stored beside it. The default view
+   (Clear filters, the chip's ×) keeps whichever preset the switch is on. */
+const ACTIVE_STATUSES=ALL_STATUSES.filter(s=>s!=='complete');
+function doneStatuses(mode){return new Set(mode==='all'?ALL_STATUSES:mode==='completed'?['complete']:ACTIVE_STATUSES);}
+function doneMode(){if(!SHOW_STATUS.has('complete'))return 'active';return [...SHOW_STATUS].some(s=>s!=='complete')?'all':'completed';}
+function defaultShowStatus(){return doneStatuses(doneMode());}
+let SHOW_STATUS=doneStatuses('active');
 function visTasks(){
   _ensureCache();
   const key=[...SHOW_STATUS].join(',')+'|'+[...CLIENT_FILTER].join(',');
@@ -3781,8 +3810,12 @@ function renderEmptyState(){
       +'<div class="es-sub">Create your first project and the schedule builds itself<br>backward from the deadline. Press <kbd>N</kbd> or use <b>+ New Project</b>.</div>'
       +'<button class="btn" id="es-sample" style="margin-top:14px" title="Two practice projects, in this browser only — drag them around, then delete them from their project pages">Add a sample project</button>';
   }else if(!ST.projects.some(p=>SHOW_STATUS.has(projectStatus(p)))){
-    html='<div class="es-big">All projects are hidden</div>'
-      +'<div class="es-sub">The status filter is hiding every project.<br>Click <b>Clear filters</b> in the toolbar to see them again.</div>';
+    /* v1.37.0 (#6): on Active with every job complete, Clear filters wouldn't help — point at the switch */
+    html=(doneMode()!=='all'&&!statusFilterDirty())
+      ?'<div class="es-big">'+(doneMode()==='active'?'No active projects':'No completed projects')+'</div>'
+        +'<div class="es-sub">Every project is '+(doneMode()==='active'?'completed':'still in progress')+'.<br>Switch the sidebar to <b>'+(doneMode()==='active'?'Completed':'Active')+'</b> or <b>All</b> to see them.</div>'
+      :'<div class="es-big">All projects are hidden</div>'
+        +'<div class="es-sub">The status filter is hiding every project.<br>Click <b>Clear filters</b> in the toolbar to see them again.</div>';
   }else if(PERSON&&!visTasks().some(personHit)){
     /* v1.2.2: on the dashboard the person isn't a filter, so don't explain it as one */
     html=dashOn()
@@ -3828,6 +3861,7 @@ function renderEmptyState(){
 function renderSidebar(){
   const list=document.getElementById('side-rows');
   list.innerHTML='';
+  {const m=doneMode();document.querySelectorAll('#sb-head .sb-done .t-btn').forEach(b=>{const on=b.dataset.done===m;b.classList.toggle('active',on);b.setAttribute('aria-pressed',on?'true':'false');});}
   const frag=document.createDocumentFragment();
   for(const r of ROWS){
     const row=document.createElement('div');
@@ -3849,6 +3883,9 @@ function renderSidebar(){
       const col=document.createElement('span');col.className='sb-2l';
       const nm=document.createElement('span');nm.className='sb-name';nm.textContent=p.name;col.appendChild(nm);
       const l2=document.createElement('span');l2.className='sb-l2';
+      /* v1.37.0 (#6): a completed job reads as one — muted row, grey Completed tag under the name (never red, no strike-through) */
+      if(projectStatus(p)==='complete'){row.classList.add('done');
+        const tg=document.createElement('span');tg.className='cd-perm done';tg.textContent='Completed';tg.title='Completed — reopen it by changing its status on the project page';l2.appendChild(tg);}
       const cl=(p.client||'').trim();
       if(cl){const c=document.createElement('span');c.className='sb-cl';c.textContent=cl;c.title=cl;l2.appendChild(c);} /* v1.31.0 (#24): client first on line 2 — cut first when space runs out, whole on hover */
       const sub=document.createElement('span');sub.className='sb-sub';
@@ -9792,6 +9829,10 @@ function zoomStep(d){
   if(v)setView(v);
 }
 for(const[k,id]of Object.entries(VIEW_BTN))document.getElementById(id).addEventListener('click',()=>setView(k));
+/* v1.37.0 (#6): the switch writes a preset into the status filter; render() reads the mode back */
+document.querySelectorAll('#sb-head .sb-done .t-btn').forEach(b=>b.addEventListener('click',()=>{
+  if(doneMode()===b.dataset.done)return;
+  SHOW_STATUS=doneStatuses(b.dataset.done);saveUI();buildFiltersMenu();updateFilterBadges();render();}));
 document.getElementById('btn-lens-proj').addEventListener('click',()=>{if(LENS==='project')return;LENS='project';
   document.getElementById('btn-lens-proj').classList.add('active');document.getElementById('btn-lens-dept').classList.remove('active');
   saveUI();render();});
@@ -10168,7 +10209,7 @@ document.getElementById('btn-filters').addEventListener('click',buildFiltersMenu
    the person leaves a summary exactly like the × (lens restored). The menu stays
    open so the cleared checkboxes read back as confirmation. */
 document.getElementById('fm-showall').addEventListener('click',()=>{
-  SHOW_STATUS=defaultShowStatus();CLIENT_FILTER.clear();
+  SHOW_STATUS=new Set(ALL_STATUSES);CLIENT_FILTER.clear(); /* v1.37.0 (#6): "everything" means the All preset, completed jobs included */
   if(PERSON){exitDash();buildFiltersMenu();return;} /* exitDash saves, badges, renders */
   saveUI();buildFiltersMenu();updateFilterBadges();render();
 });
@@ -10828,6 +10869,8 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.37.0",d:"Oct 5, 2026",n:["Dashboard: an Active / Completed / All switch in the sidebar header. The dashboard opens on Active, so completed jobs no longer clutter the main view; Completed and All bring them back (for revisions, closeout or billing), and your choice is remembered on this browser. The Meeting Sheet and print follow the same rows.",
+   "Dashboard: a completed job in the sidebar is muted and carries a grey \"Completed\" tag under its name. Changing its status on the project page puts it back under Active."]},
  {v:"v1.34.0",d:"Oct 5, 2026",n:["Open Issues: the Resolved column now shows the date a report was resolved, not the date it was sent, and lists the most recently resolved first.",
    "Open Issues: the team can post a note under a report (a `/comment` on its ticket) that shows as a developer comment in the app without emailing the person who filed it; `/reply` still does both."]},
  {v:"v1.33.1",d:"Oct 5, 2026",n:["Project Schedule: each department's day count now sits beside its own date range, next to the dates it counts — the same spot every extra work period already uses."]},

@@ -9,6 +9,10 @@ Format: `## <label> — <date>` then one `- ` line per change. Keep lines concre
 what changed *for the team*, not how. Developer-only tooling doesn't need a line.
 Collect lines for the next version under `## Unreleased` and rename it when you ship.
 
+## v1.37.0 — Oct 5, 2026
+- Dashboard: an Active / Completed / All switch in the sidebar header. The dashboard opens on Active, so completed jobs no longer clutter the main view; Completed and All bring them back (for revisions, closeout or billing), and your choice is remembered on this browser. The Meeting Sheet and print follow the same rows.
+- Dashboard: a completed job in the sidebar is muted and carries a grey "Completed" tag under its name. Changing its status on the project page puts it back under Active.
+
 ## v1.34.0 — Oct 5, 2026
 - Open Issues: the Resolved column now shows the date a report was resolved, not the date it was sent, and lists the most recently resolved first.
 - Open Issues: the team can post a note under a report (a `/comment` on its ticket) that shows as a developer comment in the app without emailing the person who filed it; `/reply` still does both.

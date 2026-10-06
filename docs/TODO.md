@@ -592,7 +592,10 @@ is item 32 (P0), #7 is part of item 3, and #11 and #14 were done by the bridge i
       than building in the Gantt. The calendar can already resize and move existing bars
       by drag (v1.9.0–v1.11.0), but not create them. A larger feature; after the pilot,
       unless the owner ranks it higher. [tracker #5]
-- [ ] **37. Completed projects: a filter and a marker.** Completed jobs stay in the main
+- [x] **37. Completed projects: a filter and a marker.** Shipped v1.37.0 (PR pending,
+      2026-10-05): an Active / Completed / All switch in the sidebar header (three presets
+      of the existing status filter; opens on Active, remembered per browser), completed
+      rows muted with a grey Completed tag. Original ask: completed jobs stay in the main
       view with no clear sign in the sidebar. The ask: take them off the active view, or
       add an Active / Completed filter (they must stay reachable for revisions, closeout
       and billing). If they stay listed, mark them clearly as Completed — a label under
