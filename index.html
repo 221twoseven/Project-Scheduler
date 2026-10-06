@@ -215,6 +215,13 @@ body.me-dock-col #md-thought,body.me-dock-col #md-tpop{display:none}
 #sb-head .sb-lens .t-btn{flex:1;background:#fff;color:#475569;border-right:1px solid var(--side-line);font-weight:600}
 #sb-head .sb-lens .t-btn:hover{background:#E8EEF7;color:#1E293B}
 #sb-head .sb-lens .t-btn.active{background:var(--acc);color:#fff}
+/* v1.41.1 (owner): a narrow sidebar (it drags down to 180px) clipped "Departments" off the switch — under about 240px the
+   two halves read "Proj" / "Dept"; the tooltip and the accessible name keep the full word */
+#sb-head{container:sbhead/inline-size}
+@container sbhead (max-width:215px){
+  #sb-head .sb-lens .t-btn{font-size:0;padding:0 6px;min-width:0}
+  #sb-head .sb-lens .t-btn::after{content:attr(data-short);font-size:var(--fs-label)}
+}
 /* v1.37.0 (#6): the Active / Completed / All switch takes the header's second row (64px holds 26 + 24 + gap) */
 #sb-head{flex-wrap:wrap;row-gap:4px;align-content:center}
 #sb-head .sb-done{flex:0 0 100%;max-width:230px;border-color:var(--side-line);background:#fff;text-transform:none;letter-spacing:0}
@@ -1648,8 +1655,8 @@ body.cd-route #dash-bar{display:none!important}
     <div id="sb-head">
       <span class="sb-dash-lbl">My Dashboard</span>
       <div class="tog-grp sb-lens">
-        <button id="btn-lens-proj" class="t-btn active" title="Group the rows by project">Projects</button>
-        <button id="btn-lens-dept" class="t-btn" title="Group the rows by department">Departments</button>
+        <button id="btn-lens-proj" class="t-btn active" title="Group the rows by project" aria-label="Projects" data-short="Proj">Projects</button>
+        <button id="btn-lens-dept" class="t-btn" title="Group the rows by department" aria-label="Departments" data-short="Dept">Departments</button>
       </div>
       <button id="sb-all" title="Step every row through the view's levels — collapsed, groups, everything"><svg class="ico-s" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 5.5 8 2l3.5 3.5M4.5 10.5 8 14l3.5-3.5"/></svg> All</button>
       <!-- v1.37.0 (#6): Active / Completed / All — three presets of the status filter, not a second mechanism -->
@@ -1834,7 +1841,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.41.0'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.41.1'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -11520,6 +11527,7 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.41.1",d:"Oct 6, 2026",n:["The Projects / Departments switch above the list now fits a narrow sidebar: below about 240px it reads \"Proj\" / \"Dept\" instead of cutting \"Departments\" off."]},
  {v:"v1.41.0",d:"Oct 6, 2026",n:["Print: pick the paper (Letter or Tabloid) and the bars right in the Print Preview. A note there names the matching setting for the browser's print dialog, where Tabloid is called \"Ledger\".",
    "Print: choose Color bars with yellow milestones for the shop wall, or Outline bars with hollow milestones for the desk, clipboard and notes. Your choice is remembered.",
    "Print: pages print on plain white, with no gray weekend columns, holiday blocks or header fills, so they use far less ink.",

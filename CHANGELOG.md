@@ -9,6 +9,9 @@ Format: `## <label> — <date>` then one `- ` line per change. Keep lines concre
 what changed *for the team*, not how. Developer-only tooling doesn't need a line.
 Collect lines for the next version under `## Unreleased` and rename it when you ship.
 
+## v1.41.1 — Oct 6, 2026
+- The Projects / Departments switch above the list now fits a narrow sidebar: below about 240px it reads "Proj" / "Dept" instead of cutting "Departments" off.
+
 ## v1.41.0 — Oct 6, 2026
 - Print: pick the paper (Letter or Tabloid) and the bars right in the Print Preview. A note there names the matching setting for the browser's print dialog, where Tabloid is called "Ledger".
 - Print: choose Color bars with yellow milestones for the shop wall, or Outline bars with hollow milestones for the desk, clipboard and notes. Your choice is remembered.
