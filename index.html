@@ -11388,7 +11388,10 @@ function renderReports(){
       +'</div>'
       +(r.ghIssue
         ?'<span class="clog-field fbr-tk">Status follows the ticket'
-          +(tk?' · <a href="'+esc(tk)+'" target="_blank" rel="noopener" title="Open the ticket in the tracker">#'+esc(tn||'ticket')+'</a>':'')+'</span>'
+          /* single-quoted href on purpose: the deploy guard reads every double-quoted src/href value in
+             this file's source (comments included) as a local file to publish, so a JS-built value in
+             double quotes looked like one and failed the v1.39.0 /preview/ deploy (tests/test-deploy-guard.js) */
+          +(tk?' · <a href=\''+esc(tk).replace(/'/g,'&#39;')+'\' target="_blank" rel="noopener" title="Open the ticket in the tracker">#'+esc(tn||'ticket')+'</a>':'')+'</span>'
         :'<button class="btn btn-ghost fbr-tog" data-spid="'+esc(r.spId)+'" data-next="'+(res?'':'resolved')+'" '
           +'title="'+(res?'Put it back on the Open Issues list':'Rows are never deleted — resolving hides it from the Open Issues list, it stays here')+'">'
           +(res?'Reopen':'Mark resolved')+'</button>')+'</div>';
