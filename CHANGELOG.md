@@ -9,6 +9,9 @@ Format: `## <label> — <date>` then one `- ` line per change. Keep lines concre
 what changed *for the team*, not how. Developer-only tooling doesn't need a line.
 Collect lines for the next version under `## Unreleased` and rename it when you ship.
 
+## v1.36.0 — Oct 5, 2026
+- Bar names and status pills stay readable while you scroll sideways: when a bar starts off-screen, its label (and the project row's status pill) now sits at the left edge of the chart next to the sidebar — on the dashboard and the project page — and rides along with the bar once its start comes into view. A label never spills past its bar's end; it is trimmed with "…" when the visible part is too short.
+
 ## v1.35.0 — Oct 5, 2026
 - Departments view: a project's line under a person now reads its Cost Code (in the same type as the dates) instead of the project name, so it fits whole; hover the line for the client, the full project name and the code. A project with no Cost Code still shows its name.
 
