@@ -12,6 +12,10 @@ Collect lines for the next version under `## Unreleased` and rename it when you 
 ## v1.35.0 — Oct 5, 2026
 - Departments view: a project's line under a person now reads its Cost Code (in the same type as the dates) instead of the project name, so it fits whole; hover the line for the client, the full project name and the code. A project with no Cost Code still shows its name.
 
+## v1.34.1 — Oct 5, 2026
+- Project setup, Departments: changing a department's days after typing its start date now moves the end date; the start stays where you put it.
+- The Days field in the phase panel and the bar's edit popover does the same on a saved project (it used to change the number without moving the end).
+
 ## v1.34.0 — Oct 5, 2026
 - Open Issues: the Resolved column now shows the date a report was resolved, not the date it was sent, and lists the most recently resolved first.
 - Open Issues: the team can post a note under a report (a `/comment` on its ticket) that shows as a developer comment in the app without emailing the person who filed it; `/reply` still does both.
