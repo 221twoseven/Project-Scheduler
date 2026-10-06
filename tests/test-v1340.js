@@ -53,7 +53,9 @@ function main(){
      done.map(r=>r.dataset.spid).join()==='3,2,4', done.map(r=>r.dataset.spid).join());
   ok('a stamped row shows resolvedAt, not its send date', when('#fb-done .clog-row[data-spid="2"]')[0]===nice('2026-09-30T15:00:00Z'), when('#fb-done .clog-row[data-spid="2"]')[0]);
   ok('an unstamped row shows its last change (the status flip), not its send date', when('#fb-done .clog-row[data-spid="3"]')[0]===nice('2026-10-03T08:00:00Z'), when('#fb-done .clog-row[data-spid="3"]')[0]);
-  ok('the date carries a "Resolved on" title', done.every(r=>r.querySelector(':scope > .clog-when').title==='Resolved on'));
+  /* v1.40.1: the tip spells the dates out in full (tests/test-v1401.js); it still leads with the resolution */
+  ok('the date carries a "Resolved …" title', done.every(r=>{const t=r.querySelector(':scope > .clog-when').title;
+     return /function fbWhenTip\(/.test(src)?/^(Resolved |Resolution date not recorded)/.test(t):t==='Resolved on';}));
   ok('an open row still shows when it was sent', when('#fb-list .clog-row[data-spid="1"]')[0]===nice('2026-09-20T10:00:00Z'), when('#fb-list .clog-row[data-spid="1"]')[0]);
   ok('fbDoneAt falls back resolvedAt → modified → at', E("fbDoneAt({resolvedAt:'a',modified:'b',at:'c'})+fbDoneAt({resolvedAt:'',modified:'b',at:'c'})+fbDoneAt({at:'c'})")==='abc');
 
