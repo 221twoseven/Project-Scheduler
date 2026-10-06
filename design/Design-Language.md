@@ -390,7 +390,7 @@ for every future company master-data section (departments, project types, holida
 
 ## 8. Print & Meeting Sheet
 
-Print inherits the same tokens (the Quiet canvas is already print-friendly; vivid tints never print). Meeting Sheet stays the reference artifact: mono numerals, hairline rules, generous Notes column. Any new report copies its header block (TWOSEVEN INC. — title · REV · printed date · count) verbatim.
+Print inherits the same tokens (the Quiet canvas is already print-friendly; vivid tints never print). Meeting Sheet stays the reference artifact: mono numerals, hairline rules, generous Notes column. Any new report copies its header block verbatim — since v1.40.0 that block is two lines over a 2px ink rule: `TWOSEVEN INC.` and the title with the date range on the right, then version · printed date · count · the filters in use (a project's page: cost code · client · PM · due date). Paper is designed, not screenshotted: the app lays out its own page boxes at the paper's size (Letter or Tabloid, picked once in the Print menu), so a project is never split from its phases, a calendar month never from its weeks, and every page carries the header, a legend and "Page X of Y". Colour on paper is a light tint with a solid edge in the full colour and ink text; status is a pattern or an outlined chip, never a fill, so the page reads in greyscale. Nothing informational below 11px. The export is the browser's Save as PDF.
 
 ---
 

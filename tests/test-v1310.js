@@ -84,15 +84,26 @@ function stage1(){
   ok('clientLead(): the seam #33 names', E("clientLead(projById('p1'))")==='Whitney Museum'&&E("clientLead(projById('p2'))")===''&&E("clientLead(null)")==='');
   ok('the prefix takes the dates\' grey, by its token', /\.sb-asn \.c\{color:var\(--txt-micro\)\}/.test(src));
 
-  sec('Print — the sheet clones the sidebar, client included');
-  const sheet=E("buildPrintSheet('"+D(-7)+"','"+D(30)+"')");
-  const sh=sheet&&sheet.querySelectorAll?sheet:null;
-  const nC=qa('#side-rows .sb-asn .c').length; /* Nick's fab lane and the Installation "—" lane both list Artport */
-  ok('the Departments print sheet carries the client prefixes the sidebar shows', !!sh&&nC>=1&&sh.querySelectorAll('.sb-asn .c').length===nC, (sh&&sh.querySelectorAll('.sb-asn .c').length)+' vs '+nC);
-  E("LENS='project';render()");
-  const sheet2=E("buildPrintSheet('"+D(-7)+"','"+D(30)+"')");
-  const sh2=sheet2&&sheet2.querySelectorAll?sheet2:null;
-  ok('the Projects print sheet carries the client spans', !!sh2&&sh2.querySelectorAll('.sb-cl').length===qa('#side-rows .sb-cl').length&&qa('#side-rows .sb-cl').length===3, sh2&&sh2.querySelectorAll('.sb-cl').length);
+  sec('Print — the paper carries the client too');
+  if(/function prBuild\(/.test(src)){
+    /* v1.40.0 (#8): app-built pages replaced the screen clone — the Projects sidebar's line two is
+       client · code · date, the Departments lanes name the person and the bars name the project. */
+    const pd=E("prBuild('timeline','"+D(-7)+"','"+D(30)+"')");
+    ok('the Departments print names each lane and its project bars', pd.some(p=>p.querySelectorAll('.pr-side .sb-row.lane-row').length>0)&&pd.some(p=>[...p.querySelectorAll('.pr-canvas .bar-lbl')].some(l=>/Artport 2026/.test(l.textContent))));
+    E("LENS='project';render()");
+    const pp=E("prBuild('timeline','"+D(-7)+"','"+D(30)+"')");
+    const subs=pp.flatMap(p=>[...p.querySelectorAll('.pr-side .sb-row.proj-head .sb-sub')].map(e=>e.textContent));
+    ok('the Projects print sidebar carries the client on line two for the three projects that have one', subs.filter(s=>/^Whitney Museum · /.test(s)).length===1&&subs.some(s=>/^Dior · /.test(s))&&subs.some(s=>s==='Cartier'), subs.join(' | '));
+  }else{
+    const sheet=E("buildPrintSheet('"+D(-7)+"','"+D(30)+"')");
+    const sh=sheet&&sheet.querySelectorAll?sheet:null;
+    const nC=qa('#side-rows .sb-asn .c').length; /* Nick's fab lane and the Installation "—" lane both list Artport */
+    ok('the Departments print sheet carries the client prefixes the sidebar shows', !!sh&&nC>=1&&sh.querySelectorAll('.sb-asn .c').length===nC, (sh&&sh.querySelectorAll('.sb-asn .c').length)+' vs '+nC);
+    E("LENS='project';render()");
+    const sheet2=E("buildPrintSheet('"+D(-7)+"','"+D(30)+"')");
+    const sh2=sheet2&&sheet2.querySelectorAll?sheet2:null;
+    ok('the Projects print sheet carries the client spans', !!sh2&&sh2.querySelectorAll('.sb-cl').length===qa('#side-rows .sb-cl').length&&qa('#side-rows .sb-cl').length===3, sh2&&sh2.querySelectorAll('.sb-cl').length);
+  }
   setTimeout(stage2,200);
 }
 

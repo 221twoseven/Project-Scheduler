@@ -16,9 +16,9 @@ Recovered from the 2026-08-20 handoff (since retired); still true unless struck 
   edit the reference. New suites skip themselves the same way (see any test65+ header).
 - **PowerShell 5.1 mangles git commit messages containing double quotes** (native-arg
   quoting). Use Git Bash with `git commit -F -` and a heredoc for anything multiline.
-- **Duplicate DOM id `pp-cancel`** in `index.html` (print overlay's Close + project
+- ~~**Duplicate DOM id `pp-cancel`** in `index.html` (print overlay's Close + project
   page's Cancel). Works today only by DOM ordering. Rename one next time that area is
-  touched — don't add a third.
+  touched — don't add a third.~~ Fixed v1.40.0: the print preview's Close is `pp-close`.
 - **jsdom double-fires `hashchange`** where a real browser fires once; `applyRoute`
   guards re-entry into the draft route (`PP_KEEP` when `r.creating && ROUTE.creating`)
   — keep that guard if the router changes.
