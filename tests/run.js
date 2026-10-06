@@ -112,6 +112,7 @@ const SUITES = [
   'test-v1370.js',
   'test-v1380.js',
   'test-v1390.js',
+  'test-deploy-guard.js',
 ];
 
 const repoRoot = path.resolve(__dirname, '..');
