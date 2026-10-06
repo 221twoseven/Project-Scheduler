@@ -646,6 +646,7 @@ input:checked ~ .pin-track{background:var(--warn)}   input:checked ~ .pin-track 
 .cd-perm.dev{color:#7C4FB0;background:#F2EBFA}
 .fb-st{flex:0 0 74px;text-align:center;box-sizing:border-box;white-space:nowrap}   /* v1.39.0: the report status tag (PENDING / IN REVIEW / RESOLVED) — a .cd-perm of one width, like .fb-kind */
 .fb-st.fb-pend{color:var(--ts-muted);background:#F1F5F9}                              /* pending: the one muted variant */
+.fb-colhd{position:sticky;top:0;background:#F8FAFC;font-family:var(--mono);font-size:var(--fs-fine);font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ts-muted)}   /* v1.40.1: Open Issues column labels — same cell widths as the rows, pinned while the list scrolls */
 .cd-perm.done{color:#5B6472;background:#E6E9EE}   /* v1.37.0: the sidebar's Completed tag */
 .md-tag{font-size:11px;font-weight:700;letter-spacing:.06em;color:#1A7F4E;background:#DCF3E6;border-radius:6px;padding:0 5px}
 kbd{font-family:var(--mono);font-size:var(--fs-fine);background:#EDF1F7;border:1px solid #CBD6E4;border-bottom-width:2px;border-radius:4px;padding:1px 5px;color:#44536C}
