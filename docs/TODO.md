@@ -582,17 +582,19 @@ is item 32 (P0), #7 is part of item 3, and #11 and #14 were done by the bridge i
       discoverability problem; rides on item 7. Also check the calendar (§7.3, L1092: it
       shows the department name, not the label) and the project page. [tracker #3,
       screenshot in the issue]
-- [ ] **35. Keep phase labels visible while scrolling.** The text inside a bar ("Technical
+- [x] **35. Keep phase labels visible while scrolling.** The text inside a bar ("Technical
       Design", "Main Shop Fab") scrolls off with the bar. Keep it pinned at the left edge
       of the canvas, next to the sidebar, like a sticky caption. A design item
       (`Design-Language.md`, bar labels): `position: sticky` inside the bar, or repaint
-      the label on scroll. [tracker #4, screenshot in the issue]
+      the label on scroll. [tracker #4, screenshot in the issue] — v1.36.0: the label
+      (and the project row's status pill) parks at the visible left edge on the dashboard
+      and the project page, ellipsised at its bar's end.
 - [ ] **36. Create projects from the calendar.** Drag across dates on the calendar to
       create a phase or milestone, then fill in the details in the bottom panel — simpler
       than building in the Gantt. The calendar can already resize and move existing bars
       by drag (v1.9.0–v1.11.0), but not create them. A larger feature; after the pilot,
       unless the owner ranks it higher. [tracker #5]
-- [x] **37. Completed projects: a filter and a marker.** Shipped v1.37.0 (PR pending,
+- [x] **37. Completed projects: a filter and a marker.** Shipped v1.37.0 (PR #97,
       2026-10-05): an Active / Completed / All switch in the sidebar header (three presets
       of the existing status filter; opens on Active, remembered per browser), completed
       rows muted with a grey Completed tag. Original ask: completed jobs stay in the main
@@ -631,6 +633,18 @@ is item 32 (P0), #7 is part of item 3, and #11 and #14 were done by the bridge i
       the full width, and make a width change affect only that column (today resizing one
       shifts its neighbours). Company Data table CSS (`table-layout`, per-column widths).
       [tracker #13]
+- [x] **Departments: changing the days did not move the end date.** Shipped v1.34.1
+      (2026-10-05): one rule for every days field (the Departments row, the bottom panel,
+      the bar's popover), on the draft and the saved page — the start stays, the end is the
+      start plus N days (workdays for shop departments, calendar days for Installation and
+      Shipping). A draft bar nobody has typed or dragged still follows the scheduler.
+      [tracker #32]
+- [x] **42. Departments view: a project's line reads its Cost Code, not its name.** Shipped
+      v1.35.0 (PR #95, 2026-10-05): the line under a person shows the Cost Code in the
+      dates' mono type so it fits whole at the default sidebar width; the hover tip reads
+      "Client · Project name · Cost code". A project with no code keeps its name (and item
+      24's muted client in front). Print follows the screen, so a coded line prints as code
+      and dates. [tracker #33]
 
 ### Queued for Phase 8 — waiting on other work (see "What waits on what", §2)
 
