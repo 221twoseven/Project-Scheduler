@@ -7,6 +7,8 @@ const src=fs.readFileSync(FILE,'utf8');
 /* REV57 / N11: bar menus are add-only — rename lives in the inspector/popover. (The old
    inline name field is retired; a New action opens the edit popover, sniffed here.) */
 const N11=/npvEditPop/.test(src);
+/* v1.38.0 (tracker #3): the bar menu leads with Rename (in place) — the one edit on it */
+const REN=/npvRenameBar/.test(src);
 
 let pass=0,fail=0;
 const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
@@ -201,9 +203,9 @@ function stage3(){
       setTimeout(()=>{
         const menu=doc.getElementById('npv-menu');
         ok('a menu opened', !!menu);
-        if(N11)ok('it offers the three creates (add-only, N11)',
+        if(N11)ok('it offers the three creates (add-only, N11; v1.38.0: plus Rename)',
            !!menu.querySelector('[data-act="sub"]')&&!!menu.querySelector('[data-act="ev"]')
-           &&!!menu.querySelector('[data-act="tk"]')&&!menu.querySelector('[data-act="ren"]'));
+           &&!!menu.querySelector('[data-act="tk"]')&&(!!menu.querySelector('[data-act="ren"]')===REN));
         else ok('it offers rename and the three creates',
            !!menu.querySelector('[data-act="ren"]')&&!!menu.querySelector('[data-act="sub"]'));
         ok('duplicate and delete are absent on a draft (they need ST)',

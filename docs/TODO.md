@@ -575,24 +575,29 @@ is item 32 (P0), #7 is part of item 3, and #11 and #14 were done by the bridge i
       of the current week at the left edge (`weekLeftX`); the other jumps still centre. The
       owner's Proceed added a light grey wash over past days (`.past-col`). The §7.5
       ceiling was rewritten in place. [tracker #2]
-- [ ] **34. Name a repeat block (e.g. "possible mock-up days").** A second Fabrication
-      block can only read "Main Shop Fab", while the Excel calendar names the sub-range.
-      This already exists — phases have a custom `label` (an inspector field, shown in
-      sidebar rows and bar labels since v1.20.9) — but the reporter didn't find it. A
-      discoverability problem; rides on item 7. Also check the calendar (§7.3, L1092: it
-      shows the department name, not the label) and the project page. [tracker #3,
-      screenshot in the issue]
-- [ ] **35. Keep phase labels visible while scrolling.** The text inside a bar ("Technical
+- [x] **34. Name a repeat block (e.g. "possible mock-up days").** Shipped v1.38.0 (PR #99,
+      2026-10-05): double-click a bar or calendar band (or right-click → Rename)
+      renames it in place on the project page and the draft; the dashboard's Edit Phase
+      dialog gained a Name field and opens with it focused (a bar double-click can no
+      longer close it); calendar milestone bands and the Meeting Sheet's "Phase now" read
+      the block's name. The §7.3 L1092 entry is struck. [tracker #3, screenshot in the
+      issue]
+- [x] **35. Keep phase labels visible while scrolling.** The text inside a bar ("Technical
       Design", "Main Shop Fab") scrolls off with the bar. Keep it pinned at the left edge
       of the canvas, next to the sidebar, like a sticky caption. A design item
       (`Design-Language.md`, bar labels): `position: sticky` inside the bar, or repaint
-      the label on scroll. [tracker #4, screenshot in the issue]
+      the label on scroll. [tracker #4, screenshot in the issue] — v1.36.0 (PR #98): the label
+      (and the project row's status pill) parks at the visible left edge on the dashboard
+      and the project page, ellipsised at its bar's end.
 - [ ] **36. Create projects from the calendar.** Drag across dates on the calendar to
       create a phase or milestone, then fill in the details in the bottom panel — simpler
       than building in the Gantt. The calendar can already resize and move existing bars
       by drag (v1.9.0–v1.11.0), but not create them. A larger feature; after the pilot,
       unless the owner ranks it higher. [tracker #5]
-- [ ] **37. Completed projects: a filter and a marker.** Completed jobs stay in the main
+- [x] **37. Completed projects: a filter and a marker.** Shipped v1.37.0 (PR #97,
+      2026-10-05): an Active / Completed / All switch in the sidebar header (three presets
+      of the existing status filter; opens on Active, remembered per browser), completed
+      rows muted with a grey Completed tag. Original ask: completed jobs stay in the main
       view with no clear sign in the sidebar. The ask: take them off the active view, or
       add an Active / Completed filter (they must stay reachable for revisions, closeout
       and billing). If they stay listed, mark them clearly as Completed — a label under
@@ -632,6 +637,26 @@ is item 32 (P0), #7 is part of item 3, and #11 and #14 were done by the bridge i
       the full width, and make a width change affect only that column (today resizing one
       shifts its neighbours). Company Data table CSS (`table-layout`, per-column widths).
       [tracker #13]
+- [x] **Departments: changing the days did not move the end date.** Shipped v1.34.1
+      (PR #96, 2026-10-05): one rule for every days field (the Departments row, the bottom panel,
+      the bar's popover), on the draft and the saved page — the start stays, the end is the
+      start plus N days (workdays for shop departments, calendar days for Installation and
+      Shipping). A draft bar nobody has typed or dragged still follows the scheduler.
+      [tracker #32]
+- [x] **42. Departments view: a project's line reads its Cost Code, not its name.** Shipped
+      v1.35.0 (PR #95, 2026-10-05): the line under a person shows the Cost Code in the
+      dates' mono type so it fits whole at the default sidebar width; the hover tip reads
+      "Client · Project name · Cost code". A project with no code keeps its name (and item
+      24's muted client in front). Print follows the screen, so a coded line prints as code
+      and dates. [tracker #33]
+- [x] **A status on every open report: pending, in review, resolved.** Shipped v1.39.0
+      (PR #94, 2026-10-05): the tracker's poller reads the status off the ticket — closed →
+      `resolved`, open with a team comment (a spec, a Fix shipped note, a `/reply` or
+      `/comment`) → `review`, open and untouched → empty — and writes the row only when it
+      differs. Open Issues tags each open row PENDING or IN REVIEW; the developer page shows
+      all three and, on rows with a ticket, "Status follows the ticket" with the link in
+      place of Mark resolved / Reopen (§7.4 ledger entry ticked). Nothing is set by hand and
+      a status change sends no email. [tracker #29]
 
 ### Queued for Phase 8 — waiting on other work (see "What waits on what", §2)
 
@@ -1227,8 +1252,9 @@ How to read the tags at the end of an entry:
 - [ ] **Vivid shows no weekend marker.** In Vivid mode the canvas doesn't mark weekends.
       (Holidays got name pills in v1.20.0, so the v1.x "(holidays included)" note is
       stale.) Gate: someone scheduling into a weekend that Vivid hid (v1.0.2). [L1088]
-- [ ] **Calendar milestones show the department name,** not a phase's custom label. Gate:
-      someone renaming a phase and expecting to see the new name (v1.6.1). [L1092]
+- [x] ~~**Calendar milestones show the department name,** not a phase's custom label. Gate:
+      someone renaming a phase and expecting to see the new name (v1.6.1).~~ Done v1.38.0
+      (item 34, tracker #3): a milestone on a named block leads with that name. [L1092]
 - [ ] **Lane summaries include upcoming work.** Department-lane summaries list upcoming
       assignments too; "in progress only" would be a one-line filter. Owner's call
       (v1.6.1). [L1095]
@@ -1414,10 +1440,10 @@ How to read the tags at the end of an entry:
 - [ ] **Shop-terminal account type.** D14. [v1.x §2]
 - [ ] **Docs out of date** (ARCHITECTURE: 5 lists vs 9; SETUP: 2 scopes vs 4; the
       `CLAUDE.md` line count; the tests/README suite count). Item 21.
-- [ ] **Developer Bug Reports page buttons.** Once a report has a `ghIssue`, the tracker
+- [x] **Developer Bug Reports page buttons.** Once a report has a `ghIssue`, the tracker
       poller overrides its Mark resolved / Reopen buttons (GitHub is the source of truth
-      for status, 2026-09-25). Remove or relabel them with the next change to
-      `renderReports` (item 39 shipped in v1.28.0 without touching that page); the
+      for status, 2026-09-25). Done in v1.39.0 (tracker #29): a row with a ticket shows
+      "Status follows the ticket" and the ticket link instead of the button; the
       `fbSetStatus` path stays for rows without a ticket. [item 31]
 - [ ] **Two "Drafter" echoes stay after the v1.31.1 rename (tracker #17).** (1) Changelog
       rows (admin/PM) still read the stored key `drafter:` — `clogField` writes the key into

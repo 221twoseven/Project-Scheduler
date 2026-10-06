@@ -53,7 +53,9 @@ setTimeout(()=>{
   ok('lens project / view month / density comfortable',
      E("LENS")==='project'&&E('VIEW')==='month'&&E('DENSITY')==='comfortable'); /* v1.5.0: month is the boot step (same 40px/day feel the old Day had) */
   ok('no grouping, no person, no tint',E('GROUP_BY')===null&&E('PERSON')===null&&E('TINT')===false);
-  ok('all statuses shown',E('SHOW_STATUS.size')===E('ALL_STATUSES.length'));
+  /* v1.37.0 (#6): boot lands on the Active preset (every status but Complete) */
+  if(/function doneMode/.test(fs.readFileSync(FILE,'utf8')))ok('the Active preset shown (all but Complete)',E('SHOW_STATUS.size')===E('ALL_STATUSES.length')-1&&!E("SHOW_STATUS.has('complete')"));
+  else ok('all statuses shown',E('SHOW_STATUS.size')===E('ALL_STATUSES.length'));
   ok('viewState()→applyViewState() round-trips',
      (()=>{const a=E('JSON.stringify(viewState())');E('applyViewState(JSON.parse('+JSON.stringify(a)+'))');
        return E('JSON.stringify(viewState())')===a;})());

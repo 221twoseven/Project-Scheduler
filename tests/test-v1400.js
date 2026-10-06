@@ -93,6 +93,16 @@ let pagesLetter;
 setTimeout(stage1,1500);
 
 function stage1(){
+  /* v1.37.0 (#6) opens on Active and hides the seed's completed job; this suite counts all 20,
+     so it prints with the switch on All — and checks the header names the switch either way. */
+  if(/function doneStatuses\(/.test(src)){
+    sec('#6 × #8 — the print header names the Active / Completed / All switch');
+    ok('on Active (the default) line two reads "Active projects"', E('prFiltersText(false)')==='Active projects', E('prFiltersText(false)'));
+    E("SHOW_STATUS=doneStatuses('completed');render()");
+    ok('on Completed it reads "Completed projects", not a status filter', E('prFiltersText(false)')==='Completed projects', E('prFiltersText(false)'));
+    E("SHOW_STATUS=doneStatuses('all');render()");
+    ok('on All it reads "All projects"', E('prFiltersText(false)')==='All projects', E('prFiltersText(false)'));
+  }
   sec('R2 — the Print menu: paper remembered per browser, Letter on first use (Q6)');
   ok('Q6: Letter on first use', E('PAPER')==='letter'&&q('input[name=paper-pick][value=letter]').checked);
   ok('the menu offers Print Timeline…, Meeting Sheet…, Timeline + Meeting Sheet and the paper choice', !!q('#mi-print-timeline')&&!!q('#mi-meeting')&&!!q('#mi-print-both')&&qa('input[name=paper-pick]').length===2);
@@ -292,6 +302,7 @@ function draft(){
     const s2=w2.document.getElementById('print-page-size');
     ok('R2: Tabloid comes back after a reload and the menu shows it', w2.eval('PAPER')==='tabloid'&&w2.document.querySelector('input[name=paper-pick][value=tabloid]').checked&&!!s2&&s2.textContent==='@page{size:17in 11in;margin:.5in}', s2&&s2.textContent);
     ok('Q4: the sheet\'s Portrait choice comes back too', w2.eval('SHEET_PORTRAIT')===true&&w2.document.querySelector('input[name=sheet-orient][value=portrait]').checked);
+    if(/function doneStatuses\(/.test(src))w2.eval("SHOW_STATUS=doneStatuses('all');render()"); /* #6: count all 20, as above */
     const tp=w2.eval("prBuild('timeline','2026-08-03','2027-01-03')");
     ok('step 3: a Tabloid page box is 1536 by 960 px and a 22-week range is one slice', tp[0].style.width==='1536px'&&tp[0].style.height==='960px'&&tp.every(p=>!/weeks/.test(p.querySelector('.pr-title').textContent)), tp[0].style.width);
     ok('step 7: about 25 rows fit a Tabloid page', tp[0].querySelectorAll('.pr-side .sb-row').length===20, tp[0].querySelectorAll('.pr-side .sb-row').length);
