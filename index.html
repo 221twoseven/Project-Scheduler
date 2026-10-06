@@ -545,6 +545,10 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 .pp-note{font-size:var(--fs-fine);color:var(--ts-muted);flex:1;min-width:200px;padding-bottom:6px}
 #pp-zoom{border:1.5px solid #E2E8F0;border-radius:8px;background:#E8ECF2;overflow:auto;max-height:55vh;padding:14px}
 #pp-zoom-inner{transform-origin:top left}
+.pp-controls .fg.pp-pick{flex:0 0 auto}
+.pp-pick .sm-item{display:inline-flex;align-items:center;gap:5px;margin:0 12px 0 0;font-size:12.5px;font-weight:400;text-transform:none;letter-spacing:0;color:#101A29;cursor:pointer}
+.pp-pick .sm-item input{width:auto;margin:0;accent-color:var(--acc)}
+.pp-hint{font-size:12px;line-height:1.45;color:#4A3A0A;background:#FFF8E6;border:1px solid #F1D48A;border-radius:7px;padding:7px 11px;margin-bottom:12px}
 
 /* ============ PRINT SHEET (shared by preview + print) ============ */
 
@@ -1286,10 +1290,10 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
   .pr-page .sb-eye,.pr-page .sb-edit,.pr-page .sb-grip,.pr-page .bar-handle,.pr-page .hover-guide,.pr-page .hover-tag,.pr-page .cal-hdl,.pr-page .npv-hdl{display:none!important}
   .pr-page{break-after:page;page-break-after:always}
   .meet-row,.meet-pm tr{page-break-inside:avoid}
-  /* C2: print never emits the vivid tints — force the quiet canvas whatever is on screen */
-  .bg-col,.hdr-d-cell{background-color:#FCFDFE!important}
-  .hdr-m-cell{background-color:var(--side)!important;color:#33415A!important;text-shadow:none!important}
-  .wknd-col{background:#EEF1F5!important;backdrop-filter:none!important}
+  /* C2: print never emits the vivid tints. v1.41.0: paper is white — the .pr-page rules below carry the detail */
+  .bg-col,.hdr-d-cell,.hdr-m-cell{background-color:#fff!important}
+  .hdr-m-cell{color:#33415A!important;text-shadow:none!important}
+  .wknd-col{display:none!important}
 }
 /* ============ PRINT PAGES (v1.40.0, #8/#9) ============ */
 /* One box per page at the paper's size (96px to the inch, margins already taken off), each
@@ -1308,10 +1312,10 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 .pr-pageno,.pr-app{font-family:var(--mono);font-size:var(--fs-fine);white-space:nowrap}
 .pr-pageno{margin-left:auto}
 .pr-sw{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
-.pr-sw i{display:inline-block;width:14px;height:10px;box-sizing:border-box;border-left:3px solid var(--c);background:color-mix(in srgb,var(--c) 22%,#fff)}
+.pr-sw i{display:inline-block;width:14px;height:10px;box-sizing:border-box;border-left:3px solid var(--c);background:color-mix(in srgb,var(--c) 8%,#fff)}
 .pr-lg{position:relative!important;display:inline-flex!important;overflow:hidden;align-items:center;height:14px;padding:0 6px;font-weight:600;cursor:default;--c:#6B7484}
 .pr-red{white-space:nowrap;color:#64748B}
-.pr-red::before{content:'';display:inline-block;width:14px;height:10px;box-sizing:border-box;vertical-align:-1px;margin-right:5px;border-left:3px solid #CE4242;background:color-mix(in srgb,#CE4242 22%,#fff)}
+.pr-red::before{content:'';display:inline-block;width:14px;height:10px;box-sizing:border-box;vertical-align:-1px;margin-right:5px;border-left:3px solid #CE4242;background:color-mix(in srgb,#CE4242 8%,#fff)}
 /* Gantt pages: sidebar + axis + canvas, Compact rows (32px, bar 24px) whatever the screen density */
 .pr-side{flex-shrink:0;height:100%;border-right:1.5px solid var(--side-line);background:var(--side);overflow:hidden;box-sizing:border-box}
 .pr-side-head{height:64px;box-sizing:border-box;display:flex;align-items:center;padding:0 10px;font-size:var(--fs-fine);font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:var(--ts-muted);border-bottom:1px solid var(--side-line)}
@@ -1325,15 +1329,21 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 .pr-page .sb-sub,.pr-page .sb-2l .sb-sub{font-size:11px;color:#64748B}
 .pr-page .sb-row.dept-head,.pr-page .sb-row.grp-head,.pr-page .sb-row.dept-head .sb-name,.pr-page .sb-row.grp-head .sb-name{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#57687F;cursor:default}
 .pr-page .sb-row.proj-head{cursor:default}
-.pr-page .hdr-m-cell{background-color:var(--side)!important;color:#33415A!important;text-shadow:none!important;cursor:default}
+/* v1.41.0 (owner): paper is white — no weekend, holiday, past, header or sidebar fills. Each week starts on a
+   dotted hairline, months on a rule, holidays wear an outlined tag, today is a thin dashed red line. */
+.pr-page .hdr-m-cell{background:#fff!important;color:#33415A!important;text-shadow:none!important;cursor:default;border-right:1px solid #CBD5E1;border-bottom:1px solid #94A3B8;box-sizing:border-box}
 .pr-page .hdr-m-cell:hover{text-decoration:none}
-.pr-page .hdr-d-cell{color:#33415A;background-color:#FCFDFE!important}
-.pr-page .bg-col{background-color:#FCFDFE!important}
-.pr-page .wknd-col{background:#EEF1F5!important;backdrop-filter:none!important}
+.pr-page .hdr-d-cell,.pr-page .hdr-d-cell.is-wknd{color:#33415A;background:#fff!important}
+.pr-page .bg-col{background:#fff!important;border-left:1px dotted #CBD5E1;box-sizing:border-box}
+.pr-page .wknd-col,.pr-page .past-col{display:none!important}
+.pr-side,.pr-page .sb-row{background:#fff!important}
+.pr-page .role-tag{background:#fff!important;color:#475569!important;box-shadow:inset 0 0 0 1px #94A3B8}
 .pr-page .g-row{cursor:default}
-.pr-page .today-line{border-left-width:1px;background:none}
-/* paper bars: the on-screen colour (--c) as a light tint, a solid 3px left edge in the full colour, ink text */
-.pr-page .job-bar{background-color:color-mix(in srgb,var(--c) 22%,#fff)!important;border-left:3px solid var(--c);color:var(--ink)!important;box-shadow:none;border-radius:3px;opacity:1;cursor:default;box-sizing:border-box}
+.pr-page .g-row.dept-band{background:none;border-top:1px solid #94A3B8}
+.pr-page .hol-tag{background:#fff;color:#475569;border:1px solid #94A3B8;font-weight:600}
+.pr-page .today-line{border-left:1px dashed #CE4242;background:none}
+/* paper bars: the on-screen colour (--c) as a light tint (8% since v1.41.0, owner), a solid 3px left edge in the full colour, ink text */
+.pr-page .job-bar{background-color:color-mix(in srgb,var(--c) 8%,#fff)!important;border-left:3px solid var(--c);color:var(--ink)!important;box-shadow:none;border-radius:3px;opacity:1;cursor:default;box-sizing:border-box}
 .pr-page .job-bar:hover::after{content:none}
 .pr-page .bar-lbl{color:var(--ink)!important;text-shadow:none;font-size:11px;font-weight:600}
 .pr-page .job-bar[data-st="forecast"]{outline:1.5px dashed var(--c);outline-offset:-2px;opacity:1;border-left-style:dashed}
@@ -1356,6 +1366,8 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 .pr-gut .c-dot{width:9px;height:9px}
 .pr-mk{position:absolute;display:flex;align-items:center;gap:5px;font-size:11px;white-space:nowrap;z-index:3}
 .pr-mk i{width:9px;height:9px;box-sizing:border-box;flex-shrink:0}
+.pr-mk.flip{flex-direction:row-reverse} /* v1.41.0: near the page's right edge the label reads leftward from its diamond */
+.pr-page .hol-tag{top:auto;bottom:4px} /* v1.41.0: holiday names sit at the foot of the chart, clear of the milestone lanes */
 .pr-mk.ev i{background:#F7C948;border:1.5px solid #16202E;transform:rotate(45deg)}
 .pr-mk.tk i{background:#fff;border:1.5px solid #3B7FD6;border-radius:50%}
 /* a project's Calendar: one month per page, ink month strip on white over a 2px rule, static headers */
@@ -1363,11 +1375,19 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 .pr-page .cal-mon{position:static;background:#fff;color:var(--ink);border-bottom:2px solid var(--ink);font-size:11px;padding:4px 0}
 .pr-page .cal-dow{position:static}
 .pr-page .cal-wk{box-sizing:border-box;overflow:hidden}
-.pr-page .cal-band.ph{background-color:color-mix(in srgb,var(--c) 22%,#fff)!important;border-left:3px solid var(--c);color:var(--ink)!important;cursor:default;box-sizing:border-box}
+.pr-page .cal-band.ph{background-color:color-mix(in srgb,var(--c) 8%,#fff)!important;border-left:3px solid var(--c);color:var(--ink)!important;cursor:default;box-sizing:border-box}
 .pr-page .cal-band.ph.slim{background-color:var(--c)!important} /* a slim strip carries no text, so it prints at full colour to read in greyscale */
 .pr-page .cal-band.ev,.pr-page .cal-band.tk{cursor:default}
 .pr-page .cal-band.pick{box-shadow:none}
-.pr-page .cal-col.we{background-image:none}
+.pr-page .cal-col,.pr-page .cal-col.we{background:#fff!important} /* v1.41.0: no weekend, month or today fills on paper */
+.pr-page .cal-col.tod{box-shadow:inset 0 0 0 1px #CE4242}
+.pr-page .cal-dow{background:#fff}
+/* v1.41.0 (owner): Print Preview ▸ Bars ▸ Outline — for the desk, the clipboard and notes. Bars go white inside a 1px
+   outline in their colour, the 3px edge kept; milestone diamonds go hollow. Color (the default) suits the shop wall. */
+.pr-ol .job-bar,.pr-ol .cal-band.ph,.pr-ol .cal-band.ph.slim{background-color:#fff!important;border:1px solid var(--c);border-left:3px solid var(--c)}
+.pr-ol .pr-sw i{background:#fff;border:1px solid var(--c);border-left-width:3px}
+.pr-ol .pr-red::before{background:#fff;border:1px solid #CE4242;border-left-width:3px}
+.pr-ol .pr-mk.ev i,.pr-ol .cal-band.ev .cal-mki{background:#fff}
 /* the Meeting Sheet: the table as it is; the progress bar as a hairline grey track, fill in the status tint, 1px outline in the status colour */
 .pr-page .meet-table{width:100%}
 .pr-page .meet-cols th{background:#F8FAFC!important}
@@ -1739,8 +1759,11 @@ body.cd-route #dash-bar{display:none!important}
     <div class="pp-controls">
       <div class="fg pp-range"><label>From</label><input id="pp-start" type="date"></div>
       <div class="fg pp-range"><label>To</label><input id="pp-end" type="date"></div>
-      <div class="pp-note" id="pp-note">Pages are laid out for the paper picked in the Print menu (Letter or Tabloid); a range longer than 13 weeks on Letter or 22 on Tabloid continues on a second page across. Rows print at the Compact height; the lens, filters and expanded rows are as on screen. Print opens the browser's dialog — choose Save as PDF there for a file.</div>
+      <div class="fg pp-pick"><label>Paper</label><label class="sm-item"><input type="radio" name="pp-paper" value="letter"> Letter</label><label class="sm-item"><input type="radio" name="pp-paper" value="tabloid"> Tabloid</label></div>
+      <div class="fg pp-pick"><label>Bars</label><label class="sm-item" title="Coloured bars and yellow milestones, for the shop wall"><input type="radio" name="pp-bars" value="color"> Color</label><label class="sm-item" title="Outlined bars and hollow milestones, for the desk, the clipboard and notes"><input type="radio" name="pp-bars" value="outline"> Outline</label></div>
+      <div class="pp-note" id="pp-note">A range longer than 13 weeks on Letter or 22 on Tabloid continues on a second page across. Rows print at the Compact height; the lens, filters and expanded rows are as on screen. Print opens the browser's dialog — choose Save as PDF there for a file.</div>
     </div>
+    <div class="pp-hint"></div>
     <div id="pp-zoom"><div id="pp-zoom-inner"></div></div>
     </div>
     <div class="m-actions">
@@ -1760,8 +1783,10 @@ body.cd-route #dash-bar{display:none!important}
     <div class="modal-body">
     <div class="pp-controls">
       <div class="fg" id="meet-orient"><label>Orientation</label><label class="sm-item"><input type="radio" name="sheet-orient" value="landscape"> Landscape</label><label class="sm-item"><input type="radio" name="sheet-orient" value="portrait"> Portrait</label></div>
-      <div class="pp-note">One row per project, grouped by PM and sorted by deadline. Lists the projects the screen shows (the Status, Client and Person filters); a search or spotlight fades rows here as on screen. The Notes column stays blank for handwriting. Pick Letter or Tabloid in the Print menu; the header repeats on every page. Print opens the browser's dialog — choose Save as PDF there for a file.</div>
+      <div class="fg pp-pick"><label>Paper</label><label class="sm-item"><input type="radio" name="meet-paper" value="letter"> Letter</label><label class="sm-item"><input type="radio" name="meet-paper" value="tabloid"> Tabloid</label></div>
+      <div class="pp-note">One row per project, grouped by PM and sorted by deadline. Lists the projects the screen shows (the Status, Client and Person filters); a search or spotlight fades rows here as on screen. The Notes column stays blank for handwriting. The header repeats on every page. Print opens the browser's dialog — choose Save as PDF there for a file.</div>
     </div>
+    <div class="pp-hint"></div>
     <div id="meet-zoom"></div>
     </div>
     <div class="m-actions">
@@ -1809,7 +1834,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.40.1'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.41.0'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -5925,9 +5950,21 @@ const PR_HEAD_H=53,PR_FOOT_H=44,PR_AXIS_H=64,PR_ROW=32;
 let PR_FIXED_H=null; /* tests set a fixed row height — jsdom cannot measure */
 function setPaper(p){PAPER=p==='tabloid'?'tabloid':'letter';try{localStorage.setItem(PAPER_KEY,PAPER);}catch(e){}syncPaperMenu();prWriteStyle(false);}
 function setSheetPortrait(v){SHEET_PORTRAIT=!!v;try{localStorage.setItem(SHEET_PORTRAIT_KEY,SHEET_PORTRAIT?'1':'0');}catch(e){}syncPaperMenu();}
+/* v1.41.0 (owner): Color bars (the default, for the shop wall) or Outline bars (desk, clipboard, notes), remembered per browser */
+const PR_BARS_KEY='shopTimelinePrintBars';
+let PR_OUTLINE=false;
+try{PR_OUTLINE=localStorage.getItem(PR_BARS_KEY)==='outline';}catch(e){}
+function setPrBars(v){PR_OUTLINE=v==='outline';try{localStorage.setItem(PR_BARS_KEY,PR_OUTLINE?'outline':'color');}catch(e){}syncPaperMenu();}
+/* A web page cannot pick the printer's paper, so both print dialogs name the setting to match (Chrome calls Tabloid "Ledger") */
+function prPaperHint(){
+  return '<b>In the print dialog:</b> set Paper size to <b>'+(PAPER==='tabloid'?'Tabloid / Ledger (11 × 17")':'Letter (8.5 × 11")')
+    +'</b> and leave Scale on <b>Default</b>. Another paper size prints these pages small or cut off.';
+}
 function syncPaperMenu(){
-  document.querySelectorAll('input[name=paper-pick]').forEach(r=>{r.checked=(r.value===PAPER);});
+  document.querySelectorAll('input[name=paper-pick],input[name=pp-paper],input[name=meet-paper]').forEach(r=>{r.checked=(r.value===PAPER);});
   document.querySelectorAll('input[name=sheet-orient]').forEach(r=>{r.checked=((r.value==='portrait')===SHEET_PORTRAIT);});
+  document.querySelectorAll('input[name=pp-bars]').forEach(r=>{r.checked=((r.value==='outline')===PR_OUTLINE);});
+  document.querySelectorAll('.pp-hint').forEach(h=>{h.innerHTML=prPaperHint();});
 }
 function prPageSize(portrait){const d=PAPER_PX[PAPER];return portrait?{w:d.h,h:d.w}:{w:d.w,h:d.h};}
 function prBodyH(size){return size.h-PR_HEAD_H-PR_FOOT_H;}
@@ -5960,7 +5997,7 @@ function prProjLine2(p){
 }
 /* One page box: two header lines over a 2px ink rule, a body the caller fills, a footer with the legend and the page number. */
 function prPage(pages,size,title,right,line2,legend){
-  const pg=document.createElement('div');pg.className='pr-page';
+  const pg=document.createElement('div');pg.className='pr-page'+(PR_OUTLINE?' pr-ol':'');
   pg.style.width=size.w+'px';pg.style.height=size.h+'px';
   pg.innerHTML='<div class="pr-head"><div class="pr-h1"><span class="pr-co">TWOSEVEN INC.</span><span class="pr-title">'+esc(title)+'</span><span class="pr-range">'+esc(right||'')+'</span></div>'
     +'<div class="pr-h2">'+esc(line2)+'</div></div>'
@@ -6161,14 +6198,27 @@ function prProjectGanttPages(pages){
   for(const t of NPV_TASKS){const a=parseDate(t.startDate),b=parseDate(t.endDate);if(a<lo)lo=a;if(b>hi)hi=b;}
   for(const m of marks){const d=parseDate(m.date);if(d<lo)lo=d;if(d>hi)hi=d;}
   const plan=npvRowPlan();
+  const slices=prSlices(lo,hi),dwAll=slices.length>1?timeW/(P.weeks*7):null;
+  /* v1.41.0 (owner): marker labels never overlap — each takes the first lane where it clears the label before it,
+     and the row grows a lane at a time. A label that would run off its page's right edge reads leftward from its
+     diamond instead. Widths are estimated (jsdom cannot measure): 11px caps run about 7px a letter. */
+  const dwL=dwAll||timeW/(diffDays(slices[0].s,slices[0].e)+1),sliceW=dwAll?P.weeks*7*dwL:timeW;
+  const lanesOf=k=>{const lanes=[],pos=new Map();
+    marks.filter(m=>m.k===k).sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:0).forEach(m=>{
+      const x=diffDays(slices[0].s,parseDate(m.date))*dwL+dwL/2,w=20+7*(m.nm||'Untitled milestone').length;
+      const si=Math.min(slices.length-1,Math.floor(x/sliceW)),xl=x-si*sliceW;
+      const sw=Math.min(sliceW,(diffDays(slices[si].s,slices[si].e)+1)*dwL); /* the last slice is often narrower */
+      const flip=xl+w>sw&&xl>w,a=flip?x-w:x-5,b=flip?x+5:x+w;
+      let l=lanes.findIndex(ln=>ln.every(s=>b<=s[0]||a>=s[1]));if(l<0)l=lanes.push([])-1;
+      lanes[l].push([a,b]);pos.set(m,{l,flip});});
+    return {n:Math.max(1,lanes.length),pos};};
   const rows=[];
-  if(marks.length){rows.push({kind:'extra',label:'Milestones',h:PR_ROW,k:'ev'});rows.push({kind:'extra',label:'Notes',h:PR_ROW,k:'tk'});}
+  if(marks.length)for(const [label,k] of [['Milestones','ev'],['Notes','tk']]){const L=lanesOf(k);rows.push({kind:'extra',label,k,lanes:L,h:16*L.n+16});}
   for(const r of plan)rows.push({...r,h:PR_ROW});
   const units=[];
   for(const r of rows){if(r.kind==='child'&&units.length){units[units.length-1].rows.push(r);continue;}units.push({rows:[r]});}
   const rowPages=prPaginate([{head:null,units}],prBodyH(size)-PR_AXIS_H);
   const legend=[...new Set(NPV_TASKS.map(t=>t.department))].map(d=>prSwatch(DEPT_COLORS[d]||'#8A98AE',(deptById(d)||{}).name||d)).join('')+PR_RED;
-  const slices=prSlices(lo,hi),dwAll=slices.length>1?timeW/(P.weeks*7):null;
   const saved={TL_S,TL_E,DW_PX,TOTAL_H};
   try{
     for(const prow of rowPages){
@@ -6193,9 +6243,10 @@ function prProjectGanttPages(pages){
         let h='';
         for(const r of prow){
           const g=document.createElement('div');g.className='pr-gut'+(r.kind==='child'?' child':'')+(r.kind==='extra'?' extra':'');
-          if(r.kind==='extra'){g.textContent=r.label;side.appendChild(g);
+          if(r.kind==='extra'){g.textContent=r.label;g.style.height=r.h+'px';side.appendChild(g);
             for(const m of marks){if(m.k!==r.k)continue;const d=parseDate(m.date);if(d<TL_S||d>TL_E)continue;
-              h+='<div class="pr-mk '+m.k+'" style="left:'+(d2x(d)+DW_/2-5)+'px;top:'+(r.top+9)+'px"><i></i>'+esc(m.nm||(m.k==='ev'?'Untitled milestone':'Untitled note'))+'</div>';}
+              const lp=r.lanes.pos.get(m),cx=d2x(d)+DW_/2;
+              h+='<div class="pr-mk '+m.k+(lp.flip?' flip':'')+'" style="'+(lp.flip?'right:'+(tw-cx-5):'left:'+(cx-5))+'px;top:'+(r.top+9+16*lp.l)+'px"><i></i>'+esc(m.nm||(m.k==='ev'?'Untitled milestone':'Untitled note'))+'</div>';}
             continue;}
           const t=r.t,d=deptById(t.department),who=[...new Set(crewOf(t).map(canonName))].map(dispName).join(', ');
           const nm=r.kind==='parent'?((d||{}).name||t.department):phaseLabel(t);
@@ -6227,17 +6278,32 @@ function prCalendarPages(pages){
     else if(ch.classList.contains('cal-dow'))m.dow=ch;
     else if(ch.classList.contains('cal-wk'))m.weeks.push(ch);
   }
+  const mk=cal.classList.contains('mk0')?' mk0':'';
+  const head=(mo,cont)=>{const b=document.createElement('div');b.className='cal pr-cal'+mk;
+    const m=stripIds(mo.mon.cloneNode(true));if(cont)m.textContent+=' (continued)';b.appendChild(m);
+    if(mo.dow)b.appendChild(stripIds(mo.dow.cloneNode(true)));return b;};
   for(const mo of months){
-    const body=prPage(pages,size,title,mo.mon.textContent,line2,legend);
-    const box=document.createElement('div');box.className='cal pr-cal'+(cal.classList.contains('mk0')?' mk0':'');
-    box.appendChild(stripIds(mo.mon.cloneNode(true)));
-    if(mo.dow)box.appendChild(stripIds(mo.dow.cloneNode(true)));
-    const wkH=Math.floor((prBodyH(size)-prH(mo.mon,24)-2-prH(mo.dow,20))/Math.max(1,mo.weeks.length));
-    /* ponytail: a week keeps at least its on-screen height, so its bands never clip; a month whose weeks then outgrow the
-       page is cut at the page foot — split such a month across two pages if a real job ever needs it */
-    for(const w of mo.weeks){const c=stripIds(w.cloneNode(true));c.style.height=Math.max(wkH,prH(w,0))+'px';c.style.minHeight='0';box.appendChild(c);}
-    box.querySelectorAll('.cal-band.ph').forEach(b=>b.style.setProperty('--c',b.style.backgroundColor));
-    body.appendChild(box);
+    /* v1.41.0 (owner): a week grows to fit everything in it (labels wrap narrower on paper than on screen, so the
+       screen's height is no guide). Each week is measured at the page width; weeks fill a page in order, the page's
+       spare height is shared out among them, and a month that outgrows its page continues on the next.
+       ponytail: one week taller than a whole page is still cut at the page foot */
+    const avail=prBodyH(size)-prH(mo.mon,24)-2-prH(mo.dow,20);
+    const meas=document.createElement('div');meas.className='pr-measure pr-page';meas.style.width=size.w+'px';
+    const mb=head(mo,false);meas.appendChild(mb);document.body.appendChild(meas);
+    const wks=mo.weeks.map(w=>{const c=stripIds(w.cloneNode(true));c.style.height='auto';c.style.minHeight='0';mb.appendChild(c);return c;});
+    const nat=wks.map(c=>prH(c,0));
+    meas.remove();
+    const runs=[];let run=[],y=0;
+    wks.forEach((c,i)=>{if(run.length&&y+nat[i]>avail){runs.push(run);run=[];y=0;}run.push(i);y+=nat[i];});
+    if(run.length)runs.push(run);
+    runs.forEach((ix,ri)=>{
+      const body=prPage(pages,size,title,mo.mon.textContent+(ri?' (continued)':''),line2,legend);
+      const box=head(mo,ri>0);
+      const spare=Math.max(0,avail-ix.reduce((a,i)=>a+nat[i],0)),add=Math.floor(spare/ix.length);
+      ix.forEach(i=>{wks[i].style.height=(nat[i]+add)+'px';box.appendChild(wks[i]);});
+      box.querySelectorAll('.cal-band.ph').forEach(b=>b.style.setProperty('--c',b.style.backgroundColor));
+      body.appendChild(box);
+    });
   }
   return pages;
 }
@@ -6330,8 +6396,9 @@ function openPrintPreview(kind){
 
 document.getElementById('mi-print-timeline').addEventListener('click',()=>{closeMenus();openPrintPreview(ROUTE.view==='project'?'project':'timeline');});
 document.getElementById('mi-print-both').addEventListener('click',()=>{closeMenus();openPrintPreview('both');});
-document.querySelectorAll('input[name=paper-pick]').forEach(r=>r.addEventListener('change',()=>{setPaper(r.value);
+document.querySelectorAll('input[name=paper-pick],input[name=pp-paper],input[name=meet-paper]').forEach(r=>r.addEventListener('change',()=>{setPaper(r.value);
   if(!document.getElementById('print-overlay').classList.contains('hidden'))renderPreview();}));
+document.querySelectorAll('input[name=pp-bars]').forEach(r=>r.addEventListener('change',()=>{setPrBars(r.value);renderPreview();}));
 document.querySelectorAll('input[name=sheet-orient]').forEach(r=>r.addEventListener('change',()=>setSheetPortrait(r.value==='portrait')));
 syncPaperMenu();prWriteStyle(false); /* the remembered paper applies to a plain Ctrl+P too */
 document.getElementById('pp-start').addEventListener('change',renderPreview);
@@ -9298,7 +9365,9 @@ function npvPaintCalendar(lo,hi,dl){
          week's markers share a row unless two land on the same day. */
       let lane=0;while(mkLanes[lane]&&mkLanes[lane].has(i))lane++;
       (mkLanes[lane]||(mkLanes[lane]=new Set())).add(i);
-      items.push({s:i,e:i,txt:(dn?dn+': ':'')+nm,col:'',kind:mk.k,id:mk.id,date:mk.date,lane:lane});
+      /* v1.41.0: a name that already starts with the block's name ("SHIPPING : AVE" on Shipping) is not prefixed twice */
+      const pre=dn&&!(nm.toUpperCase().indexOf(dn.toUpperCase())===0&&!/[A-Za-z0-9]/.test(nm.charAt(dn.length)))?dn+': ':''; /* whole word only: "Installer…" on Install keeps its prefix */
+      items.push({s:i,e:i,txt:pre+nm,col:'',kind:mk.k,id:mk.id,date:mk.date,lane:lane});
     }
 
     /* v1.6.1: markers sit at the bottom of the week — phases keep the top rows, a
@@ -11451,6 +11520,11 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.41.0",d:"Oct 6, 2026",n:["Print: pick the paper (Letter or Tabloid) and the bars right in the Print Preview. A note there names the matching setting for the browser's print dialog, where Tabloid is called \"Ledger\".",
+   "Print: choose Color bars with yellow milestones for the shop wall, or Outline bars with hollow milestones for the desk, clipboard and notes. Your choice is remembered.",
+   "Print: pages print on plain white, with no gray weekend columns, holiday blocks or header fills, so they use far less ink.",
+   "Print: milestones on a project's Gantt no longer print on top of each other. They stack in rows, and labels near the right edge read leftward.",
+   "Print: Calendar weeks grow to fit all their milestones, and a month that runs long continues on the next page. A milestone named after its block (for example \"SHIPPING : AVE\") no longer repeats the block name in front."]},
  {v:"v1.40.1",d:"Oct 6, 2026",n:["Open Issues: each list now has column labels (Type, Status, Report, and the date), and says which date it shows — Open issues by when each report was submitted, Resolved by when it was resolved. Hover a date for every date the report has in full: submitted, resolved and the latest developer comment."]},
  {v:"v1.40.0",d:"Oct 5, 2026",n:["Print: every view prints to Letter or Tabloid, designed for paper, with Save as PDF — pick the paper in the Print menu (remembered), and the timeline, a project's Gantt or Calendar (\"Print this project…\" on its page, one month per page) and the Meeting Sheet (landscape or portrait, now honouring the Client and Person filters too) each print as real pages with the house header, a legend and \"Page X of Y\"; \"Timeline + Meeting Sheet\" makes one PDF.",
    "Printed pages follow the sidebar's Active / Completed / All switch and say which one is on in the header; a completed job prints with its grey Completed tag."]},

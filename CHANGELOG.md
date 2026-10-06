@@ -9,6 +9,13 @@ Format: `## <label> — <date>` then one `- ` line per change. Keep lines concre
 what changed *for the team*, not how. Developer-only tooling doesn't need a line.
 Collect lines for the next version under `## Unreleased` and rename it when you ship.
 
+## v1.41.0 — Oct 6, 2026
+- Print: pick the paper (Letter or Tabloid) and the bars right in the Print Preview. A note there names the matching setting for the browser's print dialog, where Tabloid is called "Ledger".
+- Print: choose Color bars with yellow milestones for the shop wall, or Outline bars with hollow milestones for the desk, clipboard and notes. Your choice is remembered.
+- Print: pages print on plain white, with no gray weekend columns, holiday blocks or header fills, so they use far less ink.
+- Print: milestones on a project's Gantt no longer print on top of each other. They stack in rows, and labels near the right edge read leftward.
+- Print: Calendar weeks grow to fit all their milestones, and a month that runs long continues on the next page. A milestone named after its block (for example "SHIPPING : AVE") no longer repeats the block name in front.
+
 ## v1.40.1 — Oct 6, 2026
 - Open Issues: each list now has column labels (Type, Status, Report, and the date), and says which date it shows — Open issues by when each report was submitted, Resolved by when it was resolved. Hover a date for every date the report has in full: submitted, resolved and the latest developer comment.
 
