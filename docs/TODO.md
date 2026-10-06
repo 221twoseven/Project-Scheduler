@@ -628,6 +628,12 @@ is item 32 (P0), #7 is part of item 3, and #11 and #14 were done by the bridge i
       the full width, and make a width change affect only that column (today resizing one
       shifts its neighbours). Company Data table CSS (`table-layout`, per-column widths).
       [tracker #13]
+- [x] **Departments: changing the days did not move the end date.** Shipped v1.34.1
+      (2026-10-05): one rule for every days field (the Departments row, the bottom panel,
+      the bar's popover), on the draft and the saved page — the start stays, the end is the
+      start plus N days (workdays for shop departments, calendar days for Installation and
+      Shipping). A draft bar nobody has typed or dragged still follows the scheduler.
+      [tracker #32]
 
 ### Queued for Phase 8 — waiting on other work (see "What waits on what", §2)
 
