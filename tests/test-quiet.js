@@ -130,9 +130,14 @@ function stage2(){
 
         sec('print never emits vivid tints');
         const pr=(src.match(/@media print\{[\s\S]*?\n\}/)||[''])[0];
+        if(src.indexOf('function setPrBars(')>=0){ /* v1.41.0 (owner): paper is white — no day, header or weekend fills */
+          ok('print forces white day columns and month header', /\.bg-col,\.hdr-d-cell,\.hdr-m-cell\{background-color:#fff!important\}/.test(pr)&&/\.hdr-m-cell\{color:#33415A!important/.test(pr));
+          ok('print drops the weekend overlay', /\.wknd-col\{display:none!important\}/.test(pr));
+        }else{
         ok('print forces quiet day columns', /\.bg-col,\.hdr-d-cell\{background-color:#FCFDFE!important\}/.test(pr));
         ok('print neutralises the month header band', /\.hdr-m-cell\{background-color:var\(--side\)!important;color:#33415A!important/.test(pr));
         ok('print flattens the weekend overlay', /\.wknd-col\{background:#EEF1F5!important/.test(pr));
+        }
         done();
       },300);
     },300);
