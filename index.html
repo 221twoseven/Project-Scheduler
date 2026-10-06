@@ -976,6 +976,10 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 .clog-who{font-weight:700;color:#33415A;flex-shrink:0;width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .clog-what{flex:1;min-width:0;color:#1E293B}
 .fb-kind{flex:0 0 44px;text-align:center;box-sizing:border-box} /* v1.34.0: BUG and IDEA chips share one width, so every subject starts on the same line */
+.fb-st{flex:0 0 74px;text-align:center;box-sizing:border-box;white-space:nowrap} /* v1.39.0 (tracker #29): PENDING / IN REVIEW / RESOLVED share one width too */
+.fb-st.fb-pend{color:var(--ts-muted);background:#F1F5F9} /* pending: the one muted colour — not looked at yet */
+.fbr-tk{white-space:nowrap}
+.fbr-tk a{display:inline-block;padding:5px 2px;margin:-5px 0} /* the .fb-dd summary recipe: a 24px hit box (§9) without changing the row height */
 .clog-proj{color:#33415A}
 .clog-field{color:var(--ts-muted)}
 .clog-det{white-space:pre-wrap;word-break:break-word;color:#5B6B84;font-size:11.5px;margin-top:2px}
@@ -1712,7 +1716,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.38.0'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.39.0'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -10797,6 +10801,9 @@ async function fbFetch(force){
     /* v1.20.1: `status` column — 'resolved' or empty/absent (= open), the staff-flag
        tristate convention; a build older than the column just reads everything open */
     status:String(f.status||''),comments:fbComments(f.comments),
+    /* v1.39.0 (tracker #29): the tracker ticket's URL, written by the poller when it files the
+       report; a row with one follows the ticket's status, a row without keeps the dev-page button */
+    ghIssue:String(f.ghIssue||''),
     /* v1.34.0: when it was resolved — the poller stamps `resolvedAt` (the ticket's close time)
        once the column exists; before that, the row's last change (the status flip) stands in */
     resolvedAt:String(f.resolvedAt||''),modified:it.lastModifiedDateTime||''};});
@@ -10809,6 +10816,15 @@ async function fbFetch(force){
    else (missing column, hand-edited junk) reads as no replies. v1.34.0: a /comment on the
    ticket lands here too (kind:'comment') — shown the same way, never emailed. */
 const fbDoneAt=r=>r.resolvedAt||r.modified||r.at; /* v1.34.0: the Resolved column's date */
+/* v1.39.0 (tracker #29): the status tag. Three states, read off the ticket by the tracker's
+   poller: `resolved` (ticket closed) · `review` (open, the team has replied on it) · anything
+   else = pending. A spec comment is internal and never reaches the app, so IN REVIEW promises
+   that someone is looking, not a visible reply. Nothing is set by hand. */
+function fbStatusTag(r){
+  const s=r.status==='resolved'?['RESOLVED','Dealt with — it sits in the Resolved column of Open Issues']
+    :r.status==='review'?['IN REVIEW','The team is looking at this report']:['PENDING','Not looked at yet'];
+  return '<span class="cd-perm fb-st'+(s[0]==='PENDING'?' fb-pend':'')+'" title="'+s[1]+'">'+s[0]+'</span>';
+}
 function fbComments(raw){
   let a;try{a=JSON.parse(raw||'[]');}catch(e){return [];}
   return Array.isArray(a)?a.filter(c=>c&&c.text).map(c=>({at:String(c.at||''),text:String(c.text)})):[];
@@ -10841,6 +10857,7 @@ function fbPaintList(force){
       :'<b>'+esc(t)+'</b>';
     return '<div class="clog-row'+(me?' fb-hit':'')+'" data-spid="'+esc(r.spId)+'">'
       +'<span class="cd-perm fb-kind" title="'+(r.kind==='bug'?'Bug report':'Feature request')+'">'+(r.kind==='bug'?'BUG':'IDEA')+'</span>'
+      +(r.status==='resolved'?'':fbStatusTag(r)) /* v1.39.0: PENDING / IN REVIEW in the Open column; the Resolved column is its own state */
       +'<div class="clog-what">'+head+fbRepliesHtml(r,me)+'</div>'
       +(r.status==='resolved'
         ?'<span class="clog-when" title="Resolved on">'+esc(clogWhen(fbDoneAt(r)))+'</span>'   /* v1.34.0: when it was dealt with, not when it was sent */
@@ -10928,18 +10945,27 @@ function renderReports(){
     if(!rows.length){el.innerHTML='<div class="clog-empty">Nothing filed yet.</div>';return;}
     el.innerHTML=rows.map(r=>{
       const res=r.status==='resolved';
-      return '<div class="clog-row'+(res?' fbr-res':'')+'">'
+      /* v1.39.0 (tracker #29, TODO §7.4 "Developer Bug Reports page buttons"): a row with a ticket
+         follows the ticket — the poller undoes any hand-set status on its next run, so the
+         button goes and the ticket link takes its place. Rows without a ticket (resolved before
+         the bridge) keep Mark resolved / Reopen. Only an https link is rendered as one: the
+         column is hand-editable on the site. */
+      const tk=/^https:\/\//.test(r.ghIssue)?r.ghIssue:'',tn=(/\/(\d+)\/?$/.exec(r.ghIssue)||[])[1];
+      return '<div class="clog-row'+(res?' fbr-res':'')+'" data-spid="'+esc(r.spId)+'">'
       +'<span class="clog-when">'+esc(clogWhen(r.at))+'</span>'
       +'<span class="cd-perm fb-kind">'+(r.kind==='bug'?'BUG':'IDEA')+'</span>'
-      +(res?'<span class="cd-perm" title="Marked resolved — hidden from the public Open Issues list">RESOLVED</span>':'')
+      +fbStatusTag(r)
       +'<div class="clog-what"><b>'+esc(String(r.title||'').replace(/^(Bug|Feature)\s+—\s+/,''))+'</b>'
       +' <span class="clog-field">'+esc((r.name||'—')+(r.email?' <'+r.email+'>':'')+(r.appVersion?' · v'+r.appVersion:''))+'</span>'
       +(r.description?'<div class="clog-det">'+esc(r.description)+'</div>':'')
       +fbRepliesHtml(r,false)
       +'</div>'
-      +'<button class="btn btn-ghost fbr-tog" data-spid="'+esc(r.spId)+'" data-next="'+(res?'':'resolved')+'" '
-      +'title="'+(res?'Put it back on the Open Issues list':'Rows are never deleted — resolving hides it from the Open Issues list, it stays here')+'">'
-      +(res?'Reopen':'Mark resolved')+'</button></div>';
+      +(r.ghIssue
+        ?'<span class="clog-field fbr-tk">Status follows the ticket'
+          +(tk?' · <a href="'+esc(tk)+'" target="_blank" rel="noopener" title="Open the ticket in the tracker">#'+esc(tn||'ticket')+'</a>':'')+'</span>'
+        :'<button class="btn btn-ghost fbr-tog" data-spid="'+esc(r.spId)+'" data-next="'+(res?'':'resolved')+'" '
+          +'title="'+(res?'Put it back on the Open Issues list':'Rows are never deleted — resolving hides it from the Open Issues list, it stays here')+'">'
+          +(res?'Reopen':'Mark resolved')+'</button>')+'</div>';
     }).join('');
     el.addEventListener('click',ev=>{
       const b=ev.target&&ev.target.closest?ev.target.closest('.fbr-tog'):null;
@@ -10971,6 +10997,7 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.39.0",d:"Oct 5, 2026",n:["Open Issues: every open report now carries a status tag — PENDING until the team has looked at it, IN REVIEW once someone has replied on its ticket. Resolved reports keep their own column."]},
  {v:"v1.38.0",d:"Oct 5, 2026",n:["Name a block: double-click any bar on the project page or the calendar to rename it in place (Enter saves, Esc cancels), or right-click it and pick Rename; on the dashboard, Edit Phase now has a Name field and opens with it ready to type, so a second \"Main Shop Fab\" can read \"Possible mock up days\".",
    "A block's own name now shows on its calendar milestone bands and in the Meeting Sheet's \"Phase now\" column, not just the department name."]},
  {v:"v1.37.0",d:"Oct 5, 2026",n:["Dashboard: an Active / Completed / All switch in the sidebar header. The dashboard opens on Active, so completed jobs no longer clutter the main view; Completed and All bring them back (for revisions, closeout or billing), and your choice is remembered on this browser. The Meeting Sheet and print follow the same rows.",

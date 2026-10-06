@@ -31,8 +31,12 @@ it off.
 ### Feedback poller
 
 - **Does:** reads `ShopTimeline_Feedback` and opens one issue per new report in the private
-  tracker `221twoseven/Project-Scheduler-issues`, with the screenshot. Closing or reopening
-  an issue sets the row's `status`; closing also stamps `resolvedAt` with the ticket's close time
+  tracker `221twoseven/Project-Scheduler-issues`, with the screenshot. Keeps the row's `status`
+  in step with the ticket, in three values (v1.39.0, tracker #29): `resolved` when the ticket is
+  closed, `review` when it is open and carries a team comment (a `**Triage spec**`,
+  `**Revised spec**` or `**Fix shipped**` note, or a `/reply` or `/comment` with text), empty
+  (pending) when it is open and untouched; a row is written only when its value differs, and a
+  status change sends no email. Closing also stamps `resolvedAt` with the ticket's close time
   (cleared on reopen; rows closed before the column existed are back-filled). Comments starting
   with `/reply` or `/comment` are copied to the row's `comments` column, and a new `/reply` also
   goes to `lastComment` (a `/comment` shows in the app but is never emailed). An `email-reply` dispatch
@@ -41,8 +45,9 @@ it off.
   `email`), and the quoted original is cut off. That path writes nothing to the list.
 - **Trigger:** issue closed or reopened, any issue comment, hourly (best-effort), manual
   run, `repository_dispatch` (`email-reply`).
-- **Reads / writes:** `ShopTimeline_Feedback` columns `ghIssue`, `status`, `resolvedAt` (optional), `comments` and
-  `lastComment`, plus the `/ShopTimeline Feedback/` screenshot folder (read only).
+- **Reads / writes:** `ShopTimeline_Feedback` columns `ghIssue`, `status` (empty = pending,
+  `review`, `resolved`), `resolvedAt` (optional), `comments` and `lastComment`, plus the
+  `/ShopTimeline Feedback/` screenshot folder (read only).
 - **Runs as:** the Entra app **ShopTimeline Feedback Bot**. It has `Sites.Selected`,
   write access on TWOSEVENINC only, and a client secret stored in the tracker's Actions
   secrets. The secret expires 24 months after it was created; the date is in the owner's
