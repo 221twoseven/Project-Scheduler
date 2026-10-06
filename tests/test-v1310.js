@@ -5,6 +5,8 @@
    Projects view line 2 = client · cost code · date · plan 2 Departments lines start with a
    muted client · plan 4 no "Dior · Dior - …" doubling · Q1 default: bar labels unchanged.
    Both pages for R4: a saved project's Setup and the New Project draft.
+   v1.35.0 (#33, Q2 default): a coded Departments line reads the cost code and the client
+   moves into its hover tip; the muted prefix stays on lines with no code (p5 here).
    Run: node tests/test-v1310.js index.html  (or via tests/run.js) */
 const {boot}=require('./harness');
 const fs=require('fs');
@@ -32,13 +34,16 @@ const projects=[
   P('p1','Artport 2026','Whitney Museum','WMU004',['pm','fab','install'],{sortIndex:0}),
   P('p2','Dior - HOD Holiday','Dior','DI251',['pm','fab'],{sortIndex:1}),
   P('p3','Holiday Windows','','HW1',['pm','fab'],{sortIndex:2}),
-  P('p4','No Dates','Cartier','',['pm'],{sortIndex:3})];
+  P('p4','No Dates','Cartier','',['pm'],{sortIndex:3}),
+  P('p5','Soho Vitrines','Bulgari','',['pm','fab'],{sortIndex:4})]; /* v1.35.0: no code, so its Departments line keeps the muted client */
 const tasks=[
   T('a1','p1','fab','Nick',D(-2),D(5)),T('a2','p1','install','',D(19),D(21)),
   T('b1','p2','fab','Nick',D(8),D(12),'mock-up'),
-  T('c1','p3','fab','Nick',D(14),D(16))];
+  T('c1','p3','fab','Nick',D(14),D(16)),
+  T('e1','p5','fab','Kate',D(2),D(4))]; /* on Kate's lane: Nick's row height fits three lines */
 const staff=[{appId:'s1',Title:'Sam',email:'user@example.com',depts:JSON.stringify(['pm']),ooo:'[]',role:''},
-  {appId:'s2',Title:'Nick',email:'',depts:JSON.stringify(['fab']),ooo:'[]',role:''}];
+  {appId:'s2',Title:'Nick',email:'',depts:JSON.stringify(['fab']),ooo:'[]',role:''},
+  {appId:'s3',Title:'Kate',email:'',depts:JSON.stringify(['fab']),ooo:'[]',role:''}];
 
 const dom=boot(FILE,{data:{projects,tasks,staff,todos:[]}});
 const win=dom.window,doc=win.document,E=s=>win.eval(s);
@@ -48,7 +53,7 @@ const rowOf=name=>qa('#side-rows .sb-row.proj-head').find(r=>r.querySelector('.s
 const cl=name=>{const r=rowOf(name);return r?r.querySelector('.sb-cl'):null;};
 const sub=name=>{const r=rowOf(name);return r?r.querySelector('.sb-sub').textContent:'(no row)';};
 const lane=who=>qa('#side-rows .sb-row.lane-row').find(r=>r.querySelector('.sb-name')&&r.querySelector('.sb-name').textContent===who);
-const line=(who,needle)=>{const l=lane(who);return l?[...l.querySelectorAll('.sb-asn')].find(a=>a.textContent.indexOf(needle)>=0):null;};
+const line=(who,needle)=>{const l=lane(who);return l?[...l.querySelectorAll('.sb-asn')].find(a=>a.textContent.indexOf(needle)>=0||a.title.indexOf(needle)>=0):null;}; /* v1.35.0: a coded line names its project only in the hover tip */
 const patches=()=>win.__spCalls.filter(c=>c.method==='PATCH'&&/ShopTimeline_Projects\//.test(c.url));
 const DATES=/[A-Z][a-z]{2} \d+–[A-Z][a-z]{2} \d+/;
 
@@ -69,30 +74,43 @@ function stage1(){
   ok('beside a LATE / soon chip the code · date may shrink again, so the chip never overflows the row', !/\.sb-cl\+\.sb-sub\{flex-shrink:0\}/.test(src));
   ok('the separator rides on the code · date part, only when there is one', /\.sb-cl\+\.sb-sub:not\(:empty\)::before\{content:"· "\}/.test(src));
 
-  sec('Departments view — R1 / plan 2: a muted client in front of the name; plan 4: never doubled');
+  sec('Departments view — R1 / plan 2: the client in the hover tip (#33 Q2) or, with no code, a muted prefix; plan 4: never doubled');
   E("LENS='dept';render()");
   const art=line('Nick','Artport');
-  ok('R1: the lane line starts with the client', !!art&&!!art.querySelector('.c')&&art.querySelector('.c').textContent==='Whitney Museum', art&&art.textContent);
-  ok('plan 2: it reads "Whitney Museum · Artport 2026"', !!art&&art.querySelector('.n').textContent==='Whitney Museum · Artport 2026', art&&art.querySelector('.n').textContent);
+  ok('R1: the client is in the Departments hover tip (the line itself reads the cost code, #33)', !!art&&!art.querySelector('.c')&&art.querySelector('.n').textContent==='WMU004'&&art.title.indexOf('Whitney Museum')===0, art&&(art.textContent+' / '+art.title));
+  ok('plan 2 (#33): the tip reads "Whitney Museum · Artport 2026 · WMU004"', !!art&&art.title==='Whitney Museum · Artport 2026 · WMU004', art&&art.title);
   ok('the dates still follow', !!art&&DATES.test(art.querySelector('.d').textContent), art&&art.querySelector('.d').textContent);
-  ok('R3: the whole line is on hover', !!art&&art.title==='Whitney Museum · Artport 2026', art&&art.title);
+  const soho=line('Kate','Soho');
+  ok('plan 2: a line with no cost code starts with the muted client', !!soho&&!!soho.querySelector('.c')&&soho.querySelector('.c').textContent==='Bulgari'&&soho.querySelector('.n').textContent==='Bulgari · Soho Vitrines', soho&&soho.querySelector('.n').textContent);
+  ok('R3: the whole line is on hover', !!soho&&soho.title==='Bulgari · Soho Vitrines', soho&&soho.title);
   const dior=line('Nick','Dior');
-  ok('plan 4: "Dior - HOD Holiday" is not prefixed with Dior', !!dior&&!dior.querySelector('.c')&&dior.querySelector('.n').textContent==='Dior - HOD Holiday · mock-up', dior&&dior.querySelector('.n').textContent);
-  ok('plan 4: its hover tip is the same line', !!dior&&dior.title==='Dior - HOD Holiday · mock-up');
+  ok('plan 4: "Dior - HOD Holiday" is not prefixed with Dior in its tip', !!dior&&!dior.querySelector('.c')&&dior.title==='Dior - HOD Holiday · DI251 · mock-up', dior&&dior.title);
+  ok('plan 4 / #33: its line reads the code and the custom label', !!dior&&dior.querySelector('.n').textContent==='DI251 · mock-up', dior&&dior.querySelector('.n').textContent);
   const hw=line('Nick','Holiday Windows');
-  ok('plan 2: a project with no client reads as before', !!hw&&!hw.querySelector('.c')&&hw.querySelector('.n').textContent==='Holiday Windows', hw&&hw.querySelector('.n').textContent);
+  ok('plan 2: a project with no client has no client in its tip', !!hw&&!hw.querySelector('.c')&&hw.title==='Holiday Windows · HW1', hw&&hw.title);
   ok('clientLead(): the seam #33 names', E("clientLead(projById('p1'))")==='Whitney Museum'&&E("clientLead(projById('p2'))")===''&&E("clientLead(null)")==='');
   ok('the prefix takes the dates\' grey, by its token', /\.sb-asn \.c\{color:var\(--txt-micro\)\}/.test(src));
 
-  sec('Print — the sheet clones the sidebar, client included');
-  const sheet=E("buildPrintSheet('"+D(-7)+"','"+D(30)+"')");
-  const sh=sheet&&sheet.querySelectorAll?sheet:null;
-  const nC=qa('#side-rows .sb-asn .c').length; /* Nick's fab lane and the Installation "—" lane both list Artport */
-  ok('the Departments print sheet carries the client prefixes the sidebar shows', !!sh&&nC>=1&&sh.querySelectorAll('.sb-asn .c').length===nC, (sh&&sh.querySelectorAll('.sb-asn .c').length)+' vs '+nC);
-  E("LENS='project';render()");
-  const sheet2=E("buildPrintSheet('"+D(-7)+"','"+D(30)+"')");
-  const sh2=sheet2&&sheet2.querySelectorAll?sheet2:null;
-  ok('the Projects print sheet carries the client spans', !!sh2&&sh2.querySelectorAll('.sb-cl').length===qa('#side-rows .sb-cl').length&&qa('#side-rows .sb-cl').length===3, sh2&&sh2.querySelectorAll('.sb-cl').length);
+  sec('Print — the paper carries the client too');
+  if(/function prBuild\(/.test(src)){
+    /* v1.40.0 (#8): app-built pages replaced the screen clone — the Projects sidebar's line two is
+       client · code · date, the Departments lanes name the person and the bars name the project. */
+    const pd=E("prBuild('timeline','"+D(-7)+"','"+D(30)+"')");
+    ok('the Departments print names each lane and its project bars', pd.some(p=>p.querySelectorAll('.pr-side .sb-row.lane-row').length>0)&&pd.some(p=>[...p.querySelectorAll('.pr-canvas .bar-lbl')].some(l=>/Artport 2026/.test(l.textContent))));
+    E("LENS='project';render()");
+    const pp=E("prBuild('timeline','"+D(-7)+"','"+D(30)+"')");
+    const subs=pp.flatMap(p=>[...p.querySelectorAll('.pr-side .sb-row.proj-head .sb-sub')].map(e=>e.textContent));
+    ok('the Projects print sidebar carries the client on line two for the three projects that have one', subs.filter(s=>/^Whitney Museum · /.test(s)).length===1&&subs.some(s=>/^Dior · /.test(s))&&subs.some(s=>s==='Cartier'), subs.join(' | '));
+  }else{
+    const sheet=E("buildPrintSheet('"+D(-7)+"','"+D(30)+"')");
+    const sh=sheet&&sheet.querySelectorAll?sheet:null;
+    const nC=qa('#side-rows .sb-asn .c').length; /* Kate's fab lane lists Soho Vitrines (no code, so the prefix stays) */
+    ok('the Departments print sheet carries the client prefixes the sidebar shows', !!sh&&nC>=1&&sh.querySelectorAll('.sb-asn .c').length===nC, (sh&&sh.querySelectorAll('.sb-asn .c').length)+' vs '+nC);
+    E("LENS='project';render()");
+    const sheet2=E("buildPrintSheet('"+D(-7)+"','"+D(30)+"')");
+    const sh2=sheet2&&sheet2.querySelectorAll?sheet2:null;
+    ok('the Projects print sheet carries the client spans', !!sh2&&sh2.querySelectorAll('.sb-cl').length===qa('#side-rows .sb-cl').length&&qa('#side-rows .sb-cl').length===4, sh2&&sh2.querySelectorAll('.sb-cl').length);
+  }
   setTimeout(stage2,200);
 }
 
@@ -112,7 +130,7 @@ function stage2(){
         ok('R4: the Projects view shows the new client', !!cl('Artport 2026')&&cl('Artport 2026').textContent==='Whitney Museum of American Art'&&cl('Artport 2026').title==='Whitney Museum of American Art', cl('Artport 2026')&&cl('Artport 2026').textContent);
         E("LENS='dept';render()");
         const art=line('Nick','Artport');
-        ok('R4: the Departments line and its hover tip carry it too', !!art&&art.querySelector('.c').textContent==='Whitney Museum of American Art'&&art.title==='Whitney Museum of American Art · Artport 2026', art&&art.title);
+        ok('R4: the Departments hover tip carries it too (#33: the line reads the code)', !!art&&art.querySelector('.n').textContent==='WMU004'&&art.title==='Whitney Museum of American Art · Artport 2026 · WMU004', art&&art.title);
         E("LENS='project';render()");
         stage3();
       },400);

@@ -10,6 +10,8 @@ const {boot}=require('./harness');
 const fs=require('fs');
 const FILE=process.argv[2]||'index.html';
 const src=fs.readFileSync(FILE,'utf8');
+/* v1.38.0 (tracker #3): the band menu leads with Rename (in place) — the one edit on it */
+const REN=/npvRenameBar/.test(src);
 
 if(src.indexOf('npvCalHit')<0){
   console.log('  SKIP  build predates REV53 (no calendar create menu) — nothing to assert');
@@ -106,8 +108,8 @@ function stage2(){
   ok('a menu opened on the band', !!menu());
   /* N11 (REV57): the bar menu is add-only — rename/duplicate/delete live in the
      inspector/popover — and right-click never changes the selection. */
-  ok('it offers only add-new actions (N11)',
-     !!byAct('sub')&&!!byAct('ev')&&!!byAct('tk')&&!byAct('ren')&&!byAct('del'),
+  ok('it offers only add-new actions (N11; v1.38.0: plus Rename)',
+     !!byAct('sub')&&!!byAct('ev')&&!!byAct('tk')&&(!!byAct('ren')===REN)&&!byAct('del'),
      items().join(' | '));
   ok('the menu no longer carries an inline name field', !menu().querySelector('.mn'));
   ok('right-clicking a band does not change the selection', E('PP_SEL')===null);
@@ -225,8 +227,8 @@ function stage4(){
             rclick(doc.querySelector('#npv-body .cal-band.ph[data-i]'));
             setTimeout(()=>{
               ok('a menu opened', !!menu());
-              ok('it offers only add-new actions',
-                 !!byAct('sub')&&!!byAct('ev')&&!!byAct('tk')&&!byAct('ren'),
+              ok('it offers only add-new actions (v1.38.0: plus Rename)',
+                 !!byAct('sub')&&!!byAct('ev')&&!!byAct('tk')&&(!!byAct('ren')===REN),
                  items().join(' | '));
               ok('no delete or duplicate on a draft', !byAct('del')&&!byAct('dup'),
                  items().join(' | '));

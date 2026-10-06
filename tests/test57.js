@@ -12,6 +12,8 @@ const {boot}=require('./harness');
 const fs=require('fs');
 const FILE=process.argv[2]||'index.html';
 const src=fs.readFileSync(FILE,'utf8');
+/* v1.38.0 (tracker #3): the bar menu leads with Rename (in place) — the one edit on it */
+const REN=/npvRenameBar/.test(src);
 
 if(!/npvEditPop/.test(src)){
   console.log('  SKIP  build predates the edit popover — nothing to assert');
@@ -132,7 +134,7 @@ function stage3(){
   rclick(bar);
   setTimeout(()=>{
     ok('the bar menu opened', !!menu());
-    ok('it is add-only', !menu().querySelector('[data-act="ren"]')
+    ok('it is add-only (v1.38.0: plus Rename)', (!!menu().querySelector('[data-act="ren"]')===REN)
        &&!menu().querySelector('[data-act="del"]')&&!!menu().querySelector('[data-act="sub"]'));
     ok('right-click did not select', E('PP_SEL')===null);
     ok('the menu no longer carries an inline name field', !menu().querySelector('.mn'));

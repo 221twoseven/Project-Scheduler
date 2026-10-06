@@ -11,6 +11,8 @@ const R56=src.indexOf('npv-env')>=0;
    right-click never changes the selection. (The old inline name field is retired â€” a New
    action now opens the edit popover, sniffed here to gate the new-build branches.) */
 const N11=/npvEditPop/.test(src);
+/* v1.38.0 (tracker #3): the bar menu leads with Rename (in place) — the one edit on it */
+const REN=/npvRenameBar/.test(src);
 
 let pass=0,fail=0;
 const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
@@ -129,8 +131,8 @@ function stage2(){
       ok('the browser menu is suppressed', ev.defaultPrevented);
       ok('a menu opened on the bar', !!menu());
       if(N11){
-        ok('it offers only add-new actions (N11)',
-           !!byAct('sub')&&!!byAct('ev')&&!!byAct('tk')&&!byAct('ren')&&!byAct('del'),
+        ok('it offers only add-new actions (N11; v1.38.0: plus Rename)',
+           !!byAct('sub')&&!!byAct('ev')&&!!byAct('tk')&&(!!byAct('ren')===REN)&&!byAct('del'),
            items().join(' | '));
         ok('the menu no longer carries an inline name field', !menu().querySelector('.mn'));
         ok('right-clicking a bar does not change the selection', E('PP_SEL')===null);

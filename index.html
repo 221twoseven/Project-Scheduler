@@ -215,6 +215,22 @@ body.me-dock-col #md-thought,body.me-dock-col #md-tpop{display:none}
 #sb-head .sb-lens .t-btn{flex:1;background:#fff;color:#475569;border-right:1px solid var(--side-line);font-weight:600}
 #sb-head .sb-lens .t-btn:hover{background:#E8EEF7;color:#1E293B}
 #sb-head .sb-lens .t-btn.active{background:var(--acc);color:#fff}
+/* v1.37.0 (#6): the Active / Completed / All switch takes the header's second row (64px holds 26 + 24 + gap) */
+#sb-head{flex-wrap:wrap;row-gap:4px;align-content:center}
+#sb-head .sb-done{flex:0 0 100%;max-width:230px;border-color:var(--side-line);background:#fff;text-transform:none;letter-spacing:0}
+#sb-head .sb-done .t-btn{flex:1;height:24px;padding:0 6px;background:#fff;color:#475569;border-right:1px solid var(--side-line);font-weight:600;font-size:11px}
+#sb-head .sb-done .t-btn:last-child{border-right:none}
+#sb-head .sb-done .t-btn:hover{background:#E8EEF7;color:#1E293B}
+#sb-head .sb-done .t-btn.active{background:var(--acc);color:#fff}
+.sb-row.done .sb-name{color:var(--ts-muted);font-weight:500} /* muted by colour, not opacity — the tag must stay readable */
+.sb-row.done .c-dot{opacity:.5}
+.cd-perm.done{color:#5B6472;background:#E6E9EE;flex-shrink:0;margin-right:0;letter-spacing:0;padding:0 3px} /* 4.9:1 */
+/* the tag takes the client's room on line 2 (the default 300px sidebar can't hold tag + client + code · date);
+   the client stays on the project page and the Client sort. The code · date ellipsizes before running under the eye. */
+.sb-row.done .sb-l2{overflow:hidden;gap:4px}
+.sb-row.done .sb-cl{display:none}
+.sb-row.done .sb-cl+.sb-sub::before{content:none}
+.sb-row.done .sb-l2 .sb-sub{flex-shrink:1}
 .bar-lbl .sum-pill{position:static;transform:none;margin-right:8px}
 .crew-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(108px,1fr));gap:4px 10px;max-height:180px;overflow-y:auto;background:#F7FAFD;border:1px solid #D8E2EF;border-radius:8px;padding:10px}
 .crew-list label{display:flex;gap:6px;align-items:center;font-size:12px;color:#33415A;cursor:pointer;user-select:none;min-width:0;white-space:nowrap;overflow:hidden}
@@ -310,6 +326,7 @@ body.compact .sb-chip{line-height:1.2;padding:.5px 6px}
 .sb-asn .n{overflow:hidden;text-overflow:ellipsis;min-width:0}
 .sb-asn .d{font-family:var(--mono);color:#93A2B8;flex-shrink:0;letter-spacing:.02em}
 .sb-asn .c{color:var(--txt-micro)} /* v1.31.0 (#24): muted client prefix on a Departments line — the dates' grey, by its token */
+.sb-asn .n.code{font-family:var(--mono);letter-spacing:.02em} /* v1.35.0 (#33): a cost code on the line is mono, like the dates beside it (Design-Language §3) */
 .sb-row.drop-hi{background:rgba(47,111,228,.12)!important;outline:2px solid rgba(47,111,228,.4);outline-offset:-2px}
 .sb-edit{background:none;border:none;color:#A8B6C8;font-size:12px;cursor:pointer;padding:2px 5px;border-radius:3px;opacity:0;transition:opacity .15s;flex-shrink:0}
 .sb-row:hover .sb-edit{opacity:1}
@@ -530,17 +547,6 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 #pp-zoom-inner{transform-origin:top left}
 
 /* ============ PRINT SHEET (shared by preview + print) ============ */
-.p-sheet{background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.12)}
-.p-title{display:flex;align-items:baseline;gap:12px;padding:10px 14px;border-bottom:2px solid var(--ink)}
-.p-title .pt-main{font-size:var(--fs-title);font-weight:800;letter-spacing:.02em}
-.p-title .pt-sub{font-family:var(--mono);font-size:var(--fs-fine);color:#64748B}
-.p-grid{display:flex;align-items:flex-start}
-.p-side{width:232px;flex-shrink:0;border-right:1.5px solid var(--side-line);background:var(--side)}
-.p-side-head{height:64px;display:flex;align-items:center;padding:0 14px;font-size:var(--fs-fine);font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:var(--ts-muted);border-bottom:1px solid var(--side-line)}
-.p-view{overflow:hidden;position:relative}
-.p-hdr{position:relative;height:64px}
-.p-canvas{position:relative}
-.p-sheet .sb-edit,.p-sheet .sb-grip,.p-sheet .hover-guide,.p-sheet .hover-tag,.p-sheet #sb-all{display:none!important}
 
 /* ============ REV31: STATUS FILTER + RESET ============ */
 .sf-wrap{position:relative}
@@ -660,6 +666,7 @@ body.vivid .npv-we{display:none} /* v1.0.2: no weekend strips over the vivid tin
 .npv-gut{position:sticky;left:0;z-index:3;width:var(--npv-gut,150px);height:100%;display:flex;align-items:center;padding:0 8px;font-size:var(--fs-fine);font-weight:600;color:#475569;background:#fff;border-right:1px solid #EDF2F7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .npv-row:nth-child(odd) .npv-gut{background:#FCFDFE}
 .npv-bar{position:absolute;height:24px;top:5px;border-radius:4px;cursor:grab;display:flex;align-items:center;padding:0 6px;font-size:var(--fs-fine);font-weight:600;white-space:nowrap;overflow:hidden;z-index:2;user-select:none}
+.npv-lbl{margin-left:5px;min-width:0;overflow:hidden;text-overflow:ellipsis} /* v1.36.0 (#4): shrinks and ellipsises when the label is parked near the bar's end */
 .npv-bar.dragging{cursor:grabbing;opacity:.85;z-index:6}
 .npv-bar.manual{box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.85)}
 .npv-hdl{position:absolute;left:0;top:0;bottom:0;width:8px;cursor:ew-resize}
@@ -957,6 +964,17 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 .clog-when{color:var(--ts-muted);white-space:nowrap;flex-shrink:0;width:96px}
 .clog-who{font-weight:700;color:#33415A;flex-shrink:0;width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .clog-what{flex:1;min-width:0;color:#1E293B}
+.fb-kind{flex:0 0 44px;text-align:center;box-sizing:border-box} /* v1.34.0: BUG and IDEA chips share one width, so every subject starts on the same line */
+.fb-st{flex:0 0 74px;text-align:center;box-sizing:border-box;white-space:nowrap} /* v1.39.0 (tracker #29): PENDING / IN REVIEW / RESOLVED share one width too */
+.fb-st.fb-pend{color:var(--ts-muted);background:#F1F5F9} /* pending: the one muted colour — not looked at yet */
+/* v1.40.1: Open Issues column labels — one row on top of each list, the same cell widths as the rows
+   below (.fb-kind / .fb-st / .clog-what / .clog-when), pinned while the list scrolls. Not a .clog-row,
+   so row counts and row clicks never see it. */
+.fb-colhd{display:flex;gap:12px;padding:5px 22px;border-bottom:1px solid #E2E8F0;background:#F8FAFC;position:sticky;top:0;z-index:1;
+  font-family:var(--mono);font-size:var(--fs-fine);font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ts-muted)}
+.fb-colhd .clog-what{color:inherit}
+.fbr-tk{white-space:nowrap}
+.fbr-tk a{display:inline-block;padding:5px 2px;margin:-5px 0} /* the .fb-dd summary recipe: a 24px hit box (§9) without changing the row height */
 .clog-proj{color:#33415A}
 .clog-field{color:var(--ts-muted)}
 .clog-det{white-space:pre-wrap;word-break:break-word;color:#5B6B84;font-size:11.5px;margin-top:2px}
@@ -1058,10 +1076,11 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
   background:#fff;border:1px solid var(--ts-control-line);border-radius:6px;color:#33415A;font-family:inherit;font-size:14px;line-height:1;font-weight:600;cursor:pointer}
 .ins-depts .idr .radd:hover,.ins-depts .idr .rx:hover{background:var(--side)}
 .ins-depts .idr.off .radd{display:none}
-.ins-depts .idr .ddates.rng{flex-wrap:wrap;row-gap:3px}                     /* the count and × wrap under the dates when the column is narrow */
-.ins-depts .idr .ddates.rng input[type=date]{flex:1 1 90px}                 /* a natural basis, so the dates keep their width and the extras wrap */
-.ins-depts .idr .ddates .rdays{flex:0 0 46px;margin-left:auto;text-align:right;font-family:inherit;font-size:11.5px;padding:3px 5px}
+.ins-depts .idr .ddates{flex-wrap:wrap;row-gap:3px}                         /* the count and × wrap under the dates when the column is narrow (v1.33.1: every line, the primary's count lives here too) */
+.ins-depts .idr .ddates input[type=date]{flex:1 1 90px}                     /* a natural basis, so the dates keep their width and the extras wrap */
+.ins-depts .idr .ddates .rdays,.ins-depts .idr .ddates .ddays{flex:0 0 46px;margin-left:auto;text-align:right;font-family:inherit;font-size:11.5px;padding:3px 5px}
 .ins-depts .idr .ddates .dlbl{width:auto}
+.ins-depts .idr:has(.rx) .ddates:not(.rng){padding-right:29px}        /* v1.33.1: the primary's count lines up with the ranges' (24px × + 5px gap) */
 /* v1.25.2 (#26): why a typed date moved, on its own line under the date pair */
 .ins-depts .idr .dnote{flex-basis:100%;margin:0 0 3px 22px}
 .ins-depts .idr.off .dnote{display:none}
@@ -1168,7 +1187,10 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 .npv-pop .dot.tk{background:#fff;border:2px solid #3B7FD6;border-radius:50%;box-sizing:border-box}
 /* Explorer-style rename box that replaces a title on double-click. */
 .npv-rename{width:100%;box-sizing:border-box;font:inherit;color:#1E293B;border:1px solid var(--acc);
-  border-radius:4px;padding:0 4px;outline:none;background:#fff}
+  border-radius:4px;padding:0 4px;outline:none;background:#fff;user-select:text}
+/* v1.38.0 (tracker #3): the bar's text fills the bar so the rename box can replace it */
+.npv-bar .npv-txt{flex:1;min-width:0}
+.npv-bar .npv-rename{height:20px}
 .npv-body{cursor:default}
 
 /* ============ REV47: SUBTASKS ============ */
@@ -1251,20 +1273,113 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 #demo-body b{color:var(--ink)}
 
 /* ============ PRINT ============ */
+/* v1.40.0 (tracker #8/#9): the paper size is written by the app into #print-page-size
+   (Letter 11in 8.5in / Tabloid 17in 11in, portrait for the Meeting Sheet, .5in margins)
+   when the user picks a size — see PAGE_RULES. The pages themselves are .pr-page boxes. */
 @media print{
-  @page{size:landscape;margin:7mm 9mm}
   *,*::before,*::after{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
-  body{overflow:visible!important}
+  html,body{overflow:visible!important;background:#fff!important}
+  ::-webkit-scrollbar{display:none!important}
   #toolbar,#main,#page,#tooltip,.overlay,#toasts,#coach{display:none!important}
   #print-root{display:block!important}
-  .p-sheet{box-shadow:none}
-  .meet-sheet{box-shadow:none;width:100%}
+  /* hidden on paper: the sidebar's eye, edit and grip icons, drag handles, hover guides */
+  .pr-page .sb-eye,.pr-page .sb-edit,.pr-page .sb-grip,.pr-page .bar-handle,.pr-page .hover-guide,.pr-page .hover-tag,.pr-page .cal-hdl,.pr-page .npv-hdl{display:none!important}
+  .pr-page{break-after:page;page-break-after:always}
   .meet-row,.meet-pm tr{page-break-inside:avoid}
   /* C2: print never emits the vivid tints — force the quiet canvas whatever is on screen */
   .bg-col,.hdr-d-cell{background-color:#FCFDFE!important}
   .hdr-m-cell{background-color:var(--side)!important;color:#33415A!important;text-shadow:none!important}
   .wknd-col{background:#EEF1F5!important;backdrop-filter:none!important}
 }
+/* ============ PRINT PAGES (v1.40.0, #8/#9) ============ */
+/* One box per page at the paper's size (96px to the inch, margins already taken off), each
+   with its own header, footer and page number; the same boxes show scaled in the preview. */
+.pr-page{position:relative;box-sizing:border-box;background:#fff;color:var(--ink);display:flex;flex-direction:column;overflow:hidden;break-after:page;font-size:var(--fs-fine);line-height:1.35}
+#pp-zoom-inner .pr-page{margin-bottom:14px;box-shadow:0 2px 10px rgba(0,0,0,.12)}
+.pr-head{height:53px;box-sizing:border-box;border-bottom:2px solid var(--ink);padding-top:5px;flex-shrink:0}
+.pr-h1{display:flex;align-items:baseline;gap:12px;white-space:nowrap}
+.pr-co,.pr-title{font-size:var(--fs-title);font-weight:800;letter-spacing:.02em}
+.pr-title{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.pr-range{font-family:var(--mono);font-size:var(--fs-fine)}
+.pr-h2{font-family:var(--mono);font-size:var(--fs-fine);color:#64748B;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pr-body{position:relative;overflow:hidden;display:flex;align-items:flex-start;flex-shrink:0;box-sizing:border-box}
+.pr-foot{height:44px;box-sizing:border-box;border-top:1px solid #CBD5E1;display:flex;align-items:flex-start;gap:12px;padding-top:4px;flex-shrink:0}
+.pr-legend{flex:1;min-width:0;display:flex;flex-wrap:wrap;align-items:center;gap:2px 12px;max-height:36px;overflow:hidden}
+.pr-pageno,.pr-app{font-family:var(--mono);font-size:var(--fs-fine);white-space:nowrap}
+.pr-pageno{margin-left:auto}
+.pr-sw{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.pr-sw i{display:inline-block;width:14px;height:10px;box-sizing:border-box;border-left:3px solid var(--c);background:color-mix(in srgb,var(--c) 22%,#fff)}
+.pr-lg{position:relative!important;display:inline-flex!important;overflow:hidden;align-items:center;height:14px;padding:0 6px;font-weight:600;cursor:default;--c:#6B7484}
+.pr-red{white-space:nowrap;color:#64748B}
+.pr-red::before{content:'';display:inline-block;width:14px;height:10px;box-sizing:border-box;vertical-align:-1px;margin-right:5px;border-left:3px solid #CE4242;background:color-mix(in srgb,#CE4242 22%,#fff)}
+/* Gantt pages: sidebar + axis + canvas, Compact rows (32px, bar 24px) whatever the screen density */
+.pr-side{flex-shrink:0;height:100%;border-right:1.5px solid var(--side-line);background:var(--side);overflow:hidden;box-sizing:border-box}
+.pr-side-head{height:64px;box-sizing:border-box;display:flex;align-items:center;padding:0 10px;font-size:var(--fs-fine);font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:var(--ts-muted);border-bottom:1px solid var(--side-line)}
+.pr-view{position:relative;overflow:hidden;height:100%;flex-shrink:0}
+.pr-hdr{position:relative;height:64px;overflow:hidden;border-bottom:1px solid var(--side-line);box-sizing:border-box}
+.pr-canvas{position:relative;overflow:hidden}
+.pr-page .sb-row{box-sizing:border-box;padding-left:8px;gap:6px;transition:none}
+.pr-page .sb-row.task-row{padding-left:22px}
+.pr-page .sb-name{font-size:11.5px;font-weight:600}
+.pr-page .sb-row.task-row .sb-name,.pr-page .sb-row.lane-row .sb-name{font-size:11.5px;font-weight:500}
+.pr-page .sb-sub,.pr-page .sb-2l .sb-sub{font-size:11px;color:#64748B}
+.pr-page .sb-row.dept-head,.pr-page .sb-row.grp-head,.pr-page .sb-row.dept-head .sb-name,.pr-page .sb-row.grp-head .sb-name{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#57687F;cursor:default}
+.pr-page .sb-row.proj-head{cursor:default}
+.pr-page .hdr-m-cell{background-color:var(--side)!important;color:#33415A!important;text-shadow:none!important;cursor:default}
+.pr-page .hdr-m-cell:hover{text-decoration:none}
+.pr-page .hdr-d-cell{color:#33415A;background-color:#FCFDFE!important}
+.pr-page .bg-col{background-color:#FCFDFE!important}
+.pr-page .wknd-col{background:#EEF1F5!important;backdrop-filter:none!important}
+.pr-page .g-row{cursor:default}
+.pr-page .today-line{border-left-width:1px;background:none}
+/* paper bars: the on-screen colour (--c) as a light tint, a solid 3px left edge in the full colour, ink text */
+.pr-page .job-bar{background-color:color-mix(in srgb,var(--c) 22%,#fff)!important;border-left:3px solid var(--c);color:var(--ink)!important;box-shadow:none;border-radius:3px;opacity:1;cursor:default;box-sizing:border-box}
+.pr-page .job-bar:hover::after{content:none}
+.pr-page .bar-lbl{color:var(--ink)!important;text-shadow:none;font-size:11px;font-weight:600}
+.pr-page .job-bar[data-st="forecast"]{outline:1.5px dashed var(--c);outline-offset:-2px;opacity:1;border-left-style:dashed}
+.pr-page .job-bar[data-st="estimating"]{opacity:1}
+/* Paper patterns are a plain linear-gradient tile (background-size), never repeating-linear-gradient: Chrome prints a repeating
+   gradient as a function-based shading (PDF ShadingType 1), which pdf.js viewers (Firefox and others) draw as a flat pink fill. */
+.pr-page .bar-stripe{background:linear-gradient(45deg,var(--c) 15%,transparent 15%,transparent 50%,var(--c) 50%,var(--c) 65%,transparent 65%) 0 0/10px 10px;opacity:.3} /* stripes in the bar's own colour, not white */
+.pr-page .job-bar[data-st="on-hold"]{opacity:1;background-image:none}
+.pr-page .job-bar[data-st="on-hold"]::before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,var(--c) 20%,transparent 20%,transparent 50%,var(--c) 50%,var(--c) 70%,transparent 70%) 0 0/7px 7px;opacity:.4;pointer-events:none} /* the hatch in the bar's own colour, an opacity layer like the stripes */
+.pr-page .job-bar[data-st="complete"]{opacity:.55}
+.pr-page .ooo-hatch{background:linear-gradient(135deg,rgba(16,26,41,.25) 25%,transparent 25%,transparent 50%,rgba(16,26,41,.25) 50%,rgba(16,26,41,.25) 75%,transparent 75%) 0 0/11px 11px}
+/* status chips print outlined: white, a 1px border in the status colour, mono caps */
+.pr-page .sum-pill,.pr-page .mr-pill{background:#fff!important;border:1px solid currentColor;font-family:var(--mono);font-size:11px;font-weight:700;text-transform:uppercase}
+.pr-page .dim{opacity:.35!important;filter:none!important}
+.pr-page .sb-row.dim>*:not(.sb-eye){opacity:1;filter:none}
+/* a project's Gantt: the phase gutter in place of the sidebar */
+.pr-gut{display:flex;align-items:center;gap:6px;box-sizing:border-box;padding:0 8px;height:32px;border-bottom:1px solid #DAE2ED;font-size:11.5px;font-weight:600;color:#33415A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pr-gut.child{padding-left:22px;font-weight:500;color:#5B6B85}
+.pr-gut.extra{color:var(--ts-muted);font-style:italic;font-weight:500}
+.pr-gut .c-dot{width:9px;height:9px}
+.pr-mk{position:absolute;display:flex;align-items:center;gap:5px;font-size:11px;white-space:nowrap;z-index:3}
+.pr-mk i{width:9px;height:9px;box-sizing:border-box;flex-shrink:0}
+.pr-mk.ev i{background:#F7C948;border:1.5px solid #16202E;transform:rotate(45deg)}
+.pr-mk.tk i{background:#fff;border:1.5px solid #3B7FD6;border-radius:50%}
+/* a project's Calendar: one month per page, ink month strip on white over a 2px rule, static headers */
+.pr-cal{width:100%}
+.pr-page .cal-mon{position:static;background:#fff;color:var(--ink);border-bottom:2px solid var(--ink);font-size:11px;padding:4px 0}
+.pr-page .cal-dow{position:static}
+.pr-page .cal-wk{box-sizing:border-box;overflow:hidden}
+.pr-page .cal-band.ph{background-color:color-mix(in srgb,var(--c) 22%,#fff)!important;border-left:3px solid var(--c);color:var(--ink)!important;cursor:default;box-sizing:border-box}
+.pr-page .cal-band.ph.slim{background-color:var(--c)!important} /* a slim strip carries no text, so it prints at full colour to read in greyscale */
+.pr-page .cal-band.ev,.pr-page .cal-band.tk{cursor:default}
+.pr-page .cal-band.pick{box-shadow:none}
+.pr-page .cal-col.we{background-image:none}
+/* the Meeting Sheet: the table as it is; the progress bar as a hairline grey track, fill in the status tint, 1px outline in the status colour */
+.pr-page .meet-table{width:100%}
+.pr-page .meet-cols th{background:#F8FAFC!important}
+.pr-page .meet-mini{height:8px;background:#fff;border:1px solid #CBD5E1;border-radius:2px;box-sizing:border-box;overflow:hidden}
+.pr-page .mm-fill{outline:1px solid var(--sc,#64748B);outline-offset:-1px}
+.pr-page .meet-row.dim{opacity:.35}
+.pr-page .mm-dates{white-space:nowrap}
+.pr-measure{position:absolute;left:-20000px;top:0;visibility:hidden}
+.pr-lbl-pp{display:none}
+body.pp-route .pr-lbl-tl{display:none}
+body.pp-route .pr-lbl-pp{display:inline}
+#print-overlay.no-range .pp-range{display:none}
 /* ============ v1.7.0 (09-01 handoff): COMPANY DATA PAGES ============ */
 /* People and Clients as first-class pages — read-first master/detail on the
    project page's chrome. The timeline toolbar row hides exactly as on pp-route. */
@@ -1394,8 +1509,12 @@ body.cd-route #dash-bar{display:none!important}
     <div class="sf-wrap">
       <button id="btn-print" class="t-btn" title="Print the timeline or a meeting sheet"><svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 5.5V2h7v3.5"/><path d="M4.5 11.5H2.75A1.25 1.25 0 0 1 1.5 10.25v-3.5A1.25 1.25 0 0 1 2.75 5.5h10.5a1.25 1.25 0 0 1 1.25 1.25v3.5a1.25 1.25 0 0 1-1.25 1.25H11.5"/><rect x="4.5" y="9.5" width="7" height="4.5" rx="1"/></svg> Print <svg class="ico-s" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 6 8 9.5 11.5 6"/></svg></button>
       <div id="print-menu" class="tb-menu hidden">
-        <div class="sm-item" id="mi-print-timeline" title="Print the timeline as it looks on screen"><svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 5.5V2h7v3.5"/><path d="M4.5 11.5H2.75A1.25 1.25 0 0 1 1.5 10.25v-3.5A1.25 1.25 0 0 1 2.75 5.5h10.5a1.25 1.25 0 0 1 1.25 1.25v3.5a1.25 1.25 0 0 1-1.25 1.25H11.5"/><rect x="4.5" y="9.5" width="7" height="4.5" rx="1"/></svg> Print Timeline</div>
-        <div class="sm-item" id="mi-meeting" title="Print a meeting sheet of every project grouped by PM"><svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 4.5h11M2.5 8h11M2.5 11.5h11"/></svg> Meeting Sheet</div>
+        <div class="sm-item" id="mi-print-timeline" title="Print the timeline as it looks on screen"><svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 5.5V2h7v3.5"/><path d="M4.5 11.5H2.75A1.25 1.25 0 0 1 1.5 10.25v-3.5A1.25 1.25 0 0 1 2.75 5.5h10.5a1.25 1.25 0 0 1 1.25 1.25v3.5a1.25 1.25 0 0 1-1.25 1.25H11.5"/><rect x="4.5" y="9.5" width="7" height="4.5" rx="1"/></svg> <span class="pr-lbl-tl">Print Timeline…</span><span class="pr-lbl-pp">Print this project…</span></div>
+        <div class="sm-item" id="mi-meeting" title="Print a meeting sheet of every project grouped by PM"><svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 4.5h11M2.5 8h11M2.5 11.5h11"/></svg> Meeting Sheet…</div>
+        <div class="sm-item" id="mi-print-both" title="One PDF: the timeline pages first, then the meeting sheet"><svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 3h11v10h-11z"/><path d="M2.5 7h11M6 3v10"/></svg> Timeline + Meeting Sheet</div>
+        <div class="sm-sec">Paper · every print</div>
+        <label class="sm-item" title="11 × 8.5 in, landscape"><input type="radio" name="paper-pick" value="letter"> Letter</label>
+        <label class="sm-item" title="17 × 11 in, landscape"><input type="radio" name="paper-pick" value="tabloid"> Tabloid</label>
       </div>
     </div>
     <div class="sf-wrap">
@@ -1513,6 +1632,12 @@ body.cd-route #dash-bar{display:none!important}
         <button id="btn-lens-dept" class="t-btn" title="Group the rows by department">Departments</button>
       </div>
       <button id="sb-all" title="Step every row through the view's levels — collapsed, groups, everything"><svg class="ico-s" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 5.5 8 2l3.5 3.5M4.5 10.5 8 14l3.5-3.5"/></svg> All</button>
+      <!-- v1.37.0 (#6): Active / Completed / All — three presets of the status filter, not a second mechanism -->
+      <div class="tog-grp sb-done" role="group" aria-label="Which projects to show">
+        <button class="t-btn" data-done="active" title="Projects still in progress (hides Complete)">Active</button>
+        <button class="t-btn" data-done="completed" title="Completed projects only — for revisions, closeout or billing">Completed</button>
+        <button class="t-btn" data-done="all" title="Every project, completed ones muted">All</button>
+      </div>
     </div>
     <div id="side-rows"></div>
     <div id="sb-foot">
@@ -1544,6 +1669,8 @@ body.cd-route #dash-bar{display:none!important}
   <div class="modal">
     <h3 id="tm-head">Edit Phase</h3>
     <div class="modal-body">
+    <!-- v1.38.0 (tracker #3): the block's own name — blank reads as the department -->
+    <div class="fg"><label>Name</label><input id="tm-name" type="text" autocomplete="off"></div>
     <div class="fg-2">
       <div class="fg"><label>Project *</label><select id="tm-project"></select></div>
       <div class="fg"><label>Department</label><select id="tm-dept"></select></div>
@@ -1610,16 +1737,16 @@ body.cd-route #dash-bar{display:none!important}
     <h3>Print Preview</h3>
     <div class="modal-body">
     <div class="pp-controls">
-      <div class="fg"><label>From</label><input id="pp-start" type="date"></div>
-      <div class="fg"><label>To</label><input id="pp-end" type="date"></div>
-      <div class="pp-note">Prints the current lens exactly as arranged on screen — collapse projects or departments first to control what's included. Tip: the Week or Month zoom fits longer ranges on a page.</div>
+      <div class="fg pp-range"><label>From</label><input id="pp-start" type="date"></div>
+      <div class="fg pp-range"><label>To</label><input id="pp-end" type="date"></div>
+      <div class="pp-note" id="pp-note">Pages are laid out for the paper picked in the Print menu (Letter or Tabloid); a range longer than 13 weeks on Letter or 22 on Tabloid continues on a second page across. Rows print at the Compact height; the lens, filters and expanded rows are as on screen. Print opens the browser's dialog — choose Save as PDF there for a file.</div>
     </div>
     <div id="pp-zoom"><div id="pp-zoom-inner"></div></div>
     </div>
     <div class="m-actions">
       <span></span>
       <div class="m-right">
-        <button id="pp-cancel" class="btn btn-ghost">Close</button>
+        <button id="pp-close" class="btn btn-ghost">Close</button>
         <button id="pp-print" class="btn btn-primary"><svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 5.5V2h7v3.5"/><path d="M4.5 11.5H2.75A1.25 1.25 0 0 1 1.5 10.25v-3.5A1.25 1.25 0 0 1 2.75 5.5h10.5a1.25 1.25 0 0 1 1.25 1.25v3.5a1.25 1.25 0 0 1-1.25 1.25H11.5"/><rect x="4.5" y="9.5" width="7" height="4.5" rx="1"/></svg> Print</button>
       </div>
     </div>
@@ -1632,7 +1759,8 @@ body.cd-route #dash-bar{display:none!important}
     <h3>Meeting Sheet</h3>
     <div class="modal-body">
     <div class="pp-controls">
-      <div class="pp-note">One row per project, grouped by PM and sorted by deadline. Respects the Status filter — set it first to control what prints. The Notes column stays blank for handwriting. Print on 11×17 landscape; the header repeats on every page.</div>
+      <div class="fg" id="meet-orient"><label>Orientation</label><label class="sm-item"><input type="radio" name="sheet-orient" value="landscape"> Landscape</label><label class="sm-item"><input type="radio" name="sheet-orient" value="portrait"> Portrait</label></div>
+      <div class="pp-note">One row per project, grouped by PM and sorted by deadline. Lists the projects the screen shows (the Status, Client and Person filters); a search or spotlight fades rows here as on screen. The Notes column stays blank for handwriting. Pick Letter or Tabloid in the Print menu; the header repeats on every page. Print opens the browser's dialog — choose Save as PDF there for a file.</div>
     </div>
     <div id="meet-zoom"></div>
     </div>
@@ -1681,7 +1809,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.33.0'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.40.1'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -2210,7 +2338,7 @@ function loadLocalPrefs(){
     /* V4/B6: restore through the same applier a saved view uses. No search/tint/group
        here — search never persists between sessions, tint and group live in their own
        loose keys loaded elsewhere; a partial snapshot leaves those untouched. */
-    applyViewState({lens:ui.lens,status:ui.showStatus,person:ui.person,client:ui.clients,color:ui.colorMode,
+    applyViewState({lens:ui.lens,status:ui.done?ui.showStatus:undefined,person:ui.person,client:ui.clients,color:ui.colorMode,
       view:ui.view,fit:ui.fit,density:ui.density===undefined?'comfortable':ui.density,
       collapsedGroups:ui.collapsedGroups,collapsedDepts:ui.collapsedDepts||[]});
     if(ui.sideW)setSideW(ui.sideW);
@@ -3012,7 +3140,8 @@ function saveUI(){
     localStorage.setItem('shopTimelineGroup',s.group);
     localStorage.setItem(UI_KEY,JSON.stringify({collapsedDepts:s.collapsedDepts,
     collapsedGroups:s.collapsedGroups,
-    density:s.density,colorMode:s.color,view:s.view,fit:s.fit,sideW:SIDE_W,npvGut:NPV_GUT,showStatus:s.status,clients:s.client,person:s.person,lens:s.lens}));}catch(e){}}
+    density:s.density,colorMode:s.color,view:s.view,fit:s.fit,sideW:SIDE_W,npvGut:NPV_GUT,showStatus:s.status,clients:s.client,person:s.person,lens:s.lens,
+    done:1 /* v1.37.0 (#6): marks a status set saved since the switch existed — older saves are dropped so everyone opens on Active once */}));}catch(e){}}
 
 /* ===================== SEARCH FILTER ===================== */
 let FILTER='';
@@ -3200,8 +3329,14 @@ function taskMatch(t){
 /* Dim (don't remove) non-matching rows/bars so layout stays put */
 let SPOT=new Set(); /* spotlighted project ids — everything else dims */
 const ALL_STATUSES=['forecast','estimating','in-design','in-fabrication','on-hold','complete'];
-function defaultShowStatus(){return new Set(ALL_STATUSES);}
-let SHOW_STATUS=defaultShowStatus();
+/* v1.37.0 (#6): the sidebar's Active / Completed / All switch is three presets of this one
+   status set — the mode is READ from SHOW_STATUS, never stored beside it. The default view
+   (Clear filters, the chip's ×) keeps whichever preset the switch is on. */
+const ACTIVE_STATUSES=ALL_STATUSES.filter(s=>s!=='complete');
+function doneStatuses(mode){return new Set(mode==='all'?ALL_STATUSES:mode==='completed'?['complete']:ACTIVE_STATUSES);}
+function doneMode(){if(!SHOW_STATUS.has('complete'))return 'active';return [...SHOW_STATUS].some(s=>s!=='complete')?'all':'completed';}
+function defaultShowStatus(){return doneStatuses(doneMode());}
+let SHOW_STATUS=doneStatuses('active');
 function visTasks(){
   _ensureCache();
   const key=[...SHOW_STATUS].join(',')+'|'+[...CLIENT_FILTER].join(',');
@@ -3779,8 +3914,12 @@ function renderEmptyState(){
       +'<div class="es-sub">Create your first project and the schedule builds itself<br>backward from the deadline. Press <kbd>N</kbd> or use <b>+ New Project</b>.</div>'
       +'<button class="btn" id="es-sample" style="margin-top:14px" title="Two practice projects, in this browser only — drag them around, then delete them from their project pages">Add a sample project</button>';
   }else if(!ST.projects.some(p=>SHOW_STATUS.has(projectStatus(p)))){
-    html='<div class="es-big">All projects are hidden</div>'
-      +'<div class="es-sub">The status filter is hiding every project.<br>Click <b>Clear filters</b> in the toolbar to see them again.</div>';
+    /* v1.37.0 (#6): on Active with every job complete, Clear filters wouldn't help — point at the switch */
+    html=(doneMode()!=='all'&&!statusFilterDirty())
+      ?'<div class="es-big">'+(doneMode()==='active'?'No active projects':'No completed projects')+'</div>'
+        +'<div class="es-sub">Every project is '+(doneMode()==='active'?'completed':'still in progress')+'.<br>Switch the sidebar to <b>'+(doneMode()==='active'?'Completed':'Active')+'</b> or <b>All</b> to see them.</div>'
+      :'<div class="es-big">All projects are hidden</div>'
+        +'<div class="es-sub">The status filter is hiding every project.<br>Click <b>Clear filters</b> in the toolbar to see them again.</div>';
   }else if(PERSON&&!visTasks().some(personHit)){
     /* v1.2.2: on the dashboard the person isn't a filter, so don't explain it as one */
     html=dashOn()
@@ -3826,6 +3965,7 @@ function renderEmptyState(){
 function renderSidebar(){
   const list=document.getElementById('side-rows');
   list.innerHTML='';
+  {const m=doneMode();document.querySelectorAll('#sb-head .sb-done .t-btn').forEach(b=>{const on=b.dataset.done===m;b.classList.toggle('active',on);b.setAttribute('aria-pressed',on?'true':'false');});}
   const frag=document.createDocumentFragment();
   for(const r of ROWS){
     const row=document.createElement('div');
@@ -3847,6 +3987,9 @@ function renderSidebar(){
       const col=document.createElement('span');col.className='sb-2l';
       const nm=document.createElement('span');nm.className='sb-name';nm.textContent=p.name;col.appendChild(nm);
       const l2=document.createElement('span');l2.className='sb-l2';
+      /* v1.37.0 (#6): a completed job reads as one — muted row, grey Completed tag under the name (never red, no strike-through) */
+      if(projectStatus(p)==='complete'){row.classList.add('done');
+        const tg=document.createElement('span');tg.className='cd-perm done';tg.textContent='Completed';tg.title='Completed — reopen it by changing its status on the project page';l2.appendChild(tg);}
       const cl=(p.client||'').trim();
       if(cl){const c=document.createElement('span');c.className='sb-cl';c.textContent=cl;c.title=cl;l2.appendChild(c);} /* v1.31.0 (#24): client first on line 2 — cut first when space runs out, whole on hover */
       const sub=document.createElement('span');sub.className='sb-sub';
@@ -3919,10 +4062,13 @@ function renderSidebar(){
         const p=projById(t.projectId);
         const a=document.createElement('span');a.className='sb-asn';
         const n=document.createElement('span');n.className='n';
-        const lead=clientLead(p);
-        if(lead){const c=document.createElement('span');c.className='c';c.textContent=lead;n.appendChild(c);} /* v1.31.0 (#24): muted client in front of the name, unless the name already starts with it */
-        n.appendChild(document.createTextNode((lead?' · ':'')+(p?p.name:'—')+(t.label&&String(t.label).trim()?' · '+phaseLabel(t):''))); /* v1.20.9: a subtask reads by its own name at a glance */
-        a.title=n.textContent; /* v1.31.0 (#24): the whole line on hover when it is cut off */
+        const lead=clientLead(p),code=String(p&&p.jobCode||'').trim(),lbl=t.label&&String(t.label).trim()?' · '+phaseLabel(t):''; /* v1.20.9: a custom label rides along so a subtask reads by its own name at a glance */
+        if(code){n.classList.add('code');n.textContent=code+lbl;} /* v1.35.0 (#33): the cost code stands in for the name — it fits whole where a name is cut; mono, like the dates */
+        else{
+          if(lead){const c=document.createElement('span');c.className='c';c.textContent=lead;n.appendChild(c);} /* v1.31.0 (#24): muted client in front of the name, unless the name already starts with it */
+          n.appendChild(document.createTextNode((lead?' · ':'')+(p?p.name:'—')+lbl));
+        }
+        a.title=[lead,p?p.name:'—',code].filter(Boolean).join(' · ')+lbl; /* v1.31.0 (#24): the whole line on hover when it is cut off; v1.35.0 (#33): client · name · code, whichever the project has */
         const d=document.createElement('span');d.className='d';
         d.textContent=fmtNice(t.startDate)+'–'+fmtNice(t.endDate);
         a.appendChild(n);a.appendChild(d);box.appendChild(a);
@@ -4176,30 +4322,30 @@ function buildCanvasBgInto(canvas,totalW,DW_){
 }
 
 
-/* ===================== REV36: PROJECT LABEL PARKS AT TODAY ===================== */
-/* The project name used to sit at the bar's left edge, so it scrolled out of view on
-   any job that started before today. It now parks just right of the today line, giving
-   one readable column down the whole list. It never leaves its own bar: a job that
-   finished before today keeps its label at its right end, and a job that hasn't started
-   keeps it at its left end. Scrolling past today carries the labels along the left edge
-   so they stay readable out in the future. */
+/* ===================== REV36 / v1.36.0: BAR LABEL STICKS TO THE VISIBLE LEFT EDGE ===================== */
+/* The label used to sit at the bar's left edge, so it scrolled out of view on any job
+   that started before today. REV36 parked it just right of the Today line; v1.36.0
+   (tracker #4) parks it at the left edge of the visible chart instead — next to the
+   sidebar, whatever the view is scrolled to — so with the view a few days before today
+   the label no longer sits mid-canvas. It rides with the bar again once the bar's start
+   scrolls into view, and it never leaves its own bar: a parked label stops LBL_TAIL px
+   short of the bar's end and the .bar-lbl ellipsis trims it from there. Scrolling
+   recomputes it on the same rAF as the edge indicators (queueLabelReposition). */
 let TODAY_X=null;
-const LBL_MIN=170;        /* project summary bars — long names, need more room */
-const LBL_MIN_TASK=130;   /* phase bars — department names are shorter */
+const LBL_TAIL=40;        /* a parked label keeps this much of its bar's end — the ellipsis zone */
 /* §7 bar anatomy — the label sheds pieces as the bar narrows: chips drop first, then
    the job code, then everything but the status pill; under BAR_W_TICK no label renders
    and the bar itself (min-width dw(), never under 4px) is the identity tick. */
 const BAR_W_CHIPS=300,BAR_W_CODE=190,BAR_W_PILL=96,BAR_W_TICK=34;
 
 /* base = the bar's natural left inset, which differs by status (the coloured edge strip
-   on in-production bars takes a few px) and by whether a pin icon is present. */
-function labelLeftFor(barX,barW,base,minLbl){
+   on in-production bars takes a few px) and by whether a pin icon is present.
+   edge = the canvas x where a parked label starts (default: the dashboard viewport's left
+   edge plus a 14px inset); the project page passes its own, right of the name column. */
+function labelLeftFor(barX,barW,base,edge){
   base=(base===undefined)?10:base;
-  minLbl=(minLbl===undefined)?LBL_MIN:minLbl;
-  if(TODAY_X==null||barW<minLbl+base+14)return base;
-  const sc=document.getElementById('gantt-scroll');
-  const anchor=Math.max(TODAY_X,(sc?sc.scrollLeft:0)+8);
-  return Math.max(base,Math.min(Math.round(anchor-barX+6),Math.round(barW-minLbl)));
+  if(edge===undefined){const sc=document.getElementById('gantt-scroll');edge=(sc?sc.scrollLeft:0)+14;}
+  return Math.max(base,Math.min(Math.round(edge-barX),Math.round(barW-LBL_TAIL)));
 }
 
 /* Ticket-node diamonds sit above the label at z-index 13, so a label starting underneath
@@ -4222,16 +4368,17 @@ function dodgeTickNodes(bar,left){
 /* Runs after every bar and diamond is in the DOM, so it can see both. */
 function repositionBarLabels(){
   const bars=document.querySelectorAll('#gantt-canvas .job-bar');
+  const sc=document.getElementById('gantt-scroll');
+  const edge=(sc?sc.scrollLeft:0)+14; /* read once per frame, not once per bar */
   for(const bar of bars){
     const lbl=bar.querySelector('.bar-lbl');
     if(!lbl)continue;
     const bx=parseFloat(bar.style.left)||0,bw=parseFloat(bar.style.width)||0;
     const base=Number(lbl.dataset.base)||10;
-    const min=Number(lbl.dataset.min)||LBL_MIN;
-    let lx=labelLeftFor(bx,bw,base,min);
+    let lx=labelLeftFor(bx,bw,base,edge);
     lx=dodgeTickNodes(bar,lx);
     /* never let the dodge push the text off the end of its own bar */
-    lx=Math.max(base,Math.min(lx,Math.max(base,Math.round(bw-40))));
+    lx=Math.max(base,Math.min(lx,Math.round(bw-LBL_TAIL)));
     lbl.style.left=lx+'px';
   }
 }
@@ -4323,8 +4470,8 @@ function makeSummaryBar(p,s,e,row){
   if(w>=BAR_W_TICK){
     const lbl=document.createElement('div');lbl.className='bar-lbl';
     lbl.style.color=labelColor(sumCol);
-    lbl.dataset.base='10';lbl.dataset.min=String(LBL_MIN);
-    lbl.style.left=labelLeftFor(x,w,10,LBL_MIN)+'px';lbl.style.right='10px';
+    lbl.dataset.base='10';
+    lbl.style.left=labelLeftFor(x,w,10)+'px';lbl.style.right='10px';
     let inner='<span class="sum-pill">'+esc(STATUS_LBL[st])+'</span>';
     if(w>=BAR_W_PILL)inner+=esc(p.name)+(w>=BAR_W_CODE&&p.jobCode?' · '+esc(p.jobCode):'');
     if(w>=BAR_W_CHIPS)inner+=[
@@ -4364,8 +4511,8 @@ function makeTaskBar(t,row,lane,labelMode){
     const lbl=document.createElement('div');lbl.className='bar-lbl';
     lbl.style.color=labelColor(taskCol);
     const lblBase=8;
-    lbl.dataset.base=String(lblBase);lbl.dataset.min=String(LBL_MIN_TASK);
-    lbl.style.left=labelLeftFor(x,w,lblBase,LBL_MIN_TASK)+'px';
+    lbl.dataset.base=String(lblBase);
+    lbl.style.left=labelLeftFor(x,w,lblBase)+'px';
     lbl.style.right=(t.pinned?18:7)+'px';
     if(t.__ghost)lbl.textContent=(isInstall(t)?endName(t.department):phaseLabel(t))+' · '+(p?p.name:'?');
     else if(labelMode==='proj')lbl.textContent=(p?p.name+(p.jobCode?' · '+p.jobCode:''):'?')+(t.label&&String(t.label).trim()?' — '+phaseLabel(t):''); /* v1.20.9: subtask name rides along */
@@ -4477,6 +4624,7 @@ document.addEventListener('mousemove',ev=>{
   }else{
     DRAG.ghost.style.width=Math.max(DW_,DRAG.ow+dd*DW_)+'px';
   }
+  queueLabelReposition(); /* v1.36.0 (#4): the ghost's parked label follows its live left/width */
 });
 
 document.addEventListener('mouseup',ev=>{
@@ -4686,7 +4834,11 @@ function openTaskModal(taskId,prefill){
     const op=document.createElement('option');op.value=d.id;op.textContent=d.name;dsel.appendChild(op);}
   dsel.value=t?t.department:(prefill&&prefill.department)||'td';
   tmAssigneeUI(dsel.value,t?t.assignee:(prefill&&prefill.assignee)||'');
-  dsel.onchange=()=>tmAssigneeUI(dsel.value,'');
+  /* v1.38.0 (tracker #3): Name — the placeholder is what a blank name reads as */
+  const nmEl=document.getElementById('tm-name');
+  nmEl.value=t?(t.label||''):'';
+  const nmPh=()=>{nmEl.placeholder=(t&&dsel.value===t.department)?phaseLabel({...t,label:''}):((deptById(dsel.value)||{}).name||'');};nmPh();
+  dsel.onchange=()=>{tmAssigneeUI(dsel.value,'');nmPh();};
   /* The crew pool culls to the selected project's team, so a project change re-fills it. */
   psel.onchange=()=>{if(!EDIT_TASK_ID)tmAssigneeUI(dsel.value,'');};
   const start=t?t.startDate:fmtDate(prefill&&prefill.start?prefill.start:today());
@@ -4705,12 +4857,19 @@ function openTaskModal(taskId,prefill){
   tov.querySelectorAll('input,select,textarea').forEach(el=>{el.disabled=false;el.removeAttribute('tabindex');});
   viewerLock(tov,'phases'); /* v1.8.0: visible, locked. The phase's own fields follow the PHASES door; only the Milestones block (data-vk) rides the subtasks grant — the whole-box 'subtasks' kind let that grant move dates and delete phases */
   TM_SNAP=tmSnap();
+  /* v1.38.0 (tracker #3): a bar double-click's second press lands on the dialog it just opened
+     (backdrop, a label, or a button under the pointer) — for 400 ms the dialog swallows presses
+     and clicks (see the capture listener below), so the second click neither closes it nor moves
+     focus, and an existing phase opens with Name ready to type over: a double-click reads as
+     "rename". */
+  TM_OPENED=Date.now();
+  if(t){nmEl.focus();nmEl.select();}
 }
 /* N2: what the modal's form serializes to — compared on close to catch silent discards. */
-let TM_SNAP='';
+let TM_SNAP='',TM_OPENED=0;
 function tmSnap(){
   const v=id=>{const e=document.getElementById(id);return e?e.value:'';};
-  return [v('tm-project'),v('tm-dept'),JSON.stringify(tmAssigneeValue()),
+  return [v('tm-project'),v('tm-dept'),JSON.stringify(tmAssigneeValue()),v('tm-name'),
     v('tm-start'),v('tm-end'),v('tm-est'),
     document.getElementById('tm-pin').checked,v('tm-notes'),
     JSON.stringify(TM_NODES)].join('|');
@@ -4724,6 +4883,9 @@ function closeTaskModal(force){
 
 document.getElementById('tm-cancel').addEventListener('click',()=>closeTaskModal());
 document.getElementById('task-overlay').addEventListener('click',ev=>{if(ev.target.id==='task-overlay')closeTaskModal();});
+['mousedown','click'].forEach(k=>document.getElementById('task-overlay').addEventListener(k,ev=>{
+  if(Date.now()-TM_OPENED<400){ev.preventDefault();ev.stopImmediatePropagation();} /* v1.38.0 (tracker #3) */
+},true));
 
 document.getElementById('tm-save').addEventListener('click',()=>{
   const projectId=document.getElementById('tm-project').value;
@@ -4732,6 +4894,7 @@ document.getElementById('tm-save').addEventListener('click',()=>{
     projectId,
     department:document.getElementById('tm-dept').value,
     assignee:tmAssigneeValue(),
+    label:document.getElementById('tm-name').value.trim(), /* v1.38.0 (tracker #3) */
     startDate:document.getElementById('tm-start').value,
     endDate:document.getElementById('tm-end').value,
     estimatedDays:Math.max(1,parseInt(document.getElementById('tm-est').value)||1),
@@ -5747,100 +5910,439 @@ function stripIds(node){
   return node;
 }
 
-function buildPrintSheet(sIso,eIso){
-  const s=parseDate(sIso),e=parseDate(eIso);
-  const DW_=dw();
-  const offset=d2x(s);
-  const W=(diffDays(s,e)+1)*DW_;
-  const sheet=document.createElement('div');
-  sheet.className='p-sheet';
-  sheet.style.width=(SIDE_W+W)+'px';
-  /* Title */
-  const title=document.createElement('div');title.className='p-title';
-  const tm=document.createElement('span');tm.className='pt-main';
-  tm.textContent='TWOSEVEN INC. — Shop Timeline · '+(LENS==='project'?'Projects':'Departments');
-  const ts=document.createElement('span');ts.className='pt-sub';
-  ts.textContent='v'+APP_VER+' · '+fmtNice(sIso)+' → '+fmtNice(eIso)+' · printed '+today().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
-  title.appendChild(tm);title.appendChild(ts);
-  sheet.appendChild(title);
-  /* Grid */
-  const grid=document.createElement('div');grid.className='p-grid';
-  const side=document.createElement('div');side.className='p-side';side.style.width=SIDE_W+'px';
-  const sh=document.createElement('div');sh.className='p-side-head';sh.textContent='Shop Schedule';
-  side.appendChild(sh);
-  const rowsClone=stripIds(document.getElementById('side-rows').cloneNode(true));
-  rowsClone.style.overflow='visible';
-  side.appendChild(rowsClone);
-  const view=document.createElement('div');view.className='p-view';
-  view.style.width=W+'px';
-  const hdrWrap2=document.createElement('div');hdrWrap2.className='p-hdr';
-  const hdrClone=stripIds(document.getElementById('gantt-hdr').cloneNode(true));
-  hdrClone.style.position='absolute';hdrClone.style.left=(-offset)+'px';hdrClone.style.top='0';
-  hdrWrap2.appendChild(hdrClone);
-  const cvWrap=document.createElement('div');cvWrap.className='p-canvas';
-  cvWrap.style.height=TOTAL_H+'px';
-  const cvClone=stripIds(document.getElementById('gantt-canvas').cloneNode(true));
-  cvClone.style.position='absolute';cvClone.style.left=(-offset)+'px';cvClone.style.top='0';
-  cvWrap.appendChild(cvClone);
-  view.appendChild(hdrWrap2);view.appendChild(cvWrap);
-  grid.appendChild(side);grid.appendChild(view);
-  sheet.appendChild(grid);
-  sheet.dataset.w=SIDE_W+W;
-  sheet.dataset.h=64+TOTAL_H+44;
-  return sheet;
+/* v1.40.0 (tracker #8/#9): print designed for paper. The app lays out one box per page at the
+   paper's own size (Letter 960×720 px, Tabloid 1536×960 — 96 px to the inch, .5 in margins
+   already off), each with its header, footer and "Page X of Y", and a forced break after it;
+   the browser's print dialog (Save as PDF) is the export step — no PDF library. */
+const PAPER_KEY='shopTimelinePaper',SHEET_PORTRAIT_KEY='shopTimelineSheetPortrait';
+let PAPER='letter',SHEET_PORTRAIT=false;   /* remembered per browser; Letter and landscape on first use (Q4, Q6) */
+try{if(localStorage.getItem(PAPER_KEY)==='tabloid')PAPER='tabloid';SHEET_PORTRAIT=localStorage.getItem(SHEET_PORTRAIT_KEY)==='1';}catch(e){}
+/* inches, not paper names — browsers do not all know "Tabloid" */
+const PAGE_RULES={letter:'@page{size:11in 8.5in;margin:.5in}',tabloid:'@page{size:17in 11in;margin:.5in}',
+  letterP:'@page{size:8.5in 11in;margin:.5in}',tabloidP:'@page{size:11in 17in;margin:.5in}'};
+const PAPER_PX={letter:{w:960,h:720,side:216,weeks:13,legend:8},tabloid:{w:1536,h:960,side:264,weeks:22,legend:12}};
+const PR_HEAD_H=53,PR_FOOT_H=44,PR_AXIS_H=64,PR_ROW=32;
+let PR_FIXED_H=null; /* tests set a fixed row height — jsdom cannot measure */
+function setPaper(p){PAPER=p==='tabloid'?'tabloid':'letter';try{localStorage.setItem(PAPER_KEY,PAPER);}catch(e){}syncPaperMenu();prWriteStyle(false);}
+function setSheetPortrait(v){SHEET_PORTRAIT=!!v;try{localStorage.setItem(SHEET_PORTRAIT_KEY,SHEET_PORTRAIT?'1':'0');}catch(e){}syncPaperMenu();}
+function syncPaperMenu(){
+  document.querySelectorAll('input[name=paper-pick]').forEach(r=>{r.checked=(r.value===PAPER);});
+  document.querySelectorAll('input[name=sheet-orient]').forEach(r=>{r.checked=((r.value==='portrait')===SHEET_PORTRAIT);});
 }
-
+function prPageSize(portrait){const d=PAPER_PX[PAPER];return portrait?{w:d.h,h:d.w}:{w:d.w,h:d.h};}
+function prBodyH(size){return size.h-PR_HEAD_H-PR_FOOT_H;}
+function prH(el,fallback){return PR_FIXED_H||(el&&el.offsetHeight)||fallback;}
+function prWriteStyle(portrait){
+  let st=document.getElementById('print-page-size');
+  if(!st){st=document.createElement('style');st.id='print-page-size';document.head.appendChild(st);}
+  st.textContent=PAGE_RULES[PAPER+(portrait?'P':'')];
+}
+function prPrintedOn(){return today().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});}
+/* Line two of the header names every filter in use; Color by is always named on the Gantt. */
+function prFiltersText(withColor){
+  const f=[];
+  if(statusFilterDirty())f.push('Status: '+ALL_STATUSES.filter(s=>SHOW_STATUS.has(s)).map(s=>STATUS_LBL[s]).join(', '));
+  if(CLIENT_FILTER.size)f.push('Client: '+[...CLIENT_FILTER].join(', '));
+  if(PERSON)f.push('Person: '+dispName(PERSON));
+  if(FILTER)f.push('Search: '+FILTER);
+  if(SPOT.size)f.push('Spotlight: '+[...SPOT].map(id=>(projById(id)||{}).name||'').filter(Boolean).join(', '));
+  /* v1.37.0 (#6): the Active / Completed / All switch is a view, not a filter, so the header names it outright */
+  const view={active:'Active projects',completed:'Completed projects',all:'All projects'}[doneMode()];
+  return view+(f.length?' · Filters · '+f.join(' · '):'')+(withColor?' · Color by: '+(COLOR_MODE==='entity'?'Team':'Project'):'');
+}
+function prShopLine2(n){return 'v'+APP_VER+' · printed '+prPrintedOn()+' · '+n+' project'+(n===1?'':'s')+' · '+prFiltersText(true);}
+/* A project's page: cost code, client, PM and deadline; a draft says so and carries no cost code. */
+function prProjLine2(p){
+  const draft=!!ROUTE.creating,d=draft?readPageDraft().base:p;
+  const pm=roleList(d.projectManager).map(canonName).map(dispName).join(', ');
+  const due=draft?d.deadline:(dueDate(p)||p.deadline);
+  return [draft?'Draft, not yet created':(d.jobCode||''),(d.client||'').trim(),pm?'PM '+pm:'',due?'Due '+fmtNiceY(due):''].filter(Boolean).join(' · ');
+}
+/* One page box: two header lines over a 2px ink rule, a body the caller fills, a footer with the legend and the page number. */
+function prPage(pages,size,title,right,line2,legend){
+  const pg=document.createElement('div');pg.className='pr-page';
+  pg.style.width=size.w+'px';pg.style.height=size.h+'px';
+  pg.innerHTML='<div class="pr-head"><div class="pr-h1"><span class="pr-co">TWOSEVEN INC.</span><span class="pr-title">'+esc(title)+'</span><span class="pr-range">'+esc(right||'')+'</span></div>'
+    +'<div class="pr-h2">'+esc(line2)+'</div></div>'
+    +'<div class="pr-body" style="height:'+prBodyH(size)+'px"></div>'
+    +'<div class="pr-foot"><div class="pr-legend">'+(legend||'')+'</div><span class="pr-pageno"></span></div>';
+  pages.push(pg);
+  return pg.querySelector('.pr-body');
+}
+function prNumber(pages){pages.forEach((pg,i)=>{pg.querySelector('.pr-pageno').textContent='Page '+(i+1)+' of '+pages.length;});return pages;}
+/* Cuts groups of units into pages. A unit (a project with its expanded phases, a sheet row) never
+   splits unless it is taller than a page — then row by row. A group (department, client / PM /
+   status, PM on the sheet) starts a new page only if it would otherwise split, unless it is
+   taller than a page — then its heading repeats on the continuation. Rows carry h in px. */
+function prPaginate(groups,avail){
+  const pages=[];let cur=[],y=0,head=null;
+  const flush=()=>{if(cur.length)pages.push(cur);cur=[];y=0;if(head){cur.push({...head,cont:true});y=head.h;}};
+  const put=r=>{cur.push(r);y+=r.h;};
+  const hOf=u=>u.rows.reduce((a,r)=>a+r.h,0);
+  for(const g of groups){
+    head=null;
+    const room=avail-(g.head?g.head.h:0); /* what a continuation page holds under the repeated heading */
+    const gH=(g.head?g.head.h:0)+g.units.reduce((a,u)=>a+hOf(u),0);
+    if(gH<=avail&&y+gH>avail)flush();
+    if(g.head){
+      const u0=g.units[0],u0H=u0?hOf(u0):0,need=u0H>room?(u0?u0.rows[0].h:0):u0H;
+      if(y+g.head.h+need>avail&&cur.length)flush();
+      put(g.head);head=g.head;
+    }
+    for(const u of g.units){
+      const uH=hOf(u);
+      if(y+uH<=avail){u.rows.forEach(put);continue;}
+      if(uH>room){for(const r of u.rows){if(y+r.h>avail&&cur.length)flush();put(r);}continue;}
+      flush();u.rows.forEach(put);
+    }
+  }
+  if(cur.length)pages.push(cur);
+  return pages;
+}
+function prWeekStart(d){const w=d.getDay();return addDays(d,-(w===0?6:w-1));}
+/* Whole-week slices of 13 (Letter) or 22 (Tabloid) weeks, one page width each. */
+function prSlices(s,e){
+  const P=PAPER_PX[PAPER],s0=prWeekStart(s),weeks=Math.max(1,Math.round((diffDays(s0,addDays(prWeekStart(e),6))+1)/7));
+  const out=[];for(let w=0;w<weeks;w+=P.weeks)out.push({s:addDays(s0,w*7),e:addDays(s0,Math.min(weeks,w+P.weeks)*7-1),w0:w+1,w1:Math.min(weeks,w+P.weeks),n:weeks});
+  return out;
+}
+/* Print rows at the Compact height whatever the screen density: heads 26, one lane 32, n lanes 8+24n+4(n-1). */
+function prRowH(r){const n=r.lanes||1;return (r.kind==='deptHead'||r.kind==='groupHead')?HEAD_H:8+24*n+4*(n-1);}
+function prGanttGroups(rows){
+  const groups=[];let g=null,u=null;
+  for(const r0 of rows){
+    const r={...r0,h:prRowH(r0)};delete r._bars;
+    if(r.kind==='deptHead'||r.kind==='groupHead'){g={head:r,units:[]};groups.push(g);u=null;continue;}
+    if(!g){g={head:null,units:[]};groups.push(g);}
+    if(r.kind==='projTask'&&u&&u.rows[0].projectId===r.projectId){u.rows.push(r);continue;}
+    u={rows:[r]};g.units.push(u);
+  }
+  return groups;
+}
+function prProjOK(p){return (!FILTER||projMatch(p))&&(!SPOT.size||SPOT.has(p.id));} /* search and spotlight only fade, as on screen (applyFilter's projOK) */
+function prTaskOK(t){return (!FILTER||taskMatch(t))&&(!SPOT.size||SPOT.has(t.projectId));} /* applyFilter's taskOK */
+function prSideRow(r){
+  const row=document.createElement('div');row.className='sb-row';row.style.height=r.h+'px';row.style.minHeight=r.h+'px';row.dataset.key=r.key;
+  const span=(cls,txt)=>{const s=document.createElement('span');s.className=cls;s.textContent=txt;return s;};
+  const dot=col=>{const d=document.createElement('span');d.className='c-dot';d.style.background=col;return d;};
+  const two=(a,b)=>{const col=document.createElement('span');col.className='sb-2l';col.appendChild(span('sb-name',a));if(b)col.appendChild(span('sb-sub',b));return col;};
+  if(r.kind==='projHead'){
+    const p=projById(r.projectId);row.classList.add('proj-head');row.appendChild(dot(projColor(p.id)));
+    const due=dueDate(p),done=projectStatus(p)==='complete';
+    row.appendChild(two(p.name,[done?'':(p.client||'').trim(),p.jobCode,due?fmtNice(due):''].filter(Boolean).join(' · ')));
+    /* v1.37.0 (#6) on paper too: a completed job is muted and its line two leads with the grey Completed tag (the tag takes the client's place, as on screen) */
+    if(done){row.classList.add('done');const tg=span('cd-perm done','Completed'),sub=row.querySelector('.sb-sub');
+      if(sub){sub.prepend(' ');sub.prepend(tg);}else row.querySelector('.sb-2l').appendChild(tg);}
+    if(!prProjOK(p))row.classList.add('dim');
+  }else if(r.kind==='projTask'){
+    const t=taskById(r.taskId);row.classList.add('task-row');row.appendChild(span('sb-name',phaseLabel(t)));
+    const a=assigneeText(t);if(a&&a!=='—'&&a!==phaseLabel(t))row.appendChild(span('sb-sub',a));
+    if(!prTaskOK(t))row.classList.add('dim');
+  }else if(r.kind==='groupHead'||r.kind==='deptHead'){
+    row.classList.add(r.kind==='deptHead'?'dept-head':'grp-head');
+    row.appendChild(span('sb-name',r.label+(r.cont?' (continued)':'')));row.appendChild(span('sb-count',r.count));
+  }else{
+    row.classList.add('lane-row');row.appendChild(dot(laneColor(r.dept,r.assignee)));
+    const dnm=(deptById(r.dept)||{}).name||r.dept;
+    row.appendChild(two(dispName(r.label),r.label!==dnm?dnm:''));
+  }
+  return row;
+}
+/* A month that only grazes the slice edge keeps a label that fits on the page — the full name, else the short one, else none —
+   so no word is cut at the page edge (uppercase 11px with .1em tracking is about 8px a letter). */
+function prFitMonths(hdr,timeW){
+  hdr.querySelectorAll('.hdr-m-cell').forEach(mc=>{
+    const l=parseFloat(mc.style.left)||0,room=Math.min(timeW,l+(parseFloat(mc.style.width)||0))-Math.max(0,l)-18;
+    const [mon,yr]=mc.textContent.split(' '),fit=t=>t.length*8<=room;
+    mc.textContent=fit(mc.textContent)?mc.textContent:fit(mon.slice(0,3)+' '+yr)?mon.slice(0,3)+' '+yr:fit(mon.slice(0,3))?mon.slice(0,3):'';
+  });
+}
+function prSwatch(col,name){return '<span class="pr-sw"><i style="--c:'+esc(col)+'"></i>'+esc(name)+'</span>';}
+const PR_MARKS='<span class="job-bar pr-lg" data-st="forecast">Forecast</span><span class="job-bar pr-lg" data-st="estimating"><span class="bar-stripe"></span>Estimating</span>'
+  +'<span class="job-bar pr-lg" data-st="on-hold">On hold</span><span class="job-bar pr-lg" data-st="complete">✓ Complete</span>';
+const PR_RED='<span class="pr-red">red edge = install or shipping (Laser shares the red)</span>';
+/* The footer legend: the set Color by is using — the page's projects (Project) or the departments
+   present (Team, Laser as its own swatch) — then the status marks and the red-edge note. A long
+   project list leaves the swatches to the sidebar dots before each name. */
+function prGanttLegend(prow){
+  let h='';
+  const tasksOn=r=>r.kind==='projTask'?[taskById(r.taskId)].filter(Boolean):(r.kind==='projHead'?tasksOf(r.projectId):(r.tasks||[]));
+  if(COLOR_MODE==='entity'){
+    const depts=[];for(const r of prow)for(const t of tasksOn(r))if(depts.indexOf(t.department)<0)depts.push(t.department);
+    h+=depts.map(d=>prSwatch(isEndDept(d)?INSTALL_RED:(DEPT_COLORS[d]||'#8A98AE'),(deptById(d)||{}).name||d)).join(''); /* install and shipping bars print red (barColor) */
+  }else{
+    const ids=[];for(const r of prow){if(r.kind==='projHead'){if(ids.indexOf(r.projectId)<0)ids.push(r.projectId);}else if(r.kind==='deptLane')for(const t of r.tasks)if(ids.indexOf(t.projectId)<0)ids.push(t.projectId);}
+    if(ids.length<=PAPER_PX[PAPER].legend)h+=ids.map(id=>prSwatch(projColor(id),(projById(id)||{}).name||'')).join('');
+  }
+  return h+PR_MARKS+PR_RED;
+}
+/* Draws a slice of the timeline into a page body: sidebar names, the date axis (the screen's own
+   header builder, so it degrades the same way), the canvas and the bars. The screen's geometry
+   globals are pointed at the slice for the duration and restored after. */
+function prGanttInto(body,prow,sideW,timeW){
+  const DW_=dw();
+  body.innerHTML='<div class="pr-side" style="width:'+sideW+'px"><div class="pr-side-head">Shop Schedule</div><div class="pr-side-rows"></div></div>'
+    +'<div class="pr-view" style="width:'+timeW+'px"><div class="pr-hdr"></div><div class="pr-canvas"></div></div>';
+  const side=body.querySelector('.pr-side-rows'),hdr=body.querySelector('.pr-hdr'),cv=body.querySelector('.pr-canvas');
+  hdr.style.width=timeW+'px';buildHeaderInto(hdr,DW_);prFitMonths(hdr,timeW);
+  cv.style.width=timeW+'px';cv.style.height=TOTAL_H+'px';
+  buildCanvasBgInto(cv,timeW,DW_);
+  for(const r of prow){
+    side.appendChild(prSideRow(r));
+    const rd=document.createElement('div');rd.className='g-row'+((r.kind==='deptHead'||r.kind==='groupHead')?' dept-band':'');
+    rd.style.top=r.top+'px';rd.style.height=r.h+'px';rd.style.width=timeW+'px';cv.appendChild(rd);
+  }
+  const td=today();
+  if(td>=TL_S&&td<=TL_E){const tl=document.createElement('div');tl.className='today-line';tl.style.left=d2x(td)+'px';tl.style.width=DW_+'px';tl.style.height=TOTAL_H+'px';cv.appendChild(tl);}
+  const on=(s,e)=>e>=TL_S&&s<=TL_E;
+  for(const r of prow){
+    if(r.kind==='projHead'){
+      const p=projById(r.projectId),ts=tasksOf(p.id);let s,e;
+      if(ts.length){s=new Date(Math.min(...ts.map(t=>parseDate(t.startDate).getTime())));e=new Date(Math.max(...ts.map(t=>parseDate(t.endDate).getTime())));}
+      else{e=parseDate(p.deadline);s=addDays(e,-14);}
+      if(on(s,e)){const b=makeSummaryBar(p,s,e,r);if(!prProjOK(p))b.classList.add('dim');cv.appendChild(b);}
+      const due=dueDate(p);
+      if(due){const dl=parseDate(due);
+        if(dl>=TL_S&&dl<=TL_E){
+          let bot=r.top+r.h;const i=prow.indexOf(r);for(let j=i+1;j<prow.length&&prow[j].projectId===r.projectId;j++)bot=prow[j].top+prow[j].h;
+          const f=document.createElement('div');f.className='dl-flag';f.style.left=(d2x(dl)+DW_-1)+'px';f.style.top=r.top+'px';f.style.height=(bot-r.top)+'px';f.style.color=projColor(p.id);cv.appendChild(f);}}
+    }else if(r.kind==='projTask'){
+      const t=taskById(r.taskId);
+      if(t&&on(parseDate(t.startDate),parseDate(t.endDate))){const b=makeTaskBar(t,r,0,'dept');if(!prTaskOK(t))b.classList.add('dim');cv.appendChild(b);}
+    }else if(r.kind==='deptLane'){
+      for(const t of r.tasks)if(on(parseDate(t.startDate),parseDate(t.endDate))){const b=makeTaskBar(t,r,r.laneMap.get(t.id)||0,'proj');if(!prTaskOK(t))b.classList.add('dim');cv.appendChild(b);}
+    }
+  }
+  /* the bar's colour moves to --c so the paper rules tint it; labels park at today or the page's left edge,
+     by the screen's own rule (labelLeftFor, v1.36.0 #4: never closer than LBL_TAIL to the bar's end) */
+  const ax=d2x(td>TL_S?td:TL_S);
+  cv.querySelectorAll('.job-bar').forEach(b=>{
+    b.style.setProperty('--c',b.style.backgroundColor);
+    const l=b.querySelector('.bar-lbl');if(!l)return;
+    const bx=parseFloat(b.style.left),bw=parseFloat(b.style.width),base=+l.dataset.base||8;
+    l.style.left=labelLeftFor(bx,bw,base,ax+6)+'px';
+  });
+}
+/* The whole-shop Gantt: pages run across time first (whole-week slices), then down the rows;
+   every page repeats the sidebar names and the axis. */
+function prGanttPages(pages,sIso,eIso){
+  const size=prPageSize(false),P=PAPER_PX[PAPER],timeW=size.w-P.side;
+  const rows=buildRows().rows;
+  const rowPages=prPaginate(prGanttGroups(rows),prBodyH(size)-PR_AXIS_H);
+  const slices=prSlices(parseDate(sIso),parseDate(eIso)),dwAll=slices.length>1?timeW/(P.weeks*7):null; /* one scale across the slices */
+  const title='Shop Timeline · '+(LENS==='project'?'Projects':'Departments');
+  const n=LENS==='project'?rows.filter(r=>r.kind==='projHead').length:new Set(rows.flatMap(r=>(r.tasks||[]).map(t=>t.projectId))).size;
+  const line2=prShopLine2(n);
+  const saved={TL_S,TL_E,DW_PX,TOTAL_H,BAR_H,BAR_PAD,LANE_G,TODAY_X};
+  try{
+    BAR_H=24;BAR_PAD=4;LANE_G=4;TODAY_X=null;
+    for(const prow of rowPages){
+      let y=0;for(const r of prow){r.top=y;y+=r.h;}TOTAL_H=Math.max(y,prBodyH(size)-PR_AXIS_H); /* columns run to the page bottom */
+      for(const sl of slices){
+        TL_S=sl.s;TL_E=sl.e;DW_PX=dwAll||timeW/(diffDays(sl.s,sl.e)+1);
+        const t2=slices.length>1?title+' · weeks '+sl.w0+' to '+sl.w1+' of '+sl.n:title;
+        const body=prPage(pages,size,t2,fmtNice(fmtDate(sl.s))+' to '+fmtNiceY(fmtDate(sl.e)),line2,prGanttLegend(prow));
+        prGanttInto(body,prow,P.side,Math.round((diffDays(sl.s,sl.e)+1)*DW_PX));
+      }
+    }
+    if(!rowPages.length)prPage(pages,size,title,'',line2,'').innerHTML='<div class="npv-empty">Nothing to show — no projects match the current filter.</div>';
+  }finally{({TL_S,TL_E,DW_PX,TOTAL_H,BAR_H,BAR_PAD,LANE_G,TODAY_X}=saved);}
+  return pages;
+}
+/* A project's Gantt (its page, Gantt showing): the job's span in whole weeks, 32px rows, the phase
+   gutter in place of the sidebar at the same width, a department with its open subtasks never split. */
+function prProjectGanttPages(pages){
+  const size=prPageSize(false),P=PAPER_PX[PAPER],timeW=size.w-P.side;
+  const p=ppProject(),name=(p&&p.name)||'New project',line2=prProjLine2(p),title='Shop Timeline · '+name;
+  if(!NPV_TASKS.length){prPage(pages,size,title,'',line2,'').innerHTML='<div class="npv-empty">Nothing scheduled yet.</div>';return pages;}
+  const marks=npvMarkers();
+  const due=dueOf(NPV_ALL),dl=due?parseDate(due.d):parseDate(readPageDraft().base.deadline);
+  let lo=parseDate(NPV_TASKS[0].startDate),hi=dl;
+  for(const t of NPV_TASKS){const a=parseDate(t.startDate),b=parseDate(t.endDate);if(a<lo)lo=a;if(b>hi)hi=b;}
+  for(const m of marks){const d=parseDate(m.date);if(d<lo)lo=d;if(d>hi)hi=d;}
+  const plan=npvRowPlan();
+  const rows=[];
+  if(marks.length){rows.push({kind:'extra',label:'Milestones',h:PR_ROW,k:'ev'});rows.push({kind:'extra',label:'Notes',h:PR_ROW,k:'tk'});}
+  for(const r of plan)rows.push({...r,h:PR_ROW});
+  const units=[];
+  for(const r of rows){if(r.kind==='child'&&units.length){units[units.length-1].rows.push(r);continue;}units.push({rows:[r]});}
+  const rowPages=prPaginate([{head:null,units}],prBodyH(size)-PR_AXIS_H);
+  const legend=[...new Set(NPV_TASKS.map(t=>t.department))].map(d=>prSwatch(DEPT_COLORS[d]||'#8A98AE',(deptById(d)||{}).name||d)).join('')+PR_RED;
+  const slices=prSlices(lo,hi),dwAll=slices.length>1?timeW/(P.weeks*7):null;
+  const saved={TL_S,TL_E,DW_PX,TOTAL_H};
+  try{
+    for(const prow of rowPages){
+      let y=0;for(const r of prow){r.top=y;y+=r.h;}TOTAL_H=Math.max(y,prBodyH(size)-PR_AXIS_H); /* columns run to the page bottom */
+      for(const sl of slices){
+        TL_S=sl.s;TL_E=sl.e;DW_PX=dwAll||timeW/(diffDays(sl.s,sl.e)+1);
+        const tw=Math.round((diffDays(sl.s,sl.e)+1)*DW_PX);
+        const DW_=dw();
+        const body=prPage(pages,size,sl.n>PAPER_PX[PAPER].weeks?title+' · weeks '+sl.w0+' to '+sl.w1+' of '+sl.n:title,fmtNice(fmtDate(sl.s))+' to '+fmtNiceY(fmtDate(sl.e)),line2,legend);
+        body.innerHTML='<div class="pr-side" style="width:'+P.side+'px"><div class="pr-side-head">Project Schedule</div><div class="pr-side-rows"></div></div>'
+          +'<div class="pr-view" style="width:'+tw+'px"><div class="pr-hdr"></div><div class="pr-canvas"></div></div>';
+        const side=body.querySelector('.pr-side-rows'),hdr=body.querySelector('.pr-hdr'),cv=body.querySelector('.pr-canvas');
+        hdr.style.width=tw+'px';buildHeaderInto(hdr,DW_);prFitMonths(hdr,tw);
+        cv.style.width=tw+'px';cv.style.height=TOTAL_H+'px';
+        buildCanvasBgInto(cv,tw,DW_);
+        const bar=(t,row,kid)=>{
+          const a=parseDate(t.startDate),b=parseDate(t.endDate);if(b<TL_S||a>TL_E)return '';
+          const col0=DEPT_COLORS[t.department]||'#6B7484',col=kid?kidShade(col0):col0;
+          const x=d2x(a)+NPV_PADL,w=Math.max(DW_,(diffDays(a,b)+1)*DW_-NPV_PADR);
+          return '<div class="job-bar" style="left:'+x+'px;top:'+(row.top+4)+'px;width:'+w+'px;height:24px;background-color:'+col+';--c:'+col+'"><div class="bar-lbl" style="left:8px;right:6px">'+esc(phaseLabel(t))+'</div></div>';
+        };
+        let h='';
+        for(const r of prow){
+          const g=document.createElement('div');g.className='pr-gut'+(r.kind==='child'?' child':'')+(r.kind==='extra'?' extra':'');
+          if(r.kind==='extra'){g.textContent=r.label;side.appendChild(g);
+            for(const m of marks){if(m.k!==r.k)continue;const d=parseDate(m.date);if(d<TL_S||d>TL_E)continue;
+              h+='<div class="pr-mk '+m.k+'" style="left:'+(d2x(d)+DW_/2-5)+'px;top:'+(r.top+9)+'px"><i></i>'+esc(m.nm||(m.k==='ev'?'Untitled milestone':'Untitled note'))+'</div>';}
+            continue;}
+          const t=r.t,d=deptById(t.department),who=[...new Set(crewOf(t).map(canonName))].map(dispName).join(', ');
+          const nm=r.kind==='parent'?((d||{}).name||t.department):phaseLabel(t);
+          g.innerHTML='<span class="c-dot" style="background:'+esc(DEPT_COLORS[t.department]||'#6B7484')+'"></span>'+esc((d&&d.roster&&who)?nm+' · '+who:nm);
+          side.appendChild(g);
+          h+=r.bars.map(b=>bar(b.t,r,r.kind==='child')).join('');
+        }
+        const td=today();
+        if(td>=TL_S&&td<=TL_E)h+='<div class="today-line" style="left:'+d2x(td)+'px;width:'+DW_+'px;height:'+TOTAL_H+'px"></div>';
+        if(dl>=TL_S&&dl<=TL_E)h+='<div class="dl-flag" style="left:'+(d2x(dl)+DW_-1)+'px;top:0;height:'+TOTAL_H+'px"></div>';
+        cv.insertAdjacentHTML('beforeend',h);
+      }
+    }
+  }finally{({TL_S,TL_E,DW_PX,TOTAL_H}=saved);}
+  return pages;
+}
+/* A project's Calendar (its page, Calendar showing): the weeks on screen, cut one month per page —
+   the month's weeks share the page height; the departments of the job as plain chips in the footer. */
+function prCalendarPages(pages){
+  const size=prPageSize(false);
+  const p=ppProject(),name=(p&&p.name)||'New project',line2=prProjLine2(p),title='Shop Calendar · '+name;
+  const host=document.getElementById('npv-body'),cal=host&&host.querySelector('.cal');
+  const legend=[...new Set(NPV_TASKS.map(t=>t.department))].map(d=>prSwatch(DEPT_COLORS[d]||'#8A98AE',(deptById(d)||{}).name||d)).join(''); /* the job's departments, each with its strip colour */
+  if(!cal){prPage(pages,size,title,'',line2,legend).innerHTML='<div class="npv-empty">Nothing scheduled yet.</div>';return pages;}
+  const months=[];let m=null;
+  for(const ch of cal.children){
+    if(ch.classList.contains('cal-mon')){m={mon:ch,dow:null,weeks:[]};months.push(m);}
+    else if(!m)continue;
+    else if(ch.classList.contains('cal-dow'))m.dow=ch;
+    else if(ch.classList.contains('cal-wk'))m.weeks.push(ch);
+  }
+  for(const mo of months){
+    const body=prPage(pages,size,title,mo.mon.textContent,line2,legend);
+    const box=document.createElement('div');box.className='cal pr-cal'+(cal.classList.contains('mk0')?' mk0':'');
+    box.appendChild(stripIds(mo.mon.cloneNode(true)));
+    if(mo.dow)box.appendChild(stripIds(mo.dow.cloneNode(true)));
+    const wkH=Math.floor((prBodyH(size)-prH(mo.mon,24)-2-prH(mo.dow,20))/Math.max(1,mo.weeks.length));
+    /* ponytail: a week keeps at least its on-screen height, so its bands never clip; a month whose weeks then outgrow the
+       page is cut at the page foot — split such a month across two pages if a real job ever needs it */
+    for(const w of mo.weeks){const c=stripIds(w.cloneNode(true));c.style.height=Math.max(wkH,prH(w,0))+'px';c.style.minHeight='0';box.appendChild(c);}
+    box.querySelectorAll('.cal-band.ph').forEach(b=>b.style.setProperty('--c',b.style.backgroundColor));
+    body.appendChild(box);
+  }
+  return pages;
+}
+const PR_MEET_COLS={letter:[23,9,14,16,7,5,26],tabloid:[20,8,12,13,6,4,37],portrait:[20,11,14,17,8,5,25]};
+/* The Meeting Sheet (the List): the table as it is, measured in the browser and cut between rows;
+   a PM group starts a new page only when it would otherwise split. */
+function prMeetingPages(pages,portrait){
+  const size=prPageSize(portrait);
+  const sheet=buildMeetingSheet(),tbl=sheet.querySelector('table');
+  const widths=PR_MEET_COLS[portrait?'portrait':PAPER];
+  const colsRow=tbl.querySelector('.meet-cols');
+  [...colsRow.children].forEach((th,i)=>{th.style.width=widths[i]+'%';});
+  const meas=document.createElement('div');meas.className='pr-measure pr-page';meas.style.width=size.w+'px';meas.appendChild(sheet);document.body.appendChild(meas);
+  const colsH=prH(colsRow,24);
+  const groups=[];let g=null;
+  for(const tr of tbl.tBodies[0].rows){
+    const row={el:tr,h:prH(tr,tr.classList.contains('meet-pm')?26:40)};
+    if(tr.classList.contains('meet-pm')){g={head:row,units:[]};groups.push(g);continue;}
+    if(!g){g={head:null,units:[]};groups.push(g);}
+    g.units.push({rows:[row]});
+  }
+  meas.remove();
+  const n=tbl.tBodies[0].querySelectorAll('.meet-row').length;
+  const line2='v'+APP_VER+' · printed '+prPrintedOn()+' · '+n+' project'+(n===1?'':'s')+' · '+prFiltersText(false);
+  const rowPages=prPaginate(groups,prBodyH(size)-colsH);
+  if(!rowPages.length)rowPages.push([]);
+  for(const prow of rowPages){
+    const body=prPage(pages,size,'Shop Meeting Sheet','',line2,'<span class="pr-app">Shop Timeline v'+APP_VER+'</span>');
+    const t=document.createElement('table');t.className='meet-table';
+    const th=document.createElement('thead');th.appendChild(colsRow.cloneNode(true));t.appendChild(th);
+    const tb=document.createElement('tbody');
+    for(const r of prow){const c=r.el.cloneNode(true);if(r.cont)c.firstElementChild.textContent+=' (continued)';tb.appendChild(c);}
+    t.appendChild(tb);body.appendChild(t);
+  }
+  return pages;
+}
+/* What prints: 'timeline' (the whole shop, From/To), 'project' (a project's page — the Gantt or the
+   Calendar, whichever is showing), 'sheet', or 'both' (timeline pages first, then the sheet). */
+function prBuild(kind,sIso,eIso){
+  const pages=[];
+  if(kind==='project'){if(NPV_MODE==='calendar')prCalendarPages(pages);else prProjectGanttPages(pages);}
+  if(kind==='timeline'||kind==='both')prGanttPages(pages,sIso,eIso);
+  if(kind==='sheet'||kind==='both')prMeetingPages(pages,kind==='sheet'&&SHEET_PORTRAIT);
+  /* deep copies: makeTaskBar / makeSummaryBar / the month header bind drag, click and hover — none of that may live in a preview */
+  return prNumber(pages).map(pg=>pg.cloneNode(true));
+}
+function prMount(pages,portrait){
+  const root=document.getElementById('print-root');root.innerHTML='';
+  pages.forEach(pg=>root.appendChild(pg));
+  prWriteStyle(!!portrait);
+  return root;
+}
+function prGo(pages,portrait){
+  prMount(pages,portrait);
+  const done=()=>{document.getElementById('print-root').innerHTML='';window.removeEventListener('afterprint',done);};
+  window.addEventListener('afterprint',done);
+  if(typeof window.print==='function'){try{window.print();}catch(e){}}
+}
+let PP_KIND='timeline';
+function ppRange(){return [document.getElementById('pp-start').value,document.getElementById('pp-end').value];}
 function renderPreview(){
-  const sIso=document.getElementById('pp-start').value;
-  const eIso=document.getElementById('pp-end').value;
-  if(!sIso||!eIso||parseDate(eIso)<parseDate(sIso))return;
+  const [sIso,eIso]=ppRange();
+  if(PP_KIND!=='project'&&(!sIso||!eIso||parseDate(eIso)<parseDate(sIso)))return;
   const inner=document.getElementById('pp-zoom-inner');
   inner.innerHTML='';
-  const sheet=buildPrintSheet(sIso,eIso);
+  const pages=prBuild(PP_KIND,sIso,eIso);
+  const w=pages.length?parseFloat(pages[0].style.width):960;
   const zoomBox=document.getElementById('pp-zoom');
-  const avail=zoomBox.clientWidth-28||780;
-  const scale=Math.min(1,avail/parseFloat(sheet.dataset.w));
+  const scale=Math.min(1,(zoomBox.clientWidth-28||780)/w);
   inner.style.transform='scale('+scale+')';
-  inner.style.width=sheet.dataset.w+'px';
-  inner.appendChild(sheet);
-  zoomBox.style.height=Math.min(parseFloat(sheet.dataset.h)*scale+30, window.innerHeight*.55)+'px';
+  inner.style.width=w+'px';
+  pages.forEach(pg=>inner.appendChild(pg));
+  prWriteStyle(false);
 }
-
-function openPrintPreview(){
+function openPrintPreview(kind){
+  PP_KIND=kind||'timeline';
+  const ov=document.getElementById('print-overlay');
+  ov.classList.toggle('no-range',PP_KIND==='project');
   const sc=document.getElementById('gantt-scroll');
-  let s=x2d(sc.scrollLeft);
-  let e=x2d(sc.scrollLeft+sc.clientWidth);
-  if(s<TL_S)s=new Date(TL_S);
-  if(e>TL_E)e=new Date(TL_E);
+  let s,e;
+  if(ROUTE.view==='timeline'&&sc&&sc.clientWidth){
+    s=x2d(sc.scrollLeft);e=x2d(sc.scrollLeft+sc.clientWidth);
+    if(s<TL_S)s=new Date(TL_S);if(e>TL_E)e=new Date(TL_E);
+  }else{s=prWeekStart(today());e=addDays(s,PAPER_PX[PAPER].weeks*7-1);} /* off the timeline: one page width from this week */
   document.getElementById('pp-start').value=fmtDate(s);
   document.getElementById('pp-end').value=fmtDate(e);
-  document.getElementById('print-overlay').classList.remove('hidden');
+  ov.classList.remove('hidden');
   renderPreview();
 }
 
-document.getElementById('mi-print-timeline').addEventListener('click',()=>{closeMenus();openPrintPreview();});
+document.getElementById('mi-print-timeline').addEventListener('click',()=>{closeMenus();openPrintPreview(ROUTE.view==='project'?'project':'timeline');});
+document.getElementById('mi-print-both').addEventListener('click',()=>{closeMenus();openPrintPreview('both');});
+document.querySelectorAll('input[name=paper-pick]').forEach(r=>r.addEventListener('change',()=>{setPaper(r.value);
+  if(!document.getElementById('print-overlay').classList.contains('hidden'))renderPreview();}));
+document.querySelectorAll('input[name=sheet-orient]').forEach(r=>r.addEventListener('change',()=>setSheetPortrait(r.value==='portrait')));
+syncPaperMenu();prWriteStyle(false); /* the remembered paper applies to a plain Ctrl+P too */
 document.getElementById('pp-start').addEventListener('change',renderPreview);
 document.getElementById('pp-end').addEventListener('change',renderPreview);
-document.getElementById('pp-cancel').addEventListener('click',()=>document.getElementById('print-overlay').classList.add('hidden'));
+document.getElementById('pp-close').addEventListener('click',()=>document.getElementById('print-overlay').classList.add('hidden'));
 document.getElementById('print-overlay').addEventListener('click',ev=>{if(ev.target.id==='print-overlay')document.getElementById('print-overlay').classList.add('hidden');});
 
 document.getElementById('pp-print').addEventListener('click',()=>{
-  const sIso=document.getElementById('pp-start').value;
-  const eIso=document.getElementById('pp-end').value;
-  if(!sIso||!eIso)return;
-  const root=document.getElementById('print-root');
-  root.innerHTML='';
-  const sheet=buildPrintSheet(sIso,eIso);
-  /* Scale to fit a landscape page (~1000px printable width) */
-  const scale=Math.min(1,1000/parseFloat(sheet.dataset.w));
-  const wrap=document.createElement('div');
-  wrap.style.transform='scale('+scale+')';
-  wrap.style.transformOrigin='top left';
-  wrap.style.width=sheet.dataset.w+'px';
-  wrap.style.height=(parseFloat(sheet.dataset.h)*scale)+'px';
-  wrap.appendChild(sheet);
-  root.appendChild(wrap);
-  if(typeof window.print==='function'){try{window.print();}catch(e){}}
+  const [sIso,eIso]=ppRange();
+  if(PP_KIND!=='project'&&(!sIso||!eIso||parseDate(eIso)<parseDate(sIso)))return;
+  prGo(prBuild(PP_KIND,sIso,eIso),false);
 });
 
 
@@ -6470,7 +6972,9 @@ function insDeptList(p,boxId){
       const ex=p?prim:null;
       const ranges=all.filter(t=>t!==prim&&t.range).sort((a,b)=>String(a.startDate).localeCompare(String(b.startDate)));
       if(d.retired&&!active&&!ex)continue; /* retired dept: offered nowhere, shown only where it's already in use */
-      const days=ex?(ex.estimatedDays||d.est||1):((D&&D.est[id])||d.est||1);
+      /* v1.34.1 (#32): a draft bar with hand-set dates shows its own count, so a days edit made in
+         the panel or the popover reads back here too — the form's estimate only covers untouched bars */
+      const days=ex?(ex.estimatedDays||d.est||1):((prim&&prim.__manual&&prim.estimatedDays)||(D&&D.est[id])||d.est||1);
       const other=d.freeText?(ex?(ex.assignee||''):((D&&D.otherLabels[id])||'')):null;
       h+='<div class="idr'+(active?'':' off')+'">'
        + '<input type="checkbox" data-dept="'+esc(id)+'"'+(active?' checked':'')
@@ -6479,9 +6983,8 @@ function insDeptList(p,boxId){
        + (id!=='pm'&&canR?'<button type="button" class="radd" data-dept="'+esc(id)+'" title="Add another range after the last one" aria-label="Add another '+esc(d.freeText?'Other':d.name)+' range">+</button>':''); /* v1.32.0 (#16) */
       if(id==='pm')
         h+='<span class="dlbl" style="width:auto">spans job</span>';
-      else
-        h+='<input type="number" class="ddays" min="1" value="'+days+'"'
-         + (active?'':' disabled')+'><span class="dlbl">d</span>';
+      /* v1.33.1: the day count sits beside its own date pair on the primary line (below), the
+         way each range's already does — the header row keeps only the name and the +. */
       /* N13: the process name sits on its own line under the "Other" choice. */
       if(d.freeText)
         h+='<input type="text" class="dother" data-dept="'+esc(id)+'" placeholder="process name" '
@@ -6499,7 +7002,8 @@ function insDeptList(p,boxId){
            + '<span class="da">&rarr;</span>'
            + '<input type="date" class="dend" data-dept="'+esc(id)+'"'+ka+' value="'+esc((t&&t.endDate)||'')+'"'+(active?'':' disabled')+'>'
            + (rng?'<input type="number" class="rdays" min="1"'+ka+' value="'+(t.estimatedDays||1)+'"'+(active?'':' disabled')+' aria-label="Days in this range"><span class="dlbl">d</span>'
-                + (canR?'<button type="button" class="rx"'+ka+' title="Remove this range" aria-label="Remove this range">&times;</button>':''):'')
+                + (canR?'<button type="button" class="rx"'+ka+' title="Remove this range" aria-label="Remove this range">&times;</button>':'')
+                :'<input type="number" class="ddays" min="1" value="'+days+'"'+(active?'':' disabled')+' aria-label="Days"><span class="dlbl">d</span>')
            + '</span>'
            + '<span class="ins-note dnote hidden" data-dept="'+esc(id)+'"'+ka+'></span>';};
         h+=line(bar,false);
@@ -6595,6 +7099,22 @@ function ppDeptDates(key,which,val){
   NPV_MANUAL[npvKey(bar)]={startDate:r.s,endDate:r.e,estimatedDays:r.days};
   npvRebuild();
 }
+/* v1.34.1 (tracker #32): one rule for every days field — the Departments row, the bottom
+   panel and the bar's popover. The start stays where it is; the end is the start plus N
+   days (workdays for shop departments, calendar days for Installation and Shipping). Into
+   ST on a saved page, into the manual overlay on a draft. */
+function ppDeptDays(bar,n){
+  n=Math.max(1,parseInt(n,10)||1);
+  if(!bar.startDate){if(NPV_LIVE)commitPhase(bar.id,'estimatedDays',n);npvRebuild();return;}
+  const e=fmtDate(deptEndAfter(bar.department,parseDate(bar.startDate),n));
+  if(NPV_LIVE){commitPhaseDates(bar.id,bar.startDate,e,n);npvRebuild();return;}
+  NPV_MANUAL[npvKey(bar)]={startDate:bar.startDate,endDate:e,estimatedDays:n};
+  /* the form's estimate follows too — the Departments list is unmounted while a phase is
+     selected, so the panel's and popover's edits would otherwise leave the scheduler laying
+     the other departments out around the old count */
+  if(PP_FORM&&!bar.range)PP_FORM.est[bar.department]=n;
+  npvRebuild();npvQueue(); /* npvQueue: the crash-restore stash, as a row edit gets */
+}
 /* Keep the date fields tracking the bars — a drag, undo or days edit repaints them. */
 function npvSyncDeptDates(){
   const box=document.getElementById('pp-depts');
@@ -6607,6 +7127,12 @@ function npvSyncDeptDates(){
   });
   box.querySelectorAll('.rdays').forEach(inp=>{ /* v1.32.0 (#16) */
     const bar=ppLineBar(inp.dataset.key);if(!bar)return;
+    const v=String(bar.estimatedDays||1);
+    if(inp.value!==v&&document.activeElement!==inp)inp.value=v;
+  });
+  box.querySelectorAll('.ddays').forEach(inp=>{ /* v1.34.1 (#32): the primary's count follows a drag too, once the bar has hand-set dates */
+    const ck=inp.closest('.idr').querySelector('input[data-dept]'),bar=ck?npvPrimary(ck.dataset.dept):null;
+    if(!bar||!(NPV_LIVE||bar.__manual))return;
     const v=String(bar.estimatedDays||1);
     if(inp.value!==v&&document.activeElement!==inp)inp.value=v;
   });
@@ -6875,26 +7401,19 @@ function ppBindInspector(p,sel){
         ppDeptDates(t.dataset.key||('d:'+t.dataset.dept),t.classList.contains('dstart')?'s':'e',t.value); /* v1.32.0 (#16): by the line's key */
         return;
       }
-      /* N13: on a saved page a days edit moves the phase's end — the other half of
-         the bidirectional pair. (Drafts already recompute through the scheduler.) */
-      if(t.classList&&t.classList.contains('ddays')&&NPV_LIVE){
+      /* N13: a days edit moves the phase's end — the other half of the bidirectional pair.
+         v1.34.1 (tracker #32): on a draft too, once the bar has hand-set dates (typed or
+         dragged); an untouched draft bar still falls through to the scheduler below, which
+         lays the job out backward from the target date with the new estimate. */
+      if(t.classList&&t.classList.contains('ddays')){
         const ck2=t.closest('.idr').querySelector('input[data-dept]');
         const bar=ck2?npvPrimary(ck2.dataset.dept):null; /* v1.32.0 (#16): the row's count is the primary's, never a range that sorts first */
-        if(bar&&bar.startDate){
-          const n=Math.max(1,parseInt(t.value,10)||1);
-          commitPhaseDates(bar.id,bar.startDate,fmtDate(deptEndAfter(bar.department,parseDate(bar.startDate),n)),n);
-          npvRebuild();return;
-        }
+        if(bar&&(NPV_LIVE||bar.__manual)){ppDeptDays(bar,t.value);return;}
       }
       /* v1.32.0 (#16): a range's own day count moves that range's end — saved page and draft */
       if(t.classList&&t.classList.contains('rdays')){
         const bar=ppLineBar(t.dataset.key);
-        if(bar&&bar.startDate){
-          const n=Math.max(1,parseInt(t.value,10)||1),e=fmtDate(deptEndAfter(bar.department,parseDate(bar.startDate),n));
-          if(NPV_LIVE)commitPhaseDates(bar.id,bar.startDate,e,n);
-          else NPV_MANUAL[npvKey(bar)]={startDate:bar.startDate,endDate:e,estimatedDays:n};
-          npvRebuild();
-        }
+        if(bar)ppDeptDays(bar,t.value);
         return;
       }
       if(t.closest('.pg-rbox')){
@@ -7414,12 +7933,16 @@ function npvMenuShell(clientX,clientY,title,html,bind){
 function npvBarMenu(x,y,t){
   const d=deptById(t.department)||{};
   const col=DEPT_COLORS[t.department]||'#8A98AE';
-  const h='<button data-act="sub"><span class="mi" style="background:'+col+'"></span>'
+  /* v1.38.0 (tracker #3): Rename is the one edit on this add-only menu (owner default Q3) */
+  const h='<button data-act="ren"><span class="mi" style="background:'+col+'"></span>'
+        +   'Rename<span class="k">R</span></button>'
+        + '<button data-act="sub"><span class="mi" style="background:'+col+'"></span>'
         +   'New subtask<span class="k">S</span></button>'
         + '<button data-act="ev"><span class="mi ev"></span>New milestone<span class="k">E</span></button>'
         + '<button data-act="tk"><span class="mi tk"></span>New note<span class="k">T</span></button>';
   return npvMenuShell(x,y,esc(phaseLabel(t))+' &middot; '+esc(d.name||t.department),h,(act)=>{
-    if(act==='sub')npvCreateSubtask(t.department,t.startDate,false);
+    if(act==='ren')npvRenameBar(t);
+    else if(act==='sub')npvCreateSubtask(t.department,t.startDate,false);
     else if(act==='ev')npvCreateEvent(t.department,t.startDate);
     else if(act==='tk')npvCreateTask(t.department,t.startDate);
   });
@@ -7908,7 +8431,7 @@ function npvRender(){
      + 'title="'+esc(nm+(who?' · '+who:'')+' · '+fmtNice(t.startDate)+' → '+fmtNice(t.endDate)+' · '+(t.estimatedDays||1)+'d')+'">'
      + '<div class="npv-hdl" data-i="'+i+'" style="width:'+edgeZone(bw,8)+'px"></div>'
      + '<div class="npv-hdl r" data-i="'+i+'" style="width:'+edgeZone(bw,8)+'px"></div>'
-     + '<span style="margin-left:5px">'+esc(nm)+'</span></div>';
+     + '<span class="npv-lbl npv-txt">'+esc(nm)+'</span></div>'; /* v1.36.0 (#4): npvStickLabels parks it at the visible edge (.npv-lbl gives the resting 5px margin); v1.38.0 (#3): .npv-txt anchors the in-place rename */
   };
   for(const row of NPV_PLAN){
     if(row.kind==='parent'){
@@ -7990,6 +8513,7 @@ function npvRender(){
   host.classList.toggle('tinted',!!TINT);
   host.innerHTML=h;
   host.style.width=innerW+'px';
+  npvStickLabels();
 
   npvPaintFooter(dl);
   npvBindDrag();
@@ -8014,6 +8538,22 @@ function npvRender(){
   const mp=ppProject();
   if(mp)ppPaintMeta(mp);
 }
+/* v1.36.0 (tracker #4): the project page follows the dashboard's labelLeftFor rule — a bar
+   that starts under the name column keeps its name at the visible left edge (just right
+   of the gutter), rides with the bar once its start scrolls into view, and never leaves
+   its own bar: the margin stops LBL_TAIL px short of the bar's end and the .npv-lbl
+   ellipsis trims it from there. Runs after every gantt paint and on every scroll. */
+function npvStickLabels(){
+  const sc=document.getElementById('npv-scroll');if(!sc)return;
+  const edge=sc.scrollLeft+NPV_GUT+8;
+  for(const b of sc.querySelectorAll('.npv-bar')){
+    const l=b.querySelector('.npv-lbl');if(!l)continue;
+    const bx=parseFloat(b.style.left)||0,bw=parseFloat(b.style.width)||0;
+    /* the label is a flex child inside the bar's 6px padding, so its margin is the label
+       left measured from bx+6; base 5 = its resting margin */
+    l.style.marginLeft=labelLeftFor(bx+6,bw,5,edge)+'px';
+  }
+}
 /* REV48: bound once — npvRender only rewrites innerHTML, so re-binding stacked a fresh
    listener on the same element on every render. REV64: hoisted to the top of npvRender,
    before the early returns — the calendar branch exits before the gantt paint, so a page
@@ -8022,6 +8562,9 @@ function npvRender(){
 function npvBindHost(host){
   if(!host.dataset.bound){
     host.dataset.bound='1';
+    /* v1.36.0 (tracker #4): a sideways scroll re-parks every bar's label (one rAF per scroll burst). */
+    {let raf=0;const sc=host.closest('.npv-scroll');
+     if(sc)sc.addEventListener('scroll',()=>{if(raf)return;raf=requestAnimationFrame(()=>{raf=0;npvStickLabels();});});}
     let dnX=0,dnY=0;
     const blank=tg=>!!tg&&!!tg.closest&&!tg.closest('.npv-bar')&&!tg.closest('.npv-gut')
       &&!tg.closest('.cal-band')&&!tg.closest('#npv-menu')&&!tg.closest('.npv-axis');
@@ -8097,6 +8640,12 @@ function npvBindHost(host){
         }
         return;
       }
+      /* v1.38.0 (tracker #3): the bar itself renames too — same box, on the bar's own text.
+         The popover the first click opened is closed first (or, when it landed under the
+         pointer, it hands the double-click on itself — see npvPopRender). */
+      const bar=tg.closest('.npv-bar');
+      if(bar){ev.preventDefault();npvPopClose();const t=NPV_TASKS[+bar.dataset.i];
+        if(t)npvInlineRename(t,npvRenameHost(bar));return;}
       const gut=tg.closest('.npv-gut');
       if(gut){const bar=gut.parentElement&&gut.parentElement.querySelector('.npv-bar');
         if(bar){ev.preventDefault();npvPopClose();const t=NPV_TASKS[+bar.dataset.i];if(t)npvInlineRename(t,gut);}}
@@ -8608,7 +9157,8 @@ function npvMarkers(){
     for(const t of NPV_TASKS)
       for(const n of (t.ticketNodes||[]))
         if(n.date)out.push({k:'ev',id:n.id,date:n.date,dept:(n.dept!==undefined?n.dept:t.department),
-          nm:n.target||'',pr:''});
+          nm:n.target||'',pr:'',
+          ph:(n.dept===undefined||n.dept===t.department)?phaseLabel(t):''}); /* v1.38.0 (tracker #3): a milestone on a block leads with the block's name (one that moved to another department keeps that department's) */
     for(const e of (ST.events||[]))
       if(e.projectId===pj.id&&e.date)
         out.push({k:'ev',id:e.id,date:e.date,dept:e.dept||'',nm:e.name||'',pr:''});
@@ -8742,7 +9292,7 @@ function npvPaintCalendar(lo,hi,dl){
          Gantt's diamonds. v1.6.1: a milestone on a phase leads with the phase name. */
       /* Same fallbacks as the Gantt diamonds — an unnamed marker used to render a bare
          "Fabrication: " band, and an unknown dept a bare ": ". */
-      const dn=mk.k==='ev'&&mk.dept?((deptById(mk.dept)||{}).name||''):'';
+      const dn=mk.k==='ev'?(mk.ph||(mk.dept?((deptById(mk.dept)||{}).name||''):'')):''; /* v1.38.0 (tracker #3): the block's own name first */
       const nm=mk.nm||(mk.k==='ev'?'Untitled milestone':'Untitled note');
       /* v1.21.0: markers pack — a marker takes the first lane with its day free, so a
          week's markers share a row unless two land on the same day. */
@@ -8976,12 +9526,9 @@ function ppCommitPhaseField(sel,f,value){
   else if(f==='startDate'){ppPopDate(sel,'s',value);}
   else if(f==='endDate'){ppPopDate(sel,'e',value);}
   else if(f==='estimatedDays'){
-    const n=Math.max(1,parseInt(value,10)||1);
-    if(NPV_LIVE)commitPhase(sel.id,'estimatedDays',n);
-    /* draft: same semantics as dragging the right edge — a manual placement */
-    else NPV_MANUAL[npvKey(sel)]={startDate:sel.startDate,
-      endDate:fmtDate(deptEndAfter(sel.department,parseDate(sel.startDate),n)),estimatedDays:n};
-    npvRebuild();
+    /* same semantics as dragging the right edge — v1.34.1 (#32): on a saved page too, the end
+       moves with the count instead of the number changing alone */
+    ppDeptDays(sel,value);
   }
   else if(f==='notes'){
     if(NPV_LIVE)commitPhase(sel.id,'notes',value);
@@ -9011,8 +9558,28 @@ function npvPopClose(){
 function npvEditPop(kind,target,x,y,focusName){
   if(!target){npvPopClose();return;}
   npvCloseMenu();
-  NPV_POP={kind,id:(kind==='phase'?null:target),x:x||0,y:y||0,_new:!!focusName};
+  NPV_POP={kind,id:(kind==='phase'?null:target),x:x||0,y:y||0,_new:!!focusName,at:Date.now()};
   npvPopRender();
+}
+/* v1.38.0 (tracker #3): the in-place rename box on a bar's own text — the Gantt bar or the
+   Calendar band under the pointer (`at`, else the phase's first band). A collapsed strip or a
+   hidden subtask has no text to replace, so its phase is expanded first. Right-click Rename and
+   the popover's double-click hand-off both land here. */
+function npvRenameBar(t,at){
+  if(!t||!vcan('phases'))return;
+  const i=NPV_TASKS.findIndex(x=>x.id===t.id);if(i<0)return;
+  const sel=(NPV_MODE==='calendar'?'.cal-band.ph':'.npv-bar')+'[data-i="'+i+'"]';
+  const find=()=>{const p=at&&document.elementFromPoint?document.elementFromPoint(at[0],at[1]):null;
+    return (p&&p.closest&&p.closest('#npv-body '+sel))||document.querySelector('#npv-body '+sel);};
+  let el=find();
+  if(!el||(NPV_MODE==='calendar'&&el.classList.contains('slim'))){
+    NPV_OPEN.add(t.department);NPV_CAL_OPEN.set(t.department,2);npvRender();el=find();}
+  if(el)npvInlineRename(NPV_TASKS[i],NPV_MODE==='calendar'?(el.querySelector('.cal-txt')||el):npvRenameHost(el));
+}
+/* A Gantt bar too narrow to type in (a day or two at most zooms) renames on its row title. */
+function npvRenameHost(bar){
+  const gut=bar.parentElement&&bar.parentElement.querySelector('.npv-gut');
+  return (parseFloat(bar.style.width)<60&&gut)?gut:(bar.querySelector('.npv-txt')||bar);
 }
 function npvPopPosition(el,x,y){
   const W=el.offsetWidth||274,H=el.offsetHeight||300;
@@ -9028,6 +9595,15 @@ function npvPopRender(){
     document.body.appendChild(el);
     el.addEventListener('mousedown',e=>e.stopPropagation());
     el.addEventListener('contextmenu',e=>{e.preventDefault();e.stopPropagation();});
+    /* v1.38.0 (tracker #3): a double-click on a bar parks this popover under the pointer with
+       its first click, so the second lands here. Within half a second of opening that is a
+       rename intent: close and open the in-place box on the selected bar — unless the
+       double-click is inside one of the popover's own fields (a word-select is left alone). */
+    el.addEventListener('dblclick',e=>{
+      if(!NPV_POP||NPV_POP.kind!=='phase'||Date.now()-NPV_POP.at>500)return;
+      if(e.target.closest&&e.target.closest('input,select,textarea,button'))return;
+      e.preventDefault();const t=ppSelected();npvPopClose();npvRenameBar(t,[e.clientX,e.clientY]);
+    });
   }
   el.dataset.kind=NPV_POP.kind; /* v1.11.0: CSS grades the delete button by door */
   if(NPV_POP.kind==='phase'){
@@ -9149,7 +9725,7 @@ function npvInlineRename(t,hostEl){
   const cur=t.label||'';
   const inp=document.createElement('input');
   inp.className='npv-rename';inp.value=cur;
-  inp.placeholder=(deptById(t.department)||{}).name||t.department;
+  inp.placeholder=phaseLabel({...t,label:''}); /* v1.38.0: what a blank name reads as (an Other row: its process name) */
   hostEl.innerHTML='';hostEl.appendChild(inp);
   inp.focus();inp.select();
   let done=false;
@@ -9292,6 +9868,7 @@ function npvBindDrag(){
           tip.innerHTML='<div class="tt-title">'+fmtNice(fmtDate(edge(e2)))+'</div>';
           tip.classList.remove('hidden');posTooltip(e2);
         }
+        npvStickLabels(); /* v1.36.0 (#4): a parked label follows the bar's live left/width */
       };
       const up=e2=>{
         document.removeEventListener('mousemove',mv);
@@ -9790,6 +10367,10 @@ function zoomStep(d){
   if(v)setView(v);
 }
 for(const[k,id]of Object.entries(VIEW_BTN))document.getElementById(id).addEventListener('click',()=>setView(k));
+/* v1.37.0 (#6): the switch writes a preset into the status filter; render() reads the mode back */
+document.querySelectorAll('#sb-head .sb-done .t-btn').forEach(b=>b.addEventListener('click',()=>{
+  if(doneMode()===b.dataset.done)return;
+  SHOW_STATUS=doneStatuses(b.dataset.done);saveUI();buildFiltersMenu();updateFilterBadges();render();}));
 document.getElementById('btn-lens-proj').addEventListener('click',()=>{if(LENS==='project')return;LENS='project';
   document.getElementById('btn-lens-proj').classList.add('active');document.getElementById('btn-lens-dept').classList.remove('active');
   saveUI();render();});
@@ -10166,7 +10747,7 @@ document.getElementById('btn-filters').addEventListener('click',buildFiltersMenu
    the person leaves a summary exactly like the × (lens restored). The menu stays
    open so the cleared checkboxes read back as confirmation. */
 document.getElementById('fm-showall').addEventListener('click',()=>{
-  SHOW_STATUS=defaultShowStatus();CLIENT_FILTER.clear();
+  SHOW_STATUS=new Set(ALL_STATUSES);CLIENT_FILTER.clear(); /* v1.37.0 (#6): "everything" means the All preset, completed jobs included */
   if(PERSON){exitDash();buildFiltersMenu();return;} /* exitDash saves, badges, renders */
   saveUI();buildFiltersMenu();updateFilterBadges();render();
 });
@@ -10651,14 +11232,46 @@ async function fbFetch(force){
     name:f.name||'',email:f.email||'',description:f.description||'',appVersion:f.appVersion||'',
     /* v1.20.1: `status` column — 'resolved' or empty/absent (= open), the staff-flag
        tristate convention; a build older than the column just reads everything open */
-    status:String(f.status||''),comments:fbComments(f.comments)};});
+    status:String(f.status||''),comments:fbComments(f.comments),
+    /* v1.39.0 (tracker #29): the tracker ticket's URL, written by the poller when it files the
+       report; a row with one follows the ticket's status, a row without keeps the dev-page button */
+    ghIssue:String(f.ghIssue||''),
+    /* v1.34.0: when it was resolved — the poller stamps `resolvedAt` (the ticket's close time)
+       once the column exists; before that, the row's last change (the status flip) stands in */
+    resolvedAt:String(f.resolvedAt||''),modified:it.lastModifiedDateTime||''};});
   rows.sort((a,b)=>a.at>b.at?-1:a.at<b.at?1:0);
   FB_CACHE=rows;FB_AT=Date.now();
   return rows;
 }
 /* v1.25.0: the team's replies. The tracker's poller copies each GitHub comment that
    starts with /reply into the row's `comments` column as JSON [{at,text}]; anything
-   else (missing column, hand-edited junk) reads as no replies. */
+   else (missing column, hand-edited junk) reads as no replies. v1.34.0: a /comment on the
+   ticket lands here too (kind:'comment') — shown the same way, never emailed. */
+const fbDoneAt=r=>r.resolvedAt||r.modified||r.at; /* v1.34.0: the Resolved column's date */
+/* v1.40.1: the date's hover tip names every date the report has, in full — so the one in the
+   column is never mistaken for another: submitted, resolved (or, before the poller stamped
+   resolvedAt, the report's last change, said as such) and the latest developer comment. */
+function fbFullWhen(iso){
+  const d=new Date(iso);if(isNaN(d))return String(iso||'');
+  return d.toLocaleDateString([],{month:'short',day:'numeric',year:'numeric'})+', '+d.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});
+}
+function fbWhenTip(r,done){
+  const t=['Submitted '+fbFullWhen(r.at)];
+  if(done)t.unshift(r.resolvedAt?'Resolved '+fbFullWhen(r.resolvedAt)
+    :'Resolution date not recorded; shown is the report’s last change, '+fbFullWhen(r.modified||r.at));
+  const last=(r.comments||[]).map(c=>c.at).filter(Boolean).sort().pop();
+  if(last)t.push('Last developer comment '+fbFullWhen(last));
+  return t.join(' · ');
+}
+/* v1.39.0 (tracker #29): the status tag. Three states, read off the ticket by the tracker's
+   poller: `resolved` (ticket closed) · `review` (open, the team has replied on it) · anything
+   else = pending. A spec comment is internal and never reaches the app, so IN REVIEW promises
+   that someone is looking, not a visible reply. Nothing is set by hand. */
+function fbStatusTag(r){
+  const s=r.status==='resolved'?['RESOLVED','Dealt with — it sits in the Resolved column of Open Issues']
+    :r.status==='review'?['IN REVIEW','The team is looking at this report']:['PENDING','Not looked at yet'];
+  return '<span class="cd-perm fb-st'+(s[0]==='PENDING'?' fb-pend':'')+'" title="'+s[1]+'">'+s[0]+'</span>';
+}
 function fbComments(raw){
   let a;try{a=JSON.parse(raw||'[]');}catch(e){return [];}
   return Array.isArray(a)?a.filter(c=>c&&c.text).map(c=>({at:String(c.at||''),text:String(c.text)})):[];
@@ -10690,18 +11303,25 @@ function fbPaintList(force){
       ?'<details class="fb-dd"'+(me?' open':'')+'><summary><b>'+esc(t)+'</b></summary><div class="clog-det">'+esc(r.description)+'</div></details>'
       :'<b>'+esc(t)+'</b>';
     return '<div class="clog-row'+(me?' fb-hit':'')+'" data-spid="'+esc(r.spId)+'">'
-      +'<span class="cd-perm" title="'+(r.kind==='bug'?'Bug report':'Feature request')+'">'+(r.kind==='bug'?'BUG':'IDEA')+'</span>'
+      +'<span class="cd-perm fb-kind" title="'+(r.kind==='bug'?'Bug report':'Feature request')+'">'+(r.kind==='bug'?'BUG':'IDEA')+'</span>'
+      +(r.status==='resolved'?'':fbStatusTag(r)) /* v1.39.0: PENDING / IN REVIEW in the Open column; the Resolved column is its own state */
       +'<div class="clog-what">'+head+fbRepliesHtml(r,me)+'</div>'
-      +'<span class="clog-when">'+esc(clogWhen(r.at))+'</span></div>';
+      +(r.status==='resolved'
+        ?'<span class="clog-when" title="'+esc(fbWhenTip(r,true))+'">'+esc(clogWhen(fbDoneAt(r)))+'</span>'   /* v1.34.0: when it was dealt with, not when it was sent */
+        :'<span class="clog-when" title="'+esc(fbWhenTip(r,false))+'">'+esc(clogWhen(r.at))+'</span>')+'</div>';
   };
+  /* v1.40.1: each list says what its columns are — and above all which date it shows */
+  const colHd=done=>'<div class="fb-colhd"><span class="fb-kind">Type</span>'+(done?'':'<span class="fb-st">Status</span>')
+    +'<span class="clog-what">Report</span><span class="clog-when">'+(done?'Resolved':'Submitted')+'</span></div>';
   const empty=m=>'<div class="clog-empty">'+m+'</div>';
   fbFetch(force).then(rows=>{
     const [el,dn]=els();
     if(!el||gen!==FB_PAINT)return;
     /* Open means open — resolved reports move to the third column (v1.20.7; before that they only lived on the dev page). */
-    const open=rows.filter(r=>r.status!=='resolved'),done=rows.filter(r=>r.status==='resolved');
-    el.innerHTML=open.length?open.map(row).join(''):empty(rows.length?'No open issues — everything filed has been resolved.':'Nothing filed yet — be the first.');
-    if(dn)dn.innerHTML=done.length?done.map(row).join(''):empty('Nothing resolved yet.');
+    const open=rows.filter(r=>r.status!=='resolved'),done=rows.filter(r=>r.status==='resolved')
+      .sort((a,b)=>fbDoneAt(b).localeCompare(fbDoneAt(a))); /* v1.34.0: most recently resolved first */
+    el.innerHTML=open.length?colHd(false)+open.map(row).join(''):empty(rows.length?'No open issues — everything filed has been resolved.':'Nothing filed yet — be the first.');
+    if(dn)dn.innerHTML=done.length?colHd(true)+done.map(row).join(''):empty('Nothing resolved yet.');
     const h=document.querySelector('.clog-row.fb-hit');if(h&&h.scrollIntoView)h.scrollIntoView({block:'center'});
   }).catch(()=>{
     if(gen!==FB_PAINT)return;
@@ -10749,9 +11369,10 @@ function renderIssues(){
     '<div class="cd-body fb-3col">'
     +'<div class="cd-list">'+colHd('Report a bug or request a feature','Lands on SharePoint with your name attached, and emails the team.')
       +'<div class="fb-pane">'+fbFormHtml()+'</div></div>'
-    +'<div class="cd-detail cd-detail-hd">'+colHd('Open issues','Bug reports and feature requests still open, newest first.')
+    /* v1.40.1: each subtitle says which date its list shows and how it is sorted */
+    +'<div class="cd-detail cd-detail-hd">'+colHd('Open issues','Still open. Dated when submitted, newest first.')
       +'<div class="clog-list" id="fb-list"></div></div>'
-    +'<div class="cd-detail cd-detail-hd">'+colHd('Resolved','Reports that have been dealt with, newest first.')
+    +'<div class="cd-detail cd-detail-hd">'+colHd('Resolved','Dealt with. Dated when resolved, newest first.')
       +'<div class="clog-list" id="fb-done"></div></div>'
     +'</div>',true);
   const nm=document.getElementById('fb-name'),em=document.getElementById('fb-email');
@@ -10775,18 +11396,30 @@ function renderReports(){
     if(!rows.length){el.innerHTML='<div class="clog-empty">Nothing filed yet.</div>';return;}
     el.innerHTML=rows.map(r=>{
       const res=r.status==='resolved';
-      return '<div class="clog-row'+(res?' fbr-res':'')+'">'
+      /* v1.39.0 (tracker #29, TODO §7.4 "Developer Bug Reports page buttons"): a row with a ticket
+         follows the ticket — the poller undoes any hand-set status on its next run, so the
+         button goes and the ticket link takes its place. Rows without a ticket (resolved before
+         the bridge) keep Mark resolved / Reopen. Only an https link is rendered as one: the
+         column is hand-editable on the site. */
+      const tk=/^https:\/\//.test(r.ghIssue)?r.ghIssue:'',tn=(/\/(\d+)\/?$/.exec(r.ghIssue)||[])[1];
+      return '<div class="clog-row'+(res?' fbr-res':'')+'" data-spid="'+esc(r.spId)+'">'
       +'<span class="clog-when">'+esc(clogWhen(r.at))+'</span>'
-      +'<span class="cd-perm">'+(r.kind==='bug'?'BUG':'IDEA')+'</span>'
-      +(res?'<span class="cd-perm" title="Marked resolved — hidden from the public Open Issues list">RESOLVED</span>':'')
+      +'<span class="cd-perm fb-kind">'+(r.kind==='bug'?'BUG':'IDEA')+'</span>'
+      +fbStatusTag(r)
       +'<div class="clog-what"><b>'+esc(String(r.title||'').replace(/^(Bug|Feature)\s+—\s+/,''))+'</b>'
       +' <span class="clog-field">'+esc((r.name||'—')+(r.email?' <'+r.email+'>':'')+(r.appVersion?' · v'+r.appVersion:''))+'</span>'
       +(r.description?'<div class="clog-det">'+esc(r.description)+'</div>':'')
       +fbRepliesHtml(r,false)
       +'</div>'
-      +'<button class="btn btn-ghost fbr-tog" data-spid="'+esc(r.spId)+'" data-next="'+(res?'':'resolved')+'" '
-      +'title="'+(res?'Put it back on the Open Issues list':'Rows are never deleted — resolving hides it from the Open Issues list, it stays here')+'">'
-      +(res?'Reopen':'Mark resolved')+'</button></div>';
+      +(r.ghIssue
+        ?'<span class="clog-field fbr-tk">Status follows the ticket'
+          /* single-quoted href on purpose: the deploy guard reads every double-quoted src/href value in
+             this file's source (comments included) as a local file to publish, so a JS-built value in
+             double quotes looked like one and failed the v1.39.0 /preview/ deploy (tests/test-deploy-guard.js) */
+          +(tk?' · <a href=\''+esc(tk).replace(/'/g,'&#39;')+'\' target="_blank" rel="noopener" title="Open the ticket in the tracker">#'+esc(tn||'ticket')+'</a>':'')+'</span>'
+        :'<button class="btn btn-ghost fbr-tog" data-spid="'+esc(r.spId)+'" data-next="'+(res?'':'resolved')+'" '
+          +'title="'+(res?'Put it back on the Open Issues list':'Rows are never deleted — resolving hides it from the Open Issues list, it stays here')+'">'
+          +(res?'Reopen':'Mark resolved')+'</button>')+'</div>';
     }).join('');
     el.addEventListener('click',ev=>{
       const b=ev.target&&ev.target.closest?ev.target.closest('.fbr-tog'):null;
@@ -10818,6 +11451,21 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.40.1",d:"Oct 6, 2026",n:["Open Issues: each list now has column labels (Type, Status, Report, and the date), and says which date it shows — Open issues by when each report was submitted, Resolved by when it was resolved. Hover a date for every date the report has in full: submitted, resolved and the latest developer comment."]},
+ {v:"v1.40.0",d:"Oct 5, 2026",n:["Print: every view prints to Letter or Tabloid, designed for paper, with Save as PDF — pick the paper in the Print menu (remembered), and the timeline, a project's Gantt or Calendar (\"Print this project…\" on its page, one month per page) and the Meeting Sheet (landscape or portrait, now honouring the Client and Person filters too) each print as real pages with the house header, a legend and \"Page X of Y\"; \"Timeline + Meeting Sheet\" makes one PDF.",
+   "Printed pages follow the sidebar's Active / Completed / All switch and say which one is on in the header; a completed job prints with its grey Completed tag."]},
+ {v:"v1.39.0",d:"Oct 5, 2026",n:["Open Issues: every open report now carries a status tag — PENDING until the team has looked at it, IN REVIEW once someone has replied on its ticket. Resolved reports keep their own column."]},
+ {v:"v1.38.0",d:"Oct 5, 2026",n:["Name a block: double-click any bar on the project page or the calendar to rename it in place (Enter saves, Esc cancels), or right-click it and pick Rename; on the dashboard, Edit Phase now has a Name field and opens with it ready to type, so a second \"Main Shop Fab\" can read \"Possible mock up days\".",
+   "A block's own name now shows on its calendar milestone bands and in the Meeting Sheet's \"Phase now\" column, not just the department name."]},
+ {v:"v1.37.0",d:"Oct 5, 2026",n:["Dashboard: an Active / Completed / All switch in the sidebar header. The dashboard opens on Active, so completed jobs no longer clutter the main view; Completed and All bring them back (for revisions, closeout or billing), and your choice is remembered on this browser. The Meeting Sheet and print follow the same rows.",
+   "Dashboard: a completed job in the sidebar is muted and carries a grey \"Completed\" tag under its name. Changing its status on the project page puts it back under Active."]},
+ {v:"v1.36.0",d:"Oct 5, 2026",n:["Bar names and status pills stay readable while you scroll sideways: when a bar starts off-screen, its label (and the project row's status pill) now sits at the left edge of the chart next to the sidebar — on the dashboard and the project page — and rides along with the bar once its start comes into view. A label never spills past its bar's end; it is trimmed with \"…\" when the visible part is too short."]},
+ {v:"v1.35.0",d:"Oct 5, 2026",n:["Departments view: a project's line under a person now reads its Cost Code (in the same type as the dates) instead of the project name, so it fits whole; hover the line for the client, the full project name and the code. A project with no Cost Code still shows its name."]},
+ {v:"v1.34.1",d:"Oct 5, 2026",n:["Project setup, Departments: changing a department's days after typing its start date now moves the end date; the start stays where you put it.",
+   "The Days field in the phase panel and the bar's edit popover does the same on a saved project (it used to change the number without moving the end)."]},
+ {v:"v1.34.0",d:"Oct 5, 2026",n:["Open Issues: the Resolved column now shows the date a report was resolved, not the date it was sent, and lists the most recently resolved first.",
+   "Open Issues: the team can post a note under a report (a `/comment` on its ticket) that shows as a developer comment in the app without emailing the person who filed it; `/reply` still does both."]},
+ {v:"v1.33.1",d:"Oct 5, 2026",n:["Project Schedule: each department's day count now sits beside its own date range, next to the dates it counts — the same spot every extra work period already uses."]},
  {v:"v1.33.0",d:"Oct 5, 2026",n:["The app now notices when a newer version has been published — it checks twice a day and whenever you come back to the tab — and shows \"vX is available\" with a Reload button, so a tab left open no longer runs an old build for days. After the reload, a one-time \"Updated to vX\" toast opens the release notes.",
    "A developer can ask every open tab to reload onto the current build from Help ▸ App settings; a tab on an older build shows \"This version has been retired\" and reloads within 30 seconds — but never while you're creating a project, editing, dragging or saving, so nobody loses work; an unsaved New Project draft is kept across the reload."]},
  {v:"v1.32.0",d:"Oct 2, 2026",n:["Project Schedule: a department can now have several separate work periods on one project. Press + beside a department (or right-click its row on the chart) to add another range after the last one; each range has its own dates and day count, draws as its own bar with the gap left empty, and an extra range is removed with ×."]},
@@ -11015,19 +11663,23 @@ function phaseNow(p){
   const ts=tasksOf(p.id).filter(x=>x.department!=='pm'&&!x.__ghost);
   const act=ts.filter(x=>parseDate(x.startDate)<=t&&t<=parseDate(x.endDate));
   if(act.length){
-    const names=[...new Set(act.map(x=>{const d=deptById(x.department);return (d&&d.freeText)?(x.assignee||'Other'):(d?d.name:x.department);}))];
+    const names=[...new Set(act.map(phaseLabel))]; /* v1.38.0 (tracker #3): a named block reads by its name */
     return names.slice(0,2).join(', ')+(names.length>2?' +'+(names.length-2):'');
   }
   const fut=ts.filter(x=>parseDate(x.startDate)>t).sort((a,b)=>String(a.startDate).localeCompare(String(b.startDate)));
-  if(fut.length){const d=deptById(fut[0].department);return 'Next: '+((d&&!d.freeText)?d.name:(fut[0].assignee||'Other'))+' '+fmtNice(fut[0].startDate);}
+  if(fut.length)return 'Next: '+phaseLabel(fut[0])+' '+fmtNice(fut[0].startDate);
   return ts.length?'Wrapped':'—';
 }
 /* U8: keys must match ALL_STATUSES — the pre-migration names left every
    forecast/in-design/in-fabrication mini-bar on the gray fallback */
 const MEET_FILL={'forecast':'#C9D4E6','estimating':'#AFA9EC','in-design':'#C4B5FD','in-fabrication':'#5DCAA5','on-hold':'#FAC775','complete':'#B4B2A9'};
+/* v1.40.0 (#8): on paper the progress fill wears a 1px outline in the status colour (the pill's ink) */
+const MEET_LINE={'forecast':'#64748B','estimating':'#534AB7','in-design':'#5B21B6','in-fabrication':'#0F6E56','on-hold':'#9A3412','complete':'#475569'};
 function buildMeetingSheet(){
   const wrap=document.createElement('div');wrap.className='meet-sheet';
-  const projs=currentProjOrder().filter(p=>SHOW_STATUS.has(projectStatus(p)));
+  /* v1.40.0 (#8 Q5): the same three filters the Gantt rows use — a project the screen hides is not
+     on the sheet; search and spotlight only fade on screen, so their rows stay and print faded. */
+  const projs=currentProjOrder().filter(p=>SHOW_STATUS.has(projectStatus(p))&&clientHit(p)&&projHasPerson(p));
   const groups={};
   for(const p of projs){const k=canonName(roleList(p.projectManager)[0]||'')||'— No PM —';(groups[k]=groups[k]||[]).push(p);}
   const keys=Object.keys(groups).sort((a,b)=>a.localeCompare(b));
@@ -11050,11 +11702,11 @@ function buildMeetingSheet(){
       let pct=0;
       if(ps&&pe&&pe>ps)pct=Math.max(0,Math.min(100,Math.round((today()-ps)/(pe-ps)*100)));
       const due=dueDate(p),days=workdaysUntil(due); /* v1.26.0: the due date, not the Setup date */
-      const tr=document.createElement('tr');tr.className='meet-row';
+      const tr=document.createElement('tr');tr.className='meet-row'+(prProjOK(p)?'':' dim');
       tr.innerHTML='<td><span class="mr-name">'+esc(p.name)+'</span><span class="mr-sub">'+esc([p.jobCode,p.client].filter(Boolean).join(' · '))+'</span></td>'
         +'<td><span class="mr-pill" data-st="'+st+'">'+esc(STATUS_LBL[st]||st)+'</span></td>'
         +'<td class="mr-phase">'+esc(phaseNow(p))+'</td>'
-        +'<td><div class="meet-mini"><div class="mm-fill" style="width:'+pct+'%;background:'+(MEET_FILL[st]||'#B4B2A9')+'"></div></div>'
+        +'<td><div class="meet-mini"><div class="mm-fill" style="width:'+pct+'%;background:'+(MEET_FILL[st]||'#B4B2A9')+';--sc:'+(MEET_LINE[st]||'#64748B')+'"></div></div>'
         +(ps&&pe?'<div class="mm-dates">'+fmtNice(fmtDate(ps))+' → '+fmtNice(fmtDate(pe))+'</div>':'')+'</td>'
         +'<td class="mr-dl">'+(due?fmtNice(due):'TBD')+'</td>'
         +'<td class="mr-days">'+(days===null?'—':days)+'</td>'
@@ -11074,14 +11726,7 @@ function openMeeting(){
 document.getElementById('mi-meeting').addEventListener('click',()=>{closeMenus();openMeeting();});
 document.getElementById('meet-cancel').addEventListener('click',()=>document.getElementById('meet-overlay').classList.add('hidden'));
 document.getElementById('meet-overlay').addEventListener('click',ev=>{if(ev.target.id==='meet-overlay')document.getElementById('meet-overlay').classList.add('hidden');});
-document.getElementById('meet-print').addEventListener('click',()=>{
-  const root=document.getElementById('print-root');
-  root.innerHTML='';
-  root.appendChild(buildMeetingSheet());
-  const done=()=>{root.innerHTML='';window.removeEventListener('afterprint',done);};
-  window.addEventListener('afterprint',done);
-  window.print();
-});
+document.getElementById('meet-print').addEventListener('click',()=>{prGo(prBuild('sheet'),SHEET_PORTRAIT);}); /* v1.40.0 (#8): app-built pages, portrait if chosen */
 
 /* ===================== INIT ===================== */
 document.getElementById('tb-rev-num').textContent=APP_VER;

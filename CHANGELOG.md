@@ -9,6 +9,41 @@ Format: `## <label> — <date>` then one `- ` line per change. Keep lines concre
 what changed *for the team*, not how. Developer-only tooling doesn't need a line.
 Collect lines for the next version under `## Unreleased` and rename it when you ship.
 
+## v1.40.1 — Oct 6, 2026
+- Open Issues: each list now has column labels (Type, Status, Report, and the date), and says which date it shows — Open issues by when each report was submitted, Resolved by when it was resolved. Hover a date for every date the report has in full: submitted, resolved and the latest developer comment.
+
+## v1.40.0 — Oct 5, 2026
+- Print: every view prints to Letter or Tabloid, designed for paper, with Save as PDF — pick the paper in the Print menu (remembered), and the timeline, a project's Gantt or Calendar ("Print this project…" on its page, one month per page) and the Meeting Sheet (landscape or portrait, now honouring the Client and Person filters too) each print as real pages with the house header, a legend and "Page X of Y"; "Timeline + Meeting Sheet" makes one PDF.
+- Printed pages follow the sidebar's Active / Completed / All switch and say which one is on in the header; a completed job prints with its grey Completed tag.
+
+## v1.39.0 — Oct 5, 2026
+- Open Issues: every open report now carries a status tag — PENDING until the team has looked at it, IN REVIEW once someone has replied on its ticket. Resolved reports keep their own column.
+
+## v1.38.0 — Oct 5, 2026
+- Name a block: double-click any bar on the project page or the calendar to rename it in place (Enter saves, Esc cancels), or right-click it and pick Rename; on the dashboard, Edit Phase now has a Name field and opens with it ready to type, so a second "Main Shop Fab" can read "Possible mock up days".
+- A block's own name now shows on its calendar milestone bands and in the Meeting Sheet's "Phase now" column, not just the department name.
+
+## v1.37.0 — Oct 5, 2026
+- Dashboard: an Active / Completed / All switch in the sidebar header. The dashboard opens on Active, so completed jobs no longer clutter the main view; Completed and All bring them back (for revisions, closeout or billing), and your choice is remembered on this browser. The Meeting Sheet and print follow the same rows.
+- Dashboard: a completed job in the sidebar is muted and carries a grey "Completed" tag under its name. Changing its status on the project page puts it back under Active.
+
+## v1.36.0 — Oct 5, 2026
+- Bar names and status pills stay readable while you scroll sideways: when a bar starts off-screen, its label (and the project row's status pill) now sits at the left edge of the chart next to the sidebar — on the dashboard and the project page — and rides along with the bar once its start comes into view. A label never spills past its bar's end; it is trimmed with "…" when the visible part is too short.
+
+## v1.35.0 — Oct 5, 2026
+- Departments view: a project's line under a person now reads its Cost Code (in the same type as the dates) instead of the project name, so it fits whole; hover the line for the client, the full project name and the code. A project with no Cost Code still shows its name.
+
+## v1.34.1 — Oct 5, 2026
+- Project setup, Departments: changing a department's days after typing its start date now moves the end date; the start stays where you put it.
+- The Days field in the phase panel and the bar's edit popover does the same on a saved project (it used to change the number without moving the end).
+
+## v1.34.0 — Oct 5, 2026
+- Open Issues: the Resolved column now shows the date a report was resolved, not the date it was sent, and lists the most recently resolved first.
+- Open Issues: the team can post a note under a report (a `/comment` on its ticket) that shows as a developer comment in the app without emailing the person who filed it; `/reply` still does both.
+
+## v1.33.1 — Oct 5, 2026
+- Project Schedule: each department's day count now sits beside its own date range, next to the dates it counts — the same spot every extra work period already uses.
+
 ## v1.33.0 — Oct 5, 2026
 - The app now notices when a newer version has been published — it checks twice a day and whenever you come back to the tab — and shows "vX is available" with a Reload button, so a tab left open no longer runs an old build for days. After the reload, a one-time "Updated to vX" toast opens the release notes.
 - A developer can ask every open tab to reload onto the current build from Help ▸ App settings; a tab on an older build shows "This version has been retired" and reloads within 30 seconds — but never while you're creating a project, editing, dragging or saving, so nobody loses work; an unsaved New Project draft is kept across the reload.
