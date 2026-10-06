@@ -604,10 +604,14 @@ is item 32 (P0), #7 is part of item 3, and #11 and #14 were done by the bridge i
       the name, a muted row or strike-through, not red. The status checklist can already
       hide Complete; what's missing is the default and the marker. Linked to items 10–11
       (Complete isn't the same as closed out). [tracker #6]
-- [ ] **38. Export every view to PDF, Letter or Tabloid.** Gantt, Calendar and List
-      (Meeting Sheet), with the paper size selectable. Printing today covers the Meeting
-      Sheet and print styles. Route: the browser's print-to-PDF, with `@page` sizes per
-      view and a size choice in the Print menu. [tracker #8, #9]
+- [x] **38. Export every view to PDF, Letter or Tabloid.** Shipped v1.40.0 (2026-10-05):
+      Letter or Tabloid picked in the Print menu and remembered per browser; the app lays
+      out its own page boxes (header, legend, Page X of Y) for the Gantt (whole-week
+      slices, Compact rows, a project never split from its phases), a project's Gantt or
+      Calendar (one month per page, from its page, drafts included) and the Meeting Sheet
+      (landscape or portrait; honours Status, Client and Person; search and spotlight
+      fade as on screen); "Timeline + Meeting Sheet" is one PDF; the export is the
+      browser's Save as PDF, no library. Seven sample PDFs on the PR. [tracker #8, #9]
 - [x] **39. Open Issues page cuts titles at 80 characters — add a Subject.** Shipped
       v1.28.0 (PR #83, 2026-10-02): the report form asks for a required one-line Subject
       (up to 120 characters) stored as `Title` (no new column) and shown on Open Issues;

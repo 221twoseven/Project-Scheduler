@@ -547,17 +547,6 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 #pp-zoom-inner{transform-origin:top left}
 
 /* ============ PRINT SHEET (shared by preview + print) ============ */
-.p-sheet{background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.12)}
-.p-title{display:flex;align-items:baseline;gap:12px;padding:10px 14px;border-bottom:2px solid var(--ink)}
-.p-title .pt-main{font-size:var(--fs-title);font-weight:800;letter-spacing:.02em}
-.p-title .pt-sub{font-family:var(--mono);font-size:var(--fs-fine);color:#64748B}
-.p-grid{display:flex;align-items:flex-start}
-.p-side{width:232px;flex-shrink:0;border-right:1.5px solid var(--side-line);background:var(--side)}
-.p-side-head{height:64px;display:flex;align-items:center;padding:0 14px;font-size:var(--fs-fine);font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:var(--ts-muted);border-bottom:1px solid var(--side-line)}
-.p-view{overflow:hidden;position:relative}
-.p-hdr{position:relative;height:64px}
-.p-canvas{position:relative}
-.p-sheet .sb-edit,.p-sheet .sb-grip,.p-sheet .hover-guide,.p-sheet .hover-tag,.p-sheet #sb-all{display:none!important}
 
 /* ============ REV31: STATUS FILTER + RESET ============ */
 .sf-wrap{position:relative}
@@ -1278,20 +1267,113 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 #demo-body b{color:var(--ink)}
 
 /* ============ PRINT ============ */
+/* v1.40.0 (tracker #8/#9): the paper size is written by the app into #print-page-size
+   (Letter 11in 8.5in / Tabloid 17in 11in, portrait for the Meeting Sheet, .5in margins)
+   when the user picks a size — see PAGE_RULES. The pages themselves are .pr-page boxes. */
 @media print{
-  @page{size:landscape;margin:7mm 9mm}
   *,*::before,*::after{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
-  body{overflow:visible!important}
+  html,body{overflow:visible!important;background:#fff!important}
+  ::-webkit-scrollbar{display:none!important}
   #toolbar,#main,#page,#tooltip,.overlay,#toasts,#coach{display:none!important}
   #print-root{display:block!important}
-  .p-sheet{box-shadow:none}
-  .meet-sheet{box-shadow:none;width:100%}
+  /* hidden on paper: the sidebar's eye, edit and grip icons, drag handles, hover guides */
+  .pr-page .sb-eye,.pr-page .sb-edit,.pr-page .sb-grip,.pr-page .bar-handle,.pr-page .hover-guide,.pr-page .hover-tag,.pr-page .cal-hdl,.pr-page .npv-hdl{display:none!important}
+  .pr-page{break-after:page;page-break-after:always}
   .meet-row,.meet-pm tr{page-break-inside:avoid}
   /* C2: print never emits the vivid tints — force the quiet canvas whatever is on screen */
   .bg-col,.hdr-d-cell{background-color:#FCFDFE!important}
   .hdr-m-cell{background-color:var(--side)!important;color:#33415A!important;text-shadow:none!important}
   .wknd-col{background:#EEF1F5!important;backdrop-filter:none!important}
 }
+/* ============ PRINT PAGES (v1.40.0, #8/#9) ============ */
+/* One box per page at the paper's size (96px to the inch, margins already taken off), each
+   with its own header, footer and page number; the same boxes show scaled in the preview. */
+.pr-page{position:relative;box-sizing:border-box;background:#fff;color:var(--ink);display:flex;flex-direction:column;overflow:hidden;break-after:page;font-size:var(--fs-fine);line-height:1.35}
+#pp-zoom-inner .pr-page{margin-bottom:14px;box-shadow:0 2px 10px rgba(0,0,0,.12)}
+.pr-head{height:53px;box-sizing:border-box;border-bottom:2px solid var(--ink);padding-top:5px;flex-shrink:0}
+.pr-h1{display:flex;align-items:baseline;gap:12px;white-space:nowrap}
+.pr-co,.pr-title{font-size:var(--fs-title);font-weight:800;letter-spacing:.02em}
+.pr-title{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.pr-range{font-family:var(--mono);font-size:var(--fs-fine)}
+.pr-h2{font-family:var(--mono);font-size:var(--fs-fine);color:#64748B;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pr-body{position:relative;overflow:hidden;display:flex;align-items:flex-start;flex-shrink:0;box-sizing:border-box}
+.pr-foot{height:44px;box-sizing:border-box;border-top:1px solid #CBD5E1;display:flex;align-items:flex-start;gap:12px;padding-top:4px;flex-shrink:0}
+.pr-legend{flex:1;min-width:0;display:flex;flex-wrap:wrap;align-items:center;gap:2px 12px;max-height:36px;overflow:hidden}
+.pr-pageno,.pr-app{font-family:var(--mono);font-size:var(--fs-fine);white-space:nowrap}
+.pr-pageno{margin-left:auto}
+.pr-sw{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.pr-sw i{display:inline-block;width:14px;height:10px;box-sizing:border-box;border-left:3px solid var(--c);background:color-mix(in srgb,var(--c) 22%,#fff)}
+.pr-lg{position:relative!important;display:inline-flex!important;overflow:hidden;align-items:center;height:14px;padding:0 6px;font-weight:600;cursor:default;--c:#6B7484}
+.pr-red{white-space:nowrap;color:#64748B}
+.pr-red::before{content:'';display:inline-block;width:14px;height:10px;box-sizing:border-box;vertical-align:-1px;margin-right:5px;border-left:3px solid #CE4242;background:color-mix(in srgb,#CE4242 22%,#fff)}
+/* Gantt pages: sidebar + axis + canvas, Compact rows (32px, bar 24px) whatever the screen density */
+.pr-side{flex-shrink:0;height:100%;border-right:1.5px solid var(--side-line);background:var(--side);overflow:hidden;box-sizing:border-box}
+.pr-side-head{height:64px;box-sizing:border-box;display:flex;align-items:center;padding:0 10px;font-size:var(--fs-fine);font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:var(--ts-muted);border-bottom:1px solid var(--side-line)}
+.pr-view{position:relative;overflow:hidden;height:100%;flex-shrink:0}
+.pr-hdr{position:relative;height:64px;overflow:hidden;border-bottom:1px solid var(--side-line);box-sizing:border-box}
+.pr-canvas{position:relative;overflow:hidden}
+.pr-page .sb-row{box-sizing:border-box;padding-left:8px;gap:6px;transition:none}
+.pr-page .sb-row.task-row{padding-left:22px}
+.pr-page .sb-name{font-size:11.5px;font-weight:600}
+.pr-page .sb-row.task-row .sb-name,.pr-page .sb-row.lane-row .sb-name{font-size:11.5px;font-weight:500}
+.pr-page .sb-sub,.pr-page .sb-2l .sb-sub{font-size:11px;color:#64748B}
+.pr-page .sb-row.dept-head,.pr-page .sb-row.grp-head,.pr-page .sb-row.dept-head .sb-name,.pr-page .sb-row.grp-head .sb-name{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#57687F;cursor:default}
+.pr-page .sb-row.proj-head{cursor:default}
+.pr-page .hdr-m-cell{background-color:var(--side)!important;color:#33415A!important;text-shadow:none!important;cursor:default}
+.pr-page .hdr-m-cell:hover{text-decoration:none}
+.pr-page .hdr-d-cell{color:#33415A;background-color:#FCFDFE!important}
+.pr-page .bg-col{background-color:#FCFDFE!important}
+.pr-page .wknd-col{background:#EEF1F5!important;backdrop-filter:none!important}
+.pr-page .g-row{cursor:default}
+.pr-page .today-line{border-left-width:1px;background:none}
+/* paper bars: the on-screen colour (--c) as a light tint, a solid 3px left edge in the full colour, ink text */
+.pr-page .job-bar{background-color:color-mix(in srgb,var(--c) 22%,#fff)!important;border-left:3px solid var(--c);color:var(--ink)!important;box-shadow:none;border-radius:3px;opacity:1;cursor:default;box-sizing:border-box}
+.pr-page .job-bar:hover::after{content:none}
+.pr-page .bar-lbl{color:var(--ink)!important;text-shadow:none;font-size:11px;font-weight:600}
+.pr-page .job-bar[data-st="forecast"]{outline:1.5px dashed var(--c);outline-offset:-2px;opacity:1;border-left-style:dashed}
+.pr-page .job-bar[data-st="estimating"]{opacity:1}
+/* Paper patterns are a plain linear-gradient tile (background-size), never repeating-linear-gradient: Chrome prints a repeating
+   gradient as a function-based shading (PDF ShadingType 1), which pdf.js viewers (Firefox and others) draw as a flat pink fill. */
+.pr-page .bar-stripe{background:linear-gradient(45deg,var(--c) 15%,transparent 15%,transparent 50%,var(--c) 50%,var(--c) 65%,transparent 65%) 0 0/10px 10px;opacity:.3} /* stripes in the bar's own colour, not white */
+.pr-page .job-bar[data-st="on-hold"]{opacity:1;background-image:none}
+.pr-page .job-bar[data-st="on-hold"]::before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,var(--c) 20%,transparent 20%,transparent 50%,var(--c) 50%,var(--c) 70%,transparent 70%) 0 0/7px 7px;opacity:.4;pointer-events:none} /* the hatch in the bar's own colour, an opacity layer like the stripes */
+.pr-page .job-bar[data-st="complete"]{opacity:.55}
+.pr-page .ooo-hatch{background:linear-gradient(135deg,rgba(16,26,41,.25) 25%,transparent 25%,transparent 50%,rgba(16,26,41,.25) 50%,rgba(16,26,41,.25) 75%,transparent 75%) 0 0/11px 11px}
+/* status chips print outlined: white, a 1px border in the status colour, mono caps */
+.pr-page .sum-pill,.pr-page .mr-pill{background:#fff!important;border:1px solid currentColor;font-family:var(--mono);font-size:11px;font-weight:700;text-transform:uppercase}
+.pr-page .dim{opacity:.35!important;filter:none!important}
+.pr-page .sb-row.dim>*:not(.sb-eye){opacity:1;filter:none}
+/* a project's Gantt: the phase gutter in place of the sidebar */
+.pr-gut{display:flex;align-items:center;gap:6px;box-sizing:border-box;padding:0 8px;height:32px;border-bottom:1px solid #DAE2ED;font-size:11.5px;font-weight:600;color:#33415A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pr-gut.child{padding-left:22px;font-weight:500;color:#5B6B85}
+.pr-gut.extra{color:var(--ts-muted);font-style:italic;font-weight:500}
+.pr-gut .c-dot{width:9px;height:9px}
+.pr-mk{position:absolute;display:flex;align-items:center;gap:5px;font-size:11px;white-space:nowrap;z-index:3}
+.pr-mk i{width:9px;height:9px;box-sizing:border-box;flex-shrink:0}
+.pr-mk.ev i{background:#F7C948;border:1.5px solid #16202E;transform:rotate(45deg)}
+.pr-mk.tk i{background:#fff;border:1.5px solid #3B7FD6;border-radius:50%}
+/* a project's Calendar: one month per page, ink month strip on white over a 2px rule, static headers */
+.pr-cal{width:100%}
+.pr-page .cal-mon{position:static;background:#fff;color:var(--ink);border-bottom:2px solid var(--ink);font-size:11px;padding:4px 0}
+.pr-page .cal-dow{position:static}
+.pr-page .cal-wk{box-sizing:border-box;overflow:hidden}
+.pr-page .cal-band.ph{background-color:color-mix(in srgb,var(--c) 22%,#fff)!important;border-left:3px solid var(--c);color:var(--ink)!important;cursor:default;box-sizing:border-box}
+.pr-page .cal-band.ph.slim{background-color:var(--c)!important} /* a slim strip carries no text, so it prints at full colour to read in greyscale */
+.pr-page .cal-band.ev,.pr-page .cal-band.tk{cursor:default}
+.pr-page .cal-band.pick{box-shadow:none}
+.pr-page .cal-col.we{background-image:none}
+/* the Meeting Sheet: the table as it is; the progress bar as a hairline grey track, fill in the status tint, 1px outline in the status colour */
+.pr-page .meet-table{width:100%}
+.pr-page .meet-cols th{background:#F8FAFC!important}
+.pr-page .meet-mini{height:8px;background:#fff;border:1px solid #CBD5E1;border-radius:2px;box-sizing:border-box;overflow:hidden}
+.pr-page .mm-fill{outline:1px solid var(--sc,#64748B);outline-offset:-1px}
+.pr-page .meet-row.dim{opacity:.35}
+.pr-page .mm-dates{white-space:nowrap}
+.pr-measure{position:absolute;left:-20000px;top:0;visibility:hidden}
+.pr-lbl-pp{display:none}
+body.pp-route .pr-lbl-tl{display:none}
+body.pp-route .pr-lbl-pp{display:inline}
+#print-overlay.no-range .pp-range{display:none}
 /* ============ v1.7.0 (09-01 handoff): COMPANY DATA PAGES ============ */
 /* People and Clients as first-class pages — read-first master/detail on the
    project page's chrome. The timeline toolbar row hides exactly as on pp-route. */
@@ -1421,8 +1503,12 @@ body.cd-route #dash-bar{display:none!important}
     <div class="sf-wrap">
       <button id="btn-print" class="t-btn" title="Print the timeline or a meeting sheet"><svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 5.5V2h7v3.5"/><path d="M4.5 11.5H2.75A1.25 1.25 0 0 1 1.5 10.25v-3.5A1.25 1.25 0 0 1 2.75 5.5h10.5a1.25 1.25 0 0 1 1.25 1.25v3.5a1.25 1.25 0 0 1-1.25 1.25H11.5"/><rect x="4.5" y="9.5" width="7" height="4.5" rx="1"/></svg> Print <svg class="ico-s" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 6 8 9.5 11.5 6"/></svg></button>
       <div id="print-menu" class="tb-menu hidden">
-        <div class="sm-item" id="mi-print-timeline" title="Print the timeline as it looks on screen"><svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 5.5V2h7v3.5"/><path d="M4.5 11.5H2.75A1.25 1.25 0 0 1 1.5 10.25v-3.5A1.25 1.25 0 0 1 2.75 5.5h10.5a1.25 1.25 0 0 1 1.25 1.25v3.5a1.25 1.25 0 0 1-1.25 1.25H11.5"/><rect x="4.5" y="9.5" width="7" height="4.5" rx="1"/></svg> Print Timeline</div>
-        <div class="sm-item" id="mi-meeting" title="Print a meeting sheet of every project grouped by PM"><svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 4.5h11M2.5 8h11M2.5 11.5h11"/></svg> Meeting Sheet</div>
+        <div class="sm-item" id="mi-print-timeline" title="Print the timeline as it looks on screen"><svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 5.5V2h7v3.5"/><path d="M4.5 11.5H2.75A1.25 1.25 0 0 1 1.5 10.25v-3.5A1.25 1.25 0 0 1 2.75 5.5h10.5a1.25 1.25 0 0 1 1.25 1.25v3.5a1.25 1.25 0 0 1-1.25 1.25H11.5"/><rect x="4.5" y="9.5" width="7" height="4.5" rx="1"/></svg> <span class="pr-lbl-tl">Print Timeline…</span><span class="pr-lbl-pp">Print this project…</span></div>
+        <div class="sm-item" id="mi-meeting" title="Print a meeting sheet of every project grouped by PM"><svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 4.5h11M2.5 8h11M2.5 11.5h11"/></svg> Meeting Sheet…</div>
+        <div class="sm-item" id="mi-print-both" title="One PDF: the timeline pages first, then the meeting sheet"><svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 3h11v10h-11z"/><path d="M2.5 7h11M6 3v10"/></svg> Timeline + Meeting Sheet</div>
+        <div class="sm-sec">Paper · every print</div>
+        <label class="sm-item" title="11 × 8.5 in, landscape"><input type="radio" name="paper-pick" value="letter"> Letter</label>
+        <label class="sm-item" title="17 × 11 in, landscape"><input type="radio" name="paper-pick" value="tabloid"> Tabloid</label>
       </div>
     </div>
     <div class="sf-wrap">
@@ -1645,16 +1731,16 @@ body.cd-route #dash-bar{display:none!important}
     <h3>Print Preview</h3>
     <div class="modal-body">
     <div class="pp-controls">
-      <div class="fg"><label>From</label><input id="pp-start" type="date"></div>
-      <div class="fg"><label>To</label><input id="pp-end" type="date"></div>
-      <div class="pp-note">Prints the current lens exactly as arranged on screen — collapse projects or departments first to control what's included. Tip: the Week or Month zoom fits longer ranges on a page.</div>
+      <div class="fg pp-range"><label>From</label><input id="pp-start" type="date"></div>
+      <div class="fg pp-range"><label>To</label><input id="pp-end" type="date"></div>
+      <div class="pp-note" id="pp-note">Pages are laid out for the paper picked in the Print menu (Letter or Tabloid); a range longer than 13 weeks on Letter or 22 on Tabloid continues on a second page across. Rows print at the Compact height; the lens, filters and expanded rows are as on screen. Print opens the browser's dialog — choose Save as PDF there for a file.</div>
     </div>
     <div id="pp-zoom"><div id="pp-zoom-inner"></div></div>
     </div>
     <div class="m-actions">
       <span></span>
       <div class="m-right">
-        <button id="pp-cancel" class="btn btn-ghost">Close</button>
+        <button id="pp-close" class="btn btn-ghost">Close</button>
         <button id="pp-print" class="btn btn-primary"><svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 5.5V2h7v3.5"/><path d="M4.5 11.5H2.75A1.25 1.25 0 0 1 1.5 10.25v-3.5A1.25 1.25 0 0 1 2.75 5.5h10.5a1.25 1.25 0 0 1 1.25 1.25v3.5a1.25 1.25 0 0 1-1.25 1.25H11.5"/><rect x="4.5" y="9.5" width="7" height="4.5" rx="1"/></svg> Print</button>
       </div>
     </div>
@@ -1667,7 +1753,8 @@ body.cd-route #dash-bar{display:none!important}
     <h3>Meeting Sheet</h3>
     <div class="modal-body">
     <div class="pp-controls">
-      <div class="pp-note">One row per project, grouped by PM and sorted by deadline. Respects the Status filter — set it first to control what prints. The Notes column stays blank for handwriting. Print on 11×17 landscape; the header repeats on every page.</div>
+      <div class="fg" id="meet-orient"><label>Orientation</label><label class="sm-item"><input type="radio" name="sheet-orient" value="landscape"> Landscape</label><label class="sm-item"><input type="radio" name="sheet-orient" value="portrait"> Portrait</label></div>
+      <div class="pp-note">One row per project, grouped by PM and sorted by deadline. Lists the projects the screen shows (the Status, Client and Person filters); a search or spotlight fades rows here as on screen. The Notes column stays blank for handwriting. Pick Letter or Tabloid in the Print menu; the header repeats on every page. Print opens the browser's dialog — choose Save as PDF there for a file.</div>
     </div>
     <div id="meet-zoom"></div>
     </div>
@@ -1716,7 +1803,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.39.0'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.40.0'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -5817,100 +5904,439 @@ function stripIds(node){
   return node;
 }
 
-function buildPrintSheet(sIso,eIso){
-  const s=parseDate(sIso),e=parseDate(eIso);
-  const DW_=dw();
-  const offset=d2x(s);
-  const W=(diffDays(s,e)+1)*DW_;
-  const sheet=document.createElement('div');
-  sheet.className='p-sheet';
-  sheet.style.width=(SIDE_W+W)+'px';
-  /* Title */
-  const title=document.createElement('div');title.className='p-title';
-  const tm=document.createElement('span');tm.className='pt-main';
-  tm.textContent='TWOSEVEN INC. — Shop Timeline · '+(LENS==='project'?'Projects':'Departments');
-  const ts=document.createElement('span');ts.className='pt-sub';
-  ts.textContent='v'+APP_VER+' · '+fmtNice(sIso)+' → '+fmtNice(eIso)+' · printed '+today().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
-  title.appendChild(tm);title.appendChild(ts);
-  sheet.appendChild(title);
-  /* Grid */
-  const grid=document.createElement('div');grid.className='p-grid';
-  const side=document.createElement('div');side.className='p-side';side.style.width=SIDE_W+'px';
-  const sh=document.createElement('div');sh.className='p-side-head';sh.textContent='Shop Schedule';
-  side.appendChild(sh);
-  const rowsClone=stripIds(document.getElementById('side-rows').cloneNode(true));
-  rowsClone.style.overflow='visible';
-  side.appendChild(rowsClone);
-  const view=document.createElement('div');view.className='p-view';
-  view.style.width=W+'px';
-  const hdrWrap2=document.createElement('div');hdrWrap2.className='p-hdr';
-  const hdrClone=stripIds(document.getElementById('gantt-hdr').cloneNode(true));
-  hdrClone.style.position='absolute';hdrClone.style.left=(-offset)+'px';hdrClone.style.top='0';
-  hdrWrap2.appendChild(hdrClone);
-  const cvWrap=document.createElement('div');cvWrap.className='p-canvas';
-  cvWrap.style.height=TOTAL_H+'px';
-  const cvClone=stripIds(document.getElementById('gantt-canvas').cloneNode(true));
-  cvClone.style.position='absolute';cvClone.style.left=(-offset)+'px';cvClone.style.top='0';
-  cvWrap.appendChild(cvClone);
-  view.appendChild(hdrWrap2);view.appendChild(cvWrap);
-  grid.appendChild(side);grid.appendChild(view);
-  sheet.appendChild(grid);
-  sheet.dataset.w=SIDE_W+W;
-  sheet.dataset.h=64+TOTAL_H+44;
-  return sheet;
+/* v1.40.0 (tracker #8/#9): print designed for paper. The app lays out one box per page at the
+   paper's own size (Letter 960×720 px, Tabloid 1536×960 — 96 px to the inch, .5 in margins
+   already off), each with its header, footer and "Page X of Y", and a forced break after it;
+   the browser's print dialog (Save as PDF) is the export step — no PDF library. */
+const PAPER_KEY='shopTimelinePaper',SHEET_PORTRAIT_KEY='shopTimelineSheetPortrait';
+let PAPER='letter',SHEET_PORTRAIT=false;   /* remembered per browser; Letter and landscape on first use (Q4, Q6) */
+try{if(localStorage.getItem(PAPER_KEY)==='tabloid')PAPER='tabloid';SHEET_PORTRAIT=localStorage.getItem(SHEET_PORTRAIT_KEY)==='1';}catch(e){}
+/* inches, not paper names — browsers do not all know "Tabloid" */
+const PAGE_RULES={letter:'@page{size:11in 8.5in;margin:.5in}',tabloid:'@page{size:17in 11in;margin:.5in}',
+  letterP:'@page{size:8.5in 11in;margin:.5in}',tabloidP:'@page{size:11in 17in;margin:.5in}'};
+const PAPER_PX={letter:{w:960,h:720,side:216,weeks:13,legend:8},tabloid:{w:1536,h:960,side:264,weeks:22,legend:12}};
+const PR_HEAD_H=53,PR_FOOT_H=44,PR_AXIS_H=64,PR_ROW=32;
+let PR_FIXED_H=null; /* tests set a fixed row height — jsdom cannot measure */
+function setPaper(p){PAPER=p==='tabloid'?'tabloid':'letter';try{localStorage.setItem(PAPER_KEY,PAPER);}catch(e){}syncPaperMenu();prWriteStyle(false);}
+function setSheetPortrait(v){SHEET_PORTRAIT=!!v;try{localStorage.setItem(SHEET_PORTRAIT_KEY,SHEET_PORTRAIT?'1':'0');}catch(e){}syncPaperMenu();}
+function syncPaperMenu(){
+  document.querySelectorAll('input[name=paper-pick]').forEach(r=>{r.checked=(r.value===PAPER);});
+  document.querySelectorAll('input[name=sheet-orient]').forEach(r=>{r.checked=((r.value==='portrait')===SHEET_PORTRAIT);});
 }
-
+function prPageSize(portrait){const d=PAPER_PX[PAPER];return portrait?{w:d.h,h:d.w}:{w:d.w,h:d.h};}
+function prBodyH(size){return size.h-PR_HEAD_H-PR_FOOT_H;}
+function prH(el,fallback){return PR_FIXED_H||(el&&el.offsetHeight)||fallback;}
+function prWriteStyle(portrait){
+  let st=document.getElementById('print-page-size');
+  if(!st){st=document.createElement('style');st.id='print-page-size';document.head.appendChild(st);}
+  st.textContent=PAGE_RULES[PAPER+(portrait?'P':'')];
+}
+function prPrintedOn(){return today().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});}
+/* Line two of the header names every filter in use; Color by is always named on the Gantt. */
+function prFiltersText(withColor){
+  const f=[];
+  if(statusFilterDirty())f.push('Status: '+ALL_STATUSES.filter(s=>SHOW_STATUS.has(s)).map(s=>STATUS_LBL[s]).join(', '));
+  if(CLIENT_FILTER.size)f.push('Client: '+[...CLIENT_FILTER].join(', '));
+  if(PERSON)f.push('Person: '+dispName(PERSON));
+  if(FILTER)f.push('Search: '+FILTER);
+  if(SPOT.size)f.push('Spotlight: '+[...SPOT].map(id=>(projById(id)||{}).name||'').filter(Boolean).join(', '));
+  /* v1.37.0 (#6): the Active / Completed / All switch is a view, not a filter, so the header names it outright */
+  const view={active:'Active projects',completed:'Completed projects',all:'All projects'}[doneMode()];
+  return view+(f.length?' · Filters · '+f.join(' · '):'')+(withColor?' · Color by: '+(COLOR_MODE==='entity'?'Team':'Project'):'');
+}
+function prShopLine2(n){return 'v'+APP_VER+' · printed '+prPrintedOn()+' · '+n+' project'+(n===1?'':'s')+' · '+prFiltersText(true);}
+/* A project's page: cost code, client, PM and deadline; a draft says so and carries no cost code. */
+function prProjLine2(p){
+  const draft=!!ROUTE.creating,d=draft?readPageDraft().base:p;
+  const pm=roleList(d.projectManager).map(canonName).map(dispName).join(', ');
+  const due=draft?d.deadline:(dueDate(p)||p.deadline);
+  return [draft?'Draft, not yet created':(d.jobCode||''),(d.client||'').trim(),pm?'PM '+pm:'',due?'Due '+fmtNiceY(due):''].filter(Boolean).join(' · ');
+}
+/* One page box: two header lines over a 2px ink rule, a body the caller fills, a footer with the legend and the page number. */
+function prPage(pages,size,title,right,line2,legend){
+  const pg=document.createElement('div');pg.className='pr-page';
+  pg.style.width=size.w+'px';pg.style.height=size.h+'px';
+  pg.innerHTML='<div class="pr-head"><div class="pr-h1"><span class="pr-co">TWOSEVEN INC.</span><span class="pr-title">'+esc(title)+'</span><span class="pr-range">'+esc(right||'')+'</span></div>'
+    +'<div class="pr-h2">'+esc(line2)+'</div></div>'
+    +'<div class="pr-body" style="height:'+prBodyH(size)+'px"></div>'
+    +'<div class="pr-foot"><div class="pr-legend">'+(legend||'')+'</div><span class="pr-pageno"></span></div>';
+  pages.push(pg);
+  return pg.querySelector('.pr-body');
+}
+function prNumber(pages){pages.forEach((pg,i)=>{pg.querySelector('.pr-pageno').textContent='Page '+(i+1)+' of '+pages.length;});return pages;}
+/* Cuts groups of units into pages. A unit (a project with its expanded phases, a sheet row) never
+   splits unless it is taller than a page — then row by row. A group (department, client / PM /
+   status, PM on the sheet) starts a new page only if it would otherwise split, unless it is
+   taller than a page — then its heading repeats on the continuation. Rows carry h in px. */
+function prPaginate(groups,avail){
+  const pages=[];let cur=[],y=0,head=null;
+  const flush=()=>{if(cur.length)pages.push(cur);cur=[];y=0;if(head){cur.push({...head,cont:true});y=head.h;}};
+  const put=r=>{cur.push(r);y+=r.h;};
+  const hOf=u=>u.rows.reduce((a,r)=>a+r.h,0);
+  for(const g of groups){
+    head=null;
+    const room=avail-(g.head?g.head.h:0); /* what a continuation page holds under the repeated heading */
+    const gH=(g.head?g.head.h:0)+g.units.reduce((a,u)=>a+hOf(u),0);
+    if(gH<=avail&&y+gH>avail)flush();
+    if(g.head){
+      const u0=g.units[0],u0H=u0?hOf(u0):0,need=u0H>room?(u0?u0.rows[0].h:0):u0H;
+      if(y+g.head.h+need>avail&&cur.length)flush();
+      put(g.head);head=g.head;
+    }
+    for(const u of g.units){
+      const uH=hOf(u);
+      if(y+uH<=avail){u.rows.forEach(put);continue;}
+      if(uH>room){for(const r of u.rows){if(y+r.h>avail&&cur.length)flush();put(r);}continue;}
+      flush();u.rows.forEach(put);
+    }
+  }
+  if(cur.length)pages.push(cur);
+  return pages;
+}
+function prWeekStart(d){const w=d.getDay();return addDays(d,-(w===0?6:w-1));}
+/* Whole-week slices of 13 (Letter) or 22 (Tabloid) weeks, one page width each. */
+function prSlices(s,e){
+  const P=PAPER_PX[PAPER],s0=prWeekStart(s),weeks=Math.max(1,Math.round((diffDays(s0,addDays(prWeekStart(e),6))+1)/7));
+  const out=[];for(let w=0;w<weeks;w+=P.weeks)out.push({s:addDays(s0,w*7),e:addDays(s0,Math.min(weeks,w+P.weeks)*7-1),w0:w+1,w1:Math.min(weeks,w+P.weeks),n:weeks});
+  return out;
+}
+/* Print rows at the Compact height whatever the screen density: heads 26, one lane 32, n lanes 8+24n+4(n-1). */
+function prRowH(r){const n=r.lanes||1;return (r.kind==='deptHead'||r.kind==='groupHead')?HEAD_H:8+24*n+4*(n-1);}
+function prGanttGroups(rows){
+  const groups=[];let g=null,u=null;
+  for(const r0 of rows){
+    const r={...r0,h:prRowH(r0)};delete r._bars;
+    if(r.kind==='deptHead'||r.kind==='groupHead'){g={head:r,units:[]};groups.push(g);u=null;continue;}
+    if(!g){g={head:null,units:[]};groups.push(g);}
+    if(r.kind==='projTask'&&u&&u.rows[0].projectId===r.projectId){u.rows.push(r);continue;}
+    u={rows:[r]};g.units.push(u);
+  }
+  return groups;
+}
+function prProjOK(p){return (!FILTER||projMatch(p))&&(!SPOT.size||SPOT.has(p.id));} /* search and spotlight only fade, as on screen (applyFilter's projOK) */
+function prTaskOK(t){return (!FILTER||taskMatch(t))&&(!SPOT.size||SPOT.has(t.projectId));} /* applyFilter's taskOK */
+function prSideRow(r){
+  const row=document.createElement('div');row.className='sb-row';row.style.height=r.h+'px';row.style.minHeight=r.h+'px';row.dataset.key=r.key;
+  const span=(cls,txt)=>{const s=document.createElement('span');s.className=cls;s.textContent=txt;return s;};
+  const dot=col=>{const d=document.createElement('span');d.className='c-dot';d.style.background=col;return d;};
+  const two=(a,b)=>{const col=document.createElement('span');col.className='sb-2l';col.appendChild(span('sb-name',a));if(b)col.appendChild(span('sb-sub',b));return col;};
+  if(r.kind==='projHead'){
+    const p=projById(r.projectId);row.classList.add('proj-head');row.appendChild(dot(projColor(p.id)));
+    const due=dueDate(p),done=projectStatus(p)==='complete';
+    row.appendChild(two(p.name,[done?'':(p.client||'').trim(),p.jobCode,due?fmtNice(due):''].filter(Boolean).join(' · ')));
+    /* v1.37.0 (#6) on paper too: a completed job is muted and its line two leads with the grey Completed tag (the tag takes the client's place, as on screen) */
+    if(done){row.classList.add('done');const tg=span('cd-perm done','Completed'),sub=row.querySelector('.sb-sub');
+      if(sub){sub.prepend(' ');sub.prepend(tg);}else row.querySelector('.sb-2l').appendChild(tg);}
+    if(!prProjOK(p))row.classList.add('dim');
+  }else if(r.kind==='projTask'){
+    const t=taskById(r.taskId);row.classList.add('task-row');row.appendChild(span('sb-name',phaseLabel(t)));
+    const a=assigneeText(t);if(a&&a!=='—'&&a!==phaseLabel(t))row.appendChild(span('sb-sub',a));
+    if(!prTaskOK(t))row.classList.add('dim');
+  }else if(r.kind==='groupHead'||r.kind==='deptHead'){
+    row.classList.add(r.kind==='deptHead'?'dept-head':'grp-head');
+    row.appendChild(span('sb-name',r.label+(r.cont?' (continued)':'')));row.appendChild(span('sb-count',r.count));
+  }else{
+    row.classList.add('lane-row');row.appendChild(dot(laneColor(r.dept,r.assignee)));
+    const dnm=(deptById(r.dept)||{}).name||r.dept;
+    row.appendChild(two(dispName(r.label),r.label!==dnm?dnm:''));
+  }
+  return row;
+}
+/* A month that only grazes the slice edge keeps a label that fits on the page — the full name, else the short one, else none —
+   so no word is cut at the page edge (uppercase 11px with .1em tracking is about 8px a letter). */
+function prFitMonths(hdr,timeW){
+  hdr.querySelectorAll('.hdr-m-cell').forEach(mc=>{
+    const l=parseFloat(mc.style.left)||0,room=Math.min(timeW,l+(parseFloat(mc.style.width)||0))-Math.max(0,l)-18;
+    const [mon,yr]=mc.textContent.split(' '),fit=t=>t.length*8<=room;
+    mc.textContent=fit(mc.textContent)?mc.textContent:fit(mon.slice(0,3)+' '+yr)?mon.slice(0,3)+' '+yr:fit(mon.slice(0,3))?mon.slice(0,3):'';
+  });
+}
+function prSwatch(col,name){return '<span class="pr-sw"><i style="--c:'+esc(col)+'"></i>'+esc(name)+'</span>';}
+const PR_MARKS='<span class="job-bar pr-lg" data-st="forecast">Forecast</span><span class="job-bar pr-lg" data-st="estimating"><span class="bar-stripe"></span>Estimating</span>'
+  +'<span class="job-bar pr-lg" data-st="on-hold">On hold</span><span class="job-bar pr-lg" data-st="complete">✓ Complete</span>';
+const PR_RED='<span class="pr-red">red edge = install or shipping (Laser shares the red)</span>';
+/* The footer legend: the set Color by is using — the page's projects (Project) or the departments
+   present (Team, Laser as its own swatch) — then the status marks and the red-edge note. A long
+   project list leaves the swatches to the sidebar dots before each name. */
+function prGanttLegend(prow){
+  let h='';
+  const tasksOn=r=>r.kind==='projTask'?[taskById(r.taskId)].filter(Boolean):(r.kind==='projHead'?tasksOf(r.projectId):(r.tasks||[]));
+  if(COLOR_MODE==='entity'){
+    const depts=[];for(const r of prow)for(const t of tasksOn(r))if(depts.indexOf(t.department)<0)depts.push(t.department);
+    h+=depts.map(d=>prSwatch(isEndDept(d)?INSTALL_RED:(DEPT_COLORS[d]||'#8A98AE'),(deptById(d)||{}).name||d)).join(''); /* install and shipping bars print red (barColor) */
+  }else{
+    const ids=[];for(const r of prow){if(r.kind==='projHead'){if(ids.indexOf(r.projectId)<0)ids.push(r.projectId);}else if(r.kind==='deptLane')for(const t of r.tasks)if(ids.indexOf(t.projectId)<0)ids.push(t.projectId);}
+    if(ids.length<=PAPER_PX[PAPER].legend)h+=ids.map(id=>prSwatch(projColor(id),(projById(id)||{}).name||'')).join('');
+  }
+  return h+PR_MARKS+PR_RED;
+}
+/* Draws a slice of the timeline into a page body: sidebar names, the date axis (the screen's own
+   header builder, so it degrades the same way), the canvas and the bars. The screen's geometry
+   globals are pointed at the slice for the duration and restored after. */
+function prGanttInto(body,prow,sideW,timeW){
+  const DW_=dw();
+  body.innerHTML='<div class="pr-side" style="width:'+sideW+'px"><div class="pr-side-head">Shop Schedule</div><div class="pr-side-rows"></div></div>'
+    +'<div class="pr-view" style="width:'+timeW+'px"><div class="pr-hdr"></div><div class="pr-canvas"></div></div>';
+  const side=body.querySelector('.pr-side-rows'),hdr=body.querySelector('.pr-hdr'),cv=body.querySelector('.pr-canvas');
+  hdr.style.width=timeW+'px';buildHeaderInto(hdr,DW_);prFitMonths(hdr,timeW);
+  cv.style.width=timeW+'px';cv.style.height=TOTAL_H+'px';
+  buildCanvasBgInto(cv,timeW,DW_);
+  for(const r of prow){
+    side.appendChild(prSideRow(r));
+    const rd=document.createElement('div');rd.className='g-row'+((r.kind==='deptHead'||r.kind==='groupHead')?' dept-band':'');
+    rd.style.top=r.top+'px';rd.style.height=r.h+'px';rd.style.width=timeW+'px';cv.appendChild(rd);
+  }
+  const td=today();
+  if(td>=TL_S&&td<=TL_E){const tl=document.createElement('div');tl.className='today-line';tl.style.left=d2x(td)+'px';tl.style.width=DW_+'px';tl.style.height=TOTAL_H+'px';cv.appendChild(tl);}
+  const on=(s,e)=>e>=TL_S&&s<=TL_E;
+  for(const r of prow){
+    if(r.kind==='projHead'){
+      const p=projById(r.projectId),ts=tasksOf(p.id);let s,e;
+      if(ts.length){s=new Date(Math.min(...ts.map(t=>parseDate(t.startDate).getTime())));e=new Date(Math.max(...ts.map(t=>parseDate(t.endDate).getTime())));}
+      else{e=parseDate(p.deadline);s=addDays(e,-14);}
+      if(on(s,e)){const b=makeSummaryBar(p,s,e,r);if(!prProjOK(p))b.classList.add('dim');cv.appendChild(b);}
+      const due=dueDate(p);
+      if(due){const dl=parseDate(due);
+        if(dl>=TL_S&&dl<=TL_E){
+          let bot=r.top+r.h;const i=prow.indexOf(r);for(let j=i+1;j<prow.length&&prow[j].projectId===r.projectId;j++)bot=prow[j].top+prow[j].h;
+          const f=document.createElement('div');f.className='dl-flag';f.style.left=(d2x(dl)+DW_-1)+'px';f.style.top=r.top+'px';f.style.height=(bot-r.top)+'px';f.style.color=projColor(p.id);cv.appendChild(f);}}
+    }else if(r.kind==='projTask'){
+      const t=taskById(r.taskId);
+      if(t&&on(parseDate(t.startDate),parseDate(t.endDate))){const b=makeTaskBar(t,r,0,'dept');if(!prTaskOK(t))b.classList.add('dim');cv.appendChild(b);}
+    }else if(r.kind==='deptLane'){
+      for(const t of r.tasks)if(on(parseDate(t.startDate),parseDate(t.endDate))){const b=makeTaskBar(t,r,r.laneMap.get(t.id)||0,'proj');if(!prTaskOK(t))b.classList.add('dim');cv.appendChild(b);}
+    }
+  }
+  /* the bar's colour moves to --c so the paper rules tint it; labels park at today or the page's left edge,
+     by the screen's own rule (labelLeftFor, v1.36.0 #4: never closer than LBL_TAIL to the bar's end) */
+  const ax=d2x(td>TL_S?td:TL_S);
+  cv.querySelectorAll('.job-bar').forEach(b=>{
+    b.style.setProperty('--c',b.style.backgroundColor);
+    const l=b.querySelector('.bar-lbl');if(!l)return;
+    const bx=parseFloat(b.style.left),bw=parseFloat(b.style.width),base=+l.dataset.base||8;
+    l.style.left=labelLeftFor(bx,bw,base,ax+6)+'px';
+  });
+}
+/* The whole-shop Gantt: pages run across time first (whole-week slices), then down the rows;
+   every page repeats the sidebar names and the axis. */
+function prGanttPages(pages,sIso,eIso){
+  const size=prPageSize(false),P=PAPER_PX[PAPER],timeW=size.w-P.side;
+  const rows=buildRows().rows;
+  const rowPages=prPaginate(prGanttGroups(rows),prBodyH(size)-PR_AXIS_H);
+  const slices=prSlices(parseDate(sIso),parseDate(eIso)),dwAll=slices.length>1?timeW/(P.weeks*7):null; /* one scale across the slices */
+  const title='Shop Timeline · '+(LENS==='project'?'Projects':'Departments');
+  const n=LENS==='project'?rows.filter(r=>r.kind==='projHead').length:new Set(rows.flatMap(r=>(r.tasks||[]).map(t=>t.projectId))).size;
+  const line2=prShopLine2(n);
+  const saved={TL_S,TL_E,DW_PX,TOTAL_H,BAR_H,BAR_PAD,LANE_G,TODAY_X};
+  try{
+    BAR_H=24;BAR_PAD=4;LANE_G=4;TODAY_X=null;
+    for(const prow of rowPages){
+      let y=0;for(const r of prow){r.top=y;y+=r.h;}TOTAL_H=Math.max(y,prBodyH(size)-PR_AXIS_H); /* columns run to the page bottom */
+      for(const sl of slices){
+        TL_S=sl.s;TL_E=sl.e;DW_PX=dwAll||timeW/(diffDays(sl.s,sl.e)+1);
+        const t2=slices.length>1?title+' · weeks '+sl.w0+' to '+sl.w1+' of '+sl.n:title;
+        const body=prPage(pages,size,t2,fmtNice(fmtDate(sl.s))+' to '+fmtNiceY(fmtDate(sl.e)),line2,prGanttLegend(prow));
+        prGanttInto(body,prow,P.side,Math.round((diffDays(sl.s,sl.e)+1)*DW_PX));
+      }
+    }
+    if(!rowPages.length)prPage(pages,size,title,'',line2,'').innerHTML='<div class="npv-empty">Nothing to show — no projects match the current filter.</div>';
+  }finally{({TL_S,TL_E,DW_PX,TOTAL_H,BAR_H,BAR_PAD,LANE_G,TODAY_X}=saved);}
+  return pages;
+}
+/* A project's Gantt (its page, Gantt showing): the job's span in whole weeks, 32px rows, the phase
+   gutter in place of the sidebar at the same width, a department with its open subtasks never split. */
+function prProjectGanttPages(pages){
+  const size=prPageSize(false),P=PAPER_PX[PAPER],timeW=size.w-P.side;
+  const p=ppProject(),name=(p&&p.name)||'New project',line2=prProjLine2(p),title='Shop Timeline · '+name;
+  if(!NPV_TASKS.length){prPage(pages,size,title,'',line2,'').innerHTML='<div class="npv-empty">Nothing scheduled yet.</div>';return pages;}
+  const marks=npvMarkers();
+  const due=dueOf(NPV_ALL),dl=due?parseDate(due.d):parseDate(readPageDraft().base.deadline);
+  let lo=parseDate(NPV_TASKS[0].startDate),hi=dl;
+  for(const t of NPV_TASKS){const a=parseDate(t.startDate),b=parseDate(t.endDate);if(a<lo)lo=a;if(b>hi)hi=b;}
+  for(const m of marks){const d=parseDate(m.date);if(d<lo)lo=d;if(d>hi)hi=d;}
+  const plan=npvRowPlan();
+  const rows=[];
+  if(marks.length){rows.push({kind:'extra',label:'Milestones',h:PR_ROW,k:'ev'});rows.push({kind:'extra',label:'Notes',h:PR_ROW,k:'tk'});}
+  for(const r of plan)rows.push({...r,h:PR_ROW});
+  const units=[];
+  for(const r of rows){if(r.kind==='child'&&units.length){units[units.length-1].rows.push(r);continue;}units.push({rows:[r]});}
+  const rowPages=prPaginate([{head:null,units}],prBodyH(size)-PR_AXIS_H);
+  const legend=[...new Set(NPV_TASKS.map(t=>t.department))].map(d=>prSwatch(DEPT_COLORS[d]||'#8A98AE',(deptById(d)||{}).name||d)).join('')+PR_RED;
+  const slices=prSlices(lo,hi),dwAll=slices.length>1?timeW/(P.weeks*7):null;
+  const saved={TL_S,TL_E,DW_PX,TOTAL_H};
+  try{
+    for(const prow of rowPages){
+      let y=0;for(const r of prow){r.top=y;y+=r.h;}TOTAL_H=Math.max(y,prBodyH(size)-PR_AXIS_H); /* columns run to the page bottom */
+      for(const sl of slices){
+        TL_S=sl.s;TL_E=sl.e;DW_PX=dwAll||timeW/(diffDays(sl.s,sl.e)+1);
+        const tw=Math.round((diffDays(sl.s,sl.e)+1)*DW_PX);
+        const DW_=dw();
+        const body=prPage(pages,size,sl.n>PAPER_PX[PAPER].weeks?title+' · weeks '+sl.w0+' to '+sl.w1+' of '+sl.n:title,fmtNice(fmtDate(sl.s))+' to '+fmtNiceY(fmtDate(sl.e)),line2,legend);
+        body.innerHTML='<div class="pr-side" style="width:'+P.side+'px"><div class="pr-side-head">Project Schedule</div><div class="pr-side-rows"></div></div>'
+          +'<div class="pr-view" style="width:'+tw+'px"><div class="pr-hdr"></div><div class="pr-canvas"></div></div>';
+        const side=body.querySelector('.pr-side-rows'),hdr=body.querySelector('.pr-hdr'),cv=body.querySelector('.pr-canvas');
+        hdr.style.width=tw+'px';buildHeaderInto(hdr,DW_);prFitMonths(hdr,tw);
+        cv.style.width=tw+'px';cv.style.height=TOTAL_H+'px';
+        buildCanvasBgInto(cv,tw,DW_);
+        const bar=(t,row,kid)=>{
+          const a=parseDate(t.startDate),b=parseDate(t.endDate);if(b<TL_S||a>TL_E)return '';
+          const col0=DEPT_COLORS[t.department]||'#6B7484',col=kid?kidShade(col0):col0;
+          const x=d2x(a)+NPV_PADL,w=Math.max(DW_,(diffDays(a,b)+1)*DW_-NPV_PADR);
+          return '<div class="job-bar" style="left:'+x+'px;top:'+(row.top+4)+'px;width:'+w+'px;height:24px;background-color:'+col+';--c:'+col+'"><div class="bar-lbl" style="left:8px;right:6px">'+esc(phaseLabel(t))+'</div></div>';
+        };
+        let h='';
+        for(const r of prow){
+          const g=document.createElement('div');g.className='pr-gut'+(r.kind==='child'?' child':'')+(r.kind==='extra'?' extra':'');
+          if(r.kind==='extra'){g.textContent=r.label;side.appendChild(g);
+            for(const m of marks){if(m.k!==r.k)continue;const d=parseDate(m.date);if(d<TL_S||d>TL_E)continue;
+              h+='<div class="pr-mk '+m.k+'" style="left:'+(d2x(d)+DW_/2-5)+'px;top:'+(r.top+9)+'px"><i></i>'+esc(m.nm||(m.k==='ev'?'Untitled milestone':'Untitled note'))+'</div>';}
+            continue;}
+          const t=r.t,d=deptById(t.department),who=[...new Set(crewOf(t).map(canonName))].map(dispName).join(', ');
+          const nm=r.kind==='parent'?((d||{}).name||t.department):phaseLabel(t);
+          g.innerHTML='<span class="c-dot" style="background:'+esc(DEPT_COLORS[t.department]||'#6B7484')+'"></span>'+esc((d&&d.roster&&who)?nm+' · '+who:nm);
+          side.appendChild(g);
+          h+=r.bars.map(b=>bar(b.t,r,r.kind==='child')).join('');
+        }
+        const td=today();
+        if(td>=TL_S&&td<=TL_E)h+='<div class="today-line" style="left:'+d2x(td)+'px;width:'+DW_+'px;height:'+TOTAL_H+'px"></div>';
+        if(dl>=TL_S&&dl<=TL_E)h+='<div class="dl-flag" style="left:'+(d2x(dl)+DW_-1)+'px;top:0;height:'+TOTAL_H+'px"></div>';
+        cv.insertAdjacentHTML('beforeend',h);
+      }
+    }
+  }finally{({TL_S,TL_E,DW_PX,TOTAL_H}=saved);}
+  return pages;
+}
+/* A project's Calendar (its page, Calendar showing): the weeks on screen, cut one month per page —
+   the month's weeks share the page height; the departments of the job as plain chips in the footer. */
+function prCalendarPages(pages){
+  const size=prPageSize(false);
+  const p=ppProject(),name=(p&&p.name)||'New project',line2=prProjLine2(p),title='Shop Calendar · '+name;
+  const host=document.getElementById('npv-body'),cal=host&&host.querySelector('.cal');
+  const legend=[...new Set(NPV_TASKS.map(t=>t.department))].map(d=>prSwatch(DEPT_COLORS[d]||'#8A98AE',(deptById(d)||{}).name||d)).join(''); /* the job's departments, each with its strip colour */
+  if(!cal){prPage(pages,size,title,'',line2,legend).innerHTML='<div class="npv-empty">Nothing scheduled yet.</div>';return pages;}
+  const months=[];let m=null;
+  for(const ch of cal.children){
+    if(ch.classList.contains('cal-mon')){m={mon:ch,dow:null,weeks:[]};months.push(m);}
+    else if(!m)continue;
+    else if(ch.classList.contains('cal-dow'))m.dow=ch;
+    else if(ch.classList.contains('cal-wk'))m.weeks.push(ch);
+  }
+  for(const mo of months){
+    const body=prPage(pages,size,title,mo.mon.textContent,line2,legend);
+    const box=document.createElement('div');box.className='cal pr-cal'+(cal.classList.contains('mk0')?' mk0':'');
+    box.appendChild(stripIds(mo.mon.cloneNode(true)));
+    if(mo.dow)box.appendChild(stripIds(mo.dow.cloneNode(true)));
+    const wkH=Math.floor((prBodyH(size)-prH(mo.mon,24)-2-prH(mo.dow,20))/Math.max(1,mo.weeks.length));
+    /* ponytail: a week keeps at least its on-screen height, so its bands never clip; a month whose weeks then outgrow the
+       page is cut at the page foot — split such a month across two pages if a real job ever needs it */
+    for(const w of mo.weeks){const c=stripIds(w.cloneNode(true));c.style.height=Math.max(wkH,prH(w,0))+'px';c.style.minHeight='0';box.appendChild(c);}
+    box.querySelectorAll('.cal-band.ph').forEach(b=>b.style.setProperty('--c',b.style.backgroundColor));
+    body.appendChild(box);
+  }
+  return pages;
+}
+const PR_MEET_COLS={letter:[23,9,14,16,7,5,26],tabloid:[20,8,12,13,6,4,37],portrait:[20,11,14,17,8,5,25]};
+/* The Meeting Sheet (the List): the table as it is, measured in the browser and cut between rows;
+   a PM group starts a new page only when it would otherwise split. */
+function prMeetingPages(pages,portrait){
+  const size=prPageSize(portrait);
+  const sheet=buildMeetingSheet(),tbl=sheet.querySelector('table');
+  const widths=PR_MEET_COLS[portrait?'portrait':PAPER];
+  const colsRow=tbl.querySelector('.meet-cols');
+  [...colsRow.children].forEach((th,i)=>{th.style.width=widths[i]+'%';});
+  const meas=document.createElement('div');meas.className='pr-measure pr-page';meas.style.width=size.w+'px';meas.appendChild(sheet);document.body.appendChild(meas);
+  const colsH=prH(colsRow,24);
+  const groups=[];let g=null;
+  for(const tr of tbl.tBodies[0].rows){
+    const row={el:tr,h:prH(tr,tr.classList.contains('meet-pm')?26:40)};
+    if(tr.classList.contains('meet-pm')){g={head:row,units:[]};groups.push(g);continue;}
+    if(!g){g={head:null,units:[]};groups.push(g);}
+    g.units.push({rows:[row]});
+  }
+  meas.remove();
+  const n=tbl.tBodies[0].querySelectorAll('.meet-row').length;
+  const line2='v'+APP_VER+' · printed '+prPrintedOn()+' · '+n+' project'+(n===1?'':'s')+' · '+prFiltersText(false);
+  const rowPages=prPaginate(groups,prBodyH(size)-colsH);
+  if(!rowPages.length)rowPages.push([]);
+  for(const prow of rowPages){
+    const body=prPage(pages,size,'Shop Meeting Sheet','',line2,'<span class="pr-app">Shop Timeline v'+APP_VER+'</span>');
+    const t=document.createElement('table');t.className='meet-table';
+    const th=document.createElement('thead');th.appendChild(colsRow.cloneNode(true));t.appendChild(th);
+    const tb=document.createElement('tbody');
+    for(const r of prow){const c=r.el.cloneNode(true);if(r.cont)c.firstElementChild.textContent+=' (continued)';tb.appendChild(c);}
+    t.appendChild(tb);body.appendChild(t);
+  }
+  return pages;
+}
+/* What prints: 'timeline' (the whole shop, From/To), 'project' (a project's page — the Gantt or the
+   Calendar, whichever is showing), 'sheet', or 'both' (timeline pages first, then the sheet). */
+function prBuild(kind,sIso,eIso){
+  const pages=[];
+  if(kind==='project'){if(NPV_MODE==='calendar')prCalendarPages(pages);else prProjectGanttPages(pages);}
+  if(kind==='timeline'||kind==='both')prGanttPages(pages,sIso,eIso);
+  if(kind==='sheet'||kind==='both')prMeetingPages(pages,kind==='sheet'&&SHEET_PORTRAIT);
+  /* deep copies: makeTaskBar / makeSummaryBar / the month header bind drag, click and hover — none of that may live in a preview */
+  return prNumber(pages).map(pg=>pg.cloneNode(true));
+}
+function prMount(pages,portrait){
+  const root=document.getElementById('print-root');root.innerHTML='';
+  pages.forEach(pg=>root.appendChild(pg));
+  prWriteStyle(!!portrait);
+  return root;
+}
+function prGo(pages,portrait){
+  prMount(pages,portrait);
+  const done=()=>{document.getElementById('print-root').innerHTML='';window.removeEventListener('afterprint',done);};
+  window.addEventListener('afterprint',done);
+  if(typeof window.print==='function'){try{window.print();}catch(e){}}
+}
+let PP_KIND='timeline';
+function ppRange(){return [document.getElementById('pp-start').value,document.getElementById('pp-end').value];}
 function renderPreview(){
-  const sIso=document.getElementById('pp-start').value;
-  const eIso=document.getElementById('pp-end').value;
-  if(!sIso||!eIso||parseDate(eIso)<parseDate(sIso))return;
+  const [sIso,eIso]=ppRange();
+  if(PP_KIND!=='project'&&(!sIso||!eIso||parseDate(eIso)<parseDate(sIso)))return;
   const inner=document.getElementById('pp-zoom-inner');
   inner.innerHTML='';
-  const sheet=buildPrintSheet(sIso,eIso);
+  const pages=prBuild(PP_KIND,sIso,eIso);
+  const w=pages.length?parseFloat(pages[0].style.width):960;
   const zoomBox=document.getElementById('pp-zoom');
-  const avail=zoomBox.clientWidth-28||780;
-  const scale=Math.min(1,avail/parseFloat(sheet.dataset.w));
+  const scale=Math.min(1,(zoomBox.clientWidth-28||780)/w);
   inner.style.transform='scale('+scale+')';
-  inner.style.width=sheet.dataset.w+'px';
-  inner.appendChild(sheet);
-  zoomBox.style.height=Math.min(parseFloat(sheet.dataset.h)*scale+30, window.innerHeight*.55)+'px';
+  inner.style.width=w+'px';
+  pages.forEach(pg=>inner.appendChild(pg));
+  prWriteStyle(false);
 }
-
-function openPrintPreview(){
+function openPrintPreview(kind){
+  PP_KIND=kind||'timeline';
+  const ov=document.getElementById('print-overlay');
+  ov.classList.toggle('no-range',PP_KIND==='project');
   const sc=document.getElementById('gantt-scroll');
-  let s=x2d(sc.scrollLeft);
-  let e=x2d(sc.scrollLeft+sc.clientWidth);
-  if(s<TL_S)s=new Date(TL_S);
-  if(e>TL_E)e=new Date(TL_E);
+  let s,e;
+  if(ROUTE.view==='timeline'&&sc&&sc.clientWidth){
+    s=x2d(sc.scrollLeft);e=x2d(sc.scrollLeft+sc.clientWidth);
+    if(s<TL_S)s=new Date(TL_S);if(e>TL_E)e=new Date(TL_E);
+  }else{s=prWeekStart(today());e=addDays(s,PAPER_PX[PAPER].weeks*7-1);} /* off the timeline: one page width from this week */
   document.getElementById('pp-start').value=fmtDate(s);
   document.getElementById('pp-end').value=fmtDate(e);
-  document.getElementById('print-overlay').classList.remove('hidden');
+  ov.classList.remove('hidden');
   renderPreview();
 }
 
-document.getElementById('mi-print-timeline').addEventListener('click',()=>{closeMenus();openPrintPreview();});
+document.getElementById('mi-print-timeline').addEventListener('click',()=>{closeMenus();openPrintPreview(ROUTE.view==='project'?'project':'timeline');});
+document.getElementById('mi-print-both').addEventListener('click',()=>{closeMenus();openPrintPreview('both');});
+document.querySelectorAll('input[name=paper-pick]').forEach(r=>r.addEventListener('change',()=>{setPaper(r.value);
+  if(!document.getElementById('print-overlay').classList.contains('hidden'))renderPreview();}));
+document.querySelectorAll('input[name=sheet-orient]').forEach(r=>r.addEventListener('change',()=>setSheetPortrait(r.value==='portrait')));
+syncPaperMenu();prWriteStyle(false); /* the remembered paper applies to a plain Ctrl+P too */
 document.getElementById('pp-start').addEventListener('change',renderPreview);
 document.getElementById('pp-end').addEventListener('change',renderPreview);
-document.getElementById('pp-cancel').addEventListener('click',()=>document.getElementById('print-overlay').classList.add('hidden'));
+document.getElementById('pp-close').addEventListener('click',()=>document.getElementById('print-overlay').classList.add('hidden'));
 document.getElementById('print-overlay').addEventListener('click',ev=>{if(ev.target.id==='print-overlay')document.getElementById('print-overlay').classList.add('hidden');});
 
 document.getElementById('pp-print').addEventListener('click',()=>{
-  const sIso=document.getElementById('pp-start').value;
-  const eIso=document.getElementById('pp-end').value;
-  if(!sIso||!eIso)return;
-  const root=document.getElementById('print-root');
-  root.innerHTML='';
-  const sheet=buildPrintSheet(sIso,eIso);
-  /* Scale to fit a landscape page (~1000px printable width) */
-  const scale=Math.min(1,1000/parseFloat(sheet.dataset.w));
-  const wrap=document.createElement('div');
-  wrap.style.transform='scale('+scale+')';
-  wrap.style.transformOrigin='top left';
-  wrap.style.width=sheet.dataset.w+'px';
-  wrap.style.height=(parseFloat(sheet.dataset.h)*scale)+'px';
-  wrap.appendChild(sheet);
-  root.appendChild(wrap);
-  if(typeof window.print==='function'){try{window.print();}catch(e){}}
+  const [sIso,eIso]=ppRange();
+  if(PP_KIND!=='project'&&(!sIso||!eIso||parseDate(eIso)<parseDate(sIso)))return;
+  prGo(prBuild(PP_KIND,sIso,eIso),false);
 });
 
 
@@ -11000,6 +11426,8 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.40.0",d:"Oct 5, 2026",n:["Print: every view prints to Letter or Tabloid, designed for paper, with Save as PDF — pick the paper in the Print menu (remembered), and the timeline, a project's Gantt or Calendar (\"Print this project…\" on its page, one month per page) and the Meeting Sheet (landscape or portrait, now honouring the Client and Person filters too) each print as real pages with the house header, a legend and \"Page X of Y\"; \"Timeline + Meeting Sheet\" makes one PDF.",
+   "Printed pages follow the sidebar's Active / Completed / All switch and say which one is on in the header; a completed job prints with its grey Completed tag."]},
  {v:"v1.39.0",d:"Oct 5, 2026",n:["Open Issues: every open report now carries a status tag — PENDING until the team has looked at it, IN REVIEW once someone has replied on its ticket. Resolved reports keep their own column."]},
  {v:"v1.38.0",d:"Oct 5, 2026",n:["Name a block: double-click any bar on the project page or the calendar to rename it in place (Enter saves, Esc cancels), or right-click it and pick Rename; on the dashboard, Edit Phase now has a Name field and opens with it ready to type, so a second \"Main Shop Fab\" can read \"Possible mock up days\".",
    "A block's own name now shows on its calendar milestone bands and in the Meeting Sheet's \"Phase now\" column, not just the department name."]},
@@ -11219,9 +11647,13 @@ function phaseNow(p){
 /* U8: keys must match ALL_STATUSES — the pre-migration names left every
    forecast/in-design/in-fabrication mini-bar on the gray fallback */
 const MEET_FILL={'forecast':'#C9D4E6','estimating':'#AFA9EC','in-design':'#C4B5FD','in-fabrication':'#5DCAA5','on-hold':'#FAC775','complete':'#B4B2A9'};
+/* v1.40.0 (#8): on paper the progress fill wears a 1px outline in the status colour (the pill's ink) */
+const MEET_LINE={'forecast':'#64748B','estimating':'#534AB7','in-design':'#5B21B6','in-fabrication':'#0F6E56','on-hold':'#9A3412','complete':'#475569'};
 function buildMeetingSheet(){
   const wrap=document.createElement('div');wrap.className='meet-sheet';
-  const projs=currentProjOrder().filter(p=>SHOW_STATUS.has(projectStatus(p)));
+  /* v1.40.0 (#8 Q5): the same three filters the Gantt rows use — a project the screen hides is not
+     on the sheet; search and spotlight only fade on screen, so their rows stay and print faded. */
+  const projs=currentProjOrder().filter(p=>SHOW_STATUS.has(projectStatus(p))&&clientHit(p)&&projHasPerson(p));
   const groups={};
   for(const p of projs){const k=canonName(roleList(p.projectManager)[0]||'')||'— No PM —';(groups[k]=groups[k]||[]).push(p);}
   const keys=Object.keys(groups).sort((a,b)=>a.localeCompare(b));
@@ -11244,11 +11676,11 @@ function buildMeetingSheet(){
       let pct=0;
       if(ps&&pe&&pe>ps)pct=Math.max(0,Math.min(100,Math.round((today()-ps)/(pe-ps)*100)));
       const due=dueDate(p),days=workdaysUntil(due); /* v1.26.0: the due date, not the Setup date */
-      const tr=document.createElement('tr');tr.className='meet-row';
+      const tr=document.createElement('tr');tr.className='meet-row'+(prProjOK(p)?'':' dim');
       tr.innerHTML='<td><span class="mr-name">'+esc(p.name)+'</span><span class="mr-sub">'+esc([p.jobCode,p.client].filter(Boolean).join(' · '))+'</span></td>'
         +'<td><span class="mr-pill" data-st="'+st+'">'+esc(STATUS_LBL[st]||st)+'</span></td>'
         +'<td class="mr-phase">'+esc(phaseNow(p))+'</td>'
-        +'<td><div class="meet-mini"><div class="mm-fill" style="width:'+pct+'%;background:'+(MEET_FILL[st]||'#B4B2A9')+'"></div></div>'
+        +'<td><div class="meet-mini"><div class="mm-fill" style="width:'+pct+'%;background:'+(MEET_FILL[st]||'#B4B2A9')+';--sc:'+(MEET_LINE[st]||'#64748B')+'"></div></div>'
         +(ps&&pe?'<div class="mm-dates">'+fmtNice(fmtDate(ps))+' → '+fmtNice(fmtDate(pe))+'</div>':'')+'</td>'
         +'<td class="mr-dl">'+(due?fmtNice(due):'TBD')+'</td>'
         +'<td class="mr-days">'+(days===null?'—':days)+'</td>'
@@ -11268,14 +11700,7 @@ function openMeeting(){
 document.getElementById('mi-meeting').addEventListener('click',()=>{closeMenus();openMeeting();});
 document.getElementById('meet-cancel').addEventListener('click',()=>document.getElementById('meet-overlay').classList.add('hidden'));
 document.getElementById('meet-overlay').addEventListener('click',ev=>{if(ev.target.id==='meet-overlay')document.getElementById('meet-overlay').classList.add('hidden');});
-document.getElementById('meet-print').addEventListener('click',()=>{
-  const root=document.getElementById('print-root');
-  root.innerHTML='';
-  root.appendChild(buildMeetingSheet());
-  const done=()=>{root.innerHTML='';window.removeEventListener('afterprint',done);};
-  window.addEventListener('afterprint',done);
-  window.print();
-});
+document.getElementById('meet-print').addEventListener('click',()=>{prGo(prBuild('sheet'),SHEET_PORTRAIT);}); /* v1.40.0 (#8): app-built pages, portrait if chosen */
 
 /* ===================== INIT ===================== */
 document.getElementById('tb-rev-num').textContent=APP_VER;

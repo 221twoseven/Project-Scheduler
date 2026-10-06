@@ -30,7 +30,9 @@ sec('source: copy + wordmark');
 /* v1.10.0 made the wordmark a home-navigation button — accept either element */
 ok('toolbar wordmark reads TWOSEVEN INC.', src.indexOf('<span class="tb-co">TWOSEVEN INC.</span>')>=0
    || /<button id="tb-home" class="tb-co"[^>]*>TWOSEVEN INC\.<\/button>/.test(src));
-ok('print title carries the full wordmark', src.indexOf("'TWOSEVEN INC. — Shop Timeline · '")>=0);
+/* v1.40.0 (#8): the paper header sets the wordmark in its own span beside the title — accept either form */
+ok('print title carries the full wordmark', src.indexOf("'TWOSEVEN INC. — Shop Timeline · '")>=0
+   || src.indexOf('<span class="pr-co">TWOSEVEN INC.</span>')>=0);
 ok('meeting sheet carries the full wordmark', src.indexOf('TWOSEVEN INC. — Shop Meeting Sheet')>=0);
 /* v1.15.1 owner copy pass capitalized "by Department." — accept either case */
 ok('coach step says department, not crew', /Department lens regroups everything by [Dd]epartment\./.test(src)

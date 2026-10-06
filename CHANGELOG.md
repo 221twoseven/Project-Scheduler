@@ -9,6 +9,10 @@ Format: `## <label> — <date>` then one `- ` line per change. Keep lines concre
 what changed *for the team*, not how. Developer-only tooling doesn't need a line.
 Collect lines for the next version under `## Unreleased` and rename it when you ship.
 
+## v1.40.0 — Oct 5, 2026
+- Print: every view prints to Letter or Tabloid, designed for paper, with Save as PDF — pick the paper in the Print menu (remembered), and the timeline, a project's Gantt or Calendar ("Print this project…" on its page, one month per page) and the Meeting Sheet (landscape or portrait, now honouring the Client and Person filters too) each print as real pages with the house header, a legend and "Page X of Y"; "Timeline + Meeting Sheet" makes one PDF.
+- Printed pages follow the sidebar's Active / Completed / All switch and say which one is on in the header; a completed job prints with its grey Completed tag.
+
 ## v1.39.0 — Oct 5, 2026
 - Open Issues: every open report now carries a status tag — PENDING until the team has looked at it, IN REVIEW once someone has replied on its ticket. Resolved reports keep their own column.
 

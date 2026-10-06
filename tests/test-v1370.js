@@ -53,7 +53,9 @@ function main(){
   ok('Active is not a filter: no chip, no count', E('activeFilterCount()')===0&&qa('#filter-chips .f-chip').length===0);
   const meet=()=>E('buildMeetingSheet().textContent');
   ok('the Meeting Sheet follows the same rows', /Hermes Windows/.test(meet())&&!/Aster Lobby/.test(meet()));
-  const print=()=>E('buildPrintSheet(fmtDate(TL_S),fmtDate(TL_E)).textContent');
+  const print=()=>/function prBuild\(/.test(src) /* v1.40.0 (#8): app-built pages replaced the screen clone */
+    ?E("prBuild('timeline',fmtDate(TL_S),fmtDate(TL_E)).map(p=>p.querySelector('.pr-side').textContent).join(' ')")
+    :E('buildPrintSheet(fmtDate(TL_S),fmtDate(TL_E)).textContent');
   ok('print follows the same rows', /Hermes Windows/.test(print())&&!/Aster Lobby/.test(print()));
   E("document.getElementById('btn-lens-dept').click()");
   ok('the Departments lens hides its phases too', !q('#gantt-canvas .job-bar[data-tid="t2"]')&&!!q('#gantt-canvas .job-bar[data-tid="t1"]'));

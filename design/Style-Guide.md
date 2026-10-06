@@ -802,11 +802,36 @@ scrollbar-width:thin;scrollbar-color:#B9C7D9 transparent
 
 ## 8. Print
 
+v1.40.0 (tracker #8/#9): the app lays out its own pages. **Paper:** Letter or Tabloid,
+landscape, `.5in` margins, picked in the Print menu and remembered (`shopTimelinePaper`);
+the Meeting Sheet may also print portrait (`shopTimelineSheetPortrait`). The size is
+written into `<style id="print-page-size">` when picked — inches, not paper names:
+
+```css
+@page{size:11in 8.5in;margin:.5in}   /* Letter landscape  */
+@page{size:17in 11in;margin:.5in}    /* Tabloid landscape */
+@page{size:8.5in 11in;margin:.5in}   /* Letter portrait, sheet only  */
+@page{size:11in 17in;margin:.5in}    /* Tabloid portrait, sheet only */
+```
+
+**Page box** `.pr-page`: 960 × 720 px on Letter, 1536 × 960 on Tabloid (96 px to the inch,
+margins already off), `break-after:page`, white, ink text, 11px base. Header 53px: line
+one `TWOSEVEN INC.` + the title (`--fs-title` 800, `.02em`) with the date range on the
+right (mono `--fs-fine`); line two mono `--fs-fine` `#64748B` (version · printed date ·
+project count · filters in use · Color by; a project's page: cost code · client · PM ·
+due date, a draft says "Draft, not yet created" and carries no code); `2px solid var(--ink)`
+under it. Footer 44px over a `#CBD5E1` hairline: the legend left (tinted swatches with
+their colour edge, the status marks, "red edge = install or shipping (Laser shares the
+red)"), `Page X of Y` right in mono.
+
 ```css
 @media print{
-  @page{size:landscape;margin:7mm 9mm}
   *,*::before,*::after{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+  html,body{overflow:visible!important;background:#fff!important}
+  ::-webkit-scrollbar{display:none!important}
   #toolbar,#main,#page,#tooltip,.overlay,#toasts,#coach{display:none!important}
+  #print-root{display:block!important}
+  .pr-page .sb-eye,.pr-page .sb-edit,.pr-page .sb-grip,.pr-page .bar-handle,.pr-page .hover-guide,.pr-page .hover-tag,.pr-page .cal-hdl,.pr-page .npv-hdl{display:none!important}
   /* quiet canvas forced whatever is on screen */
   .bg-col,.hdr-d-cell{background-color:#FCFDFE!important}
   .hdr-m-cell{background-color:var(--side)!important;color:#33415A!important;text-shadow:none!important}
@@ -814,9 +839,30 @@ scrollbar-width:thin;scrollbar-color:#B9C7D9 transparent
 }
 ```
 
-Sheet: white, `2px solid var(--ink)` under the title block; title `--fs-title` 800,
-`.02em`; sub-line mono `#64748B`. Meeting sheet: 11px table, `#F8FAFC` column heads,
-PM group rows `#E6F1FB` on `#185FA5`, dashed `#CBD5E1` Notes column, mono numerals.
+**Gantt on paper:** sidebar 2.25 in (Letter) / 2.75 in (Tabloid), the rest is time in whole
+weeks, 13 / 22 weeks a page (a longer range continues across, "weeks 14 to 26 of 26" in
+line one); rows at the Compact height (32px, bar 24px) whatever the screen density; the
+axis is the screen's own header builder, so it degrades the same way. Sidebar: name
+11.5px 600, client · code · date 11px mono grey, group and department headings 11px
+caps with letter spacing. **Bars:** the on-screen colour on `--c`, printed as
+`color-mix(in srgb,var(--c) 22%,#fff)` with a `3px solid var(--c)` left edge and ink
+labels (11px 600); Forecast dashed edge and outline, Estimating stripes and On hold
+hatch in the bar's colour (an opacity layer), Complete at `.55` with the check; chips (`.sum-pill`,
+`.mr-pill`) white with a 1px border in the status colour, mono 11px caps; the today line
+1px. Paper patterns are a plain `linear-gradient` tile sized with `background-size`, never
+`repeating-linear-gradient`: Chrome prints a repeating gradient as a function-based shading
+that pdf.js viewers (Firefox and others) paint as a flat pink fill. All slices of one range
+share one time scale; a month that only grazes a slice edge shortens or drops its label.
+**Calendar:** one month per page, the month strip ink on white over a 2px rule,
+headers static, seven columns sharing the width, the month's weeks sharing the height
+(never shorter than on screen), titled bands tinted the same way, slim strips (no text) at
+full colour; the footer names the job's departments with their swatches. **Meeting Sheet:** the 11px table as it is (`#F8FAFC` column
+heads repeated on every page, PM group rows `#E6F1FB` on `#185FA5`, mono numerals,
+Notes blank — 26% of the width on Letter, 37% on Tabloid); the progress bar a white
+track with a `#CBD5E1` hairline, the fill in the status tint outlined 1px in the status
+colour; rows faded by search or spotlight print at `.35`; its footer carries "Shop
+Timeline v…" instead of a legend. Nothing informational below 11px. Export is the
+browser's Save as PDF.
 
 ---
 

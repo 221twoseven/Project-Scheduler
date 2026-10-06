@@ -63,10 +63,19 @@ setTimeout(()=>{
   ok('custom label: a phase with a custom label reads "HE276 · label"', !!lb&&lb.querySelector('.n').textContent==='HE276 · mock-up days'&&lb.title==='VCA · '+LONG+' · HE276 · mock-up days', lb&&(lb.querySelector('.n').textContent+' / '+lb.title));
 
   sec('Q4 — print follows the screen');
-  const sheet=E("buildPrintSheet('"+D(-7)+"','"+D(45)+"')");
-  const sh=sheet&&sheet.querySelectorAll?sheet:null;
-  const nCode=qa('#side-rows .sb-asn .n.code').length;
-  ok('the Departments print sheet carries the coded lines the sidebar shows', !!sh&&nCode>=2&&sh.querySelectorAll('.sb-asn .n.code').length===nCode, (sh&&sh.querySelectorAll('.sb-asn .n.code').length)+' vs '+nCode);
+  if(/function prBuild\(/.test(src)){
+    /* v1.40.0 (#8): the paper is drawn page by page — the Departments lanes name the person, and the
+       project rides on its bars, so the code reaches paper on the bar labels, not as sidebar lines. */
+    const pd=E("prBuild('timeline','"+D(-7)+"','"+D(45)+"')");
+    const lbls=pd.flatMap(p=>[...p.querySelectorAll('.pr-canvas .job-bar')].map(b=>b.textContent));
+    ok('the Departments print carries the cost code on the coded project\'s bars', lbls.some(t=>/HE276/.test(t)), lbls.join(' | '));
+    ok('…and the lane sidebar names Nick, with no per-project lines to cut off', pd.some(p=>[...p.querySelectorAll('.pr-side .sb-row.lane-row .sb-name')].some(e=>e.textContent==='Nick'))&&pd.every(p=>!p.querySelector('.pr-side .sb-asn')));
+  }else{
+    const sheet=E("buildPrintSheet('"+D(-7)+"','"+D(45)+"')");
+    const sh=sheet&&sheet.querySelectorAll?sheet:null;
+    const nCode=qa('#side-rows .sb-asn .n.code').length;
+    ok('the Departments print sheet carries the coded lines the sidebar shows', !!sh&&nCode>=2&&sh.querySelectorAll('.sb-asn .n.code').length===nCode, (sh&&sh.querySelectorAll('.sb-asn .n.code').length)+' vs '+nCode);
+  }
 
   sec('Q3 — the Projects lens is unchanged: name on line 1, code on line 2');
   E("LENS='project';render()");
