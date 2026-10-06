@@ -79,8 +79,8 @@ function main(){
     const n=r.querySelector('.sb-2l .sb-name');return n&&n.textContent==='Nick';});
   const asns=lane?[...lane.querySelectorAll('.sb-asns .sb-asn')].map(a=>a.textContent):[];
   ok('current and upcoming assignments still list',
-     asns.some(a=>/Alpha/.test(a))&&asns.some(a=>/Gamma/.test(a)), asns.join(' | '));
-  ok('the wrapped assignment is gone', !asns.some(a=>/Beta/.test(a)), asns.join(' | '));
+     asns.some(a=>/Alpha|P1/.test(a))&&asns.some(a=>/Gamma|P3/.test(a)), asns.join(' | ')); /* v1.35.0 (#33): lines read the cost code */
+  ok('the wrapped assignment is gone', !asns.some(a=>/Beta|P2/.test(a)), asns.join(' | '));
   E("LENS='project';render()");
 
   sec('item 5 — step zoom holds Today in place (no scroll-back)');

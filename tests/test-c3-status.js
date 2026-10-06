@@ -62,6 +62,8 @@ setTimeout(()=>{
      &&!/data-st="complete"\]\{[^}]*filter/.test(src));
   ok('the pill gains a ✓',/data-st="complete"\][^{]*::before[^{]*\{content:'✓ '\}/.test(src)
      ||/::before\{content:'✓ '\}/.test(src));
+  /* v1.37.0 (#6): the dashboard opens on Active — show the All preset to find a complete bar */
+  if(/function doneMode/.test(src))E("SHOW_STATUS=new Set(ALL_STATUSES);render()");
   const cb=doc.querySelector('#gantt-canvas .job-bar[data-st="complete"]');
   ok('a complete bar still carries its project color',
      cb&&norm(cb.style.background)===norm(E("projColor('p2')")),cb&&cb.style.background);

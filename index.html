@@ -215,6 +215,22 @@ body.me-dock-col #md-thought,body.me-dock-col #md-tpop{display:none}
 #sb-head .sb-lens .t-btn{flex:1;background:#fff;color:#475569;border-right:1px solid var(--side-line);font-weight:600}
 #sb-head .sb-lens .t-btn:hover{background:#E8EEF7;color:#1E293B}
 #sb-head .sb-lens .t-btn.active{background:var(--acc);color:#fff}
+/* v1.37.0 (#6): the Active / Completed / All switch takes the header's second row (64px holds 26 + 24 + gap) */
+#sb-head{flex-wrap:wrap;row-gap:4px;align-content:center}
+#sb-head .sb-done{flex:0 0 100%;max-width:230px;border-color:var(--side-line);background:#fff;text-transform:none;letter-spacing:0}
+#sb-head .sb-done .t-btn{flex:1;height:24px;padding:0 6px;background:#fff;color:#475569;border-right:1px solid var(--side-line);font-weight:600;font-size:11px}
+#sb-head .sb-done .t-btn:last-child{border-right:none}
+#sb-head .sb-done .t-btn:hover{background:#E8EEF7;color:#1E293B}
+#sb-head .sb-done .t-btn.active{background:var(--acc);color:#fff}
+.sb-row.done .sb-name{color:var(--ts-muted);font-weight:500} /* muted by colour, not opacity — the tag must stay readable */
+.sb-row.done .c-dot{opacity:.5}
+.cd-perm.done{color:#5B6472;background:#E6E9EE;flex-shrink:0;margin-right:0;letter-spacing:0;padding:0 3px} /* 4.9:1 */
+/* the tag takes the client's room on line 2 (the default 300px sidebar can't hold tag + client + code · date);
+   the client stays on the project page and the Client sort. The code · date ellipsizes before running under the eye. */
+.sb-row.done .sb-l2{overflow:hidden;gap:4px}
+.sb-row.done .sb-cl{display:none}
+.sb-row.done .sb-cl+.sb-sub::before{content:none}
+.sb-row.done .sb-l2 .sb-sub{flex-shrink:1}
 .bar-lbl .sum-pill{position:static;transform:none;margin-right:8px}
 .crew-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(108px,1fr));gap:4px 10px;max-height:180px;overflow-y:auto;background:#F7FAFD;border:1px solid #D8E2EF;border-radius:8px;padding:10px}
 .crew-list label{display:flex;gap:6px;align-items:center;font-size:12px;color:#33415A;cursor:pointer;user-select:none;min-width:0;white-space:nowrap;overflow:hidden}
@@ -310,6 +326,7 @@ body.compact .sb-chip{line-height:1.2;padding:.5px 6px}
 .sb-asn .n{overflow:hidden;text-overflow:ellipsis;min-width:0}
 .sb-asn .d{font-family:var(--mono);color:#93A2B8;flex-shrink:0;letter-spacing:.02em}
 .sb-asn .c{color:var(--txt-micro)} /* v1.31.0 (#24): muted client prefix on a Departments line — the dates' grey, by its token */
+.sb-asn .n.code{font-family:var(--mono);letter-spacing:.02em} /* v1.35.0 (#33): a cost code on the line is mono, like the dates beside it (Design-Language §3) */
 .sb-row.drop-hi{background:rgba(47,111,228,.12)!important;outline:2px solid rgba(47,111,228,.4);outline-offset:-2px}
 .sb-edit{background:none;border:none;color:#A8B6C8;font-size:12px;cursor:pointer;padding:2px 5px;border-radius:3px;opacity:0;transition:opacity .15s;flex-shrink:0}
 .sb-row:hover .sb-edit{opacity:1}
@@ -660,6 +677,7 @@ body.vivid .npv-we{display:none} /* v1.0.2: no weekend strips over the vivid tin
 .npv-gut{position:sticky;left:0;z-index:3;width:var(--npv-gut,150px);height:100%;display:flex;align-items:center;padding:0 8px;font-size:var(--fs-fine);font-weight:600;color:#475569;background:#fff;border-right:1px solid #EDF2F7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .npv-row:nth-child(odd) .npv-gut{background:#FCFDFE}
 .npv-bar{position:absolute;height:24px;top:5px;border-radius:4px;cursor:grab;display:flex;align-items:center;padding:0 6px;font-size:var(--fs-fine);font-weight:600;white-space:nowrap;overflow:hidden;z-index:2;user-select:none}
+.npv-lbl{margin-left:5px;min-width:0;overflow:hidden;text-overflow:ellipsis} /* v1.36.0 (#4): shrinks and ellipsises when the label is parked near the bar's end */
 .npv-bar.dragging{cursor:grabbing;opacity:.85;z-index:6}
 .npv-bar.manual{box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.85)}
 .npv-hdl{position:absolute;left:0;top:0;bottom:0;width:8px;cursor:ew-resize}
@@ -1174,7 +1192,10 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 .npv-pop .dot.tk{background:#fff;border:2px solid #3B7FD6;border-radius:50%;box-sizing:border-box}
 /* Explorer-style rename box that replaces a title on double-click. */
 .npv-rename{width:100%;box-sizing:border-box;font:inherit;color:#1E293B;border:1px solid var(--acc);
-  border-radius:4px;padding:0 4px;outline:none;background:#fff}
+  border-radius:4px;padding:0 4px;outline:none;background:#fff;user-select:text}
+/* v1.38.0 (tracker #3): the bar's text fills the bar so the rename box can replace it */
+.npv-bar .npv-txt{flex:1;min-width:0}
+.npv-bar .npv-rename{height:20px}
 .npv-body{cursor:default}
 
 /* ============ REV47: SUBTASKS ============ */
@@ -1519,6 +1540,12 @@ body.cd-route #dash-bar{display:none!important}
         <button id="btn-lens-dept" class="t-btn" title="Group the rows by department">Departments</button>
       </div>
       <button id="sb-all" title="Step every row through the view's levels — collapsed, groups, everything"><svg class="ico-s" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 5.5 8 2l3.5 3.5M4.5 10.5 8 14l3.5-3.5"/></svg> All</button>
+      <!-- v1.37.0 (#6): Active / Completed / All — three presets of the status filter, not a second mechanism -->
+      <div class="tog-grp sb-done" role="group" aria-label="Which projects to show">
+        <button class="t-btn" data-done="active" title="Projects still in progress (hides Complete)">Active</button>
+        <button class="t-btn" data-done="completed" title="Completed projects only — for revisions, closeout or billing">Completed</button>
+        <button class="t-btn" data-done="all" title="Every project, completed ones muted">All</button>
+      </div>
     </div>
     <div id="side-rows"></div>
     <div id="sb-foot">
@@ -1550,6 +1577,8 @@ body.cd-route #dash-bar{display:none!important}
   <div class="modal">
     <h3 id="tm-head">Edit Phase</h3>
     <div class="modal-body">
+    <!-- v1.38.0 (tracker #3): the block's own name — blank reads as the department -->
+    <div class="fg"><label>Name</label><input id="tm-name" type="text" autocomplete="off"></div>
     <div class="fg-2">
       <div class="fg"><label>Project *</label><select id="tm-project"></select></div>
       <div class="fg"><label>Department</label><select id="tm-dept"></select></div>
@@ -2216,7 +2245,7 @@ function loadLocalPrefs(){
     /* V4/B6: restore through the same applier a saved view uses. No search/tint/group
        here — search never persists between sessions, tint and group live in their own
        loose keys loaded elsewhere; a partial snapshot leaves those untouched. */
-    applyViewState({lens:ui.lens,status:ui.showStatus,person:ui.person,client:ui.clients,color:ui.colorMode,
+    applyViewState({lens:ui.lens,status:ui.done?ui.showStatus:undefined,person:ui.person,client:ui.clients,color:ui.colorMode,
       view:ui.view,fit:ui.fit,density:ui.density===undefined?'comfortable':ui.density,
       collapsedGroups:ui.collapsedGroups,collapsedDepts:ui.collapsedDepts||[]});
     if(ui.sideW)setSideW(ui.sideW);
@@ -3018,7 +3047,8 @@ function saveUI(){
     localStorage.setItem('shopTimelineGroup',s.group);
     localStorage.setItem(UI_KEY,JSON.stringify({collapsedDepts:s.collapsedDepts,
     collapsedGroups:s.collapsedGroups,
-    density:s.density,colorMode:s.color,view:s.view,fit:s.fit,sideW:SIDE_W,npvGut:NPV_GUT,showStatus:s.status,clients:s.client,person:s.person,lens:s.lens}));}catch(e){}}
+    density:s.density,colorMode:s.color,view:s.view,fit:s.fit,sideW:SIDE_W,npvGut:NPV_GUT,showStatus:s.status,clients:s.client,person:s.person,lens:s.lens,
+    done:1 /* v1.37.0 (#6): marks a status set saved since the switch existed — older saves are dropped so everyone opens on Active once */}));}catch(e){}}
 
 /* ===================== SEARCH FILTER ===================== */
 let FILTER='';
@@ -3206,8 +3236,14 @@ function taskMatch(t){
 /* Dim (don't remove) non-matching rows/bars so layout stays put */
 let SPOT=new Set(); /* spotlighted project ids — everything else dims */
 const ALL_STATUSES=['forecast','estimating','in-design','in-fabrication','on-hold','complete'];
-function defaultShowStatus(){return new Set(ALL_STATUSES);}
-let SHOW_STATUS=defaultShowStatus();
+/* v1.37.0 (#6): the sidebar's Active / Completed / All switch is three presets of this one
+   status set — the mode is READ from SHOW_STATUS, never stored beside it. The default view
+   (Clear filters, the chip's ×) keeps whichever preset the switch is on. */
+const ACTIVE_STATUSES=ALL_STATUSES.filter(s=>s!=='complete');
+function doneStatuses(mode){return new Set(mode==='all'?ALL_STATUSES:mode==='completed'?['complete']:ACTIVE_STATUSES);}
+function doneMode(){if(!SHOW_STATUS.has('complete'))return 'active';return [...SHOW_STATUS].some(s=>s!=='complete')?'all':'completed';}
+function defaultShowStatus(){return doneStatuses(doneMode());}
+let SHOW_STATUS=doneStatuses('active');
 function visTasks(){
   _ensureCache();
   const key=[...SHOW_STATUS].join(',')+'|'+[...CLIENT_FILTER].join(',');
@@ -3785,8 +3821,12 @@ function renderEmptyState(){
       +'<div class="es-sub">Create your first project and the schedule builds itself<br>backward from the deadline. Press <kbd>N</kbd> or use <b>+ New Project</b>.</div>'
       +'<button class="btn" id="es-sample" style="margin-top:14px" title="Two practice projects, in this browser only — drag them around, then delete them from their project pages">Add a sample project</button>';
   }else if(!ST.projects.some(p=>SHOW_STATUS.has(projectStatus(p)))){
-    html='<div class="es-big">All projects are hidden</div>'
-      +'<div class="es-sub">The status filter is hiding every project.<br>Click <b>Clear filters</b> in the toolbar to see them again.</div>';
+    /* v1.37.0 (#6): on Active with every job complete, Clear filters wouldn't help — point at the switch */
+    html=(doneMode()!=='all'&&!statusFilterDirty())
+      ?'<div class="es-big">'+(doneMode()==='active'?'No active projects':'No completed projects')+'</div>'
+        +'<div class="es-sub">Every project is '+(doneMode()==='active'?'completed':'still in progress')+'.<br>Switch the sidebar to <b>'+(doneMode()==='active'?'Completed':'Active')+'</b> or <b>All</b> to see them.</div>'
+      :'<div class="es-big">All projects are hidden</div>'
+        +'<div class="es-sub">The status filter is hiding every project.<br>Click <b>Clear filters</b> in the toolbar to see them again.</div>';
   }else if(PERSON&&!visTasks().some(personHit)){
     /* v1.2.2: on the dashboard the person isn't a filter, so don't explain it as one */
     html=dashOn()
@@ -3832,6 +3872,7 @@ function renderEmptyState(){
 function renderSidebar(){
   const list=document.getElementById('side-rows');
   list.innerHTML='';
+  {const m=doneMode();document.querySelectorAll('#sb-head .sb-done .t-btn').forEach(b=>{const on=b.dataset.done===m;b.classList.toggle('active',on);b.setAttribute('aria-pressed',on?'true':'false');});}
   const frag=document.createDocumentFragment();
   for(const r of ROWS){
     const row=document.createElement('div');
@@ -3853,6 +3894,9 @@ function renderSidebar(){
       const col=document.createElement('span');col.className='sb-2l';
       const nm=document.createElement('span');nm.className='sb-name';nm.textContent=p.name;col.appendChild(nm);
       const l2=document.createElement('span');l2.className='sb-l2';
+      /* v1.37.0 (#6): a completed job reads as one — muted row, grey Completed tag under the name (never red, no strike-through) */
+      if(projectStatus(p)==='complete'){row.classList.add('done');
+        const tg=document.createElement('span');tg.className='cd-perm done';tg.textContent='Completed';tg.title='Completed — reopen it by changing its status on the project page';l2.appendChild(tg);}
       const cl=(p.client||'').trim();
       if(cl){const c=document.createElement('span');c.className='sb-cl';c.textContent=cl;c.title=cl;l2.appendChild(c);} /* v1.31.0 (#24): client first on line 2 — cut first when space runs out, whole on hover */
       const sub=document.createElement('span');sub.className='sb-sub';
@@ -3925,10 +3969,13 @@ function renderSidebar(){
         const p=projById(t.projectId);
         const a=document.createElement('span');a.className='sb-asn';
         const n=document.createElement('span');n.className='n';
-        const lead=clientLead(p);
-        if(lead){const c=document.createElement('span');c.className='c';c.textContent=lead;n.appendChild(c);} /* v1.31.0 (#24): muted client in front of the name, unless the name already starts with it */
-        n.appendChild(document.createTextNode((lead?' · ':'')+(p?p.name:'—')+(t.label&&String(t.label).trim()?' · '+phaseLabel(t):''))); /* v1.20.9: a subtask reads by its own name at a glance */
-        a.title=n.textContent; /* v1.31.0 (#24): the whole line on hover when it is cut off */
+        const lead=clientLead(p),code=String(p&&p.jobCode||'').trim(),lbl=t.label&&String(t.label).trim()?' · '+phaseLabel(t):''; /* v1.20.9: a custom label rides along so a subtask reads by its own name at a glance */
+        if(code){n.classList.add('code');n.textContent=code+lbl;} /* v1.35.0 (#33): the cost code stands in for the name — it fits whole where a name is cut; mono, like the dates */
+        else{
+          if(lead){const c=document.createElement('span');c.className='c';c.textContent=lead;n.appendChild(c);} /* v1.31.0 (#24): muted client in front of the name, unless the name already starts with it */
+          n.appendChild(document.createTextNode((lead?' · ':'')+(p?p.name:'—')+lbl));
+        }
+        a.title=[lead,p?p.name:'—',code].filter(Boolean).join(' · ')+lbl; /* v1.31.0 (#24): the whole line on hover when it is cut off; v1.35.0 (#33): client · name · code, whichever the project has */
         const d=document.createElement('span');d.className='d';
         d.textContent=fmtNice(t.startDate)+'–'+fmtNice(t.endDate);
         a.appendChild(n);a.appendChild(d);box.appendChild(a);
@@ -4182,30 +4229,30 @@ function buildCanvasBgInto(canvas,totalW,DW_){
 }
 
 
-/* ===================== REV36: PROJECT LABEL PARKS AT TODAY ===================== */
-/* The project name used to sit at the bar's left edge, so it scrolled out of view on
-   any job that started before today. It now parks just right of the today line, giving
-   one readable column down the whole list. It never leaves its own bar: a job that
-   finished before today keeps its label at its right end, and a job that hasn't started
-   keeps it at its left end. Scrolling past today carries the labels along the left edge
-   so they stay readable out in the future. */
+/* ===================== REV36 / v1.36.0: BAR LABEL STICKS TO THE VISIBLE LEFT EDGE ===================== */
+/* The label used to sit at the bar's left edge, so it scrolled out of view on any job
+   that started before today. REV36 parked it just right of the Today line; v1.36.0
+   (tracker #4) parks it at the left edge of the visible chart instead — next to the
+   sidebar, whatever the view is scrolled to — so with the view a few days before today
+   the label no longer sits mid-canvas. It rides with the bar again once the bar's start
+   scrolls into view, and it never leaves its own bar: a parked label stops LBL_TAIL px
+   short of the bar's end and the .bar-lbl ellipsis trims it from there. Scrolling
+   recomputes it on the same rAF as the edge indicators (queueLabelReposition). */
 let TODAY_X=null;
-const LBL_MIN=170;        /* project summary bars — long names, need more room */
-const LBL_MIN_TASK=130;   /* phase bars — department names are shorter */
+const LBL_TAIL=40;        /* a parked label keeps this much of its bar's end — the ellipsis zone */
 /* §7 bar anatomy — the label sheds pieces as the bar narrows: chips drop first, then
    the job code, then everything but the status pill; under BAR_W_TICK no label renders
    and the bar itself (min-width dw(), never under 4px) is the identity tick. */
 const BAR_W_CHIPS=300,BAR_W_CODE=190,BAR_W_PILL=96,BAR_W_TICK=34;
 
 /* base = the bar's natural left inset, which differs by status (the coloured edge strip
-   on in-production bars takes a few px) and by whether a pin icon is present. */
-function labelLeftFor(barX,barW,base,minLbl){
+   on in-production bars takes a few px) and by whether a pin icon is present.
+   edge = the canvas x where a parked label starts (default: the dashboard viewport's left
+   edge plus a 14px inset); the project page passes its own, right of the name column. */
+function labelLeftFor(barX,barW,base,edge){
   base=(base===undefined)?10:base;
-  minLbl=(minLbl===undefined)?LBL_MIN:minLbl;
-  if(TODAY_X==null||barW<minLbl+base+14)return base;
-  const sc=document.getElementById('gantt-scroll');
-  const anchor=Math.max(TODAY_X,(sc?sc.scrollLeft:0)+8);
-  return Math.max(base,Math.min(Math.round(anchor-barX+6),Math.round(barW-minLbl)));
+  if(edge===undefined){const sc=document.getElementById('gantt-scroll');edge=(sc?sc.scrollLeft:0)+14;}
+  return Math.max(base,Math.min(Math.round(edge-barX),Math.round(barW-LBL_TAIL)));
 }
 
 /* Ticket-node diamonds sit above the label at z-index 13, so a label starting underneath
@@ -4228,16 +4275,17 @@ function dodgeTickNodes(bar,left){
 /* Runs after every bar and diamond is in the DOM, so it can see both. */
 function repositionBarLabels(){
   const bars=document.querySelectorAll('#gantt-canvas .job-bar');
+  const sc=document.getElementById('gantt-scroll');
+  const edge=(sc?sc.scrollLeft:0)+14; /* read once per frame, not once per bar */
   for(const bar of bars){
     const lbl=bar.querySelector('.bar-lbl');
     if(!lbl)continue;
     const bx=parseFloat(bar.style.left)||0,bw=parseFloat(bar.style.width)||0;
     const base=Number(lbl.dataset.base)||10;
-    const min=Number(lbl.dataset.min)||LBL_MIN;
-    let lx=labelLeftFor(bx,bw,base,min);
+    let lx=labelLeftFor(bx,bw,base,edge);
     lx=dodgeTickNodes(bar,lx);
     /* never let the dodge push the text off the end of its own bar */
-    lx=Math.max(base,Math.min(lx,Math.max(base,Math.round(bw-40))));
+    lx=Math.max(base,Math.min(lx,Math.round(bw-LBL_TAIL)));
     lbl.style.left=lx+'px';
   }
 }
@@ -4329,8 +4377,8 @@ function makeSummaryBar(p,s,e,row){
   if(w>=BAR_W_TICK){
     const lbl=document.createElement('div');lbl.className='bar-lbl';
     lbl.style.color=labelColor(sumCol);
-    lbl.dataset.base='10';lbl.dataset.min=String(LBL_MIN);
-    lbl.style.left=labelLeftFor(x,w,10,LBL_MIN)+'px';lbl.style.right='10px';
+    lbl.dataset.base='10';
+    lbl.style.left=labelLeftFor(x,w,10)+'px';lbl.style.right='10px';
     let inner='<span class="sum-pill">'+esc(STATUS_LBL[st])+'</span>';
     if(w>=BAR_W_PILL)inner+=esc(p.name)+(w>=BAR_W_CODE&&p.jobCode?' · '+esc(p.jobCode):'');
     if(w>=BAR_W_CHIPS)inner+=[
@@ -4370,8 +4418,8 @@ function makeTaskBar(t,row,lane,labelMode){
     const lbl=document.createElement('div');lbl.className='bar-lbl';
     lbl.style.color=labelColor(taskCol);
     const lblBase=8;
-    lbl.dataset.base=String(lblBase);lbl.dataset.min=String(LBL_MIN_TASK);
-    lbl.style.left=labelLeftFor(x,w,lblBase,LBL_MIN_TASK)+'px';
+    lbl.dataset.base=String(lblBase);
+    lbl.style.left=labelLeftFor(x,w,lblBase)+'px';
     lbl.style.right=(t.pinned?18:7)+'px';
     if(t.__ghost)lbl.textContent=(isInstall(t)?endName(t.department):phaseLabel(t))+' · '+(p?p.name:'?');
     else if(labelMode==='proj')lbl.textContent=(p?p.name+(p.jobCode?' · '+p.jobCode:''):'?')+(t.label&&String(t.label).trim()?' — '+phaseLabel(t):''); /* v1.20.9: subtask name rides along */
@@ -4483,6 +4531,7 @@ document.addEventListener('mousemove',ev=>{
   }else{
     DRAG.ghost.style.width=Math.max(DW_,DRAG.ow+dd*DW_)+'px';
   }
+  queueLabelReposition(); /* v1.36.0 (#4): the ghost's parked label follows its live left/width */
 });
 
 document.addEventListener('mouseup',ev=>{
@@ -4692,7 +4741,11 @@ function openTaskModal(taskId,prefill){
     const op=document.createElement('option');op.value=d.id;op.textContent=d.name;dsel.appendChild(op);}
   dsel.value=t?t.department:(prefill&&prefill.department)||'td';
   tmAssigneeUI(dsel.value,t?t.assignee:(prefill&&prefill.assignee)||'');
-  dsel.onchange=()=>tmAssigneeUI(dsel.value,'');
+  /* v1.38.0 (tracker #3): Name — the placeholder is what a blank name reads as */
+  const nmEl=document.getElementById('tm-name');
+  nmEl.value=t?(t.label||''):'';
+  const nmPh=()=>{nmEl.placeholder=(t&&dsel.value===t.department)?phaseLabel({...t,label:''}):((deptById(dsel.value)||{}).name||'');};nmPh();
+  dsel.onchange=()=>{tmAssigneeUI(dsel.value,'');nmPh();};
   /* The crew pool culls to the selected project's team, so a project change re-fills it. */
   psel.onchange=()=>{if(!EDIT_TASK_ID)tmAssigneeUI(dsel.value,'');};
   const start=t?t.startDate:fmtDate(prefill&&prefill.start?prefill.start:today());
@@ -4711,12 +4764,19 @@ function openTaskModal(taskId,prefill){
   tov.querySelectorAll('input,select,textarea').forEach(el=>{el.disabled=false;el.removeAttribute('tabindex');});
   viewerLock(tov,'phases'); /* v1.8.0: visible, locked. The phase's own fields follow the PHASES door; only the Milestones block (data-vk) rides the subtasks grant — the whole-box 'subtasks' kind let that grant move dates and delete phases */
   TM_SNAP=tmSnap();
+  /* v1.38.0 (tracker #3): a bar double-click's second press lands on the dialog it just opened
+     (backdrop, a label, or a button under the pointer) — for 400 ms the dialog swallows presses
+     and clicks (see the capture listener below), so the second click neither closes it nor moves
+     focus, and an existing phase opens with Name ready to type over: a double-click reads as
+     "rename". */
+  TM_OPENED=Date.now();
+  if(t){nmEl.focus();nmEl.select();}
 }
 /* N2: what the modal's form serializes to — compared on close to catch silent discards. */
-let TM_SNAP='';
+let TM_SNAP='',TM_OPENED=0;
 function tmSnap(){
   const v=id=>{const e=document.getElementById(id);return e?e.value:'';};
-  return [v('tm-project'),v('tm-dept'),JSON.stringify(tmAssigneeValue()),
+  return [v('tm-project'),v('tm-dept'),JSON.stringify(tmAssigneeValue()),v('tm-name'),
     v('tm-start'),v('tm-end'),v('tm-est'),
     document.getElementById('tm-pin').checked,v('tm-notes'),
     JSON.stringify(TM_NODES)].join('|');
@@ -4730,6 +4790,9 @@ function closeTaskModal(force){
 
 document.getElementById('tm-cancel').addEventListener('click',()=>closeTaskModal());
 document.getElementById('task-overlay').addEventListener('click',ev=>{if(ev.target.id==='task-overlay')closeTaskModal();});
+['mousedown','click'].forEach(k=>document.getElementById('task-overlay').addEventListener(k,ev=>{
+  if(Date.now()-TM_OPENED<400){ev.preventDefault();ev.stopImmediatePropagation();} /* v1.38.0 (tracker #3) */
+},true));
 
 document.getElementById('tm-save').addEventListener('click',()=>{
   const projectId=document.getElementById('tm-project').value;
@@ -4738,6 +4801,7 @@ document.getElementById('tm-save').addEventListener('click',()=>{
     projectId,
     department:document.getElementById('tm-dept').value,
     assignee:tmAssigneeValue(),
+    label:document.getElementById('tm-name').value.trim(), /* v1.38.0 (tracker #3) */
     startDate:document.getElementById('tm-start').value,
     endDate:document.getElementById('tm-end').value,
     estimatedDays:Math.max(1,parseInt(document.getElementById('tm-est').value)||1),
@@ -6476,7 +6540,9 @@ function insDeptList(p,boxId){
       const ex=p?prim:null;
       const ranges=all.filter(t=>t!==prim&&t.range).sort((a,b)=>String(a.startDate).localeCompare(String(b.startDate)));
       if(d.retired&&!active&&!ex)continue; /* retired dept: offered nowhere, shown only where it's already in use */
-      const days=ex?(ex.estimatedDays||d.est||1):((D&&D.est[id])||d.est||1);
+      /* v1.34.1 (#32): a draft bar with hand-set dates shows its own count, so a days edit made in
+         the panel or the popover reads back here too — the form's estimate only covers untouched bars */
+      const days=ex?(ex.estimatedDays||d.est||1):((prim&&prim.__manual&&prim.estimatedDays)||(D&&D.est[id])||d.est||1);
       const other=d.freeText?(ex?(ex.assignee||''):((D&&D.otherLabels[id])||'')):null;
       h+='<div class="idr'+(active?'':' off')+'">'
        + '<input type="checkbox" data-dept="'+esc(id)+'"'+(active?' checked':'')
@@ -6601,6 +6667,22 @@ function ppDeptDates(key,which,val){
   NPV_MANUAL[npvKey(bar)]={startDate:r.s,endDate:r.e,estimatedDays:r.days};
   npvRebuild();
 }
+/* v1.34.1 (tracker #32): one rule for every days field — the Departments row, the bottom
+   panel and the bar's popover. The start stays where it is; the end is the start plus N
+   days (workdays for shop departments, calendar days for Installation and Shipping). Into
+   ST on a saved page, into the manual overlay on a draft. */
+function ppDeptDays(bar,n){
+  n=Math.max(1,parseInt(n,10)||1);
+  if(!bar.startDate){if(NPV_LIVE)commitPhase(bar.id,'estimatedDays',n);npvRebuild();return;}
+  const e=fmtDate(deptEndAfter(bar.department,parseDate(bar.startDate),n));
+  if(NPV_LIVE){commitPhaseDates(bar.id,bar.startDate,e,n);npvRebuild();return;}
+  NPV_MANUAL[npvKey(bar)]={startDate:bar.startDate,endDate:e,estimatedDays:n};
+  /* the form's estimate follows too — the Departments list is unmounted while a phase is
+     selected, so the panel's and popover's edits would otherwise leave the scheduler laying
+     the other departments out around the old count */
+  if(PP_FORM&&!bar.range)PP_FORM.est[bar.department]=n;
+  npvRebuild();npvQueue(); /* npvQueue: the crash-restore stash, as a row edit gets */
+}
 /* Keep the date fields tracking the bars — a drag, undo or days edit repaints them. */
 function npvSyncDeptDates(){
   const box=document.getElementById('pp-depts');
@@ -6613,6 +6695,12 @@ function npvSyncDeptDates(){
   });
   box.querySelectorAll('.rdays').forEach(inp=>{ /* v1.32.0 (#16) */
     const bar=ppLineBar(inp.dataset.key);if(!bar)return;
+    const v=String(bar.estimatedDays||1);
+    if(inp.value!==v&&document.activeElement!==inp)inp.value=v;
+  });
+  box.querySelectorAll('.ddays').forEach(inp=>{ /* v1.34.1 (#32): the primary's count follows a drag too, once the bar has hand-set dates */
+    const ck=inp.closest('.idr').querySelector('input[data-dept]'),bar=ck?npvPrimary(ck.dataset.dept):null;
+    if(!bar||!(NPV_LIVE||bar.__manual))return;
     const v=String(bar.estimatedDays||1);
     if(inp.value!==v&&document.activeElement!==inp)inp.value=v;
   });
@@ -6881,26 +6969,19 @@ function ppBindInspector(p,sel){
         ppDeptDates(t.dataset.key||('d:'+t.dataset.dept),t.classList.contains('dstart')?'s':'e',t.value); /* v1.32.0 (#16): by the line's key */
         return;
       }
-      /* N13: on a saved page a days edit moves the phase's end — the other half of
-         the bidirectional pair. (Drafts already recompute through the scheduler.) */
-      if(t.classList&&t.classList.contains('ddays')&&NPV_LIVE){
+      /* N13: a days edit moves the phase's end — the other half of the bidirectional pair.
+         v1.34.1 (tracker #32): on a draft too, once the bar has hand-set dates (typed or
+         dragged); an untouched draft bar still falls through to the scheduler below, which
+         lays the job out backward from the target date with the new estimate. */
+      if(t.classList&&t.classList.contains('ddays')){
         const ck2=t.closest('.idr').querySelector('input[data-dept]');
         const bar=ck2?npvPrimary(ck2.dataset.dept):null; /* v1.32.0 (#16): the row's count is the primary's, never a range that sorts first */
-        if(bar&&bar.startDate){
-          const n=Math.max(1,parseInt(t.value,10)||1);
-          commitPhaseDates(bar.id,bar.startDate,fmtDate(deptEndAfter(bar.department,parseDate(bar.startDate),n)),n);
-          npvRebuild();return;
-        }
+        if(bar&&(NPV_LIVE||bar.__manual)){ppDeptDays(bar,t.value);return;}
       }
       /* v1.32.0 (#16): a range's own day count moves that range's end — saved page and draft */
       if(t.classList&&t.classList.contains('rdays')){
         const bar=ppLineBar(t.dataset.key);
-        if(bar&&bar.startDate){
-          const n=Math.max(1,parseInt(t.value,10)||1),e=fmtDate(deptEndAfter(bar.department,parseDate(bar.startDate),n));
-          if(NPV_LIVE)commitPhaseDates(bar.id,bar.startDate,e,n);
-          else NPV_MANUAL[npvKey(bar)]={startDate:bar.startDate,endDate:e,estimatedDays:n};
-          npvRebuild();
-        }
+        if(bar)ppDeptDays(bar,t.value);
         return;
       }
       if(t.closest('.pg-rbox')){
@@ -7420,12 +7501,16 @@ function npvMenuShell(clientX,clientY,title,html,bind){
 function npvBarMenu(x,y,t){
   const d=deptById(t.department)||{};
   const col=DEPT_COLORS[t.department]||'#8A98AE';
-  const h='<button data-act="sub"><span class="mi" style="background:'+col+'"></span>'
+  /* v1.38.0 (tracker #3): Rename is the one edit on this add-only menu (owner default Q3) */
+  const h='<button data-act="ren"><span class="mi" style="background:'+col+'"></span>'
+        +   'Rename<span class="k">R</span></button>'
+        + '<button data-act="sub"><span class="mi" style="background:'+col+'"></span>'
         +   'New subtask<span class="k">S</span></button>'
         + '<button data-act="ev"><span class="mi ev"></span>New milestone<span class="k">E</span></button>'
         + '<button data-act="tk"><span class="mi tk"></span>New note<span class="k">T</span></button>';
   return npvMenuShell(x,y,esc(phaseLabel(t))+' &middot; '+esc(d.name||t.department),h,(act)=>{
-    if(act==='sub')npvCreateSubtask(t.department,t.startDate,false);
+    if(act==='ren')npvRenameBar(t);
+    else if(act==='sub')npvCreateSubtask(t.department,t.startDate,false);
     else if(act==='ev')npvCreateEvent(t.department,t.startDate);
     else if(act==='tk')npvCreateTask(t.department,t.startDate);
   });
@@ -7914,7 +7999,7 @@ function npvRender(){
      + 'title="'+esc(nm+(who?' · '+who:'')+' · '+fmtNice(t.startDate)+' → '+fmtNice(t.endDate)+' · '+(t.estimatedDays||1)+'d')+'">'
      + '<div class="npv-hdl" data-i="'+i+'" style="width:'+edgeZone(bw,8)+'px"></div>'
      + '<div class="npv-hdl r" data-i="'+i+'" style="width:'+edgeZone(bw,8)+'px"></div>'
-     + '<span style="margin-left:5px">'+esc(nm)+'</span></div>';
+     + '<span class="npv-lbl npv-txt">'+esc(nm)+'</span></div>'; /* v1.36.0 (#4): npvStickLabels parks it at the visible edge (.npv-lbl gives the resting 5px margin); v1.38.0 (#3): .npv-txt anchors the in-place rename */
   };
   for(const row of NPV_PLAN){
     if(row.kind==='parent'){
@@ -7996,6 +8081,7 @@ function npvRender(){
   host.classList.toggle('tinted',!!TINT);
   host.innerHTML=h;
   host.style.width=innerW+'px';
+  npvStickLabels();
 
   npvPaintFooter(dl);
   npvBindDrag();
@@ -8020,6 +8106,22 @@ function npvRender(){
   const mp=ppProject();
   if(mp)ppPaintMeta(mp);
 }
+/* v1.36.0 (tracker #4): the project page follows the dashboard's labelLeftFor rule — a bar
+   that starts under the name column keeps its name at the visible left edge (just right
+   of the gutter), rides with the bar once its start scrolls into view, and never leaves
+   its own bar: the margin stops LBL_TAIL px short of the bar's end and the .npv-lbl
+   ellipsis trims it from there. Runs after every gantt paint and on every scroll. */
+function npvStickLabels(){
+  const sc=document.getElementById('npv-scroll');if(!sc)return;
+  const edge=sc.scrollLeft+NPV_GUT+8;
+  for(const b of sc.querySelectorAll('.npv-bar')){
+    const l=b.querySelector('.npv-lbl');if(!l)continue;
+    const bx=parseFloat(b.style.left)||0,bw=parseFloat(b.style.width)||0;
+    /* the label is a flex child inside the bar's 6px padding, so its margin is the label
+       left measured from bx+6; base 5 = its resting margin */
+    l.style.marginLeft=labelLeftFor(bx+6,bw,5,edge)+'px';
+  }
+}
 /* REV48: bound once — npvRender only rewrites innerHTML, so re-binding stacked a fresh
    listener on the same element on every render. REV64: hoisted to the top of npvRender,
    before the early returns — the calendar branch exits before the gantt paint, so a page
@@ -8028,6 +8130,9 @@ function npvRender(){
 function npvBindHost(host){
   if(!host.dataset.bound){
     host.dataset.bound='1';
+    /* v1.36.0 (tracker #4): a sideways scroll re-parks every bar's label (one rAF per scroll burst). */
+    {let raf=0;const sc=host.closest('.npv-scroll');
+     if(sc)sc.addEventListener('scroll',()=>{if(raf)return;raf=requestAnimationFrame(()=>{raf=0;npvStickLabels();});});}
     let dnX=0,dnY=0;
     const blank=tg=>!!tg&&!!tg.closest&&!tg.closest('.npv-bar')&&!tg.closest('.npv-gut')
       &&!tg.closest('.cal-band')&&!tg.closest('#npv-menu')&&!tg.closest('.npv-axis');
@@ -8103,6 +8208,12 @@ function npvBindHost(host){
         }
         return;
       }
+      /* v1.38.0 (tracker #3): the bar itself renames too — same box, on the bar's own text.
+         The popover the first click opened is closed first (or, when it landed under the
+         pointer, it hands the double-click on itself — see npvPopRender). */
+      const bar=tg.closest('.npv-bar');
+      if(bar){ev.preventDefault();npvPopClose();const t=NPV_TASKS[+bar.dataset.i];
+        if(t)npvInlineRename(t,npvRenameHost(bar));return;}
       const gut=tg.closest('.npv-gut');
       if(gut){const bar=gut.parentElement&&gut.parentElement.querySelector('.npv-bar');
         if(bar){ev.preventDefault();npvPopClose();const t=NPV_TASKS[+bar.dataset.i];if(t)npvInlineRename(t,gut);}}
@@ -8614,7 +8725,8 @@ function npvMarkers(){
     for(const t of NPV_TASKS)
       for(const n of (t.ticketNodes||[]))
         if(n.date)out.push({k:'ev',id:n.id,date:n.date,dept:(n.dept!==undefined?n.dept:t.department),
-          nm:n.target||'',pr:''});
+          nm:n.target||'',pr:'',
+          ph:(n.dept===undefined||n.dept===t.department)?phaseLabel(t):''}); /* v1.38.0 (tracker #3): a milestone on a block leads with the block's name (one that moved to another department keeps that department's) */
     for(const e of (ST.events||[]))
       if(e.projectId===pj.id&&e.date)
         out.push({k:'ev',id:e.id,date:e.date,dept:e.dept||'',nm:e.name||'',pr:''});
@@ -8748,7 +8860,7 @@ function npvPaintCalendar(lo,hi,dl){
          Gantt's diamonds. v1.6.1: a milestone on a phase leads with the phase name. */
       /* Same fallbacks as the Gantt diamonds — an unnamed marker used to render a bare
          "Fabrication: " band, and an unknown dept a bare ": ". */
-      const dn=mk.k==='ev'&&mk.dept?((deptById(mk.dept)||{}).name||''):'';
+      const dn=mk.k==='ev'?(mk.ph||(mk.dept?((deptById(mk.dept)||{}).name||''):'')):''; /* v1.38.0 (tracker #3): the block's own name first */
       const nm=mk.nm||(mk.k==='ev'?'Untitled milestone':'Untitled note');
       /* v1.21.0: markers pack — a marker takes the first lane with its day free, so a
          week's markers share a row unless two land on the same day. */
@@ -8982,12 +9094,9 @@ function ppCommitPhaseField(sel,f,value){
   else if(f==='startDate'){ppPopDate(sel,'s',value);}
   else if(f==='endDate'){ppPopDate(sel,'e',value);}
   else if(f==='estimatedDays'){
-    const n=Math.max(1,parseInt(value,10)||1);
-    if(NPV_LIVE)commitPhase(sel.id,'estimatedDays',n);
-    /* draft: same semantics as dragging the right edge — a manual placement */
-    else NPV_MANUAL[npvKey(sel)]={startDate:sel.startDate,
-      endDate:fmtDate(deptEndAfter(sel.department,parseDate(sel.startDate),n)),estimatedDays:n};
-    npvRebuild();
+    /* same semantics as dragging the right edge — v1.34.1 (#32): on a saved page too, the end
+       moves with the count instead of the number changing alone */
+    ppDeptDays(sel,value);
   }
   else if(f==='notes'){
     if(NPV_LIVE)commitPhase(sel.id,'notes',value);
@@ -9017,8 +9126,28 @@ function npvPopClose(){
 function npvEditPop(kind,target,x,y,focusName){
   if(!target){npvPopClose();return;}
   npvCloseMenu();
-  NPV_POP={kind,id:(kind==='phase'?null:target),x:x||0,y:y||0,_new:!!focusName};
+  NPV_POP={kind,id:(kind==='phase'?null:target),x:x||0,y:y||0,_new:!!focusName,at:Date.now()};
   npvPopRender();
+}
+/* v1.38.0 (tracker #3): the in-place rename box on a bar's own text — the Gantt bar or the
+   Calendar band under the pointer (`at`, else the phase's first band). A collapsed strip or a
+   hidden subtask has no text to replace, so its phase is expanded first. Right-click Rename and
+   the popover's double-click hand-off both land here. */
+function npvRenameBar(t,at){
+  if(!t||!vcan('phases'))return;
+  const i=NPV_TASKS.findIndex(x=>x.id===t.id);if(i<0)return;
+  const sel=(NPV_MODE==='calendar'?'.cal-band.ph':'.npv-bar')+'[data-i="'+i+'"]';
+  const find=()=>{const p=at&&document.elementFromPoint?document.elementFromPoint(at[0],at[1]):null;
+    return (p&&p.closest&&p.closest('#npv-body '+sel))||document.querySelector('#npv-body '+sel);};
+  let el=find();
+  if(!el||(NPV_MODE==='calendar'&&el.classList.contains('slim'))){
+    NPV_OPEN.add(t.department);NPV_CAL_OPEN.set(t.department,2);npvRender();el=find();}
+  if(el)npvInlineRename(NPV_TASKS[i],NPV_MODE==='calendar'?(el.querySelector('.cal-txt')||el):npvRenameHost(el));
+}
+/* A Gantt bar too narrow to type in (a day or two at most zooms) renames on its row title. */
+function npvRenameHost(bar){
+  const gut=bar.parentElement&&bar.parentElement.querySelector('.npv-gut');
+  return (parseFloat(bar.style.width)<60&&gut)?gut:(bar.querySelector('.npv-txt')||bar);
 }
 function npvPopPosition(el,x,y){
   const W=el.offsetWidth||274,H=el.offsetHeight||300;
@@ -9034,6 +9163,15 @@ function npvPopRender(){
     document.body.appendChild(el);
     el.addEventListener('mousedown',e=>e.stopPropagation());
     el.addEventListener('contextmenu',e=>{e.preventDefault();e.stopPropagation();});
+    /* v1.38.0 (tracker #3): a double-click on a bar parks this popover under the pointer with
+       its first click, so the second lands here. Within half a second of opening that is a
+       rename intent: close and open the in-place box on the selected bar — unless the
+       double-click is inside one of the popover's own fields (a word-select is left alone). */
+    el.addEventListener('dblclick',e=>{
+      if(!NPV_POP||NPV_POP.kind!=='phase'||Date.now()-NPV_POP.at>500)return;
+      if(e.target.closest&&e.target.closest('input,select,textarea,button'))return;
+      e.preventDefault();const t=ppSelected();npvPopClose();npvRenameBar(t,[e.clientX,e.clientY]);
+    });
   }
   el.dataset.kind=NPV_POP.kind; /* v1.11.0: CSS grades the delete button by door */
   if(NPV_POP.kind==='phase'){
@@ -9155,7 +9293,7 @@ function npvInlineRename(t,hostEl){
   const cur=t.label||'';
   const inp=document.createElement('input');
   inp.className='npv-rename';inp.value=cur;
-  inp.placeholder=(deptById(t.department)||{}).name||t.department;
+  inp.placeholder=phaseLabel({...t,label:''}); /* v1.38.0: what a blank name reads as (an Other row: its process name) */
   hostEl.innerHTML='';hostEl.appendChild(inp);
   inp.focus();inp.select();
   let done=false;
@@ -9298,6 +9436,7 @@ function npvBindDrag(){
           tip.innerHTML='<div class="tt-title">'+fmtNice(fmtDate(edge(e2)))+'</div>';
           tip.classList.remove('hidden');posTooltip(e2);
         }
+        npvStickLabels(); /* v1.36.0 (#4): a parked label follows the bar's live left/width */
       };
       const up=e2=>{
         document.removeEventListener('mousemove',mv);
@@ -9796,6 +9935,10 @@ function zoomStep(d){
   if(v)setView(v);
 }
 for(const[k,id]of Object.entries(VIEW_BTN))document.getElementById(id).addEventListener('click',()=>setView(k));
+/* v1.37.0 (#6): the switch writes a preset into the status filter; render() reads the mode back */
+document.querySelectorAll('#sb-head .sb-done .t-btn').forEach(b=>b.addEventListener('click',()=>{
+  if(doneMode()===b.dataset.done)return;
+  SHOW_STATUS=doneStatuses(b.dataset.done);saveUI();buildFiltersMenu();updateFilterBadges();render();}));
 document.getElementById('btn-lens-proj').addEventListener('click',()=>{if(LENS==='project')return;LENS='project';
   document.getElementById('btn-lens-proj').classList.add('active');document.getElementById('btn-lens-dept').classList.remove('active');
   saveUI();render();});
@@ -10172,7 +10315,7 @@ document.getElementById('btn-filters').addEventListener('click',buildFiltersMenu
    the person leaves a summary exactly like the × (lens restored). The menu stays
    open so the cleared checkboxes read back as confirmation. */
 document.getElementById('fm-showall').addEventListener('click',()=>{
-  SHOW_STATUS=defaultShowStatus();CLIENT_FILTER.clear();
+  SHOW_STATUS=new Set(ALL_STATUSES);CLIENT_FILTER.clear(); /* v1.37.0 (#6): "everything" means the All preset, completed jobs included */
   if(PERSON){exitDash();buildFiltersMenu();return;} /* exitDash saves, badges, renders */
   saveUI();buildFiltersMenu();updateFilterBadges();render();
 });
@@ -10855,6 +10998,14 @@ async function fbSetStatus(spId,status,btn){
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
  {v:"v1.39.0",d:"Oct 5, 2026",n:["Open Issues: every open report now carries a status tag — PENDING until the team has looked at it, IN REVIEW once someone has replied on its ticket. Resolved reports keep their own column."]},
+ {v:"v1.38.0",d:"Oct 5, 2026",n:["Name a block: double-click any bar on the project page or the calendar to rename it in place (Enter saves, Esc cancels), or right-click it and pick Rename; on the dashboard, Edit Phase now has a Name field and opens with it ready to type, so a second \"Main Shop Fab\" can read \"Possible mock up days\".",
+   "A block's own name now shows on its calendar milestone bands and in the Meeting Sheet's \"Phase now\" column, not just the department name."]},
+ {v:"v1.37.0",d:"Oct 5, 2026",n:["Dashboard: an Active / Completed / All switch in the sidebar header. The dashboard opens on Active, so completed jobs no longer clutter the main view; Completed and All bring them back (for revisions, closeout or billing), and your choice is remembered on this browser. The Meeting Sheet and print follow the same rows.",
+   "Dashboard: a completed job in the sidebar is muted and carries a grey \"Completed\" tag under its name. Changing its status on the project page puts it back under Active."]},
+ {v:"v1.36.0",d:"Oct 5, 2026",n:["Bar names and status pills stay readable while you scroll sideways: when a bar starts off-screen, its label (and the project row's status pill) now sits at the left edge of the chart next to the sidebar — on the dashboard and the project page — and rides along with the bar once its start comes into view. A label never spills past its bar's end; it is trimmed with \"…\" when the visible part is too short."]},
+ {v:"v1.35.0",d:"Oct 5, 2026",n:["Departments view: a project's line under a person now reads its Cost Code (in the same type as the dates) instead of the project name, so it fits whole; hover the line for the client, the full project name and the code. A project with no Cost Code still shows its name."]},
+ {v:"v1.34.1",d:"Oct 5, 2026",n:["Project setup, Departments: changing a department's days after typing its start date now moves the end date; the start stays where you put it.",
+   "The Days field in the phase panel and the bar's edit popover does the same on a saved project (it used to change the number without moving the end)."]},
  {v:"v1.34.0",d:"Oct 5, 2026",n:["Open Issues: the Resolved column now shows the date a report was resolved, not the date it was sent, and lists the most recently resolved first.",
    "Open Issues: the team can post a note under a report (a `/comment` on its ticket) that shows as a developer comment in the app without emailing the person who filed it; `/reply` still does both."]},
  {v:"v1.33.1",d:"Oct 5, 2026",n:["Project Schedule: each department's day count now sits beside its own date range, next to the dates it counts — the same spot every extra work period already uses."]},
@@ -11055,11 +11206,11 @@ function phaseNow(p){
   const ts=tasksOf(p.id).filter(x=>x.department!=='pm'&&!x.__ghost);
   const act=ts.filter(x=>parseDate(x.startDate)<=t&&t<=parseDate(x.endDate));
   if(act.length){
-    const names=[...new Set(act.map(x=>{const d=deptById(x.department);return (d&&d.freeText)?(x.assignee||'Other'):(d?d.name:x.department);}))];
+    const names=[...new Set(act.map(phaseLabel))]; /* v1.38.0 (tracker #3): a named block reads by its name */
     return names.slice(0,2).join(', ')+(names.length>2?' +'+(names.length-2):'');
   }
   const fut=ts.filter(x=>parseDate(x.startDate)>t).sort((a,b)=>String(a.startDate).localeCompare(String(b.startDate)));
-  if(fut.length){const d=deptById(fut[0].department);return 'Next: '+((d&&!d.freeText)?d.name:(fut[0].assignee||'Other'))+' '+fmtNice(fut[0].startDate);}
+  if(fut.length)return 'Next: '+phaseLabel(fut[0])+' '+fmtNice(fut[0].startDate);
   return ts.length?'Wrapped':'—';
 }
 /* U8: keys must match ALL_STATUSES — the pre-migration names left every
