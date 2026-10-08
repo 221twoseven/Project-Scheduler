@@ -1403,14 +1403,12 @@ constraint (D2, lifted 2026-09-24).
   written by the tracker repository's poller, never by the app (item 31).
 - On `ShopTimeline_Feedback`: `resolvedAt` — single line of text, the ticket's close time (ISO),
   written by the poller, never by the app (v1.34.0, owner ask 2026-10-05). The app shows it as
-  the Resolved column's date and falls back to the row's last change until it exists. ⚠ Spec
-  delivered for Robert to apply, after which the poller back-fills every closed ticket on its
-  next run. *Not yet confirmed as created* (2026-10-08 check): tick here once confirmed.
+  the Resolved column's date (falling back to the row's last change on any row the poller
+  hasn't stamped). **Confirmed created by the owner, 2026-10-08.**
 - On `ShopTimeline_Tasks`: `range` — Yes/No, default No (v1.32.0, tracker #16). The app
   writes it only on rows that are extra work periods (tristate), so ordinary saves never
-  touch it; the first + on a saved project needs it. ⚠ It was to be created before PR #88
-  merged; v1.32.0 shipped 2026-10-02. *Not yet confirmed as created* (2026-10-08 check):
-  tick here once confirmed.
+  touch it; the first + on a saved project needs it. **Confirmed created by the owner,
+  2026-10-08.**
 - Entra: `Mail.Send` delegated, consented.
 - Employee Contacts: read only. The app never writes to it or touches its schema.
 
@@ -1856,6 +1854,9 @@ How to read the tags at the end of an entry:
   number.
 
 **Log, newest first:**
+
+- 2026-10-08 (late): the owner confirmed that §6's `range` (on `ShopTimeline_Tasks`) and
+  `resolvedAt` (on `ShopTimeline_Feedback`) exist; both are marked confirmed.
 
 - 2026-10-08 (night): **full audit against the tracker, `CHANGELOG.md` and the branches;
   upkeep rules added.**
