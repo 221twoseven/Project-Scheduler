@@ -112,10 +112,12 @@ function main(){
     /* v1.17.0 grew a Driver column (and header grips ride inside the spans — select
        direct children only); branch on its marker so both builds assert their shape. */
     const v17=src.indexOf('cd-drv')>=0,v22=src.indexOf('cde-sched')>=0; /* v1.22.0 added Schedule after Status */
+    const v43=src.indexOf('<span>Office Extension</span>')>=0; /* v1.43.0 added Office Extension after Phone */
+    const PH=v43?'Phone,Office Extension':'Phone';
     ok('the people index carries the at-a-glance columns (v1.14.0'+(v17?' + v1.17.0)':')'),
        [...doc.querySelectorAll('.cd-cols>span')].map(s=>s.textContent).join(',')
-         ===(v17?'Name,Title,Phone,Email,Perms,Driver,Status'+(v22?',Schedule':''):'Name,Title,Phone,Email,Perms,Status')
-       &&doc.querySelector('.cd-row.'+(v17?'pp7':'pp6')).children.length===(v22?8:v17?7:6));
+         ===(v17?'Name,Title,'+PH+',Email,Perms,Driver,Status'+(v22?',Schedule':''):'Name,Title,Phone,Email,Perms,Status')
+       &&doc.querySelector('.cd-row.'+(v17?'pp7':'pp6')).children.length===(v43?9:v22?8:v17?7:6));
     doc.getElementById('tb-home').click();
     win.dispatchEvent(new win.Event('hashchange'));
     setTimeout(()=>{
@@ -233,6 +235,10 @@ function stageImport(){
 
   sec('v1.13.0 — the mirror pass (HR list stubbed, read-only)');
   E("gpageAll=async u=>{u=String(u);"
+   /* v1.43.0 (9a): the import reads the HR list's column definitions first and selects by them */
+   +"if(u.indexOf('Employee')>=0&&u.indexOf('/columns')>=0)return [{name:'Title',displayName:'Title'},{name:'Status',displayName:'Status'},"
+   +"{name:'Email',displayName:'Email'},{name:'Primary_x0020_Phone',displayName:'Primary Phone'},{name:'Current_x0020_Title',displayName:'Current Title'},"
+   +"{name:'Department',displayName:'Department'},{name:'Pay_x0020_Type',displayName:'Pay Type'}];"
    +"if(u.indexOf('Employee')>=0)return ["
    +"{id:'e1',fields:{Title:'Pat',Status:'Active',Email:'pat@x.co',Primary_x0020_Phone:'555-1',Current_x0020_Title:'Shop Lead',Department:'Fabrication',Pay_x0020_Type:'NOPE'}},"
    +"{id:'e2',fields:{Title:'Marcus Webb',Status:'Active',Email:'marcus@x.co',Current_x0020_Title:'Logistics Coordinator',Department:'Logistics'}},"

@@ -51,9 +51,10 @@ function main(){
     sec('the index: seven columns, stripped titles, driver checks');
     ok('on the People page', E('ROUTE.view')==='people');
     const v22=src.indexOf('cde-sched')>=0; /* v1.22.0 added Schedule after Status */
+    const v43=src.indexOf('<span>Office Extension</span>')>=0; /* v1.43.0 added Office Extension after Phone */
     ok('header names the seven columns',
-       [...doc.querySelectorAll('.cd-cols>span')].map(s=>s.textContent).join(',')==='Name,Title,Phone,Email,Perms,Driver,Status'+(v22?',Schedule':''));
-    ok('rows carry seven cells', doc.querySelector('.cd-row.pp7').children.length===(v22?8:7));
+       [...doc.querySelectorAll('.cd-cols>span')].map(s=>s.textContent).join(',')==='Name,Title,Phone,'+(v43?'Office Extension,':'')+'Email,Perms,Driver,Status'+(v22?',Schedule':''));
+    ok('rows carry seven cells', doc.querySelector('.cd-row.pp7').children.length===(v43?9:v22?8:7));
     const rowOf=n=>[...doc.querySelectorAll('#cd-rows .cd-row')].find(r=>r.querySelector('b').textContent.startsWith(n));
     ok('"SFAB1 - Seasonal Fabricator" reads as "Seasonal Fabricator"',
        rowOf('Alex').children[1].textContent==='Seasonal Fabricator');
@@ -102,7 +103,7 @@ function main(){
          as spans inside the cells, the `.cd-cols span` rule out-specified `.cd-grip`
          and collapsed every grip to 0px wide (owner: "columns are not resizeable"). */
       ok('grips are header-row <i> elements, never cell spans',
-         doc.querySelectorAll('.cd-cols>i.cd-grip').length===(v22?8:7)
+         doc.querySelectorAll('.cd-cols>i.cd-grip').length===(v43?9:v22?8:7)
          &&doc.querySelectorAll('.cd-cols span .cd-grip').length===0);
       const sp=doc.querySelector('.cd-cols>span');
       E("cdColDrag(new MouseEvent('mousedown',{clientX:100}),document.querySelector('.cd-cols>span'),0)");
@@ -110,7 +111,7 @@ function main(){
       doc.dispatchEvent(new win.MouseEvent('mouseup'));
       ok('a header drag pins the column var',
          doc.querySelector('.cd-list').style.getPropertyValue('--cdc1')==='60px');
-      ok('…and remembers it', win.localStorage.getItem('shopTimelineCdColW')==='[60]');
+      ok('…and remembers it', win.localStorage.getItem(v43?'shopTimelineCdColW2':'shopTimelineCdColW')==='[60]'); /* v1.43.0: a new key, so widths saved for eight columns never land a column off */
       E("cdSplitDrag(new MouseEvent('mousedown',{clientX:500}))");
       doc.dispatchEvent(new win.MouseEvent('mousemove',{clientX:560}));
       doc.dispatchEvent(new win.MouseEvent('mouseup'));

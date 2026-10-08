@@ -33,8 +33,12 @@ const staff=[
  {appId:'s3',Title:'Bea Chen',email:'bea@example.com',depts:JSON.stringify(['td']),ooo:'[]',role:'',admin:'1',feedbackRecipient:'1'},
  {appId:'s4',Title:'Cody Hall',email:'',depts:JSON.stringify(['fab']),ooo:'[]',role:''}];
 
+/* v1.43.0: Office Extension became column 4 (nine columns), and the widths moved to a new key so
+   ones saved by position never land a column off. Email and Perms each move one cell right. */
+const OX=src.indexOf('Office Extension')>=0,K=OX?'shopTimelineCdColW2':'shopTimelineCdColW',N=OX?9:8;
+const W=(a)=>JSON.stringify(OX?[...a,96]:a);
 const dom=boot(FILE,{data:{projects:[],tasks:[],staff,todos:[]},
-  localStorage:{shopTimelineCdColW:'[100,120,null,150,60,48,90,96]'}});
+  localStorage:{[K]:W([100,120,null,150,60,48,90,96])}});
 const win=dom.window,doc=win.document,E=s=>win.eval(s);
 const q=s=>doc.querySelector(s),qa=s=>[...doc.querySelectorAll(s)];
 const v=n=>q('.cd-list').style.getPropertyValue('--cdc'+n);
@@ -50,20 +54,20 @@ setTimeout(()=>{
 
 function main(){
   sec('#13 R2 / R3 — fixed px tracks, the table as wide as its columns');
-  ok('R2/R3: the People template is eight px tracks, no fr or auto', /\.cd-cols,\.cd-row\.pp7\{grid-template-columns:\s*(var\(--cdc[1-8],\d+px\)\s*){8};\s*width:max-content;min-width:100%/.test(src));
-  ok('R1: header and rows share one template and the same side padding', qa('.cd-cols>span').length===8&&qa('.cd-row.pp7').length===4&&qa('.cd-row.pp7').every(r=>r.children.length===8), qa('.cd-row.pp7').map(r=>r.children.length).join());
+  ok('R2/R3: the People template is '+N+' px tracks, no fr or auto', new RegExp('\\.cd-cols,\\.cd-row\\.pp7\\{grid-template-columns:\\s*(var\\(--cdc[1-9],\\d+px\\)\\s*){'+N+'};\\s*width:max-content;min-width:100%').test(src));
+  ok('R1: header and rows share one template and the same side padding', qa('.cd-cols>span').length===N&&qa('.cd-row.pp7').length===4&&qa('.cd-row.pp7').every(r=>r.children.length===N), qa('.cd-row.pp7').map(r=>r.children.length).join());
   ok('R3 setup: the remembered widths are applied, the unpinned column 3 reads the stylesheet default', v(1)==='100px'&&v(2)==='120px'&&v(3)===''&&v(4)==='150px', [v(1),v(2),v(3),v(4)].join(' '));
   E("cdColDrag(new MouseEvent('mousedown',{clientX:100}),document.querySelectorAll('.cd-cols>span')[1],1)");
   doc.dispatchEvent(new win.MouseEvent('mousemove',{clientX:160}));
   doc.dispatchEvent(new win.MouseEvent('mouseup'));
   ok('R3: dragging column 2 pins only column 2', v(2)==='60px'&&v(1)==='100px'&&v(3)===''&&v(4)==='150px'&&v(5)==='60px'&&v(6)==='48px'&&v(7)==='90px'&&v(8)==='96px', [v(1),v(2),v(3),v(4),v(5),v(6),v(7),v(8)].join(' '));
-  ok('R3: the remembered widths carry that one change', win.localStorage.getItem('shopTimelineCdColW')==='[100,60,null,150,60,48,90,96]', win.localStorage.getItem('shopTimelineCdColW'));
+  ok('R3: the remembered widths carry that one change', win.localStorage.getItem(K)===W([100,60,null,150,60,48,90,96]), win.localStorage.getItem(K));
 
   sec('#13 R1 — fit to content, capped, floored, not persisted unless asked');
   col(2).forEach(c=>stub(c,120));
   E('cdFitCol(2)');
   ok('plan 1: a column fits its widest text plus 2px', v(3)==='122px', v(3));
-  ok('plan 1: an automatic fit is not remembered', win.localStorage.getItem('shopTimelineCdColW')==='[100,60,null,150,60,48,90,96]');
+  ok('plan 1: an automatic fit is not remembered', win.localStorage.getItem(K)===W([100,60,null,150,60,48,90,96]));
   stub(col(2)[1],900);E('cdFitCol(2)');
   ok('plan 1: the fit is capped at 280px', v(3)==='280px', v(3));
   col(2).forEach(c=>stub(c,5));E('cdFitCol(2)');
@@ -73,15 +77,15 @@ function main(){
   ok('the shared rule covers header cells and every People cell', /\.cd-cols span,\.cd-row\.pp7>\*\{min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis\}/.test(src));
   const max=rowOf('Maximiliana');
   ok('a long title shows in full on hover', !!max&&max.children[1].title==='Seasonal Fabricator and Lead Paint Technician', max&&max.children[1].title);
-  ok('a long email shows in full on hover', !!max&&max.children[3].title===LONGMAIL);
+  ok('a long email shows in full on hover', !!max&&max.children[OX?4:3].title===LONGMAIL);
   ok('the name shows in full on hover', !!max&&max.children[0].title.startsWith('Maximiliana'));
   const sam=rowOf('Sam');
-  ok('permission chips keep their own tooltips (no parent title)', !!sam&&sam.children[4].title===''&&/^Developer/.test((sam.querySelector('.cd-perm.dev')||{title:''}).title), sam&&(sam.querySelector('.cd-perm.dev')||{}).title);
+  ok('permission chips keep their own tooltips (no parent title)', !!sam&&sam.children[OX?5:4].title===''&&/^Developer/.test((sam.querySelector('.cd-perm.dev')||{title:''}).title), sam&&(sam.querySelector('.cd-perm.dev')||{}).title);
 
   sec('#13 R4 — double-click fits and remembers; Reset widths in the column menu');
   col(0).forEach(c=>stub(c,140));
   qa('.cd-cols>i.cd-grip')[0].dispatchEvent(new win.MouseEvent('dblclick',{bubbles:true}));
-  ok('R4: double-clicking a grip fits that column and remembers it', v(1)==='142px'&&JSON.parse(win.localStorage.getItem('shopTimelineCdColW'))[0]===142, v(1)+' / '+win.localStorage.getItem('shopTimelineCdColW'));
+  ok('R4: double-clicking a grip fits that column and remembers it', v(1)==='142px'&&JSON.parse(win.localStorage.getItem(K))[0]===142, v(1)+' / '+win.localStorage.getItem(K));
   ok('the grip tooltip names the double-click', /double-click to fit/.test(qa('.cd-cols>i.cd-grip')[0].title));
   q('.cd-cols').dispatchEvent(new win.MouseEvent('contextmenu',{bubbles:true,cancelable:true,clientX:300,clientY:180}));
   const menu=q('#cd-colmenu');
@@ -90,10 +94,11 @@ function main(){
      its content again, which with no layout means the stylesheet default */
   col(0).forEach(c=>stub(c,0));col(2).forEach(c=>stub(c,0));
   q('#cd-reset-w').dispatchEvent(new win.MouseEvent('click',{bubbles:true}));
-  ok('R4: Reset widths clears every pin and the memory', E('CD_COLW')===null&&win.localStorage.getItem('shopTimelineCdColW')===null&&[1,2,3,4,5,6,7,8].every(n=>v(n)===''), [1,2,3,4,5,6,7,8].map(v).join('|'));
+  const all=Array.from({length:N},(_,i)=>i+1);
+  ok('R4: Reset widths clears every pin and the memory', E('CD_COLW')===null&&win.localStorage.getItem(K)===null&&all.every(n=>v(n)===''), all.map(v).join('|'));
   col(0).forEach(c=>stub(c,140));
   E('cdApplySizes()');
-  ok('R4: after a reset the unpinned columns fit their content again (not remembered)', v(1)==='142px'&&win.localStorage.getItem('shopTimelineCdColW')===null, v(1));
+  ok('R4: after a reset the unpinned columns fit their content again (not remembered)', v(1)==='142px'&&win.localStorage.getItem(K)===null, v(1));
   col(0).forEach(c=>stub(c,0));
   ok('and closes the menu', menu.classList.contains('hidden'));
   q('.cd-cols').dispatchEvent(new win.MouseEvent('contextmenu',{bubbles:true,cancelable:true,clientX:300,clientY:180}));
@@ -111,7 +116,7 @@ function main(){
 
   sec('#27 R2 — the divider and the column edge lines');
   ok('R2: the list/detail divider is present and the split handle rides it', !!q('#cd-split')&&/\.cd-list\{[^}]*border-right:1px solid #E2E8F0/.test(src)&&/#cd-split\{flex:0 0 6px;margin-left:-3px/.test(src));
-  ok('R2 plan 3: every column edge draws its thin line', qa('.cd-cols>i.cd-grip').length===8&&/\.cd-grip::after\{[^}]*width:1px;background:#D8E2EF\}/.test(src));
+  ok('R2 plan 3: every column edge draws its thin line', qa('.cd-cols>i.cd-grip').length===N&&/\.cd-grip::after\{[^}]*width:1px;background:#D8E2EF\}/.test(src));
 
   sec('the Clients page is untouched');
   win.location.hash='#/clients';

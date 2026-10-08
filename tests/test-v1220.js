@@ -48,9 +48,9 @@ function main(){
   setTimeout(()=>{
     sec('the index column');
     ok('Schedule follows Status in the header',
-       [...doc.querySelectorAll('.cd-cols>span')].map(s=>s.textContent).join(',')==='Name,Title,Phone,Email,Perms,Driver,Status,Schedule');
+       [...doc.querySelectorAll('.cd-cols>span')].map(s=>s.textContent).join(',')==='Name,Title,Phone,'+(src.indexOf('<span>Office Extension</span>')>=0?'Office Extension,':'')+'Email,Perms,Driver,Status,Schedule'); /* v1.43.0 added Office Extension after Phone */
     const rowOf=n=>[...doc.querySelectorAll('#cd-rows .cd-row')].find(r=>r.querySelector('b').textContent.startsWith(n));
-    ok('rows carry eight cells', rowOf('Sam').children.length===8);
+    ok('rows carry eight cells', rowOf('Sam').children.length===(src.indexOf('<span>Office Extension</span>')>=0?9:8)); /* v1.43.0: nine with Office Extension */
     ok('Sam reads M-F 9-6', rowOf('Sam').querySelector('.cd-sch').textContent==='M-F 9-6');
     ok('Dana reads T-W-Th 11-4', rowOf('Dana').querySelector('.cd-sch').textContent==='T-W-Th 11-4');
     ok('no schedule = blank cell', rowOf('Alex').querySelector('.cd-sch').textContent==='');

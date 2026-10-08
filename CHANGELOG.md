@@ -9,6 +9,12 @@ Format: `## <label> — <date>` then one `- ` line per change. Keep lines concre
 what changed *for the team*, not how. Developer-only tooling doesn't need a line.
 Collect lines for the next version under `## Unreleased` and rename it when you ship.
 
+## v1.43.0 — Oct 8, 2026
+- People: every phone number reads one way, 555-555-5555, however it was typed or imported, and searching the bare digits finds it.
+- People (admins): a one-time "Tidy N phone numbers" button rewrites the numbers still stored another way on the SharePoint list, and then goes away.
+- People: a new Office Extension column, for calls between office phones. Type it in the editor; it has its own column beside Phone and its own line on the record.
+- Import from Employee Contacts now asks the HR list only for the fields it uses (name, status, email, phone, title, department), so pay and personal-email columns never reach your browser.
+
 ## v1.42.0 — Oct 8, 2026
 - Changing a project's PM, Technical Designer or Project lead now moves the project to the new person from today: it leaves the old person's lane and My Dashboard and shows under the new one. The days already worked stay with the old person on the chart.
 - A Project Management, Technical Design or Main Shop Fab bar still held by someone who is no longer in that role now says so under Project Schedule, with one click to hand it over from today.
