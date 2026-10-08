@@ -594,6 +594,16 @@ other standalone button flat.
 Footer order (weakest → strongest, left → right): passive status text · Delete (subdued)
 · neutral step · **primary**. Destructive is never rightmost and always names its object.
 
+**Note with one action** (v1.42.0, Project Schedule's "Bar is held by … — Hand over from today"):
+a muted `.ins-note` sentence that states the mismatch and names both sides, followed by one
+small `.ins-btn` that fixes it. Nothing changes until the click. The button is at least 24px
+high (Design-Language §9).
+
+```css
+.ins-depts .idr .dhand{flex-basis:100%;margin:2px 0 4px 22px;display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px}
+.ins-depts .idr .dhand .ins-btn{padding:4px 8px;min-height:24px}
+```
+
 ### 7.4 Form field
 
 ```css

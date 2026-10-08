@@ -61,8 +61,8 @@ branches. The full history is the log in §8.
 ## 0. Where we stand
 
 As of 2026-10-08: production (`main`) runs **v1.41.0**, and `development` carries
-**v1.41.1** (the narrow-sidebar fix for the Projects / Departments switch, PR #106).
-Phase 7 has shipped v1.24.0 → v1.41.1 so far. `CHANGELOG.md` is the release-by-release
+**v1.42.0** (a role change moves the project to the new holder, item 53).
+Phase 7 has shipped v1.24.0 → v1.42.0 so far. `CHANGELOG.md` is the release-by-release
 record.
 
 ## 1. North star — Systems
@@ -403,7 +403,13 @@ What the pilot can't start without.
         - The Shipping-bar half is met by the same placement rule once Shipping is ticked.
       - *Waits on:* the owner's "Proceed with fix" on the revised spec.
       [tracker #1]
-- [ ] **53. A role change must move the project to the new holder** (P0 bug, tracker #34).
+- [x] **53. A role change must move the project to the new holder** (P0 bug, tracker #34).
+      Shipped v1.42.0 (PR #111, 2026-10-08). On the saved page, a role change hands that
+      department's bars over from today in one save (`roleHandover`). Under Project Schedule, a
+      bar still held by a former holder shows a note with "Hand over from today". Suite
+      `tests/test-v1420.js`. One reading beyond the spec's letter: an *umbrella* bar that
+      already ended is pinned to the old holder by name. Left untouched, it would silently
+      follow the new holder and rewrite the days worked (R4).
       When a project's PM, Technical Designer or Project lead changes after creation, the
       project stays under the old holder: a bar that carries its own crew ignores the
       project team.
@@ -412,7 +418,7 @@ What the pilot can't start without.
         Gantt keeps the old holder on the days up to the change.
       - *Revised spec:* split a role-owned bar on the day of the change. The past part keeps
         the old holder, the part from today goes to the new one. Fabricators owns no bar.
-      - *Approved:* "proceed with fix", 2026-10-06. Not built yet.
+      - *Approved:* "proceed with fix", 2026-10-06.
       [tracker #34]
 - [x] **46. Update check.** Shipped v1.33.0 (PR #90, 2026-10-05). GitHub Pages serves
       `index.html` with `Cache-Control: max-age=600`, which the page's no-cache meta tags
@@ -1811,6 +1817,10 @@ How to read the tags at the end of an entry:
       the deploy credential, recovery) is written as its own proposed doc when the spike is
       approved, and folded into `SETUP.md` only once the infrastructure exists. Gate: spike
       approved. [D15]
+- [ ] **A role hand-over always takes effect today** (v1.42.0, tracker #34 Q1). There's no
+      way to back-date a change ("Sam took over last Monday"). The Changelog keeps the real
+      date. Gate: the shop asks to back-date changes; the upgrade is a date field beside
+      the Project Team picker, passed to `roleHandover` in place of today. [item 53]
 
 ### 7.5 Deliberate design limits — no action planned; revisit only on real complaints
 

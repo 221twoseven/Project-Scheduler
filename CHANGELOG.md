@@ -9,6 +9,10 @@ Format: `## <label> — <date>` then one `- ` line per change. Keep lines concre
 what changed *for the team*, not how. Developer-only tooling doesn't need a line.
 Collect lines for the next version under `## Unreleased` and rename it when you ship.
 
+## v1.42.0 — Oct 8, 2026
+- Changing a project's PM, Technical Designer or Project lead now moves the project to the new person from today: it leaves the old person's lane and My Dashboard and shows under the new one. The days already worked stay with the old person on the chart.
+- A Project Management, Technical Design or Main Shop Fab bar still held by someone who is no longer in that role now says so under Project Schedule, with one click to hand it over from today.
+
 ## v1.41.1 — Oct 6, 2026
 - The Projects / Departments switch above the list now fits a narrow sidebar: below about 240px it reads "Proj" / "Dept" instead of cutting "Departments" off.
 
