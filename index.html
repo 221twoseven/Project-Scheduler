@@ -1845,7 +1845,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.43.0'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.44.0'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -2057,6 +2057,10 @@ function dispName(n){
   return (p&&p.nickname&&String(p.nickname).trim())||n;
 }
 function oooFor(name){const p=personByName(name);return p?(p.ooo||[]):[];}
+/* v1.44.0 (item 4): a time-off note is private — only admins see it; everyone else sees the dates.
+   ponytail: display-only; the note still loads in every browser and sits in the Staff list's ooo column.
+   Real privacy is TODO item 27 (the restricted personnel record). */
+function oooNote(o){return o&&o.note&&isAdmin()?String(o.note):'';}
 function oooOverlaps(name,sIso,eIso){return oooFor(name).filter(o=>o.start&&o.end&&o.start<=eIso&&o.end>=sIso);}
 /* v1.7.2 (owner GO, 2026-09-01): the one-time data scrub the v1.6.5 ledger entry gated
    on. canonName() has healed legacy person strings at compare/display time since v1.6.5;
@@ -3885,7 +3889,7 @@ function renderMeDock(){
     +'<span class="md-when">'+fmtNice(e.date)+'</span></div>';
   const tkRow=t=>'<div class="md-row"><span class="md-main">'+esc(t.title)+(t.projectId?' · '+esc(pn(t.projectId)):'')+'</span>'
     +'<span class="md-when">'+(t.due?fmtNice(t.due):'no date')+'</span></div>';
-  const ooRow=o=>'<div class="md-row"><span class="md-main">'+esc(o.note||'Out of office')+'</span>'
+  const ooRow=o=>'<div class="md-row"><span class="md-main">'+esc(oooNote(o)||'Out of office')+'</span>'
     +'<span class="md-when">'+fmtNice(o.start)+' → '+fmtNice(o.end)+'</span></div>';
   const deptLbl=[...new Set((per.depts||[]).map(pdCanon))].map(d=>{const m=SM_DEPTS.find(x=>x[0]===d);return m?m[1]:d;}).join(', ');
   const sec2=(title,n,inner)=>'<div class="ins-sec"><h4>'+title+'<span class="n">'+n+'</span></h4><div class="in">'+inner+'</div></div>';
@@ -4311,8 +4315,8 @@ function renderGantt(){
           b.style.left=x+'px';
           b.style.width=Math.max(DW_,(d2x(addDays((oe>TL_E?TL_E:oe),1))-x))+'px';
           b.style.top=(r.top+4)+'px';b.style.height=(r.height-9)+'px';
-          const lb=document.createElement('span');lb.className='ooo-lbl';lb.textContent='OUT'+(o.note?' · '+o.note:'');b.appendChild(lb);
-          b.title=r.assignee+' out of office '+fmtNice(o.start)+' → '+fmtNice(o.end)+(o.note?' · '+o.note:'');
+          const lb=document.createElement('span');lb.className='ooo-lbl';const nt=oooNote(o);lb.textContent='OUT'+(nt?' · '+nt:'');b.appendChild(lb);
+          b.title=r.assignee+' out of office '+fmtNice(o.start)+' → '+fmtNice(o.end)+(nt?' · '+nt:'');
           barFrag.appendChild(b);
         }
       }
@@ -4786,7 +4790,7 @@ function showTooltipTask(t,ev,hiNode){
     +(t.notes?'<div class="tt-notes">'+esc(t.notes)+'</div>':'')
     +(CONFLICTS.has(t.id)?(()=>{const n=Math.max(1,conflictCount(t));
       return '<div class="tt-warn">⚠ '+esc(barCrew(t).map(dispName).join(', ')||'Crew')+' is on '+n+' other job'+(n===1?'':'s')+' during this window</div>';})():'')
-    +barCrew(t).map(n=>oooOverlaps(n,t.startDate,t.endDate).map(o=>'<div class="tt-warn">✈ '+esc(dispName(n))+' is out '+fmtNice(o.start)+' → '+fmtNice(o.end)+(o.note?' ('+esc(o.note)+')':'')+'</div>').join('')).join('')
+    +barCrew(t).map(n=>oooOverlaps(n,t.startDate,t.endDate).map(o=>'<div class="tt-warn">✈ '+esc(dispName(n))+' is out '+fmtNice(o.start)+' → '+fmtNice(o.end)+(oooNote(o)?' ('+esc(oooNote(o))+')':'')+'</div>').join('')).join('')
     +tn
     +((t.updatedBy||t.updatedAt)?'<div class="tt-dim tt-upd">Updated by '+esc(t.updatedBy?dispName(t.updatedBy):'—')+(t.updatedAt?' · '+esc(timeAgo(t.updatedAt)):'')+'</div>':'')
     +'<div><span class="tt-badge">'+esc(STATUS_LBL[p?projectStatus(p):'estimating'])+'</span></div>';
@@ -5686,7 +5690,7 @@ function cdPaintDetail(){
      +'<div class="cdd-f"><dt>Departments</dt><dd>'+([...new Set((per.depts||[]).map(pdCanon))].map(d=>esc(cdDeptLbl(d))).join(' · ')||'—')+'</dd></div>'
      +'<div class="cdd-f"><dt>Availability</dt><dd>'
        +'<span class="cd-avail'+cdAvailCls(av)+'">'+esc(av.now?av.txt:'Available')+'</span>'
-       +(upcoming.length?upcoming.map(o=>'<div class="cdd-ooo"><span>'+fmtNice(o.start)+' – '+fmtNice(o.end)+'</span>'+(o.note?'<span class="n">'+esc(o.note)+'</span>':'')+'</div>').join(''):'<div class="cdd-ooo"><span class="n">No upcoming time off</span></div>')
+       +(upcoming.length?upcoming.map(o=>'<div class="cdd-ooo"><span>'+fmtNice(o.start)+' – '+fmtNice(o.end)+'</span>'+(oooNote(o)?'<span class="n">'+esc(oooNote(o))+'</span>':'')+'</div>').join(''):'<div class="cdd-ooo"><span class="n">No upcoming time off</span></div>')
      +'</dd></div>'
      +'<div class="cdd-f"><dt>On the schedule</dt><dd>'
        +(asn.phases?('On '+asn.phases+' phase'+(asn.phases===1?'':'s')+' across '+asn.projects+' project'+(asn.projects===1?'':'s')+(asn.active?' · '+asn.active+' running today':'')):'No phases assigned')
@@ -11653,6 +11657,7 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.44.0",d:"Oct 8, 2026",n:["Time off is private: only admins see the note typed on someone's time off. Everyone else sees the dates, on the People record, the lanes, phase hover tips and the person panel (\"Out of office\")."]},
  {v:"v1.43.0",d:"Oct 8, 2026",n:["People: every phone number reads one way, 555-555-5555, however it was typed or imported, and searching the bare digits finds it.",
    "People (admins): a one-time \"Tidy N phone numbers\" button rewrites the numbers still stored another way on the SharePoint list, and then goes away.",
    "People: a new Office Extension column, for calls between office phones. Type it in the editor; it has its own column beside Phone and its own line on the record.",

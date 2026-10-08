@@ -9,6 +9,9 @@ Format: `## <label> — <date>` then one `- ` line per change. Keep lines concre
 what changed *for the team*, not how. Developer-only tooling doesn't need a line.
 Collect lines for the next version under `## Unreleased` and rename it when you ship.
 
+## v1.44.0 — Oct 8, 2026
+- Time off is private: only admins see the note typed on someone's time off. Everyone else sees the dates, on the People record, the lanes, phase hover tips and the person panel ("Out of office").
+
 ## v1.43.0 — Oct 8, 2026
 - People: every phone number reads one way, 555-555-5555, however it was typed or imported, and searching the bare digits finds it.
 - People (admins): a one-time "Tidy N phone numbers" button rewrites the numbers still stored another way on the SharePoint list, and then goes away.

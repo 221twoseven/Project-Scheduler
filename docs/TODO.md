@@ -61,10 +61,11 @@ is the log in §8.
 
 ## 0. Where we stand
 
-As of 2026-10-08: production (`main`) and `development` both run **v1.43.0**, promoted
-2026-10-08 (release/2026-10-08). The newest work: the employee import fetches only what it
-uses, one phone format and an Office Extension column (item 9); a role change moves the
-project to the new holder (item 53). Phase 7 has shipped v1.24.0 → v1.43.0 so far.
+As of 2026-10-08: production (`main`) runs **v1.43.0**, promoted 2026-10-08
+(release/2026-10-08); `development` runs **v1.44.0**. The newest work: time-off notes are
+private to admins (item 4); the employee import fetches only what it uses, one phone format
+and an Office Extension column (item 9); a role change moves the project to the new holder
+(item 53). Phase 7 has shipped v1.24.0 → v1.44.0 so far.
 `CHANGELOG.md` is the release-by-release record.
 
 ## 1. North star — Systems
@@ -296,9 +297,13 @@ What the pilot can't start without.
         count assumes its second half opens on a draft (§7.3, L1233).
       - *On hold (owner, 2026-10-01 on the ticket):* "Hold pending dev testing."
       [brief §5.1, §9 P0 "tour fix"; tracker #7]
-- [ ] **4. Keep time-off notes private.** Notes typed on an out-of-office range show to
-      every signed-in user, in three places: the People record, the dashboard and the
-      person panel. Hide them from non-admins, or leave the field out of non-admin views.
+- [x] **4. Keep time-off notes private.** Shipped v1.44.0 (PR #116, 2026-10-08): only an
+      admin sees the note typed on an out-of-office range (`oooNote`); everyone else sees the
+      dates, and the person panel reads "Out of office". Four places: the People record, the
+      people lanes, a phase's hover tip and the person panel. Suite `tests/test-v1440.js`.
+      Display only: the note still loads in every browser (§7.5).
+      Notes typed on an out-of-office range showed to every signed-in user. Hide them from
+      non-admins, or leave the field out of non-admin views.
       This is the brief's suggested P0 addition. [brief §7.2, §9 Response]
 - [ ] **5. Date certainty: Tentative / Confirmed / TBD.** Show whether a date is a
       commitment or a guess: an install date entered early reads as a commitment even when
@@ -1858,6 +1863,10 @@ How to read the tags at the end of an entry:
 
 - No phone layout. The owner closed the request with "We're not doing this" on 2026-10-01
   (tracker #30).
+- Time-off notes are hidden from non-admins on screen only (item 4, v1.44.0). The note
+  still sits in the Staff list's `ooo` column and loads in every signed-in browser, so
+  anyone who opens the list on SharePoint or the browser's developer tools can read it.
+  Real privacy comes with item 27, which moves time-off notes into the restricted record.
 
 - The 12-colour project palette repeats once 13 or more projects are visible (T2).
 - Re-selection after a committed resize or move on the project page is quiet (T4).
