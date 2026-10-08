@@ -1095,6 +1095,9 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 /* v1.25.2 (#26): why a typed date moved, on its own line under the date pair */
 .ins-depts .idr .dnote{flex-basis:100%;margin:0 0 3px 22px}
 .ins-depts .idr.off .dnote{display:none}
+/* v1.42.0 (tracker #34): a role-owned bar the role change never reached — the note and its one action */
+.ins-depts .idr .dhand{flex-basis:100%;margin:2px 0 4px 22px;display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px}
+.ins-depts .idr .dhand .ins-btn{padding:4px 8px;min-height:24px}
 /* v1.26.0 (#20): the read-only "Created on" reads as a fact, not a control to edit */
 #pp-created[readonly]{background:#F7FAFD;border-color:#EDF2F7;color:#33415A}
 .ins-depts .idr .ddates input{flex:1;min-width:0;border:1px solid var(--ts-control-line);border-radius:5px;
@@ -1841,7 +1844,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.41.1'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.42.0'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -2193,6 +2196,40 @@ function genId(){return Date.now().toString(36)+Math.random().toString(36).slice
 function roleList(v){return String(v||'').split(',').map(s=>s.trim()).filter(Boolean);}
 function roleField(deptId){return deptId==='pm'?'projectManager':deptId==='td'?'drafter':deptId==='fab'?'leadFab':null;}
 function roleListFor(p,deptId){const f=roleField(deptId);return f?roleList(p[f]):[];}
+/* v1.42.0 (tracker #34): a role changed hands, so its department's bars follow from today.
+   Days already worked keep the old holder (R4): a bar running across today splits, with the
+   part up to yesterday pinned to the old holder by name and the part from today going to the
+   new one. An umbrella part (no crew of its own) stays empty and follows the role. A bar that
+   is already over is history: an umbrella one is pinned to the old holder so the change can't
+   rewrite it. A bar crewed by anyone else is left alone, because someone chose it. Pure: tasks
+   in, tasks out, one save at the caller. umb=false is the legacy repair, which hands over
+   named bars only (an umbrella already follows the role). */
+function roleHandover(tasks,pid,dept,from,to,todayIso,umb){
+  const key=l=>[...new Set(l.map(canonName))].sort().join('|');
+  const A=key(from);if(!A||A===key(to))return tasks;
+  const aTxt=from.join(', '),bTxt=to.join(', '),y=fmtDate(addDays(parseDate(todayIso),-1));
+  const prim=tasks.find(t=>t.projectId===pid&&t.department===dept&&!t.range);
+  const out=[];
+  for(const t of tasks){
+    if(t.projectId!==pid||t.department!==dept||!t.startDate||!t.endDate){out.push(t);continue;}
+    if(!umb&&t!==prim&&!t.range){out.push(t);continue;} /* the repair touches the department's own lines, never a subtask's chosen crew */
+    const c=crewOf(t),own=c.length>0;
+    if((own?key(c):(umb?A:''))!==A){out.push(t);continue;}
+    if(t.endDate<todayIso){out.push(own?t:{...t,assignee:aTxt});continue;}
+    if(t.startDate>=todayIso){out.push(own?{...t,assignee:bTxt}:t);continue;}
+    const nodes=t.ticketNodes||[];
+    out.push({...t,endDate:y,estimatedDays:wdCount(parseDate(t.startDate),parseDate(y)),assignee:aTxt,
+      ticketNodes:nodes.filter(n=>!n.date||n.date<todayIso)});
+    /* the part from today: a primary or range continues as a range on the department's row; a
+       subtask stays a subtask. Notes and the pin stay with the original bar, as on a new range. */
+    const f={...t,id:genId(),startDate:todayIso,estimatedDays:wdCount(parseDate(todayIso),parseDate(t.endDate)),
+      assignee:own?bTxt:'',ticketNodes:nodes.filter(n=>n.date&&n.date>=todayIso),notes:'',pinned:false};
+    if(t.range||t===prim)f.range=true;
+    delete f.__manual;delete f.updatedBy;delete f.updatedAt;
+    out.push(f);
+  }
+  return out;
+}
 function assigneeFor(p,deptId,otherLabels){
   const d=deptById(deptId);
   /* Roster departments get an unowned umbrella bar — ownership is implicit through the
@@ -7083,6 +7120,20 @@ function insDeptList(p,boxId){
         h+=line(bar,false);
         for(const r of ranges)h+=line(r,true);
       }
+      /* v1.42.0 (tracker #34): a role-owned bar still crewed by someone who no longer holds the role
+         (a lane drag, the Who field, or a pre-REV63 row) never followed the change. Say so, with
+         one click to hand it over from today; nothing is rewritten silently. Saved page only. */
+      const rf=p&&canR&&active?roleField(id):null,hold=rf?roleList(p[rf]):[];
+      if(hold.length){
+        const hk=new Set(hold.map(canonName)),seen=new Set(),td0=fmtDate(today());
+        for(const t of [prim,...ranges]){if(!t)continue;const c=crewOf(t); /* the department's own line(s): a subtask's crew is chosen per subtask */
+          if(!c.length||t.endDate<td0||c.some(n=>hk.has(canonName(n))))continue;
+          const k=c.join(', ');if(seen.has(k))continue;seen.add(k);
+          h+='<span class="ins-note dhand">Bar is held by '+esc(c.map(canonName).map(dispName).join(', '))
+           + ' · the '+esc(id==='pm'?'PM':id==='td'?'Technical Designer':'Project lead')+' is '
+           + esc(hold.map(canonName).map(dispName).join(', '))
+           + ' <button type="button" class="ins-btn hand" data-dept="'+esc(id)+'" data-from="'+esc(k)+'">Hand over from today</button></span>';}
+      }
       h+='</div>';
     }
   });
@@ -7455,10 +7506,16 @@ function ppBindInspector(p,sel){
        date line removes that range (saved: the usual undo toast; draft: the line and its placement
        go, with an undo of their own). The list repaints itself — ppInspector() is the only painter. */
     box.addEventListener('click',ev=>{
-      const b=ev.target&&ev.target.closest?ev.target.closest('.radd,.rx'):null;
+      const b=ev.target&&ev.target.closest?ev.target.closest('.radd,.rx,.hand'):null;
       if(!b)return;
       ev.preventDefault();
       if(b.classList.contains('radd')){npvCreateRange(b.dataset.dept);return;}
+      /* v1.42.0 (tracker #34): the legacy repair, as of today, for the bars that holder still has */
+      if(b.classList.contains('hand')){const pj=ppProject(),dp=b.dataset.dept;if(!pj||!NPV_LIVE)return;
+        const tasks=roleHandover(ST.tasks,pj.id,dp,roleList(b.dataset.from),roleList(pj[roleField(dp)]),fmtDate(today()),false);
+        if(tasks===ST.tasks)return;
+        PP_QUIET=true;try{saveState({projects:ST.projects,tasks});}finally{PP_QUIET=false;}
+        npvRebuild();ppInspector();toastU('Handed over '+((deptById(dp)||{}).name||dp)+' from today');return;}
       const bar=ppLineBar(b.dataset.key);if(!bar)return;
       const nm=(deptById(bar.department)||{}).name||bar.department;
       if(NPV_LIVE){ppDeletePhase(bar.id);ppInspector();return;}
@@ -7495,7 +7552,12 @@ function ppBindInspector(p,sel){
         const patch={},pid=p.id;
         for(const r of PP_ROLES)patch[r[3]]=roleChecked(r[0]);
         const commit=()=>{PP_QUIET=true;
-          try{saveState({projects:ST.projects.map(y=>y.id===pid?{...y,...patch}:y),tasks:ST.tasks});}
+          /* v1.42.0 (tracker #34): a role that changed hands hands its bars over from today, in the
+             same save, so the project leaves the old holder's lane and dashboard (roleHandover) */
+          const cur=ST.projects.find(y=>y.id===pid);let tasks=ST.tasks;
+          if(cur)for(const d of ['pm','td','fab'])
+            tasks=roleHandover(tasks,pid,d,roleList(cur[roleField(d)]),roleList(patch[roleField(d)]),fmtDate(today()),true);
+          try{saveState({projects:ST.projects.map(y=>y.id===pid?{...y,...patch}:y),tasks});}
           finally{PP_QUIET=false;}
           if(ROUTE.view==='project'&&ROUTE.id===pid)npvRebuild();};
         /* v1.30.0 (#18): the Project lead radios move AND check on every arrow key, each firing change;
@@ -11527,6 +11589,8 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.42.0",d:"Oct 8, 2026",n:["Changing a project's PM, Technical Designer or Project lead now moves the project to the new person from today: it leaves the old person's lane and My Dashboard and shows under the new one. The days already worked stay with the old person on the chart.",
+   "A Project Management, Technical Design or Main Shop Fab bar still held by someone who is no longer in that role now says so under Project Schedule, with one click to hand it over from today."]},
  {v:"v1.41.1",d:"Oct 6, 2026",n:["The Projects / Departments switch above the list now fits a narrow sidebar: below about 240px it reads \"Proj\" / \"Dept\" instead of cutting \"Departments\" off."]},
  {v:"v1.41.0",d:"Oct 6, 2026",n:["Print: pick the paper (Letter or Tabloid) and the bars right in the Print Preview. A note there names the matching setting for the browser's print dialog, where Tabloid is called \"Ledger\".",
    "Print: choose Color bars with yellow milestones for the shop wall, or Outline bars with hollow milestones for the desk, clipboard and notes. Your choice is remembered.",
