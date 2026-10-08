@@ -43,8 +43,9 @@ milestones and this plan are presented as the phase runs.
 - Every milestone gets a record in `docs/Milestones/Phase-7-Pilot-Readiness/`; every
   deliberate skip gets a §7 line with its gate.
 
-Last reviewed: 2026-10-01 — D15 (data platform) raised, and a readability pass on §2–§8
-and the legend. The full history is the log in §8.
+Last reviewed: 2026-10-08 — D15 (data platform) reassessed: Dataverse and Azure SQL + API
+are now co-equal candidates (`docs/Architecture-Review-Backend.md`); D1, D3, D10–D13 and
+items 14, 17 and 44 given storage-neutral readings. The full history is the log in §8.
 
 ---
 
@@ -99,7 +100,8 @@ from the start; the Clients product's place is Phase 9 (§2).
    record per fact, keyed by a stable internal ID, one owner per field, freshness visible.
    Projects, Clients, People, Cost Codes, Events, Departments, Shop Closures, Closeouts are
    registries; every product is a *view* of them [brief §5, §8; vision "no duplicate
-   entries"].
+   entries"]. (The rule holds on any platform. Whether the registries stay SharePoint
+   lists or become Dataverse or SQL tables is D15.)
 2. **Timeline stays the schedule.** It keeps every feature as designed and reads/writes the
    operational fields of those registries — dates, work blocks, assignments, status. It is
    not a master for people, clients or cost codes [vision; brief §7].
@@ -109,7 +111,9 @@ from the start; the Clients product's place is Phase 9 (§2).
 4. **Sensitive data is protected by SharePoint permissions, not by hiding it in a UI.**
    Every product runs in the browser with each user's own token; anything a user must not
    see lives in a list or site they cannot read (§4 D3). "Gated" in the table means exactly
-   that.
+   that. (The principle holds on any platform: protection is enforced below the UI. If
+   D15 moves the registries behind an API, the enforcement is the API's server-side
+   authorization instead of each user's token; see D3.)
 5. **v2.0.0 = Timeline running on the shared registries** — the first `ShopTimeline_*`
    master retired in favour of a shared one. That is the breaking change the major number
    exists for. The portal and the other products arrive as v2.x/v3, each its own client of
@@ -139,7 +143,7 @@ Three phases. Phase 7 is the one running now.
 | Phase | Versions | Goal | Done when |
 |---|---|---|---|
 | **7 — Pilot readiness** (now) | v1.24 → v1.3x | Get Timeline ready for the pilot: the brief's P0 app fixes, checks of what already exists, the outside-the-app controls handed to their owners, and the §4 design decisions taken. Closeout moved to Office in Phase 9 (owner, 2026-09-29) | Pilot users create and update jobs without missing workers, lost edits or misleading dates, and at least one duplicate-entry step is named for removal [brief §9, §10.1] |
-| **8 — Shared registries and Office** | v2.0.0, then a minor version per registry (Office and People have versions of their own) | Move the data onto shared lists ("registries") with stable IDs: Clients, Projects, Cost Codes. Point Timeline at them, store assignments by person ID, and turn departments and shop closures into lists instead of code. Build **Office**, the next new product (owner, 2026-09-29), in project-cycle order (§1): job lead / forecast, estimate, job creation with cost codes and the QuickBooks / TCP hand-off (items 45, 44, 42, 43). Then **People** (cycle step 4: items 26, 27) | A `ShopTimeline_*` list is retired in favour of a shared registry with no data lost; two people asking for a cost code at the same moment can't get the same one; the cost-code workbook is frozen read-only; a job exists in Office before Timeline schedules it [brief §6, §8, §9 P1] |
+| **8 — Shared registries and Office** | v2.0.0, then a minor version per registry (Office and People have versions of their own) | Move the data onto shared registries (lists or tables, D15) with stable IDs: Clients, Projects, Cost Codes. Point Timeline at them, store assignments by person ID, and turn departments and shop closures into lists instead of code. Build **Office**, the next new product (owner, 2026-09-29), in project-cycle order (§1): job lead / forecast, estimate, job creation with cost codes and the QuickBooks / TCP hand-off (items 45, 44, 42, 43). Then **People** (cycle step 4: items 26, 27) | A `ShopTimeline_*` list is retired in favour of a shared registry with no data lost; two people asking for a cost code at the same moment can't get the same one; the cost-code workbook is frozen read-only; a job exists in Office before Timeline schedules it [brief §6, §8, §9 P1] |
 | **9 — Systems: the portal and the products** | v2.x → v3 | The Systems portal at `/`; Clients as its own product (Office and People arrived in Phase 8); Office's closeout screen (item 11), the last step of the cycle; Timeline moved to `/timeline/`; one shared code module and design language, with each product keeping its own identity; permission sets per audience | Each audience (PM, HR, Accounting, Purchasing, Operations, Management) has its own product over the same records; records are created and deleted only in the product that owns them; nothing is typed in twice; a finished job can't slip through without its balance invoice [vision; brief §8.4–8.5, §9 P2–P3] |
 
 **Batches.** A batch is a group of §3 items that ship together as one release; its version
@@ -199,8 +203,15 @@ or the named decision is taken.
   Current Projects and 27 Events schemas from the Project Director (§5). **v2.0.0** then
   waits on D1, item 28 and item 13's cost-code registry (which waits on the workbook
   inventory).
-- **D15, the data platform,** waits on a Dataverse licence quote and a Web API test. Rule
-  before the Phase 8 schema is provisioned (D1, D10). The storage seam and a
+- **D15, the data platform** (reassessed 2026-10-08: Dataverse and Azure SQL + API are
+  co-equal candidates), waits on four inputs:
+  - the Dataverse licence quote and the half-day Web API spike;
+  - a read-only Azure staging spike, which needs explicit approval to create Azure and
+    Entra resources, and which waits on the first storage-seam PRs;
+  - item 44's scope answer: line-item estimating in Office, or only an estimate reference;
+  - named owners for whichever platform wins.
+
+  Rule before the Phase 8 schema is provisioned (D1, D10). The storage seam and a
   backend-neutral schema go ahead whatever the ruling.
 - **Item 5, date certainty,** waits on the Project Director's default-date decision (5a).
   **Item 2, Lock dates,** waits on the owner choosing one meaning; remembering the
@@ -418,7 +429,9 @@ release. Where the app has a part, it's listed.
 - [ ] **14. Decide the core project registry** (§4 D1). Before deciding, produce a
       side-by-side schema comparison of Current 2-7 Projects / 27 Projects (Archive) and
       `ShopTimeline_Projects`, including what 27 Events and Teams depend on in Current
-      Projects. Robert can do this with read access alone. [brief §6.7, §14]
+      Projects. Robert can do this with read access alone. The comparison is needed
+      whatever D15 decides: the two lists hold the business knowledge that has to migrate,
+      and their dependents are what a cutover re-points (2026-10-08). [brief §6.7, §14]
 - [ ] **15. Backups.** Nothing backs up the nine lists on a schedule.
       - *Quick answer:* a weekly SharePoint Export to Excel until something better
         exists. Ask the tenant admin what retention already covers.
@@ -445,7 +458,14 @@ release. Where the app has a part, it's listed.
       stage would put test jobs into production data. Options: a test SharePoint site
       with the nine lists cloned (⚠ the owner creates it; the app finds lists by site and
       name), or a switch on the preview build that adds a suffix to list names. Decide
-      before the pilot's stage 3. [brief §10, §11.1]
+      before the pilot's stage 3.
+      - *If D15 picks Dataverse or Azure SQL + API (2026-10-08):* staging becomes a
+        separate environment: `/preview/` → staging API → staging database, `/` →
+        production. It is mandatory before any write path is built, so no agent needs
+        production data for ordinary work, and migrations, authorization and concurrency
+        tests run against a database that can be wiped. This item and that staging are one
+        piece of work, not two (`docs/Architecture-Review-Backend.md` §E8).
+      [brief §10, §11.1]
 - [ ] **18. Preload the pilot projects.** The Project Director and Robert enter the pilot
       jobs, so PMs check them instead of re-entering them. Set the end date for parallel
       entry up front, and limit how many projects the pilot covers. [brief §10, §10.2]
@@ -709,7 +729,38 @@ inputs. Closeout is the last step of the cycle and comes last.
       creates a new revision; unbilled scope later blocks Ready at closeout — plus budget
       views per project. Nothing beyond that is specified: scope it with the Project
       Director and the Bookkeeper before design.
-      - *Waits on:* item 45; the Master Project Tracker material (§5).
+      - *Reference material (2026-10-08):* Davis's estimator, a working Next.js /
+        TypeScript tool on a relational database, is item 44's domain-discovery artifact.
+        It is not a schema to port. Concepts to validate:
+        - labor / material / install pricing, flat-rate vs per-item rules, and shared
+          costs allocated across locations;
+        - catalog and rate data, exact decimal money, and pricing tested against real
+          estimates;
+        - locked historical versions with change highlighting, one section model feeding
+          several outputs, templates and saved line bundles;
+        - fuzzy catalog search, keyboard speed, bulk markup changes, and client-facing
+          print.
+
+        Limits Office must not inherit: a shared team password, an incomplete audit
+        trail, hard deletes, manual backups, and its own client and project records
+        (duplicate masters, D1).
+      - *Discovery before any schema is canonized:*
+        - several PMs each re-enter two or three recent estimates of different shapes in
+          its model, so the question answered is whether it models TwoSeven's estimating,
+          not one estimator's practice;
+        - ask, don't assume, whether the cost taxonomy needs subcontracting, freight,
+          rentals, travel, engineering, specialty vendors, contingency, PM / design time,
+          rush / overtime, client-supplied items or allowances;
+        - ask whether internal cost → contingency → markup / margin → client price are
+          separate layers per line (the basis for estimate vs actual, variance and margin
+          later, and for D3's tiers);
+        - pin down revision and lock semantics, catalog ownership, and the hand-off to
+          items 42 / 43.
+      - *Its scope answer is a D15 input:* line-item estimating in Office, or only an
+        estimate reference. Also open: adopt the estimator's concepts, absorb a hardened
+        estimator, or keep it external (`docs/Architecture-Review-Backend.md` §F).
+      - *Waits on:* item 45; the Master Project Tracker material (§5); the estimator
+        walkthrough and PM samples (§5).
       [brief §8.6; vision]
 - [ ] **42. Cost-code generation in Office.** Cycle step 3 (Phase 8), together with item
       43.
@@ -796,7 +847,7 @@ then the recommendation or the dated ruling.
 | D12 | Polling budget | Open |
 | D13 | Integrations: ADP, TimeClock+, QuickBooks | Open |
 | D14 | Shop terminal / TV mode | Parked |
-| D15 | Data platform: SharePoint lists, Dataverse or Azure | Open — raised 2026-10-01 |
+| D15 | Data platform: SharePoint lists, Dataverse or Azure | Open — raised 2026-10-01, reassessed 2026-10-08 |
 
 - **D1 — Core project registry.** *Open.* Which list becomes the company's one project
   registry: Current 2-7 Projects, extended (brief §6.7), or `ShopTimeline_Projects`,
@@ -806,7 +857,14 @@ then the recommendation or the dated ruling.
   sync between two editable masters. Moving off `ShopTimeline_Projects` is no longer
   blocked by the colleague app (D2), but the migration record still names what changes.
   Whichever list wins, Office (Phase 8) edits its setup fields and Timeline its
-  operational ones (owner, 2026-09-29). [brief §6.7, §14]
+  operational ones (owner, 2026-09-29).
+  *The business rule and the storage, separated (2026-10-08):* the ruling D1 needs is
+  **exactly one authoritative Project record per job, and no permanent two-master sync**.
+  That holds on any platform. *Which store holds it* follows D15: on SharePoint, one of
+  the two lists above; on Dataverse or Azure SQL, possibly a new `Projects` table that
+  neither list becomes. Item 14's comparison is needed either way, because both lists hold
+  business knowledge that has to migrate and dependents that have to be re-pointed.
+  [brief §6.7, §14]
 - **D2 — The colleague app and schema parity.** *Ruled 2026-09-24 (owner).* The colleague
   app still runs but isn't used and won't be again. Breaking it through a schema or
   data-store change is accepted collateral, so **the additive-only rule is lifted**
@@ -846,6 +904,22 @@ then the recommendation or the dated ruling.
   - *Work:* item 26 (the tiers, Phase 7), then item 27 (the split, Phase 8), then item 30
     (Phase 9). Saved views: per user in item 25 (Phase 7); shared and role-based in
     Phase 9.
+  - *The mechanism depends on D15 (2026-10-08); the principle doesn't.* Hiding in the UI
+    stays workflow only, facts are never duplicated to make views, and access is enforced
+    below the UI. Splitting lists and relying on each user's token is the SharePoint form.
+    Office's costed records would need every line split into a public and a restricted
+    list: the list sprawl this ruling rejects.
+    - *Under Dataverse:* security roles and column-level security, still with each
+      user's own token.
+    - *Under Azure SQL + API:* Entra identity → the API maps the token's `oid` to a
+      person → a server-side check per operation → SQL. Responses carry only the fields
+      the caller may see, and every rule has an allowed and a denied test. The frontend
+      never decides authorization.
+  - *Decisions people make before code exists, whatever the platform:* who may see
+    internal cost, markup and margin; who sees an estimate before it's sent and who
+    approves one; who sees budgets and actuals; who sees HR fields; who sees accounting and
+    closeout data; and whether roles are assigned in Entra or in Systems' own data. The
+    boundaries are needed now. The role vocabulary is not invented here.
   [brief §2, §9, §11; vision]
 - **D4 — Architecture for more than one product.** *Ruled 2026-09-28 (owner): option (b).
   Refined 2026-09-29 with the Systems definition (§1).* One repository, one Pages site,
@@ -943,12 +1017,24 @@ then the recommendation or the dated ruling.
   a stable `spId` (the SharePoint item ID). *Recommend:* in Phase 8, add `clientId` on
   Projects (additive, with a one-time backfill from name to ID in the same milestone) and
   person IDs on assignments (Tasks can change now that D2 is lifted). The flexible-roles
-  model (item 1) rides the same change. [brief §8]
+  model (item 1) rides the same change.
+  *The target identity (2026-10-08):* every Systems entity gets a durable application ID
+  (a UUID): people, clients, projects, leads, estimates, estimate revisions, cost codes,
+  phases, to-dos, events. Store-specific IDs, the SharePoint item ID (`spId`) and today's
+  `appId` (`genId()`: a timestamp plus six random characters, not a UUID), are kept as
+  legacy columns for the migration, then rewritten into references once. Names stay
+  display values and never join. On SQL this becomes foreign keys; on any platform it is
+  the step that makes moving rows a script. [brief §8]
 - **D11 — Departments and shop closures as data.** *Open.* Departments and the six
   holidays are fixed in code; the brief wants configurable departments and a Shop Closure
   list. *Recommend:* Phase 8, after D1. The department list just changed (Logistics and
   Shipping added, `othoffice` retired) and should settle first. Whether Timeline's own
-  `ShopTimeline_Events` merges into 27 Events is decided with item 12. [brief §8, §8.2]
+  `ShopTimeline_Events` merges into 27 Events is decided with item 12.
+  *Relational form (2026-10-08):* on Dataverse or SQL these are normalized entities, not
+  JSON in text columns: Departments, Shop Closures, and a join between people and
+  departments (today the `depts` JSON on Staff and `activeDepartments` on Projects). The
+  decision this needs is unchanged: which departments, who edits them, and how a retired
+  one folds in. [brief §8, §8.2]
 - **D12 — Polling budget.** *Open.* To pick up other people's edits, every open tab
   re-reads every list every 90 seconds (the change log is deliberately never polled).
   Each new product and each new registry adds another full read per user per tab.
@@ -957,6 +1043,13 @@ then the recommendation or the dated ruling.
   shortcut of checking only the newest "last modified" time: SharePoint rejects sorting on
   an unindexed column (the test harness wouldn't catch that), and a timestamp can't show
   a deletion. Graph's `/items/delta` query is the safe route.
+  *Reframed for any platform (2026-10-08):* this is a read and sync budget, not a
+  SharePoint quirk. The principle holds everywhere: an open browser must not re-download
+  the company dataset on a timer. Behind an API, the conventional answer is filtered reads
+  plus an `updatedSince` cursor (a `rowversion`), with soft-deleted rows returned as
+  tombstones, which also solves the deletion problem above. Real-time push (WebSockets) is
+  not assumed. Polling also has a cost on Azure: it keeps a serverless database awake, so
+  the budget sets part of the bill.
 - **D13 — Integrations: ADP, TimeClock+, QuickBooks.** *Open.* The brief ranks them P3,
   after ownership, security and maintenance are settled; the vision says "if possible". A
   browser app can't hold API secrets, so any integration that writes needs a flow or a
@@ -965,12 +1058,24 @@ then the recommendation or the dated ruling.
   Automate, with a named owner. The project cycle (§1, 2026-09-29) puts the QuickBooks
   and TCP hand-off at job creation (item 43), so the CSV formats are Office's input. The
   ADP connection belongs to People (owner, 2026-09-29): CSV first, the API through Power
-  Automate. [brief §1.2, §9 P3, §15]
+  Automate.
+  *If Systems gains a backend (D15, 2026-10-08):* "APIs only through Power Automate" was a
+  consequence of having no server, not a rule in itself. CSV first stays. After that there
+  are two homes:
+  - Power Automate, for Microsoft-centric workflow a non-programmer can maintain;
+  - a Systems API job, for transactional or tightly coupled integrations, such as a
+    QuickBooks hand-off that must succeed or fail together with job creation (item 43).
+
+  Browser-held secrets stay prohibited. Every integration, in either home, keeps a named
+  owner and documented failure and recovery behaviour (`docs/Automations.md`).
+  [brief §1.2, §9 P3, §15]
 - **D14 — Shop terminal / TV mode.** *Parked.* A fourth account type (`terminal`) with
   its own read-only dashboard; the company already runs M365 accounts that aren't people.
   Owner ruling 2026-09-02: after rollout, once real use proves the need. The brief: P2,
   and no TV redesign in the pilot.
-- **D15 — Data platform: SharePoint lists, Dataverse, or Azure.** *Open.* Raised
+- **D15 — Data platform: SharePoint lists, Dataverse, or Azure.** *Open.* Reassessed
+  2026-10-08: see "Reassessment" at the end of this entry, which supersedes the
+  recommendation below. Raised
   2026-10-01 (owner): with the Phase 8 registries forcing a schema change anyway, should the data
   move off SharePoint lists now and be migrated once? Three options, compared on what this
   team runs and what Phase 8 needs. Power Automate works with all three, so it isn't one of
@@ -992,8 +1097,8 @@ then the recommendation or the dated ruling.
   | Migration cost | Phase 8 schema work only | Storage seam + rows + flows rewired + licences | Storage seam + API + authorization layer + rows + flows |
   | Ceilings | List view threshold on unindexed filters; whole-list polling (D12) | Comfortable at this scale | Comfortable at this scale |
 
-  *Recommend:* **A for v2.0.0, with B as the named upgrade path; C only if B proves
-  insufficient.** The reasons: A keeps the no-backend model, so permissions stay the user's
+  *Recommended 2026-10-01 (superseded 2026-10-08, kept for the record):* **A for v2.0.0,
+  with B as the named upgrade path; C only if B proves insufficient.** The reasons: A keeps the no-backend model, so permissions stay the user's
   own token and D3's design holds. The company's other data and flows are already on
   SharePoint, and Systems is defined as one shared dataset (§1). Moving Timeline alone would
   recreate the two-masters problem D1 forbids. B beats C for this team because it keeps
@@ -1024,6 +1129,72 @@ then the recommendation or the dated ruling.
   Phase 8 schema is provisioned, so rows move at most once. Related: D1, D10, D12; item 42.
   [owner 2026-10-01; `docs/Architecture-Review-Storage.md`]
 
+  **Reassessment, 2026-10-08** (owner and Hubert, after research;
+  `docs/Architecture-Review-Backend.md`). Two facts weren't weighed on 2026-10-01:
+  1. *Office is strongly relational and rule-bound:* lead → estimate → revision →
+     location → item → lines, priced from dated catalog rates, then approval → project →
+     cost code → budget → closeout. Transactions, unique keys, locked history, exact money
+     and per-field protection are most of its design, not one row of a table.
+  2. *Development is AI-agent-led:* Claude writes most of the code under `CLAUDE.md`,
+     CI-gated tests and human approval. Writing and testing a conventional API is the part
+     of C that got cheap. The human roles around it did not.
+
+  *Corrections to the table above* (detail in the review, §A2):
+  - **C's "Running it" was overstated.** Azure SQL is platform-managed (patching, high
+    availability, automatic point-in-time backups), and managed identity removes database
+    passwords. We still own code, authorization, migrations, releases, alerts, restore
+    drills and cost.
+  - **The Static Web Apps example doesn't fit.** Its managed functions can't use managed
+    identity, and D4 keeps the frontends on Pages anyway, so the shape is a standalone API
+    with CORS.
+  - **B's migration cost missed plug-ins.** Authoritative multi-record operations in
+    Dataverse need C# plug-ins or Custom APIs; otherwise the rules live in the browser.
+  - **The two-masters argument isn't a platform argument.** It applies to B as much as C;
+    it is D1's migration cost.
+  - **B's price is now checked:** $20 per user per month, $22 from 2027-01-01, every user
+    including viewers (confirm with the reseller).
+
+  *Recommend (replaces the 2026-10-01 recommendation):*
+  - No platform change during the Phase 7 pilot.
+  - Before Phase 8 provisions its registries, treat **Dataverse (B) and Azure SQL + a
+    Systems API (C) as co-equal candidates**, not Azure as a Dataverse fallback.
+  - SharePoint (A) stays the home of files, documents and M365-native content, and of
+    Timeline's data until the cutover. It remains the Phase 8 answer only if item 44 finds
+    Office holds no more than an estimate reference.
+  - The storage seam and the backend-neutral schema (IDs, typed columns, normalized
+    departments) go ahead regardless.
+  - Under B or C, staging separation (item 17) is mandatory before any write path.
+
+  *Current lean, not a ruling:* C, if the spike confirms cost, reproducible deploys and a
+  recovery path a non-programmer can follow, and if the owners in input 4 below can be
+  named. B is the safer choice if they can't.
+
+  *Before ruling — four inputs:*
+  1. The Dataverse licence quote and the half-day Web API spike (as above).
+  2. A deliberately small, read-only Azure spike on isolated staging. It waits on storage
+     seam PRs 1–2 and on explicit approval to create Azure and Entra resources (⚠). Three
+     endpoints, an `apiStore` behind a developer switch in preview, no production writes
+     (the review, §E16).
+  3. Item 44's scope answer: line-item estimating in Office, or only an estimate
+     reference.
+  4. Named people:
+     - under C: the Azure subscription and billing owner, a second administrator, the
+       alert recipient and the production-migration approver;
+     - under B: the environment and licence administrator.
+
+  Also wanted, not blocking: D3's permission boundaries for cost, markup and margin, and
+  the answer on whether Office's pricing logic may live in a public repository.
+
+  *Would settle it toward A:* item 44 finds Office holds only an estimate reference, and
+  cost codes can be made collision-safe on a list. *Toward B:* the human roles for C can't
+  be named, or the licence cost is acceptable and the plug-in surface stays small. *Toward
+  C:* the spike passes and the roles are named. Local SQL Server is ranked below Azure SQL
+  (the review, §E13).
+
+  *Gate (unchanged):* rule before the Phase 8 schema is provisioned, so rows move at most
+  once. Backend guardrails enter `CLAUDE.md` only when backend work is authorized (§7.4).
+  [owner and Hubert 2026-10-08; `docs/Architecture-Review-Backend.md`]
+
 ## 5. Reference material to gather [brief §13]
 
 What we still need from people: schemas, rules and examples, not screenshots. Status as of
@@ -1039,6 +1210,10 @@ What we still need from people: schemas, rules and examples, not screenshots. St
 | PTO, holidays, change log: the availability source, how identities are matched, cancellation examples, how holidays are set | operations manager (PTO, the 27 Employees automation); Robert (change log, item 20) | discovery session not held |
 | QuickBooks / TimeClock+ CSV formats | Bookkeeper | not requested (D13) |
 | Who administers which view (the key users), and which permission set each needs | owner, Hubert | in progress (D3) |
+| Davis's estimator: a walkthrough of its model, pricing rules, catalog and rate data, and test estimates; where its database runs | Davis, Robert | not requested (item 44) |
+| Estimate samples: two or three recent estimates per PM, of different shapes, to re-enter in the estimator's model | several PMs, the Project Director | not requested (item 44) |
+| Platform ownership: who would hold an Azure subscription and its billing, a second administrator, alert recipient, production-migration approver; or who administers a Power Platform environment | owner, Hubert | not requested (D15) |
+| Licence inventory and headcount: Power Apps / Power Automate premium licences already held, and how many people would use Systems (viewers included) | tenant admin, owner | not requested (D15) |
 | Colleague app: is it running, who maintains it, which lists it reads and writes | owner | answered 2026-09-24: running, unused, will not return; breakage accepted (D2) |
 | The app itself: lists, registration, scopes, deployment, data model, formulas | Robert | mostly in the repository; item 21 closes the gaps (backups and rollup formulas undocumented) |
 
@@ -1090,6 +1265,12 @@ constraint (D2, lifted 2026-09-24).
   rather than a third vocabulary (v1.x ruling 2026-09-01).
 - Departments and Shop Closures lists (D11).
 - The Cost Codes registry (item 13).
+
+If D15 picks Dataverse or Azure SQL, these are designed as tables in a versioned schema,
+not as list columns, and the ⚠ rule takes its future form. Under SQL: a migration in Git,
+tested against a throwaway database, applied to staging, then to production after the
+owner's explicit approval. A destructive migration still gets its milestone record
+(`docs/Architecture-Review-Backend.md` §E9).
 
 **Not changes:** item 1's renames are labels only; stored field names stay the same.
 
@@ -1453,6 +1634,18 @@ How to read the tags at the end of an entry:
       approved. (2) The "D" people chip (sidebar, project tooltip, Help legend swatch;
       test-c3-status pins `PM,D,L`) still abbreviates the old word; "TD" widens every sidebar
       row. Gate: owner ruling — asked in the v1.31.1 PR body. [item 1]
+- [ ] **Backend guardrails are proposed, not in `CLAUDE.md`** (2026-10-08). The 20
+      candidate rules (no browser-to-database access, server-side authorization, fixed
+      decimal money, versioned migrations, deny-tests, …) are in
+      `docs/Architecture-Review-Backend.md` §E15, each marked hard invariant or needing a
+      ruling. Writing them into the hard rules before a backend exists would describe
+      infrastructure that doesn't run. Gate: backend work authorized (D15 ruled C, or the
+      spike approved). [D15]
+- [ ] **No setup doc for an Azure backend** (2026-10-08). `docs/SETUP.md` stays accurate
+      to production. Azure setup (resource groups, the API registration, managed identity,
+      the deploy credential, recovery) is written as its own proposed doc when the spike is
+      approved, and folded into `SETUP.md` only once the infrastructure exists. Gate: spike
+      approved. [D15]
 
 ### 7.5 Deliberate design limits — no action planned; revisit only on real complaints
 
@@ -1490,6 +1683,24 @@ How to read the tags at the end of an entry:
   number.
 
 **Log, newest first:**
+
+- 2026-10-08: **D15 reassessed** (owner and Hubert). Office's relational, rule-bound data
+  and the AI-agent development model move Azure SQL + API from fallback to co-equal
+  candidate with Dataverse. SharePoint stays for files and for Timeline until the cutover.
+  - The 2026-10-01 analysis is kept and labelled superseded; five corrections to its table
+    are listed.
+  - D15 now waits on four inputs: the Dataverse quote and spike, a read-only Azure staging
+    spike, item 44's scope, and named platform owners.
+  - Storage-neutral readings added to §1 points 1 and 4, §2's Phase 8 row, D1 (one
+    authoritative Project, whatever the store), D3 (the mechanism under each platform; the
+    permission boundaries people decide first), D10 (UUIDs; store IDs become legacy), D11
+    (the relational form), D12 (a read and sync budget on any platform) and D13 (a backend
+    job as a second home after CSV).
+  - Item 17 is tied to backend staging, item 44 gains Davis's estimator as discovery
+    material, §5 gains four rows, and §7.4 gains two ledger entries.
+  - New dated review: `docs/Architecture-Review-Backend.md`. No ruling changed, and
+    nothing was provisioned. Noted, not fixed: two §3 items share the number 42 (tracker
+    #33's shipped Departments line and Office's cost-code generation).
 
 - 2026-10-01 (later): **readability pass on §2–§8 and the legend.** It continues the
   2026-09-29 pass on §3 and §4 (PR #58), which merged into a stacked branch and never
