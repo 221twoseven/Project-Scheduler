@@ -55,10 +55,16 @@ Then look at the owner's comments **after** it. The newest command decides:
 A `Proceed with fix` that follows a `Clarification:` with no revised spec in between is
 ambiguous. Post the revised spec and wait; don't build.
 
+Commands match case-insensitively, with or without a trailing period ("proceed with fix."
+counts: #34's approval on 2026-10-06 was missed this way). Any other owner comment, such
+as "Hold pending dev testing" or "We're not doing this", isn't a command, but it changes
+the work. It goes into `docs/TODO.md` (see Step 3).
+
 Ignore the `bug` / `feature` labels. Reporters pick them and they're often wrong. Classify
 from the text.
 
-At the end, report a short table to the owner: issue, state, and what was done.
+At the end, run Step 3, then report a short table to the owner: issue, state, what was
+done, and its TODO item.
 
 ## Step 1: Spec comment
 
@@ -143,3 +149,23 @@ shape, starting `**Revised spec** · Claude · <date> · replaces the spec above
   own.
 
 Then wait for `Proceed with fix`.
+
+## Step 3: Make `docs/TODO.md` match the tracker (every run)
+
+The tracker is where the owner talks; `docs/TODO.md` is the record of the work. A run
+isn't finished until they agree. For every open ticket, and every ticket closed since the
+last run:
+
+| On the ticket | In `docs/TODO.md` §3 |
+|---|---|
+| A spec, and no item cites `[tracker #N]` | Add the item now: next free number, in its band (a P0 bug goes in the P0 in-app band), ending `[tracker #N]` |
+| A revised spec | The item's text follows the new scope |
+| An owner hold ("hold", "wait", "needs more info") | A dated `*On hold (owner, <date>):*` line in the item |
+| `Proceed with fix` | The item says "Approved <date>. Not built yet" until the build PR ticks it |
+| `Fix shipped` | The build PR ticks it: `[x]` and `Shipped v<x.y.z> (PR #N, <date>)` |
+| Declined ("we're not doing this") | A §7.5 line with the date and the ticket |
+| Closed with no build (a duplicate, already exists, misread) | A row in §3's "Shipped or closed with no §3 item" table, or a note in the item it belongs to |
+
+Make the TODO changes in the build PR when there is one. Otherwise make them in one small
+`docs/` PR for the run. `tests/test-todo.js` fails CI on duplicate item numbers and broken
+item references, so run it (`node tests/test-todo.js index.html`) before committing.
