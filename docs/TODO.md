@@ -54,16 +54,18 @@ Last reviewed: 2026-10-08 — D15 (data platform) reassessed: Dataverse and Azur
 are now co-equal candidates (`docs/Architecture-Review-Backend.md`); D1, D3, D10–D13 and
 items 14, 17 and 44 given storage-neutral readings. The same day: the opening, §0 and §3's
 intro brought up to date, then a full audit against the tracker, `CHANGELOG.md` and the
-branches. The full history is the log in §8.
+branches; then the promotion audit for v1.41.0 → v1.43.0 reaching `main`. The full history
+is the log in §8.
 
 ---
 
 ## 0. Where we stand
 
-As of 2026-10-08: production (`main`) runs **v1.41.0**, and `development` carries
-**v1.43.0** (the employee import fetches only what it uses, one phone format, and an Office
-Extension column: item 9). Phase 7 has shipped v1.24.0 → v1.43.0 so far. `CHANGELOG.md` is the release-by-release
-record.
+As of 2026-10-08: production (`main`) and `development` both run **v1.43.0**, promoted
+2026-10-08 (release/2026-10-08). The newest work: the employee import fetches only what it
+uses, one phone format and an Office Extension column (item 9); a role change moves the
+project to the new holder (item 53). Phase 7 has shipped v1.24.0 → v1.43.0 so far.
+`CHANGELOG.md` is the release-by-release record.
 
 ## 1. North star — Systems
 
@@ -1894,6 +1896,22 @@ How to read the tags at the end of an entry:
   number.
 
 **Log, newest first:**
+
+- 2026-10-08 (promotion): **v1.41.1 → v1.43.0 promoted to `main`** (release/2026-10-08). The
+  promotion audit (`CLAUDE.md`, "Keeping `docs/TODO.md` true"):
+  - *Releases since the last promotion (v1.41.0):*
+    - v1.41.1 (the narrow-sidebar lens switch) is in §3's "Shipped or closed with no §3
+      item" table;
+    - v1.42.0 is item 53, ticked;
+    - v1.43.0 is item 9: (a), (c) and the Office Extension column ticked, (b) deferred in
+      §7.4, (e) still waiting on item 26.
+  - *Tracker:* no new tickets. The five open ones match their items: #1 → 32 (needs
+    Proceed), #7 → 3 (on hold), #12 → 40 (leaning to hold), #21 → 1 (owner question owed an
+    answer), #34 → 53 (closes when this reaches `main`).
+  - *⚠ specs:* §6's `range`, `resolvedAt` and `ext` are all confirmed created.
+  - *Branches and PRs:* nothing open. The one leftover remote branch,
+    `docs/d15-backend-reconciliation`, is wholly contained in `development`.
+  - *Fixed in this audit:* §0 now says production runs v1.43.0.
 
 - 2026-10-08 (late): the owner confirmed that §6's `range` (on `ShopTimeline_Tasks`) and
   `resolvedAt` (on `ShopTimeline_Feedback`) exist; both are marked confirmed.
