@@ -17,17 +17,23 @@ Two documents set this phase and are the source for most lines below:
 - **The owner's vision (2026-09-24), defined as Systems (2026-09-29)** — Timeline stays a
   project-management and scheduling app with its features intact, and becomes one product
   of **Systems**: a data-management ecosystem of peer products (People, Clients, Office,
-  Timeline) over one shared SharePoint dataset, one permission model and one visual
+  Timeline) over one shared dataset (on SharePoint today; the platform is D15), one
+  permission model and one visual
   language, reached from one portal. The definition is §1. Cited as **[vision]**.
 
-**Nothing in this file is started except item 31** — the feedback → GitHub ticket bridge,
-running since 2026-09-25 outside the app in a private tracker repository; user reports
-arrive there and are carried in as items 32–40. §3 is a proposed build list, §4 the
-decisions it depends on. Both are to be agreed with Hubert, the Project Director and the key users who
-administer specific views before any code lands. Development is no longer solitary:
-milestones and this plan are presented as the phase runs.
+**How to read it.** §3 is the work queue in priority order, and §4 holds the decisions it
+depends on.
+- **Shipped work** is ticked `[x]` where it sits. A partly done item says so in its own text
+  (item 1, for example).
+- **Item 31**, the feedback → GitHub ticket bridge, has been running since 2026-09-25,
+  outside the app, in a private tracker repository. User reports arrive there and are
+  carried into §3 by hand.
+- **Every unticked item is not started** unless its text says otherwise.
 
-**Standing rules (unchanged from v1.x):**
+Milestones and this plan are presented to Hubert, the Project Director and the key users
+as the phase runs.
+
+**Standing rules:**
 
 - ⚠ marks a SharePoint column/list or Entra change. **Not a gate** (owner, 2026-09-01):
   deliver Robert the exact spec (list, column, type, values) and he applies the list edit;
@@ -35,7 +41,8 @@ milestones and this plan are presented as the phase runs.
   ruled 2026-09-24); a destructive change still gets a milestone record naming what it
   breaks and how rows migrate. Entra changes still need explicit instruction (`CLAUDE.md`).
 - Work lands on `development`, is viewable at `/preview/`, and is promoted to `main` by a
-  deliberate manual merge. `/preview/` and `/sandbox/` write the **live** lists (§3 item 17).
+  deliberate manual merge. `/preview/` writes the **live** lists (§3 item 17). The
+  `sandbox` branch and `/sandbox/` were retired on 2026-10-01.
 - Semantic versions; `APP_VER` in `index.html` is the source of truth, `package.json` and
   `CHANGELOG.md` follow it (`npm run notes`; CI fails without a release-notes line).
   **v2.0.0 is re-reserved** for the Phase 8 cutover defined in §1, not for "the app
@@ -45,15 +52,17 @@ milestones and this plan are presented as the phase runs.
 
 Last reviewed: 2026-10-08 — D15 (data platform) reassessed: Dataverse and Azure SQL + API
 are now co-equal candidates (`docs/Architecture-Review-Backend.md`); D1, D3, D10–D13 and
-items 14, 17 and 44 given storage-neutral readings. The full history is the log in §8.
+items 14, 17 and 44 given storage-neutral readings. The opening, §0 and §3's intro brought
+up to date the same day. The full history is the log in §8.
 
 ---
 
 ## 0. Where we stand
 
-Production (`main`) runs **v1.23.0** plus the 2026-09-18 view-as fix (PR #49); `development`
-carries the docs reorg, the `design/` folder and **v1.24.0** (suite tokens + readable chrome
-text, style guide §13 step 2, 2026-09-27).
+As of 2026-10-08: production (`main`) runs **v1.41.0**, and `development` carries
+**v1.41.1** (the narrow-sidebar fix for the Projects / Departments switch, PR #106).
+Phase 7 has shipped v1.24.0 → v1.41.1 so far. `CHANGELOG.md` is the release-by-release
+record.
 
 ## 1. North star — Systems
 
@@ -68,7 +77,7 @@ them.
 | **People** | Staff names, contact information, status (FTE vs Freelance), logged hours, and whatever else the HR / ADP administrator manages. The place to connect to ADP — CSV first; the ADP API only through Power Automate with a named owner, never from the browser (D13) | The HR / ADP administrator; everyone reads the public roster | HR-only fields restricted (D3, items 26–27) | Timeline's People page today (`#/people`); its own product in Phase 9 (D8) |
 | **Clients** | Client names, past projects, billing and revenue, current and past teams, client contacts and their details — whatever management needs to track | Management, project management, accounting | Yes | Timeline's Clients page today (`#/clients`); its own product in Phase 9 (D8) |
 | **Office** | Where projects are set up and closed out: estimating, cost-code generation, budget views, project closeout | Management, project management, purchasing, accounting | Yes | Does not exist. **The next new product, built in Phase 8** (owner, 2026-09-29), in project-cycle order: job lead / forecast (45), estimate (44), job creation with cost codes and the QuickBooks / TCP hand-off (42, 43); closeout (11) is the last step of the cycle and comes last |
-| **Timeline** | Project production: the schedule, phases, assignments, milestones, notes — the app that exists today | Everyone; existing permissions mostly stay | Mostly no (admin / viewer as today) | v1.24.0; moves from `/` to `/timeline/` when the portal lands (D4); New Project stays here until Office takes setup (item 43) |
+| **Timeline** | Project production: the schedule, phases, assignments, milestones, notes — the app that exists today | Everyone; existing permissions mostly stay | Mostly no (admin / viewer as today) | In production (§0); moves from `/` to `/timeline/` when the portal lands (D4); New Project stays here until Office takes setup (item 43) |
 
 **The ownership rule.** Each product has sole ownership of the data it holds: records are
 **created and deleted only inside their own product**. Every product **reads** the shared
@@ -128,7 +137,7 @@ from the start; the Clients product's place is Phase 9 (§2).
   D1, D11, D13. The next new product, built in Phase 8 (owner, 2026-09-29).
 - **Timeline** — items 1–3, 5–8, 10, 12, 18, 20, 22, 23, 25, 29, 32–41; D12, D14.
 - **Systems as a whole** (portal, shared module, sign-in, hosting) — items 15–17, 21, 24,
-  30, 31, 48–51; D3, D4, D7, D8, D13, D15. D6 is tabled.
+  30, 31, 48–52; D3, D4, D7, D8, D13, D15. D6 is tabled.
 
 Retired framings, for the record: v1.x "the app becomes the company's singular source of
 truth, absorbing the 14 stores into Timeline's Company Data pages" (retired 2026-09-24);
@@ -158,7 +167,7 @@ number is given when it ships. Proposed:
 | Office (Phase 8) | Office's own releases, in project-cycle order: 45 (job lead / forecast), 44 (estimate), 42 (cost-code generation), 43 (job creation with the QuickBooks / TCP hand-off) |
 | Office (Phase 9) | 11 (closeout and billing states ⚠), the last step of the cycle; moved out of the pilot 2026-09-29 |
 | As they resolve | 3 (tour loop: reproduce, then fix), 10 (automatic Complete vs closeout), 19–24 |
-| Style track | Style guide §13 steps, slotted between the batches above. Step 2 shipped as v1.24.0. Step 3 is next, one chrome surface per PR, project inspector first. The D4 reshape (§4) comes after the pilot P0 batches, and step 4 after the reshape |
+| Style track | 52 (style guide §13 steps), slotted between the batches above. Step 2 shipped as v1.24.0. Step 3 is next, one chrome surface per PR, project inspector first. The D4 reshape (item 49) comes after the pilot P0 batches, and step 4 after the reshape |
 | v2.0.0 | The Phase 8 cutover (§1 point 5) |
 
 **What waits on what.** "Waits on" means the work can't start until the named item is done
@@ -221,9 +230,10 @@ or the named decision is taken.
   waits on the session with the operations manager. **D13, integrations,** waits on D3
   and D5 being settled (D2 is done) and on the CSV formats (§5).
 
-## 3. Phase 7 work — proposed, not started
+## 3. Phase 7 work
 
-Nothing here is started except item 31. Items are numbered from 1 in this file; items
+Shipped items are ticked `[x]` where they sit, and item 31 is running. An unticked item is
+not started unless its text says otherwise. Items are numbered from 1 in this file; items
 from the retired backlog are cited as "v1.x item N". **Numbers are labels, not ranks**: an
 item keeps its number when it moves, so read each band top to bottom for its order.
 
@@ -445,8 +455,9 @@ release. Where the app has a part, it's listed.
       [brief §10.2, §12, §7.2]
 - [ ] **16. Backup maintainer and rollback procedure.** The backup maintainer is Hubert
       (owner, 2026-09-24, "for now"). Still to do:
-      - Give Hubert access to the repository (as a collaborator, through the `sandbox`
-        branch flow — `docs/Archive/Onboarding-Fork.md`), Pages, the Entra app
+      - Give Hubert access to the repository (as a collaborator working through ordinary
+        branches and pull requests; the `sandbox` branch flow in
+        `docs/Archive/Onboarding-Fork.md` was retired 2026-10-01), Pages, the Entra app
         registration (at least the right to edit redirect URIs) and the recovery docs
         (`SETUP.md`, `CONTRIBUTING.md`, `reference/Handoff-Notes.md`). He has no GitHub
         account yet (owner, 2026-09-25); creating one is the first step, and it also
@@ -454,7 +465,7 @@ release. Where the app has a part, it's listed.
       - Write the one-paragraph rollback: `git revert` on `main`, and Actions redeploys.
       - Start tagging releases (`v1.23.0` and so on); there are no release tags today.
       [brief §5.1, §11]
-- [ ] **17. Keep test data out of production.** `/preview/` and `/sandbox/` write to the
+- [ ] **17. Keep test data out of production.** `/preview/` writes to the
       live lists, so every pilot test edit is a real edit, and the brief's technical-test
       stage would put test jobs into production data. Options: a test SharePoint site
       with the nine lists cloned (⚠ the owner creates it; the app finds lists by site and
@@ -633,6 +644,21 @@ release. Where the app has a part, it's listed.
         registrations before any of it starts (`CLAUDE.md`).
       - *Waits on:* item 48 PRs 1–2 (the Azure spike only); the approvals above.
       [D15; `docs/Architecture-Review-Backend.md`]
+- [ ] **52. The style track: suite style guide §13 steps 3–5.** The migration sequence in
+      `design/TwoSeven-Application-Style-Guide.md` §13. Step 1 (baseline) and step 2 (tokens
+      and readable chrome text, v1.24.0) are done.
+      - *Step 3:* restyle one chrome surface per PR, project inspector first: type
+        hierarchy, spacing, radii, fields, focus, buttons, and modal focus trapping where
+        it's missing. Next.
+      - *Step 4:* the shell as one change: the global header and a real app switcher.
+        Waits on item 49 (the portal must exist to switch to).
+      - *Step 5:* business pages and routing: read-first records, sorting, empty states,
+        per-record routes.
+      - *Done when, per PR:* before/after `/preview/` screenshots, the Design-Language §9
+        checklist, and the §13 verification list. A visible change follows the version and
+        changelog rules. Steps 6–7 are rules for how the steps are done, not work of their
+        own.
+      [style guide §13; `design/Style-Transition-Review.md`]
 
 ### Not yet placed — reported by users, in filing order [tracker]
 
@@ -698,8 +724,8 @@ is item 32 (P0), #7 is part of item 3, and #11 and #14 were done by the bridge i
         it.
       - "Password protected" is already true in the way that matters: Microsoft sign-in
         guards every page. Pages adds no password layer.
-      - A new address needs its redirect URIs registered in Entra for `/`, `/preview/`
-        and `/sandbox/` (explicit instruction required, `CLAUDE.md`), and `SETUP.md`
+      - A new address needs its redirect URIs registered in Entra for `/` and `/preview/`
+        (explicit instruction required, `CLAUDE.md`), and `SETUP.md`
         updated.
       - *Owner decides:* a subdomain, or a redirect from the path.
       [tracker #12]
@@ -1032,8 +1058,8 @@ then the recommendation or the dated ruling.
     `/timeline/`). It touches:
     - the Pages workflow (sparse-checkout paths; the markup guard loops over every
       `index.html`; a missing path is harmless, so it can land on `development` first);
-    - ⚠ **the Entra redirect URIs**, which must match exactly: the owner adds `/timeline/`,
-      `/preview/timeline/` and `/sandbox/timeline/` *before* the merge;
+    - ⚠ **the Entra redirect URIs**, which must match exactly: the owner adds `/timeline/`
+      and `/preview/timeline/` *before* the merge (`/sandbox/` was retired 2026-10-01);
     - one line on the portal that forwards any `#/…` link to `timeline/`, so old
       bookmarks keep working;
     - `tests/run.js`'s default target (one string; the other test files that mention
@@ -1763,6 +1789,21 @@ How to read the tags at the end of an entry:
   number.
 
 **Log, newest first:**
+
+- 2026-10-08 (evening): **the opening and §0 brought up to date.**
+  - "Nothing in this file is started except item 31" was no longer true: items 33–35, 37–39,
+    46, 47, two unnumbered tracker fixes and half of item 1 have shipped. The opening, §3's
+    intro and the §3 heading now say how to read the ticks, instead of naming items.
+  - The line saying everything must be agreed "before any code lands" is gone: since
+    2026-09-27, §3's order is the owner's approval (`CLAUDE.md`).
+  - §0 named v1.23.0 / v1.24.0; it now names v1.41.0 / v1.41.1, and §1's Timeline row
+    points to §0.
+  - `/sandbox/` (retired 2026-10-01) is dropped from the standing rules and from items 16,
+    17 and 40 and D4.
+  - The opening's "one shared SharePoint dataset" now notes that the platform is D15.
+  - Under the new every-task-is-an-item rule, the style track's remaining steps become
+    item 52; the batches table points to it.
+  - No ruling or gate changed.
 
 - 2026-10-08 (later): **every planned task is now a §3 item** (owner: "we can't have tasks
   done without them being recorded as tasks").
