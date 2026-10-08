@@ -11,6 +11,11 @@ owner defined **Systems** (`docs/TODO.md` §1, 2026-09-29). Read "the suite" as 
 closeout and cost-code work belongs to the Office product; Timeline is a peer, not the
 default. The findings and recommendations are unchanged by the renaming.
 
+**Successor (added 2026-10-08):** [`Architecture-Review-Backend.md`](Architecture-Review-Backend.md)
+reassesses the data platform (D15) with Office's needs and Azure SQL + API in view. This
+review's findings stand as written. Its storage seam (idea 1) becomes the migration path
+to an `apiStore`; ideas 2–4 apply to whatever stays on SharePoint and Graph.
+
 **Secrets check (Step 0):** no client secret, certificate or token is committed. The repo and
 its full history were searched for `client_secret`, `GRAPH_CLIENT_SECRET`, `thumbprint`,
 `certificate`; the only hits are the string inside the vendored `msal-browser.min.js`

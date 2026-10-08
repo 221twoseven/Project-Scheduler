@@ -10,7 +10,9 @@
 > products (People, Clients, Office, Timeline) over one shared SharePoint dataset, behind
 > a portal at `/`. Timeline owns production data only and reads people and clients from
 > their own products. Only Timeline exists today. Definition and rulings: `docs/TODO.md`
-> §1 and §4 D4/D8.
+> §1 and §4 D4/D8. The future data platform (SharePoint, Dataverse, or Azure SQL behind
+> an API) is open as D15, analysed in `docs/Architecture-Review-Backend.md`. This page
+> describes what runs today and changes only when something else is built.
 
 Timeline is a **single-file, client-only single-page app**. `index.html` contains all
 HTML, CSS, and vanilla JavaScript (thousands of lines, one file) — no framework, no
