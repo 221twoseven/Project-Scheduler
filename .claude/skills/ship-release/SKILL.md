@@ -61,6 +61,14 @@ git switch -c fix/<slug> origin/development          # or feat/ style/ docs/
    - Collect lines under `## Unreleased` while working; rename the heading at ship.
 4. Run `npm run notes`. It regenerates the in-app list; never edit `RELEASE_NOTES` by hand.
    `test-v160` fails CI if this drifts.
+5. **`docs/TODO.md`, in the same commit:**
+   - tick the item, `[x]`, with `Shipped vX.Y.Z (PR #N, <date>)`, or note what's left if
+     it's only part-done;
+   - set §0 to the new version on the branch it lands on;
+   - add any follow-up the work turned up as a new item, or a §7 ledger line.
+
+   Work with no item gets one first (`CLAUDE.md`). `test-todo` fails CI when §0 doesn't
+   name `APP_VER`, when item numbers collide, or when a `Shipped vX` isn't a release.
 
 ## 4. Evidence in a real browser (any visible change)
 
@@ -149,7 +157,9 @@ Don't poll CI yourself.
   needs a new PR.
 - When the work came from the tracker, post the `**Fix shipped**` comment on the issue
   (the `triage-issues` skill, step 2a).
-- If a `docs/TODO.md` item is done, tick it in the same PR.
+- The TODO tick went in with the release (step 3.5). A `development → main` promotion PR
+  also updates §0's production version and runs the TODO audit in `CLAUDE.md`
+  ("Keeping `docs/TODO.md` true").
 
 ## Never without explicit approval
 

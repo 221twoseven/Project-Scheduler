@@ -30,12 +30,16 @@ Project rules and context for working in this repository. Read this before makin
   material still to gather, and the deferred/skipped ledger (§7). **§3 is the work queue
   in priority order, and that order is the owner's approval:** take the top unchecked
   item, or the one the owner names, and don't ask "what's next". Only ⚠ schema items
-  and architectural changes still need an explicit go (see "Change discipline"). The
+  and architectural changes still need an explicit go (see "Change discipline").
+  **Every piece of work is a numbered §3 item before it starts** (owner, 2026-10-08):
+  a plan that lives only in a review, a decision's "prepare regardless" list, a PR
+  sequence or `docs/Automations.md` isn't tracked until it has an item, and a change
+  that proposes new work adds its item in the same PR. The
   file holds the work, never process rules — those live here and in `CONTRIBUTING.md`.
   GitHub Issues (the private tracker) is the user-feedback loop only, worked through the
   `triage-issues` skill (`.claude/skills/triage-issues/`: spec comment → owner reply →
   fix); reports are folded
-  into §3 by hand. The retired v1 and v1.x
+  into §3 by hand, and kept in step by "Keeping `docs/TODO.md` true" below. The retired v1 and v1.x
   backlogs and all retired planning docs (UX audit, task briefs, proposals) live in
   **`docs/Archive/`** —
   history and rationale, not current state. **`reference/`** holds frozen material
@@ -133,6 +137,41 @@ block in `index.html` between the `RELEASE_NOTES:BEGIN/END` markers.
   Developer-only tooling does not earn a line.
 - Enforced, not remembered: `test-v160` fails CI if the newest entry doesn't name the
   running `APP_VER` or if the in-app block drifts from `CHANGELOG.md`.
+
+## Keeping `docs/TODO.md` true
+
+**Its accuracy is the point of it (owner, 2026-10-08): "We can't afford for this document
+to go stale."** Three layers, from cheapest to most thorough:
+
+1. **Same PR.** A PR that ships, re-scopes, holds, declines or closes work updates
+   `docs/TODO.md` in that PR:
+   - a shipped item is ticked `[x]` with `Shipped v<x.y.z> (PR #N, <date>)`;
+   - a hold gets a dated line in its item;
+   - a decline gets a §7.5 line;
+   - a close with no build gets a row in §3's "Shipped or closed with no §3 item" table;
+   - new work becomes an item before it starts (above).
+
+   The `ship-release` and `triage-issues` skills carry the exact steps. Triage's Step 3
+   reconciles the tracker with §3 on every run.
+2. **CI.** `tests/test-todo.js` fails the build when:
+   - §0 doesn't name the running `APP_VER`;
+   - two §3 items share a number;
+   - an "item N" outside the §8 log names no item;
+   - a ticked item's `Shipped vX` isn't a `CHANGELOG.md` release.
+3. **An audit at every promotion to `main`.** The `development → main` PR updates §0's
+   production version and checks the whole file against reality:
+   - every `CHANGELOG.md` release since the last promotion has its item ticked, or a row
+     in the table;
+   - every tracker ticket's state matches its item;
+   - every ⚠ spec awaiting creation is still listed as unconfirmed;
+   - every open PR and branch is accounted for.
+
+   Fixes go in the same PR, and the audit is recorded in §8's log and the "Last reviewed"
+   line.
+
+Write so it can't silently rot: no counts or version numbers in prose unless CI checks
+them. Point to the source instead (`CHANGELOG.md`, `tests/run.js`), and date any status
+("as of 2026-10-08").
 
 ## Change discipline
 
