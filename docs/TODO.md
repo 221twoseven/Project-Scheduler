@@ -61,8 +61,8 @@ branches. The full history is the log in §8.
 ## 0. Where we stand
 
 As of 2026-10-08: production (`main`) runs **v1.41.0**, and `development` carries
-**v1.42.0** (a role change moves the project to the new holder, item 53).
-Phase 7 has shipped v1.24.0 → v1.42.0 so far. `CHANGELOG.md` is the release-by-release
+**v1.43.0** (the employee import fetches only what it uses, one phone format, and an Office
+Extension column: item 9). Phase 7 has shipped v1.24.0 → v1.43.0 so far. `CHANGELOG.md` is the release-by-release
 record.
 
 ## 1. North star — Systems
@@ -161,7 +161,7 @@ number is given when it ships. Proposed:
 
 | Batch | Contents (§3 items) |
 |---|---|
-| 1 — privacy and copy | 9a–9b first (the import fetches only the fields it uses; no fallback to a possibly personal phone — the owner's "cache is cache" ruling), then 4 (time-off notes private) and 1–2 (terminology; one meaning for Lock dates, with copy that explains it) |
+| 1 — privacy and copy | 9a first (the import fetches only the fields it uses — the owner's "cache is cache" ruling), with 9c (one phone format) and the Office Extension column: shipped v1.43.0; 9b deferred (owner, 2026-10-08). Then 4 (time-off notes private) and 1–2 (terminology; one meaning for Lock dates, with copy that explains it) |
 | 2 | 25 (saved views follow the person ⚠ `savedViews`; Lock dates remembered per user), 7 (repeat work easier to find), 8 (label the department rollup band) |
 | Seam (no release) | 48 (the storage seam), eight behaviour-neutral PRs interleaved after batch 1; PRs 1–2 first, since item 51's Azure spike waits on them |
 | 3 | 5 (date certainty ⚠ `dateCertainty`), 6 (last update shown, stale flag) |
@@ -351,24 +351,45 @@ What the pilot can't start without.
       - Double-booking checks already use the actual blocks.
       [brief §7 Rollup, §8.2, §14]
 - [ ] **9. Harden the employee import.** 9a goes first in the first batch (owner,
-      2026-09-24: "browser cache but invisible is still browser cache").
-      - (a) **Fetch only what's used.** The Employee Contacts import asks for every field
-        (`items?expand=fields` with no `$select`), so Pay Type and PersonalEmail reach the
-        importing admin's browser even though they're never stored or shown. Fix:
-        `expand=fields($select=Title,Status,Email,…)`, naming only the six fields the
-        import maps. Honest limit: this is the app behaving well, not a guarantee — an
-        admin with site rights could still read the HR list directly. The real protection
-        is SharePoint permissions on Employee Contacts itself: HR's list, HR's call (item
-        26, D3).
-      - (b) **No silent phone fallback.** A blank Primary Phone falls back to Phone, then to
-        Mobile Phone (more likely personal). Drop the fallback and report the row as "no
-        work phone".
-      - (c) **What non-admins see** on the People page is now part of item 26's field map.
-        Today every signed-in user sees name, nickname, title, phone, email, departments,
-        time off, schedule, driver, **employment status and the ADMIN / DEV / FB permission
-        badges**.
-      - (d) Ask HR whether Primary Phone is ever a personal number.
-      - *Waits on:* nothing for (a), (b), (d); item 26 for (c).
+      2026-09-24: "browser cache but invisible is still browser cache"). (a), (c) and the
+      extension shipped in v1.43.0 (PR #112, 2026-10-08); (b) is deferred; (e) waits on item 26.
+      - [x] (a) **Fetch only what's used.** Shipped v1.43.0. The import used to ask for every
+        field (`items?expand=fields` with no select), so Pay Type and PersonalEmail reached the
+        importing admin's browser. It now reads the HR list's column definitions first and
+        requests only the internal names of the fields it maps (`EC_MAP`). If it can't read
+        the definitions, it imports nothing rather than fall back to every field. Honest
+        limit: this is the app behaving well, not a guarantee. An admin with site rights
+        could still read the HR list directly. The real protection is SharePoint permissions
+        on Employee Contacts itself: HR's list, HR's call (item 26, D3).
+      - [ ] (b) **No silent phone fallback.** *Deferred (owner, 2026-10-08):* employee
+        contact numbers are posted in the breakroom and personal numbers are used, so the
+        Primary Phone → Phone → Mobile Phone fallback stays (§7.4 ledger).
+      - [x] (c) **One phone format: 555-555-5555** (owner, 2026-10-08). Shipped v1.43.0.
+        - Ten digits, or eleven with a leading 1, written with spaces, dots, dashes or
+          brackets, become the hyphenated form (`fmtPhone`).
+        - This applies on load, on import and on save, so stored numbers read the one way at
+          once.
+        - **The list itself is tidied once** (owner, 2026-10-08). While any
+          `ShopTimeline_Staff` row still holds another format, an admin sees **Tidy N phone
+          numbers** on the People page. One confirm rewrites the phone column on just those
+          rows (`cdTidyPhones`), and the button then disappears.
+        - Anything else (a foreign number, text with the number) stays as typed.
+        - A search by the bare digits finds a hyphenated number.
+      - [x] **Office Extension**, typed by hand on the People page (owner, 2026-10-08). It is
+        dialled office to office from office phones. It is its own field, never part of the
+        phone number, since mobile numbers have no extensions. Employee Contacts doesn't
+        carry one. Shipped v1.43.0. It has its own column after Phone and its own line on
+        the record, and the import never touches it. The People table's saved column
+        widths moved to a new key (`shopTimelineCdColW2`), so they fit afresh once instead
+        of landing a column off. It uses the `ext` column on `ShopTimeline_Staff` (§6, created by the owner
+        2026-10-08).
+      - [x] (d) *Answered (owner, 2026-10-08):* Primary Phone can be a personal number, and
+        that's accepted (see (b)).
+      - [ ] (e) **What non-admins see** on the People page (was (c) until 2026-10-08) is now
+        part of item 26's field map. Today every signed-in user sees name, nickname, title,
+        phone, email, departments, time off, schedule, driver, **employment status and the
+        ADMIN / DEV / FB permission badges**.
+      - *Waits on:* item 26 for (e).
       [brief §7 Employee source, §8.1, §13]
 - [ ] **10. Automatic status vs closeout.** A project set to Automatic marks itself
       Complete when its last install *or shipping* bar ends (v1.20.6). Under item 11,
@@ -1415,6 +1436,10 @@ constraint (D2, lifted 2026-09-24).
   writes it only on rows that are extra work periods (tristate), so ordinary saves never
   touch it; the first + on a saved project needs it. **Confirmed created by the owner,
   2026-10-08.**
+- On `ShopTimeline_Staff`: `ext` — single line of text, the Office Extension (office-to-office calls), typed on the
+  People page (v1.43.0, item 9; the HR list has none). Tristate: a row without the column
+  never sends it, and a save that sets one fails with the named-field message until it
+  exists. **Confirmed created by the owner, 2026-10-08.**
 - Entra: `Mail.Send` delegated, consented.
 - Employee Contacts: read only. The app never writes to it or touches its schema.
 
@@ -1821,6 +1846,11 @@ How to read the tags at the end of an entry:
       way to back-date a change ("Sam took over last Monday"). The Changelog keeps the real
       date. Gate: the shop asks to back-date changes; the upgrade is a date field beside
       the Project Team picker, passed to `roleHandover` in place of today. [item 53]
+- [ ] **The import still falls back to Mobile Phone** (item 9b, deferred by the owner
+      2026-10-08). A blank Primary Phone falls back to Phone, then Mobile Phone. Personal
+      numbers are posted in the breakroom and are used on purpose, so this stays. Gate: HR
+      or the owner rules that the roster must hold work numbers only; the fix is dropping
+      `mobilephone` from `EC_MAP.phone` and reporting the row as "no work phone". [item 9]
 
 ### 7.5 Deliberate design limits — no action planned; revisit only on real complaints
 
