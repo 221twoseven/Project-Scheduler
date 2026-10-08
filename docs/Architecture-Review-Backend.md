@@ -149,7 +149,8 @@ registries. The TODO edits in §D add that reading where a decision depends on i
 Two small findings on the way, not fixed here: the `ARCHITECTURE.md` diagram lists 5 of the
 nine lists (item 21's drift). And **two §3 items both carry the number 42**: the shipped
 "Departments view: a project's line reads its Cost Code" (tracker #33) and Office's
-"Cost-code generation". This review means the Office one whenever it says item 42.
+"Cost-code generation". This review means the Office one whenever it says item 42. (Fixed
+later the same day: the shipped one is now item 47.)
 
 ### A4. Where Azure SQL + API makes current recommendations stronger or weaker
 

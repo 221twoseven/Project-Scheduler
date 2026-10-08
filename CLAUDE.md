@@ -30,7 +30,11 @@ Project rules and context for working in this repository. Read this before makin
   material still to gather, and the deferred/skipped ledger (§7). **§3 is the work queue
   in priority order, and that order is the owner's approval:** take the top unchecked
   item, or the one the owner names, and don't ask "what's next". Only ⚠ schema items
-  and architectural changes still need an explicit go (see "Change discipline"). The
+  and architectural changes still need an explicit go (see "Change discipline").
+  **Every piece of work is a numbered §3 item before it starts** (owner, 2026-10-08):
+  a plan that lives only in a review, a decision's "prepare regardless" list, a PR
+  sequence or `docs/Automations.md` isn't tracked until it has an item, and a change
+  that proposes new work adds its item in the same PR. The
   file holds the work, never process rules — those live here and in `CONTRIBUTING.md`.
   GitHub Issues (the private tracker) is the user-feedback loop only, worked through the
   `triage-issues` skill (`.claude/skills/triage-issues/`: spec comment → owner reply →

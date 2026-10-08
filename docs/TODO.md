@@ -128,7 +128,7 @@ from the start; the Clients product's place is Phase 9 (§2).
   D1, D11, D13. The next new product, built in Phase 8 (owner, 2026-09-29).
 - **Timeline** — items 1–3, 5–8, 10, 12, 18, 20, 22, 23, 25, 29, 32–41; D12, D14.
 - **Systems as a whole** (portal, shared module, sign-in, hosting) — items 15–17, 21, 24,
-  30, 31; D3, D4, D7, D8, D13. D6 is tabled.
+  30, 31, 48–51; D3, D4, D7, D8, D13, D15. D6 is tabled.
 
 Retired framings, for the record: v1.x "the app becomes the company's singular source of
 truth, absorbing the 14 stores into Timeline's Company Data pages" (retired 2026-09-24);
@@ -153,6 +153,7 @@ number is given when it ships. Proposed:
 |---|---|
 | 1 — privacy and copy | 9a–9b first (the import fetches only the fields it uses; no fallback to a possibly personal phone — the owner's "cache is cache" ruling), then 4 (time-off notes private) and 1–2 (terminology; one meaning for Lock dates, with copy that explains it) |
 | 2 | 25 (saved views follow the person ⚠ `savedViews`; Lock dates remembered per user), 7 (repeat work easier to find), 8 (label the department rollup band) |
+| Seam (no release) | 48 (the storage seam), eight behaviour-neutral PRs interleaved after batch 1; PRs 1–2 first, since item 51's Azure spike waits on them |
 | 3 | 5 (date certainty ⚠ `dateCertainty`), 6 (last update shown, stale flag) |
 | Office (Phase 8) | Office's own releases, in project-cycle order: 45 (job lead / forecast), 44 (estimate), 42 (cost-code generation), 43 (job creation with the QuickBooks / TCP hand-off) |
 | Office (Phase 9) | 11 (closeout and billing states ⚠), the last step of the cycle; moved out of the pilot 2026-09-29 |
@@ -171,10 +172,10 @@ or the named decision is taken.
 - **D4, ruled 2026-09-28: one folder per product, the portal at the root** (option b;
   refined 2026-09-29 by the Systems definition, four peer products). **D8, ruled
   2026-09-29: the Company Data pages graduate into products of their own.** Together they
-  unblock the shared module (the storage seam, `docs/Architecture-Review-Storage.md`, PR
-  #56), the portal, and the People and Clients products. Still waiting on:
-  - the reshape PR, which comes after the pilot P0 batches (⚠ the owner adds the new
-    redirect URIs first, then `SETUP.md` is updated);
+  unblock the shared module (the storage seam, item 48; `docs/Architecture-Review-Storage.md`,
+  PR #56), the portal, and the People and Clients products. Still waiting on:
+  - the reshape PR (item 49), which comes after the pilot P0 batches (⚠ the owner adds
+    the new redirect URIs first, then `SETUP.md` is updated);
   - item 40's custom domain, before any repository rename (D4).
 - **D3, the permission model, ruled in principle 2026-09-24** (tiered lists, one fact in
   one place; §4). The work by phase:
@@ -523,6 +524,12 @@ release. Where the app has a part, it's listed.
         `Fixes 221twoseven/Project-Scheduler-issues#N`.
       - *Hubert* has no GitHub account (owner, 2026-09-25), so tracker access for him is
         skipped; he sees reports in the app and in the feedback mail.
+      - *Still to do* (from `docs/Automations.md`, 2026-10-08):
+        - build the **Email reply in** flow (tracker README step 10) and export it to the
+          tracker's `flows/`;
+        - confirm the **Reply email** subject and body change, marked pending since
+          2026-10-01, and re-export the flow;
+        - add a co-owner to each flow (the backup maintainer, item 16).
       - *Later, optional:* the developer Bug Reports page could print the `ghIssue` link
         (two lines).
       - *Rollback:* disable the workflow and delete the secret. The app and the list are
@@ -561,6 +568,10 @@ release. Where the app has a part, it's listed.
         `Sites.ReadWrite.All`, `TeamMember.Read.All`, `Mail.Send`).
       - Counts gone stale: `CLAUDE.md`'s line count (~7,000; the file is ~10,600) and
         `tests/README.md`'s suite count (48; there are 79).
+      - Record the Feedback Bot registration: its client ID is in no file this repository
+        controls (only the tracker's Actions secret), and its secret expires on
+        **2028-09-23**, after which the poller fails with `token: 401`. Both go in
+        `SETUP.md` (`docs/Architecture-Review-Storage.md`, open question 4).
       - Add a short "formulas and rollup" section: `generateSchedule` (works backward
         from the install date, skipping weekends and the coded holidays),
         `estimatedDays`, the Meeting Sheet %, Lead time.
@@ -582,6 +593,46 @@ release. Where the app has a part, it's listed.
       Pages URL and the Entra redirect URIs then have to be re-registered — `SETUP.md`).
       The repository is public, because Pages hosting needs it. That's safe, since access
       depends on Microsoft sign-in, but leadership should know. [brief §11]
+- [ ] **48. The storage seam.** One `store` object owns every conversation with
+      SharePoint, instead of 37 call sites in 16 functions. It is idea 1 of
+      `docs/Architecture-Review-Storage.md`, needed whatever D15 decides, and the path to an
+      `apiStore` if D15 picks an API.
+      - *The eight PRs*, in order, each on its own branch off `development`:
+        1. the `store` object with no callers;
+        2. Projects, Tasks, To-dos and Events;
+        3. Staff;
+        4. Clients and Config;
+        5. Changelog and Feedback (adds `store.upload`);
+        6. the Employee Contacts import;
+        7. identity and the Microsoft extras (`signIn` / `who`, Team members, mail);
+        8. one error rule.
+      - *Done when, for each PR:* no `APP_VER` bump and no `CHANGELOG.md` line, and
+        `npm test` is green **with no assertion edits** (the neutrality proof). The one
+        exception is PR 8, the only one that changes user-visible strings. One milestone
+        record when the sequence closes.
+      - *Placement (2026-10-08):* after batch 1, interleaved with the batches that follow.
+        PRs 1–2 are also what item 51's Azure spike waits on.
+      - *Waits on:* nothing.
+      [`docs/Architecture-Review-Storage.md` §1, "Proposed PR sequence"; D4; D15]
+- [ ] **51. D15's inputs: the platform spikes and the facts a ruling needs.** D15 is
+      ruled before the Phase 8 schema is provisioned, on these:
+      - *Dataverse:* a licence quote (headcount × $20, $22 from 2027-01-01, plus any
+        licences the tenant already holds; §5) and a half-day spike: one read and one write
+        to the Dataverse Web API from a Pages-hosted page with an MSAL delegated token.
+      - *Azure (read-only, isolated staging):*
+        - Bicep staging resources and a TypeScript API (App Service, Fastify);
+        - Entra-authenticated access, and managed identity to a staging Azure SQL
+          database;
+        - three `GET` endpoints, and an `apiStore` behind a developer switch in preview;
+        - no production writes.
+
+        The plan, the questions it must answer and the rollback are in
+        `docs/Architecture-Review-Backend.md` §E16.
+      - *People:* item 44's scope answer, and the named platform owners (§5).
+      - ⚠ The Azure spike needs explicit approval to create Azure resources and Entra
+        registrations before any of it starts (`CLAUDE.md`).
+      - *Waits on:* item 48 PRs 1–2 (the Azure spike only); the approvals above.
+      [D15; `docs/Architecture-Review-Backend.md`]
 
 ### Not yet placed — reported by users, in filing order [tracker]
 
@@ -663,7 +714,9 @@ is item 32 (P0), #7 is part of item 3, and #11 and #14 were done by the bridge i
       start plus N days (workdays for shop departments, calendar days for Installation and
       Shipping). A draft bar nobody has typed or dragged still follows the scheduler.
       [tracker #32]
-- [x] **42. Departments view: a project's line reads its Cost Code, not its name.** Shipped
+- [x] **47. Departments view: a project's line reads its Cost Code, not its name.** (Filed as a
+      second "42"; relabelled 47 on 2026-10-08, so 42 is Office's cost-code generation
+      only.) Shipped
       v1.35.0 (PR #95, 2026-10-05): the line under a person shows the Cost Code in the
       dates' mono type so it fits whole at the default sidebar width; the hover tip reads
       "Client · Project name · Cost code". A project with no code keeps its name (and item
@@ -707,6 +760,33 @@ is item 32 (P0), #7 is part of item 3, and #11 and #14 were done by the bridge i
 - [ ] **29. Drop the dead columns** `metalFab`, `labels` and `checklist` (§7.2, L1040). A
       deliberate cleanup now that D2 is lifted. The app stops writing them one release
       before the columns are deleted; milestone record. ⚠
+- [ ] **49. The Systems portal and the Timeline move (D4's reshape PR).** Timeline moves
+      from `/` to `/timeline/`, and a static portal page of product tiles takes `/`. One
+      release, one `CHANGELOG.md` line, no behaviour change.
+      - The PR touches:
+        - the Pages workflow's sparse-checkout paths and markup guard;
+        - one portal line that forwards old `#/…` links to `timeline/`;
+        - `tests/run.js`'s default target.
+      - ⚠ The owner adds the `/timeline/` and `/preview/timeline/` redirect URIs *before*
+        the merge, then `SETUP.md` is updated.
+      - *Placement:* after the pilot P0 batches, before style guide §13 step 4.
+      - *Waits on:* the pilot P0 batches; the redirect URIs. A repository rename waits on
+        item 40, never before it.
+      [D4]
+- [ ] **50. The storage review's other follow-ups** (`docs/Architecture-Review-Storage.md`
+      ideas 2–4, open questions 1–3):
+      - *Provisioning as code:* `provision.mjs` in the private tracker creates lists and
+        columns from one spec, which also records the column types the repo lacks. ⚠ It
+        runs under the Feedback Bot, whose site grant rises from `write` to `manage`.
+        Under D15 B or C this shrinks to files and test sites (item 17).
+      - *Scope swap:* the SPA's `Sites.ReadWrite.All` is replaced by a delegated
+        `Sites.Selected` grant on TWOSEVENINC. ⚠ Entra. Timed with the shared
+        registration.
+      - *One shared registration for the browser products*, a separate one for bots, and
+        a product prefix on browser-storage keys from the first shared-module PR.
+      - *Waits on:* item 48; the owner's answers to the review's questions 1–3; D15 (it
+        decides how much of the provisioning work is needed).
+      [`docs/Architecture-Review-Storage.md` §2–§4]
 
 ### Queued — Office, the next product, in project-cycle order (owner, 2026-09-29) [brief §6, §8.4–8.6; vision]
 
@@ -947,7 +1027,7 @@ then the recommendation or the dated ruling.
 
     Phase folders under `docs/Milestones/` stay as they are: phases belong to Systems,
     and a record names its product in its file name.
-  - *The reshape PR.* Moving Timeline is its own PR that changes no behaviour: one
+  - *The reshape PR* (item 49). Moving Timeline is its own PR that changes no behaviour: one
     release, one CHANGELOG line (the front page is now the portal; Timeline lives at
     `/timeline/`). It touches:
     - the Pages workflow (sparse-checkout paths; the markup guard loops over every
@@ -1169,7 +1249,7 @@ then the recommendation or the dated ruling.
   recovery path a non-programmer can follow, and if the owners in input 4 below can be
   named. B is the safer choice if they can't.
 
-  *Before ruling — four inputs:*
+  *Before ruling — four inputs* (tracked as item 51; the seam is item 48):
   1. The Dataverse licence quote and the half-day Web API spike (as above).
   2. A deliberately small, read-only Azure spike on isolated staging. It waits on storage
      seam PRs 1–2 and on explicit approval to create Azure and Entra resources (⚠). Three
@@ -1683,6 +1763,19 @@ How to read the tags at the end of an entry:
   number.
 
 **Log, newest first:**
+
+- 2026-10-08 (later): **every planned task is now a §3 item** (owner: "we can't have tasks
+  done without them being recorded as tasks").
+  - Work that lived only in reviews and decisions became items:
+    - 48, the storage seam (eight PRs), placed after batch 1;
+    - 49, the portal and Timeline move (D4's reshape PR);
+    - 50, the storage review's other follow-ups (provisioning, the scope swap, the
+      shared registration);
+    - 51, D15's inputs (the Dataverse quote and spike, the read-only Azure spike).
+  - Item 21 gains the Feedback Bot's client ID and secret expiry. Item 31 gains its
+    unfinished flow work from `docs/Automations.md`.
+  - The duplicate "42" (tracker #33's shipped Departments line) is relabelled 47.
+  - The rule itself is in `CLAUDE.md`, not here.
 
 - 2026-10-08: **D15 reassessed** (owner and Hubert). Office's relational, rule-bound data
   and the AI-agent development model move Azure SQL + API from fallback to co-equal
