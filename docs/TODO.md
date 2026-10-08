@@ -52,8 +52,9 @@ as the phase runs.
 
 Last reviewed: 2026-10-08 — D15 (data platform) reassessed: Dataverse and Azure SQL + API
 are now co-equal candidates (`docs/Architecture-Review-Backend.md`); D1, D3, D10–D13 and
-items 14, 17 and 44 given storage-neutral readings. The opening, §0 and §3's intro brought
-up to date the same day. The full history is the log in §8.
+items 14, 17 and 44 given storage-neutral readings. The same day: the opening, §0 and §3's
+intro brought up to date, then a full audit against the tracker, `CHANGELOG.md` and the
+branches. The full history is the log in §8.
 
 ---
 
@@ -246,8 +247,10 @@ What the pilot can't start without.
 
 - [ ] **1. Terminology pass.** Rename two terms on screen: "Job code" becomes **Cost
       Code**, and "Drafter" becomes **Technical Designer**. *The Drafter half shipped in
-      v1.31.1 (tracker #17, with #22's Project Team / Project Schedule headings); the Cost
-      Code half waits on tracker #21's revised spec. The §7.4 ledger holds the two
+      v1.31.1 (tracker #17, with #22's Project Team / Project Schedule headings). The Cost
+      Code half is on tracker #21: the 2026-10-05 revised spec, then the owner's question of
+      2026-10-06 ("should I use: costCode?" for the column name), which still needs an
+      answer on the ticket. The §7.4 ledger holds the two
       "Drafter" echoes that remain (the Changelog key and the D chip).*
       - *Where:* sidebar, bar labels, tooltip, Meeting Sheet, late prompt, New Project.
         (Drafter had labels only on the project page and in the legend; the Cost Code
@@ -289,6 +292,7 @@ What the pilot can't start without.
       - *History:* the owner ruled "leave it" on 2026-09-02; the brief is the complaint
         that ruling said would reopen it (§7.1, L1001). Related: the chained tour's step
         count assumes its second half opens on a draft (§7.3, L1233).
+      - *On hold (owner, 2026-10-01 on the ticket):* "Hold pending dev testing."
       [brief §5.1, §9 P0 "tour fix"; tracker #7]
 - [ ] **4. Keep time-off notes private.** Notes typed on an out-of-office range show to
       every signed-in user, in three places: the People record, the dashboard and the
@@ -390,7 +394,26 @@ What the pilot can't start without.
       shipping phase. `shipping` has been an end department since v1.20.6 (`DEPTS`,
       `grp:'install'`). First, reproduce it on the real project: is Shipping ticked in the
       project's departments? Does the block exist without dates? Where does a milestone go
-      when its phase has no bar? A bug; P0 for the pilot. [tracker #1]
+      when its phase has no bar? A bug; P0 for the pilot.
+      - *Re-scoped on the ticket (2026-10-05):* the owner's clarification narrows it to the
+        project page's Gantt. A milestone assigned to a phase (e.g. "ALL CNC DONE", Phase:
+        CNC) sits in the top Milestones row instead of on that phase's bar.
+        - *Root cause:* `npvRender` draws every milestone in the top row on purpose, per a
+          2026-09-03 ask. The fix reverses that ruling for phased milestones.
+        - The Shipping-bar half is met by the same placement rule once Shipping is ticked.
+      - *Waits on:* the owner's "Proceed with fix" on the revised spec.
+      [tracker #1]
+- [ ] **53. A role change must move the project to the new holder** (P0 bug, tracker #34).
+      When a project's PM, Technical Designer or Project lead changes after creation, the
+      project stays under the old holder: a bar that carries its own crew ignores the
+      project team.
+      - *Owner's rule (2026-10-05):* every current view shows who holds the role now: the
+        sidebar summaries, lanes, My Dashboard, the Meeting Sheet, chips and tooltips. The
+        Gantt keeps the old holder on the days up to the change.
+      - *Revised spec:* split a role-owned bar on the day of the change. The past part keeps
+        the old holder, the part from today goes to the new one. Fabricators owns no bar.
+      - *Approved:* "proceed with fix", 2026-10-06. Not built yet.
+      [tracker #34]
 - [x] **46. Update check.** Shipped v1.33.0 (PR #90, 2026-10-05). GitHub Pages serves
       `index.html` with `Cache-Control: max-age=600`, which the page's no-cache meta tags
       don't override, and the 90 s poll fetches data only — so a tab left open ran the old
@@ -577,8 +600,9 @@ release. Where the app has a part, it's listed.
         predates Logistics, Shipping and the `othoffice` retirement.
       - `SETUP.md` lists 2 Graph scopes; 4 are in use (`User.Read`,
         `Sites.ReadWrite.All`, `TeamMember.Read.All`, `Mail.Send`).
-      - Counts gone stale: `CLAUDE.md`'s line count (~7,000; the file is ~10,600) and
-        `tests/README.md`'s suite count (48; there are 79).
+      - A count gone stale: `CLAUDE.md` says "roughly seven thousand lines" (it also says
+        to trust `wc -l`); the file is 11,941 lines at v1.41.1. (`tests/README.md` no longer
+        states a suite count and points to `tests/run.js`: that half is done.)
       - Record the Feedback Bot registration: its client ID is in no file this repository
         controls (only the tracker's Actions secret), and its secret expires on
         **2028-09-23**, after which the poller fails with `token: 401`. Both go in
@@ -596,6 +620,11 @@ release. Where the app has a part, it's listed.
       footnote), v1.20.8 (PM required at Create; dashboard columns scroll), v1.20.9. The
       v1.x version ladder also has no rows for v1.20.0–v1.20.9 and v1.21.x: add one
       combined row each to the archive's §4, the way `CHANGELOG.md` combines v1.14–1.15.
+      Also owed from Phase 7 (found 2026-10-08):
+      - **v1.40.1**: Open Issues column labels;
+      - **v1.41.1**: the narrow-sidebar lens switch. Its before/after screenshots are
+        already in `Phase-7-Pilot-Readiness/screenshots/`.
+
       Docs only.
 - [ ] **24. Repository ownership.** `github.com/221twoseven` is a personal GitHub account
       named after the company, not an Organization: there are no org owners, single
@@ -690,7 +719,11 @@ is item 32 (P0), #7 is part of item 3, and #11 and #14 were done by the bridge i
       create a phase or milestone, then fill in the details in the bottom panel — simpler
       than building in the Gantt. The calendar can already resize and move existing bars
       by drag (v1.9.0–v1.11.0), but not create them. A larger feature; after the pilot,
-      unless the owner ranks it higher. [tracker #5]
+      unless the owner ranks it higher.
+      - *Ticket closed 2026-10-05:* the reply to the reporter pointed out that
+        double-clicking the calendar already opens "add a phase". The owner asked for the
+        drag-to-create request to stay here, so it does.
+      [tracker #5]
 - [x] **37. Completed projects: a filter and a marker.** Shipped v1.37.0 (PR #97,
       2026-10-05): an Active / Completed / All switch in the sidebar header (three presets
       of the existing status filter; opens on Active, remembered per browser), completed
@@ -728,8 +761,13 @@ is item 32 (P0), #7 is part of item 3, and #11 and #14 were done by the bridge i
         (explicit instruction required, `CLAUDE.md`), and `SETUP.md`
         updated.
       - *Owner decides:* a subdomain, or a redirect from the path.
+      - *Leaning to hold (owner, 2026-10-05 on the ticket):* wait until the other Systems
+        products (portal, People, Clients, Office) have content. The owner asked whether the
+        DNS and Entra setup can be done ahead of them; the revised spec of the same day
+        answers that.
       [tracker #12]
-- [ ] **41. People page: column widths.** The columns are hard to line up. Make each fit
+- [x] **41. People page: column widths.** Shipped v1.26.3 (PR #81, 2026-10-02), with tracker
+      #27's header spill-over in the same PR. The columns are hard to line up. Make each fit
       its text without spilling over, keep the table inside the page column instead of
       the full width, and make a width change affect only that column (today resizing one
       shifts its neighbours). Company Data table CSS (`table-layout`, per-column widths).
@@ -756,6 +794,27 @@ is item 32 (P0), #7 is part of item 3, and #11 and #14 were done by the bridge i
       all three and, on rows with a ticket, "Status follows the ticket" with the link in
       place of Mark resolved / Reopen (§7.4 ledger entry ticked). Nothing is set by hand and
       a status change sends no email. [tracker #29]
+
+**Shipped or closed with no §3 item** (before the 2026-10-08 every-task rule; the full
+record is each ticket's "Fix shipped" note and `CHANGELOG.md`):
+
+| Tracker | What | Outcome |
+|---|---|---|
+| #14 | Ticket status shows in the app | Item 31's poller, 2026-09-25 (no app release) |
+| #15, #20 | The install date comes from the Installation / Shipping block; Created on is separate | v1.26.0 (PR #78) |
+| #16 | Several work periods per department | v1.32.0 (PR #88) |
+| #17, #22 | Technical Designer; Project Team / Project Schedule headings | v1.31.1 (PR #87), half of item 1 |
+| #18 | Project lead from any department | v1.30.0 (PR #85) |
+| #19 | Team lists alphabetical, with search | v1.29.0 (PR #84) |
+| #23 | Undo notifications no longer cover the chart | v1.26.2 (PR #80) |
+| #24 | The client on the dashboard | v1.31.0 (PR #86) |
+| #25 | A click on blank chart closes the phase panel | v1.26.1 (PR #79) |
+| #26 | Installation and Shipping dates stay as typed | v1.25.2 (PR #77) |
+| #27 | People page header no longer spills into the panel | v1.26.3 (PR #81), with item 41 |
+| #28 | "Past projects show up" | Closed, no change: the table was misread (2026-10-01) |
+| #30 | Phone layout for every page | Declined, 2026-10-01 (§7.5) |
+| #31 | A test ticket | Closed |
+| — | Owner asks with no ticket: issue replies (v1.25.0–1.25.1), days beside dates (v1.33.1), resolved dates and `/comment` (v1.34.0), Open Issues column labels (v1.40.1), print formatting (v1.41.0), the narrow-sidebar lens switch (v1.41.1) | Shipped |
 
 ### Queued for Phase 8 — waiting on other work (see "What waits on what", §2)
 
@@ -1344,12 +1403,14 @@ constraint (D2, lifted 2026-09-24).
   written by the tracker repository's poller, never by the app (item 31).
 - On `ShopTimeline_Feedback`: `resolvedAt` — single line of text, the ticket's close time (ISO),
   written by the poller, never by the app (v1.34.0, owner ask 2026-10-05). The app shows it as
-  the Resolved column's date and falls back to the row's last change until it exists. ⚠ Robert
-  applies it; the poller back-fills every closed ticket on its next run.
+  the Resolved column's date and falls back to the row's last change until it exists. ⚠ Spec
+  delivered for Robert to apply, after which the poller back-fills every closed ticket on its
+  next run. *Not yet confirmed as created* (2026-10-08 check): tick here once confirmed.
 - On `ShopTimeline_Tasks`: `range` — Yes/No, default No (v1.32.0, tracker #16). The app
   writes it only on rows that are extra work periods (tristate), so ordinary saves never
-  touch it; the first + on a saved project needs it. ⚠ Robert applies it before PR #88
-  merges to development.
+  touch it; the first + on a saved project needs it. ⚠ It was to be created before PR #88
+  merged; v1.32.0 shipped 2026-10-02. *Not yet confirmed as created* (2026-10-08 check):
+  tick here once confirmed.
 - Entra: `Mail.Send` delegated, consented.
 - Employee Contacts: read only. The app never writes to it or touches its schema.
 
@@ -1755,6 +1816,9 @@ How to read the tags at the end of an entry:
 
 ### 7.5 Deliberate design limits — no action planned; revisit only on real complaints
 
+- No phone layout. The owner closed the request with "We're not doing this" on 2026-10-01
+  (tracker #30).
+
 - The 12-colour project palette repeats once 13 or more projects are visible (T2).
 - Re-selection after a committed resize or move on the project page is quiet (T4).
 - Sidebar names longer than ~26 characters are cut off at the default width; dragging the
@@ -1778,6 +1842,9 @@ How to read the tags at the end of an entry:
 
 **Standing rules:**
 
+- This file is kept true by the three layers in `CLAUDE.md` ("Keeping `docs/TODO.md`
+  true"): every PR updates it, `tests/test-todo.js` checks it in CI, and every promotion
+  to `main` audits it and logs the audit here.
 - Keep `docs/ARCHITECTURE.md`, `docs/SETUP.md` and `CLAUDE.md` in step with the app (item
   21 is the catch-up). Every milestone gets a record in
   `docs/Milestones/Phase-7-Pilot-Readiness/`; every `APP_VER` bump gets a `CHANGELOG.md`
@@ -1789,6 +1856,27 @@ How to read the tags at the end of an entry:
   number.
 
 **Log, newest first:**
+
+- 2026-10-08 (night): **full audit against the tracker, `CHANGELOG.md` and the branches;
+  upkeep rules added.**
+  - *Drift found and fixed:*
+    - item 41 had shipped in v1.26.3 but was unticked;
+    - tracker #34, a P0 bug approved on 2026-10-06, had no item: now item 53;
+    - items 1, 3, 32, 36 and 40 were behind their tickets (a re-scope, two holds, a close,
+      an unanswered owner question);
+    - the #30 decline went unrecorded: now in §7.5;
+    - v1.40.1 and v1.41.1 have no milestone records: added to item 23;
+    - item 21's counts were stale;
+    - §6's `range` and `resolvedAt` read as future actions for releases that had shipped:
+      now "not yet confirmed as created".
+  - *Added:* a table of the 16 tickets and six owner asks that shipped or closed with no
+    §3 item.
+  - *Checked, no drift:* every remote branch is merged or open as a PR; every other ticket
+    matches its item.
+  - *Rules:* `CLAUDE.md` gains "Keeping `docs/TODO.md` true" (same-PR updates, a CI check,
+    and an audit at every promotion to `main`). The new `tests/test-todo.js` is in
+    `tests/run.js`. The `triage-issues` skill gains Step 3 (reconcile the tracker with §3
+    every run), and `ship-release` makes the TODO tick a release step.
 
 - 2026-10-08 (evening): **the opening and §0 brought up to date.**
   - "Nothing in this file is started except item 31" was no longer true: items 33–35, 37–39,
