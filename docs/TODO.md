@@ -63,11 +63,12 @@ is the log in §8.
 ## 0. Where we stand
 
 As of 2026-10-09: production (`main`) runs **v1.44.3**, promoted
-2026-10-09 (release/2026-10-09); `development` runs **v1.45.0**. The newest work: Protect dates
+2026-10-09 (release/2026-10-09); `development` runs **v1.45.1**. The newest work: reporter answers show in Open
+Issues (item 58); Protect dates
 (item 2: drags never change dates); Project Schedule hides the automatic
 Project Management row (item 55, tracker #37); a project starts at its first phase (item
 54, tracker #36); "Cost code" on screen (item 1, tracker #21); time-off notes are private
-to admins (item 4). Phase 7 has shipped v1.24.0 → v1.45.0 so far.
+to admins (item 4). Phase 7 has shipped v1.24.0 → v1.45.1 so far.
 `CHANGELOG.md` is the release-by-release record.
 
 ## 1. North star — Systems
@@ -872,6 +873,17 @@ is item 32 (P0), #7 is part of item 3, and #11 and #14 were done by the bridge i
       - *Approved 2026-10-09.* The steps are in the tracker README (step 11) and
         `docs/Automations.md` is updated (PR #123; the condition is named `Resolved`, PR #124).
       [tracker #38]
+- [ ] **58. Replies work like comments on both trackers** (owner, 2026-10-09). A reporter's
+      answer to a reply email becomes a comment on the GitHub ticket *and* in the app's Open
+      Issues thread, beside the team's `/reply` and `/comment` notes.
+      - *Built (v1.45.1, PR #126, 2026-10-09):* the app labels each comment *Team* or
+        *Reporter* and counts "N comments" (`fbRepliesHtml`; suite `tests/test-v1451.js`).
+        The poller (tracker 2d6ff74) copies **Reply from the reporter** comments to the row
+        as `kind:'reporter'`, never mailed back, and an email-reply run starts the sync itself.
+      - *Waits on:* the owner rebuilding *Email reply in* from tracker README step 10
+        (rewritten 2026-10-09: no subject filter on the trigger, a Condition instead), the
+        test on #31, and the export to `flows/`.
+      [owner ask 2026-10-09]
 - [x] **57. CI runs on pull requests only** (owner, 2026-10-09). Done (PR #123,
       2026-10-09): `.github/workflows/ci.yml` no longer runs on the push after a merge,
       because the PR run already tests the merged result. Both branches take changes only
