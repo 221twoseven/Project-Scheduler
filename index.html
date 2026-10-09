@@ -370,6 +370,7 @@ body.compact .sb-chip{line-height:1.2;padding:.5px 6px}
 .fb-cm summary{cursor:pointer;color:var(--ts-muted);font-size:11.5px}
 .fb-cm-one{margin:4px 0 0 12px;padding-left:8px;border-left:2px solid #E2E8F0}
 .fb-cm-one .clog-when{width:auto;font-size:11px}
+.fb-cm-one.rep{border-left-color:var(--acc)} /* v1.45.1: the reporter's own answers stand apart from the team's */
 /* v1.28.0 (tracker #10): a report's full text folds under its subject (native <details>, like
    .fb-cm). The padding/negative-margin pair lifts the summary's hit box to 24px (§9) without
    changing the row height. */
@@ -1845,7 +1846,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.45.0'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.45.1'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -11491,7 +11492,7 @@ function fbWhenTip(r,done){
   if(done)t.unshift(r.resolvedAt?'Resolved '+fbFullWhen(r.resolvedAt)
     :'Resolution date not recorded; shown is the report’s last change, '+fbFullWhen(r.modified||r.at));
   const last=(r.comments||[]).map(c=>c.at).filter(Boolean).sort().pop();
-  if(last)t.push('Last developer comment '+fbFullWhen(last));
+  if(last)t.push('Last comment '+fbFullWhen(last));
   return t.join(' · ');
 }
 /* v1.39.0 (tracker #29): the status tag. Three states, read off the ticket by the tracker's
@@ -11505,13 +11506,14 @@ function fbStatusTag(r){
 }
 function fbComments(raw){
   let a;try{a=JSON.parse(raw||'[]');}catch(e){return [];}
-  return Array.isArray(a)?a.filter(c=>c&&c.text).map(c=>({at:String(c.at||''),text:String(c.text)})):[];
+  /* v1.45.1: kind 'reporter' = the person who filed it, answering by email (the poller copies it from the ticket) */
+  return Array.isArray(a)?a.filter(c=>c&&c.text).map(c=>({at:String(c.at||''),text:String(c.text),reporter:c.kind==='reporter'})):[];
 }
 function fbRepliesHtml(r,open){
   const n=r.comments.length;
   if(!n)return '';
-  return '<details class="fb-cm"'+(open?' open':'')+'><summary>'+n+(n>1?' developer comments':' developer comment')+'</summary>'
-    +r.comments.map(c=>'<div class="fb-cm-one"><span class="clog-when">'+esc(clogWhen(c.at))+'</span>'
+  return '<details class="fb-cm"'+(open?' open':'')+'><summary>'+n+(n>1?' comments':' comment')+'</summary>'
+    +r.comments.map(c=>'<div class="fb-cm-one'+(c.reporter?' rep':'')+'"><span class="clog-when">'+(c.reporter?'Reporter':'Team')+' · '+esc(clogWhen(c.at))+'</span>'
       +'<div class="clog-det">'+esc(c.text)+'</div></div>').join('')+'</details>';
 }
 /* The public Open Issues list: kind + the subject + when; names stay off the page (they
@@ -11682,6 +11684,7 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.45.1",d:"Oct 9, 2026",n:["Open Issues: a report's thread now shows every comment, labelled Team or Reporter. When the person who filed a report answers the team's email, their answer appears in the thread too."]},
  {v:"v1.45.0",d:"Oct 9, 2026",n:["\"Lock dates\" is now **Protect dates**, and it means one thing everywhere: dragging a bar never changes its dates, on the timeline or a project page. You can still drag a bar to another lane, and typed dates still change. Its tooltip says so."]},
  {v:"v1.44.3",d:"Oct 9, 2026",n:["Project Schedule no longer lists the automatic Project Management row; the PM is set under Project Team, and the phases now number from 1 (Technical Design first). The row only appears when a PM bar needs handing over to a new PM."]},
  {v:"v1.44.2",d:"Oct 9, 2026",n:["A project's bar on the dashboard, in print and in the header's Shop starts now begins at its first phase. The hidden Project Management row no longer pulls it earlier."]},

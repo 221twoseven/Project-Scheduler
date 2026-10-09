@@ -123,6 +123,7 @@ const SUITES = [
   'test-v1442.js',
   'test-v1443.js',
   'test-v1450.js',
+  'test-v1451.js',
   'test-deploy-guard.js',
   'test-todo.js',
 ];
