@@ -1060,7 +1060,7 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
    list: group heading, then one row per department. */
 .ins-depts .idg{padding:9px 0 4px;font-size:var(--fs-fine);font-weight:700;letter-spacing:.1em;
   text-transform:uppercase;color:var(--ts-muted)}
-.ins-depts .idg:first-child{padding-top:0}
+.ins-depts .idg:first-child,.ins-depts .idg-pm.hidden+.idg{padding-top:0}
 .ins-depts .idr{display:flex;align-items:center;gap:8px;padding:3px 0;min-height:24px}
 .ins-depts .idr input[type=checkbox]{flex-shrink:0;margin:0;width:14px;height:14px;accent-color:var(--acc)}
 .ins-depts .idr .dname{flex:1;font-size:12px;color:#1E293B;overflow:hidden;
@@ -1845,7 +1845,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.44.2'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.44.3'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -7144,8 +7144,13 @@ function insDeptList(p,boxId){
   const canR=vcan('phases'); /* v1.32.0 (#16): + and × ride the phases door, like the chart's add paths */
   const keyOf=t=>p?t.id:ppDraftKeyFor(t); /* the rebuild-stable handle a date line edits by */
   let h='';
-  GROUPS.forEach((g,gi)=>{
-    h+='<div class="idg">'+(gi+1)+' \u00b7 '+esc(g.label)+'</div>';
+  /* v1.44.3 (tracker #37): Project Management is automatic \u2014 the PM is chosen under Project Team \u2014 so
+     its group stays in the page (saves rebuild activeDepartments from these checkboxes) but hidden,
+     unless its "Hand over from today" note needs showing. The visible groups number from 1. */
+  let gn=0;
+  GROUPS.forEach(g=>{
+    const at=h.length,pmg=g.id==='pmg';
+    h+='<div class="idg">'+(pmg?'':(++gn)+' \u00b7 ')+esc(g.label)+'</div>';
     for(const id of grpDepts(g.id)){
       const d=deptById(id);
       const active=p?(p.activeDepartments||[]).includes(id)
@@ -7211,6 +7216,7 @@ function insDeptList(p,boxId){
       }
       h+='</div>';
     }
+    if(pmg){const body=h.slice(at);h=h.slice(0,at)+'<div class="idg-pm'+(body.includes('ins-note dhand')?'':' hidden')+'">'+body+'</div>';}
   });
   box.innerHTML=h;
   ppPaintDateNote();
@@ -11672,6 +11678,7 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.44.3",d:"Oct 9, 2026",n:["Project Schedule no longer lists the automatic Project Management row; the PM is set under Project Team, and the phases now number from 1 (Technical Design first). The row only appears when a PM bar needs handing over to a new PM."]},
  {v:"v1.44.2",d:"Oct 9, 2026",n:["A project's bar on the dashboard, in print and in the header's Shop starts now begins at its first phase. The hidden Project Management row no longer pulls it earlier."]},
  {v:"v1.44.1",d:"Oct 9, 2026",n:["Job code is now called Cost code on screen: the project's Setup panel, the header strip, the tour and the Clients directory. The codes themselves are unchanged.",
    "Changelog rows name fields in plain words: \"Cost code\" and \"Technical Designer\" instead of the stored names."]},
