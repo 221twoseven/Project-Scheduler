@@ -9,6 +9,19 @@ Format: `## <label> — <date>` then one `- ` line per change. Keep lines concre
 what changed *for the team*, not how. Developer-only tooling doesn't need a line.
 Collect lines for the next version under `## Unreleased` and rename it when you ship.
 
+## v1.44.3 — Oct 9, 2026
+- Project Schedule no longer lists the automatic Project Management row; the PM is set under Project Team, and the phases now number from 1 (Technical Design first). The row only appears when a PM bar needs handing over to a new PM.
+
+## v1.44.2 — Oct 9, 2026
+- A project's bar on the dashboard, in print and in the header's Shop starts now begins at its first phase. The hidden Project Management row no longer pulls it earlier.
+
+## v1.44.1 — Oct 9, 2026
+- Job code is now called Cost code on screen: the project's Setup panel, the header strip, the tour and the Clients directory. The codes themselves are unchanged.
+- Changelog rows name fields in plain words: "Cost code" and "Technical Designer" instead of the stored names.
+
+## v1.44.0 — Oct 8, 2026
+- Time off is private: only admins see the note typed on someone's time off. Everyone else sees the dates, on the People record, the lanes, phase hover tips and the person panel ("Out of office").
+
 ## v1.43.0 — Oct 8, 2026
 - People: every phone number reads one way, 555-555-5555, however it was typed or imported, and searching the bare digits finds it.
 - People (admins): a one-time "Tidy N phone numbers" button rewrites the numbers still stored another way on the SharePoint list, and then goes away.

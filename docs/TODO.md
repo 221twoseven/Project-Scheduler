@@ -50,7 +50,8 @@ as the phase runs.
 - Every milestone gets a record in `docs/Milestones/Phase-7-Pilot-Readiness/`; every
   deliberate skip gets a §7 line with its gate.
 
-Last reviewed: 2026-10-08 — D15 (data platform) reassessed: Dataverse and Azure SQL + API
+Last reviewed: 2026-10-09 — the promotion audit for v1.43.0 → v1.44.3 reaching `main`
+(log in §8). Before that, 2026-10-08 — D15 (data platform) reassessed: Dataverse and Azure SQL + API
 are now co-equal candidates (`docs/Architecture-Review-Backend.md`); D1, D3, D10–D13 and
 items 14, 17 and 44 given storage-neutral readings. The same day: the opening, §0 and §3's
 intro brought up to date, then a full audit against the tracker, `CHANGELOG.md` and the
@@ -61,10 +62,11 @@ is the log in §8.
 
 ## 0. Where we stand
 
-As of 2026-10-08: production (`main`) and `development` both run **v1.43.0**, promoted
-2026-10-08 (release/2026-10-08). The newest work: the employee import fetches only what it
-uses, one phone format and an Office Extension column (item 9); a role change moves the
-project to the new holder (item 53). Phase 7 has shipped v1.24.0 → v1.43.0 so far.
+As of 2026-10-09: production (`main`) and `development` both run **v1.44.3**, promoted
+2026-10-09 (release/2026-10-09). The newest work: Project Schedule hides the automatic
+Project Management row (item 55, tracker #37); a project starts at its first phase (item
+54, tracker #36); "Cost code" on screen (item 1, tracker #21); time-off notes are private
+to admins (item 4). Phase 7 has shipped v1.24.0 → v1.44.3 so far.
 `CHANGELOG.md` is the release-by-release record.
 
 ## 1. North star — Systems
@@ -247,13 +249,15 @@ decides, then its source in brackets.
 
 What the pilot can't start without.
 
-- [ ] **1. Terminology pass.** Rename two terms on screen: "Job code" becomes **Cost
+- [x] **1. Terminology pass.** Rename two terms on screen: "Job code" becomes **Cost
       Code**, and "Drafter" becomes **Technical Designer**. *The Drafter half shipped in
       v1.31.1 (tracker #17, with #22's Project Team / Project Schedule headings). The Cost
-      Code half is on tracker #21: the 2026-10-05 revised spec, then the owner's question of
-      2026-10-06 ("should I use: costCode?" for the column name), which still needs an
-      answer on the ticket. The §7.4 ledger holds the two
-      "Drafter" echoes that remain (the Changelog key and the D chip).*
+      Code half shipped v1.44.1 (PR #118, 2026-10-09; tracker #21, approved 2026-10-09):
+      the Setup label (placeholder AB123), the header strip, tour steps 1 and 9 and the
+      Clients directory say "Cost code"; Changelog rows read `jobCode` as "Cost code" and
+      `drafter` as "Technical Designer". Suite `tests/test-v1441.js`. The owner renamed the
+      SharePoint column's display name to `costCode` on 2026-10-09 (internal name stays
+      `jobCode`). The §7.4 ledger holds the one "Drafter" echo that remains (the D chip).*
       - *Where:* sidebar, bar labels, tooltip, Meeting Sheet, late prompt, New Project.
         (Drafter had labels only on the project page and in the legend; the Cost Code
         list is #21's.)
@@ -296,9 +300,13 @@ What the pilot can't start without.
         count assumes its second half opens on a draft (§7.3, L1233).
       - *On hold (owner, 2026-10-01 on the ticket):* "Hold pending dev testing."
       [brief §5.1, §9 P0 "tour fix"; tracker #7]
-- [ ] **4. Keep time-off notes private.** Notes typed on an out-of-office range show to
-      every signed-in user, in three places: the People record, the dashboard and the
-      person panel. Hide them from non-admins, or leave the field out of non-admin views.
+- [x] **4. Keep time-off notes private.** Shipped v1.44.0 (PR #116, 2026-10-08): only an
+      admin sees the note typed on an out-of-office range (`oooNote`); everyone else sees the
+      dates, and the person panel reads "Out of office". Four places: the People record, the
+      people lanes, a phase's hover tip and the person panel. Suite `tests/test-v1440.js`.
+      Display only: the note still loads in every browser (§7.5).
+      Notes typed on an out-of-office range showed to every signed-in user. Hide them from
+      non-admins, or leave the field out of non-admin views.
       This is the brief's suggested P0 addition. [brief §7.2, §9 Response]
 - [ ] **5. Date certainty: Tentative / Confirmed / TBD.** Show whether a date is a
       commitment or a guess: an install date entered early reads as a commitment even when
@@ -823,6 +831,37 @@ is item 32 (P0), #7 is part of item 3, and #11 and #14 were done by the bridge i
       all three and, on rows with a ticket, "Status follows the ticket" with the link in
       place of Mark resolved / Reopen (§7.4 ledger entry ticked). Nothing is set by hand and
       a status change sends no email. [tracker #29]
+- [x] **54. A project's bar starts at its first phase, not the hidden PM bar** (P1 bug).
+      Shipped v1.44.2 (PR #119, 2026-10-09; approved 2026-10-09): `projSpan` gives the
+      dashboard bar, the printed Gantt and Shop starts the earliest non-PM start, and a draft's
+      PM bar follows its first phase (`npvRebuild`). Saved PM bars are not rewritten (Q2).
+      Suite `tests/test-v1442.js`.
+      A Forecast project whose first phase starts Nov 30 shows its dashboard bar and the
+      header's Shop starts from Aug 12. *Root cause:* the hidden Project Management bar
+      keeps the start the scheduler first gave it; a phase moved by hand on the draft
+      doesn't refit it. The dashboard bar (`renderGantt`), the printed Gantt and Shop
+      starts include that bar; Kickoff on the project page already skips it.
+      - *Plan:* one helper takes the start from the earliest non-PM bar for all three. A
+        new project's PM bar starts with its first phase. Saved PM bars aren't rewritten.
+      [tracker #36]
+- [x] **55. Hide the automatic Project Management row from Project Schedule** (P1).
+      Shipped v1.44.3 (PR #120, 2026-10-09; approved 2026-10-09). Suite `tests/test-v1443.js`.
+      The row is checked, disabled and labelled "spans job"; the PM is already chosen under
+      Project Team. Its "must not set the start date" half is item 54.
+      - *Built:* the group stays in the page but hidden (`.idg-pm`), because saves rebuild the
+        department list from its checkboxes. The visible groups number from 1. The group shows,
+        unnumbered, only when its "Hand over from today" note applies (item 53).
+      [tracker #37]
+- [ ] **56. Tell reporters when their report is resolved** (P1, automation). When a
+      ticket closes, the poller already sets the row's `status` to `resolved`; nothing
+      emails the reporter.
+      - *Plan:* the owner adds a second branch to the *Reply email* Power Automate flow:
+        when `status` changes to `resolved`, email the reporter ("…#<ID> was resolved",
+        with the `#/issues/<ID>` link). Claude writes the build steps (tracker README step
+        11) and the `docs/Automations.md` update; the owner exports the flow to the
+        tracker's `flows/`. No app release.
+      - *Waits on:* the owner's "Proceed with fix" on the 2026-10-09 spec.
+      [tracker #38]
 
 **Shipped or closed with no §3 item** (before the 2026-10-08 every-task rule; the full
 record is each ticket's "Fix shipped" note and `CHANGELOG.md`):
@@ -1825,11 +1864,9 @@ How to read the tags at the end of an entry:
       "Status follows the ticket" and the ticket link instead of the button; the
       `fbSetStatus` path stays for rows without a ticket. [item 31]
 - [ ] **Two "Drafter" echoes stay after the v1.31.1 rename (tracker #17).** (1) Changelog
-      rows (admin/PM) still read the stored key `drafter:` — `clogField` writes the key into
-      the Changelog list's `detail` column at save time, so a label map there would make new
-      rows differ from every old row; the fix is a read-side stored-name → plain-word map,
-      which the #21 spec (Q5) plans for `jobCode` and `drafter` together. Gate: #21
-      approved. (2) The "D" people chip (sidebar, project tooltip, Help legend swatch;
+      rows read the stored key `drafter:`. *Done v1.44.1 (PR #118): a read-side map
+      (`clogLbl`) shows it as "Technical Designer", and `jobCode` as "Cost code"; stored rows
+      keep their keys.* (2) The "D" people chip (sidebar, project tooltip, Help legend swatch;
       test-c3-status pins `PM,D,L`) still abbreviates the old word; "TD" widens every sidebar
       row. Gate: owner ruling — asked in the v1.31.1 PR body. [item 1]
 - [ ] **Backend guardrails are proposed, not in `CLAUDE.md`** (2026-10-08). The 20
@@ -1858,6 +1895,10 @@ How to read the tags at the end of an entry:
 
 - No phone layout. The owner closed the request with "We're not doing this" on 2026-10-01
   (tracker #30).
+- Time-off notes are hidden from non-admins on screen only (item 4, v1.44.0). The note
+  still sits in the Staff list's `ooo` column and loads in every signed-in browser, so
+  anyone who opens the list on SharePoint or the browser's developer tools can read it.
+  Real privacy comes with item 27, which moves time-off notes into the restricted record.
 
 - The 12-colour project palette repeats once 13 or more projects are visible (T2).
 - Re-selection after a committed resize or move on the project page is quiet (T4).
@@ -1896,6 +1937,20 @@ How to read the tags at the end of an entry:
   number.
 
 **Log, newest first:**
+
+- 2026-10-09 (promotion): **v1.43.0 → v1.44.3 promoted to `main`** (release/2026-10-09). The
+  promotion audit (`CLAUDE.md`, "Keeping `docs/TODO.md` true"):
+  - *Releases since the last promotion (v1.43.0):* v1.44.0 is item 4, v1.44.1 is item 1
+    (its Cost Code half, plus the §7.4 Changelog echo), v1.44.2 is item 54 and v1.44.3 is
+    item 55. All ticked.
+  - *Tracker:* three new tickets. #36 → 54 and #37 → 55 are built; they close when this
+    reaches `main`, with #21 → 1. #38 → new item 56, spec posted, needs Proceed. The rest
+    match their items: #1 → 32 (needs Proceed), #7 → 3 (on hold), #12 → 40.
+  - *⚠ specs:* none new. The owner renamed the Projects column's display name to
+    `costCode` on 2026-10-09 (internal name unchanged).
+  - *Branches and PRs:* nothing open besides this promotion; only `main` and `development`
+    on the remote.
+  - *Fixed in this audit:* §0 now says production runs v1.44.3; item 56 added for #38.
 
 - 2026-10-08 (promotion): **v1.41.1 → v1.43.0 promoted to `main`** (release/2026-10-08). The
   promotion audit (`CLAUDE.md`, "Keeping `docs/TODO.md` true"):

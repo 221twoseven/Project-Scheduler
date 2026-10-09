@@ -1060,7 +1060,7 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
    list: group heading, then one row per department. */
 .ins-depts .idg{padding:9px 0 4px;font-size:var(--fs-fine);font-weight:700;letter-spacing:.1em;
   text-transform:uppercase;color:var(--ts-muted)}
-.ins-depts .idg:first-child{padding-top:0}
+.ins-depts .idg:first-child,.ins-depts .idg-pm.hidden+.idg{padding-top:0}
 .ins-depts .idr{display:flex;align-items:center;gap:8px;padding:3px 0;min-height:24px}
 .ins-depts .idr input[type=checkbox]{flex-shrink:0;margin:0;width:14px;height:14px;accent-color:var(--acc)}
 .ins-depts .idr .dname{flex:1;font-size:12px;color:#1E293B;overflow:hidden;
@@ -1552,7 +1552,7 @@ body.cd-route #dash-bar{display:none!important}
       <button id="btn-resources" class="t-btn" title="People, clients and other shared shop data"><svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2.5" width="5" height="5" rx="1"/><rect x="9" y="2.5" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/><rect x="9" y="9" width="5" height="5" rx="1"/></svg> Company Data <svg class="ico-s" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 6 8 9.5 11.5 6"/></svg></button>
       <div id="resources-menu" class="tb-menu hidden">
         <div class="sm-item" id="mi-people" title="The company roster — people, roles, departments and time off">People</div>
-        <div class="sm-item" id="mi-clients" title="The company client directory and job-code aliases">Clients</div>
+        <div class="sm-item" id="mi-clients" title="The company client directory and cost-code aliases">Clients</div>
         <div class="sm-item" id="mi-changelog" title="Every recorded change to every project — who, when, what">Changelog</div>
       </div>
     </div>
@@ -1845,7 +1845,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.43.0'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.44.3'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -2057,6 +2057,19 @@ function dispName(n){
   return (p&&p.nickname&&String(p.nickname).trim())||n;
 }
 function oooFor(name){const p=personByName(name);return p?(p.ooo||[]):[];}
+/* v1.44.0 (item 4): a time-off note is private — only admins see it; everyone else sees the dates.
+   ponytail: display-only; the note still loads in every browser and sits in the Staff list's ooo column.
+   Real privacy is TODO item 27 (the restricted personnel record). */
+function oooNote(o){return o&&o.note&&isAdmin()?String(o.note):'';}
+/* v1.44.2 (tracker #36): a project's date range. The start is the first real phase — the hidden
+   Project Management bar keeps whatever start it was generated with, so it only counts when it is
+   the only bar. No bars: two weeks before the install date, as before. The end is unchanged. */
+function projSpan(p,ts){
+  if(!ts.length){const e=parseDate(p.deadline);return{s:addDays(e,-14),e};}
+  const work=ts.filter(t=>t.department!=='pm'),from=work.length?work:ts;
+  return{s:new Date(Math.min(...from.map(t=>parseDate(t.startDate).getTime()))),
+         e:new Date(Math.max(...ts.map(t=>parseDate(t.endDate).getTime())))};
+}
 function oooOverlaps(name,sIso,eIso){return oooFor(name).filter(o=>o.start&&o.end&&o.start<=eIso&&o.end>=sIso);}
 /* v1.7.2 (owner GO, 2026-09-01): the one-time data scrub the v1.6.5 ledger entry gated
    on. canonName() has healed legacy person strings at compare/display time since v1.6.5;
@@ -2433,7 +2446,7 @@ const LIST_TODOS='ShopTimeline_Tasks2';
    falls back to the legacy behaviour: an event saves as a ticketNode on a host phase. */
 const LIST_EVENTS='ShopTimeline_Events';
 /* N3: the client roster, imported from the Excel master. App-only — the colleague app
-   never reads it. Columns: Title = client name, field_2 = job-code alias. */
+   never reads it. Columns: Title = client name, field_2 = cost-code alias. */
 const LIST_CLIENTS='ShopTimeline_Clients';
 /* v1.6.0 (v2 obj 2): bug reports / feature requests. App-only, owner-created
    2026-08-31. Columns (all text): Title, kind, name, email, description (multi-line),
@@ -3099,8 +3112,8 @@ function saveState(s){
 /* Save people: instant locally, cached in this browser, synced to the ShopTimeline_Staff list */
 /* REV69 (N3): the shared client list. ShopTimeline_Clients was imported from the
    Excel client master (owner, 2026-08-21) — its columns are Title (client name) and
-   field_2 (the 2–3 letter job-code alias), and rows carry no appId, so sync keys on
-   the SharePoint item id. Excel stays master for job codes until a deliberate cutover. */
+   field_2 (the 2–3 letter cost-code alias), and rows carry no appId, so sync keys on
+   the SharePoint item id. Excel stays master for cost codes until a deliberate cutover. */
 const CLIENTS_KEY='shopTimelineClients';
 let CLIENTS=[],CLIENTS_OK=false;
 function clientOptions(){return CLIENTS.map(c=>'<option value="'+esc(c.name)+'"'+(c.alias?' label="'+esc(c.alias)+'"':'')+'>').join('');}
@@ -3885,7 +3898,7 @@ function renderMeDock(){
     +'<span class="md-when">'+fmtNice(e.date)+'</span></div>';
   const tkRow=t=>'<div class="md-row"><span class="md-main">'+esc(t.title)+(t.projectId?' · '+esc(pn(t.projectId)):'')+'</span>'
     +'<span class="md-when">'+(t.due?fmtNice(t.due):'no date')+'</span></div>';
-  const ooRow=o=>'<div class="md-row"><span class="md-main">'+esc(o.note||'Out of office')+'</span>'
+  const ooRow=o=>'<div class="md-row"><span class="md-main">'+esc(oooNote(o)||'Out of office')+'</span>'
     +'<span class="md-when">'+fmtNice(o.start)+' → '+fmtNice(o.end)+'</span></div>';
   const deptLbl=[...new Set((per.depts||[]).map(pdCanon))].map(d=>{const m=SM_DEPTS.find(x=>x[0]===d);return m?m[1]:d;}).join(', ');
   const sec2=(title,n,inner)=>'<div class="ins-sec"><h4>'+title+'<span class="n">'+n+'</span></h4><div class="in">'+inner+'</div></div>';
@@ -4290,10 +4303,7 @@ function renderGantt(){
   for(const r of ROWS){
     if(r.kind==='projHead'){
       const p=projById(r.projectId);
-      const ts=ST.tasks.filter(t=>t.projectId===p.id);
-      let s,e;
-      if(ts.length){s=new Date(Math.min(...ts.map(t=>parseDate(t.startDate).getTime())));e=new Date(Math.max(...ts.map(t=>parseDate(t.endDate).getTime())));}
-      else{e=parseDate(p.deadline);s=addDays(e,-14);}
+      const {s,e}=projSpan(p,ST.tasks.filter(t=>t.projectId===p.id));
       barFrag.appendChild(recBar(r,makeSummaryBar(p,s,e,r),s,e));
     }else if(r.kind==='projTask'){
       const t=taskById(r.taskId);
@@ -4311,8 +4321,8 @@ function renderGantt(){
           b.style.left=x+'px';
           b.style.width=Math.max(DW_,(d2x(addDays((oe>TL_E?TL_E:oe),1))-x))+'px';
           b.style.top=(r.top+4)+'px';b.style.height=(r.height-9)+'px';
-          const lb=document.createElement('span');lb.className='ooo-lbl';lb.textContent='OUT'+(o.note?' · '+o.note:'');b.appendChild(lb);
-          b.title=r.assignee+' out of office '+fmtNice(o.start)+' → '+fmtNice(o.end)+(o.note?' · '+o.note:'');
+          const lb=document.createElement('span');lb.className='ooo-lbl';const nt=oooNote(o);lb.textContent='OUT'+(nt?' · '+nt:'');b.appendChild(lb);
+          b.title=r.assignee+' out of office '+fmtNice(o.start)+' → '+fmtNice(o.end)+(nt?' · '+nt:'');
           barFrag.appendChild(b);
         }
       }
@@ -4433,7 +4443,7 @@ function buildCanvasBgInto(canvas,totalW,DW_){
 let TODAY_X=null;
 const LBL_TAIL=40;        /* a parked label keeps this much of its bar's end — the ellipsis zone */
 /* §7 bar anatomy — the label sheds pieces as the bar narrows: chips drop first, then
-   the job code, then everything but the status pill; under BAR_W_TICK no label renders
+   the cost code, then everything but the status pill; under BAR_W_TICK no label renders
    and the bar itself (min-width dw(), never under 4px) is the identity tick. */
 const BAR_W_CHIPS=300,BAR_W_CODE=190,BAR_W_PILL=96,BAR_W_TICK=34;
 
@@ -4786,7 +4796,7 @@ function showTooltipTask(t,ev,hiNode){
     +(t.notes?'<div class="tt-notes">'+esc(t.notes)+'</div>':'')
     +(CONFLICTS.has(t.id)?(()=>{const n=Math.max(1,conflictCount(t));
       return '<div class="tt-warn">⚠ '+esc(barCrew(t).map(dispName).join(', ')||'Crew')+' is on '+n+' other job'+(n===1?'':'s')+' during this window</div>';})():'')
-    +barCrew(t).map(n=>oooOverlaps(n,t.startDate,t.endDate).map(o=>'<div class="tt-warn">✈ '+esc(dispName(n))+' is out '+fmtNice(o.start)+' → '+fmtNice(o.end)+(o.note?' ('+esc(o.note)+')':'')+'</div>').join('')).join('')
+    +barCrew(t).map(n=>oooOverlaps(n,t.startDate,t.endDate).map(o=>'<div class="tt-warn">✈ '+esc(dispName(n))+' is out '+fmtNice(o.start)+' → '+fmtNice(o.end)+(oooNote(o)?' ('+esc(oooNote(o))+')':'')+'</div>').join('')).join('')
     +tn
     +((t.updatedBy||t.updatedAt)?'<div class="tt-dim tt-upd">Updated by '+esc(t.updatedBy?dispName(t.updatedBy):'—')+(t.updatedAt?' · '+esc(timeAgo(t.updatedAt)):'')+'</div>':'')
     +'<div><span class="tt-badge">'+esc(STATUS_LBL[p?projectStatus(p):'estimating'])+'</span></div>';
@@ -5272,6 +5282,9 @@ function clogWhen(iso){
   return d.toLocaleDateString([],{month:'short',day:'numeric'})+' '
     +d.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});
 }
+/* v1.44.1 (#21 Q5): stored field keys read in plain words where a row is drawn; the stored rows keep their keys */
+const CLOG_LBL={jobCode:'Cost code',drafter:'Technical Designer'};
+const clogLbl=s=>String(s).replace(/(^|, |— )(jobCode|drafter)(?=: |, |$)/gm,(m,a,k)=>a+CLOG_LBL[k]); /* "— " = a bulk row's "Title — fields" line */
 function clogRowsHtml(rows,showProject){
   if(!rows.length)return '<div class="clog-empty">No changes recorded yet — history starts with edits made after the changelog shipped (v1.19.0).</div>';
   return rows.map(r=>{
@@ -5280,8 +5293,8 @@ function clogRowsHtml(rows,showProject){
       +'<span class="clog-who" title="'+esc(r.who)+'">'+esc(r.who?dispName(r.who):'—')+'</span>' /* v1.19.2: nickname everywhere; the title attr keeps the full stored name */
       +'<div class="clog-what"><b>'+esc(r.title)+'</b>'
       +(showProject&&r.projectId&&r.title.indexOf('Project ')!==0?' <span class="clog-proj">· '+esc(p?p.name:'(deleted project)')+'</span>':'')
-      +' <span class="clog-field">'+esc(r.field)+'</span>'
-      +(r.detail?'<div class="clog-det">'+esc(clogDetail(r))+'</div>':'')
+      +' <span class="clog-field">'+esc(clogLbl(r.field))+'</span>'
+      +(r.detail?'<div class="clog-det">'+esc(clogLbl(clogDetail(r)))+'</div>':'')
       +'</div></div>';}).join('');
 }
 /* The global changelog page — Resources ▸ Changelog, admin-only (menu entry hidden for
@@ -5313,7 +5326,7 @@ function renderChangelog(){
       const el=document.getElementById('clog-list'),qi=document.getElementById('clog-q');
       if(!el||!qi)return;
       const q=(qi.value||'').trim().toLowerCase();
-      const f=q?rows.filter(r=>(r.title+' '+r.who+' '+r.field+' '+clogDetail(r)+' ' /* v1.21.2: never match on folded note text */
+      const f=q?rows.filter(r=>(r.title+' '+r.who+' '+clogLbl(r.field)+' '+clogLbl(clogDetail(r))+' ' /* v1.21.2: never match on folded note text; v1.44.1: match the words shown */
         +((projById(r.projectId)||{}).name||'')).toLowerCase().includes(q)):rows;
       el.innerHTML=clogRowsHtml(f.slice(0,500),true)
         +(f.length>500?'<div class="clog-empty">Showing the latest 500 of '+f.length+' — narrow with the filter above.</div>':'');
@@ -5530,7 +5543,7 @@ function renderCompanyPage(){
    +'<span class="cd-src" title="Where this list lives — the toolbar pill shows the last sync">'+esc(src)+'</span>'
    +'<button class="pg-x" id="cd-x" title="Close — back to the timeline (Esc)">&times;</button></div>';
   h+='<div class="cd-head"><h2>'+(isPeople?'People':'Clients')+'</h2>'
-   +'<span class="cd-sub">'+(isPeople?'The company roster — roles, departments and availability':'The company client directory and job-code aliases')+'</span>'
+   +'<span class="cd-sub">'+(isPeople?'The company roster — roles, departments and availability':'The company client directory and cost-code aliases')+'</span>'
    +(isPeople&&isAdmin()?'<button class="btn" id="cd-import" title="Mirror the HR Employee Contacts list into this roster — adds active employees, refreshes titles and phone numbers. The HR list is never changed.">Import from Employee Contacts</button>':'')
    /* v1.43.0 (9c): the one-time tidy — offered only while a row on the list still holds another format */
    +(isPeople&&isAdmin()&&STAFF_OK&&phoneUntidy().length?'<button class="btn" id="cd-tidy" title="Rewrite the phone column on the list in the one format, 555-555-5555 — the app already shows them that way">Tidy '+phoneUntidy().length+' phone number'+(phoneUntidy().length===1?'':'s')+'</button>':'')
@@ -5686,7 +5699,7 @@ function cdPaintDetail(){
      +'<div class="cdd-f"><dt>Departments</dt><dd>'+([...new Set((per.depts||[]).map(pdCanon))].map(d=>esc(cdDeptLbl(d))).join(' · ')||'—')+'</dd></div>'
      +'<div class="cdd-f"><dt>Availability</dt><dd>'
        +'<span class="cd-avail'+cdAvailCls(av)+'">'+esc(av.now?av.txt:'Available')+'</span>'
-       +(upcoming.length?upcoming.map(o=>'<div class="cdd-ooo"><span>'+fmtNice(o.start)+' – '+fmtNice(o.end)+'</span>'+(o.note?'<span class="n">'+esc(o.note)+'</span>':'')+'</div>').join(''):'<div class="cdd-ooo"><span class="n">No upcoming time off</span></div>')
+       +(upcoming.length?upcoming.map(o=>'<div class="cdd-ooo"><span>'+fmtNice(o.start)+' – '+fmtNice(o.end)+'</span>'+(oooNote(o)?'<span class="n">'+esc(oooNote(o))+'</span>':'')+'</div>').join(''):'<div class="cdd-ooo"><span class="n">No upcoming time off</span></div>')
      +'</dd></div>'
      +'<div class="cdd-f"><dt>On the schedule</dt><dd>'
        +(asn.phases?('On '+asn.phases+' phase'+(asn.phases===1?'':'s')+' across '+asn.projects+' project'+(asn.projects===1?'':'s')+(asn.active?' · '+asn.active+' running today':'')):'No phases assigned')
@@ -5885,7 +5898,7 @@ function cdPaintEditor(el,isPeople){
   }else{
     el.innerHTML='<div class="cdd"><div class="cdd-hd"><h3>'+(r._new?'New client':esc(r._orig))+'</h3></div>'
      +'<div class="cd-fg"><label>Client name</label><input id="cde-name" type="text"></div>'
-     +'<div class="cd-fg"><label>Alias</label><input id="cde-alias" type="text" maxlength="6" placeholder="2–3 letter job-code prefix"></div>'
+     +'<div class="cd-fg"><label>Alias</label><input id="cde-alias" type="text" maxlength="6" placeholder="2–3 letter cost-code prefix"></div>'
      +'<div class="cdd-foot">'
      +(r._new?'':'<button class="btn btn-ghost cd-del" id="cde-del">Remove client…</button>')
      +'<span style="flex:1"></span>'
@@ -6242,9 +6255,7 @@ function prGanttInto(body,prow,sideW,timeW){
   const on=(s,e)=>e>=TL_S&&s<=TL_E;
   for(const r of prow){
     if(r.kind==='projHead'){
-      const p=projById(r.projectId),ts=tasksOf(p.id);let s,e;
-      if(ts.length){s=new Date(Math.min(...ts.map(t=>parseDate(t.startDate).getTime())));e=new Date(Math.max(...ts.map(t=>parseDate(t.endDate).getTime())));}
-      else{e=parseDate(p.deadline);s=addDays(e,-14);}
+      const p=projById(r.projectId),{s,e}=projSpan(p,tasksOf(p.id));
       if(on(s,e)){const b=makeSummaryBar(p,s,e,r);if(!prProjOK(p))b.classList.add('dim');cv.appendChild(b);}
       const due=dueDate(p);
       if(due){const dl=parseDate(due);
@@ -7133,8 +7144,13 @@ function insDeptList(p,boxId){
   const canR=vcan('phases'); /* v1.32.0 (#16): + and × ride the phases door, like the chart's add paths */
   const keyOf=t=>p?t.id:ppDraftKeyFor(t); /* the rebuild-stable handle a date line edits by */
   let h='';
-  GROUPS.forEach((g,gi)=>{
-    h+='<div class="idg">'+(gi+1)+' \u00b7 '+esc(g.label)+'</div>';
+  /* v1.44.3 (tracker #37): Project Management is automatic \u2014 the PM is chosen under Project Team \u2014 so
+     its group stays in the page (saves rebuild activeDepartments from these checkboxes) but hidden,
+     unless its "Hand over from today" note needs showing. The visible groups number from 1. */
+  let gn=0;
+  GROUPS.forEach(g=>{
+    const at=h.length,pmg=g.id==='pmg';
+    h+='<div class="idg">'+(pmg?'':(++gn)+' \u00b7 ')+esc(g.label)+'</div>';
     for(const id of grpDepts(g.id)){
       const d=deptById(id);
       const active=p?(p.activeDepartments||[]).includes(id)
@@ -7200,6 +7216,7 @@ function insDeptList(p,boxId){
       }
       h+='</div>';
     }
+    if(pmg){const body=h.slice(at);h=h.slice(0,at)+'<div class="idg-pm'+(body.includes('ins-note dhand')?'':' hidden')+'">'+body+'</div>';}
   });
   box.innerHTML=h;
   ppPaintDateNote();
@@ -7407,7 +7424,7 @@ function ppInspector(){
          itself is managed under Company Data → Clients. */
       + '<div class="ins-f"><label>Client</label><input id="pp-client" list="cl-dl" value="'+esc(p.client||'')+'" placeholder="Who it\'s for"><datalist id="cl-dl">'+clientOptions()+'</datalist></div>'
       + '<div class="ins-row">'
-      + '<div class="ins-f"><label>Job code</label><input id="pp-code" value="'+esc(p.jobCode||'')+'" placeholder="H1-2049"></div>'
+      + '<div class="ins-f"><label>Cost code</label><input id="pp-code" value="'+esc(p.jobCode||'')+'" placeholder="AB123"></div>'
       /* v1.26.0 (#20): a new job asks for the one date the layout builds backward from; once
          saved, install and shipping dates live only in Departments, and Setup shows when
          the project was first saved instead. */
@@ -7710,9 +7727,10 @@ function ppPaintMeta(p){
   const box=document.getElementById('pp-meta');
   if(!box)return;
   const ts=NPV_LIVE?tasksOf(p.id).filter(t=>!t.__ghost):NPV_ALL;
+  const work=ts.filter(t=>t.department!=='pm'); /* v1.44.2 (#36): Shop starts = the first real phase, as projSpan */
   let s='',e='';
   for(const t of ts){
-    if(t.startDate&&(!s||t.startDate<s))s=t.startDate;
+    if(t.startDate&&(work.length?t.department!=='pm':true)&&(!s||t.startDate<s))s=t.startDate;
     if(t.endDate&&(!e||e<t.endDate))e=t.endDate;
   }
   const due=dueOf(ts); /* v1.26.0 (#15/#20): Installation, else Shipping, else nothing */
@@ -7730,7 +7748,7 @@ function ppPaintMeta(p){
   let h='';
   /* esc() was escaping the entity, so the strip literally said "&mdash;". */
   h+=cell('Client',p.client?esc(p.client):'\u2014');
-  h+=cell('Job',p.jobCode?esc(p.jobCode):'\u2014');
+  h+=cell('Cost code',p.jobCode?esc(p.jobCode):'\u2014');
   if(dl)h+=cell(due.k==='shipping'?'Ships':'Installs',esc(fmtNice(dl)));
   if(left!==null&&!done)h+=cell(left<0?'Overdue by':'Days out',Math.abs(left)+'d',left<0);
   h+=cell('Shop starts',s?esc(fmtNice(s)):'&mdash;');
@@ -8489,6 +8507,13 @@ function npvRebuild(){
      independence a saved subtask row has. The first pass still applies a whole-
      department drag, which the split copies then inherit. */
   tasks=applyPhaseLines(tasks).map(overlay);
+  /* v1.44.2 (tracker #36): the PM bar was generated before any hand-moved phase; start it with the
+     first phase as it now stands, so the saved PM bar (and the PM's lane) begins where the work does. */
+  const work=tasks.filter(t=>t.department!=='pm');
+  if(work.length){
+    const first=work.reduce((m,t)=>t.startDate<m?t.startDate:m,work[0].startDate);
+    tasks=tasks.map(t=>t.department==='pm'&&!t.__manual&&first<=t.endDate?{...t,startDate:first}:t);
+  }
   NPV_ALL=tasks;
   /* PM spans the whole job, so a bar for it repeats what the summary row already says.
      It is still generated and still saved — it just isn't drawn. */
@@ -11175,7 +11200,7 @@ const COACH_KEY='shopTimelineCoachSeen';
 const COACH_STEPS=[
   /* Copy: owner revision 2026-09-02 (docs/Copy-Coach-and-Helpers.md) */
   {sel:'#sidebar',t:'Every job, one list',
-   b:'Projects stack here with their job codes and deadlines. Click a row to open its phases, the eye spotlights one job, the pencil edits it. The Department lens regroups everything by Department.'},
+   b:'Projects stack here with their cost codes and deadlines. Click a row to open its phases, the eye spotlights one job, the pencil edits it. The Department lens regroups everything by Department.'},
   {sel:'#gantt-scroll',t:'The timeline',
    b:'Each bar is a phase of work. Click one for its details, drag it to move, grab an edge to resize, right-click for more. Red bars are installs.'},
   /* v1.2.1 (08-31 obj 1): teach the date-bar pan — the least discoverable move on the view */
@@ -11203,7 +11228,7 @@ const COACH_PP_STEPS=[
   {sel:'.pg-trail',t:'Where you are',
    b:'All Projects, this job, and the phase when one is selected. Click a crumb to step back out. Esc, Done and the × do the same.'},
   {sel:'#pp-meta',t:'The job at a glance',
-   b:'Client, job code, install date and days out. These update as you edit. A warning appears if work runs past the install.'},
+   b:'Client, cost code, install date and days out. These update as you edit. A warning appears if work runs past the install.'},
   {sel:'.npv-swrap',t:'The schedule',
    b:'Every bar is a phase of work. Click one to edit it below, drag to move, grab an edge to resize, right-click to add a subtask, milestone or note. On the calendar, click a strip to open its phase and see its subtasks.'},
   {sel:'.npv-modes',t:'Two views of the same dates',
@@ -11653,6 +11678,11 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.44.3",d:"Oct 9, 2026",n:["Project Schedule no longer lists the automatic Project Management row; the PM is set under Project Team, and the phases now number from 1 (Technical Design first). The row only appears when a PM bar needs handing over to a new PM."]},
+ {v:"v1.44.2",d:"Oct 9, 2026",n:["A project's bar on the dashboard, in print and in the header's Shop starts now begins at its first phase. The hidden Project Management row no longer pulls it earlier."]},
+ {v:"v1.44.1",d:"Oct 9, 2026",n:["Job code is now called Cost code on screen: the project's Setup panel, the header strip, the tour and the Clients directory. The codes themselves are unchanged.",
+   "Changelog rows name fields in plain words: \"Cost code\" and \"Technical Designer\" instead of the stored names."]},
+ {v:"v1.44.0",d:"Oct 8, 2026",n:["Time off is private: only admins see the note typed on someone's time off. Everyone else sees the dates, on the People record, the lanes, phase hover tips and the person panel (\"Out of office\")."]},
  {v:"v1.43.0",d:"Oct 8, 2026",n:["People: every phone number reads one way, 555-555-5555, however it was typed or imported, and searching the bare digits finds it.",
    "People (admins): a one-time \"Tidy N phone numbers\" button rewrites the numbers still stored another way on the SharePoint list, and then goes away.",
    "People: a new Office Extension column, for calls between office phones. Type it in the editor; it has its own column beside Phone and its own line on the record.",
