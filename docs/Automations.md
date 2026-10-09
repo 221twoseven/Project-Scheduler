@@ -14,7 +14,7 @@ its entry. If it's turned off, mark it *retired* and keep the entry.
 | Automation | Kind | What it does | Owner | Status |
 |---|---|---|---|---|
 | [Feedback poller](#feedback-poller) | GitHub Actions | Files each feedback report as a tracker issue; syncs status, the resolved date and `/reply` / `/comment` comments back to the list | Robert | live since 2026-09-25 |
-| [Reply email](#reply-email) | Power Automate | Emails a new `/reply` to the person who filed the report, and tells them they can answer; emails them when their report is resolved | Robert | live since 2026-09-30; resolved branch **to build** (tracker README step 11, 2026-10-09) |
+| [Reply email](#reply-email) | Power Automate | Emails a new `/reply` to the person who filed the report, and tells them they can answer; emails them when their report is resolved | Robert | live since 2026-09-30; resolved branch live since 2026-10-09 (tracker README step 11) |
 | [Email reply in](#email-reply-in) | Power Automate | Sends the reporter's email answer to the tracker, where it becomes a comment on the ticket | Robert | **to build** (tracker README step 10) |
 | 27 Events → Outlook | Power Automate | Syncs the company calendar list to Outlook | unknown | **undocumented**: TODO §5, item 12 |
 | 27 Employees (PTO) | Power Automate | PTO / availability automation | operations manager | **undocumented**: TODO §5 |
@@ -66,8 +66,8 @@ it off.
   `Timeline: your bug or idea #<ID> has a reply!`, and the body opens by telling the reporter they
   can reply to the email, followed by a `--- Reply above this line ---` marker. *Email
   reply in* depends on both.
-  - **Resolved branch** (TODO item 56, tracker #38; steps written 2026-10-09, the owner
-    builds it): when a row's `status` changes to `resolved` (its ticket closed), it emails
+  - **Resolved branch** (TODO item 56, tracker #38; live since 2026-10-09, tested on
+    #31): when a row's `status` changes to `resolved` (its ticket closed), it emails
     the reporter `Timeline: your bug or idea #<ID> was resolved`, with the same link.
     Reopening sends nothing; closing again sends one more. Rows resolved before the branch
     existed get nothing.
@@ -84,7 +84,7 @@ it off.
 - **Definition:** Power Automate ▸ My flows ▸ *Shop Timeline — reply email*. The
   step-by-step build is in the tracker README, step 9, and the resolved branch is step 11.
   Exported package: tracker `flows/shop-timeline-reply-email.zip`, with a readable
-  `.definition.json` beside it (exported 2026-09-30; re-export once step 11 is built). The SharePoint trigger checks for changes every minute.
+  `.definition.json` beside it (re-exported 2026-10-09 with the resolved branch). The SharePoint trigger checks for changes every minute.
 - **Failures:** Power Automate emails the flow owner a weekly failure digest. The flow's
   28-day run history shows the failing step and its error.
 - **Turn off:** My flows ▸ the flow ▸ **Turn off**.
