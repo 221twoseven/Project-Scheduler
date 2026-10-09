@@ -50,8 +50,8 @@ as the phase runs.
 - Every milestone gets a record in `docs/Milestones/Phase-7-Pilot-Readiness/`; every
   deliberate skip gets a §7 line with its gate.
 
-Last reviewed: 2026-10-09 — the promotion audit for v1.43.0 → v1.44.3 reaching `main`
-(log in §8). Before that, 2026-10-08 — D15 (data platform) reassessed: Dataverse and Azure SQL + API
+Last reviewed: 2026-10-09 — the promotion audits for v1.43.0 → v1.44.3 and v1.44.3 → v1.45.1
+reaching `main` (log in §8). Before that, 2026-10-08 — D15 (data platform) reassessed: Dataverse and Azure SQL + API
 are now co-equal candidates (`docs/Architecture-Review-Backend.md`); D1, D3, D10–D13 and
 items 14, 17 and 44 given storage-neutral readings. The same day: the opening, §0 and §3's
 intro brought up to date, then a full audit against the tracker, `CHANGELOG.md` and the
@@ -62,10 +62,9 @@ is the log in §8.
 
 ## 0. Where we stand
 
-As of 2026-10-09: production (`main`) runs **v1.44.3**, promoted
-2026-10-09 (release/2026-10-09); `development` runs **v1.45.1**. The newest work: reporter answers show in Open
-Issues (item 58); Protect dates
-(item 2: drags never change dates); Project Schedule hides the automatic
+As of 2026-10-09: production (`main`) and `development` both run **v1.45.1**, promoted
+2026-10-09 (release/2026-10-09b). The newest work: reporter answers show in Open Issues
+(item 58); Protect dates (item 2: drags never change dates); Project Schedule hides the automatic
 Project Management row (item 55, tracker #37); a project starts at its first phase (item
 54, tracker #36); "Cost code" on screen (item 1, tracker #21); time-off notes are private
 to admins (item 4). Phase 7 has shipped v1.24.0 → v1.45.1 so far.
@@ -1966,6 +1965,19 @@ How to read the tags at the end of an entry:
   number.
 
 **Log, newest first:**
+
+- 2026-10-09 (second promotion): **v1.44.3 → v1.45.1 promoted to `main`** (release/2026-10-09b).
+  The promotion audit (`CLAUDE.md`, "Keeping `docs/TODO.md` true"):
+  - *Releases since the last promotion (v1.44.3):* v1.45.0 is item 2 ((a), (b) and (d) noted
+    shipped; (c) waits on item 25) and v1.45.1 is item 58, ticked.
+  - *Non-release work since then, all ticked:* item 56 (the resolved email, live, tracker #38
+    closed) and item 57 (CI on pull requests only).
+  - *Tracker:* no new tickets. #38 and the #31 test are closed. The three open ones match their
+    items: #1 → 32 (needs Proceed), #7 → 3 (on hold), #12 → 40.
+  - *⚠ specs:* none new.
+  - *Branches and PRs:* nothing open besides this promotion; only `main` and `development` on
+    the remote.
+  - *Fixed in this audit:* §0 now says production runs v1.45.1.
 
 - 2026-10-09 (promotion): **v1.43.0 → v1.44.3 promoted to `main`** (release/2026-10-09). The
   promotion audit (`CLAUDE.md`, "Keeping `docs/TODO.md` true"):
