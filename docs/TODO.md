@@ -61,11 +61,12 @@ is the log in §8.
 
 ## 0. Where we stand
 
-As of 2026-10-08: production (`main`) runs **v1.43.0**, promoted 2026-10-08
-(release/2026-10-08); `development` runs **v1.44.0**. The newest work: time-off notes are
+As of 2026-10-09: production (`main`) runs **v1.43.0**, promoted 2026-10-08
+(release/2026-10-08); `development` runs **v1.44.1**. The newest work: "Cost code" on screen
+(item 1, tracker #21); time-off notes are
 private to admins (item 4); the employee import fetches only what it uses, one phone format
 and an Office Extension column (item 9); a role change moves the project to the new holder
-(item 53). Phase 7 has shipped v1.24.0 → v1.44.0 so far.
+(item 53). Phase 7 has shipped v1.24.0 → v1.44.1 so far.
 `CHANGELOG.md` is the release-by-release record.
 
 ## 1. North star — Systems
@@ -248,14 +249,15 @@ decides, then its source in brackets.
 
 What the pilot can't start without.
 
-- [ ] **1. Terminology pass.** Rename two terms on screen: "Job code" becomes **Cost
+- [x] **1. Terminology pass.** Rename two terms on screen: "Job code" becomes **Cost
       Code**, and "Drafter" becomes **Technical Designer**. *The Drafter half shipped in
       v1.31.1 (tracker #17, with #22's Project Team / Project Schedule headings). The Cost
-      Code half is on tracker #21. The 2026-10-08 revised spec answers the owner's question
-      of 2026-10-06: yes, rename the column's display name to `costCode` (internal name
-      stays `jobCode`). The owner renamed it on 2026-10-09, so R5 is done. The on-screen
-      labels wait on the owner's "Proceed with fix". The §7.4 ledger holds the two
-      "Drafter" echoes that remain (the Changelog key and the D chip).*
+      Code half shipped v1.44.1 (PR #118, 2026-10-09; tracker #21, approved 2026-10-09):
+      the Setup label (placeholder AB123), the header strip, tour steps 1 and 9 and the
+      Clients directory say "Cost code"; Changelog rows read `jobCode` as "Cost code" and
+      `drafter` as "Technical Designer". Suite `tests/test-v1441.js`. The owner renamed the
+      SharePoint column's display name to `costCode` on 2026-10-09 (internal name stays
+      `jobCode`). The §7.4 ledger holds the one "Drafter" echo that remains (the D chip).*
       - *Where:* sidebar, bar labels, tooltip, Meeting Sheet, late prompt, New Project.
         (Drafter had labels only on the project page and in the legend; the Cost Code
         list is #21's.)
@@ -1841,11 +1843,9 @@ How to read the tags at the end of an entry:
       "Status follows the ticket" and the ticket link instead of the button; the
       `fbSetStatus` path stays for rows without a ticket. [item 31]
 - [ ] **Two "Drafter" echoes stay after the v1.31.1 rename (tracker #17).** (1) Changelog
-      rows (admin/PM) still read the stored key `drafter:` — `clogField` writes the key into
-      the Changelog list's `detail` column at save time, so a label map there would make new
-      rows differ from every old row; the fix is a read-side stored-name → plain-word map,
-      which the #21 spec (Q5) plans for `jobCode` and `drafter` together. Gate: #21
-      approved. (2) The "D" people chip (sidebar, project tooltip, Help legend swatch;
+      rows read the stored key `drafter:`. *Done v1.44.1 (PR #118): a read-side map
+      (`clogLbl`) shows it as "Technical Designer", and `jobCode` as "Cost code"; stored rows
+      keep their keys.* (2) The "D" people chip (sidebar, project tooltip, Help legend swatch;
       test-c3-status pins `PM,D,L`) still abbreviates the old word; "TD" widens every sidebar
       row. Gate: owner ruling — asked in the v1.31.1 PR body. [item 1]
 - [ ] **Backend guardrails are proposed, not in `CLAUDE.md`** (2026-10-08). The 20
