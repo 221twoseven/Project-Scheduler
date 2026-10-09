@@ -166,7 +166,7 @@ number is given when it ships. Proposed:
 
 | Batch | Contents (§3 items) |
 |---|---|
-| 1 — privacy and copy | 9a first (the import fetches only the fields it uses — the owner's "cache is cache" ruling), with 9c (one phone format) and the Office Extension column: shipped v1.43.0; 9b deferred (owner, 2026-10-08). Then 4 (time-off notes private) and 1–2 (terminology; one meaning for Lock dates, with copy that explains it) |
+| 1 — privacy and copy | 9a first (the import fetches only the fields it uses — the owner's "cache is cache" ruling), with 9c (one phone format) and the Office Extension column: shipped v1.43.0; 9b deferred (owner, 2026-10-08). Then 4 (time-off notes private) and 1–2 (terminology; one meaning for Lock dates, with copy that explains it). **Batch 1 is done** (2026-10-09): 4 shipped v1.44.0, 1 v1.44.1, 2 v1.45.0; 2 (c) moves with 25 in batch 2 |
 | 2 | 25 (saved views follow the person ⚠ `savedViews`; Lock dates remembered per user), 7 (repeat work easier to find), 8 (label the department rollup band) |
 | Seam (no release) | 48 (the storage seam), eight behaviour-neutral PRs interleaved after batch 1; PRs 1–2 first, since item 51's Azure spike waits on them |
 | 3 | 5 (date certainty ⚠ `dateCertainty`), 6 (last update shown, stale flag) |
