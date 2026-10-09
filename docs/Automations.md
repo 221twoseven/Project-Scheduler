@@ -15,7 +15,7 @@ its entry. If it's turned off, mark it *retired* and keep the entry.
 |---|---|---|---|---|
 | [Feedback poller](#feedback-poller) | GitHub Actions | Files each feedback report as a tracker issue; syncs status, the resolved date and `/reply` / `/comment` comments back to the list | Robert | live since 2026-09-25 |
 | [Reply email](#reply-email) | Power Automate | Emails a new `/reply` to the person who filed the report, and tells them they can answer; emails them when their report is resolved | Robert | live since 2026-09-30; resolved branch live since 2026-10-09 (tracker README step 11) |
-| [Email reply in](#email-reply-in) | Power Automate | Sends the reporter's email answer to the tracker, where it becomes a comment on the ticket and in the app | Robert | **to build** (tracker README step 10, rewritten 2026-10-09) |
+| [Email reply in](#email-reply-in) | Power Automate | Sends the reporter's email answer to the tracker, where it becomes a comment on the ticket and in the app | Robert | live since 2026-10-09 (rebuilt; tracker README step 10) |
 | 27 Events → Outlook | Power Automate | Syncs the company calendar list to Outlook | unknown | **undocumented**: TODO §5, item 12 |
 | 27 Employees (PTO) | Power Automate | PTO / availability automation | operations manager | **undocumented**: TODO §5 |
 
@@ -107,12 +107,15 @@ it off.
   `221twoseven/Project-Scheduler-issues`. Writes nothing to SharePoint.
 - **Runs as:** Robert's Outlook connection, plus a GitHub connection signed in as
   `221twoseven`. The GitHub connector is standard, not premium.
-- **Safeguards:** the poller posts only when the sender is the report's reporter. It cuts the
+- **Safeguards:** the poller posts only a reply (subject starting `RE:`, `AW:` or `SV:`; the
+  flow also sees the team's own outgoing emails) and only when the sender is the report's
+  reporter. It cuts a signature (a `-- ` line or a rule of dashes) as well. It cuts the
   quoted original, and it fixes the comment's first line, so an email can't pass for a
   maintainer command. Anything else is dropped, and the reason is in the run log.
 - **Definition:** Power Automate ▸ My flows ▸ *Shop Timeline — email reply in*. The
-  step-by-step build is in the tracker README, step 10 (rewritten 2026-10-09). Export it to the
-  tracker's `flows/` once it's built.
+  step-by-step build is in the tracker README, step 10 (rewritten 2026-10-09). Exported package:
+  tracker `flows/shop-timeline-email-reply-in.zip`, with a readable `.definition.json` beside it
+  (2026-10-09).
 - **Failures:** the Power Automate failure digest, and the tracker's Actions log for the run
   it starts.
 - **Turn off:** My flows ▸ the flow ▸ **Turn off**. Reporters' answers then just stay in the

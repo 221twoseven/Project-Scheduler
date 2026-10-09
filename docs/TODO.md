@@ -873,16 +873,18 @@ is item 32 (P0), #7 is part of item 3, and #11 and #14 were done by the bridge i
       - *Approved 2026-10-09.* The steps are in the tracker README (step 11) and
         `docs/Automations.md` is updated (PR #123; the condition is named `Resolved`, PR #124).
       [tracker #38]
-- [ ] **58. Replies work like comments on both trackers** (owner, 2026-10-09). A reporter's
+- [x] **58. Replies work like comments on both trackers** (owner, 2026-10-09). Shipped v1.45.1
+      (PR #126, 2026-10-09); the owner rebuilt *Email reply in* and tested it on #31 the same day
+      (flow exported to the tracker's `flows/`). A reporter's
       answer to a reply email becomes a comment on the GitHub ticket *and* in the app's Open
       Issues thread, beside the team's `/reply` and `/comment` notes.
       - *Built (v1.45.1, PR #126, 2026-10-09):* the app labels each comment *Team* or
         *Reporter* and counts "N comments" (`fbRepliesHtml`; suite `tests/test-v1451.js`).
         The poller (tracker 2d6ff74) copies **Reply from the reporter** comments to the row
         as `kind:'reporter'`, never mailed back, and an email-reply run starts the sync itself.
-      - *Waits on:* the owner rebuilding *Email reply in* from tracker README step 10
-        (rewritten 2026-10-09: no subject filter on the trigger, a Condition instead), the
-        test on #31, and the export to `flows/`.
+      - *Live test findings, fixed in the poller (tracker 29883d0):* the flow also saw the
+        team's own outgoing emails when the reporter's mailbox is the sending one, so only a
+        reply subject (`RE:`) posts now; an Outlook signature under a dash rule is cut.
       [owner ask 2026-10-09]
 - [x] **57. CI runs on pull requests only** (owner, 2026-10-09). Done (PR #123,
       2026-10-09): `.github/workflows/ci.yml` no longer runs on the push after a merge,
