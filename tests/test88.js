@@ -42,7 +42,7 @@ setTimeout(()=>{
   sec('2 · Phase 1 — no taxonomy eyebrows; separators carry the grouping; Lock dates');
   ok('no eyebrow labels remain on the timeline row',row.querySelectorAll('.t-mini').length===0);
   ok('the cluster separators remain (grouping without labels)',row.querySelectorAll('.t-sep').length>=2,'seps='+row.querySelectorAll('.t-sep').length);
-  ok('the lock toggle reads "Lock dates"',doc.querySelector('.lock-txt').textContent.trim()==='Lock dates');
+  ok('the lock toggle reads "Protect dates" (v1.45.0, item 2; was "Lock dates")',doc.querySelector('.lock-txt').textContent.trim()==='Protect dates');
 
   sec('3 · Phase 2 — density & Vivid live in View ▾; color-by is a dropdown');
   ok('the old toolbar density button is gone',!doc.getElementById('btn-density'));

@@ -50,8 +50,8 @@ as the phase runs.
 - Every milestone gets a record in `docs/Milestones/Phase-7-Pilot-Readiness/`; every
   deliberate skip gets a §7 line with its gate.
 
-Last reviewed: 2026-10-09 — the promotion audit for v1.43.0 → v1.44.3 reaching `main`
-(log in §8). Before that, 2026-10-08 — D15 (data platform) reassessed: Dataverse and Azure SQL + API
+Last reviewed: 2026-10-09 — the promotion audits for v1.43.0 → v1.44.3 and v1.44.3 → v1.45.1
+reaching `main` (log in §8). Before that, 2026-10-08 — D15 (data platform) reassessed: Dataverse and Azure SQL + API
 are now co-equal candidates (`docs/Architecture-Review-Backend.md`); D1, D3, D10–D13 and
 items 14, 17 and 44 given storage-neutral readings. The same day: the opening, §0 and §3's
 intro brought up to date, then a full audit against the tracker, `CHANGELOG.md` and the
@@ -62,11 +62,12 @@ is the log in §8.
 
 ## 0. Where we stand
 
-As of 2026-10-09: production (`main`) and `development` both run **v1.44.3**, promoted
-2026-10-09 (release/2026-10-09). The newest work: Project Schedule hides the automatic
+As of 2026-10-09: production (`main`) and `development` both run **v1.45.1**, promoted
+2026-10-09 (release/2026-10-09b). The newest work: reporter answers show in Open Issues
+(item 58); Protect dates (item 2: drags never change dates); Project Schedule hides the automatic
 Project Management row (item 55, tracker #37); a project starts at its first phase (item
 54, tracker #36); "Cost code" on screen (item 1, tracker #21); time-off notes are private
-to admins (item 4). Phase 7 has shipped v1.24.0 → v1.44.3 so far.
+to admins (item 4). Phase 7 has shipped v1.24.0 → v1.45.1 so far.
 `CHANGELOG.md` is the release-by-release record.
 
 ## 1. North star — Systems
@@ -165,7 +166,7 @@ number is given when it ships. Proposed:
 
 | Batch | Contents (§3 items) |
 |---|---|
-| 1 — privacy and copy | 9a first (the import fetches only the fields it uses — the owner's "cache is cache" ruling), with 9c (one phone format) and the Office Extension column: shipped v1.43.0; 9b deferred (owner, 2026-10-08). Then 4 (time-off notes private) and 1–2 (terminology; one meaning for Lock dates, with copy that explains it) |
+| 1 — privacy and copy | 9a first (the import fetches only the fields it uses — the owner's "cache is cache" ruling), with 9c (one phone format) and the Office Extension column: shipped v1.43.0; 9b deferred (owner, 2026-10-08). Then 4 (time-off notes private) and 1–2 (terminology; one meaning for Lock dates, with copy that explains it). **Batch 1 is done** (2026-10-09): 4 shipped v1.44.0, 1 v1.44.1, 2 v1.45.0; 2 (c) moves with 25 in batch 2 |
 | 2 | 25 (saved views follow the person ⚠ `savedViews`; Lock dates remembered per user), 7 (repeat work easier to find), 8 (label the department rollup band) |
 | Seam (no release) | 48 (the storage seam), eight behaviour-neutral PRs interleaved after batch 1; PRs 1–2 first, since item 51's Azure spike waits on them |
 | 3 | 5 (date certainty ⚠ `dateCertainty`), 6 (last update shown, stale flag) |
@@ -271,7 +272,12 @@ What the pilot can't start without.
         That's Phase 8, §4 D10.
       [brief §7 Terminology]
 - [ ] **2. Lock dates: give it one meaning, then explain it.** Confirmed P0 by user
-      feedback (owner, 2026-09-24).
+      feedback (owner, 2026-09-24). *(a), (b) and (d) shipped v1.45.0 (PR #123,
+      2026-10-09).* The owner chose option 1 on 2026-10-09: drags never change dates, on the
+      timeline and the project page (Gantt and calendar); lane moves and typed dates still
+      work. Renamed **Protect dates**; its tooltip says what it stops and that it is always on
+      for view-only users. Suite `tests/test-v1450.js`. Only (c) is left, and it waits on
+      item 25.
       - *Today it means two different things.* On the timeline it stops date changes:
         grabbing a bar's edge to resize turns into a move, and a move changes no dates.
         A drag can still move the bar into another department's or person's lane. On the
@@ -852,7 +858,10 @@ is item 32 (P0), #7 is part of item 3, and #11 and #14 were done by the bridge i
         department list from its checkboxes. The visible groups number from 1. The group shows,
         unnumbered, only when its "Hand over from today" note applies (item 53).
       [tracker #37]
-- [ ] **56. Tell reporters when their report is resolved** (P1, automation). When a
+- [x] **56. Tell reporters when their report is resolved** (P1, automation). Done
+      2026-10-09 (no app release): the owner built the *Resolved* branch of the *Reply email*
+      flow, tested it on #31 (reopen sent nothing, close sent one email) and re-exported the
+      flow (tracker f48073e); tracker #38 closed. When a
       ticket closes, the poller already sets the row's `status` to `resolved`; nothing
       emails the reporter.
       - *Plan:* the owner adds a second branch to the *Reply email* Power Automate flow:
@@ -860,8 +869,27 @@ is item 32 (P0), #7 is part of item 3, and #11 and #14 were done by the bridge i
         with the `#/issues/<ID>` link). Claude writes the build steps (tracker README step
         11) and the `docs/Automations.md` update; the owner exports the flow to the
         tracker's `flows/`. No app release.
-      - *Waits on:* the owner's "Proceed with fix" on the 2026-10-09 spec.
+      - *Approved 2026-10-09.* The steps are in the tracker README (step 11) and
+        `docs/Automations.md` is updated (PR #123; the condition is named `Resolved`, PR #124).
       [tracker #38]
+- [x] **58. Replies work like comments on both trackers** (owner, 2026-10-09). Shipped v1.45.1
+      (PR #126, 2026-10-09); the owner rebuilt *Email reply in* and tested it on #31 the same day
+      (flow exported to the tracker's `flows/`). A reporter's
+      answer to a reply email becomes a comment on the GitHub ticket *and* in the app's Open
+      Issues thread, beside the team's `/reply` and `/comment` notes.
+      - *Built (v1.45.1, PR #126, 2026-10-09):* the app labels each comment *Team* or
+        *Reporter* and counts "N comments" (`fbRepliesHtml`; suite `tests/test-v1451.js`).
+        The poller (tracker 2d6ff74) copies **Reply from the reporter** comments to the row
+        as `kind:'reporter'`, never mailed back, and an email-reply run starts the sync itself.
+      - *Live test findings, fixed in the poller (tracker 29883d0):* the flow also saw the
+        team's own outgoing emails when the reporter's mailbox is the sending one, so only a
+        reply subject (`RE:`) posts now; an Outlook signature under a dash rule is cut.
+      [owner ask 2026-10-09]
+- [x] **57. CI runs on pull requests only** (owner, 2026-10-09). Done (PR #123,
+      2026-10-09): `.github/workflows/ci.yml` no longer runs on the push after a merge,
+      because the PR run already tests the merged result. Both branches take changes only
+      by PR, and `main`'s required `test` check is the PR run. `CONTRIBUTING.md` and
+      `docs/Stats-for-Nerds.md` follow. [owner ask 2026-10-09]
 
 **Shipped or closed with no §3 item** (before the 2026-10-08 every-task rule; the full
 record is each ticket's "Fix shipped" note and `CHANGELOG.md`):
@@ -1937,6 +1965,19 @@ How to read the tags at the end of an entry:
   number.
 
 **Log, newest first:**
+
+- 2026-10-09 (second promotion): **v1.44.3 → v1.45.1 promoted to `main`** (release/2026-10-09b).
+  The promotion audit (`CLAUDE.md`, "Keeping `docs/TODO.md` true"):
+  - *Releases since the last promotion (v1.44.3):* v1.45.0 is item 2 ((a), (b) and (d) noted
+    shipped; (c) waits on item 25) and v1.45.1 is item 58, ticked.
+  - *Non-release work since then, all ticked:* item 56 (the resolved email, live, tracker #38
+    closed) and item 57 (CI on pull requests only).
+  - *Tracker:* no new tickets. #38 and the #31 test are closed. The three open ones match their
+    items: #1 → 32 (needs Proceed), #7 → 3 (on hold), #12 → 40.
+  - *⚠ specs:* none new.
+  - *Branches and PRs:* nothing open besides this promotion; only `main` and `development` on
+    the remote.
+  - *Fixed in this audit:* §0 now says production runs v1.45.1.
 
 - 2026-10-09 (promotion): **v1.43.0 → v1.44.3 promoted to `main`** (release/2026-10-09). The
   promotion audit (`CLAUDE.md`, "Keeping `docs/TODO.md` true"):

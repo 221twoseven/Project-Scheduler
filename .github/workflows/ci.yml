@@ -1,10 +1,10 @@
 name: CI
 
-# Run the Timeline regression suites on every push and PR to the working and
-# production branches, so a broken build is caught before it reaches Pages.
+# Run the Timeline regression suites on every PR into the working and production
+# branches, so a broken build is caught before it reaches Pages. Pull requests only
+# (owner, 2026-10-09): the PR run already tests the merged result, so a second run
+# on the push after the merge was dropped. Both branches take changes only by PR.
 on:
-  push:
-    branches: [main, development]
   pull_request:
     branches: [main, development]
 

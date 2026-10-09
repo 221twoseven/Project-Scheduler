@@ -370,6 +370,7 @@ body.compact .sb-chip{line-height:1.2;padding:.5px 6px}
 .fb-cm summary{cursor:pointer;color:var(--ts-muted);font-size:11.5px}
 .fb-cm-one{margin:4px 0 0 12px;padding-left:8px;border-left:2px solid #E2E8F0}
 .fb-cm-one .clog-when{width:auto;font-size:11px}
+.fb-cm-one.rep{border-left-color:var(--acc)} /* v1.45.1: the reporter's own answers stand apart from the team's */
 /* v1.28.0 (tracker #10): a report's full text folds under its subject (native <details>, like
    .fb-cm). The padding/negative-margin pair lifts the summary's hit box to 24px (§9) without
    changing the row height. */
@@ -1635,10 +1636,10 @@ body.cd-route #dash-bar{display:none!important}
       <button id="btn-views" class="t-btn" title="Save the current filters, zoom and layout as a named view, and jump between views">Saved Views <svg class="ico-s" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 6 8 9.5 11.5 6"/></svg></button>
       <div id="views-menu" class="tb-menu hidden"></div>
     </div>
-    <label class="lock-tog" title="Lock all bars so drags can't change dates">
+    <label class="lock-tog" title="Protect dates: dragging a bar never changes its dates, on the timeline or a project page. You can still drag a bar to another person's or department's lane, and typed dates still change. Always on for view-only users.">
       <input type="checkbox" id="lock-ck">
       <span class="lock-track"><span class="lock-thumb"></span></span>
-      <span class="lock-txt">Lock dates</span>
+      <span class="lock-txt">Protect dates</span>
     </label>
   </div>
 </div>
@@ -1845,7 +1846,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.44.3'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.45.1'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -3322,7 +3323,7 @@ function feedbackRecipients(){return PEOPLE.filter(p=>p.feedbackRecipient&&Strin
    on their next reload; add CFG to the 90s poll only if that lag ever bites. */
 const CFG_META=[
   ['viewer.project',   'Project settings',  'Non-admins can edit project setup, team and departments on the project page'],
-  ['viewer.phases',    'Phase edits',       'Non-admins can move, resize, rename, add and delete phases (and unlock dates)'],
+  ['viewer.phases',    'Phase edits',       'Non-admins can move, resize, rename, add and delete phases (and turn off Protect dates)'],
   ['viewer.subtasks',  'Subtasks',          'Non-admins can add and edit subtasks in the task editor'],
   ['viewer.milestones','Milestones',        'Non-admins can add, edit and delete milestones'],
   ['viewer.notes',     'Notes',             'Non-admins can add, edit and delete dated notes'],
@@ -3419,7 +3420,7 @@ function applyPerms(){
      previews now route through devUI(). */
   {const mi=document.getElementById('mi-appset');if(mi)mi.classList.toggle('hidden',!devUI());}
   {const mi=document.getElementById('mi-reports');if(mi)mi.classList.toggle('hidden',!devUI());} /* v1.20.0: dev-only full reports page */
-  if(v&&!vcan('phases')&&!DATE_LOCK){ /* Lock Dates on by default and the toggle hidden (owner spec); the phases grant hands the toggle back */
+  if(v&&!vcan('phases')&&!DATE_LOCK){ /* Protect dates on by default and the toggle hidden (owner spec); the phases grant hands the toggle back */
     DATE_LOCK=true;
     const ck=document.getElementById('lock-ck');if(ck)ck.checked=true;
   }
@@ -8951,7 +8952,7 @@ function npvBindHost(host){
          forward to a workday and the end back, and the nesting clamp holds. */
       const hdl=ev.target.closest('.cal-hdl');
       const resize=hdl?(hdl.classList.contains('r')?'r':'l'):'';
-      const locked=!vcan('phases')||(!!resize&&(DATE_LOCK||!!t.pinned)); /* v1.8.0: viewers never mutate (v1.11.0: unless granted) */
+      const locked=!vcan('phases')||DATE_LOCK||(!!resize&&!!t.pinned); /* v1.45.0 (item 2): Protect dates stops every drag here, move as well as resize */ /* v1.8.0: viewers never mutate (v1.11.0: unless granted) */
       const s0=parseDate(t.startDate),e0=parseDate(t.endDate);
       const twins=NPV_TASKS.filter(z=>z.department===t.department&&(z.label||'')===(t.label||'')
         &&z.startDate===t.startDate&&z.endDate===t.endDate);
@@ -9065,7 +9066,7 @@ function npvBindHost(host){
             /* 3.5/I14: same courtesy as the Gantt — a refused resize says why. */
             if(locked)toast(!vcan('phases')?'View-only access — ask an admin to change the schedule'
                             :t.pinned?'📌 Pinned — untick Pin in the phase panel to resize it'
-                                    :'Lock dates is on — unlock it to resize');
+                                    :'Protect dates is on — drags can’t change dates. Type a date to change it.');
             return;
           }
           const ns2=resize==='l'?edgeD:s0, ne2=resize==='r'?edgeD:e0;
@@ -9089,6 +9090,8 @@ function npvBindHost(host){
           });
           return;
         }
+        if(locked){toast(!vcan('phases')?'View-only access — ask an admin to change the schedule'
+          :'Protect dates is on — drags can’t change dates. Type a date to change it.');return;} /* v1.45.0 (item 2): a refused move says why too */
         if(!days)return;
         const ns=fmtDate(addDays(s0,days)),ne=fmtDate(addDays(e0,days));
         if(NPV_LIVE){
@@ -10044,7 +10047,7 @@ function npvBindDrag(){
       const resize=ev.target.classList.contains('npv-hdl')
         ?(ev.target.classList.contains('r')?'r':'l'):'';
       /* Locked: the drag is swallowed but a click still selects, like the timeline. */
-      const locked=!vcan('phases')||(!!resize&&(DATE_LOCK||!!t.pinned)); /* v1.8.0: viewers never mutate (v1.11.0: unless granted) */
+      const locked=!vcan('phases')||DATE_LOCK||(!!resize&&!!t.pinned); /* v1.45.0 (item 2): Protect dates stops every drag here, move as well as resize */ /* v1.8.0: viewers never mutate (v1.11.0: unless granted) */
       const x0=ev.clientX,y0=ev.clientY;
       let moved=false; /* ≥3px pointer travel — the §6 click/drag disambiguator */
       const s0=parseDate(t.startDate),e0=parseDate(t.endDate);
@@ -10120,7 +10123,7 @@ function npvBindDrag(){
           /* 3.5/I14: a refused resize says WHY instead of silently snapping back. */
           if(locked)toast(!vcan('phases')?'View-only access — ask an admin to change the schedule'
                           :t.pinned?'📌 Pinned — untick Pin in the phase panel to resize it'
-                                  :'Lock dates is on — unlock it to resize');
+                                  :'Protect dates is on — drags can’t change dates. Type a date to change it.');
           return;
         }
         if(resize){
@@ -10400,6 +10403,8 @@ document.addEventListener('keydown',ev=>{
       ev.preventDefault();return;
     }
     if(ev.shiftKey&&(k==='ArrowLeft'||k==='ArrowRight')&&sel){
+      /* v1.45.0 (item 2): the nudge is a keyboard move — Protect dates refuses it like a drag */
+      if(DATE_LOCK){toast('Protect dates is on — drags can’t change dates. Type a date to change it.');ev.preventDefault();return;}
       const d=k==='ArrowRight'?1:-1,k0=PP_SEL;
       if(NPV_LIVE){
         commitPhaseDates(sel.id,
@@ -11487,7 +11492,7 @@ function fbWhenTip(r,done){
   if(done)t.unshift(r.resolvedAt?'Resolved '+fbFullWhen(r.resolvedAt)
     :'Resolution date not recorded; shown is the report’s last change, '+fbFullWhen(r.modified||r.at));
   const last=(r.comments||[]).map(c=>c.at).filter(Boolean).sort().pop();
-  if(last)t.push('Last developer comment '+fbFullWhen(last));
+  if(last)t.push('Last comment '+fbFullWhen(last));
   return t.join(' · ');
 }
 /* v1.39.0 (tracker #29): the status tag. Three states, read off the ticket by the tracker's
@@ -11501,13 +11506,14 @@ function fbStatusTag(r){
 }
 function fbComments(raw){
   let a;try{a=JSON.parse(raw||'[]');}catch(e){return [];}
-  return Array.isArray(a)?a.filter(c=>c&&c.text).map(c=>({at:String(c.at||''),text:String(c.text)})):[];
+  /* v1.45.1: kind 'reporter' = the person who filed it, answering by email (the poller copies it from the ticket) */
+  return Array.isArray(a)?a.filter(c=>c&&c.text).map(c=>({at:String(c.at||''),text:String(c.text),reporter:c.kind==='reporter'})):[];
 }
 function fbRepliesHtml(r,open){
   const n=r.comments.length;
   if(!n)return '';
-  return '<details class="fb-cm"'+(open?' open':'')+'><summary>'+n+(n>1?' developer comments':' developer comment')+'</summary>'
-    +r.comments.map(c=>'<div class="fb-cm-one"><span class="clog-when">'+esc(clogWhen(c.at))+'</span>'
+  return '<details class="fb-cm"'+(open?' open':'')+'><summary>'+n+(n>1?' comments':' comment')+'</summary>'
+    +r.comments.map(c=>'<div class="fb-cm-one'+(c.reporter?' rep':'')+'"><span class="clog-when">'+(c.reporter?'Reporter':'Team')+' · '+esc(clogWhen(c.at))+'</span>'
       +'<div class="clog-det">'+esc(c.text)+'</div></div>').join('')+'</details>';
 }
 /* The public Open Issues list: kind + the subject + when; names stay off the page (they
@@ -11678,6 +11684,8 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.45.1",d:"Oct 9, 2026",n:["Open Issues: a report's thread now shows every comment, labelled Team or Reporter. When the person who filed a report answers the team's email, their answer appears in the thread too."]},
+ {v:"v1.45.0",d:"Oct 9, 2026",n:["\"Lock dates\" is now **Protect dates**, and it means one thing everywhere: dragging a bar never changes its dates, on the timeline or a project page. You can still drag a bar to another lane, and typed dates still change. Its tooltip says so."]},
  {v:"v1.44.3",d:"Oct 9, 2026",n:["Project Schedule no longer lists the automatic Project Management row; the PM is set under Project Team, and the phases now number from 1 (Technical Design first). The row only appears when a PM bar needs handing over to a new PM."]},
  {v:"v1.44.2",d:"Oct 9, 2026",n:["A project's bar on the dashboard, in print and in the header's Shop starts now begins at its first phase. The hidden Project Management row no longer pulls it earlier."]},
  {v:"v1.44.1",d:"Oct 9, 2026",n:["Job code is now called Cost code on screen: the project's Setup panel, the header strip, the tour and the Clients directory. The codes themselves are unchanged.",

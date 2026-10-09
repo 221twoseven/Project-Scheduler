@@ -64,7 +64,7 @@ function open(){
 
   sec('R3 — the emailed /reply still shows under the report');
   const cm=q('#fb-list .clog-row[data-spid="2"] details.fb-cm');
-  ok('the IN REVIEW report folds its reply and the /comment note', !!cm&&/^2 developer comments$/.test(cm.querySelector('summary').textContent)
+  ok('the IN REVIEW report folds its reply and the /comment note', !!cm&&/^2 comments$/.test(cm.querySelector('summary').textContent)
      &&[...cm.querySelectorAll('.clog-det')].map(d=>d.textContent).join('|')==='Thanks — looking into it|Shop note', cm&&cm.querySelector('summary').textContent);
 
   E("location.hash='#/reports';applyRoute()");
