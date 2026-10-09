@@ -250,9 +250,9 @@ What the pilot can't start without.
 - [ ] **1. Terminology pass.** Rename two terms on screen: "Job code" becomes **Cost
       Code**, and "Drafter" becomes **Technical Designer**. *The Drafter half shipped in
       v1.31.1 (tracker #17, with #22's Project Team / Project Schedule headings). The Cost
-      Code half is on tracker #21: the 2026-10-05 revised spec, then the owner's question of
-      2026-10-06 ("should I use: costCode?" for the column name), which still needs an
-      answer on the ticket. The §7.4 ledger holds the two
+      Code half is on tracker #21. The 2026-10-08 revised spec answers the owner's question
+      of 2026-10-06: yes, rename the column's display name to `costCode` (internal name
+      stays `jobCode`). It waits on the owner's "Proceed with fix". The §7.4 ledger holds the two
       "Drafter" echoes that remain (the Changelog key and the D chip).*
       - *Where:* sidebar, bar labels, tooltip, Meeting Sheet, late prompt, New Project.
         (Drafter had labels only on the project page and in the legend; the Cost Code
@@ -823,6 +823,16 @@ is item 32 (P0), #7 is part of item 3, and #11 and #14 were done by the bridge i
       all three and, on rows with a ticket, "Status follows the ticket" with the link in
       place of Mark resolved / Reopen (§7.4 ledger entry ticked). Nothing is set by hand and
       a status change sends no email. [tracker #29]
+- [ ] **54. A project's bar starts at its first phase, not the hidden PM bar** (P1 bug).
+      A Forecast project whose first phase starts Nov 30 shows its dashboard bar and the
+      header's Shop starts from Aug 12. *Root cause:* the hidden Project Management bar
+      keeps the start the scheduler first gave it; a phase moved by hand on the draft
+      doesn't refit it. The dashboard bar (`renderGantt`), the printed Gantt and Shop
+      starts include that bar; Kickoff on the project page already skips it.
+      - *Plan:* one helper takes the start from the earliest non-PM bar for all three. A
+        new project's PM bar starts with its first phase. Saved PM bars aren't rewritten.
+      - *Waits on:* the owner's "Proceed with fix" on the 2026-10-08 spec.
+      [tracker #36]
 
 **Shipped or closed with no §3 item** (before the 2026-10-08 every-task rule; the full
 record is each ticket's "Fix shipped" note and `CHANGELOG.md`):
