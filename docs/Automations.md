@@ -73,7 +73,7 @@ it off.
     existed get nothing.
 - **Trigger:** SharePoint *When an item or a file is modified* on
   `ShopTimeline_Feedback`. It runs on every change to a row; *Get changes* plus a
-  Condition send only when `lastComment` changed, and a second Condition (`Resolved?`) only
+  Condition send only when `lastComment` changed, and a second Condition (`Resolved`; Power Automate rejects `?` in action names) only
   when `status` changed to `resolved`.
 - **Reads / writes:** reads `Title`, `ID`, `lastComment`, `status`, `reporterUpn` and `email`.
   Writes nothing, so it can't trigger itself.
