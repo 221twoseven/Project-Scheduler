@@ -9,6 +9,9 @@ Format: `## <label> — <date>` then one `- ` line per change. Keep lines concre
 what changed *for the team*, not how. Developer-only tooling doesn't need a line.
 Collect lines for the next version under `## Unreleased` and rename it when you ship.
 
+## v1.44.2 — Oct 9, 2026
+- A project's bar on the dashboard, in print and in the header's Shop starts now begins at its first phase. The hidden Project Management row no longer pulls it earlier.
+
 ## v1.44.1 — Oct 9, 2026
 - Job code is now called Cost code on screen: the project's Setup panel, the header strip, the tour and the Clients directory. The codes themselves are unchanged.
 - Changelog rows name fields in plain words: "Cost code" and "Technical Designer" instead of the stored names.
