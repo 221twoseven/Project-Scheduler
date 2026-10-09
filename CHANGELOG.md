@@ -9,6 +9,9 @@ Format: `## <label> — <date>` then one `- ` line per change. Keep lines concre
 what changed *for the team*, not how. Developer-only tooling doesn't need a line.
 Collect lines for the next version under `## Unreleased` and rename it when you ship.
 
+## v1.44.3 — Oct 9, 2026
+- Project Schedule no longer lists the automatic Project Management row; the PM is set under Project Team, and the phases now number from 1 (Technical Design first). The row only appears when a PM bar needs handing over to a new PM.
+
 ## v1.44.2 — Oct 9, 2026
 - A project's bar on the dashboard, in print and in the header's Shop starts now begins at its first phase. The hidden Project Management row no longer pulls it earlier.
 

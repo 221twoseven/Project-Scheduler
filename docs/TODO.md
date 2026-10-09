@@ -62,12 +62,13 @@ is the log in §8.
 ## 0. Where we stand
 
 As of 2026-10-09: production (`main`) runs **v1.43.0**, promoted 2026-10-08
-(release/2026-10-08); `development` runs **v1.44.2**. The newest work: a project starts at its first phase
+(release/2026-10-08); `development` runs **v1.44.3**. The newest work: Project Schedule hides the automatic
+Project Management row (item 55, tracker #37); a project starts at its first phase
 (item 54, tracker #36); "Cost code" on screen
 (item 1, tracker #21); time-off notes are
 private to admins (item 4); the employee import fetches only what it uses, one phone format
 and an Office Extension column (item 9); a role change moves the project to the new holder
-(item 53). Phase 7 has shipped v1.24.0 → v1.44.2 so far.
+(item 53). Phase 7 has shipped v1.24.0 → v1.44.3 so far.
 `CHANGELOG.md` is the release-by-release record.
 
 ## 1. North star — Systems
@@ -845,14 +846,13 @@ is item 32 (P0), #7 is part of item 3, and #11 and #14 were done by the bridge i
       - *Plan:* one helper takes the start from the earliest non-PM bar for all three. A
         new project's PM bar starts with its first phase. Saved PM bars aren't rewritten.
       [tracker #36]
-- [ ] **55. Hide the automatic Project Management row from Project Schedule** (P1). The
-      row is checked, disabled and labelled "spans job"; the PM is already chosen under
+- [x] **55. Hide the automatic Project Management row from Project Schedule** (P1).
+      Shipped v1.44.3 (PR #120, 2026-10-09; approved 2026-10-09). Suite `tests/test-v1443.js`.
+      The row is checked, disabled and labelled "spans job"; the PM is already chosen under
       Project Team. Its "must not set the start date" half is item 54.
-      - *Plan:* keep the group in the page but hidden, because saves rebuild the department
-        list from its checkboxes. Renumber the visible groups from 1. Show the group only
-        when its "Hand over from today" note applies (item 53).
-      - *Waits on:* the owner's "Proceed with fix" on the 2026-10-09 spec. The ticket's
-        earlier "Proceed with fix" (2026-10-09) came before any spec.
+      - *Built:* the group stays in the page but hidden (`.idg-pm`), because saves rebuild the
+        department list from its checkboxes. The visible groups number from 1. The group shows,
+        unnumbered, only when its "Hand over from today" note applies (item 53).
       [tracker #37]
 
 **Shipped or closed with no §3 item** (before the 2026-10-08 every-task rule; the full
