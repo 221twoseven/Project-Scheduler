@@ -9,6 +9,9 @@ Format: `## <label> — <date>` then one `- ` line per change. Keep lines concre
 what changed *for the team*, not how. Developer-only tooling doesn't need a line.
 Collect lines for the next version under `## Unreleased` and rename it when you ship.
 
+## v1.45.0 — Oct 9, 2026
+- "Lock dates" is now **Protect dates**, and it means one thing everywhere: dragging a bar never changes its dates, on the timeline or a project page. You can still drag a bar to another lane, and typed dates still change. Its tooltip says so.
+
 ## v1.44.3 — Oct 9, 2026
 - Project Schedule no longer lists the automatic Project Management row; the PM is set under Project Team, and the phases now number from 1 (Technical Design first). The row only appears when a PM bar needs handing over to a new PM.
 
