@@ -165,7 +165,7 @@ filters** still keeps it.
 **Separators and spacing carry the grouping — no eyebrow labels** (the category
 names are for maintainers, not printed in the UI; the shell relies on familiar
 controls rather than teaching users the app's taxonomy). **Views** is the named
-bundle of the whole row, so it sits at the right edge, beside **Lock dates** (an
+bundle of the whole row, so it sits at the right edge, beside **Protect dates** (an
 editing guard, not a view) and the `?` legend. Weight is reserved: **New
 Project** is the one accent; standalone toolbar buttons sit flat (transparent at
 rest, lit on hover); the segmented scale group keeps a frame; an active view/nav
@@ -332,7 +332,7 @@ for every future company master-data section (departments, project types, holida
     Dashboard. This is the only view where `devUI()` answers true.
   - **Admin** — a non-developer admin: dev-only chrome hidden, admin doors still open.
   - **Non-admin** — a non-developer viewer: `isAdmin()` answers false everywhere so
-    every real door closes (Lock Dates forces on, restored on exit), dev-only chrome
+    every real door closes (Protect dates forces on, restored on exit), dev-only chrome
     hidden.
   In either preview you are *someone else*, so your own Summary reads exactly as others
   see it (`dashSelf()` false — User Notes hidden, the personal line visible); identity

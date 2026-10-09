@@ -62,11 +62,12 @@ is the log in §8.
 
 ## 0. Where we stand
 
-As of 2026-10-09: production (`main`) and `development` both run **v1.44.3**, promoted
-2026-10-09 (release/2026-10-09). The newest work: Project Schedule hides the automatic
+As of 2026-10-09: production (`main`) runs **v1.44.3**, promoted
+2026-10-09 (release/2026-10-09); `development` runs **v1.45.0**. The newest work: Protect dates
+(item 2: drags never change dates); Project Schedule hides the automatic
 Project Management row (item 55, tracker #37); a project starts at its first phase (item
 54, tracker #36); "Cost code" on screen (item 1, tracker #21); time-off notes are private
-to admins (item 4). Phase 7 has shipped v1.24.0 → v1.44.3 so far.
+to admins (item 4). Phase 7 has shipped v1.24.0 → v1.45.0 so far.
 `CHANGELOG.md` is the release-by-release record.
 
 ## 1. North star — Systems
@@ -271,7 +272,12 @@ What the pilot can't start without.
         That's Phase 8, §4 D10.
       [brief §7 Terminology]
 - [ ] **2. Lock dates: give it one meaning, then explain it.** Confirmed P0 by user
-      feedback (owner, 2026-09-24).
+      feedback (owner, 2026-09-24). *(a), (b) and (d) shipped v1.45.0 (PR #123,
+      2026-10-09).* The owner chose option 1 on 2026-10-09: drags never change dates, on the
+      timeline and the project page (Gantt and calendar); lane moves and typed dates still
+      work. Renamed **Protect dates**; its tooltip says what it stops and that it is always on
+      for view-only users. Suite `tests/test-v1450.js`. Only (c) is left, and it waits on
+      item 25.
       - *Today it means two different things.* On the timeline it stops date changes:
         grabbing a bar's edge to resize turns into a move, and a move changes no dates.
         A drag can still move the bar into another department's or person's lane. On the
@@ -860,8 +866,15 @@ is item 32 (P0), #7 is part of item 3, and #11 and #14 were done by the bridge i
         with the `#/issues/<ID>` link). Claude writes the build steps (tracker README step
         11) and the `docs/Automations.md` update; the owner exports the flow to the
         tracker's `flows/`. No app release.
-      - *Waits on:* the owner's "Proceed with fix" on the 2026-10-09 spec.
+      - *Approved 2026-10-09.* The steps are in the tracker README (step 11) and
+        `docs/Automations.md` is updated (PR #123). Waits on the owner building the branch,
+        testing it on #31 and exporting the flow.
       [tracker #38]
+- [x] **57. CI runs on pull requests only** (owner, 2026-10-09). Done (PR #123,
+      2026-10-09): `.github/workflows/ci.yml` no longer runs on the push after a merge,
+      because the PR run already tests the merged result. Both branches take changes only
+      by PR, and `main`'s required `test` check is the PR run. `CONTRIBUTING.md` and
+      `docs/Stats-for-Nerds.md` follow. [owner ask 2026-10-09]
 
 **Shipped or closed with no §3 item** (before the 2026-10-08 every-task rule; the full
 record is each ticket's "Fix shipped" note and `CHANGELOG.md`):
