@@ -253,7 +253,8 @@ What the pilot can't start without.
       v1.31.1 (tracker #17, with #22's Project Team / Project Schedule headings). The Cost
       Code half is on tracker #21. The 2026-10-08 revised spec answers the owner's question
       of 2026-10-06: yes, rename the column's display name to `costCode` (internal name
-      stays `jobCode`). It waits on the owner's "Proceed with fix". The §7.4 ledger holds the two
+      stays `jobCode`). The owner renamed it on 2026-10-09, so R5 is done. The on-screen
+      labels wait on the owner's "Proceed with fix". The §7.4 ledger holds the two
       "Drafter" echoes that remain (the Changelog key and the D chip).*
       - *Where:* sidebar, bar labels, tooltip, Meeting Sheet, late prompt, New Project.
         (Drafter had labels only on the project page and in the legend; the Cost Code
