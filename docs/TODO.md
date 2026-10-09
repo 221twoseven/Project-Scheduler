@@ -858,7 +858,10 @@ is item 32 (P0), #7 is part of item 3, and #11 and #14 were done by the bridge i
         department list from its checkboxes. The visible groups number from 1. The group shows,
         unnumbered, only when its "Hand over from today" note applies (item 53).
       [tracker #37]
-- [ ] **56. Tell reporters when their report is resolved** (P1, automation). When a
+- [x] **56. Tell reporters when their report is resolved** (P1, automation). Done
+      2026-10-09 (no app release): the owner built the *Resolved* branch of the *Reply email*
+      flow, tested it on #31 (reopen sent nothing, close sent one email) and re-exported the
+      flow (tracker f48073e); tracker #38 closed. When a
       ticket closes, the poller already sets the row's `status` to `resolved`; nothing
       emails the reporter.
       - *Plan:* the owner adds a second branch to the *Reply email* Power Automate flow:
@@ -867,8 +870,7 @@ is item 32 (P0), #7 is part of item 3, and #11 and #14 were done by the bridge i
         11) and the `docs/Automations.md` update; the owner exports the flow to the
         tracker's `flows/`. No app release.
       - *Approved 2026-10-09.* The steps are in the tracker README (step 11) and
-        `docs/Automations.md` is updated (PR #123). Waits on the owner building the branch,
-        testing it on #31 and exporting the flow.
+        `docs/Automations.md` is updated (PR #123; the condition is named `Resolved`, PR #124).
       [tracker #38]
 - [x] **57. CI runs on pull requests only** (owner, 2026-10-09). Done (PR #123,
       2026-10-09): `.github/workflows/ci.yml` no longer runs on the push after a merge,
