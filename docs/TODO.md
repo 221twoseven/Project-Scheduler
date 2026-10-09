@@ -50,7 +50,8 @@ as the phase runs.
 - Every milestone gets a record in `docs/Milestones/Phase-7-Pilot-Readiness/`; every
   deliberate skip gets a §7 line with its gate.
 
-Last reviewed: 2026-10-08 — D15 (data platform) reassessed: Dataverse and Azure SQL + API
+Last reviewed: 2026-10-09 — the promotion audit for v1.43.0 → v1.44.3 reaching `main`
+(log in §8). Before that, 2026-10-08 — D15 (data platform) reassessed: Dataverse and Azure SQL + API
 are now co-equal candidates (`docs/Architecture-Review-Backend.md`); D1, D3, D10–D13 and
 items 14, 17 and 44 given storage-neutral readings. The same day: the opening, §0 and §3's
 intro brought up to date, then a full audit against the tracker, `CHANGELOG.md` and the
@@ -61,14 +62,11 @@ is the log in §8.
 
 ## 0. Where we stand
 
-As of 2026-10-09: production (`main`) runs **v1.43.0**, promoted 2026-10-08
-(release/2026-10-08); `development` runs **v1.44.3**. The newest work: Project Schedule hides the automatic
-Project Management row (item 55, tracker #37); a project starts at its first phase
-(item 54, tracker #36); "Cost code" on screen
-(item 1, tracker #21); time-off notes are
-private to admins (item 4); the employee import fetches only what it uses, one phone format
-and an Office Extension column (item 9); a role change moves the project to the new holder
-(item 53). Phase 7 has shipped v1.24.0 → v1.44.3 so far.
+As of 2026-10-09: production (`main`) and `development` both run **v1.44.3**, promoted
+2026-10-09 (release/2026-10-09). The newest work: Project Schedule hides the automatic
+Project Management row (item 55, tracker #37); a project starts at its first phase (item
+54, tracker #36); "Cost code" on screen (item 1, tracker #21); time-off notes are private
+to admins (item 4). Phase 7 has shipped v1.24.0 → v1.44.3 so far.
 `CHANGELOG.md` is the release-by-release record.
 
 ## 1. North star — Systems
@@ -854,6 +852,16 @@ is item 32 (P0), #7 is part of item 3, and #11 and #14 were done by the bridge i
         department list from its checkboxes. The visible groups number from 1. The group shows,
         unnumbered, only when its "Hand over from today" note applies (item 53).
       [tracker #37]
+- [ ] **56. Tell reporters when their report is resolved** (P1, automation). When a
+      ticket closes, the poller already sets the row's `status` to `resolved`; nothing
+      emails the reporter.
+      - *Plan:* the owner adds a second branch to the *Reply email* Power Automate flow:
+        when `status` changes to `resolved`, email the reporter ("…#<ID> was resolved",
+        with the `#/issues/<ID>` link). Claude writes the build steps (tracker README step
+        11) and the `docs/Automations.md` update; the owner exports the flow to the
+        tracker's `flows/`. No app release.
+      - *Waits on:* the owner's "Proceed with fix" on the 2026-10-09 spec.
+      [tracker #38]
 
 **Shipped or closed with no §3 item** (before the 2026-10-08 every-task rule; the full
 record is each ticket's "Fix shipped" note and `CHANGELOG.md`):
@@ -1929,6 +1937,20 @@ How to read the tags at the end of an entry:
   number.
 
 **Log, newest first:**
+
+- 2026-10-09 (promotion): **v1.43.0 → v1.44.3 promoted to `main`** (release/2026-10-09). The
+  promotion audit (`CLAUDE.md`, "Keeping `docs/TODO.md` true"):
+  - *Releases since the last promotion (v1.43.0):* v1.44.0 is item 4, v1.44.1 is item 1
+    (its Cost Code half, plus the §7.4 Changelog echo), v1.44.2 is item 54 and v1.44.3 is
+    item 55. All ticked.
+  - *Tracker:* three new tickets. #36 → 54 and #37 → 55 are built; they close when this
+    reaches `main`, with #21 → 1. #38 → new item 56, spec posted, needs Proceed. The rest
+    match their items: #1 → 32 (needs Proceed), #7 → 3 (on hold), #12 → 40.
+  - *⚠ specs:* none new. The owner renamed the Projects column's display name to
+    `costCode` on 2026-10-09 (internal name unchanged).
+  - *Branches and PRs:* nothing open besides this promotion; only `main` and `development`
+    on the remote.
+  - *Fixed in this audit:* §0 now says production runs v1.44.3; item 56 added for #38.
 
 - 2026-10-08 (promotion): **v1.41.1 → v1.43.0 promoted to `main`** (release/2026-10-08). The
   promotion audit (`CLAUDE.md`, "Keeping `docs/TODO.md` true"):
