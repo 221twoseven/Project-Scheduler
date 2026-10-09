@@ -30,7 +30,7 @@ run across both halves (7 here + 6 on the project page = 13).
 
 | # | Highlights | Title | Body |
 |---|---|---|---|
-| 1 | The project list (sidebar) | Every job, one list | Projects stack here with their job codes and deadlines. Click a row to open its phases, the eye spotlights one job, the pencil edits it. The Department lens regroups everything by Department. |
+| 1 | The project list (sidebar) | Every job, one list | Projects stack here with their cost codes and deadlines. Click a row to open its phases, the eye spotlights one job, the pencil edits it. The Department lens regroups everything by Department. |
 | 2 | The timeline canvas | The timeline | Each bar is a phase of work. Click one for its details, drag it to move, grab an edge to resize, right-click for more. Red bars are installs. |
 | 3 | The numbered date bar | Slide through time | Click and drag the numbered date bar left or right to move the timeline, up and down to zoom in or out. The Today button (or T) brings you back to today, and G jumps to any date. |
 | 4 | The search box | Find things fast | Type here (or press /) to show only matching projects and phases. Filters narrows the view by status, client or person. Clear filters brings everything back. |
@@ -47,7 +47,7 @@ instead (so a full run is 7 steps, never both).
 | # | Highlights | Title | Body |
 |---|---|---|---|
 | 8 | The breadcrumb trail | Where you are | All Projects, this job, and the phase when one is selected. Click a crumb to step back out. Esc, Done and the × do the same. |
-| 9 | The header strip (client · code · install) | The job at a glance | Client, job code, install date and days out. These update as you edit. A warning appears if work runs past the install. |
+| 9 | The header strip (client · code · install) | The job at a glance | Client, cost code, install date and days out. These update as you edit. A warning appears if work runs past the install. |
 | 10 | The schedule (Gantt/calendar) | The schedule | Every bar is a phase of work. Click one to edit it below, drag to move, grab an edge to resize, right-click to add a subtask, milestone or note. On the calendar, click a strip to open its phase and see its subtasks. *(v1.21.1 — was "The calendar shows one band per phase — click a band to open it and see its subtasks.")* |
 | 11 | The Gantt/Calendar toggle | Two views of the same dates | Gantt for the whole job at once, Calendar for week-by-week. G and C switch from the keyboard. |
 | 12 | The calendar legend (the step switches the chart to Calendar first, so the chips it points at are the live buttons) — *added v1.21.1, owner ask 2026-09-09* | Read the calendar at any depth | On the calendar every phase starts as a slim colour strip, so a stacked job still fits its weeks. Click a phase in this legend to show its title, again for its subtasks, again to shrink it back. Milestone and Note switch their text on. Collapse all resets. |
@@ -64,7 +64,7 @@ asks for the real click).
 |---|---|
 | Project name | What the shop calls it |
 | Client | Who it's for |
-| Job code | H1-2049 |
+| Cost code | AB123 |
 | Phase name (in the phase form; shows the department name until you type) | *(the department's own name, e.g. "Technical Design")* |
 | Free-text "Other" phase name | Process name (e.g. Vacuum Former) / process name |
 | Phase notes | Anything we shouldn't forget |
@@ -88,10 +88,10 @@ Inline helper notes on this page:
 | Time-off field label + add button (editor) | Out of office / + Out of office *(owner ruling 2026-09-02: keep this name)* |
 | Work email | Work email (for "me" features) |
 | Search box | Search people… / Search clients… |
-| Client alias | 2–3 letter job-code prefix |
+| Client alias | 2–3 letter cost-code prefix |
 
 Page subtitles: "The company roster — roles, departments and availability" /
-"The company client directory and job-code aliases".
+"The company client directory and cost-code aliases".
 
 ## 5. My Dashboard / Summary
 

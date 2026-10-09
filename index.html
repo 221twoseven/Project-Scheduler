@@ -1552,7 +1552,7 @@ body.cd-route #dash-bar{display:none!important}
       <button id="btn-resources" class="t-btn" title="People, clients and other shared shop data"><svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2.5" width="5" height="5" rx="1"/><rect x="9" y="2.5" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/><rect x="9" y="9" width="5" height="5" rx="1"/></svg> Company Data <svg class="ico-s" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 6 8 9.5 11.5 6"/></svg></button>
       <div id="resources-menu" class="tb-menu hidden">
         <div class="sm-item" id="mi-people" title="The company roster — people, roles, departments and time off">People</div>
-        <div class="sm-item" id="mi-clients" title="The company client directory and job-code aliases">Clients</div>
+        <div class="sm-item" id="mi-clients" title="The company client directory and cost-code aliases">Clients</div>
         <div class="sm-item" id="mi-changelog" title="Every recorded change to every project — who, when, what">Changelog</div>
       </div>
     </div>
@@ -1845,7 +1845,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.44.0'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.44.1'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -2437,7 +2437,7 @@ const LIST_TODOS='ShopTimeline_Tasks2';
    falls back to the legacy behaviour: an event saves as a ticketNode on a host phase. */
 const LIST_EVENTS='ShopTimeline_Events';
 /* N3: the client roster, imported from the Excel master. App-only — the colleague app
-   never reads it. Columns: Title = client name, field_2 = job-code alias. */
+   never reads it. Columns: Title = client name, field_2 = cost-code alias. */
 const LIST_CLIENTS='ShopTimeline_Clients';
 /* v1.6.0 (v2 obj 2): bug reports / feature requests. App-only, owner-created
    2026-08-31. Columns (all text): Title, kind, name, email, description (multi-line),
@@ -3103,8 +3103,8 @@ function saveState(s){
 /* Save people: instant locally, cached in this browser, synced to the ShopTimeline_Staff list */
 /* REV69 (N3): the shared client list. ShopTimeline_Clients was imported from the
    Excel client master (owner, 2026-08-21) — its columns are Title (client name) and
-   field_2 (the 2–3 letter job-code alias), and rows carry no appId, so sync keys on
-   the SharePoint item id. Excel stays master for job codes until a deliberate cutover. */
+   field_2 (the 2–3 letter cost-code alias), and rows carry no appId, so sync keys on
+   the SharePoint item id. Excel stays master for cost codes until a deliberate cutover. */
 const CLIENTS_KEY='shopTimelineClients';
 let CLIENTS=[],CLIENTS_OK=false;
 function clientOptions(){return CLIENTS.map(c=>'<option value="'+esc(c.name)+'"'+(c.alias?' label="'+esc(c.alias)+'"':'')+'>').join('');}
@@ -4437,7 +4437,7 @@ function buildCanvasBgInto(canvas,totalW,DW_){
 let TODAY_X=null;
 const LBL_TAIL=40;        /* a parked label keeps this much of its bar's end — the ellipsis zone */
 /* §7 bar anatomy — the label sheds pieces as the bar narrows: chips drop first, then
-   the job code, then everything but the status pill; under BAR_W_TICK no label renders
+   the cost code, then everything but the status pill; under BAR_W_TICK no label renders
    and the bar itself (min-width dw(), never under 4px) is the identity tick. */
 const BAR_W_CHIPS=300,BAR_W_CODE=190,BAR_W_PILL=96,BAR_W_TICK=34;
 
@@ -5276,6 +5276,9 @@ function clogWhen(iso){
   return d.toLocaleDateString([],{month:'short',day:'numeric'})+' '
     +d.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});
 }
+/* v1.44.1 (#21 Q5): stored field keys read in plain words where a row is drawn; the stored rows keep their keys */
+const CLOG_LBL={jobCode:'Cost code',drafter:'Technical Designer'};
+const clogLbl=s=>String(s).replace(/(^|, |— )(jobCode|drafter)(?=: |, |$)/gm,(m,a,k)=>a+CLOG_LBL[k]); /* "— " = a bulk row's "Title — fields" line */
 function clogRowsHtml(rows,showProject){
   if(!rows.length)return '<div class="clog-empty">No changes recorded yet — history starts with edits made after the changelog shipped (v1.19.0).</div>';
   return rows.map(r=>{
@@ -5284,8 +5287,8 @@ function clogRowsHtml(rows,showProject){
       +'<span class="clog-who" title="'+esc(r.who)+'">'+esc(r.who?dispName(r.who):'—')+'</span>' /* v1.19.2: nickname everywhere; the title attr keeps the full stored name */
       +'<div class="clog-what"><b>'+esc(r.title)+'</b>'
       +(showProject&&r.projectId&&r.title.indexOf('Project ')!==0?' <span class="clog-proj">· '+esc(p?p.name:'(deleted project)')+'</span>':'')
-      +' <span class="clog-field">'+esc(r.field)+'</span>'
-      +(r.detail?'<div class="clog-det">'+esc(clogDetail(r))+'</div>':'')
+      +' <span class="clog-field">'+esc(clogLbl(r.field))+'</span>'
+      +(r.detail?'<div class="clog-det">'+esc(clogLbl(clogDetail(r)))+'</div>':'')
       +'</div></div>';}).join('');
 }
 /* The global changelog page — Resources ▸ Changelog, admin-only (menu entry hidden for
@@ -5317,7 +5320,7 @@ function renderChangelog(){
       const el=document.getElementById('clog-list'),qi=document.getElementById('clog-q');
       if(!el||!qi)return;
       const q=(qi.value||'').trim().toLowerCase();
-      const f=q?rows.filter(r=>(r.title+' '+r.who+' '+r.field+' '+clogDetail(r)+' ' /* v1.21.2: never match on folded note text */
+      const f=q?rows.filter(r=>(r.title+' '+r.who+' '+clogLbl(r.field)+' '+clogLbl(clogDetail(r))+' ' /* v1.21.2: never match on folded note text; v1.44.1: match the words shown */
         +((projById(r.projectId)||{}).name||'')).toLowerCase().includes(q)):rows;
       el.innerHTML=clogRowsHtml(f.slice(0,500),true)
         +(f.length>500?'<div class="clog-empty">Showing the latest 500 of '+f.length+' — narrow with the filter above.</div>':'');
@@ -5534,7 +5537,7 @@ function renderCompanyPage(){
    +'<span class="cd-src" title="Where this list lives — the toolbar pill shows the last sync">'+esc(src)+'</span>'
    +'<button class="pg-x" id="cd-x" title="Close — back to the timeline (Esc)">&times;</button></div>';
   h+='<div class="cd-head"><h2>'+(isPeople?'People':'Clients')+'</h2>'
-   +'<span class="cd-sub">'+(isPeople?'The company roster — roles, departments and availability':'The company client directory and job-code aliases')+'</span>'
+   +'<span class="cd-sub">'+(isPeople?'The company roster — roles, departments and availability':'The company client directory and cost-code aliases')+'</span>'
    +(isPeople&&isAdmin()?'<button class="btn" id="cd-import" title="Mirror the HR Employee Contacts list into this roster — adds active employees, refreshes titles and phone numbers. The HR list is never changed.">Import from Employee Contacts</button>':'')
    /* v1.43.0 (9c): the one-time tidy — offered only while a row on the list still holds another format */
    +(isPeople&&isAdmin()&&STAFF_OK&&phoneUntidy().length?'<button class="btn" id="cd-tidy" title="Rewrite the phone column on the list in the one format, 555-555-5555 — the app already shows them that way">Tidy '+phoneUntidy().length+' phone number'+(phoneUntidy().length===1?'':'s')+'</button>':'')
@@ -5889,7 +5892,7 @@ function cdPaintEditor(el,isPeople){
   }else{
     el.innerHTML='<div class="cdd"><div class="cdd-hd"><h3>'+(r._new?'New client':esc(r._orig))+'</h3></div>'
      +'<div class="cd-fg"><label>Client name</label><input id="cde-name" type="text"></div>'
-     +'<div class="cd-fg"><label>Alias</label><input id="cde-alias" type="text" maxlength="6" placeholder="2–3 letter job-code prefix"></div>'
+     +'<div class="cd-fg"><label>Alias</label><input id="cde-alias" type="text" maxlength="6" placeholder="2–3 letter cost-code prefix"></div>'
      +'<div class="cdd-foot">'
      +(r._new?'':'<button class="btn btn-ghost cd-del" id="cde-del">Remove client…</button>')
      +'<span style="flex:1"></span>'
@@ -7411,7 +7414,7 @@ function ppInspector(){
          itself is managed under Company Data → Clients. */
       + '<div class="ins-f"><label>Client</label><input id="pp-client" list="cl-dl" value="'+esc(p.client||'')+'" placeholder="Who it\'s for"><datalist id="cl-dl">'+clientOptions()+'</datalist></div>'
       + '<div class="ins-row">'
-      + '<div class="ins-f"><label>Job code</label><input id="pp-code" value="'+esc(p.jobCode||'')+'" placeholder="H1-2049"></div>'
+      + '<div class="ins-f"><label>Cost code</label><input id="pp-code" value="'+esc(p.jobCode||'')+'" placeholder="AB123"></div>'
       /* v1.26.0 (#20): a new job asks for the one date the layout builds backward from; once
          saved, install and shipping dates live only in Departments, and Setup shows when
          the project was first saved instead. */
@@ -7734,7 +7737,7 @@ function ppPaintMeta(p){
   let h='';
   /* esc() was escaping the entity, so the strip literally said "&mdash;". */
   h+=cell('Client',p.client?esc(p.client):'\u2014');
-  h+=cell('Job',p.jobCode?esc(p.jobCode):'\u2014');
+  h+=cell('Cost code',p.jobCode?esc(p.jobCode):'\u2014');
   if(dl)h+=cell(due.k==='shipping'?'Ships':'Installs',esc(fmtNice(dl)));
   if(left!==null&&!done)h+=cell(left<0?'Overdue by':'Days out',Math.abs(left)+'d',left<0);
   h+=cell('Shop starts',s?esc(fmtNice(s)):'&mdash;');
@@ -11179,7 +11182,7 @@ const COACH_KEY='shopTimelineCoachSeen';
 const COACH_STEPS=[
   /* Copy: owner revision 2026-09-02 (docs/Copy-Coach-and-Helpers.md) */
   {sel:'#sidebar',t:'Every job, one list',
-   b:'Projects stack here with their job codes and deadlines. Click a row to open its phases, the eye spotlights one job, the pencil edits it. The Department lens regroups everything by Department.'},
+   b:'Projects stack here with their cost codes and deadlines. Click a row to open its phases, the eye spotlights one job, the pencil edits it. The Department lens regroups everything by Department.'},
   {sel:'#gantt-scroll',t:'The timeline',
    b:'Each bar is a phase of work. Click one for its details, drag it to move, grab an edge to resize, right-click for more. Red bars are installs.'},
   /* v1.2.1 (08-31 obj 1): teach the date-bar pan — the least discoverable move on the view */
@@ -11207,7 +11210,7 @@ const COACH_PP_STEPS=[
   {sel:'.pg-trail',t:'Where you are',
    b:'All Projects, this job, and the phase when one is selected. Click a crumb to step back out. Esc, Done and the × do the same.'},
   {sel:'#pp-meta',t:'The job at a glance',
-   b:'Client, job code, install date and days out. These update as you edit. A warning appears if work runs past the install.'},
+   b:'Client, cost code, install date and days out. These update as you edit. A warning appears if work runs past the install.'},
   {sel:'.npv-swrap',t:'The schedule',
    b:'Every bar is a phase of work. Click one to edit it below, drag to move, grab an edge to resize, right-click to add a subtask, milestone or note. On the calendar, click a strip to open its phase and see its subtasks.'},
   {sel:'.npv-modes',t:'Two views of the same dates',
@@ -11657,6 +11660,8 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.44.1",d:"Oct 9, 2026",n:["Job code is now called Cost code on screen: the project's Setup panel, the header strip, the tour and the Clients directory. The codes themselves are unchanged.",
+   "Changelog rows name fields in plain words: \"Cost code\" and \"Technical Designer\" instead of the stored names."]},
  {v:"v1.44.0",d:"Oct 8, 2026",n:["Time off is private: only admins see the note typed on someone's time off. Everyone else sees the dates, on the People record, the lanes, phase hover tips and the person panel (\"Out of office\")."]},
  {v:"v1.43.0",d:"Oct 8, 2026",n:["People: every phone number reads one way, 555-555-5555, however it was typed or imported, and searching the bare digits finds it.",
    "People (admins): a one-time \"Tidy N phone numbers\" button rewrites the numbers still stored another way on the SharePoint list, and then goes away.",
