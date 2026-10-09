@@ -62,11 +62,12 @@ is the log in §8.
 ## 0. Where we stand
 
 As of 2026-10-09: production (`main`) runs **v1.43.0**, promoted 2026-10-08
-(release/2026-10-08); `development` runs **v1.44.1**. The newest work: "Cost code" on screen
+(release/2026-10-08); `development` runs **v1.44.2**. The newest work: a project starts at its first phase
+(item 54, tracker #36); "Cost code" on screen
 (item 1, tracker #21); time-off notes are
 private to admins (item 4); the employee import fetches only what it uses, one phone format
 and an Office Extension column (item 9); a role change moves the project to the new holder
-(item 53). Phase 7 has shipped v1.24.0 → v1.44.1 so far.
+(item 53). Phase 7 has shipped v1.24.0 → v1.44.2 so far.
 `CHANGELOG.md` is the release-by-release record.
 
 ## 1. North star — Systems
@@ -831,7 +832,11 @@ is item 32 (P0), #7 is part of item 3, and #11 and #14 were done by the bridge i
       all three and, on rows with a ticket, "Status follows the ticket" with the link in
       place of Mark resolved / Reopen (§7.4 ledger entry ticked). Nothing is set by hand and
       a status change sends no email. [tracker #29]
-- [ ] **54. A project's bar starts at its first phase, not the hidden PM bar** (P1 bug).
+- [x] **54. A project's bar starts at its first phase, not the hidden PM bar** (P1 bug).
+      Shipped v1.44.2 (PR #119, 2026-10-09; approved 2026-10-09): `projSpan` gives the
+      dashboard bar, the printed Gantt and Shop starts the earliest non-PM start, and a draft's
+      PM bar follows its first phase (`npvRebuild`). Saved PM bars are not rewritten (Q2).
+      Suite `tests/test-v1442.js`.
       A Forecast project whose first phase starts Nov 30 shows its dashboard bar and the
       header's Shop starts from Aug 12. *Root cause:* the hidden Project Management bar
       keeps the start the scheduler first gave it; a phase moved by hand on the draft
@@ -839,8 +844,16 @@ is item 32 (P0), #7 is part of item 3, and #11 and #14 were done by the bridge i
       starts include that bar; Kickoff on the project page already skips it.
       - *Plan:* one helper takes the start from the earliest non-PM bar for all three. A
         new project's PM bar starts with its first phase. Saved PM bars aren't rewritten.
-      - *Waits on:* the owner's "Proceed with fix" on the 2026-10-08 spec.
       [tracker #36]
+- [ ] **55. Hide the automatic Project Management row from Project Schedule** (P1). The
+      row is checked, disabled and labelled "spans job"; the PM is already chosen under
+      Project Team. Its "must not set the start date" half is item 54.
+      - *Plan:* keep the group in the page but hidden, because saves rebuild the department
+        list from its checkboxes. Renumber the visible groups from 1. Show the group only
+        when its "Hand over from today" note applies (item 53).
+      - *Waits on:* the owner's "Proceed with fix" on the 2026-10-09 spec. The ticket's
+        earlier "Proceed with fix" (2026-10-09) came before any spec.
+      [tracker #37]
 
 **Shipped or closed with no §3 item** (before the 2026-10-08 every-task rule; the full
 record is each ticket's "Fix shipped" note and `CHANGELOG.md`):

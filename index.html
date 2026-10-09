@@ -1845,7 +1845,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.44.1'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.44.2'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -2061,6 +2061,15 @@ function oooFor(name){const p=personByName(name);return p?(p.ooo||[]):[];}
    ponytail: display-only; the note still loads in every browser and sits in the Staff list's ooo column.
    Real privacy is TODO item 27 (the restricted personnel record). */
 function oooNote(o){return o&&o.note&&isAdmin()?String(o.note):'';}
+/* v1.44.2 (tracker #36): a project's date range. The start is the first real phase — the hidden
+   Project Management bar keeps whatever start it was generated with, so it only counts when it is
+   the only bar. No bars: two weeks before the install date, as before. The end is unchanged. */
+function projSpan(p,ts){
+  if(!ts.length){const e=parseDate(p.deadline);return{s:addDays(e,-14),e};}
+  const work=ts.filter(t=>t.department!=='pm'),from=work.length?work:ts;
+  return{s:new Date(Math.min(...from.map(t=>parseDate(t.startDate).getTime()))),
+         e:new Date(Math.max(...ts.map(t=>parseDate(t.endDate).getTime())))};
+}
 function oooOverlaps(name,sIso,eIso){return oooFor(name).filter(o=>o.start&&o.end&&o.start<=eIso&&o.end>=sIso);}
 /* v1.7.2 (owner GO, 2026-09-01): the one-time data scrub the v1.6.5 ledger entry gated
    on. canonName() has healed legacy person strings at compare/display time since v1.6.5;
@@ -4294,10 +4303,7 @@ function renderGantt(){
   for(const r of ROWS){
     if(r.kind==='projHead'){
       const p=projById(r.projectId);
-      const ts=ST.tasks.filter(t=>t.projectId===p.id);
-      let s,e;
-      if(ts.length){s=new Date(Math.min(...ts.map(t=>parseDate(t.startDate).getTime())));e=new Date(Math.max(...ts.map(t=>parseDate(t.endDate).getTime())));}
-      else{e=parseDate(p.deadline);s=addDays(e,-14);}
+      const {s,e}=projSpan(p,ST.tasks.filter(t=>t.projectId===p.id));
       barFrag.appendChild(recBar(r,makeSummaryBar(p,s,e,r),s,e));
     }else if(r.kind==='projTask'){
       const t=taskById(r.taskId);
@@ -6249,9 +6255,7 @@ function prGanttInto(body,prow,sideW,timeW){
   const on=(s,e)=>e>=TL_S&&s<=TL_E;
   for(const r of prow){
     if(r.kind==='projHead'){
-      const p=projById(r.projectId),ts=tasksOf(p.id);let s,e;
-      if(ts.length){s=new Date(Math.min(...ts.map(t=>parseDate(t.startDate).getTime())));e=new Date(Math.max(...ts.map(t=>parseDate(t.endDate).getTime())));}
-      else{e=parseDate(p.deadline);s=addDays(e,-14);}
+      const p=projById(r.projectId),{s,e}=projSpan(p,tasksOf(p.id));
       if(on(s,e)){const b=makeSummaryBar(p,s,e,r);if(!prProjOK(p))b.classList.add('dim');cv.appendChild(b);}
       const due=dueDate(p);
       if(due){const dl=parseDate(due);
@@ -7717,9 +7721,10 @@ function ppPaintMeta(p){
   const box=document.getElementById('pp-meta');
   if(!box)return;
   const ts=NPV_LIVE?tasksOf(p.id).filter(t=>!t.__ghost):NPV_ALL;
+  const work=ts.filter(t=>t.department!=='pm'); /* v1.44.2 (#36): Shop starts = the first real phase, as projSpan */
   let s='',e='';
   for(const t of ts){
-    if(t.startDate&&(!s||t.startDate<s))s=t.startDate;
+    if(t.startDate&&(work.length?t.department!=='pm':true)&&(!s||t.startDate<s))s=t.startDate;
     if(t.endDate&&(!e||e<t.endDate))e=t.endDate;
   }
   const due=dueOf(ts); /* v1.26.0 (#15/#20): Installation, else Shipping, else nothing */
@@ -8496,6 +8501,13 @@ function npvRebuild(){
      independence a saved subtask row has. The first pass still applies a whole-
      department drag, which the split copies then inherit. */
   tasks=applyPhaseLines(tasks).map(overlay);
+  /* v1.44.2 (tracker #36): the PM bar was generated before any hand-moved phase; start it with the
+     first phase as it now stands, so the saved PM bar (and the PM's lane) begins where the work does. */
+  const work=tasks.filter(t=>t.department!=='pm');
+  if(work.length){
+    const first=work.reduce((m,t)=>t.startDate<m?t.startDate:m,work[0].startDate);
+    tasks=tasks.map(t=>t.department==='pm'&&!t.__manual&&first<=t.endDate?{...t,startDate:first}:t);
+  }
   NPV_ALL=tasks;
   /* PM spans the whole job, so a bar for it repeats what the summary row already says.
      It is still generated and still saved — it just isn't drawn. */
@@ -11660,6 +11672,7 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.44.2",d:"Oct 9, 2026",n:["A project's bar on the dashboard, in print and in the header's Shop starts now begins at its first phase. The hidden Project Management row no longer pulls it earlier."]},
  {v:"v1.44.1",d:"Oct 9, 2026",n:["Job code is now called Cost code on screen: the project's Setup panel, the header strip, the tour and the Clients directory. The codes themselves are unchanged.",
    "Changelog rows name fields in plain words: \"Cost code\" and \"Technical Designer\" instead of the stored names."]},
  {v:"v1.44.0",d:"Oct 8, 2026",n:["Time off is private: only admins see the note typed on someone's time off. Everyone else sees the dates, on the People record, the lanes, phase hover tips and the person panel (\"Out of office\")."]},
