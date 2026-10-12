@@ -63,8 +63,8 @@ is the log in §8.
 ## 0. Where we stand
 
 As of 2026-10-12: production (`main`) runs **v1.45.1**, promoted 2026-10-09
-(release/2026-10-09b); `development` runs **v1.46.1**, where saved views (item 25) and
-Protect dates (item 2 (c)) follow the person. The newest work in production: reporter answers show in Open Issues
+(release/2026-10-09b); `development` runs **v1.47.0**, where saved views (item 25) and
+Protect dates (item 2 (c)) follow the person, and repeat work is easier to find (item 7). The newest work in production: reporter answers show in Open Issues
 (item 58); Protect dates (item 2: drags never change dates); Project Schedule hides the automatic
 Project Management row (item 55, tracker #37); a project starts at its first phase (item
 54, tracker #36); "Cost code" on screen (item 1, tracker #21); time-off notes are private
@@ -347,7 +347,11 @@ What the pilot can't start without.
       header and the Meeting Sheet. Add a "stale" chip in the sidebar and legend for a
       project with no edit in N days (N set with the Project Director). [brief §5.1, §7
       Reliability, §9 P1 "stale-data warnings"]
-- [ ] **7. Make repeat department work easy to find.** The feature exists — each block is
+- [x] **7. Make repeat department work easy to find.** Shipped v1.47.0 (PR #134,
+      2026-10-12). Duplicate on a bar's right-click menu (an add, so N11 holds) and its edit
+      popover; ⋯ on project-page bars; the divider's grip always shows; the draft footer
+      counts the three required fields and links each missing one. "Section progress" was
+      read as that count. Suite `tests/test-v1470.js`. The feature exists — each block is
       its own record, and Duplicate and New subtask work even before the first save —
       but users don't find it.
       - Put Duplicate on the bar's popover and right-click menu, not only in the

@@ -9,6 +9,10 @@ Format: `## <label> — <date>` then one `- ` line per change. Keep lines concre
 what changed *for the team*, not how. Developer-only tooling doesn't need a line.
 Collect lines for the next version under `## Unreleased` and rename it when you ship.
 
+## v1.47.0 — Oct 12, 2026
+- Repeat work is easier to find on a project page: right-click a bar, or click it to open its editor, and choose **Duplicate** to copy it as a new bar. Bars show a faint ⋯ when you point at them, as on the timeline.
+- New Project's footer now counts the required fields and lists what's still missing — click a name to jump to that field. The bar between the chart and the form shows its drag grip all the time.
+
 ## v1.46.1 — Oct 12, 2026
 - Protect dates now stays the way you left it: turn it on or off once, and it's the same the next time you open the app, on any computer you sign in on.
 

@@ -258,6 +258,7 @@ body.viewer:not(.vg-subtasks):not(.vg-phases) #tm-save,body.viewer:not(.vg-phase
 body.viewer:not(.vg-subtasks) #tm-tnadd,body.viewer:not(.vg-subtasks) #task-overlay .tn-x,
 /* v1.11.0: each popover's Delete follows ITS door — the popover carries data-kind */
 body.viewer:not(.vg-phases) #npv-pop[data-kind=phase] [data-pop-del],
+body.viewer:not(.vg-phases) #npv-pop[data-kind=phase] [data-pop-dup], /* v1.47.0 (item 7) */
 body.viewer:not(.vg-milestones) #npv-pop[data-kind=ev] [data-pop-del],
 body.viewer:not(.vg-notes) #npv-pop[data-kind=tk] [data-pop-del]{display:none}
 body.viewer #pp-insp input:disabled,body.viewer #pp-insp select:disabled,body.viewer #pp-insp textarea:disabled,
@@ -707,6 +708,8 @@ body.vivid .npv-we{display:none} /* v1.0.2: no weekend strips over the vivid tin
 .npv-row.grabbed{opacity:.45}
 .npv-row.grabbed .npv-gut{cursor:grabbing}
 .npv-body.reordering .npv-bar{pointer-events:none}
+/* v1.47.0 (item 7): the timeline's ⋯ hint on project-page bars too — right-click holds Duplicate and the adds */
+.npv-bar:hover::after{content:'⋯';position:absolute;right:4px;top:50%;transform:translateY(-50%);font-weight:800;font-size:12px;opacity:.55;pointer-events:none}
 .npv-drop{position:absolute;left:0;right:0;height:2px;background:var(--acc);z-index:7;pointer-events:none}
 .npv-gut .npv-grip{color:#C3CEDC;margin-right:5px;font-size:var(--fs-fine);letter-spacing:-1px;flex-shrink:0}
 .npv-gut:hover .npv-grip{color:var(--acc)}
@@ -882,8 +885,8 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 @media(max-width:1250px){.pg-depts{column-count:3}}
 @media(max-width:900px){.pg-depts{column-count:2}}
 .npv-full{margin:0}
-.pg-auto{font-size:11px;color:var(--ts-muted);display:flex;align-items:center;gap:5px}
-.pg-auto b{color:#1AA59C;font-weight:700}
+.pg-auto,.pg-needs{font-size:11px;color:var(--ts-muted);display:flex;align-items:center;gap:5px}
+.pg-auto b,.pg-needs b{color:#1AA59C;font-weight:700}
 
 
 /* ============ REV43 ============ */
@@ -941,6 +944,12 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
   background:var(--paper);display:flex;flex-direction:column;min-height:0}
 #dock-resize{position:absolute;top:-4px;left:0;right:0;height:8px;cursor:row-resize;z-index:30}
 #dock-resize:hover{background:rgba(47,111,228,.3)}
+/* v1.47.0 (item 7): the divider shows its grip before you hover it */
+#dock-resize::after{content:'';position:absolute;left:50%;top:2px;width:36px;height:4px;margin-left:-18px;border-radius:2px;background:#C3CEDC}
+#dock-resize:hover::after{background:var(--acc)}
+/* item 7: the draft footer's "Still needed" links go to the field */
+.pp-need{font:inherit;color:var(--acc);background:none;border:0;padding:0 2px;min-height:24px;cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+.pp-need:hover,.pp-need:focus-visible{color:var(--acc-deep)}
 .ins-wrap{flex:1;min-height:0;display:flex;flex-direction:column}
 .dash .npv{border:none;border-radius:0;flex:1;min-height:0;display:flex;flex-direction:column}
 .dash .npv-scroll{flex:1;min-height:0}
@@ -1846,7 +1855,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.46.1'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.47.0'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -6781,7 +6790,7 @@ function renderProjectPage(){
   h+='<div class="dash-foot">'
    /* Left: passive status — reads as state, not a control. v1.8.0: for a viewer the
       honest state is view-only, not "changes saved". */
-   + (isNew?'':((isViewer()&&!vgrantAny())?'<span class="pg-auto">View only — ask an admin to edit</span>'
+   + (isNew?'<span class="pg-needs" id="pp-needs" aria-live="polite"></span>':((isViewer()&&!vgrantAny())?'<span class="pg-auto">View only — ask an admin to edit</span>'
                           :'<span class="pg-auto"><b>&#10003;</b> Changes saved</span>'))
    /* Right: actions on the project, weakest→strongest. Delete is a subdued destructive
       (red only on hover) that confirms; Mark complete is the secondary workflow step;
@@ -6825,6 +6834,7 @@ function renderProjectPage(){
      ask 'Discard this unsaved project?' with nothing typed). A restored stash skips
      this: it keeps the init snapshot and stays dirty on purpose. */
   if(isNew)if(PP_FRESH){ppFormSync();PP_SNAP=JSON.stringify(PP_FORM);PP_FRESH=false;}
+  if(isNew)ppPaintNeeds(); /* v1.47.0 (item 7) */
   ppPaintMeta(p);
 
   document.getElementById('pp-back').addEventListener('click',goTimeline);
@@ -8188,12 +8198,15 @@ function npvBarMenu(x,y,t){
   /* v1.38.0 (tracker #3): Rename is the one edit on this add-only menu (owner default Q3) */
   const h='<button data-act="ren"><span class="mi" style="background:'+col+'"></span>'
         +   'Rename<span class="k">R</span></button>'
+        /* v1.47.0 (item 7): Duplicate is an add — a new bar — so it fits this add-only menu (N11) */
+        + '<button data-act="dup"><span class="mi" style="background:'+col+'"></span>Duplicate</button>'
         + '<button data-act="sub"><span class="mi" style="background:'+col+'"></span>'
         +   'New subtask<span class="k">S</span></button>'
         + '<button data-act="ev"><span class="mi ev"></span>New milestone<span class="k">E</span></button>'
         + '<button data-act="tk"><span class="mi tk"></span>New note<span class="k">T</span></button>';
   return npvMenuShell(x,y,esc(phaseLabel(t))+' &middot; '+esc(d.name||t.department),h,(act)=>{
     if(act==='ren')npvRenameBar(t);
+    else if(act==='dup')npvDuplicatePhase(t);
     else if(act==='sub')npvCreateSubtask(t.department,t.startDate,false);
     else if(act==='ev')npvCreateEvent(t.department,t.startDate);
     else if(act==='tk')npvCreateTask(t.department,t.startDate);
@@ -9914,7 +9927,9 @@ function npvPopPhaseHTML(sel){
    +ppDateNoteHTML(sel)
    +'<div class="ins-f pop-days"><label>Days</label><input type="number" min="1" data-f="estimatedDays" value="'+(sel.estimatedDays||1)+'"></div>';
   h+='<div class="ins-f"><label>Notes</label><textarea rows="2" data-f="notes" placeholder="Anything the shop needs to know">'+esc(sel.notes||'')+'</textarea></div>';
-  h+='<div class="ins-acts"><button class="ins-btn dngr" data-pop-del title="Delete this phase">Delete</button></div>';
+  /* v1.47.0 (item 7): Duplicate joins the popover — repeat work is found where the bar is edited */
+  h+='<div class="ins-acts"><button class="ins-btn" data-pop-dup title="Copy this phase as a new bar">Duplicate</button>'
+   +'<button class="ins-btn dngr" data-pop-del title="Delete this phase">Delete</button></div>';
   h+='</div>';
   return h;
 }
@@ -9933,6 +9948,8 @@ function npvPopBindPhase(el){
   const del=el.querySelector('[data-pop-del]');if(del)del.addEventListener('click',()=>{
     const cur=ppSelected();if(!cur)return;npvPopClose();
     if(NPV_LIVE)ppDeletePhase(cur.id);else ppPopDelete(cur);});
+  const dup=el.querySelector('[data-pop-dup]');if(dup)dup.addEventListener('click',()=>{
+    const cur=ppSelected();if(!cur)return;npvPopClose();npvDuplicatePhase(cur);});
 }
 function npvPopMarkFind(kind,id){
   if(NPV_LIVE){
@@ -10211,30 +10228,64 @@ function npvBindDrag(){
   });
 }
 
+/* What Create still needs on a draft, in the order it asks. v1.20.8 (owner): a Project
+   Manager is required — someone must own the schedule. ponytail: only enforced while the
+   roster has a PM to pick, so a shop with no staff list yet (and the empty-roster suites)
+   can still create; revisit if that ever bites. */
+function ppMissing(){
+  ppFormSync();
+  const F=PP_FORM||{};
+  const pm=roleList(F.projectManager).length>0||!(STAFF.projectManagers||[]).length;
+  return [!(F.name||'').trim()&&{k:'name',say:'a name',lbl:'Name'},
+    !F.deadline&&{k:'deadline',say:'a target install / ship date',lbl:'Install / ship date'},
+    !pm&&{k:'pm',say:'a Project Manager',lbl:'Project Manager'}].filter(Boolean);
+}
+/* Light up one missing field and take the cursor to it. `rendered` = the caller already
+   showed the project form in the panel; `noFocus` = mark it red only. */
+function ppShowForm(){ /* the project's own form in the panel: open, nothing selected */
+  if(DOCK_COLLAPSED)setDockCollapsed(false);
+  if(PP_SEL!=null)ppSelect(null,true);
+  ppInspector();
+}
+function ppGoField(k,rendered,noFocus){
+  if(!rendered)ppShowForm();
+  const el=document.getElementById(k==='name'?'pp-name':k==='deadline'?'pp-deadline':'pp-r-pm');
+  if(!el)return;
+  el.classList.add('err');
+  if(noFocus)return;
+  const f=k==='pm'?el.querySelector('input'):el;
+  if(f)f.focus();
+}
+/* v1.47.0 (item 7): the draft's footer says how far along it is and links each missing
+   field, so nobody has to press Create to find out what it wants. */
+function ppPaintNeeds(){
+  const el=document.getElementById('pp-needs');if(!el)return;
+  const m=ppMissing(),n=(STAFF.projectManagers||[]).length?3:2; /* the PM rule is waived with no PM roster */
+  const h=m.length
+    ?(n-m.length)+' of '+n+' required · Still needed: '+m.map(x=>'<button type="button" class="pp-need" data-need="'+x.k+'" title="Go to '+x.lbl+'">'+x.lbl+'</button>').join(' ')
+    :'<b>&#10003;</b> Ready to create';
+  if(el.dataset.h!==h){el.dataset.h=h;el.innerHTML=h;} /* aria-live: speak only when it changes */
+}
+document.addEventListener('click',ev=>{
+  const b=ev.target&&ev.target.closest?ev.target.closest('.pp-need'):null;
+  if(b)ppGoField(b.dataset.need);
+});
+['input','change'].forEach(t=>document.addEventListener(t,()=>{if(ROUTE&&ROUTE.creating)ppPaintNeeds();}));
 function savePageProject(){
   /* Read from the persisted draft, not the DOM — only one tab is mounted at a time. */
   ppFormSync();
   const F=PP_FORM||{};
   const name=(F.name||'').trim(), deadline=F.deadline||'';
-  /* v1.20.8 (owner): a Project Manager is required — someone must own the schedule.
-     ponytail: only enforced while the roster has a PM to pick, so a shop with no staff
-     list yet (and the empty-roster suites) can still create; revisit if that ever bites. */
-  const pm=roleList(F.projectManager).length>0||!(STAFF.projectManagers||[]).length;
   const nameEl=document.getElementById('pp-name');
   if(nameEl)nameEl.classList.remove('err');
-  if(!name||!deadline||!pm){
-    if(!name&&nameEl){nameEl.classList.add('err');nameEl.focus();}
-    if(!deadline||!pm)ppInspector();
-    if(!deadline){
-      const dl2=document.getElementById('pp-deadline');
-      if(dl2){dl2.classList.add('err');dl2.focus();}
-    }
-    if(!pm){
-      const box=document.getElementById('pp-r-pm');
-      if(box){box.classList.add('err');if(deadline){const ck=box.querySelector('input');if(ck)ck.focus();}}
-    }
-    const miss=[!name&&'a name',!deadline&&'a target install / ship date',!pm&&'a Project Manager'].filter(Boolean);
-    toast('Give it '+miss.join(' and ')+'.','err');
+  const miss=ppMissing();
+  if(miss.length){
+    /* once: a second render would wipe the first field's red. A selected bar's form has
+       none of these fields, so the project's own form comes back first. */
+    if(miss.some(m=>m.k!=='name')||!nameEl)ppShowForm();
+    const noDl=miss.some(m=>m.k==='deadline');
+    for(const m of miss)ppGoField(m.k,true,m.k==='pm'&&noDl); /* focus lands as it always has: the date over the PM */
+    toast('Give it '+miss.map(m=>m.say).join(' and ')+'.','err');
     return;
   }
   const activeDepartments=(F.activeDepartments||[]).slice();
@@ -11787,6 +11838,8 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.47.0",d:"Oct 12, 2026",n:["Repeat work is easier to find on a project page: right-click a bar, or click it to open its editor, and choose **Duplicate** to copy it as a new bar. Bars show a faint ⋯ when you point at them, as on the timeline.",
+   "New Project's footer now counts the required fields and lists what's still missing — click a name to jump to that field. The bar between the chart and the form shows its drag grip all the time."]},
  {v:"v1.46.1",d:"Oct 12, 2026",n:["Protect dates now stays the way you left it: turn it on or off once, and it's the same the next time you open the app, on any computer you sign in on."]},
  {v:"v1.46.0",d:"Oct 12, 2026",n:["Saved views now follow you: a view you save, rename, delete or star opens on any computer you sign in on. Views already saved in your browser move over the first time you open the app."]},
  {v:"v1.45.1",d:"Oct 9, 2026",n:["Open Issues: a report's thread now shows every comment, labelled Team or Reporter. When the person who filed a report answers the team's email, their answer appears in the thread too."]},
