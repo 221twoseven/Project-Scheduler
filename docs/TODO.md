@@ -697,7 +697,8 @@ release. Where the app has a part, it's listed.
         PRs 1–2 are also what item 51's Azure spike waits on.
       - *Waits on:* nothing.
       - *Progress:* owner go for PRs 1–2 on 2026-10-12. PR 1 (the `store` object, no
-        callers) done 2026-10-12; the `LIST_*` constants stay until their last caller moves.
+        callers) done 2026-10-12 (PR #130); the `LIST_*` constants stay until their last caller
+        moves. PR 2 (Projects, Tasks, To-dos, Events on `store`) done 2026-10-12.
       [`docs/Architecture-Review-Storage.md` §1, "Proposed PR sequence"; D4; D15]
 - [ ] **51. D15's inputs: the platform spikes and the facts a ruling needs.** D15 is
       ruled before the Phase 8 schema is provisioned, on these:
