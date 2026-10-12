@@ -2691,7 +2691,7 @@ function fieldsToPerson(f){return{id:f.appId,name:f.Title||'',depts:safeArr(f.de
 async function spLoadStaff(){
   await spSite();
   const vg=VIEWS_GEN;
-  const r=await gpageAll(listUrl(LIST_STAFF)+'/items?expand=fields&$top=500');
+  const r=await store.list('staff');
   SP_IDS.staff={};STAFF_RAW_PHONE={};const sv={};
   const people=[];
   for(const it of r){if(!it.fields.appId)continue;SP_IDS.staff[it.fields.appId]=it.id;STAFF_RAW_PHONE[it.fields.appId]=String(it.fields.phone||'');
@@ -2713,7 +2713,7 @@ async function cdTidyPhones(btn){
   btn.disabled=true;setSync('busy');
   const errs=[];let n=0;
   for(const id of ids){const f=fmtPhone(STAFF_RAW_PHONE[id]);
-    try{await gfetch(listUrl(LIST_STAFF)+'/items/'+SP_IDS.staff[id]+'/fields',{method:'PATCH',body:JSON.stringify({phone:f})});STAFF_RAW_PHONE[id]=f;n++;}
+    try{await store.update('staff',SP_IDS.staff[id],{phone:f});STAFF_RAW_PHONE[id]=f;n++;}
     catch(e){errs.push(((PEOPLE.find(p=>p.id===id)||{}).name||id)+': '+((e&&e.message)||e));}}
   setSync(errs.length?'err':'ok',errs.length?'phones not all tidied':'synced '+stamp());
   if(errs.length)toast('Tidied '+n+' of '+ids.length+' phone numbers — '+errs.length+' didn\'t save. Press the button again to retry them.','err',null,errs.join('\n'));
@@ -2732,14 +2732,14 @@ async function spSyncStaff(olds,news){
   for(const[id,n]of nm){
     try{
       const o=om.get(id);
-      if(!o&&!SP_IDS.staff[id]){const r=await gfetch(listUrl(LIST_STAFF)+'/items',{method:'POST',body:JSON.stringify({fields:personToFields(n)})});SP_IDS.staff[id]=r.id;}
-      else if(!o||JSON.stringify(o)!==JSON.stringify(n)){await gfetch(listUrl(LIST_STAFF)+'/items/'+SP_IDS.staff[id]+'/fields',{method:'PATCH',body:JSON.stringify(personToFields(n))});}
+      if(!o&&!SP_IDS.staff[id]){const r=await store.create('staff',personToFields(n));SP_IDS.staff[id]=r.id;}
+      else if(!o||JSON.stringify(o)!==JSON.stringify(n)){await store.update('staff',SP_IDS.staff[id],personToFields(n));}
       else continue;
       STAFF_RAW_PHONE[id]=String(n.phone||''); /* v1.43.0 (9c): what the row now holds */
     }catch(e){errs.push((n.name||id)+': '+((e&&e.message)||e));}
   }
   for(const[id]of om)if(!nm.has(id)){
-    try{await gfetch(listUrl(LIST_STAFF)+'/items/'+SP_IDS.staff[id],{method:'DELETE'});delete SP_IDS.staff[id];}
+    try{await store.remove('staff',SP_IDS.staff[id]);delete SP_IDS.staff[id];}
     catch(e){errs.push('removing '+((om.get(id)||{}).name||id)+': '+((e&&e.message)||e));}
   }
   if(errs.length)throw new Error(errs.length+' staff row'+(errs.length===1?'':'s')+' didn\'t save — '+errs[0]+(errs.length>1?' (+'+(errs.length-1)+' more in the console)':''));
@@ -5474,7 +5474,7 @@ async function cdImportEC(btn){
     catch(e){toast('Couldn\'t read the Employee Contacts list — check it lives on the TWOSEVENINC site and you can open it there.','err',null,e.message);return;}
     /* status only syncs once the owner-created column exists — probe, don't 400 */
     let hasStatus=false;
-    try{const cols=await gpageAll(listUrl(LIST_STAFF)+'/columns');hasStatus=cols.some(c=>c.name==='status');}catch(e){}
+    try{const cols=await store.columns('staff');hasStatus=cols.some(c=>c.name==='status');}catch(e){}
     const disp={};for(const c of ecCols)if(c.name&&c.displayName)disp[ecNorm(c.name)]=ecNorm(c.displayName);
     const recs=rows.map(it=>{
       /* v1.43.0 (9a): one key per column, its display name when it has one (ecKey) — a renamed

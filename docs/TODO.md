@@ -712,7 +712,13 @@ release. Where the app has a part, it's listed.
       - *Progress:* owner go for PRs 1–2 on 2026-10-12. PR 1 (the `store` object, no
         callers) done 2026-10-12 (PR #130); the `LIST_*` constants stay until their last caller
         moves. PR 2 (Projects, Tasks, To-dos, Events on `store`) done 2026-10-12 (PR #131).
-        Owner go for PR 3 on 2026-10-12.
+        Owner go for PR 3 on 2026-10-12. PR 3 (Staff on `store`: load, save, the phone tidy,
+        the import's column probe) done 2026-10-12. Of its audit findings below: the field
+        table moved to item 61 (three suites assert the mappers' source text, and a seam PR
+        allows no test edits); the shared `plan()`, the save/retry merge and `setPeople()`
+        were not done. Staff saves collect every row's error and delete in a different order,
+        and the two save paths differ in their pill, toast and continuation, so sharing them
+        needs option switches: more code, not less. `setPeople()` would cover two sites.
       - *Folded in from the 2026-10-12 ponytail audit* (owner accepted the placements):
         - PR 3 (Staff): one `PERSON_COLS` table for the 13 optional Staff fields that
           `personToFields`, `fieldsToPerson`, `cdSavePerson` and `cdMergePerson` each list
@@ -791,6 +797,11 @@ release. Where the app has a part, it's listed.
       - `canonName` remembers its results until `PEOPLE` is replaced (a speed fix: it runs
         inside sorts and every render).
       - `spLoad`'s four repeated row loops become one helper.
+      - One `PERSON_COLS` table drives `personToFields` and `fieldsToPerson` (moved here
+        from seam PR 3). `test-v1170`, `test-v1220` and `test-v1230` check those mappers by
+        their source text; they become round-trip checks (a row in, the same fields out) in
+        the same PR. `cdSavePerson` and `cdMergePerson` keep their own lists, because each
+        field there has its own clean-up.
       - ⚠ The background poll's pause check reuses `updBusy()` instead of its own shorter
         list. This pauses polling in slightly more cases (a focused toolbar field, an open
         New Project, a parked client or settings save), so the owner OKs it first.
