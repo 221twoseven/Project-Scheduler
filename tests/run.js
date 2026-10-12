@@ -88,6 +88,7 @@ const SUITES = [
   'test-v1183.js',
   'test-v1190.js',
   'test-v1208.js',
+  'test-v1210.js', /* re-listed 2026-10-12: left off since v1.21.0, never ran in CI (TODO item 60) */
   'test-v1220.js',
   'test-v1230.js',
   'test-v1250.js',
