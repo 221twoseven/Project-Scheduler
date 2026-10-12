@@ -63,9 +63,9 @@ is the log in §8.
 ## 0. Where we stand
 
 As of 2026-10-12: production (`main`) runs **v1.45.1**, promoted 2026-10-09
-(release/2026-10-09b); `development` runs **v1.47.1**, where saved views (item 25) and
-Protect dates (item 2 (c)) follow the person, repeat work is easier to find (item 7), and
-the project Gantt names its overall-span track (item 8). The newest work in production: reporter answers show in Open Issues
+(release/2026-10-09b); `development` runs **v1.47.2**, where saved views (item 25) and
+Protect dates (item 2 (c)) follow the person, and repeat work is easier to find (item 7).
+The newest work in production: reporter answers show in Open Issues
 (item 58); Protect dates (item 2: drags never change dates); Project Schedule hides the automatic
 Project Management row (item 55, tracker #37); a project starts at its first phase (item
 54, tracker #36); "Cost code" on screen (item 1, tracker #21); time-off notes are private
@@ -363,11 +363,12 @@ What the pilot can't start without.
         the missing fields that Create already names.
       [brief §1, §7 Repeat work + New Project layout, §9 P0 "before shop-wide use", P1
       "small fix"]
-- [x] **8. Department rollup: label the band or drop it.** Shipped v1.47.1 (PR #135,
-      2026-10-12): labelled. The project Gantt's legend names the track "Overall span (gaps
-      aren't work)", with a tooltip, wherever the track actually shows: a subtask reaches
-      past the department's main bar (ranges never get a track). Suite
-      `tests/test-v1471.js`. The two whole-project numbers below became item 59. The faint band behind each
+- [x] **8. Department rollup: label the band or drop it.** Closed 2026-10-12 with no
+      change to the band. A legend label ("Overall span (gaps aren't work)", PR #135) reached
+      `/preview/` only as v1.47.1. The owner ruled the same day that the track is
+      self-explanatory and the label redundant and unclear, so it was removed in v1.47.2
+      before reaching production (PR #138). The two whole-project numbers below became item
+      59. The faint band behind each
       department row runs from its first start to its last finish, gaps included, so it
       can read as continuous work. Label it "Overall span" or remove it.
       - *Fact-check correction:* two whole-project numbers also span gaps: the Meeting
