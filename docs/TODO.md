@@ -63,8 +63,8 @@ is the log in §8.
 ## 0. Where we stand
 
 As of 2026-10-12: production (`main`) runs **v1.45.1**, promoted 2026-10-09
-(release/2026-10-09b); `development` runs **v1.46.0**, where saved views follow the person
-(item 25). The newest work in production: reporter answers show in Open Issues
+(release/2026-10-09b); `development` runs **v1.46.1**, where saved views (item 25) and
+Protect dates (item 2 (c)) follow the person. The newest work in production: reporter answers show in Open Issues
 (item 58); Protect dates (item 2: drags never change dates); Project Schedule hides the automatic
 Project Management row (item 55, tracker #37); a project starts at its first phase (item
 54, tracker #36); "Cost code" on screen (item 1, tracker #21); time-off notes are private
@@ -272,13 +272,14 @@ What the pilot can't start without.
         fabricator until v1.30.0, tracker #18 — and Fabricators) plus a legacy `metalFab`.
         That's Phase 8, §4 D10.
       [brief §7 Terminology]
-- [ ] **2. Lock dates: give it one meaning, then explain it.** Confirmed P0 by user
+- [x] **2. Lock dates: give it one meaning, then explain it.** Confirmed P0 by user
       feedback (owner, 2026-09-24). *(a), (b) and (d) shipped v1.45.0 (PR #123,
       2026-10-09).* The owner chose option 1 on 2026-10-09: drags never change dates, on the
       timeline and the project page (Gantt and calendar); lane moves and typed dates still
       work. Renamed **Protect dates**; its tooltip says what it stops and that it is always on
-      for view-only users. Suite `tests/test-v1450.js`. Only (c) is left. Item 25 shipped v1.46.0, so it no
-      longer waits (2026-10-12): the setting goes in the same `savedViews` value.
+      for view-only users. Suite `tests/test-v1450.js`. (c) Shipped v1.46.1 (PR #133, 2026-10-12): Protect
+      dates follows the person, in the same `savedViews` value as item 25's views. Suite
+      `tests/test-v1461.js`.
       - *Today it means two different things.* On the timeline it stops date changes:
         grabbing a bar's edge to resize turns into a move, and a move changes no dates.
         A drag can still move the bar into another department's or person's lane. On the

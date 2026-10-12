@@ -1636,7 +1636,7 @@ body.cd-route #dash-bar{display:none!important}
       <button id="btn-views" class="t-btn" title="Save the current filters, zoom and layout as a named view, and jump between views">Saved Views <svg class="ico-s" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 6 8 9.5 11.5 6"/></svg></button>
       <div id="views-menu" class="tb-menu hidden"></div>
     </div>
-    <label class="lock-tog" title="Protect dates: dragging a bar never changes its dates, on the timeline or a project page. You can still drag a bar to another person's or department's lane, and typed dates still change. Always on for view-only users.">
+    <label class="lock-tog" title="Protect dates: dragging a bar never changes its dates, on the timeline or a project page. You can still drag a bar to another person's or department's lane, and typed dates still change. Always on for view-only users; for everyone else, your choice follows you to any computer you sign in on.">
       <input type="checkbox" id="lock-ck">
       <span class="lock-track"><span class="lock-thumb"></span></span>
       <span class="lock-txt">Protect dates</span>
@@ -1846,7 +1846,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.46.0'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.46.1'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -10645,7 +10645,8 @@ document.getElementById('btn-lens-dept').addEventListener('click',()=>{if(LENS==
 document.getElementById('btn-new-proj').addEventListener('click',()=>openProjModal(null));
 document.getElementById('lock-ck').addEventListener('change',ev=>{
   if(isViewer()&&!vcan('phases')){ev.target.checked=true;return;} /* v1.8.0: forced on for viewers; the phases grant hands the toggle back */
-  DATE_LOCK=ev.target.checked;document.body.classList.toggle('dates-locked',DATE_LOCK);});
+  DATE_LOCK=ev.target.checked;document.body.classList.toggle('dates-locked',DATE_LOCK);
+  saveProtect(DATE_LOCK);}); /* v1.46.1 (item 2 (c)): remembered for the person, not the tab */
 
 /* Search */
 document.getElementById('t-search').addEventListener('input',ev=>{
@@ -11037,15 +11038,28 @@ let VIEWS_ROW_OFF=false; /* true once a write 400s: the column isn't on the list
 let VIEWS_PUSHING=0,VIEWS_GEN=0; /* writes in flight / started; a staff read that overlaps one doesn't adopt the row */
 function myStaffId(){const n=meName(),p=n&&PEOPLE.find(x=>x.name===n);return p&&SP_IDS.staff[p.id]?p.id:null;}
 function viewsOnRow(){return STAFF_OK&&!VIEWS_ROW_OFF&&!!myStaffId();}
-function pushViews(v){
+/* v1.46.1 (item 2 (c)): Protect dates is personal too. It rides in the same value,
+   {views:[…],protectDates:true|false}, with its own browser cache; each key is written
+   only once this browser holds it, so a row never loses the other half. */
+const PROTECT_KEY='shopTimelineProtect';
+function loadProtect(){let v=null;try{v=localStorage.getItem(PROTECT_KEY);}catch(e){}return v==='1'?true:v==='0'?false:null;}
+function setProtect(on){ /* viewers stay forced on (applyPerms); the phases grant hands the toggle back */
+  if(isViewer()&&!vcan('phases'))return;
+  DATE_LOCK=on;const ck=document.getElementById('lock-ck');if(ck)ck.checked=on;
+  document.body.classList.toggle('dates-locked',DATE_LOCK);
+}
+function saveProtect(on){try{localStorage.setItem(PROTECT_KEY,on?'1':'0');}catch(e){}pushViews();}
+function pushViews(){
   const id=myStaffId();if(!STAFF_OK||VIEWS_ROW_OFF||!id)return;
-  const txt=JSON.stringify({views:v});STAFF_VIEWS[id]=txt;VIEWS_PUSHING++;VIEWS_GEN++;setViewsOwner(id);
+  const v=loadViews(),p=loadProtect();if(!v&&p==null)return;
+  const txt=JSON.stringify({...(v?{views:v}:{}),...(p!=null?{protectDates:p}:{})});
+  STAFF_VIEWS[id]=txt;VIEWS_PUSHING++;VIEWS_GEN++;setViewsOwner(id);
   store.update('staff',SP_IDS.staff[id],{savedViews:txt})
     .catch(e=>{const m=String(e&&e.message);if(/ 400/.test(m)&&/savedViews/.test(m))VIEWS_ROW_OFF=true; /* the column isn't on the list */
       console.warn('Saved views stay in this browser: '+((e&&e.message)||e));})
     .finally(()=>{VIEWS_PUSHING--;});
 }
-function saveViews(v){try{localStorage.setItem(VIEWS_KEY,JSON.stringify(v));}catch(e){}pushViews(v);}
+function saveViews(v){try{localStorage.setItem(VIEWS_KEY,JSON.stringify(v));}catch(e){}pushViews();}
 /* After every staff load: the row wins when it holds views; an empty row gets this
    browser's views (the one-time move up, on the first load after the release). */
 /* VIEWS_OWNER_KEY names whose views the cache holds, so on a shared shop computer one
@@ -11056,23 +11070,33 @@ function viewsOwner(){try{return localStorage.getItem(VIEWS_OWNER_KEY);}catch(e)
 function setViewsOwner(id){try{localStorage.setItem(VIEWS_OWNER_KEY,id);}catch(e){}}
 function viewsFromRow(){
   const id=myStaffId();if(!id||VIEWS_PUSHING)return;
-  const txt=STAFF_VIEWS[id],owner=viewsOwner(),mine=!owner||owner===id;
-  if(!txt){const loc=loadViews();
-    if(loc&&mine)pushViews(loc);
-    else if(loc)try{localStorage.removeItem(VIEWS_KEY);}catch(e){} /* someone else's: the menu seeds fresh */
-    setViewsOwner(id);return;}
-  let v=null;try{const j=JSON.parse(txt);v=Array.isArray(j)?j:(j&&Array.isArray(j.views)?j.views:null);}catch(e){}
-  if(!v)return;
-  const had=mine?loadViews():null,nv=JSON.stringify(v);
+  const owner=viewsOwner();
+  if(owner&&owner!==id){ /* someone else's: start fresh, including the switch their cache set at launch */
+    if(loadProtect()!=null&&!updBusy())setProtect(false);
+    try{localStorage.removeItem(VIEWS_KEY);localStorage.removeItem(PROTECT_KEY);}catch(e){}}
   setViewsOwner(id);
-  if(had&&JSON.stringify(had)===nv)return;
-  try{localStorage.setItem(VIEWS_KEY,nv);}catch(e){}
-  /* An open menu would save its old list over these; rebuild it on the new one. */
-  const vm=document.getElementById('views-menu');
-  if(vm&&!vm.classList.contains('hidden'))buildViewsMenu();
-  /* A computer (or person) with no copy yet: open the starred view now, as the next launch would. */
-  const lv=!had&&!BOOT_VIEWED&&v.find(x=>x.launch);
-  if(lv&&!updBusy()){BOOT_VIEWED=true;applyViewState(lv.state);saveUI();buildFiltersMenu();updateFilterBadges();render();}
+  let j=null;try{j=JSON.parse(STAFF_VIEWS[id]||'null');}catch(e){}
+  if(Array.isArray(j))j={views:j};
+  j=j&&typeof j==='object'?j:{};
+  const had=loadViews(),hadP=loadProtect();
+  let push=false;
+  if(Array.isArray(j.views)){
+    const nv=JSON.stringify(j.views);
+    if(!had||JSON.stringify(had)!==nv){
+      try{localStorage.setItem(VIEWS_KEY,nv);}catch(e){}
+      /* An open menu would save its old list over these; rebuild it on the new one. */
+      const vm=document.getElementById('views-menu');
+      if(vm&&!vm.classList.contains('hidden'))buildViewsMenu();
+      /* A computer (or person) with no copy yet: open the starred view now, as the next launch would. */
+      const lv=!had&&!BOOT_VIEWED&&j.views.find(x=>x.launch);
+      if(lv&&!updBusy()){BOOT_VIEWED=true;applyViewState(lv.state);saveUI();buildFiltersMenu();updateFilterBadges();render();}
+    }
+  }else if(had)push=true; /* the one-time move up */
+  if(typeof j.protectDates==='boolean'){
+    /* never mid-drag or mid-edit (owner rule: no auto action while working); the next poll retries */
+    if(hadP!==j.protectDates&&!updBusy()){try{localStorage.setItem(PROTECT_KEY,j.protectDates?'1':'0');}catch(e){}setProtect(j.protectDates);}
+  }else if(hadP!=null)push=true;
+  if(push)pushViews();
 }
 function defaultViewState(){return{lens:'project',group:'',status:[...ALL_STATUSES],person:'',search:'',
   client:[], /* absent, "Everything" left a live client filter applied — applyViewState only resets what the snapshot carries */
@@ -11763,6 +11787,7 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.46.1",d:"Oct 12, 2026",n:["Protect dates now stays the way you left it: turn it on or off once, and it's the same the next time you open the app, on any computer you sign in on."]},
  {v:"v1.46.0",d:"Oct 12, 2026",n:["Saved views now follow you: a view you save, rename, delete or star opens on any computer you sign in on. Views already saved in your browser move over the first time you open the app."]},
  {v:"v1.45.1",d:"Oct 9, 2026",n:["Open Issues: a report's thread now shows every comment, labelled Team or Reporter. When the person who filed a report answers the team's email, their answer appears in the thread too."]},
  {v:"v1.45.0",d:"Oct 9, 2026",n:["\"Lock dates\" is now **Protect dates**, and it means one thing everywhere: dragging a bar never changes its dates, on the timeline or a project page. You can still drag a bar to another lane, and typed dates still change. Its tooltip says so."]},
@@ -12064,6 +12089,7 @@ document.getElementById('meet-print').addEventListener('click',()=>{prGo(prBuild
 document.getElementById('tb-rev-num').textContent=APP_VER;
 document.getElementById('tb-rev').textContent='v'+APP_VER;
 loadLocalPrefs();
+{const p=loadProtect();if(p!=null)setProtect(p);} /* v1.46.1 (item 2 (c)): this person's Protect dates, from the cache until the row loads */
 /* V4/B6: the launch view overrides the remembered session; a #view= link (a teammate's
    shared snapshot) overrides both. Read-on-load only — neither is auto-saved as a view. */
 let BOOT_VIEWED=location.hash.indexOf('#view=')===0; /* item 25: a view already chosen this launch */
