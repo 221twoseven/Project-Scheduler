@@ -9,6 +9,9 @@ Format: `## <label> — <date>` then one `- ` line per change. Keep lines concre
 what changed *for the team*, not how. Developer-only tooling doesn't need a line.
 Collect lines for the next version under `## Unreleased` and rename it when you ship.
 
+## v1.46.0 — Oct 12, 2026
+- Saved views now follow you: a view you save, rename, delete or star opens on any computer you sign in on. Views already saved in your browser move over the first time you open the app.
+
 ## v1.45.1 — Oct 9, 2026
 - Open Issues: a report's thread now shows every comment, labelled Team or Reporter. When the person who filed a report answers the team's email, their answer appears in the thread too.
 
