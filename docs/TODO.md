@@ -711,7 +711,24 @@ release. Where the app has a part, it's listed.
       - *Waits on:* nothing.
       - *Progress:* owner go for PRs 1–2 on 2026-10-12. PR 1 (the `store` object, no
         callers) done 2026-10-12 (PR #130); the `LIST_*` constants stay until their last caller
-        moves. PR 2 (Projects, Tasks, To-dos, Events on `store`) done 2026-10-12.
+        moves. PR 2 (Projects, Tasks, To-dos, Events on `store`) done 2026-10-12 (PR #131).
+        Owner go for PR 3 on 2026-10-12.
+      - *Folded in from the 2026-10-12 ponytail audit* (owner accepted the placements):
+        - PR 3 (Staff): one `PERSON_COLS` table for the 13 optional Staff fields that
+          `personToFields`, `fieldsToPerson`, `cdSavePerson` and `cdMergePerson` each list
+          by hand (keep the "not set yet" state that lets a missing column never 400);
+          `spSyncStaff` reuses the diff `plan()` from `spSync` instead of a copy (staff keeps
+          collecting per-row errors); one function for `savePeople` and `retryStaffSync`;
+          one `setPeople()` for the three "assign, rebuild, cache" sites; the phone tidy writes
+          through `store`.
+        - PR 4 (Clients and Config): one function for `saveClients` and `retryClientSync`;
+          `loadConfig` and `updCheck` share one Config read.
+        - PRs 5 and 7: the Team-members read, the feedback mail and the screenshot upload go
+          through `gfetch` / `gpageAll` with an optional silent `scopes` argument, instead of
+          building their own token headers. This replaces the planned `store.people()`,
+          `store.mail()` and `store.upload()` wrappers.
+        - After PR 8: one page size for every list (it changes request URLs, so not during
+          the sequence).
       [`docs/Architecture-Review-Storage.md` §1, "Proposed PR sequence"; D4; D15]
 - [ ] **51. D15's inputs: the platform spikes and the facts a ruling needs.** D15 is
       ruled before the Phase 8 schema is provisioned, on these:
@@ -756,6 +773,29 @@ release. Where the app has a part, it's listed.
       - *Waits on:* the owner's pick. If the rule is "gaps never read as work", the
         progress bar is the one to change.
       [brief §7 Rollup, §8.2, §14; item 8]
+- [ ] **60. Test-suite tidy: one shared setup, suites found automatically.** From the
+      2026-10-12 ponytail audit (owner accepted the placement). Test-only, no release.
+      - `tests/run.js` finds `tests/test*.js` itself instead of the hand-kept `SUITES` list.
+        The list already lost one suite: `test-v1210.js` never ran in CI from v1.21.0 until
+        it was re-listed on 2026-10-12. Update `.claude/skills/ship-release/SKILL.md` step 2
+        to match.
+      - A `suite()` helper in `tests/harness.js` replaces the setup and summary lines copied
+        into about 118 suites (about 650 lines).
+      - A skipping suite exits with code 2, so `run.js` stops reading its printed text to
+        count skips.
+      - *Done when:* the full run and the reference run report the same counts as before.
+      - *Waits on:* nothing. After the 2026-10-12 promotion.
+      [ponytail audit 2026-10-12; 2026-09-03 audit]
+- [ ] **61. Small simplifications from the 2026-10-12 audit.** Owner accepted the
+      placement; each needs its own check.
+      - `canonName` remembers its results until `PEOPLE` is replaced (a speed fix: it runs
+        inside sorts and every render).
+      - `spLoad`'s four repeated row loops become one helper.
+      - ⚠ The background poll's pause check reuses `updBusy()` instead of its own shorter
+        list. This pauses polling in slightly more cases (a focused toolbar field, an open
+        New Project, a parked client or settings save), so the owner OKs it first.
+      - *Waits on:* the owner's OK for the poll change only.
+      [ponytail audit 2026-10-12]
 
 ### Not yet placed — reported by users, in filing order [tracker]
 
