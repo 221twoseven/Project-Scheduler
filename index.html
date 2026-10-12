@@ -2519,6 +2519,35 @@ async function spSite(){
 }
 function listUrl(l){return 'https://graph.microsoft.com/v1.0/sites/'+SITE_ID+'/lists/'+l;}
 
+/* Item 48 (the storage seam), PR 1: one object that owns every conversation with the
+   lists. No callers yet; PRs 2–7 move each call site onto it, with the Graph requests
+   unchanged byte for byte (docs/Architecture-Review-Storage.md, "Proposed PR sequence").
+   `top` is each list's page size as the call sites use it today. Items come back raw
+   ({id, fields, lastModifiedBy, …}), so the fieldsTo* mappers stay where they are. */
+const STORE_LISTS={
+  proj:{list:LIST_PROJECTS,top:2000}, task:{list:LIST_TASKS,top:2000},
+  todo:{list:LIST_TODOS,top:2000},    event:{list:LIST_EVENTS,top:2000},
+  staff:{list:LIST_STAFF,top:500},    client:{list:LIST_CLIENTS,top:500},
+  config:{list:LIST_CONFIG,top:200},  changelog:{list:LIST_CHANGELOG,top:2000},
+  feedback:{list:LIST_FEEDBACK,top:2000}, employeeContacts:{list:LIST_EC,top:999}
+};
+const store={
+  url(kind){
+    const k=STORE_LISTS[kind];
+    if(!k)throw new Error('store: unknown kind '+kind);
+    return listUrl(encodeURIComponent(k.list));
+  },
+  /* expand: 'fields' by default; the Employee Contacts import passes its own select. */
+  async list(kind,expand){
+    await spSite();
+    return gpageAll(store.url(kind)+'/items?expand='+(expand||'fields')+'&$top='+STORE_LISTS[kind].top);
+  },
+  async columns(kind){await spSite();return gpageAll(store.url(kind)+'/columns');},
+  async create(kind,fields){await spSite();return gfetch(store.url(kind)+'/items',{method:'POST',body:JSON.stringify({fields})});},
+  async update(kind,id,fields){await spSite();return gfetch(store.url(kind)+'/items/'+id+'/fields',{method:'PATCH',body:JSON.stringify(fields)});},
+  async remove(kind,id){await spSite();return gfetch(store.url(kind)+'/items/'+id,{method:'DELETE'});}
+};
+
 /* ===== 5b: TEAMS MEMBERSHIP (People & Availability picker) =====
    The staff editor suggests names from the members of the company Team; picking one
    fills the email that drives the identity chain. The Team is the menu, the Staff
