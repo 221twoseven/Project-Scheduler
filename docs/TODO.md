@@ -63,8 +63,9 @@ is the log in §8.
 ## 0. Where we stand
 
 As of 2026-10-12: production (`main`) runs **v1.45.1**, promoted 2026-10-09
-(release/2026-10-09b); `development` runs **v1.47.0**, where saved views (item 25) and
-Protect dates (item 2 (c)) follow the person, and repeat work is easier to find (item 7). The newest work in production: reporter answers show in Open Issues
+(release/2026-10-09b); `development` runs **v1.47.1**, where saved views (item 25) and
+Protect dates (item 2 (c)) follow the person, repeat work is easier to find (item 7), and
+the project Gantt names its overall-span track (item 8). The newest work in production: reporter answers show in Open Issues
 (item 58); Protect dates (item 2: drags never change dates); Project Schedule hides the automatic
 Project Management row (item 55, tracker #37); a project starts at its first phase (item
 54, tracker #36); "Cost code" on screen (item 1, tracker #21); time-off notes are private
@@ -362,7 +363,11 @@ What the pilot can't start without.
         the missing fields that Create already names.
       [brief §1, §7 Repeat work + New Project layout, §9 P0 "before shop-wide use", P1
       "small fix"]
-- [ ] **8. Department rollup: label the band or drop it.** The faint band behind each
+- [x] **8. Department rollup: label the band or drop it.** Shipped v1.47.1 (PR #135,
+      2026-10-12): labelled. The project Gantt's legend names the track "Overall span (gaps
+      aren't work)", with a tooltip, wherever the track actually shows: a subtask reaches
+      past the department's main bar (ranges never get a track). Suite
+      `tests/test-v1471.js`. The two whole-project numbers below became item 59. The faint band behind each
       department row runs from its first start to its last finish, gaps included, so it
       can read as continuous work. Label it "Overall span" or remove it.
       - *Fact-check correction:* two whole-project numbers also span gaps: the Meeting
@@ -742,6 +747,15 @@ release. Where the app has a part, it's listed.
         changelog rules. Steps 6–7 are rules for how the steps are done, not work of their
         own.
       [style guide §13; `design/Style-Transition-Review.md`]
+- [ ] **59. Whole-project numbers that span gaps: decide whether they change.** Split
+      out of item 8 (2026-10-12). Two numbers run from the project's first start to its last
+      end, gaps included: the Meeting Sheet progress % and the project page's "Lead time N
+      workdays". Neither counts a gap as department work or load.
+      - *Options:* (a) leave both as they are; (b) relabel them so the span is explicit;
+        (c) compute progress from the blocks themselves.
+      - *Waits on:* the owner's pick. If the rule is "gaps never read as work", the
+        progress bar is the one to change.
+      [brief §7 Rollup, §8.2, §14; item 8]
 
 ### Not yet placed — reported by users, in filing order [tracker]
 
