@@ -770,6 +770,9 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
   transform:rotate(45deg);border-radius:1px;width:10px;height:10px}
 .npv-leg .lg i.tk{background:#fff;border:2px solid #3B7FD6;border-radius:50%;box-sizing:border-box}
 .npv-leg-empty{font-size:11px;color:var(--ts-muted);font-style:italic}
+/* v1.47.1 (item 8): the legend swatch for the overall-span track — the track's own shape, neutral */
+.npv-leg .lg i.env{width:22px;height:6px;border-radius:3px;opacity:.3}
+.npv-leg .lg-span{margin-left:auto;font-weight:500}
 #npv-collapse-all{margin-left:auto;background:#fff;border:1px solid #CBD6E4;border-radius:6px;padding:2px 10px;font-size:var(--fs-fine);font-weight:600;color:#5B6B85;cursor:pointer;font-family:inherit}
 #npv-collapse-all:hover{background:#E8EEF7;color:#1E293B}
 
@@ -1855,7 +1858,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.47.0'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.47.1'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -9404,6 +9407,12 @@ function npvRenderLegend(){
   const mkCls=NPV_CAL_MK?'lv1':'lv0',mkAttr=' data-mk="1" title="Click to show or hide milestone and note text"';
   if(mks.some(m=>m.k==='ev'))h+=chip(mkCls,mkAttr,'<i class="ev"></i>Milestone');
   if(mks.some(m=>m.k==='tk'))h+=chip(mkCls,mkAttr,'<i class="tk"></i>Note');
+  /* v1.47.1 (item 8): name the faint track behind a department's bar (.npv-env) so it never
+     reads as continuous work. Gantt only, and only where a track actually shows: a parent
+     row (ranges never get one) whose subtasks reach past its main bar. The swatch takes
+     that department's colour, as the track does. */
+  const sp=cal?null:npvRowPlan().find(r=>r.kind==='parent'&&(r.s<r.t.startDate||r.e>r.t.endDate));
+  if(sp)h+='<span class="lg lg-span" title="The faint track behind a department\'s bars runs from its first start to its last finish. Gaps inside it are not work."><i class="env" style="background:'+(DEPT_COLORS[sp.dept]||'#6B7484')+'"></i>Overall span (gaps aren\'t work)</span>';
   if(!h)h='<span class="npv-leg-empty">Departments appear here once the schedule has some.</span>';
   /* v1.0.4 (obj 8): phases multi-expand on the calendar — a reset lives in the legend
      bar, against the right margin. The legend is rewritten every render, so the
@@ -11838,6 +11847,7 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.47.1",d:"Oct 12, 2026",n:["On a project's Gantt, the faint track behind a department that runs more than once is now named in the legend: **Overall span (gaps aren't work)** — it runs from the first start to the last finish, and the gaps inside it aren't scheduled work."]},
  {v:"v1.47.0",d:"Oct 12, 2026",n:["Repeat work is easier to find on a project page: right-click a bar, or click it to open its editor, and choose **Duplicate** to copy it as a new bar. Bars show a faint ⋯ when you point at them, as on the timeline.",
    "New Project's footer now counts the required fields and lists what's still missing — click a name to jump to that field. The bar between the chart and the form shows its drag grip all the time."]},
  {v:"v1.46.1",d:"Oct 12, 2026",n:["Protect dates now stays the way you left it: turn it on or off once, and it's the same the next time you open the app, on any computer you sign in on."]},
