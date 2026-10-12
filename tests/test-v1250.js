@@ -37,7 +37,7 @@ function main(){
   setTimeout(()=>{
     const d=q('#fb-list .clog-row[data-spid="5"] details.fb-cm');
     ok('a report with a reply carries a closed toggle', !!d&&!d.open);
-    ok('the toggle says how many', d&&/^1 developer comment$/.test(d.querySelector('summary').textContent), d&&d.querySelector('summary').textContent);
+    ok('the toggle says how many', d&&/^1 comment$/.test(d.querySelector('summary').textContent), d&&d.querySelector('summary').textContent);
     ok('reply text is escaped', d&&d.querySelector('.clog-det').textContent==='Fixed in <b>1.25</b>');
     ok('a report without replies has no toggle', !q('#fb-list .clog-row[data-spid="6"] details'));
 

@@ -111,5 +111,6 @@ touches, the risks, and the rollback path, and get sign-off (see `CLAUDE.md`).
 
 ## CI
 
-`.github/workflows/ci.yml` runs the full suite on every push and PR to `development` and
-`main`. A red build blocks the change from being considered ready.
+`.github/workflows/ci.yml` runs the full suite on every pull request into `development` and
+`main` (pull requests only since 2026-10-09: the PR run already tests the merged result).
+A red build blocks the change from being considered ready.

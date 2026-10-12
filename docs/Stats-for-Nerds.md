@@ -140,7 +140,7 @@ The working set stays "active jobs," which will never be more than a few dozen.
 stubbed and **assert on the actual outgoing Graph request bodies and order** — so
 the traffic behavior above (diffed writes, serialized saves, child-first deletes,
 tristate columns that never 400 other saves) is regression-tested, not aspirational.
-GitHub Actions runs the full suite on every push; the Pages deploy is gated behind
+GitHub Actions runs the full suite on every pull request; the Pages deploy is gated behind
 a referenced-assets guard.
 
 ---

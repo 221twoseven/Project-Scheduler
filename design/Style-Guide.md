@@ -109,7 +109,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);font-size:var(--fs
 | `--txt-micro` | `#93A2B8` | **No consumers** since v1.24.0 (chrome eyebrows moved to `--ts-muted`); retire when the sidebar migrates |
 | `--acc` | `= --ts-action #2F6FE4` | The one accent: primary button, selection ring, focus, active state |
 | `--acc-deep` | `= --ts-action-hover #1D5AC9` | Accent hover/pressed |
-| `--warn` | `#F0A814` | Toggle-on colour (Lock dates, Pin), busy state |
+| `--warn` | `#F0A814` | Toggle-on colour (Protect dates, Pin), busy state |
 | `--late` | `#DC2626` | The Today line and TODAY pill |
 | `--r-s / -m / -l` | 5 / 8 / 14px | Chips · buttons, inputs, bars · overlays, cards |
 | `--fs-*` | 15 / 13 / 11.5 / 11 / 9px | Type scale (§3) |
@@ -643,7 +643,7 @@ viewers flatten to text (transparent border and background, `opacity:1`).
 .pin-track{width:26px;height:14px;background:#E2E8F0;border-radius:7px;position:relative;transition:background .16s}
 .pin-thumb{position:absolute;top:2px;left:2px;width:10px;height:10px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .15s}
 input:checked ~ .pin-track{background:var(--warn)}   input:checked ~ .pin-track .pin-thumb{transform:translateX(12px)}
-/* dark (Lock dates): 28×15 track rgba(255,255,255,.12); on = track rgba(240,168,20,.35), thumb var(--warn), label var(--warn) */
+/* dark (Protect dates): 28×15 track rgba(255,255,255,.12); on = track rgba(240,168,20,.35), thumb var(--warn), label var(--warn) */
 ```
 
 ### 7.6 Chips and pills

@@ -62,7 +62,7 @@ function main(){
 
   sec('R3 — the hover tip names every date in full');
   ok('R3: an open report: "Submitted <date, year, time>"', tip('#fb-list',1)==='Submitted '+full('2026-09-20T10:00:00Z'), tip('#fb-list',1));
-  ok('R3: an open report with comments adds the latest developer comment', tip('#fb-list',2)==='Submitted '+full('2026-09-21T10:00:00Z')+' · Last developer comment '+full('2026-09-24T12:00:00Z'), tip('#fb-list',2));
+  ok('R3: an open report with comments adds the latest developer comment', tip('#fb-list',2)==='Submitted '+full('2026-09-21T10:00:00Z')+' · Last comment '+full('2026-09-24T12:00:00Z'), tip('#fb-list',2));
   ok('R3: a resolved report leads with Resolved, then Submitted', tip('#fb-done',3)==='Resolved '+full('2026-09-30T15:00:00Z')+' · Submitted '+full('2026-09-25T10:00:00Z'), tip('#fb-done',3));
   ok('R3: an unstamped one says the resolution date is not recorded and names what stands in', tip('#fb-done',4)==='Resolution date not recorded; shown is the report’s last change, '+full('2026-10-03T08:00:00Z')+' · Submitted '+full('2026-09-10T10:00:00Z'), tip('#fb-done',4));
   ok('R3: the full date carries the year', /2026/.test(full('2026-09-20T10:00:00Z')), full('2026-09-20T10:00:00Z'));

@@ -66,7 +66,7 @@ function main(){
 
   sec('R3 — a /comment shows as a developer comment');
   const cm=q('#fb-done .clog-row[data-spid="2"] details.fb-cm');
-  ok('the stamped row folds two developer comments', !!cm&&/^2 developer comments$/.test(cm.querySelector('summary').textContent), cm&&cm.querySelector('summary').textContent);
+  ok('the stamped row folds two developer comments', !!cm&&/^2 comments$/.test(cm.querySelector('summary').textContent), cm&&cm.querySelector('summary').textContent);
   ok('…the reply and the /comment, in order', cm&&[...cm.querySelectorAll('.clog-det')].map(d=>d.textContent).join('|')==='Fixed|Shop note');
   ok('fbComments keeps a kind-tagged entry', E("fbComments('[{\"at\":\"t\",\"text\":\"x\",\"kind\":\"comment\"}]').length")===1);
 
