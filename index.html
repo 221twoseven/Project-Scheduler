@@ -1846,7 +1846,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.45.1'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.46.0'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -2678,10 +2678,14 @@ function fieldsToPerson(f){return{id:f.appId,name:f.Title||'',depts:safeArr(f.de
 
 async function spLoadStaff(){
   await spSite();
+  const vg=VIEWS_GEN;
   const r=await gpageAll(listUrl(LIST_STAFF)+'/items?expand=fields&$top=500');
-  SP_IDS.staff={};STAFF_RAW_PHONE={};
+  SP_IDS.staff={};STAFF_RAW_PHONE={};const sv={};
   const people=[];
-  for(const it of r){if(!it.fields.appId)continue;SP_IDS.staff[it.fields.appId]=it.id;STAFF_RAW_PHONE[it.fields.appId]=String(it.fields.phone||'');people.push(fieldsToPerson(it.fields));}
+  for(const it of r){if(!it.fields.appId)continue;SP_IDS.staff[it.fields.appId]=it.id;STAFF_RAW_PHONE[it.fields.appId]=String(it.fields.phone||'');
+    if(it.fields.savedViews)sv[it.fields.appId]=String(it.fields.savedViews); /* item 25: read here, never through fieldsToPerson */
+    people.push(fieldsToPerson(it.fields));}
+  if(!VIEWS_PUSHING&&vg===VIEWS_GEN)STAFF_VIEWS=sv; /* a write during this read keeps its own copy */
   return people;
 }
 /* v1.43.0 (item 9c, owner 2026-10-08): the phone each row holds ON THE LIST. fieldsToPerson shows
@@ -11019,11 +11023,57 @@ document.getElementById('btn-view').addEventListener('click',buildViewMenu);
 wireMenu('btn-view','view-menu');
 
 /* ===================== V4/B6: NAMED SAVED VIEWS ===================== */
-/* Snapshots of viewState() kept in this browser only — deliberately not SharePoint,
-   so one person's "Install crunch" never restyles a teammate's timeline. */
+/* Snapshots of viewState(), personal — one person's "Install crunch" never restyles a
+   teammate's timeline. v1.46.0 (item 25): they follow the person. The signed-in user's own
+   Staff row holds them in `savedViews` (plain-text JSON {views:[…]}, room for per-user
+   settings later); this browser's copy is the cache the menu and the launch view read.
+   Written with a one-column PATCH on that row only, never through personToFields, so a
+   People-page save by an admin can't put back an old copy. Column missing (the PATCH
+   400s) = views stay in this browser, as before. */
 const VIEWS_KEY='shopTimelineViews_v1';
 function loadViews(){try{const v=JSON.parse(localStorage.getItem(VIEWS_KEY));if(Array.isArray(v))return v;}catch(e){}return null;}
-function saveViews(v){try{localStorage.setItem(VIEWS_KEY,JSON.stringify(v));}catch(e){}}
+let STAFF_VIEWS={};      /* staff appId -> the row's savedViews text, as last read or written */
+let VIEWS_ROW_OFF=false; /* true once a write 400s: the column isn't on the list */
+let VIEWS_PUSHING=0,VIEWS_GEN=0; /* writes in flight / started; a staff read that overlaps one doesn't adopt the row */
+function myStaffId(){const n=meName(),p=n&&PEOPLE.find(x=>x.name===n);return p&&SP_IDS.staff[p.id]?p.id:null;}
+function viewsOnRow(){return STAFF_OK&&!VIEWS_ROW_OFF&&!!myStaffId();}
+function pushViews(v){
+  const id=myStaffId();if(!STAFF_OK||VIEWS_ROW_OFF||!id)return;
+  const txt=JSON.stringify({views:v});STAFF_VIEWS[id]=txt;VIEWS_PUSHING++;VIEWS_GEN++;setViewsOwner(id);
+  store.update('staff',SP_IDS.staff[id],{savedViews:txt})
+    .catch(e=>{const m=String(e&&e.message);if(/ 400/.test(m)&&/savedViews/.test(m))VIEWS_ROW_OFF=true; /* the column isn't on the list */
+      console.warn('Saved views stay in this browser: '+((e&&e.message)||e));})
+    .finally(()=>{VIEWS_PUSHING--;});
+}
+function saveViews(v){try{localStorage.setItem(VIEWS_KEY,JSON.stringify(v));}catch(e){}pushViews(v);}
+/* After every staff load: the row wins when it holds views; an empty row gets this
+   browser's views (the one-time move up, on the first load after the release). */
+/* VIEWS_OWNER_KEY names whose views the cache holds, so on a shared shop computer one
+   person's views never move up to, or show for, the next person who signs in. A cache from
+   before v1.46.0 has no owner and goes to the first person who signs in after the release. */
+const VIEWS_OWNER_KEY='shopTimelineViewsOwner';
+function viewsOwner(){try{return localStorage.getItem(VIEWS_OWNER_KEY);}catch(e){return null;}}
+function setViewsOwner(id){try{localStorage.setItem(VIEWS_OWNER_KEY,id);}catch(e){}}
+function viewsFromRow(){
+  const id=myStaffId();if(!id||VIEWS_PUSHING)return;
+  const txt=STAFF_VIEWS[id],owner=viewsOwner(),mine=!owner||owner===id;
+  if(!txt){const loc=loadViews();
+    if(loc&&mine)pushViews(loc);
+    else if(loc)try{localStorage.removeItem(VIEWS_KEY);}catch(e){} /* someone else's: the menu seeds fresh */
+    setViewsOwner(id);return;}
+  let v=null;try{const j=JSON.parse(txt);v=Array.isArray(j)?j:(j&&Array.isArray(j.views)?j.views:null);}catch(e){}
+  if(!v)return;
+  const had=mine?loadViews():null,nv=JSON.stringify(v);
+  setViewsOwner(id);
+  if(had&&JSON.stringify(had)===nv)return;
+  try{localStorage.setItem(VIEWS_KEY,nv);}catch(e){}
+  /* An open menu would save its old list over these; rebuild it on the new one. */
+  const vm=document.getElementById('views-menu');
+  if(vm&&!vm.classList.contains('hidden'))buildViewsMenu();
+  /* A computer (or person) with no copy yet: open the starred view now, as the next launch would. */
+  const lv=!had&&!BOOT_VIEWED&&v.find(x=>x.launch);
+  if(lv&&!updBusy()){BOOT_VIEWED=true;applyViewState(lv.state);saveUI();buildFiltersMenu();updateFilterBadges();render();}
+}
 function defaultViewState(){return{lens:'project',group:'',status:[...ALL_STATUSES],person:'',search:'',
   client:[], /* absent, "Everything" left a live client filter applied — applyViewState only resets what the snapshot carries */
   color:'project',view:'month',fit:30,density:'comfortable',tint:false,collapsedGroups:{},collapsedDepts:[]};}
@@ -11080,7 +11130,7 @@ function buildViewsMenu(){
     saveViews(views);buildViewsMenu();toast('View saved: '+nm);});
   m.appendChild(save);
   const note=document.createElement('div');note.className='sm-note';
-  note.textContent='Views live in this browser only';
+  note.textContent=viewsOnRow()?'Your views follow you to any computer you sign in on':'Views live in this browser only';
   m.appendChild(note);
 }
 document.getElementById('btn-views').addEventListener('click',buildViewsMenu);
@@ -11713,6 +11763,7 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.46.0",d:"Oct 12, 2026",n:["Saved views now follow you: a view you save, rename, delete or star opens on any computer you sign in on. Views already saved in your browser move over the first time you open the app."]},
  {v:"v1.45.1",d:"Oct 9, 2026",n:["Open Issues: a report's thread now shows every comment, labelled Team or Reporter. When the person who filed a report answers the team's email, their answer appears in the thread too."]},
  {v:"v1.45.0",d:"Oct 9, 2026",n:["\"Lock dates\" is now **Protect dates**, and it means one thing everywhere: dragging a bar never changes its dates, on the timeline or a project page. You can still drag a bar to another lane, and typed dates still change. Its tooltip says so."]},
  {v:"v1.44.3",d:"Oct 9, 2026",n:["Project Schedule no longer lists the automatic Project Management row; the PM is set under Project Team, and the phases now number from 1 (Technical Design first). The row only appears when a PM bar needs handing over to a new PM."]},
@@ -12015,9 +12066,10 @@ document.getElementById('tb-rev').textContent='v'+APP_VER;
 loadLocalPrefs();
 /* V4/B6: the launch view overrides the remembered session; a #view= link (a teammate's
    shared snapshot) overrides both. Read-on-load only — neither is auto-saved as a view. */
+let BOOT_VIEWED=location.hash.indexOf('#view=')===0; /* item 25: a view already chosen this launch */
 try{
   const lv=(loadViews()||[]).find(v=>v.launch);
-  if(lv)applyViewState(lv.state);
+  if(lv){applyViewState(lv.state);BOOT_VIEWED=true;}
   if(location.hash.indexOf('#view=')===0){
     applyViewState(JSON.parse(decodeURIComponent(location.hash.slice(6))));
     history.replaceState(null,'',location.pathname+location.search);
@@ -12057,6 +12109,7 @@ async function boot(){
     toast('Couldn\'t load the staff list from SharePoint, so staff lives in this browser only for now.','err',null,e.message);
   }
   rebuildStaff();
+  if(STAFF_OK)viewsFromRow();
   /* N3: the client roster, same graceful-degrade idea (quiet at load, warn on save). */
   if(ACCOUNT)await loadClients();
   if(ACCOUNT)await loadConfig(); /* v1.11.0: app-wide settings — grants apply from first render */
@@ -12129,6 +12182,7 @@ async function boot(){
            clobbered by the pre-save snapshot ("my merges reverted"). */
         if(pg===PEOPLE_GEN&&!SYNCING&&!PENDING_STAFF
            &&JSON.stringify(fp)!==JSON.stringify(PEOPLE)){PEOPLE=fp;rebuildStaff();localStorage.setItem(PEOPLE_KEY,JSON.stringify(PEOPLE));dirty=true;}
+        viewsFromRow(); /* item 25: views saved on another computer reach this one */
       }
       if(dirty){if(ROUTE.view==='project'){PP_KEEP=true;renderProjectPage();}else render();}
       setSync('ok','synced '+stamp());

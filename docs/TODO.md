@@ -62,8 +62,9 @@ is the log in §8.
 
 ## 0. Where we stand
 
-As of 2026-10-09: production (`main`) and `development` both run **v1.45.1**, promoted
-2026-10-09 (release/2026-10-09b). The newest work: reporter answers show in Open Issues
+As of 2026-10-12: production (`main`) runs **v1.45.1**, promoted 2026-10-09
+(release/2026-10-09b); `development` runs **v1.46.0**, where saved views follow the person
+(item 25). The newest work in production: reporter answers show in Open Issues
 (item 58); Protect dates (item 2: drags never change dates); Project Schedule hides the automatic
 Project Management row (item 55, tracker #37); a project starts at its first phase (item
 54, tracker #36); "Cost code" on screen (item 1, tracker #21); time-off notes are private
@@ -276,8 +277,8 @@ What the pilot can't start without.
       2026-10-09).* The owner chose option 1 on 2026-10-09: drags never change dates, on the
       timeline and the project page (Gantt and calendar); lane moves and typed dates still
       work. Renamed **Protect dates**; its tooltip says what it stops and that it is always on
-      for view-only users. Suite `tests/test-v1450.js`. Only (c) is left, and it waits on
-      item 25.
+      for view-only users. Suite `tests/test-v1450.js`. Only (c) is left. Item 25 shipped v1.46.0, so it no
+      longer waits (2026-10-12): the setting goes in the same `savedViews` value.
       - *Today it means two different things.* On the timeline it stops date changes:
         grabbing a bar's edge to resize turns into a move, and a move changes no dates.
         A drag can still move the bar into another department's or person's lane. On the
@@ -290,7 +291,7 @@ What the pilot can't start without.
         - (c) Remember the setting per user, not per browser session. Rides on item 25.
         - (d) Keep the viewer rule — always on for viewers, unless they have the
           `viewer.phases` grant — and say so in the tooltip.
-      - *Waits on:* nothing for (a)–(b); item 25 for (c).
+      - *Waits on:* nothing.
       [brief §5.1, §7 "Tour and Lock dates"]
 - [ ] **3. The tour keeps looping: reproduce it, then fix or gate it.**
       - *Report (tracker #7, 2026-09-24):* the walkthrough loops between steps 6 and 7 of
@@ -412,7 +413,9 @@ What the pilot can't start without.
       "work finished" and "closed out" are different states. Keep the automatic switch to
       Complete as the trigger that starts the closeout clock, never as something that
       hides a job from the closeout queue. [brief §7 Closeout Response, §8.4]
-- [ ] **25. Saved views follow the person, not the browser** (owner ruling 2026-09-24).
+- [x] **25. Saved views follow the person, not the browser** (owner ruling 2026-09-24).
+      Shipped v1.46.0 (PR #132, 2026-10-12). The owner added the `savedViews` column on
+      2026-10-12. Suite `tests/test-v1460.js`.
       Today a saved view lives in one browser's local storage (`shopTimelineViews_v1`).
       - *Change:* store views on the signed-in user's own Staff row: ⚠ `savedViews` on
         `ShopTimeline_Staff`, multi-line text holding a JSON list, written only to the
@@ -1497,7 +1500,9 @@ constraint (D2, lifted 2026-09-24).
 - On `ShopTimeline_Staff`: `admin` (`1` / `dev` / empty), `feedbackRecipient`, `phone`,
   `personalNotes`, `listeningTo` / `listeningLink` / `listeningVerb` / `listeningShow`,
   `status` (Employee Contacts' vocabulary), `nickname`, `driver`, `availability`,
-  `schedule` (JSON), `freelance`.
+  `schedule` (JSON), `freelance`, `savedViews` (multi-line plain text, JSON
+  `{views:[…]}`, written only to the signed-in user's own row; added by the owner
+  2026-10-12, item 25).
 - On `ShopTimeline_Feedback`: `ghIssue` — single line of text, the GitHub issue URL,
   written by the tracker repository's poller, never by the app (item 31).
 - On `ShopTimeline_Feedback`: `resolvedAt` — single line of text, the ticket's close time (ISO),
@@ -1520,8 +1525,6 @@ constraint (D2, lifted 2026-09-24).
 - `dateCertainty` on `ShopTimeline_Projects` — item 5.
 - `closeoutStatus` and `billingStatus` (plus `closeoutBy` and `closeoutAt` if needed) on
   `ShopTimeline_Projects` — item 11.
-- `savedViews` on `ShopTimeline_Staff` — multi-line text holding a JSON list, written only
-  to the signed-in user's own row (as `personalNotes` is) — item 25.
 - A tour "seen" flag on `ShopTimeline_Staff` — only if item 3 is fixed that way.
 - A test site, or a suffixed set of lists, for development data — item 17.
 
