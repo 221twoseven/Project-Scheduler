@@ -16,6 +16,7 @@ its entry. If it's turned off, mark it *retired* and keep the entry.
 | [Feedback poller](#feedback-poller) | GitHub Actions | Files each feedback report as a tracker issue; syncs status, the resolved date and `/reply` / `/comment` comments back to the list | Robert | live since 2026-09-25 |
 | [Reply email](#reply-email) | Power Automate | Emails a new `/reply` to the person who filed the report, and tells them they can answer; emails them when their report is resolved | Robert | live since 2026-09-30; resolved branch live since 2026-10-09 (tracker README step 11) |
 | [Email reply in](#email-reply-in) | Power Automate | Sends the reporter's email answer to the tracker, where it becomes a comment on the ticket and in the app | Robert | live since 2026-10-09 (rebuilt; tracker README step 10) |
+| [New report out](#new-report-out) | Power Automate | Tells the tracker the moment a report is saved, so its issue opens within minutes | Robert | live since 2026-10-13 (tracker README step 12) |
 | 27 Events → Outlook | Power Automate | Syncs the company calendar list to Outlook | unknown | **undocumented**: TODO §5, item 12 |
 | 27 Employees (PTO) | Power Automate | PTO / availability automation | operations manager | **undocumented**: TODO §5 |
 
@@ -46,8 +47,10 @@ it off.
   a comment posted with the job's own token starts no run), and the sync copies the answer to the
   row's `comments` as `kind:'reporter'`, header dropped, never to `lastComment` (2026-10-09, TODO
   item 58). The app shows it in the report's thread labelled *Reporter* (v1.45.1).
-- **Trigger:** issue closed or reopened, any issue comment, hourly (best-effort), manual
-  run (also started by an email-reply run; `actions: write`), `repository_dispatch` (`email-reply`).
+- **Trigger:** issue closed or reopened, any issue comment, hourly (best-effort; in practice
+  GitHub runs it 3 to 4 times a day), manual run (also started by an email-reply run;
+  `actions: write`), `repository_dispatch` (`email-reply`, and `feedback` from *New report out*
+  when a report is saved, 2026-10-13).
 - **Reads / writes:** `ShopTimeline_Feedback` columns `ghIssue`, `status` (empty = pending,
   `review`, `resolved`), `resolvedAt` (optional), `comments` and `lastComment`, plus the
   `/ShopTimeline Feedback/` screenshot folder (read only).
@@ -120,6 +123,25 @@ it off.
   it starts.
 - **Turn off:** My flows ▸ the flow ▸ **Turn off**. Reporters' answers then just stay in the
   inbox.
+
+### New report out
+
+- **Does:** when a report is saved, tells the tracker straight away, so its issue opens within a
+  few minutes. Before this flow it waited for the poller's "hourly" schedule, which GitHub ran
+  only 3 to 4 times a day, with gaps of 3½ to 8 hours (TODO item 64).
+- **Trigger:** SharePoint *When an item is created* on `ShopTimeline_Feedback`. Power Automate
+  checks the list every minute.
+- **Reads / writes:** reads nothing from the new row. Sends a GitHub `repository_dispatch`
+  (`feedback`) to `221twoseven/Project-Scheduler-issues`, and the poller runs its normal sync.
+  Writes nothing to SharePoint.
+- **Runs as:** Robert's SharePoint connection, plus the same GitHub connection as *Email reply
+  in* (`221twoseven`). Both connectors are standard, not premium.
+- **Definition:** Power Automate ▸ My flows ▸ *Shop Timeline — new report out*. The build is in
+  the tracker README, step 12. Exported package: tracker `flows/shop-timeline-new-report-out.zip`,
+  with a readable `.definition.json` beside it (2026-10-13; tested by the owner, #42).
+- **Failures:** the Power Automate failure digest. A missed dispatch costs nothing lasting: the
+  next scheduled or comment-triggered sync files the report anyway.
+- **Turn off:** My flows ▸ the flow ▸ **Turn off**. Reports go back to the scheduled sync.
 
 ## Keeping flows out of the black box
 

@@ -50,8 +50,9 @@ as the phase runs.
 - Every milestone gets a record in `docs/Milestones/Phase-7-Pilot-Readiness/`; every
   deliberate skip gets a §7 line with its gate.
 
-Last reviewed: 2026-10-09 — the promotion audits for v1.43.0 → v1.44.3 and v1.44.3 → v1.45.1
-reaching `main` (log in §8). Before that, 2026-10-08 — D15 (data platform) reassessed: Dataverse and Azure SQL + API
+Last reviewed: 2026-10-13 — the promotion audit for v1.45.1 → v1.48.1 reaching `main` (log in
+§8). Before that, 2026-10-09 — the promotion audits for v1.43.0 → v1.44.3 and v1.44.3 →
+v1.45.1. Before that, 2026-10-08 — D15 (data platform) reassessed: Dataverse and Azure SQL + API
 are now co-equal candidates (`docs/Architecture-Review-Backend.md`); D1, D3, D10–D13 and
 items 14, 17 and 44 given storage-neutral readings. The same day: the opening, §0 and §3's
 intro brought up to date, then a full audit against the tracker, `CHANGELOG.md` and the
@@ -62,15 +63,12 @@ is the log in §8.
 
 ## 0. Where we stand
 
-As of 2026-10-13: production (`main`) runs **v1.45.1**, promoted 2026-10-09
-(release/2026-10-09b); `development` runs **v1.48.1**, where saved views (item 25) and
-Protect dates (item 2 (c)) follow the person, repeat work is easier to find (item 7), and
-projects show their last edit and a Stale flag (item 6).
-The newest work in production: reporter answers show in Open Issues
-(item 58); Protect dates (item 2: drags never change dates); Project Schedule hides the automatic
-Project Management row (item 55, tracker #37); a project starts at its first phase (item
-54, tracker #36); "Cost code" on screen (item 1, tracker #21); time-off notes are private
-to admins (item 4). Phase 7 has shipped v1.24.0 → v1.45.1 so far.
+As of 2026-10-13: production (`main`) and `development` both run **v1.48.1**, promoted
+2026-10-13 (release/2026-10-13). The newest work: saved views (item 25) and Protect dates
+(item 2 (c)) follow the person, repeat work is easier to find (item 7), and projects show
+their last edit, a Stale flag and "Schedule still accurate" (item 6). Before that: reporter
+answers show in Open Issues (item 58); Protect dates (item 2: drags never change dates).
+Phase 7 has shipped v1.24.0 → v1.48.1 so far.
 `CHANGELOG.md` is the release-by-release record.
 
 ## 1. North star — Systems
@@ -727,17 +725,17 @@ release. Where the app has a part, it's listed.
         callers) done 2026-10-12 (PR #130); the `LIST_*` constants stay until their last caller
         moves. PR 2 (Projects, Tasks, To-dos, Events on `store`) done 2026-10-12 (PR #131).
         Owner go for PR 3 on 2026-10-12. PR 3 (Staff on `store`: load, save, the phone tidy,
-        the import's column probe) done 2026-10-12. Of its audit findings below: the field
+        the import's column probe) done 2026-10-12 (PR #137). Of its audit findings below: the field
         table moved to item 61 (three suites assert the mappers' source text, and a seam PR
         allows no test edits); the shared `plan()`, the save/retry merge and `setPeople()`
         were not done. Staff saves collect every row's error and delete in a different order,
         and the two save paths differ in their pill, toast and continuation, so sharing them
         needs option switches: more code, not less. `setPeople()` would cover two sites.
-        PR 4 (Clients and Config on `store`) done 2026-10-13 (owner go 2026-10-12), with both
+        PR 4 (Clients and Config on `store`) done 2026-10-13 (PR #139; owner go 2026-10-12), with both
         of its audit findings: one `runClientSync` behind `saveClients` and
         `retryClientSync` (the two differ only in their message and in how a failure parks
         the diff base), and one `readConfig()` for `loadConfig` and the update check.
-        PR 5 (Changelog and Feedback on `store`) done 2026-10-13 (owner go 2026-10-13); the
+        PR 5 (Changelog and Feedback on `store`) done 2026-10-13 (PR #141; owner go 2026-10-13); the
         screenshot upload now goes through `gfetch` (same request, no `store.upload`); the
         feedback mail stays for PR 7.
       - *Folded in from the 2026-10-12 ponytail audit* (owner accepted the placements):
@@ -852,6 +850,14 @@ release. Where the app has a part, it's listed.
         Staleness is unaffected.
       Suite `tests/test-v1481.js`.
       [code review 2026-10-13]
+- [x] **64. New reports reach the tracker within minutes.** Done 2026-10-13, no app
+      release. GitHub ran the poller's "hourly" schedule only 3 to 4 times a day (gaps of
+      3½ to 8 hours), so a new report waited up to a working day for its issue. The owner
+      built *Shop Timeline — new report out* (Power Automate: on a new `ShopTimeline_Feedback`
+      row, send the `feedback` repository dispatch the poller already listened for) and
+      tested it (tracker #42). Exported to the tracker's `flows/` with README step 12 (tracker
+      `03a8935`); `docs/Automations.md` entry *New report out*.
+      [owner question 2026-10-13]
 
 ### Not yet placed — reported by users, in filing order [tracker]
 
@@ -2102,6 +2108,31 @@ How to read the tags at the end of an entry:
   - *Branches and PRs:* nothing open besides this promotion; only `main` and `development` on
     the remote.
   - *Fixed in this audit:* §0 now says production runs v1.45.1.
+
+- 2026-10-13 (promotion): **v1.45.1 → v1.48.1 promoted to `main`** (release/2026-10-13). The
+  promotion audit (`CLAUDE.md`, "Keeping `docs/TODO.md` true"):
+  - *Releases since the last promotion (v1.45.1):* v1.46.0 is item 25, v1.46.1 item 2 (c)
+    (item 2 now complete), v1.47.0 item 7, v1.48.0 item 6. All ticked. v1.47.1–v1.47.2 are
+    item 8: labelled, then removed at the owner's ruling, closed with no change to the band
+    (item 59 holds its open question). v1.47.3 and v1.48.1 are the release-review fixes,
+    items 62 and 63. CHANGELOG folds them into the v1.47.0 and v1.48.0 entries.
+  - *Other work, ticked or recorded:* the storage seam, PRs 1–5 (item 48: #130, #131, #137,
+    #139, #141; the PR numbers for 3–5 were added in this audit); the ponytail audit's
+    placements (#136: items 60, 61 and item 48's notes; `test-v1210` re-listed after a month
+    out of CI); item 64 (the *new report out* flow, added in this audit).
+  - *Tracker:* four new tickets, all filed 2026-10-13. #39, #40 and #41 (from Caroline:
+    drag the timeline, the crew list jumping to the top, an All Projects button) are
+    untriaged, and the `triage-issues` skill's step 1 is next. #42 is the owner's test of
+    the new flow; it can close. The older ones match their items: #1 → 32 (needs Proceed),
+    #7 → 3 (on hold), #12 → 40.
+  - *⚠ specs:* none awaiting creation. The owner added `savedViews` on Staff (2026-10-12)
+    and `confirmedAt` / `confirmedBy` on Projects (2026-10-13); both are in §6's created
+    list. `dateCertainty` (item 5) is still a candidate.
+  - *Branches and PRs:* nothing open besides this promotion and its companion.
+    `fix/confirm-review` (#143, merged) was still on the remote. A local-only
+    `docs/d15-backend-reconciliation` holds a commit already in `development` as `c6b258c`.
+  - *Fixed in this audit:* §0 now says production runs v1.48.1; the seam PR numbers; item 64
+    and its Automations entry.
 
 - 2026-10-09 (promotion): **v1.43.0 → v1.44.3 promoted to `main`** (release/2026-10-09). The
   promotion audit (`CLAUDE.md`, "Keeping `docs/TODO.md` true"):
