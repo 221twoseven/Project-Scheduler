@@ -63,7 +63,7 @@ is the log in §8.
 ## 0. Where we stand
 
 As of 2026-10-12: production (`main`) runs **v1.45.1**, promoted 2026-10-09
-(release/2026-10-09b); `development` runs **v1.47.2**, where saved views (item 25) and
+(release/2026-10-09b); `development` runs **v1.47.3**, where saved views (item 25) and
 Protect dates (item 2 (c)) follow the person, and repeat work is easier to find (item 7).
 The newest work in production: reporter answers show in Open Issues
 (item 58); Protect dates (item 2: drags never change dates); Project Schedule hides the automatic
@@ -808,6 +808,17 @@ release. Where the app has a part, it's listed.
         New Project, a parked client or settings save), so the owner OKs it first.
       - *Waits on:* the owner's OK for the poll change only.
       [ponytail audit 2026-10-12]
+- [x] **62. Fixes from the whole-release review, main v1.45.1 → v1.47.2.** Done in
+      v1.47.3 (PR #140, 2026-10-13), before the promotion; neither bug reached production,
+      so the release notes fold it into the v1.47.0 entry.
+      - On a shared computer, the last person's Protect dates now resets even when the next
+        person's staff list lands on a New Project page; only a drag in flight waits.
+      - A New Project draft opened before the roster arrives repaints its footer when the
+        staff list loads, so it counts and lists the Project Manager rule.
+      - `test-v1360` compares a parked label within 1px: on some dates (2026-10-13) the fit
+        zoom puts bars at fractional pixels, and exact float equality failed by a hair.
+      Suite `tests/test-v1473.js`.
+      [code review 2026-10-13]
 
 ### Not yet placed — reported by users, in filing order [tracker]
 
