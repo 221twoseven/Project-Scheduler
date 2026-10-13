@@ -137,7 +137,7 @@ function stageSettings(){
   setTimeout(()=>{
     ok('the page renders one row per switch',
        E('ROUTE.view')==='settings'
-       &&doc.querySelectorAll('.as-row').length===E('CFG_META.length'));
+       &&doc.querySelectorAll('.as-row [data-cfg]').length===E('CFG_META.length')); /* v1.48.0: the page also has a non-switch row (Stale after N days) */
     ok('a non-developer bounces home', (()=>{
       E("PEOPLE.find(p=>p.name==='Sam').developer=false");
       E('renderAppSettings()');

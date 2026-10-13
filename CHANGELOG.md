@@ -9,6 +9,10 @@ Format: `## <label> — <date>` then one `- ` line per change. Keep lines concre
 what changed *for the team*, not how. Developer-only tooling doesn't need a line.
 Collect lines for the next version under `## Unreleased` and rename it when you ship.
 
+## v1.48.0 — Oct 13, 2026
+- A project page now shows who last edited the project and when ("Last edited by Sam · Oct 12, 2:14 PM"), and the Meeting Sheet prints the same line under each project. Any change counts, phases and notes included.
+- Projects nobody has touched in 14 days get a grey **Stale** tag in the sidebar, so a forgotten schedule stands out. Completed and On Hold projects never do.
+
 ## v1.47.0–v1.47.3 — Oct 13, 2026
 - Repeat work is easier to find on a project page: right-click a bar, or click it to open its editor, and choose **Duplicate** to copy it as a new bar. Bars show a faint ⋯ when you point at them, as on the timeline.
 - New Project's footer now counts the required fields and lists what's still missing — click a name to jump to that field. The bar between the chart and the form shows its drag grip all the time.

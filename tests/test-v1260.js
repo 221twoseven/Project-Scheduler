@@ -56,7 +56,8 @@ const q=s=>doc.querySelector(s),qa=s=>[...doc.querySelectorAll(s)];
 const change=el=>el.dispatchEvent(new win.Event('change',{bubbles:true}));
 const rowOf=name=>qa('#side-rows .sb-row.proj-head').find(r=>r.querySelector('.sb-name')&&r.querySelector('.sb-name').textContent===name);
 const sub=name=>{const r=rowOf(name);return r?r.querySelector('.sb-sub').textContent:'(no row)';};
-const chip=name=>{const r=rowOf(name);const c=r&&r.querySelector('.sb-chip');return c?c.textContent:'';};
+/* the due-date tag only (LATE / TODAY / Nd); v1.48.0's Stale chip is a different signal (test-v1480) */
+const chip=name=>{const r=rowOf(name);const c=r&&r.querySelector('.sb-chip:not(.stale)');return c?c.textContent:'';};
 const meta=()=>(q('#pp-meta')||{textContent:''}).textContent;
 
 setTimeout(stage1,1500);
