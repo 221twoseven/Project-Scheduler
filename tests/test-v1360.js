@@ -92,7 +92,9 @@ function stage1(){
         const sx=px(sum.style.left);
         sc.scrollLeft=sx+200;sc.dispatchEvent(new win.Event('scroll'));
         setTimeout(()=>{
-          ok('the project label (pill included) parks at the visible left edge',sx+px(sl.style.left)===sc.scrollLeft+14,sl.style.left);
+          /* within 1px: a fit zoom puts bars at fractional pixels on some dates (2026-10-13:
+             267.3333333333333 vs 267.33333333333337), so exact float equality failed by a hair */
+          ok('the project label (pill included) parks at the visible left edge',Math.abs(sx+px(sl.style.left)-(sc.scrollLeft+14))<1,sl.style.left);
 
           sec('R1 — Departments lens uses the same bars and rule');
           click(doc.getElementById('btn-lens-dept'));

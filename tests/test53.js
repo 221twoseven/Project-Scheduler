@@ -12,6 +12,7 @@ const FILE=process.argv[2]||'index.html';
 const src=fs.readFileSync(FILE,'utf8');
 /* v1.38.0 (tracker #3): the band menu leads with Rename (in place) — the one edit on it */
 const REN=/npvRenameBar/.test(src);
+const DUP=src.indexOf('Duplicate is an add')>=0; /* v1.47.0 (item 7): Duplicate joins the bar menu */
 
 if(src.indexOf('npvCalHit')<0){
   console.log('  SKIP  build predates REV53 (no calendar create menu) — nothing to assert');
@@ -230,7 +231,7 @@ function stage4(){
               ok('it offers only add-new actions (v1.38.0: plus Rename)',
                  !!byAct('sub')&&!!byAct('ev')&&!!byAct('tk')&&(!!byAct('ren')===REN),
                  items().join(' | '));
-              ok('no delete or duplicate on a draft', !byAct('del')&&!byAct('dup'),
+              ok('no delete on a draft; duplicate from v1.47.0', !byAct('del')&&(!!byAct('dup')===DUP),
                  items().join(' | '));
               E('npvCloseMenu();');
               done();

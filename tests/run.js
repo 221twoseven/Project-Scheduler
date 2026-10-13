@@ -88,6 +88,7 @@ const SUITES = [
   'test-v1183.js',
   'test-v1190.js',
   'test-v1208.js',
+  'test-v1210.js', /* re-listed 2026-10-12: left off since v1.21.0, never ran in CI (TODO item 60) */
   'test-v1220.js',
   'test-v1230.js',
   'test-v1250.js',
@@ -124,6 +125,12 @@ const SUITES = [
   'test-v1443.js',
   'test-v1450.js',
   'test-v1451.js',
+  'test-v1460.js',
+  'test-v1461.js',
+  'test-v1470.js',
+  'test-v1473.js',
+  'test-v1480.js',
+  'test-v1481.js',
   'test-deploy-guard.js',
   'test-todo.js',
 ];

@@ -50,8 +50,9 @@ as the phase runs.
 - Every milestone gets a record in `docs/Milestones/Phase-7-Pilot-Readiness/`; every
   deliberate skip gets a §7 line with its gate.
 
-Last reviewed: 2026-10-09 — the promotion audits for v1.43.0 → v1.44.3 and v1.44.3 → v1.45.1
-reaching `main` (log in §8). Before that, 2026-10-08 — D15 (data platform) reassessed: Dataverse and Azure SQL + API
+Last reviewed: 2026-10-13 — the promotion audit for v1.45.1 → v1.48.1 reaching `main` (log in
+§8). Before that, 2026-10-09 — the promotion audits for v1.43.0 → v1.44.3 and v1.44.3 →
+v1.45.1. Before that, 2026-10-08 — D15 (data platform) reassessed: Dataverse and Azure SQL + API
 are now co-equal candidates (`docs/Architecture-Review-Backend.md`); D1, D3, D10–D13 and
 items 14, 17 and 44 given storage-neutral readings. The same day: the opening, §0 and §3's
 intro brought up to date, then a full audit against the tracker, `CHANGELOG.md` and the
@@ -62,12 +63,12 @@ is the log in §8.
 
 ## 0. Where we stand
 
-As of 2026-10-09: production (`main`) and `development` both run **v1.45.1**, promoted
-2026-10-09 (release/2026-10-09b). The newest work: reporter answers show in Open Issues
-(item 58); Protect dates (item 2: drags never change dates); Project Schedule hides the automatic
-Project Management row (item 55, tracker #37); a project starts at its first phase (item
-54, tracker #36); "Cost code" on screen (item 1, tracker #21); time-off notes are private
-to admins (item 4). Phase 7 has shipped v1.24.0 → v1.45.1 so far.
+As of 2026-10-13: production (`main`) and `development` both run **v1.48.1**, promoted
+2026-10-13 (release/2026-10-13). The newest work: saved views (item 25) and Protect dates
+(item 2 (c)) follow the person, repeat work is easier to find (item 7), and projects show
+their last edit, a Stale flag and "Schedule still accurate" (item 6). Before that: reporter
+answers show in Open Issues (item 58); Protect dates (item 2: drags never change dates).
+Phase 7 has shipped v1.24.0 → v1.48.1 so far.
 `CHANGELOG.md` is the release-by-release record.
 
 ## 1. North star — Systems
@@ -271,13 +272,14 @@ What the pilot can't start without.
         fabricator until v1.30.0, tracker #18 — and Fabricators) plus a legacy `metalFab`.
         That's Phase 8, §4 D10.
       [brief §7 Terminology]
-- [ ] **2. Lock dates: give it one meaning, then explain it.** Confirmed P0 by user
+- [x] **2. Lock dates: give it one meaning, then explain it.** Confirmed P0 by user
       feedback (owner, 2026-09-24). *(a), (b) and (d) shipped v1.45.0 (PR #123,
       2026-10-09).* The owner chose option 1 on 2026-10-09: drags never change dates, on the
       timeline and the project page (Gantt and calendar); lane moves and typed dates still
       work. Renamed **Protect dates**; its tooltip says what it stops and that it is always on
-      for view-only users. Suite `tests/test-v1450.js`. Only (c) is left, and it waits on
-      item 25.
+      for view-only users. Suite `tests/test-v1450.js`. (c) Shipped v1.46.1 (PR #133, 2026-10-12): Protect
+      dates follows the person, in the same `savedViews` value as item 25's views. Suite
+      `tests/test-v1461.js`.
       - *Today it means two different things.* On the timeline it stops date changes:
         grabbing a bar's edge to resize turns into a move, and a move changes no dates.
         A drag can still move the bar into another department's or person's lane. On the
@@ -290,7 +292,7 @@ What the pilot can't start without.
         - (c) Remember the setting per user, not per browser session. Rides on item 25.
         - (d) Keep the viewer rule — always on for viewers, unless they have the
           `viewer.phases` grant — and say so in the tooltip.
-      - *Waits on:* nothing for (a)–(b); item 25 for (c).
+      - *Waits on:* nothing.
       [brief §5.1, §7 "Tour and Lock dates"]
 - [ ] **3. The tour keeps looping: reproduce it, then fix or gate it.**
       - *Report (tracker #7, 2026-09-24):* the walkthrough loops between steps 6 and 7 of
@@ -339,13 +341,29 @@ What the pilot can't start without.
           Sheet prints the certainty.
       - *Waits on:* (a) and (c) are Project Director decisions. The column is additive.
       [brief §7 Early dates; §9 P0]
-- [ ] **6. Show the last update; flag stale projects.** Who last edited a project and when
+- [x] **6. Show the last update; flag stale projects.** Shipped v1.48.0 (PR #142,
+      2026-10-13), owner wording 2026-10-13: "Last edited by Sam · Oct 12, 2:14 PM" on the
+      project page header and under each project on the Meeting Sheet; a grey "Stale" chip
+      in the sidebar ("No edits in 14 days"). The last edit is the newest stamp on the
+      project or any of its phases and notes. N = Config key `stale.days`, default 14, set
+      on App settings (owner, 2026-10-13: change it there without a release; the Project
+      Director can still pick the number). A completed or On Hold project is never stale. The legend
+      got no entry (item 8's lesson). *The call to action* (owner, 2026-10-13, asked before
+      merging: what is the user supposed to do?): a "Schedule still accurate" button on a
+      stale project's header writes `confirmedAt` / `confirmedBy` (owner added them 2026-10-13) on its Projects row and
+      clears the tag without a fake edit; the header then adds "· confirmed Oct 13 by Sam";
+      the PM's own My Dashboard lists "Your stale projects"; the chip's tooltip says what to
+      do. Before the columns exist the button explains they're missing. Suite `tests/test-v1480.js`. Who last edited a project and when
       (`updatedBy` / `updatedAt`) already comes from Graph, but shows only in hover cards
       (and, for admins, the change log). Put the last editor and time on the project page
       header and the Meeting Sheet. Add a "stale" chip in the sidebar and legend for a
       project with no edit in N days (N set with the Project Director). [brief §5.1, §7
       Reliability, §9 P1 "stale-data warnings"]
-- [ ] **7. Make repeat department work easy to find.** The feature exists — each block is
+- [x] **7. Make repeat department work easy to find.** Shipped v1.47.0 (PR #134,
+      2026-10-12). Duplicate on a bar's right-click menu (an add, so N11 holds) and its edit
+      popover; ⋯ on project-page bars; the divider's grip always shows; the draft footer
+      counts the three required fields and links each missing one. "Section progress" was
+      read as that count. Suite `tests/test-v1470.js`. The feature exists — each block is
       its own record, and Duplicate and New subtask work even before the first save —
       but users don't find it.
       - Put Duplicate on the bar's popover and right-click menu, not only in the
@@ -356,7 +374,12 @@ What the pilot can't start without.
         the missing fields that Create already names.
       [brief §1, §7 Repeat work + New Project layout, §9 P0 "before shop-wide use", P1
       "small fix"]
-- [ ] **8. Department rollup: label the band or drop it.** The faint band behind each
+- [x] **8. Department rollup: label the band or drop it.** Closed 2026-10-12 with no
+      change to the band. A legend label ("Overall span (gaps aren't work)", PR #135) reached
+      `/preview/` only as v1.47.1. The owner ruled the same day that the track is
+      self-explanatory and the label redundant and unclear, so it was removed in v1.47.2
+      before reaching production (PR #138). The two whole-project numbers below became item
+      59. The faint band behind each
       department row runs from its first start to its last finish, gaps included, so it
       can read as continuous work. Label it "Overall span" or remove it.
       - *Fact-check correction:* two whole-project numbers also span gaps: the Meeting
@@ -412,7 +435,9 @@ What the pilot can't start without.
       "work finished" and "closed out" are different states. Keep the automatic switch to
       Complete as the trigger that starts the closeout clock, never as something that
       hides a job from the closeout queue. [brief §7 Closeout Response, §8.4]
-- [ ] **25. Saved views follow the person, not the browser** (owner ruling 2026-09-24).
+- [x] **25. Saved views follow the person, not the browser** (owner ruling 2026-09-24).
+      Shipped v1.46.0 (PR #132, 2026-10-12). The owner added the `savedViews` column on
+      2026-10-12. Suite `tests/test-v1460.js`.
       Today a saved view lives in one browser's local storage (`shopTimelineViews_v1`).
       - *Change:* store views on the signed-in user's own Staff row: ⚠ `savedViews` on
         `ShopTimeline_Staff`, multi-line text holding a JSON list, written only to the
@@ -696,6 +721,39 @@ release. Where the app has a part, it's listed.
       - *Placement (2026-10-08):* after batch 1, interleaved with the batches that follow.
         PRs 1–2 are also what item 51's Azure spike waits on.
       - *Waits on:* nothing.
+      - *Progress:* owner go for PRs 1–2 on 2026-10-12. PR 1 (the `store` object, no
+        callers) done 2026-10-12 (PR #130); the `LIST_*` constants stay until their last caller
+        moves. PR 2 (Projects, Tasks, To-dos, Events on `store`) done 2026-10-12 (PR #131).
+        Owner go for PR 3 on 2026-10-12. PR 3 (Staff on `store`: load, save, the phone tidy,
+        the import's column probe) done 2026-10-12 (PR #137). Of its audit findings below: the field
+        table moved to item 61 (three suites assert the mappers' source text, and a seam PR
+        allows no test edits); the shared `plan()`, the save/retry merge and `setPeople()`
+        were not done. Staff saves collect every row's error and delete in a different order,
+        and the two save paths differ in their pill, toast and continuation, so sharing them
+        needs option switches: more code, not less. `setPeople()` would cover two sites.
+        PR 4 (Clients and Config on `store`) done 2026-10-13 (PR #139; owner go 2026-10-12), with both
+        of its audit findings: one `runClientSync` behind `saveClients` and
+        `retryClientSync` (the two differ only in their message and in how a failure parks
+        the diff base), and one `readConfig()` for `loadConfig` and the update check.
+        PR 5 (Changelog and Feedback on `store`) done 2026-10-13 (PR #141; owner go 2026-10-13); the
+        screenshot upload now goes through `gfetch` (same request, no `store.upload`); the
+        feedback mail stays for PR 7.
+      - *Folded in from the 2026-10-12 ponytail audit* (owner accepted the placements):
+        - PR 3 (Staff): one `PERSON_COLS` table for the 13 optional Staff fields that
+          `personToFields`, `fieldsToPerson`, `cdSavePerson` and `cdMergePerson` each list
+          by hand (keep the "not set yet" state that lets a missing column never 400);
+          `spSyncStaff` reuses the diff `plan()` from `spSync` instead of a copy (staff keeps
+          collecting per-row errors); one function for `savePeople` and `retryStaffSync`;
+          one `setPeople()` for the three "assign, rebuild, cache" sites; the phone tidy writes
+          through `store`.
+        - PR 4 (Clients and Config): one function for `saveClients` and `retryClientSync`;
+          `loadConfig` and `updCheck` share one Config read.
+        - PRs 5 and 7: the Team-members read, the feedback mail and the screenshot upload go
+          through `gfetch` / `gpageAll` with an optional silent `scopes` argument, instead of
+          building their own token headers. This replaces the planned `store.people()`,
+          `store.mail()` and `store.upload()` wrappers.
+        - After PR 8: one page size for every list (it changes request URLs, so not during
+          the sequence).
       [`docs/Architecture-Review-Storage.md` §1, "Proposed PR sequence"; D4; D15]
 - [ ] **51. D15's inputs: the platform spikes and the facts a ruling needs.** D15 is
       ruled before the Phase 8 schema is provisioned, on these:
@@ -731,6 +789,75 @@ release. Where the app has a part, it's listed.
         changelog rules. Steps 6–7 are rules for how the steps are done, not work of their
         own.
       [style guide §13; `design/Style-Transition-Review.md`]
+- [ ] **59. Whole-project numbers that span gaps: decide whether they change.** Split
+      out of item 8 (2026-10-12). Two numbers run from the project's first start to its last
+      end, gaps included: the Meeting Sheet progress % and the project page's "Lead time N
+      workdays". Neither counts a gap as department work or load.
+      - *Options:* (a) leave both as they are; (b) relabel them so the span is explicit;
+        (c) compute progress from the blocks themselves.
+      - *Waits on:* the owner's pick. If the rule is "gaps never read as work", the
+        progress bar is the one to change.
+      [brief §7 Rollup, §8.2, §14; item 8]
+- [ ] **60. Test-suite tidy: one shared setup, suites found automatically.** From the
+      2026-10-12 ponytail audit (owner accepted the placement). Test-only, no release.
+      - `tests/run.js` finds `tests/test*.js` itself instead of the hand-kept `SUITES` list.
+        The list already lost one suite: `test-v1210.js` never ran in CI from v1.21.0 until
+        it was re-listed on 2026-10-12. Update `.claude/skills/ship-release/SKILL.md` step 2
+        to match.
+      - A `suite()` helper in `tests/harness.js` replaces the setup and summary lines copied
+        into about 118 suites (about 650 lines).
+      - A skipping suite exits with code 2, so `run.js` stops reading its printed text to
+        count skips.
+      - *Done when:* the full run and the reference run report the same counts as before.
+      - *Waits on:* nothing. After the 2026-10-12 promotion.
+      [ponytail audit 2026-10-12; 2026-09-03 audit]
+- [ ] **61. Small simplifications from the 2026-10-12 audit.** Owner accepted the
+      placement; each needs its own check.
+      - `canonName` remembers its results until `PEOPLE` is replaced (a speed fix: it runs
+        inside sorts and every render).
+      - `spLoad`'s four repeated row loops become one helper.
+      - One `PERSON_COLS` table drives `personToFields` and `fieldsToPerson` (moved here
+        from seam PR 3). `test-v1170`, `test-v1220` and `test-v1230` check those mappers by
+        their source text; they become round-trip checks (a row in, the same fields out) in
+        the same PR. `cdSavePerson` and `cdMergePerson` keep their own lists, because each
+        field there has its own clean-up.
+      - ⚠ The background poll's pause check reuses `updBusy()` instead of its own shorter
+        list. This pauses polling in slightly more cases (a focused toolbar field, an open
+        New Project, a parked client or settings save), so the owner OKs it first.
+      - *Waits on:* the owner's OK for the poll change only.
+      [ponytail audit 2026-10-12]
+- [x] **62. Fixes from the whole-release review, main v1.45.1 → v1.47.2.** Done in
+      v1.47.3 (PR #140, 2026-10-13), before the promotion; neither bug reached production,
+      so the release notes fold it into the v1.47.0 entry.
+      - On a shared computer, the last person's Protect dates now resets even when the next
+        person's staff list lands on a New Project page; only a drag in flight waits.
+      - A New Project draft opened before the roster arrives repaints its footer when the
+        staff list loads, so it counts and lists the Project Manager rule.
+      - `test-v1360` compares a parked label within 1px: on some dates (2026-10-13) the fit
+        zoom puts bars at fractional pixels, and exact float equality failed by a hair.
+      Suite `tests/test-v1473.js`.
+      [code review 2026-10-13]
+- [x] **63. Fixes from the review of #141 and #142 (seam PR 5, item 6).** Done in v1.48.1
+      (PR #143, 2026-10-13), before the promotion; nothing reached production, so the
+      release notes fold it into the v1.48.0 entry.
+      - A colleague's "Schedule still accurate" no longer clears your undo history: the
+        poll's change test (`stripStamps`) and the change log (`CLOG_SKIP`) treat
+        `confirmedAt` / `confirmedBy` as stamps, like `updatedAt`.
+      - The button no longer flips the sync pill to "synced" over a parked failed save; the
+        pill keeps its "not saved — click to retry" text until that save goes through.
+      - Accepted, not changed: a real Setup edit within two minutes after confirming is read
+        as the confirmation's own stamp, so "Last edited" shows the edit before it.
+        Staleness is unaffected.
+      Suite `tests/test-v1481.js`.
+      [code review 2026-10-13]
+- [x] **64. New reports reach the tracker within minutes.** Done 2026-10-13, no app
+      release. GitHub ran the poller's "hourly" schedule only 3 to 4 times a day (gaps of
+      3½ to 8 hours), so a new report waited up to a working day for its issue. The owner
+      built *Shop Timeline — new report out* (Power Automate: on a new `ShopTimeline_Feedback`
+      row, send the `feedback` repository dispatch the poller already listened for) and
+      tested it (tracker #42). Exported to the tracker's `flows/` with README step 12 (tracker
+      `03a8935`); `docs/Automations.md` entry *New report out*.
+      [owner question 2026-10-13]
 
 ### Not yet placed — reported by users, in filing order [tracker]
 
@@ -1494,7 +1621,12 @@ constraint (D2, lifted 2026-09-24).
 - On `ShopTimeline_Staff`: `admin` (`1` / `dev` / empty), `feedbackRecipient`, `phone`,
   `personalNotes`, `listeningTo` / `listeningLink` / `listeningVerb` / `listeningShow`,
   `status` (Employee Contacts' vocabulary), `nickname`, `driver`, `availability`,
-  `schedule` (JSON), `freelance`.
+  `schedule` (JSON), `freelance`, `savedViews` (multi-line plain text, JSON
+  `{views:[…]}`, written only to the signed-in user's own row; added by the owner
+  2026-10-12, item 25).
+- On `ShopTimeline_Projects`: `confirmedAt` and `confirmedBy`, single line of text each
+  (an ISO time; a display name). Written only by "Schedule still accurate", never by a save.
+  Added by the owner 2026-10-13 (item 6).
 - On `ShopTimeline_Feedback`: `ghIssue` — single line of text, the GitHub issue URL,
   written by the tracker repository's poller, never by the app (item 31).
 - On `ShopTimeline_Feedback`: `resolvedAt` — single line of text, the ticket's close time (ISO),
@@ -1517,8 +1649,6 @@ constraint (D2, lifted 2026-09-24).
 - `dateCertainty` on `ShopTimeline_Projects` — item 5.
 - `closeoutStatus` and `billingStatus` (plus `closeoutBy` and `closeoutAt` if needed) on
   `ShopTimeline_Projects` — item 11.
-- `savedViews` on `ShopTimeline_Staff` — multi-line text holding a JSON list, written only
-  to the signed-in user's own row (as `personalNotes` is) — item 25.
 - A tour "seen" flag on `ShopTimeline_Staff` — only if item 3 is fixed that way.
 - A test site, or a suffixed set of lists, for development data — item 17.
 
@@ -1978,6 +2108,31 @@ How to read the tags at the end of an entry:
   - *Branches and PRs:* nothing open besides this promotion; only `main` and `development` on
     the remote.
   - *Fixed in this audit:* §0 now says production runs v1.45.1.
+
+- 2026-10-13 (promotion): **v1.45.1 → v1.48.1 promoted to `main`** (release/2026-10-13). The
+  promotion audit (`CLAUDE.md`, "Keeping `docs/TODO.md` true"):
+  - *Releases since the last promotion (v1.45.1):* v1.46.0 is item 25, v1.46.1 item 2 (c)
+    (item 2 now complete), v1.47.0 item 7, v1.48.0 item 6. All ticked. v1.47.1–v1.47.2 are
+    item 8: labelled, then removed at the owner's ruling, closed with no change to the band
+    (item 59 holds its open question). v1.47.3 and v1.48.1 are the release-review fixes,
+    items 62 and 63. CHANGELOG folds them into the v1.47.0 and v1.48.0 entries.
+  - *Other work, ticked or recorded:* the storage seam, PRs 1–5 (item 48: #130, #131, #137,
+    #139, #141; the PR numbers for 3–5 were added in this audit); the ponytail audit's
+    placements (#136: items 60, 61 and item 48's notes; `test-v1210` re-listed after a month
+    out of CI); item 64 (the *new report out* flow, added in this audit).
+  - *Tracker:* four new tickets, all filed 2026-10-13. #39, #40 and #41 (from Caroline:
+    drag the timeline, the crew list jumping to the top, an All Projects button) are
+    untriaged, and the `triage-issues` skill's step 1 is next. #42 is the owner's test of
+    the new flow; it can close. The older ones match their items: #1 → 32 (needs Proceed),
+    #7 → 3 (on hold), #12 → 40.
+  - *⚠ specs:* none awaiting creation. The owner added `savedViews` on Staff (2026-10-12)
+    and `confirmedAt` / `confirmedBy` on Projects (2026-10-13); both are in §6's created
+    list. `dateCertainty` (item 5) is still a candidate.
+  - *Branches and PRs:* nothing open besides this promotion and its companion.
+    `fix/confirm-review` (#143, merged) was still on the remote. A local-only
+    `docs/d15-backend-reconciliation` holds a commit already in `development` as `c6b258c`.
+  - *Fixed in this audit:* §0 now says production runs v1.48.1; the seam PR numbers; item 64
+    and its Automations entry.
 
 - 2026-10-09 (promotion): **v1.43.0 → v1.44.3 promoted to `main`** (release/2026-10-09). The
   promotion audit (`CLAUDE.md`, "Keeping `docs/TODO.md` true"):

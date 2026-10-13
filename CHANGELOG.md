@@ -9,6 +9,21 @@ Format: `## <label> — <date>` then one `- ` line per change. Keep lines concre
 what changed *for the team*, not how. Developer-only tooling doesn't need a line.
 Collect lines for the next version under `## Unreleased` and rename it when you ship.
 
+## v1.48.0–v1.48.1 — Oct 13, 2026
+- A project page now shows who last edited the project and when ("Last edited by Sam · Oct 12, 2:14 PM"), and the Meeting Sheet prints the same line under each project. Any change counts, phases and notes included.
+- Projects nobody has touched in 14 days get a grey **Stale** tag in the sidebar, so a forgotten schedule stands out. Completed and On Hold projects never do.
+- If a stale project's schedule is still right, press **Schedule still accurate** on its page: the tag clears without editing anything, and the header notes who confirmed it and when. My Dashboard lists the stale projects you manage, each one a click away.
+
+## v1.47.0–v1.47.3 — Oct 13, 2026
+- Repeat work is easier to find on a project page: right-click a bar, or click it to open its editor, and choose **Duplicate** to copy it as a new bar. Bars show a faint ⋯ when you point at them, as on the timeline.
+- New Project's footer now counts the required fields and lists what's still missing — click a name to jump to that field. The bar between the chart and the form shows its drag grip all the time.
+
+## v1.46.1 — Oct 12, 2026
+- Protect dates now stays the way you left it: turn it on or off once, and it's the same the next time you open the app, on any computer you sign in on.
+
+## v1.46.0 — Oct 12, 2026
+- Saved views now follow you: a view you save, rename, delete or star opens on any computer you sign in on. Views already saved in your browser move over the first time you open the app.
+
 ## v1.45.1 — Oct 9, 2026
 - Open Issues: a report's thread now shows every comment, labelled Team or Reporter. When the person who filed a report answers the team's email, their answer appears in the thread too.
 

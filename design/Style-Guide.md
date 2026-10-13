@@ -238,6 +238,7 @@ them outside the canvas selectors above): `#7488A3`, `#94A3B8`, `#A3B1C4`, `#B4C
 | **Warn / toggle-on** | `--warn #F0A814`; `.sb-chip.soon` `#FCEEC8` on `#8F5E08`; away `#B7791F`; pinned view `#B45309` |
 | **Today** | `--late #DC2626` — the 2px line and TODAY pill only; header date `#C42B2B`; calendar today cell `#FFF3F3` with `inset 0 0 0 1.5px #CE4242` |
 | **Late** (sidebar chip) | `.sb-chip.late` `#FDE2E2` on `#B91C1C` |
+| **Stale** (sidebar chip, v1.48.0) | `.sb-chip.stale` `#EEF2F7` on `#475569`: a quiet nudge, not an alarm (no edits in `stale.days`, default 14) |
 | **Completed** (sidebar tag, v1.37.0) | `.cd-perm.done` `#E6E9EE` on `#5B6472` (4.9:1); the row's name drops to `--ts-muted`, never red, no strike-through |
 | **Positive** | `#1AA59C` (✓ glyphs, availability); `.md-tag` `#DCF3E6` on `#1A7F4E`; sync ok `#7BD8A0` |
 | **Error text / invalid field** | `#CE4242` (text, `.ins-f input.err` border) |
@@ -651,6 +652,7 @@ input:checked ~ .pin-track{background:var(--warn)}   input:checked ~ .pin-track 
 ```css
 .sb-chip{font-family:var(--mono);font-size:var(--fs-fine);font-weight:600;letter-spacing:.03em;padding:1.5px 6px;border-radius:8px;line-height:1.5}
 .sb-chip.late{background:#FDE2E2;color:#B91C1C}   .sb-chip.soon{background:#FCEEC8;color:#8F5E08}
+.sb-chip.stale{background:#EEF2F7;color:#475569}
 .sb-count{font-family:var(--mono);font-size:var(--fs-fine);font-weight:600;background:rgba(87,104,127,.16);border-radius:8px;padding:1px 7px;color:#57687F}
 .cd-perm{font-family:var(--mono);font-size:var(--fs-fine);font-weight:700;letter-spacing:.06em;color:#3B6FB5;background:#EAF1FB;border-radius:5px;padding:0 4px}
 .cd-perm.dev{color:#7C4FB0;background:#F2EBFA}

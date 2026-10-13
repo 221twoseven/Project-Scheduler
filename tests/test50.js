@@ -9,6 +9,7 @@ const src=fs.readFileSync(FILE,'utf8');
 const N11=/npvEditPop/.test(src);
 /* v1.38.0 (tracker #3): the bar menu leads with Rename (in place) — the one edit on it */
 const REN=/npvRenameBar/.test(src);
+const DUP=src.indexOf('Duplicate is an add')>=0; /* v1.47.0 (item 7): Duplicate joins the bar menu */
 
 let pass=0,fail=0;
 const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
@@ -208,8 +209,8 @@ function stage3(){
            &&!!menu.querySelector('[data-act="tk"]')&&(!!menu.querySelector('[data-act="ren"]')===REN));
         else ok('it offers rename and the three creates',
            !!menu.querySelector('[data-act="ren"]')&&!!menu.querySelector('[data-act="sub"]'));
-        ok('duplicate and delete are absent on a draft (they need ST)',
-           !menu.querySelector('[data-act="dup"]')&&!menu.querySelector('[data-act="del"]'));
+        ok('delete is absent on a draft; duplicate shows from v1.47.0 (drafts duplicate as lines)',
+           (!!menu.querySelector('[data-act="dup"]')===DUP)&&!menu.querySelector('[data-act="del"]'));
         E('npvCloseMenu();');
         stage4();
       },250);

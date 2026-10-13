@@ -29,3 +29,14 @@ resizing only, so moving a bar still shifted its dates.
 
 Suite `tests/test-v1450.js` drags on the timeline, the saved project page and a draft, with
 the toggle on and off, and types a date with it on.
+
+## v1.46.1 (2026-10-12): remembered for the person, step (c)
+
+PR #133. The Protect dates switch used to reset whenever the tab closed. It is now stored
+with the person, in the same `savedViews` value on their own Staff row as their saved views
+(item 25, v1.46.0, `2026-10-12-views-follow-person.md`), as `protectDates: true/false`. The
+browser keeps a copy, so the setting is right from the first paint, and the row wins once
+it loads. The shared-computer rule is the same as for views: one person's setting never
+carries over to the next person who signs in. View-only users stay forced on. A change
+made on another computer arrives on the staff poll, but never while you're dragging or
+editing. Suite `tests/test-v1461.js`.
