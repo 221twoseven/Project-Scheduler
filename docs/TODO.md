@@ -63,7 +63,7 @@ is the log in §8.
 ## 0. Where we stand
 
 As of 2026-10-13: production (`main`) runs **v1.45.1**, promoted 2026-10-09
-(release/2026-10-09b); `development` runs **v1.48.0**, where saved views (item 25) and
+(release/2026-10-09b); `development` runs **v1.48.1**, where saved views (item 25) and
 Protect dates (item 2 (c)) follow the person, repeat work is easier to find (item 7), and
 projects show their last edit and a Stale flag (item 6).
 The newest work in production: reporter answers show in Open Issues
@@ -838,6 +838,19 @@ release. Where the app has a part, it's listed.
       - `test-v1360` compares a parked label within 1px: on some dates (2026-10-13) the fit
         zoom puts bars at fractional pixels, and exact float equality failed by a hair.
       Suite `tests/test-v1473.js`.
+      [code review 2026-10-13]
+- [x] **63. Fixes from the review of #141 and #142 (seam PR 5, item 6).** Done in v1.48.1
+      (PR #143, 2026-10-13), before the promotion; nothing reached production, so the
+      release notes fold it into the v1.48.0 entry.
+      - A colleague's "Schedule still accurate" no longer clears your undo history: the
+        poll's change test (`stripStamps`) and the change log (`CLOG_SKIP`) treat
+        `confirmedAt` / `confirmedBy` as stamps, like `updatedAt`.
+      - The button no longer flips the sync pill to "synced" over a parked failed save; the
+        pill keeps its "not saved — click to retry" text until that save goes through.
+      - Accepted, not changed: a real Setup edit within two minutes after confirming is read
+        as the confirmation's own stamp, so "Last edited" shows the edit before it.
+        Staleness is unaffected.
+      Suite `tests/test-v1481.js`.
       [code review 2026-10-13]
 
 ### Not yet placed — reported by users, in filing order [tracker]

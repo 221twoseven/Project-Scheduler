@@ -1858,7 +1858,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.48.0'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.48.1'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -3059,7 +3059,7 @@ function pushUndo(s){UNDO_STACK.push(s);if(UNDO_STACK.length>20)UNDO_STACK.shift
 /* The poll's remote-change test, minus the volatile audit stamps — SharePoint echoes
    updatedBy/updatedAt back differently after every save, and comparing them wiped the
    undo stack within 90s of any edit ("Nothing to undo" right after doing something). */
-function stripStamps(st){return JSON.stringify(st,(k,v)=>k==='updatedBy'||k==='updatedAt'?undefined:v);}
+function stripStamps(st){return JSON.stringify(st,(k,v)=>k==='updatedBy'||k==='updatedAt'||k==='confirmedAt'||k==='confirmedBy'?undefined:v);} /* v1.48.1: a colleague's 'Schedule still accurate' is a stamp too, not an edit to wipe undo over */
 /* Stamp whoever's signed in + right now onto anything new or changed, so the tooltip is
    accurate immediately rather than waiting on the next background poll (POLL_MS). SharePoint's own real
    value (from graphWho/graphWhen above) overwrites this the next time spLoad() runs. */
@@ -5262,7 +5262,7 @@ function renderAppSettings(){
    repaint of an open dock doesn't re-hit Graph.
    ponytail: staff/client/config edits ride other save paths and are NOT logged — the
    spec is the project edit log; widen if the owner ever asks who changed the roster. */
-const CLOG_SKIP={updatedBy:1,updatedAt:1,sortIndex:1,sample:1}; /* save stamps + row order: noise, not edits */
+const CLOG_SKIP={updatedBy:1,updatedAt:1,confirmedAt:1,confirmedBy:1,sortIndex:1,sample:1}; /* save stamps, confirmations (v1.48.1) + row order: noise, not edits */
 const CLOG_KINDS=[
   ['projects','Project',r=>r.name||'(unnamed)',r=>r.id],
   ['tasks','Phase',r=>{const d=deptById(r.department);return ((d?d.name:r.department)||'?');},r=>r.projectId],
@@ -7832,19 +7832,27 @@ function lastEditLine(p){
     if(!isNaN(d))s+=' · confirmed '+d.toLocaleDateString([],{month:'short',day:'numeric'})+(p.confirmedBy?' by '+dispName(p.confirmedBy):'');}
   return s;
 }
+/* v1.48.1: put the pill back after a side write — 'synced' only when nothing is parked; a parked
+   failed save keeps its own 'not saved — click to retry' text, so the cue never disappears */
+function syncSettle(prev){
+  const el=document.getElementById('sync-pill');
+  if((PENDING_SYNC||PENDING_STAFF||PENDING_CLIENTS||PENDING_CFG)&&prev&&el){el.className=prev.c;el.textContent=prev.t;}
+  else setSync('ok','synced '+stamp());
+}
 /* "Schedule still accurate": a one-column-pair PATCH on the project row — no saveState, so no
    undo entry, no change-log row and no sync of anything else. Missing columns (400) say so. */
 async function ppConfirmSchedule(p,btn){
   const id=SP_IDS.proj[p.id];if(!id)return;
   const at=new Date().toISOString(),by=meName()||(ACCOUNT&&ACCOUNT.name)||'';
+  const pl=document.getElementById('sync-pill'),prev=pl?{c:pl.className,t:pl.textContent}:null;
   if(btn)btn.disabled=true;setSync('busy');
   try{
     await store.update('proj',id,{confirmedAt:at,confirmedBy:by});
     ST={...ST,projects:ST.projects.map(x=>x.id===p.id?{...x,confirmedAt:at,confirmedBy:by}:x)};ST_GEN++; /* a poll already in flight must not put the old row back */
-    setSync('ok','synced '+stamp());toast('Confirmed: '+(p.name||'the project')+'’s schedule is still accurate.');
+    syncSettle(prev);toast('Confirmed: '+(p.name||'the project')+'’s schedule is still accurate.');
     if(ROUTE.view==='project')renderProjectPage();else render();
   }catch(e){
-    if(btn)btn.disabled=false;setSync('ok','synced '+stamp());
+    if(btn)btn.disabled=false;syncSettle(prev);
     const m=String(e&&e.message);
     toast(/ 400/.test(m)&&/confirmed/i.test(m)
       ?'Can’t record the confirmation yet: the Projects list needs the confirmedAt and confirmedBy columns. Ask whoever maintains the app.'
@@ -11930,7 +11938,7 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
- {v:"v1.48.0",d:"Oct 13, 2026",n:["A project page now shows who last edited the project and when (\"Last edited by Sam · Oct 12, 2:14 PM\"), and the Meeting Sheet prints the same line under each project. Any change counts, phases and notes included.",
+ {v:"v1.48.0–v1.48.1",d:"Oct 13, 2026",n:["A project page now shows who last edited the project and when (\"Last edited by Sam · Oct 12, 2:14 PM\"), and the Meeting Sheet prints the same line under each project. Any change counts, phases and notes included.",
    "Projects nobody has touched in 14 days get a grey **Stale** tag in the sidebar, so a forgotten schedule stands out. Completed and On Hold projects never do.",
    "If a stale project's schedule is still right, press **Schedule still accurate** on its page: the tag clears without editing anything, and the header notes who confirmed it and when. My Dashboard lists the stale projects you manage, each one a click away."]},
  {v:"v1.47.0–v1.47.3",d:"Oct 13, 2026",n:["Repeat work is easier to find on a project page: right-click a bar, or click it to open its editor, and choose **Duplicate** to copy it as a new bar. Bars show a faint ⋯ when you point at them, as on the timeline.",
