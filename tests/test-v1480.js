@@ -27,7 +27,8 @@ const P=(id,status)=>({appId:id,Title:'Job '+id,client:'Acme',jobCode:'A1',deadl
 const T=(id,pid)=>({appId:id,projectId:pid,department:'td',assignee:'',startDate:'2027-01-04',endDate:'2027-01-08',
   estimatedDays:5,ticketNodes:'[]',notes:'',pinned:false,label:''});
 
-const dom=boot(FILE,{data:{projects:[P('fresh'),P('old'),P('done','complete')],tasks:[T('t1','fresh'),T('t2','old'),T('t3','done')],staff:[],todos:[]}});
+const SAM={appId:'s1',Title:'Sam',email:'user@example.com',depts:'["pm"]',ooo:'[]'};
+const dom=boot(FILE,{data:{projects:[P('fresh'),{...P('old'),projectManager:'Sam'},P('done','complete')],tasks:[T('t1','fresh'),T('t2','old'),T('t3','done')],staff:[SAM],todos:[]}});
 const win=dom.window,doc=win.document,E=s=>win.eval(s),q=s=>doc.querySelector(s);
 const chip=pid=>{const r=[...doc.querySelectorAll('.sb-row')].find(r=>r.textContent.indexOf('Job '+pid)>=0);return r&&r.querySelector('.sb-chip.stale');};
 
@@ -51,7 +52,7 @@ async function main(){
 
   sec('the Stale chip in the sidebar');
   ok('30 days without an edit: "Stale"',!!chip('old')&&chip('old').textContent==='Stale');
-  ok('its tooltip: "No edits in 14 days"',!!chip('old')&&chip('old').title==='No edits in 14 days');
+  ok('its tooltip says how long, and what to do',!!chip('old')&&chip('old').title==='No edits in 14 days. Open it to update the schedule, or confirm it’s still accurate.',chip('old')&&chip('old').title);
   ok('edited 2 days ago (through a phase): no chip',!chip('fresh'));
   ok('a completed project is never stale',!chip('done'));
   /* a new ST object, as every save makes one, so the status memo refreshes */
@@ -65,7 +66,7 @@ async function main(){
   E("CFG_RAW['stale.days']='45';render()");await wait(30);
   ok('at 45 days, the 30-day-old project is no longer stale',!chip('old'));
   E("CFG_RAW['stale.days']='7';render()");await wait(30);
-  ok('at 7 days it is, and the tooltip says 7',!!chip('old')&&chip('old').title==='No edits in 7 days');
+  ok('at 7 days it is, and the tooltip says 7',!!chip('old')&&chip('old').title.indexOf('No edits in 7 days.')===0);
   E("CFG_RAW['stale.days']='junk';render()");await wait(30);
   ok('a bad value falls back to 14',E('staleDays()')===14);
   E("delete CFG_RAW['stale.days'];render()");
@@ -83,6 +84,43 @@ async function main(){
   sec('the Meeting Sheet, one line under each project');
   const sheet=E("(()=>{const w=buildMeetingSheet?buildMeetingSheet():null;return w?w.outerHTML:''})()");
   ok('each project carries "Last edited by …"',/mr-upd">Last edited by Sam · /.test(sheet)&&/mr-upd">Last edited by Peter · /.test(sheet));
+
+  sec('the prompt: your stale projects on your own dashboard');
+  E("enterDash('Sam')");await wait(200);
+  const st=[...doc.querySelectorAll('#me-dock .md-stale')];
+  ok('Sam, PM of the stale job, sees "Your stale projects"',/Your stale projects/.test(doc.getElementById('me-dock').textContent)&&st.length===1);
+  ok('it lists that job, with "no edits since …"',!!st[0]&&/Job old/.test(st[0].textContent)&&/no edits since/.test(st[0].textContent));
+  ok('a fresh job he doesn\'t PM is not on it',!st.some(b=>/Job fresh/.test(b.textContent)));
+  st[0]&&st[0].click();await wait(700);
+  ok('clicking it opens the project',E('ROUTE.view')==='project'&&E('ROUTE.id')==='old');
+  E('exitDash&&exitDash()');
+
+  sec('the action: "Schedule still accurate" on the stale project\'s page');
+  const btn=()=>q('#pp-confirm');
+  ok('the stale project offers the button',!!btn()&&btn().textContent==='Schedule still accurate');
+  /* the list without the columns yet: the PATCH 400s naming them */
+  const f0=win.fetch;
+  win.fetch=function(url,init){
+    if(init&&init.method==='PATCH'&&String(init.body).indexOf('confirmedAt')>=0)
+      return Promise.resolve({ok:false,status:400,json:async()=>({}),text:async()=>"Field 'confirmedAt' is not recognized"});
+    return f0.apply(this,arguments);};
+  btn().click();await wait(200);
+  ok('without the columns it says what\'s missing',/needs the confirmedAt and confirmedBy columns/.test(doc.body.textContent));
+  ok('and the project is still stale',E("isStale(ST.projects.find(x=>x.id==='old'))")===true);
+  win.fetch=f0;
+  const n0=win.__spCalls.length;
+  btn().click();await wait(300);
+  const pc=win.__spCalls.slice(n0).filter(c=>c.method==='PATCH');
+  ok('one PATCH, on the project row',pc.length===1&&/ShopTimeline_Projects\/items\/[^/]+\/fields$/.test(pc[0].url),pc.map(c=>c.url).join());
+  ok('it writes only confirmedAt and confirmedBy (Sam)',!!pc[0]&&Object.keys(pc[0].body).sort().join()==='confirmedAt,confirmedBy'&&pc[0].body.confirmedBy==='Sam');
+  ok('the project is no longer stale',E("isStale(ST.projects.find(x=>x.id==='old'))")===false);
+  ok('the button is gone',!btn());
+  ok('the header says it was confirmed, keeping the real last edit',/confirmed [A-Z][a-z]{2} \d{1,2} by Sam/.test(q('#pp-meta .m-upd .v').textContent),q('#pp-meta .m-upd .v').textContent);
+  E("ST={...ST,projects:ST.projects.map(x=>x.id==='old'?{...x,updatedAt:x.confirmedAt,updatedBy:'Sam'}:x)}");
+  ok('the confirmation\'s own row stamp is not counted as an edit',
+    E("projLastEdit(ST.projects.find(x=>x.id==='old')).at")<E("ST.projects.find(x=>x.id==='old').confirmedAt"));
+  ok('a save never writes the confirmation',!('confirmedAt' in E("projToFields(ST.projects.find(x=>x.id==='old'))")));
+  win.location.hash='#/';await wait(300);
 
   sec('App settings has the field');
   ok('the settings page renders a "Stale after N days" input',src.indexOf('id="as-stale"')>=0&&/saveConfigKey\('stale\.days'/.test(src));

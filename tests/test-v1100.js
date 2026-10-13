@@ -75,10 +75,12 @@ function main(){
   E("enterDash('Sam')");
   const secs=doc.querySelectorAll('#me-dock .ins-body>.ins-sec');
   const h4=el=>el.querySelector('h4').textContent;
+  /* v1.48.0: "Your stale projects" may lead the stack when there are some (test-v1480) */
+  const sh=[...secs[0].querySelectorAll('h4')].filter(h=>!/Your stale projects/.test(h.textContent));
   ok('own dashboard: stack | Milestones | Notes | User Notes', secs.length===4
      &&secs[0].classList.contains('md-stack')
-     &&/Working on/.test(secs[0].querySelectorAll('h4')[0].textContent)
-     &&/Time off/.test(secs[0].querySelectorAll('h4')[1].textContent)
+     &&/Working on/.test(sh[0].textContent)
+     &&/Time off/.test(sh[1].textContent)
      &&/Milestones/.test(h4(secs[1]))&&/Notes/.test(h4(secs[2]))&&/User Notes/.test(h4(secs[3])));
   E('exitDash()');
 

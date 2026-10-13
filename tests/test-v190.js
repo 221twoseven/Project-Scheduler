@@ -95,11 +95,13 @@ function main(){
   /* v1.10.0 (09-02 owner ask): the stack now holds Working on + Time off; Milestones
      and Notes went back to their own columns. */
   const V1100=src.indexOf('md-listen')>=0;
+  /* v1.48.0: "Your stale projects" may lead the stack when there are some (test-v1480) */
+  const sh=stack?[...stack.querySelectorAll('h4')].filter(h=>!/Your stale projects/.test(h.textContent)):[];
   ok(V1100?'Working on + Time off stack in ONE column':'Milestones + Notes stack in ONE column',
-     !!stack&&stack.querySelectorAll('h4').length===2
+     !!stack&&sh.length===2
      &&(V1100
-       ?/Working on/.test(stack.querySelectorAll('h4')[0].textContent)&&/Time off/.test(stack.querySelectorAll('h4')[1].textContent)
-       :/Milestones/.test(stack.querySelectorAll('h4')[0].textContent)&&/Notes/.test(stack.querySelectorAll('h4')[1].textContent)));
+       ?/Working on/.test(sh[0].textContent)&&/Time off/.test(sh[1].textContent)
+       :/Milestones/.test(sh[0].textContent)&&/Notes/.test(sh[1].textContent)));
   /* Owner ruling 2026-09-18 (reversing the v1.14.0 hide): the preview simulates a
      non-admin, and a non-admin sees their OWN dashboard — User Notes visible and
      editable. Notes-to-self are personal, never permission-gated. */

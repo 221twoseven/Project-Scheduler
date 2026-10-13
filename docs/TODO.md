@@ -350,7 +350,12 @@ What the pilot can't start without.
       project or any of its phases and notes. N = Config key `stale.days`, default 14, set
       on App settings (owner, 2026-10-13: change it there without a release; the Project
       Director can still pick the number). A completed or On Hold project is never stale. The legend
-      got no entry (item 8's lesson). Suite `tests/test-v1480.js`. Who last edited a project and when
+      got no entry (item 8's lesson). *The call to action* (owner, 2026-10-13, asked before
+      merging: what is the user supposed to do?): a "Schedule still accurate" button on a
+      stale project's header writes `confirmedAt` / `confirmedBy` (owner added them 2026-10-13) on its Projects row and
+      clears the tag without a fake edit; the header then adds "· confirmed Oct 13 by Sam";
+      the PM's own My Dashboard lists "Your stale projects"; the chip's tooltip says what to
+      do. Before the columns exist the button explains they're missing. Suite `tests/test-v1480.js`. Who last edited a project and when
       (`updatedBy` / `updatedAt`) already comes from Graph, but shows only in hover cards
       (and, for admins, the change log). Put the last editor and time on the project page
       header and the Meeting Sheet. Add a "stale" chip in the sidebar and legend for a
@@ -1597,6 +1602,9 @@ constraint (D2, lifted 2026-09-24).
   `schedule` (JSON), `freelance`, `savedViews` (multi-line plain text, JSON
   `{views:[…]}`, written only to the signed-in user's own row; added by the owner
   2026-10-12, item 25).
+- On `ShopTimeline_Projects`: `confirmedAt` and `confirmedBy`, single line of text each
+  (an ISO time; a display name). Written only by "Schedule still accurate", never by a save.
+  Added by the owner 2026-10-13 (item 6).
 - On `ShopTimeline_Feedback`: `ghIssue` — single line of text, the GitHub issue URL,
   written by the tracker repository's poller, never by the app (item 31).
 - On `ShopTimeline_Feedback`: `resolvedAt` — single line of text, the ticket's close time (ISO),

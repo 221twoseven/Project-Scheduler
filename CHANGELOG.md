@@ -12,6 +12,7 @@ Collect lines for the next version under `## Unreleased` and rename it when you 
 ## v1.48.0 — Oct 13, 2026
 - A project page now shows who last edited the project and when ("Last edited by Sam · Oct 12, 2:14 PM"), and the Meeting Sheet prints the same line under each project. Any change counts, phases and notes included.
 - Projects nobody has touched in 14 days get a grey **Stale** tag in the sidebar, so a forgotten schedule stands out. Completed and On Hold projects never do.
+- If a stale project's schedule is still right, press **Schedule still accurate** on its page: the tag clears without editing anything, and the header notes who confirmed it and when. My Dashboard lists the stale projects you manage, each one a click away.
 
 ## v1.47.0–v1.47.3 — Oct 13, 2026
 - Repeat work is easier to find on a project page: right-click a bar, or click it to open its editor, and choose **Duplicate** to copy it as a new bar. Bars show a faint ⋯ when you point at them, as on the timeline.
