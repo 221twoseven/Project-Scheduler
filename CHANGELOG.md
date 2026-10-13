@@ -9,7 +9,7 @@ Format: `## <label> — <date>` then one `- ` line per change. Keep lines concre
 what changed *for the team*, not how. Developer-only tooling doesn't need a line.
 Collect lines for the next version under `## Unreleased` and rename it when you ship.
 
-## v1.48.0 — Oct 13, 2026
+## v1.48.0–v1.48.1 — Oct 13, 2026
 - A project page now shows who last edited the project and when ("Last edited by Sam · Oct 12, 2:14 PM"), and the Meeting Sheet prints the same line under each project. Any change counts, phases and notes included.
 - Projects nobody has touched in 14 days get a grey **Stale** tag in the sidebar, so a forgotten schedule stands out. Completed and On Hold projects never do.
 - If a stale project's schedule is still right, press **Schedule still accurate** on its page: the tag clears without editing anything, and the header notes who confirmed it and when. My Dashboard lists the stale projects you manage, each one a click away.
