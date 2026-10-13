@@ -724,6 +724,9 @@ release. Where the app has a part, it's listed.
         of its audit findings: one `runClientSync` behind `saveClients` and
         `retryClientSync` (the two differ only in their message and in how a failure parks
         the diff base), and one `readConfig()` for `loadConfig` and the update check.
+        PR 5 (Changelog and Feedback on `store`) done 2026-10-13 (owner go 2026-10-13); the
+        screenshot upload now goes through `gfetch` (same request, no `store.upload`); the
+        feedback mail stays for PR 7.
       - *Folded in from the 2026-10-12 ponytail audit* (owner accepted the placements):
         - PR 3 (Staff): one `PERSON_COLS` table for the 13 optional Staff fields that
           `personToFields`, `fieldsToPerson`, `cdSavePerson` and `cdMergePerson` each list
