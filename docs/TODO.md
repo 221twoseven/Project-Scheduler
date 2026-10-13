@@ -720,6 +720,10 @@ release. Where the app has a part, it's listed.
         were not done. Staff saves collect every row's error and delete in a different order,
         and the two save paths differ in their pill, toast and continuation, so sharing them
         needs option switches: more code, not less. `setPeople()` would cover two sites.
+        PR 4 (Clients and Config on `store`) done 2026-10-13 (owner go 2026-10-12), with both
+        of its audit findings: one `runClientSync` behind `saveClients` and
+        `retryClientSync` (the two differ only in their message and in how a failure parks
+        the diff base), and one `readConfig()` for `loadConfig` and the update check.
       - *Folded in from the 2026-10-12 ponytail audit* (owner accepted the placements):
         - PR 3 (Staff): one `PERSON_COLS` table for the 13 optional Staff fields that
           `personToFields`, `fieldsToPerson`, `cdSavePerson` and `cdMergePerson` each list
