@@ -5307,15 +5307,14 @@ function clogWrite(oldST,newST){
     /* a bulk sweep (import, big undo) collapses into one summary row */
     if(rows.length>20)rows=[{...rows[0],projectId:'',Title:'Bulk change',
       field:rows.length+' records',detail:rows.map(r=>r.Title+' — '+r.field).join('\n').slice(0,4000)}];
-    for(const r of rows)await gfetch(listUrl(LIST_CHANGELOG)+'/items',{method:'POST',body:JSON.stringify({fields:r})});
+    for(const r of rows)await store.create('changelog',r);
     CLOG_AT=0; /* our own write outdates the read cache */
   })().catch(e=>console.warn('changelog write skipped:',e&&e.message));
 }
 let CLOG_CACHE=null,CLOG_AT=0;
 async function clogFetch(force){
   if(!force&&CLOG_CACHE&&Date.now()-CLOG_AT<60000)return CLOG_CACHE;
-  await spSite();
-  const r=await gpageAll(listUrl(LIST_CHANGELOG)+'/items?expand=fields&$top=2000');
+  const r=await store.list('changelog');
   const rows=r.map(it=>it.fields||{}).filter(f=>f.at)
     .map(f=>({title:f.Title||'',projectId:f.projectId||'',who:f.who||'',at:f.at||'',
       field:f.field||'',detail:f.detail||''}));
@@ -11619,8 +11618,7 @@ function closeFeedback(){
 let FB_CACHE=null,FB_AT=0;
 async function fbFetch(force){
   if(!force&&FB_CACHE&&Date.now()-FB_AT<60000)return FB_CACHE;
-  await spSite();
-  const r=await gpageAll(listUrl(LIST_FEEDBACK)+'/items?expand=fields&$top=2000');
+  const r=await store.list('feedback');
   const rows=r.map(it=>{const f=it.fields||{};return{
     spId:it.id,at:it.createdDateTime||f.Created||'',kind:f.kind||'bug',title:f.Title||'',
     name:f.name||'',email:f.email||'',description:f.description||'',appVersion:f.appVersion||'',
@@ -11829,7 +11827,7 @@ function renderReports(){
 async function fbSetStatus(spId,status,btn){
   if(btn){btn.disabled=true;btn.textContent='Saving…';}
   try{
-    await gfetch(listUrl(LIST_FEEDBACK)+'/items/'+spId+'/fields',{method:'PATCH',body:JSON.stringify({status:status})});
+    await store.update('feedback',spId,{status:status});
     FB_AT=0; /* our write outdates the cache */
     toast(status==='resolved'?'Marked resolved — it leaves the Open Issues list.':'Reopened.');
     renderReports();
@@ -11993,14 +11991,14 @@ async function sendFeedback(){
     if(f){
       /* Graph v1.0 has no list-item attachment API — the screenshot goes to the
          site's default document library and the report links to it. */
-      const t=await spToken();
       const path='/ShopTimeline Feedback/'+Date.now()+'-'+String(f.name||'shot.png').replace(/[^\w.\-]+/g,'_');
-      const r=await fetch('https://graph.microsoft.com/v1.0/sites/'+SITE_ID+'/drive/root:'+encodeURI(path)+':/content',
-        {method:'PUT',headers:{Authorization:'Bearer '+t,'Content-Type':f.type||'application/octet-stream'},body:f});
-      if(r.ok){const d=await r.json();if(d&&d.webUrl)extra='\n\nScreenshot: '+d.webUrl;}
-      else toast('The screenshot upload failed — sending the report without it.','err');
+      try{
+        const d=await gfetch('https://graph.microsoft.com/v1.0/sites/'+SITE_ID+'/drive/root:'+encodeURI(path)+':/content',
+          {method:'PUT',headers:{'Content-Type':f.type||'application/octet-stream'},body:f});
+        if(d&&d.webUrl)extra='\n\nScreenshot: '+d.webUrl;
+      }catch(e){toast('The screenshot upload failed — sending the report without it.','err');}
     }
-    await gfetch(listUrl(LIST_FEEDBACK)+'/items',{method:'POST',body:JSON.stringify({fields:{
+    await store.create('feedback',{
       Title:(kind==='bug'?'Bug':'Feature')+' — '+subj,
       kind:kind,
       name:document.getElementById('fb-name').value.trim(),
@@ -12008,7 +12006,7 @@ async function sendFeedback(){
       description:desc+extra,appVersion:APP_VER,appId:genId(),
       /* v1.25.0: who really sent it — the sign-in, not the editable email box. The
          reply email goes here (Power Automate on the list; the poller can't send mail). */
-      reporterUpn:ACCOUNT&&ACCOUNT.username||''}})});
+      reporterUpn:ACCOUNT&&ACCOUNT.username||''});
     /* v1.8.0 (§3 item 12): the report also mails everyone flagged feedbackRecipient on
        the staff list — Graph sendMail AS THE SIGNED-IN SUBMITTER, on its own Mail.Send
        delegated token (the TeamMember.Read.All pattern: no consent / no token → the
