@@ -314,6 +314,9 @@ body.viewer #pp-insp .pg-rbox:has(input[type=radio]:disabled) .rl-grp{display:no
 .sb-chip{font-family:var(--mono);font-size:var(--fs-fine);font-weight:600;letter-spacing:.03em;padding:1.5px 6px;border-radius:8px;flex-shrink:0;line-height:1.5}
 .sb-chip.late{background:#FDE2E2;color:#B91C1C}
 .sb-chip.soon{background:#FCEEC8;color:#8F5E08}
+.sb-chip.stale{background:#EEF2F7;color:#475569} /* v1.48.0 (item 6): quiet grey — a nudge, not an alarm */
+.md-stale{width:100%;background:none;border:0;border-radius:4px;font:inherit;text-align:left;cursor:pointer}
+.md-stale:hover,.md-stale:focus-visible{background:#F1F5F9}
 /* B5 Snug/Compact: the T5 two-line row keeps both lines, each single-line; Compact's
    32px rows also need tighter leading (nothing informational drops below 11px) */
 body.snug .sb-2l,body.compact .sb-2l{gap:0}
@@ -1855,7 +1858,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.47.3'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.48.0'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -2630,7 +2633,8 @@ function schedParse(v){
   return String(H).padStart(2,'0')+':'+String(M).padStart(2,'0');}
 
 function projToFields(p){const f={Title:p.name||'',client:p.client||'',jobCode:p.jobCode||'',deadline:p.deadline||null,status:p.status||'auto',projectManager:p.projectManager||'',drafter:p.drafter||'',leadFab:p.leadFab||'',fabricators:p.fabricators||'',metalFab:p.metalFab||'',activeDepartments:JSON.stringify(p.activeDepartments||[]),appId:p.id,createdAt:p.createdAt||null};if(p.sortIndex!=null)f.sortIndex=p.sortIndex;return f;}
-function fieldsToProj(f){return{id:f.appId,name:f.Title||'',client:f.client||'',jobCode:f.jobCode||'',deadline:isoDay(f.deadline),status:f.status||'auto',projectManager:f.projectManager||'',drafter:f.drafter||'',leadFab:f.leadFab||'',fabricators:f.fabricators||'',metalFab:f.metalFab||'',activeDepartments:safeArr(f.activeDepartments),sortIndex:f.sortIndex==null?null:Number(f.sortIndex),createdAt:isoDay(f.createdAt)};}
+function fieldsToProj(f){return{id:f.appId,name:f.Title||'',client:f.client||'',jobCode:f.jobCode||'',deadline:isoDay(f.deadline),status:f.status||'auto',projectManager:f.projectManager||'',drafter:f.drafter||'',leadFab:f.leadFab||'',fabricators:f.fabricators||'',metalFab:f.metalFab||'',activeDepartments:safeArr(f.activeDepartments),sortIndex:f.sortIndex==null?null:Number(f.sortIndex),createdAt:isoDay(f.createdAt),
+  ...(f.confirmedAt?{confirmedAt:String(f.confirmedAt),confirmedBy:String(f.confirmedBy||'')}:{})};} /* v1.48.0 (item 6): "Schedule still accurate", read only when set; projToFields never writes it — only ppConfirmSchedule does */
 function taskToFields(t){const d=deptById(t.department);return{Title:(d?d.name:t.department)||'Task',projectId:t.projectId,department:t.department,assignee:Array.isArray(t.assignee)?JSON.stringify(t.assignee):(t.assignee||''),startDate:t.startDate||null,endDate:t.endDate||null,estimatedDays:t.estimatedDays||1,ticketNodes:JSON.stringify(t.ticketNodes||[]),notes:t.notes||'',pinned:!!t.pinned,label:t.label||'',...(t.range?{range:true}:{}),appId:t.id};} /* v1.32.0 (#16): `range` is written only when set (tristate — a site without the column never sees it on ordinary saves) */
 function fieldsToTask(f){const a=(isEndDept(f.department)&&typeof f.assignee==='string'&&f.assignee.trim().startsWith('['))?safeArr(f.assignee):(f.assignee||'');return{id:f.appId,projectId:f.projectId,department:f.department,assignee:a,startDate:isoDay(f.startDate),endDate:isoDay(f.endDate),estimatedDays:Number(f.estimatedDays)||1,ticketNodes:safeArr(f.ticketNodes),notes:f.notes||'',pinned:!!f.pinned,label:f.label||'',...(f.range?{range:true}:{})};} /* v1.32.0 (#16): tristate on the read side too — a loaded non-range row keeps its pre-v1.32.0 shape, so stripStamps() still matches a row created in this session and the poll never wipes the undo stack over it */
 /* v1.7.1: phone rides the person record (column created by the owner 2026-09-01). */
@@ -3934,6 +3938,7 @@ function renderMeDock(){
     .sort((a,b)=>String(a.due||'9999').localeCompare(String(b.due||'9999')));
   const ooo=oooFor(PERSON).filter(o=>o.end&&o.end>=t0).sort((a,b)=>String(a.start).localeCompare(String(b.start)));
   const pn=id=>{const p=projById(id);return p?p.name:'—';};
+  const myStale=dashSelf()?ST.projects.filter(p=>roleList(p.projectManager).map(canonName).includes(PERSON)&&isStale(p)):[]; /* v1.48.0 (item 6) */
   const cap=(arr,row)=>arr.map(row).join('') /* v1.20.8 (owner): every row — the column scrolls (.ins-sec .in) instead of stopping at +N more */
     ||'<div class="md-empty">Nothing here right now.</div>';
   const barRow=t=>'<div class="md-row"><span class="md-dot" style="background:'+projColor(t.projectId)+'"></span>'
@@ -3979,6 +3984,14 @@ function renderMeDock(){
        on someone else's Summary. */
     +'<div class="ins-body">'
     +'<div class="ins-sec md-stack">'
+      /* v1.48.0 (item 6): the stale prompt, at the top of the column so it is seen — on YOUR dashboard only, the projects you PM that
+         nobody has touched in stale.days; each opens the project, where "Schedule still
+         accurate" or any edit clears it. Hidden when there are none. */
+      +(myStale.length?'<h4>Your stale projects<span class="n">'+myStale.length+'</span></h4><div class="in">'
+        +myStale.map(p=>{const le=projLastEdit(p);
+          return '<button type="button" class="md-row md-stale" data-pid="'+esc(p.id)+'" title="Open it to update the schedule, or confirm it’s still accurate">'
+            +'<span class="md-dot" style="background:'+projColor(p.id)+'"></span><span class="md-main">'+esc(p.name)+'</span>'
+            +'<span class="md-when">'+(le?'no edits since '+esc(fmtNice(le.at.slice(0,10))):'')+'</span></button>';}).join('')+'</div>':'')
       +'<h4>Working on<span class="n">'+(active.length+coming.length)+'</span></h4><div class="in">'+cap([...active,...coming],barRow)+'</div>'
       +'<h4>Time off<span class="n">'+ooo.length+'</span></h4><div class="in">'+cap(ooo,ooRow)+'</div>'
     +'</div>'
@@ -4010,6 +4023,7 @@ function renderMeDock(){
     +'</div>';
   {const la=dk.querySelector('.md-listen a');
    if(la)la.href=/^https?:\/\//i.test(per.listeningLink)?per.listeningLink:'https://'+per.listeningLink;}
+  dk.querySelectorAll('.md-stale').forEach(b=>b.addEventListener('click',()=>{location.hash='#/project/'+b.dataset.pid;})); /* v1.48.0 (item 6) */
   document.getElementById('md-collapse').addEventListener('click',()=>{
     ME_DOCK_COL=!ME_DOCK_COL;
     try{localStorage.setItem('shopTimelineMeDockCollapsed',ME_DOCK_COL?'1':'0');}catch(e){}
@@ -4159,6 +4173,8 @@ function renderSidebar(){
         if(dl<0){const c=document.createElement('span');c.className='sb-chip late';c.textContent='LATE '+Math.abs(dl)+'d';l2.appendChild(c);}
         else if(dl<=5){const c=document.createElement('span');c.className='sb-chip soon';c.textContent=dl===0?'TODAY':dl+'d';l2.appendChild(c);}
       }
+      if(isStale(p)){const c=document.createElement('span');c.className='sb-chip stale';c.textContent='Stale'; /* v1.48.0 (item 6) */
+        c.title='No edits in '+staleDays()+' days. Open it to update the schedule, or confirm it’s still accurate.';l2.appendChild(c);}
       col.appendChild(l2);row.appendChild(col);
       const eye=document.createElement('button');eye.className='sb-eye'+(SPOT.has(p.id)?' on':'');eye.innerHTML=ICO.eye;eye.title='Spotlight this project (dims all others)';
       eye.addEventListener('click',ev=>{ev.stopPropagation();if(SPOT.has(p.id))SPOT.delete(p.id);else SPOT.add(p.id);render();});
@@ -5196,6 +5212,10 @@ function renderAppSettings(){
    +CFG_META.filter(m=>m[0].indexOf('viewer.')===0).map(row).join('')
    +'<h3>Experimental</h3>'
    +CFG_META.filter(m=>m[0].indexOf('exp.')===0).map(row).join('')
+   /* v1.48.0 (item 6): the stale threshold, Config key stale.days (default 14) */
+   +'<h3>Projects</h3>'
+   +'<label class="as-row"><span class="as-txt"><b>Stale after</b><span>A project with no edits in this many days gets a "Stale" tag in the sidebar.</span></span>'
+   +'<input type="number" id="as-stale" min="1" max="365" value="'+staleDays()+'" style="width:5em"> days</label>'
    /* v1.33.0: the force-update lever — writes update.minVersion; tabs on an older build
       show the retired notice and reload (see updCheck). Press it from the build everyone
       should run, i.e. production, not /preview/. */
@@ -5207,6 +5227,11 @@ function renderAppSettings(){
    +'<button class="btn" id="as-reload-all"'+(CFG_OK?'':' disabled title="Needs the ShopTimeline_Config list"')+'>Ask everyone to reload</button>'
    +'</div></div>';
   pg.innerHTML=h;
+  document.getElementById('as-stale').addEventListener('change',ev=>{
+    const n=parseInt(ev.target.value,10);
+    if(!(n>=1&&n<=365)){ev.target.value=staleDays();toast('Pick a number of days from 1 to 365.','err');return;}
+    saveConfigKey('stale.days',String(n));toast('Projects go stale after '+n+' days without an edit.');
+  });
   document.getElementById('as-reload-all').addEventListener('click',()=>{
     if(/\/preview\//.test(location.pathname)){toast('Press this from the production build, not /preview/ — a minVersion production can’t reach retires nothing.','err');return;}
     if(!confirm('Every open tab on a build older than v'+APP_VER+' will reload within '+UPD_GRACE+' seconds. Continue?'))return;
@@ -7770,6 +7795,62 @@ function ppDeletePhase(id){
 }
 
 /* The strip under the title: where the job is, without reading the chart. */
+/* v1.48.0 (item 6): a project's last edit — the newest Graph stamp on the project row or any
+   of its phases and notes (milestones carry no stamp), so a schedule change counts, not just
+   a Setup edit. Null when nothing is stamped (a sample, a draft, a never-loaded row). */
+function projLastEdit(p){
+  let best=null;
+  const see=x=>{if(x&&x.updatedAt&&(!best||x.updatedAt>best.at))best={at:x.updatedAt,who:x.updatedBy||''};};
+  /* SharePoint stamps the confirmation's own write on the project row: within two minutes of
+     confirmedAt, that stamp is the confirmation, not an edit. */
+  if(!(p.confirmedAt&&p.updatedAt&&Math.abs(new Date(p.updatedAt)-new Date(p.confirmedAt))<12e4))see(p);
+  for(const t of ST.tasks)if(t.projectId===p.id)see(t);
+  for(const t of ST.todos||[])if(t.projectId===p.id)see(t);
+  return best;
+}
+/* "Sam · Oct 12, 2:14 PM" — the owner-approved wording (2026-10-13) */
+function lastEditText(le){
+  const d=new Date(le.at);if(isNaN(d))return '';
+  return (le.who?dispName(le.who)+' · ':'')+d.toLocaleDateString([],{month:'short',day:'numeric'})+', '+d.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});
+}
+/* Stale = no edit in N days (App settings, Config key stale.days, default 14). A completed
+   project is never stale, and nor is one On Hold (idle on purpose). */
+function staleDays(){const n=parseInt(CFG_RAW['stale.days'],10);return n>0?n:14;}
+function isStale(p){
+  const st=projectStatus(p);
+  if(p.sample||st==='complete'||st==='on-hold')return false;
+  const le=projLastEdit(p),seen=[le&&le.at,p.confirmedAt].filter(Boolean).sort().pop(); /* an edit or a confirmation */
+  if(!seen)return false;
+  return Date.now()-new Date(seen).getTime()>=staleDays()*864e5;
+}
+/* The header text: the last edit, plus the confirmation when it came after it.
+   "Sam · Sep 20, 3:00 PM · confirmed Oct 13 by Sam" */
+function lastEditLine(p){
+  const le=projLastEdit(p);if(!le)return '';
+  let s=lastEditText(le);
+  if(p.confirmedAt&&p.confirmedAt>le.at){const d=new Date(p.confirmedAt);
+    if(!isNaN(d))s+=' · confirmed '+d.toLocaleDateString([],{month:'short',day:'numeric'})+(p.confirmedBy?' by '+dispName(p.confirmedBy):'');}
+  return s;
+}
+/* "Schedule still accurate": a one-column-pair PATCH on the project row — no saveState, so no
+   undo entry, no change-log row and no sync of anything else. Missing columns (400) say so. */
+async function ppConfirmSchedule(p,btn){
+  const id=SP_IDS.proj[p.id];if(!id)return;
+  const at=new Date().toISOString(),by=meName()||(ACCOUNT&&ACCOUNT.name)||'';
+  if(btn)btn.disabled=true;setSync('busy');
+  try{
+    await store.update('proj',id,{confirmedAt:at,confirmedBy:by});
+    ST={...ST,projects:ST.projects.map(x=>x.id===p.id?{...x,confirmedAt:at,confirmedBy:by}:x)};ST_GEN++; /* a poll already in flight must not put the old row back */
+    setSync('ok','synced '+stamp());toast('Confirmed: '+(p.name||'the project')+'’s schedule is still accurate.');
+    if(ROUTE.view==='project')renderProjectPage();else render();
+  }catch(e){
+    if(btn)btn.disabled=false;setSync('ok','synced '+stamp());
+    const m=String(e&&e.message);
+    toast(/ 400/.test(m)&&/confirmed/i.test(m)
+      ?'Can’t record the confirmation yet: the Projects list needs the confirmedAt and confirmedBy columns. Ask whoever maintains the app.'
+      :'Couldn’t record the confirmation — check your connection and try again.','err',null,m);
+  }
+}
 function ppPaintMeta(p){
   const box=document.getElementById('pp-meta');
   if(!box)return;
@@ -7802,8 +7883,13 @@ function ppPaintMeta(p){
   h+=cell('Work ends',e?esc(fmtNice(e)):'&mdash;',late&&!done);
   h+=cell('Phases',ts.filter(t=>t.department!=='pm').length);
   h+=cell('Milestones & notes',evN+tkN);
+  {const le=NPV_LIVE&&!ROUTE.creating&&p.id?projLastEdit(p):null; /* v1.48.0 (item 6) */
+   if(le)h+='<div class="m m-upd"><span class="k">Last edited by</span><span class="v">'+esc(lastEditLine(p))+'</span></div>';
+   /* the stale project's call to action: confirm the schedule without a fake edit (editors only) */
+   if(le&&isStale(p)&&vcan('project'))h+='<div class="m"><button class="btn btn-ghost pp-confirm" id="pp-confirm" title="Nothing has changed in '+staleDays()+' days. If the schedule is still right, say so: the Stale tag clears without editing anything.">Schedule still accurate</button></div>';}
   if(late&&!done)h+='<div class="m"><span class="v warn">&#9888; Work runs past the '+(due.k==='shipping'?'ship':'install')+' date</span></div>';
   box.innerHTML=h;
+  {const cf=document.getElementById('pp-confirm');if(cf)cf.addEventListener('click',()=>ppConfirmSchedule(p,cf));}
   /* REV87: the footer's complete button mirrors the stored status */
   const cmp=document.getElementById('pp-complete');
   if(cmp){
@@ -11844,6 +11930,9 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.48.0",d:"Oct 13, 2026",n:["A project page now shows who last edited the project and when (\"Last edited by Sam · Oct 12, 2:14 PM\"), and the Meeting Sheet prints the same line under each project. Any change counts, phases and notes included.",
+   "Projects nobody has touched in 14 days get a grey **Stale** tag in the sidebar, so a forgotten schedule stands out. Completed and On Hold projects never do.",
+   "If a stale project's schedule is still right, press **Schedule still accurate** on its page: the tag clears without editing anything, and the header notes who confirmed it and when. My Dashboard lists the stale projects you manage, each one a click away."]},
  {v:"v1.47.0–v1.47.3",d:"Oct 13, 2026",n:["Repeat work is easier to find on a project page: right-click a bar, or click it to open its editor, and choose **Duplicate** to copy it as a new bar. Bars show a faint ⋯ when you point at them, as on the timeline.",
    "New Project's footer now counts the required fields and lists what's still missing — click a name to jump to that field. The bar between the chart and the form shows its drag grip all the time."]},
  {v:"v1.46.1",d:"Oct 12, 2026",n:["Protect dates now stays the way you left it: turn it on or off once, and it's the same the next time you open the app, on any computer you sign in on."]},
@@ -12119,7 +12208,9 @@ function buildMeetingSheet(){
       if(ps&&pe&&pe>ps)pct=Math.max(0,Math.min(100,Math.round((today()-ps)/(pe-ps)*100)));
       const due=dueDate(p),days=workdaysUntil(due); /* v1.26.0: the due date, not the Setup date */
       const tr=document.createElement('tr');tr.className='meet-row'+(prProjOK(p)?'':' dim');
-      tr.innerHTML='<td><span class="mr-name">'+esc(p.name)+'</span><span class="mr-sub">'+esc([p.jobCode,p.client].filter(Boolean).join(' · '))+'</span></td>'
+      const le=projLastEdit(p); /* v1.48.0 (item 6): one line under each project */
+      tr.innerHTML='<td><span class="mr-name">'+esc(p.name)+'</span><span class="mr-sub">'+esc([p.jobCode,p.client].filter(Boolean).join(' · '))+'</span>'
+        +(le?'<span class="mr-sub mr-upd">Last edited by '+esc(lastEditLine(p))+'</span>':'')+'</td>'
         +'<td><span class="mr-pill" data-st="'+st+'">'+esc(STATUS_LBL[st]||st)+'</span></td>'
         +'<td class="mr-phase">'+esc(phaseNow(p))+'</td>'
         +'<td><div class="meet-mini"><div class="mm-fill" style="width:'+pct+'%;background:'+(MEET_FILL[st]||'#B4B2A9')+';--sc:'+(MEET_LINE[st]||'#64748B')+'"></div></div>'

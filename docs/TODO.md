@@ -62,9 +62,10 @@ is the log in §8.
 
 ## 0. Where we stand
 
-As of 2026-10-12: production (`main`) runs **v1.45.1**, promoted 2026-10-09
-(release/2026-10-09b); `development` runs **v1.47.3**, where saved views (item 25) and
-Protect dates (item 2 (c)) follow the person, and repeat work is easier to find (item 7).
+As of 2026-10-13: production (`main`) runs **v1.45.1**, promoted 2026-10-09
+(release/2026-10-09b); `development` runs **v1.48.0**, where saved views (item 25) and
+Protect dates (item 2 (c)) follow the person, repeat work is easier to find (item 7), and
+projects show their last edit and a Stale flag (item 6).
 The newest work in production: reporter answers show in Open Issues
 (item 58); Protect dates (item 2: drags never change dates); Project Schedule hides the automatic
 Project Management row (item 55, tracker #37); a project starts at its first phase (item
@@ -342,7 +343,19 @@ What the pilot can't start without.
           Sheet prints the certainty.
       - *Waits on:* (a) and (c) are Project Director decisions. The column is additive.
       [brief §7 Early dates; §9 P0]
-- [ ] **6. Show the last update; flag stale projects.** Who last edited a project and when
+- [x] **6. Show the last update; flag stale projects.** Shipped v1.48.0 (PR #142,
+      2026-10-13), owner wording 2026-10-13: "Last edited by Sam · Oct 12, 2:14 PM" on the
+      project page header and under each project on the Meeting Sheet; a grey "Stale" chip
+      in the sidebar ("No edits in 14 days"). The last edit is the newest stamp on the
+      project or any of its phases and notes. N = Config key `stale.days`, default 14, set
+      on App settings (owner, 2026-10-13: change it there without a release; the Project
+      Director can still pick the number). A completed or On Hold project is never stale. The legend
+      got no entry (item 8's lesson). *The call to action* (owner, 2026-10-13, asked before
+      merging: what is the user supposed to do?): a "Schedule still accurate" button on a
+      stale project's header writes `confirmedAt` / `confirmedBy` (owner added them 2026-10-13) on its Projects row and
+      clears the tag without a fake edit; the header then adds "· confirmed Oct 13 by Sam";
+      the PM's own My Dashboard lists "Your stale projects"; the chip's tooltip says what to
+      do. Before the columns exist the button explains they're missing. Suite `tests/test-v1480.js`. Who last edited a project and when
       (`updatedBy` / `updatedAt`) already comes from Graph, but shows only in hover cards
       (and, for admins, the change log). Put the last editor and time on the project page
       header and the Meeting Sheet. Add a "stale" chip in the sidebar and legend for a
@@ -1592,6 +1605,9 @@ constraint (D2, lifted 2026-09-24).
   `schedule` (JSON), `freelance`, `savedViews` (multi-line plain text, JSON
   `{views:[…]}`, written only to the signed-in user's own row; added by the owner
   2026-10-12, item 25).
+- On `ShopTimeline_Projects`: `confirmedAt` and `confirmedBy`, single line of text each
+  (an ISO time; a display name). Written only by "Schedule still accurate", never by a save.
+  Added by the owner 2026-10-13 (item 6).
 - On `ShopTimeline_Feedback`: `ghIssue` — single line of text, the GitHub issue URL,
   written by the tracker repository's poller, never by the app (item 31).
 - On `ShopTimeline_Feedback`: `resolvedAt` — single line of text, the ticket's close time (ISO),
