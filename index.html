@@ -1855,7 +1855,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.47.2'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.47.3'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -11127,7 +11127,11 @@ function viewsFromRow(){
   const id=myStaffId();if(!id||VIEWS_PUSHING)return;
   const owner=viewsOwner();
   if(owner&&owner!==id){ /* someone else's: start fresh, including the switch their cache set at launch */
-    if(loadProtect()!=null&&!updBusy())setProtect(false);
+    /* v1.47.3: the switch resets even on a New Project page (updBusy() used to skip it and
+       leave the last person's Protect dates on for the session). Only a drag in flight
+       waits, for the next poll — flipping the switch mid-drag would change its outcome. */
+    if(DRAG)return;
+    if(loadProtect()!=null)setProtect(false);
     try{localStorage.removeItem(VIEWS_KEY);localStorage.removeItem(PROTECT_KEY);}catch(e){}}
   setViewsOwner(id);
   let j=null;try{j=JSON.parse(STAFF_VIEWS[id]||'null');}catch(e){}
@@ -11842,7 +11846,7 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
- {v:"v1.47.0–v1.47.2",d:"Oct 12, 2026",n:["Repeat work is easier to find on a project page: right-click a bar, or click it to open its editor, and choose **Duplicate** to copy it as a new bar. Bars show a faint ⋯ when you point at them, as on the timeline.",
+ {v:"v1.47.0–v1.47.3",d:"Oct 13, 2026",n:["Repeat work is easier to find on a project page: right-click a bar, or click it to open its editor, and choose **Duplicate** to copy it as a new bar. Bars show a faint ⋯ when you point at them, as on the timeline.",
    "New Project's footer now counts the required fields and lists what's still missing — click a name to jump to that field. The bar between the chart and the form shows its drag grip all the time."]},
  {v:"v1.46.1",d:"Oct 12, 2026",n:["Protect dates now stays the way you left it: turn it on or off once, and it's the same the next time you open the app, on any computer you sign in on."]},
  {v:"v1.46.0",d:"Oct 12, 2026",n:["Saved views now follow you: a view you save, rename, delete or star opens on any computer you sign in on. Views already saved in your browser move over the first time you open the app."]},
@@ -12193,6 +12197,7 @@ async function boot(){
   }
   rebuildStaff();
   if(STAFF_OK)viewsFromRow();
+  ppPaintNeeds(); /* v1.47.3: a draft opened before the roster arrived now counts the PM rule */
   /* N3: the client roster, same graceful-degrade idea (quiet at load, warn on save). */
   if(ACCOUNT)await loadClients();
   if(ACCOUNT)await loadConfig(); /* v1.11.0: app-wide settings — grants apply from first render */
@@ -12264,7 +12269,7 @@ async function boot(){
            savePeople that started — or finished — during this round-trip must not be
            clobbered by the pre-save snapshot ("my merges reverted"). */
         if(pg===PEOPLE_GEN&&!SYNCING&&!PENDING_STAFF
-           &&JSON.stringify(fp)!==JSON.stringify(PEOPLE)){PEOPLE=fp;rebuildStaff();localStorage.setItem(PEOPLE_KEY,JSON.stringify(PEOPLE));dirty=true;}
+           &&JSON.stringify(fp)!==JSON.stringify(PEOPLE)){PEOPLE=fp;rebuildStaff();localStorage.setItem(PEOPLE_KEY,JSON.stringify(PEOPLE));dirty=true;ppPaintNeeds();}
         viewsFromRow(); /* item 25: views saved on another computer reach this one */
       }
       if(dirty){if(ROUTE.view==='project'){PP_KEEP=true;renderProjectPage();}else render();}
