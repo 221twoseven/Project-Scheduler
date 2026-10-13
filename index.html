@@ -3010,9 +3010,7 @@ async function updCheck(force){
   /* Refresh only the raw values (minVersion) — never loadConfig(): a blip here must not
      flip CFG_OK or overwrite the grants, which stay read-at-load by design. */
   if(ACCOUNT)try{
-    const r=await gpageAll(listUrl(LIST_CONFIG)+'/items?expand=fields&$top=200');
-    const raw={};for(const it of r){raw[it.fields.Title]=String(it.fields.value||'');SP_CFG_IDS[it.fields.Title]=it.id;}
-    CFG_RAW=raw;
+    const c=await readConfig();Object.assign(SP_CFG_IDS,c.ids);CFG_RAW=c.raw;
   }catch(e){}
   updApply(latest);
 }
@@ -3162,7 +3160,7 @@ let CLIENTS=[],CLIENTS_OK=false;
 function clientOptions(){return CLIENTS.map(c=>'<option value="'+esc(c.name)+'"'+(c.alias?' label="'+esc(c.alias)+'"':'')+'>').join('');}
 async function loadClients(){
   try{
-    const r=await gpageAll(listUrl(LIST_CLIENTS)+'/items?expand=fields&$top=500');
+    const r=await store.list('client');
     CLIENTS=r.map(it=>({spId:it.id,name:it.fields.Title||'',alias:it.fields.field_2||''})).filter(c=>c.name);
     CLIENTS_OK=true;
     try{localStorage.setItem(CLIENTS_KEY,JSON.stringify(CLIENTS));}catch(e){}
@@ -3177,36 +3175,37 @@ function saveClients(nc){
   const old=CLIENTS;CLIENTS=nc;
   try{localStorage.setItem(CLIENTS_KEY,JSON.stringify(CLIENTS));}catch(e){}
   if(!CLIENTS_OK){toast('Clients saved in this browser only — they won\'t sync to your teammates until the ShopTimeline_Clients list is reachable.','err');return;}
+  runClientSync(old,false);
+}
+/* The client sync behind a save and its retry (seam PR 4, item 48; the 2026-10-12 audit). A
+   failure parks the diff base so the pill's "click to retry" is real for clients too — it
+   used to say retry and do nothing for this kind. A failed save keeps the base an earlier
+   failure parked; a failed retry parks its own. */
+function runClientSync(old,again){
   setSync('busy');
   spSyncClients(old,CLIENTS)
     .then(()=>setSync('ok','synced '+stamp()))
     .catch(e=>{console.error(e);
-      /* Park the diff base so the pill's "click to retry" is real for clients too —
-         it used to say retry and do nothing for this kind. */
-      PENDING_CLIENTS={old:(PENDING_CLIENTS&&PENDING_CLIENTS.old)||old};
+      PENDING_CLIENTS={old:again?old:((PENDING_CLIENTS&&PENDING_CLIENTS.old)||old)};
       setSync('err','clients not saved — click to retry');
-      toast('Couldn\'t save the client list to SharePoint. Your change is still on screen — click "clients not saved" at the top right to retry.','err',null,e.message);});
+      toast(again?'Still couldn\'t save the client list — click "clients not saved" to retry again.'
+        :'Couldn\'t save the client list to SharePoint. Your change is still on screen — click "clients not saved" at the top right to retry.','err',null,e.message);});
 }
 let PENDING_CLIENTS=null; /* {old}: the diff base from the first failed client sync */
 function retryClientSync(){
   if(!PENDING_CLIENTS)return;
   const p=PENDING_CLIENTS;PENDING_CLIENTS=null;
-  setSync('busy');
-  spSyncClients(p.old,CLIENTS)
-    .then(()=>setSync('ok','synced '+stamp()))
-    .catch(e=>{console.error(e);PENDING_CLIENTS={old:p.old};
-      setSync('err','clients not saved — click to retry');
-      toast('Still couldn\'t save the client list — click "clients not saved" to retry again.','err',null,e.message);});
+  runClientSync(p.old,true);
 }
 async function spSyncClients(o,n){
   const om=new Map(o.filter(c=>c.spId).map(c=>[c.spId,c]));
   for(const c of n){
     const f={Title:c.name||'',field_2:c.alias||''};
-    if(!c.spId){const r=await gfetch(listUrl(LIST_CLIENTS)+'/items',{method:'POST',body:JSON.stringify({fields:f})});c.spId=r.id;}
-    else{const b=om.get(c.spId);if(!b||b.name!==c.name||b.alias!==c.alias)await gfetch(listUrl(LIST_CLIENTS)+'/items/'+c.spId+'/fields',{method:'PATCH',body:JSON.stringify(f)});}
+    if(!c.spId){const r=await store.create('client',f);c.spId=r.id;}
+    else{const b=om.get(c.spId);if(!b||b.name!==c.name||b.alias!==c.alias)await store.update('client',c.spId,f);}
   }
   const keep=new Set(n.map(c=>c.spId).filter(Boolean));
-  for(const c of o)if(c.spId&&!keep.has(c.spId))await gfetch(listUrl(LIST_CLIENTS)+'/items/'+c.spId,{method:'DELETE'});
+  for(const c of o)if(c.spId&&!keep.has(c.spId))await store.remove('client',c.spId);
 }
 
 function savePeople(np,self){
@@ -3375,13 +3374,18 @@ const CFG_DEFAULTS=Object.fromEntries(CFG_META.map(m=>[m[0],false]));
 let CFG={...CFG_DEFAULTS},CFG_OK=false,SP_CFG_IDS={};
 let CFG_RAW={}; /* v1.33.0: every key's value as text, for string keys (update.minVersion) */
 const CFG_KEY='shopTimelineCfg';
+/* The Config rows as text by key, plus their item ids. One read for loadConfig and the
+   update check (seam PR 4, item 48; the 2026-10-12 audit). */
+async function readConfig(){
+  const raw={},ids={};
+  for(const it of await store.list('config')){raw[it.fields.Title]=String(it.fields.value||'');ids[it.fields.Title]=it.id;}
+  return{raw,ids};
+}
 async function loadConfig(){
   try{
-    const r=await gpageAll(listUrl(LIST_CONFIG)+'/items?expand=fields&$top=200');
-    CFG={...CFG_DEFAULTS};SP_CFG_IDS={};CFG_RAW={};
-    for(const it of r){const k=it.fields.Title;SP_CFG_IDS[k]=it.id;CFG_RAW[k]=String(it.fields.value||'');
-      if(!(k in CFG_DEFAULTS))continue;
-      CFG[k]=CFG_RAW[k]==='1';}
+    const c=await readConfig();
+    CFG={...CFG_DEFAULTS};SP_CFG_IDS=c.ids;CFG_RAW=c.raw;
+    for(const k in CFG_RAW)if(k in CFG_DEFAULTS)CFG[k]=CFG_RAW[k]==='1';
     CFG_OK=true;
   }catch(e){
     CFG_OK=false;
@@ -3396,8 +3400,8 @@ function saveConfigKey(k,v){
   if(CFG_OK){
     setSync('busy');
     (SP_CFG_IDS[k]
-      ?gfetch(listUrl(LIST_CONFIG)+'/items/'+SP_CFG_IDS[k]+'/fields',{method:'PATCH',body:JSON.stringify({value:sv})})
-      :gfetch(listUrl(LIST_CONFIG)+'/items',{method:'POST',body:JSON.stringify({fields:{Title:k,value:sv}})}).then(r=>{SP_CFG_IDS[k]=r.id;}))
+      ?store.update('config',SP_CFG_IDS[k],{value:sv})
+      :store.create('config',{Title:k,value:sv}).then(r=>{SP_CFG_IDS[k]=r.id;}))
     .then(()=>setSync('ok','synced '+stamp()))
     .catch(e=>{console.error(e);
       PENDING_CFG={...(PENDING_CFG||{}),[k]:v}; /* park the key so the pill can replay it */
