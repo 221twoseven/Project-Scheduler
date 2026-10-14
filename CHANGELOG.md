@@ -9,6 +9,9 @@ Format: `## <label> — <date>` then one `- ` line per change. Keep lines concre
 what changed *for the team*, not how. Developer-only tooling doesn't need a line.
 Collect lines for the next version under `## Unreleased` and rename it when you ship.
 
+## v1.48.5 — Oct 14, 2026
+- On the People page, time off entered as back-to-back or overlapping requests now reads as one absence: "Away until" shows the day the person is really back, even across a weekend or holiday.
+
 ## v1.48.4 — Oct 14, 2026
 - The Meeting Sheet's progress bar now shows how much of the scheduled work is done, not how much time has passed, so a quiet stretch between departments no longer makes a project look further along. The dates under it are unchanged.
 

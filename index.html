@@ -1858,7 +1858,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.48.4'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.48.5'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -5578,7 +5578,15 @@ async function cdImportEC(btn){
 function cdAvail(per){
   const t=fmtDate(today());
   const cur=(per.ooo||[]).find(o=>o.start&&o.end&&o.start<=t&&t<=o.end);
-  if(cur)return{now:true,txt:'Away until '+fmtNice(cur.end)};
+  if(cur){
+    /* item 19: back-to-back or overlapping ranges read as one absence — keep extending while another
+       range starts by the next workday after this end (a weekend or holiday in between still counts) */
+    let end=cur.end,grew=true;
+    while(grew){grew=false;
+      let d=addDays(parseDate(end),1);while(!isWorking(d))d=addDays(d,1);const lim=fmtDate(d);
+      for(const o of per.ooo)if(o.start&&o.end&&o.start<=lim&&o.end>end){end=o.end;grew=true;}}
+    return{now:true,txt:'Away until '+fmtNice(end)};
+  }
   /* v1.18.0 (owner): manual flag for freelancers — an active OOO range outranks it */
   if(per.availability==='unavailable')return{now:true,off:true,txt:'Not available'};
   const nx=(per.ooo||[]).filter(o=>o.start&&o.start>t).sort((a,b)=>a.start.localeCompare(b.start))[0];
@@ -11951,6 +11959,7 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.48.5",d:"Oct 14, 2026",n:["On the People page, time off entered as back-to-back or overlapping requests now reads as one absence: \"Away until\" shows the day the person is really back, even across a weekend or holiday."]},
  {v:"v1.48.4",d:"Oct 14, 2026",n:["The Meeting Sheet's progress bar now shows how much of the scheduled work is done, not how much time has passed, so a quiet stretch between departments no longer makes a project look further along. The dates under it are unchanged."]},
  {v:"v1.48.3",d:"Oct 14, 2026",n:["Teammates' changes now also wait while you're on a New Project page, typing in a toolbar box, or have a save waiting to retry, so nothing redraws under you. They appear as soon as you're done."]},
  {v:"v1.48.2",d:"Oct 14, 2026",n:["When something can't be saved or loaded, the message now says why — this computer is offline, your account has no access, a list or column is missing, or SharePoint is busy — and what to do next. The technical message stays under **Details**."]},

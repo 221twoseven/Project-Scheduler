@@ -64,8 +64,8 @@ is the log in §8.
 ## 0. Where we stand
 
 As of 2026-10-14: production (`main`) runs **v1.48.1**, promoted 2026-10-13
-(release/2026-10-13); `development` runs **v1.48.4** (the storage seam's last PR: error
-messages say why, item 48; item 61's simplifications; item 59's work-based progress bar). The newest work on production: saved views (item 25) and Protect dates
+(release/2026-10-13); `development` runs **v1.48.5** (the storage seam's last PR: error
+messages say why, item 48; item 61's simplifications; item 59's work-based progress bar; item 19's "Away until" fix). The newest work on production: saved views (item 25) and Protect dates
 (item 2 (c)) follow the person, repeat work is easier to find (item 7), and projects show
 their last edit, a Stale flag and "Schedule still accurate" (item 6). Before that: reporter
 answers show in Open Issues (item 58); Protect dates (item 2: drags never change dates).
@@ -649,6 +649,10 @@ release. Where the app has a part, it's listed.
       session to identify the nightly 10 pm automation on 27 Employees. Test: multiple,
       adjacent and overlapping requests; partial days; cancellations; people without a
       company email. [brief §7.2, §13]
+      - *Done (v1.48.5, PR #152, 2026-10-14):* "Away until" merges back-to-back and
+        overlapping ranges, including across a weekend or holiday (`cdAvail`; suite
+        `tests/test-v1485.js`). Still open: the discovery session (PTO Contract Approvals,
+        the nightly 10 pm automation on 27 Employees) and partial days, which need it.
 - [ ] **20. Write down the change log's limits** (the brief's verification row).
       - *What it covers:* projects, phases, milestones and notes — not people, clients or
         settings. Admins only. History starts 2026-09-02.
