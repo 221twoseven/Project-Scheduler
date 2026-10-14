@@ -1019,6 +1019,19 @@ is item 32 (P0), #7 is part of item 3, and #11 and #14 were done by the bridge i
       because the PR run already tests the merged result. Both branches take changes only
       by PR, and `main`'s required `test` check is the PR run. `CONTRIBUTING.md` and
       `docs/Stats-for-Nerds.md` follow. [owner ask 2026-10-09]
+- [ ] **65. Dragging a bar: show its dates as it snaps.** Dragging bars already changes dates
+      for editors unless Protect dates is on (likely why the reporter missed it; the owner
+      checks her toggle). New: a date chip above the dragged bar (`Oct 5 – Oct 30 · 20 days`)
+      that pulses each day crossed, more strongly at each new week; no sound; reduced motion
+      turns the pulse off. Spec 2026-10-14; waits on Proceed. [tracker #39]
+- [ ] **66. Ticking crew names keeps your place.** Each tick rebuilds the popover and the
+      phase panel (`ppCommitCrew` → `innerHTML`), so the crew list jumps to the top and a
+      quick second tick can be lost. Keep the scroll, and don't rebuild the box being
+      clicked. Worst on install subtasks (whole staff list). Spec 2026-10-14; waits on
+      Proceed. [tracker #40]
+- [ ] **67. An All Projects button on the toolbar,** between + New Project and My Dashboard:
+      goes to the full timeline and clears filters and the saved view (the wordmark and the
+      crumb only navigate). Copy in the spec. Spec 2026-10-14; waits on Proceed. [tracker #41]
 
 **Shipped or closed with no §3 item** (before the 2026-10-08 every-task rule; the full
 record is each ticket's "Fix shipped" note and `CHANGELOG.md`):
@@ -1039,6 +1052,7 @@ record is each ticket's "Fix shipped" note and `CHANGELOG.md`):
 | #28 | "Past projects show up" | Closed, no change: the table was misread (2026-10-01) |
 | #30 | Phone layout for every page | Declined, 2026-10-01 (§7.5) |
 | #31 | A test ticket | Closed |
+| #42 | The owner's test of the *new report out* flow (item 64) | Closed, 2026-10-13 |
 | — | Owner asks with no ticket: issue replies (v1.25.0–1.25.1), days beside dates (v1.33.1), resolved dates and `/comment` (v1.34.0), Open Issues column labels (v1.40.1), print formatting (v1.41.0), the narrow-sidebar lens switch (v1.41.1) | Shipped |
 
 ### Queued for Phase 8 — waiting on other work (see "What waits on what", §2)
@@ -2123,9 +2137,9 @@ How to read the tags at the end of an entry:
     placements (#136: items 60, 61 and item 48's notes; `test-v1210` re-listed after a month
     out of CI); item 64 (the *new report out* flow, added in this audit).
   - *Tracker:* four new tickets, all filed 2026-10-13. #39, #40 and #41 (from Caroline:
-    drag the timeline, the crew list jumping to the top, an All Projects button) are
-    untriaged, and the `triage-issues` skill's step 1 is next. #42 is the owner's test of
-    the new flow; it can close. The older ones match their items: #1 → 32 (needs Proceed),
+    drag the timeline, the crew list jumping to the top, an All Projects button) got
+    specs on 2026-10-14 and are items 65, 66 and 67. #42, the owner's test of the new
+    flow, is closed. The older ones match their items: #1 → 32 (needs Proceed),
     #7 → 3 (on hold), #12 → 40.
   - *⚠ specs:* none awaiting creation. The owner added `savedViews` on Staff (2026-10-12)
     and `confirmedAt` / `confirmedBy` on Projects (2026-10-13); both are in §6's created
