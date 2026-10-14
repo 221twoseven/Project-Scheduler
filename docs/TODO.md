@@ -63,8 +63,9 @@ is the log in §8.
 
 ## 0. Where we stand
 
-As of 2026-10-13: production (`main`) and `development` both run **v1.48.1**, promoted
-2026-10-13 (release/2026-10-13). The newest work: saved views (item 25) and Protect dates
+As of 2026-10-14: production (`main`) runs **v1.48.1**, promoted 2026-10-13
+(release/2026-10-13); `development` runs **v1.48.2** (the storage seam's last PR: error
+messages say why, item 48). The newest work on production: saved views (item 25) and Protect dates
 (item 2 (c)) follow the person, repeat work is easier to find (item 7), and projects show
 their last edit, a Stale flag and "Schedule still accurate" (item 6). Before that: reporter
 answers show in Open Issues (item 58); Protect dates (item 2: drags never change dates).
@@ -701,7 +702,7 @@ release. Where the app has a part, it's listed.
       Pages URL and the Entra redirect URIs then have to be re-registered — `SETUP.md`).
       The repository is public, because Pages hosting needs it. That's safe, since access
       depends on Microsoft sign-in, but leadership should know. [brief §11]
-- [ ] **48. The storage seam.** One `store` object owns every conversation with
+- [x] **48. The storage seam.** One `store` object owns every conversation with
       SharePoint, instead of 37 call sites in 16 functions. It is idea 1 of
       `docs/Architecture-Review-Storage.md`, needed whatever D15 decides, and the path to an
       `apiStore` if D15 picks an API.
@@ -744,6 +745,13 @@ release. Where the app has a part, it's listed.
         `store.signIn` / `store.who()` (no `ACCOUNT` read outside sign-in and `who`); the Team
         members read and the feedback mail go through `gpageAll` / `gfetch` with a silent
         `scopes` argument (no `store.people` / `store.mail`, per the audit); a 202 reads as no body.
+        PR 8 (one error rule) Shipped v1.48.2 (PR #149, 2026-10-14; owner go and wording
+        2026-10-14): `store.explain(err)` gives every SharePoint failure message one "why"
+        sentence (offline / no access / list missing / column missing / busy / other), the raw
+        error under Details; panels drop the Details pointer. Suite `tests/test-v1482.js`. The
+        planned `store.available(kind)` swap for the five `*_OK` flags was dropped (§7.4, the
+        owner agreed 2026-10-14). The one-page-size follow-up is item 68. Milestone record
+        `docs/Milestones/Phase-7-Pilot-Readiness/2026-10-14-storage-seam.md`. The sequence is closed.
       - *Folded in from the 2026-10-12 ponytail audit* (owner accepted the placements):
         - PR 3 (Staff): one `PERSON_COLS` table for the 13 optional Staff fields that
           `personToFields`, `fieldsToPerson`, `cdSavePerson` and `cdMergePerson` each list
@@ -761,6 +769,10 @@ release. Where the app has a part, it's listed.
         - After PR 8: one page size for every list (it changes request URLs, so not during
           the sequence).
       [`docs/Architecture-Review-Storage.md` §1, "Proposed PR sequence"; D4; D15]
+- [ ] **68. One page size for every list.** `STORE_LISTS` keeps each list's old `$top` (2000,
+      500, 200, 999) so the seam PRs sent byte-identical requests. One value (paging already
+      follows `@odata.nextLink`) is simpler. It changes request URLs, so tests that match them
+      may need edits. Follow-up from item 48. [item 48; 2026-10-12 ponytail audit]
 - [ ] **51. D15's inputs: the platform spikes and the facts a ruling needs.** D15 is
       ruled before the Phase 8 schema is provisioned, on these:
       - *Dataverse:* a licence quote (headcount × $20, $22 from 2027-01-01, plus any
@@ -2068,6 +2080,11 @@ How to read the tags at the end of an entry:
       numbers are posted in the breakroom and are used on purpose, so this stays. Gate: HR
       or the owner rules that the roster must hold work numbers only; the fix is dropping
       `mobilephone` from `EC_MAP.phone` and reporting the row as "no work phone". [item 9]
+
+- [ ] **`store.available(kind)` instead of the five `*_OK` flags** (2026-10-14, dropped
+      from seam PR 8 with the owner's OK). It renames flags, changes nothing on screen, and
+      would need four test files edited. Gate: D15 picks a non-SharePoint store (an
+      `apiStore` would need it). [item 48]
 
 ### 7.5 Deliberate design limits — no action planned; revisit only on real complaints
 
