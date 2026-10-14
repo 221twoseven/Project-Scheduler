@@ -29,9 +29,11 @@ setTimeout(main,1300);
 
 function main(){
   sec('source markers');
-  ok('freelance rides the tristate mappers',
-     src.indexOf("if(p.freelance!=null)f.freelance=p.freelance?'1':''")>=0
-     &&src.indexOf('freelance:f.freelance==null?null:flagTruthy(f.freelance)')>=0);
+  ok('freelance rides the tristate mappers',(()=>{ /* item 61: a round trip, not the mapper's source text */
+    const w=E("JSON.stringify([personToFields({id:'x',name:'A',depts:[],ooo:[],freelance:true}),personToFields({id:'x',name:'A',depts:[],ooo:[],freelance:false}),personToFields({id:'x',name:'A',depts:[],ooo:[]})])");
+    const [on,off,none]=JSON.parse(w);
+    const back=JSON.parse(E("JSON.stringify([fieldsToPerson({appId:'x',Title:'A',freelance:'1'}).freelance,fieldsToPerson({appId:'x',Title:'A',freelance:''}).freelance,fieldsToPerson({appId:'x',Title:'A'}).freelance])"));
+    return on.freelance==='1'&&off.freelance===''&&!('freelance' in none)&&back[0]===true&&back[1]===false&&back[2]===null;})());
   ok('merge folds the flag', /freelance:\(keep\.freelance\|\|dup\.freelance\)\?true/.test(src));
 
   win.location.hash='#/people';

@@ -38,9 +38,13 @@ function main(){
   ok('typed 9 is the morning, 5 the afternoon', E("schedParse('9')")==='09:00'&&E("schedParse('5')")==='17:00');
   ok('am/pm and 24h are honoured', E("schedParse('5am')")==='05:00'&&E("schedParse('17:00')")==='17:00');
   ok('garbage reads as no time', E("schedParse('soon')")==='');
-  ok('schedule rides the tristate mappers',
-     src.indexOf('if(p.schedule!=null)f.schedule=JSON.stringify(p.schedule)')>=0
-     &&src.indexOf('schedule:f.schedule==null?null:schedSafe(f.schedule)')>=0);
+  ok('schedule rides the tristate mappers',(()=>{ /* item 61: a round trip, not the mapper's source text */
+    const S={days:[1,2,3],start:'09:00',end:'17:00'};
+    const f=JSON.parse(E("JSON.stringify(personToFields({id:'x',name:'A',depts:[],ooo:[],schedule:"+JSON.stringify(S)+"}))"));
+    const none=JSON.parse(E("JSON.stringify(personToFields({id:'x',name:'A',depts:[],ooo:[]}))"));
+    const back=JSON.parse(E("JSON.stringify(fieldsToPerson({appId:'x',Title:'A',schedule:"+JSON.stringify(JSON.stringify(S))+"}).schedule)"));
+    return typeof f.schedule==='string'&&!('schedule' in none)&&JSON.stringify(back)===JSON.stringify(S)
+      &&E("fieldsToPerson({appId:'x',Title:'A'}).schedule")===null;})());
   ok('merge keeps the kept record\'s schedule first', src.indexOf('schedule:keep.schedule!=null?keep.schedule:dup.schedule')>=0);
 
   win.location.hash='#/people';

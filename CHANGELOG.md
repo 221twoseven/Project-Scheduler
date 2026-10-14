@@ -9,6 +9,9 @@ Format: `## <label> — <date>` then one `- ` line per change. Keep lines concre
 what changed *for the team*, not how. Developer-only tooling doesn't need a line.
 Collect lines for the next version under `## Unreleased` and rename it when you ship.
 
+## v1.48.3 — Oct 14, 2026
+- Teammates' changes now also wait while you're on a New Project page, typing in a toolbar box, or have a save waiting to retry, so nothing redraws under you. They appear as soon as you're done.
+
 ## v1.48.2 — Oct 14, 2026
 - When something can't be saved or loaded, the message now says why — this computer is offline, your account has no access, a list or column is missing, or SharePoint is busy — and what to do next. The technical message stays under **Details**.
 

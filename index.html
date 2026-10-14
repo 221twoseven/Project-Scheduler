@@ -1858,7 +1858,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.48.2'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.48.3'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -2051,8 +2051,17 @@ function personByName(n){return PEOPLE.find(p=>p.name===n);}
    person when the match is unambiguous (exact, "First L." initial form, or bare
    first name); ambiguous or unknown strings pass through untouched. Comparisons
    and grouping only — stored values are never rewritten. */
+/* Item 61: canonName runs inside sorts and every render, so it remembers its answers until the
+   roster changes (a new PEOPLE array, or one pushed onto). */
+let CANON_FOR=null,CANON_N=-1;const CANON=new Map();
 function canonName(s){
   s=String(s||'').trim();if(!s||!PEOPLE.length)return s;
+  if(CANON_FOR!==PEOPLE||CANON_N!==PEOPLE.length){CANON_FOR=PEOPLE;CANON_N=PEOPLE.length;CANON.clear();}
+  let r=CANON.get(s);
+  if(r===undefined){r=canonCalc(s);CANON.set(s,r);}
+  return r;
+}
+function canonCalc(s){
   const low=s.toLowerCase();
   let hit=PEOPLE.filter(p=>p.name.trim().toLowerCase()===low);
   if(!hit.length){
@@ -2667,39 +2676,31 @@ function flagTruthy(v){return v===true||v===1||/^(1|yes|true)$/i.test(String(v||
    become the hyphenated form; anything else (a foreign number, text) stays exactly as typed. */
 function fmtPhone(v){const s=String(v||'').trim(),d=s.replace(/\D/g,''),n=d.length===11&&d[0]==='1'?d.slice(1):d;
   return n.length===10&&/^[\d\s().+-]+$/.test(s)?n.slice(0,3)+'-'+n.slice(3,6)+'-'+n.slice(6):s;}
+/* Item 61: the optional Staff columns, in write order. Each is tristate: omitted until the row
+   carries it (null), so a site without the column never 400s. text = as typed; flag = '1'/'';
+   json = JSON text. admin also carries developer ('dev'). */
+const PERSON_COLS=[
+  ['ext','text'],              /* v1.43.0 (item 9): Office Extension — its own field, never part of the phone number; typed by hand, Employee Contacts has none */
+  ['admin','admin'],           /* v1.8.0: '1' admin, 'dev' admin + developer */
+  ['feedbackRecipient','flag'],
+  ['personalNotes','text'],    /* v1.9.0 (item 30) */
+  ['status','text'],           /* v1.13.0: lifecycle, vocabulary = Employee Contacts' Status (Active/Off Payroll/Terminated/Archived) */
+  ['nickname','text'],         /* v1.15.0: how the name reads everywhere (display only) */
+  ['driver','flag'],           /* v1.17.0: drives for the company */
+  ['availability','text'],     /* v1.18.0: manual available/unavailable (freelancers); OOO ranges override */
+  ['schedule','json'],         /* v1.22.0: weekly hours {days:[getDay ints],start:'HH:MM',end:'HH:MM'} */
+  ['freelance','flag'],        /* v1.23.0: freelancer — no set weekly schedule */
+  ['listeningTo','text'],['listeningLink','text'],['listeningVerb','text'],['listeningShow','flag'] /* v1.12.0 (item 30): the "Listening to" quartet */
+];
 function personToFields(p){const f={Title:p.name||'',depts:JSON.stringify(p.depts||[]),ooo:JSON.stringify(p.ooo||[]),email:p.email||'',phone:p.phone||'',role:p.role||'',appId:p.id};
-  if(p.ext!=null)f.ext=p.ext; /* v1.43.0 (item 9): Office Extension, for office-to-office calls from office phones — its own field, never part of the phone number (a mobile has none); typed by hand, Employee Contacts has none. Same tristate rule */
-  if(p.admin!=null)f.admin=(p.developer&&p.admin)?'dev':(p.admin?'1':'');
-  if(p.feedbackRecipient!=null)f.feedbackRecipient=p.feedbackRecipient?'1':'';
-  if(p.personalNotes!=null)f.personalNotes=p.personalNotes; /* v1.9.0 (item 30): tristate like the flags — omitted until the row carries it, so a site without the column never 400s */
-  if(p.status!=null)f.status=p.status; /* v1.13.0: lifecycle, vocabulary = Employee Contacts' Status (Active/Off Payroll/Terminated/Archived) */
-  if(p.nickname!=null)f.nickname=p.nickname; /* v1.15.0: how the name reads everywhere (display only) */
-  if(p.driver!=null)f.driver=p.driver?'1':''; /* v1.17.0: drives for the company — same tristate rule */
-  if(p.availability!=null)f.availability=p.availability; /* v1.18.0: manual available/unavailable (freelancers); OOO ranges override */
-  if(p.schedule!=null)f.schedule=JSON.stringify(p.schedule); /* v1.22.0: weekly hours {days:[getDay ints],start:'HH:MM',end:'HH:MM'} — same tristate rule */
-  if(p.freelance!=null)f.freelance=p.freelance?'1':''; /* v1.23.0: freelancer — no set weekly schedule; same tristate rule */
-  /* v1.12.0 (item 30 second half): the "Listening to" quartet — same tristate rule. */
-  if(p.listeningTo!=null)f.listeningTo=p.listeningTo;
-  if(p.listeningLink!=null)f.listeningLink=p.listeningLink;
-  if(p.listeningVerb!=null)f.listeningVerb=p.listeningVerb;
-  if(p.listeningShow!=null)f.listeningShow=p.listeningShow?'1':'';
+  for(const[k,t]of PERSON_COLS){const v=p[k];if(v==null)continue;
+    f[k]=t==='flag'?(v?'1':''):t==='json'?JSON.stringify(v):t==='admin'?((p.developer&&v)?'dev':(v?'1':'')):v;}
   return f;}
-function fieldsToPerson(f){return{id:f.appId,name:f.Title||'',depts:safeArr(f.depts),ooo:safeArr(f.ooo),email:f.email||'',phone:fmtPhone(f.phone),role:f.role||'', /* v1.43.0 (9c): stored numbers read in the one format; the row is rewritten the next time it's saved */
-  ext:f.ext==null?null:String(f.ext),
-  admin:f.admin==null?null:(flagTruthy(f.admin)||/^dev/i.test(String(f.admin))),
-  developer:f.admin!=null&&/^dev/i.test(String(f.admin)),
-  feedbackRecipient:f.feedbackRecipient==null?null:flagTruthy(f.feedbackRecipient),
-  personalNotes:f.personalNotes==null?null:String(f.personalNotes),
-  status:f.status==null?null:String(f.status),
-  nickname:f.nickname==null?null:String(f.nickname),
-  driver:f.driver==null?null:flagTruthy(f.driver),
-  availability:f.availability==null?null:String(f.availability),
-  schedule:f.schedule==null?null:schedSafe(f.schedule),
-  freelance:f.freelance==null?null:flagTruthy(f.freelance),
-  listeningTo:f.listeningTo==null?null:String(f.listeningTo),
-  listeningLink:f.listeningLink==null?null:String(f.listeningLink),
-  listeningVerb:f.listeningVerb==null?null:String(f.listeningVerb),
-  listeningShow:f.listeningShow==null?null:flagTruthy(f.listeningShow)};}
+function fieldsToPerson(f){const p={id:f.appId,name:f.Title||'',depts:safeArr(f.depts),ooo:safeArr(f.ooo),email:f.email||'',phone:fmtPhone(f.phone),role:f.role||''}; /* v1.43.0 (9c): stored numbers read in the one format; the row is rewritten the next time it's saved */
+  for(const[k,t]of PERSON_COLS){const v=f[k];
+    if(t==='admin'){p.admin=v==null?null:(flagTruthy(v)||/^dev/i.test(String(v)));p.developer=v!=null&&/^dev/i.test(String(v));continue;}
+    p[k]=v==null?null:t==='flag'?flagTruthy(v):t==='json'?schedSafe(v):String(v);}
+  return p;}
 
 async function spLoadStaff(){
   await spSite();
@@ -2769,22 +2770,24 @@ async function spLoad(){
   /* SharePoint/Graph tracks this on every item automatically — no custom column required */
   const graphWho=it=>it.lastModifiedBy&&it.lastModifiedBy.user?(it.lastModifiedBy.user.displayName||it.lastModifiedBy.user.email||''):'';
   const graphWhen=it=>it.lastModifiedDateTime||'';
-  for(const it of pr){if(!it.fields.appId)continue;SP_IDS.proj[it.fields.appId]=it.id;const pr2=fieldsToProj(it.fields);pr2.updatedBy=graphWho(it);pr2.updatedAt=graphWhen(it);projects.push(pr2);}
-  for(const it of tr){if(!it.fields.appId)continue;SP_IDS.task[it.fields.appId]=it.id;const tk=fieldsToTask(it.fields);tk.updatedBy=graphWho(it);tk.updatedAt=graphWhen(it);tasks.push(tk);}
+  /* item 61: one loop for the four lists — rows without an appId are skipped, ids are kept, and
+     `stamp` adds Graph's last-modified who/when */
+  const rows=(items,kind,map,stamp,out)=>{for(const it of items){if(!it.fields.appId)continue;SP_IDS[kind][it.fields.appId]=it.id;
+    const r=map(it.fields);if(stamp){r.updatedBy=graphWho(it);r.updatedAt=graphWhen(it);}out.push(r);}};
+  rows(pr,'proj',fieldsToProj,true,projects);
+  rows(tr,'task',fieldsToTask,true,tasks);
   /* Tasks are optional: the list may not have been created yet. */
   const todos=[];SP_IDS.todo={};
   try{
     const dr=await store.list('todo');
-    for(const it of dr){if(!it.fields.appId)continue;SP_IDS.todo[it.fields.appId]=it.id;
-      const td=fieldsToTodo(it.fields);td.updatedBy=graphWho(it);td.updatedAt=graphWhen(it);todos.push(td);}
+    rows(dr,'todo',fieldsToTodo,true,todos);
     TODOS_OK=true;
   }catch(e){TODOS_OK=false;console.warn('ShopTimeline_Tasks2 not reachable — tasks stay local.');}
   /* Events are optional the same way. */
   const events=[];SP_IDS.event={};
   try{
     const er=await store.list('event');
-    for(const it of er){if(!it.fields.appId)continue;SP_IDS.event[it.fields.appId]=it.id;
-      events.push(fieldsToEvent(it.fields));}
+    rows(er,'event',fieldsToEvent,false,events);
     EVENTS_OK=true;
   }catch(e){EVENTS_OK=false;console.warn('ShopTimeline_Events not reachable — events save on host phases (legacy).');}
   return migrate({projects,tasks,todos,events});
@@ -11948,6 +11951,7 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.48.3",d:"Oct 14, 2026",n:["Teammates' changes now also wait while you're on a New Project page, typing in a toolbar box, or have a save waiting to retry, so nothing redraws under you. They appear as soon as you're done."]},
  {v:"v1.48.2",d:"Oct 14, 2026",n:["When something can't be saved or loaded, the message now says why — this computer is offline, your account has no access, a list or column is missing, or SharePoint is busy — and what to do next. The technical message stays under **Details**."]},
  {v:"v1.48.0–v1.48.1",d:"Oct 13, 2026",n:["A project page now shows who last edited the project and when (\"Last edited by Sam · Oct 12, 2:14 PM\"), and the Meeting Sheet prints the same line under each project. Any change counts, phases and notes included.",
    "Projects nobody has touched in 14 days get a grey **Stale** tag in the sidebar, so a forgotten schedule stands out. Completed and On Hold projects never do.",
@@ -12331,13 +12335,10 @@ async function boot(){
   let POLL_N=0;
   setInterval(async()=>{
     if(document.hidden)return;   /* a backgrounded tab shouldn't poll all day — biggest idle-traffic cut */
-    if(DRAG||PENDING_SYNC||SYNCING)return;   /* SYNCING: never read half-committed rows mid-save */
-    if(COACH)return;   /* REV74: don't redraw bars under the tour's spotlight */
-    if([...document.querySelectorAll('.overlay')].some(o=>!o.classList.contains('hidden')))return;
-    if(document.getElementById('npv-pop')||document.getElementById('npv-menu'))return; /* don't rebuild under an open editor/menu */
-    if(CD_EDIT)return; /* v1.7.0: a Company Data record mid-edit — same defer as an open popover */
-    if(document.activeElement&&document.activeElement.closest&&document.activeElement.closest('#page'))return;
-    if(document.activeElement&&document.activeElement.closest&&document.activeElement.closest('#me-dock'))return; /* v1.9.0: User Notes mid-type — a tick would rebuild the dock under the caret */
+    /* item 61 (owner OK 2026-10-14): one "don't disturb" rule with the update check — a drag, a
+       save in flight or parked, the tour, an overlay, editor or menu, a record mid-edit, a cursor
+       in a field (page, User Notes, toolbar), New Project, a typed bug report */
+    if(updBusy())return;
     POLL_N++;
     try{
       /* A5: re-attach the sample before comparing, or every tick would wipe it.

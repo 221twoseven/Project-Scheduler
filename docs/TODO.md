@@ -64,8 +64,8 @@ is the log in §8.
 ## 0. Where we stand
 
 As of 2026-10-14: production (`main`) runs **v1.48.1**, promoted 2026-10-13
-(release/2026-10-13); `development` runs **v1.48.2** (the storage seam's last PR: error
-messages say why, item 48). The newest work on production: saved views (item 25) and Protect dates
+(release/2026-10-13); `development` runs **v1.48.3** (the storage seam's last PR: error
+messages say why, item 48; then item 61's simplifications). The newest work on production: saved views (item 25) and Protect dates
 (item 2 (c)) follow the person, repeat work is easier to find (item 7), and projects show
 their last edit, a Stale flag and "Schedule still accurate" (item 6). Before that: reporter
 answers show in Open Issues (item 58); Protect dates (item 2: drags never change dates).
@@ -829,8 +829,10 @@ release. Where the app has a part, it's listed.
       - *Done when:* the full run and the reference run report the same counts as before.
       - *Waits on:* nothing. After the 2026-10-12 promotion.
       [ponytail audit 2026-10-12; 2026-09-03 audit]
-- [ ] **61. Small simplifications from the 2026-10-12 audit.** Owner accepted the
-      placement; each needs its own check.
+- [x] **61. Small simplifications from the 2026-10-12 audit.** Owner accepted the
+      placement; each needs its own check. Shipped v1.48.3 (PR #150, 2026-10-14; owner OK
+      for the poll change 2026-10-14), all four parts. Suite `tests/test-v1483.js`; the source-text
+      checks in `test-v1170`, `test-v1180`, `test-v1220`, `test-v1230` and `test-v190` became behaviour checks.
       - `canonName` remembers its results until `PEOPLE` is replaced (a speed fix: it runs
         inside sorts and every render).
       - `spLoad`'s four repeated row loops become one helper.
