@@ -92,7 +92,8 @@ async function main(){
   E('DATE_LOCK=true');
   const ds=q('#pp-depts .dstart[data-dept="td"]');
   ok('the Technical Design start field is editable', !!ds&&!ds.disabled);
-  const want=E("fmtDate(addDays(parseDate(taskById('td1').startDate),-7))"); /* same weekday a week earlier — a workday */
+  /* a week earlier, stepped back off a weekend: fixture dates follow today, so td1 can start on a weekend */
+  const want=E("(()=>{let d=addDays(parseDate(taskById('td1').startDate),-7);while(d.getDay()===0||d.getDay()===6)d=addDays(d,-1);return fmtDate(d);})()");
   if(ds){ds.value=want;ds.dispatchEvent(new win.Event('change',{bubbles:true}));await wait(400);}
   ok('typing a start date changes it', st('td1').startDate===want, span(st('td1'))+' vs '+want);
   E('DATE_LOCK=false');
