@@ -738,6 +738,8 @@ release. Where the app has a part, it's listed.
         PR 5 (Changelog and Feedback on `store`) done 2026-10-13 (PR #141; owner go 2026-10-13); the
         screenshot upload now goes through `gfetch` (same request, no `store.upload`); the
         feedback mail stays for PR 7.
+        PR 6 (the Employee Contacts import on `store`: its column read and its item read) done
+        2026-10-14 (owner go 2026-10-13); the requests are unchanged.
       - *Folded in from the 2026-10-12 ponytail audit* (owner accepted the placements):
         - PR 3 (Staff): one `PERSON_COLS` table for the 13 optional Staff fields that
           `personToFields`, `fieldsToPerson`, `cdSavePerson` and `cdMergePerson` each list
