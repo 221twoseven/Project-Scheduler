@@ -9,6 +9,9 @@ Format: `## <label> — <date>` then one `- ` line per change. Keep lines concre
 what changed *for the team*, not how. Developer-only tooling doesn't need a line.
 Collect lines for the next version under `## Unreleased` and rename it when you ship.
 
+## v1.48.4 — Oct 14, 2026
+- The Meeting Sheet's progress bar now shows how much of the scheduled work is done, not how much time has passed, so a quiet stretch between departments no longer makes a project look further along. The dates under it are unchanged.
+
 ## v1.48.3 — Oct 14, 2026
 - Teammates' changes now also wait while you're on a New Project page, typing in a toolbar box, or have a save waiting to retry, so nothing redraws under you. They appear as soon as you're done.
 
