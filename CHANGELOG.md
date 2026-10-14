@@ -9,6 +9,9 @@ Format: `## <label> — <date>` then one `- ` line per change. Keep lines concre
 what changed *for the team*, not how. Developer-only tooling doesn't need a line.
 Collect lines for the next version under `## Unreleased` and rename it when you ship.
 
+## v1.48.2 — Oct 14, 2026
+- When something can't be saved or loaded, the message now says why — this computer is offline, your account has no access, a list or column is missing, or SharePoint is busy — and what to do next. The technical message stays under **Details**.
+
 ## v1.48.0–v1.48.1 — Oct 13, 2026
 - A project page now shows who last edited the project and when ("Last edited by Sam · Oct 12, 2:14 PM"), and the Meeting Sheet prints the same line under each project. Any change counts, phases and notes included.
 - Projects nobody has touched in 14 days get a grey **Stale** tag in the sidebar, so a forgotten schedule stands out. Completed and On Hold projects never do.

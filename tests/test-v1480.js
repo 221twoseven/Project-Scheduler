@@ -105,7 +105,8 @@ async function main(){
       return Promise.resolve({ok:false,status:400,json:async()=>({}),text:async()=>"Field 'confirmedAt' is not recognized"});
     return f0.apply(this,arguments);};
   btn().click();await wait(200);
-  ok('without the columns it says what\'s missing',/needs the confirmedAt and confirmedBy columns/.test(doc.body.textContent));
+  /* v1.48.2 (item 48, PR 8): the one error rule — the sentence says a column is missing, Details names it */
+  ok('without the columns it says what\'s missing',/Couldn’t record the confirmation: A column is missing from the list\./.test(doc.body.textContent)&&/confirmedAt/.test(doc.body.textContent));
   ok('and the project is still stale',E("isStale(ST.projects.find(x=>x.id==='old'))")===true);
   win.fetch=f0;
   const n0=win.__spCalls.length;

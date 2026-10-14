@@ -1858,7 +1858,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.48.1'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.48.2'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -2563,7 +2563,20 @@ const store={
   async columns(kind){await spSite();return gpageAll(store.url(kind)+'/columns');},
   async create(kind,fields){await spSite();return gfetch(store.url(kind)+'/items',{method:'POST',body:JSON.stringify({fields})});},
   async update(kind,id,fields){await spSite();return gfetch(store.url(kind)+'/items/'+id+'/fields',{method:'PATCH',body:JSON.stringify(fields)});},
-  async remove(kind,id){await spSite();return gfetch(store.url(kind)+'/items/'+id,{method:'DELETE'});}
+  async remove(kind,id){await spSite();return gfetch(store.url(kind)+'/items/'+id,{method:'DELETE'});},
+  /* PR 8, the one error rule (wording: owner, 2026-10-14): why a call failed, in one sentence.
+     Messages read "<what failed>: <explain> <next step>", with the raw error under the toast's
+     Details. `panel`: the text sits in a panel, which has no Details link to point at. */
+  explain(e,panel){
+    /* unanchored: the staff sync wraps the Graph error ("2 staff rows didn't save — Sam: SharePoint 400: …") */
+    const m=String((e&&e.message)||e||''),st=+((m.match(/SharePoint (\d{3})/)||[])[1]||0);
+    if(!st&&/failed to fetch|networkerror|load failed|network request failed|endpoints_resolution_error|no_network/i.test(m))return 'This computer looks offline. Check your internet connection.';
+    if(st===401||st===403)return 'Your Microsoft account doesn’t have access to that list.';
+    if(st===404&&!/itemNotFound/i.test(m))return 'The list isn’t on the TWOSEVENINC site.'; /* a row someone else deleted is a 404 too */
+    if(st===400&&/not recognized|does not exist/i.test(m))return 'A column is missing from the list.'+(panel?'':' Click Details below to see which one.'); /* other 400s are bad values */
+    if(st===429||st>=500)return 'SharePoint is busy right now.';
+    return 'SharePoint returned an error.'+(panel?'':' Click Details below for the full message.');
+  }
 };
 
 /* ===== 5b: TEAMS MEMBERSHIP (People & Availability picker) =====
@@ -3122,7 +3135,7 @@ function syncNow(oldST,newST){
       SYNCING--;
       console.error(e);
       setSync('err','not saved — click to retry');
-      toast('Couldn\'t save to SharePoint. Your change is still on screen — click "not saved" at the top right to retry.','err',null,e.message);
+      toast('Couldn\'t save to SharePoint: '+store.explain(e)+' Your change is still on screen — click "not saved" at the top right to retry.','err',null,e.message);
       /* REV90: merge consecutive failures instead of clobbering — retry replays the
          span from the FIRST failed snapshot to the latest state, so no edit is lost. */
       PENDING_SYNC=PENDING_SYNC?{oldST:PENDING_SYNC.oldST,newST}:{oldST,newST};
@@ -3191,8 +3204,8 @@ function runClientSync(old,again){
     .catch(e=>{console.error(e);
       PENDING_CLIENTS={old:again?old:((PENDING_CLIENTS&&PENDING_CLIENTS.old)||old)};
       setSync('err','clients not saved — click to retry');
-      toast(again?'Still couldn\'t save the client list — click "clients not saved" to retry again.'
-        :'Couldn\'t save the client list to SharePoint. Your change is still on screen — click "clients not saved" at the top right to retry.','err',null,e.message);});
+      toast(again?'Still couldn\'t save the client list: '+store.explain(e)+' Click "clients not saved" to retry again.'
+        :'Couldn\'t save the client list to SharePoint: '+store.explain(e)+' Your change is still on screen — click "clients not saved" at the top right to retry.','err',null,e.message);});
 }
 let PENDING_CLIENTS=null; /* {old}: the diff base from the first failed client sync */
 function retryClientSync(){
@@ -3237,7 +3250,7 @@ function savePeople(np,self){
     .catch(e=>{SYNCING--;console.error(e);
       PENDING_STAFF={old:(PENDING_STAFF&&PENDING_STAFF.old)||old,after:PENDING_STAFF&&PENDING_STAFF.after};
       setSync('err','staff not saved — click to retry');
-      toast('Couldn\'t save some of the staff list to SharePoint. Your edits are still on screen — click "staff not saved" at the top right to retry.','err',null,e.message);
+      toast('Couldn\'t save some of the staff list to SharePoint: '+store.explain(e)+' Your edits are still on screen — click "staff not saved" at the top right to retry.','err',null,e.message);
       return false;});
 }
 let PENDING_STAFF=null; /* {old, after?}: diff base from the first failed staff sync, plus an optional continuation the retry runs on success (the merge's scrub) */
@@ -3251,7 +3264,7 @@ function retryStaffSync(){
     .catch(e=>{SYNCING--;console.error(e);
       PENDING_STAFF={old:p.old,after:p.after};
       setSync('err','staff not saved — click to retry');
-      toast('Still couldn\'t save the staff list — the error names the field: create any missing column on ShopTimeline_Staff, then click retry again.','err',null,e.message);});
+      toast('Still couldn\'t save the staff list: '+store.explain(e)+' Then click "staff not saved" to retry.','err',null,e.message);});
 }
 /* V4/B6: the view snapshot — every piece of timeline state a saved view captures.
    viewState() reads it, applyViewState() writes it (state + the matching controls).
@@ -3410,7 +3423,7 @@ function saveConfigKey(k,v){
     .catch(e=>{console.error(e);
       PENDING_CFG={...(PENDING_CFG||{}),[k]:v}; /* park the key so the pill can replay it */
       setSync('err','setting not saved — click to retry');
-      toast('Couldn\'t save the setting to SharePoint — it\'s applied in this browser only for now. Click "setting not saved" at the top right to retry.','err',null,e.message);});
+      toast('Couldn\'t save the setting to SharePoint: '+store.explain(e)+' It\'s applied in this browser only for now. Click "setting not saved" at the top right to retry.','err',null,e.message);});
   }else{
     toast('Saved in this browser only — create the ShopTimeline_Config list to share settings with everyone.','err');
   }
@@ -5408,7 +5421,7 @@ function renderChangelog(){
   }).catch(e=>{
     console.warn(e);
     const el=document.getElementById('clog-list');
-    if(el)el.innerHTML='<div class="clog-empty">Couldn’t reach the ShopTimeline_Changelog list — check it lives on the TWOSEVENINC site (Site contents), not My Lists.</div>';
+    if(el)el.innerHTML='<div class="clog-empty">Couldn’t load the changelog: '+store.explain(e,true)+'</div>';
   });
 }
 /* The project page's second dock. Only one dock viewable at a time (owner ruling). */
@@ -5430,7 +5443,7 @@ function ppClogShow(on,repaint){
   }).catch(e=>{
     console.warn(e);
     const el2=document.getElementById('pp-clog-list');
-    if(el2)el2.innerHTML='<div class="clog-empty">Couldn’t reach the ShopTimeline_Changelog list.</div>';
+    if(el2)el2.innerHTML='<div class="clog-empty">Couldn’t load the changelog: '+store.explain(e,true)+'</div>';
   });
 }
 
@@ -5496,7 +5509,7 @@ async function cdImportEC(btn){
     if(sel.length<2){toast('None of the expected columns (Status, Email, Primary Phone, Current Title, Department) are on Employee Contacts, so nothing was imported — the column list is in the browser console (F12).','err');return;}
     let rows;
     try{rows=await store.list('employeeContacts','fields(select='+sel.map(encodeURIComponent).join(',')+')');}
-    catch(e){toast('Couldn\'t read the Employee Contacts list — check it lives on the TWOSEVENINC site and you can open it there.','err',null,e.message);return;}
+    catch(e){toast('Couldn\'t read the Employee Contacts list: '+store.explain(e),'err',null,e.message);return;}
     /* status only syncs once the owner-created column exists — probe, don't 400 */
     let hasStatus=false;
     try{const cols=await store.columns('staff');hasStatus=cols.some(c=>c.name==='status');}catch(e){}
@@ -7853,10 +7866,7 @@ async function ppConfirmSchedule(p,btn){
     if(ROUTE.view==='project')renderProjectPage();else render();
   }catch(e){
     if(btn)btn.disabled=false;syncSettle(prev);
-    const m=String(e&&e.message);
-    toast(/ 400/.test(m)&&/confirmed/i.test(m)
-      ?'Can’t record the confirmation yet: the Projects list needs the confirmedAt and confirmedBy columns. Ask whoever maintains the app.'
-      :'Couldn’t record the confirmation — check your connection and try again.','err',null,m);
+    toast('Couldn’t record the confirmation: '+store.explain(e),'err',null,String(e&&e.message));
   }
 }
 function ppPaintMeta(p){
@@ -11810,9 +11820,9 @@ function fbPaintList(force){
     el.innerHTML=open.length?colHd(false)+open.map(row).join(''):empty(rows.length?'No open issues — everything filed has been resolved.':'Nothing filed yet — be the first.');
     if(dn)dn.innerHTML=done.length?colHd(true)+done.map(row).join(''):empty('Nothing resolved yet.');
     const h=document.querySelector('.clog-row.fb-hit');if(h&&h.scrollIntoView)h.scrollIntoView({block:'center'});
-  }).catch(()=>{
+  }).catch(er=>{
     if(gen!==FB_PAINT)return;
-    for(const e of els())if(e)e.innerHTML=empty('Couldn’t reach the ShopTimeline_Feedback list.');
+    for(const e of els())if(e)e.innerHTML=empty('Couldn’t load the reports: '+store.explain(er,true));
   });
 }
 /* The report form's HTML — the retired modal's body, verbatim ids so sendFeedback
@@ -11912,9 +11922,9 @@ function renderReports(){
       const b=ev.target&&ev.target.closest?ev.target.closest('.fbr-tog'):null;
       if(b)fbSetStatus(b.dataset.spid,b.dataset.next,b);
     });
-  }).catch(()=>{
+  }).catch(e=>{
     const el=document.getElementById('fbr-list');
-    if(el)el.innerHTML='<div class="clog-empty">Couldn’t reach the ShopTimeline_Feedback list.</div>';
+    if(el)el.innerHTML='<div class="clog-empty">Couldn’t load the reports: '+store.explain(e,true)+'</div>';
   });
 }
 /* Flip one report's status on the list, then repaint. Never deletes a row. */
@@ -11928,7 +11938,7 @@ async function fbSetStatus(spId,status,btn){
   }catch(e){
     console.warn(e);
     if(btn){btn.disabled=false;btn.textContent=status==='resolved'?'Mark resolved':'Reopen';}
-    toast('Couldn’t save the status — has the `status` column been created on ShopTimeline_Feedback?','err');
+    toast('Couldn’t save the status: '+store.explain(e),'err',null,String(e&&e.message));
   }
 }
 /* ===== Help ▸ Release notes (v1.20.0) — plain-language, per version, newest first.
@@ -11938,6 +11948,7 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.48.2",d:"Oct 14, 2026",n:["When something can't be saved or loaded, the message now says why — this computer is offline, your account has no access, a list or column is missing, or SharePoint is busy — and what to do next. The technical message stays under **Details**."]},
  {v:"v1.48.0–v1.48.1",d:"Oct 13, 2026",n:["A project page now shows who last edited the project and when (\"Last edited by Sam · Oct 12, 2:14 PM\"), and the Meeting Sheet prints the same line under each project. Any change counts, phases and notes included.",
    "Projects nobody has touched in 14 days get a grey **Stale** tag in the sidebar, so a forgotten schedule stands out. Completed and On Hold projects never do.",
    "If a stale project's schedule is still right, press **Schedule still accurate** on its page: the tag clears without editing anything, and the header notes who confirmed it and when. My Dashboard lists the stale projects you manage, each one a click away."]},
@@ -12130,7 +12141,7 @@ async function sendFeedback(){
     toast(mailed?'Thanks — the report is filed and emailed to the team.':'Thanks — the report is filed.');
   }catch(e){
     console.error(e);
-    toast('Could not reach the ShopTimeline_Feedback list — check it lives on the TWOSEVENINC site (Site contents), not My Lists.','err');
+    toast('Couldn’t send the report: '+store.explain(e),'err',null,String(e&&e.message));
   }finally{btn.disabled=false;btn.textContent='Send report';}
 }
 document.getElementById('mi-report').addEventListener('click',openFeedback);
@@ -12269,7 +12280,7 @@ async function boot(){
   }catch(e){
     console.error(e);
     setSync('err','offline');
-    toast('Couldn\'t sign in or reach SharePoint. Check your connection, then use "Sign in with Microsoft" to try again.','err',null,e.message);
+    toast('Couldn\'t sign in or reach SharePoint: '+store.explain(e)+' Then use "Sign in with Microsoft" to try again.','err',null,e.message);
   }
   /* Staff list loads separately so a missing ShopTimeline_Staff list doesn't block the
      schedule. Skipped entirely when sign-in failed — one problem, one toast. */
@@ -12287,7 +12298,7 @@ async function boot(){
   }catch(e){
     console.error(e);
     STAFF_OK=false;
-    toast('Couldn\'t load the staff list from SharePoint, so staff lives in this browser only for now.','err',null,e.message);
+    toast('Couldn\'t load the staff list from SharePoint: '+store.explain(e)+' Staff lives in this browser only for now.','err',null,e.message);
   }
   rebuildStaff();
   if(STAFF_OK)viewsFromRow();
