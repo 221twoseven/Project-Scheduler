@@ -5488,14 +5488,14 @@ async function cdImportEC(btn){
        v1.43.0 (9a): the definitions come FIRST — they're what the item request selects by.
        Without them nothing is fetched: never fall back to "every field". */
     let ecCols=null;
-    try{ecCols=await gpageAll(listUrl(encodeURIComponent(LIST_EC))+'/columns');}catch(e){}
+    try{ecCols=await store.columns('employeeContacts');}catch(e){}
     if(!ecCols){toast('Couldn\'t read the Employee Contacts column list, so nothing was imported — the import asks only for the fields it uses, and needs that list to name them.','err');return;}
     console.log('[import] Employee Contacts columns (internal → display):',
       ecCols.map(c=>c.name+' → '+c.displayName));
     const sel=ecSelect(ecCols);
     if(sel.length<2){toast('None of the expected columns (Status, Email, Primary Phone, Current Title, Department) are on Employee Contacts, so nothing was imported — the column list is in the browser console (F12).','err');return;}
     let rows;
-    try{rows=await gpageAll(listUrl(encodeURIComponent(LIST_EC))+'/items?expand=fields(select='+sel.map(encodeURIComponent).join(',')+')&$top=999');}
+    try{rows=await store.list('employeeContacts','fields(select='+sel.map(encodeURIComponent).join(',')+')');}
     catch(e){toast('Couldn\'t read the Employee Contacts list — check it lives on the TWOSEVENINC site and you can open it there.','err',null,e.message);return;}
     /* status only syncs once the owner-created column exists — probe, don't 400 */
     let hasStatus=false;
