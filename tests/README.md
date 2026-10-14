@@ -10,10 +10,10 @@ Recovered from the 2026-08-20 handoff (since retired); still true unless struck 
 
 - **The REV49 lesson rules everything:** every feature asserts on BOTH the new-project
   draft page and the saved page (see below).
-- **The reference build is immutable** (`reference/Timeline_50.html`). When a new REV's
-  behavior change breaks an old assertion, gate it behind a feature sniff on the source
-  (the convention: `const N11=/\.npv-menu \.mn/.test(src)` — see test48/49/50); never
-  edit the reference. New suites skip themselves the same way (see any test65+ header).
+- **Suites test the current app only** (owner, 2026-10-14). The run against the frozen
+  REV50 copy (`reference/Timeline_50.html`, still kept and never edited) was dropped, so a
+  new suite needs no "skip on an older build" guard. When a behaviour changes on purpose,
+  update the old assertion to the new behaviour. The existing guards go with item 60.
 - **PowerShell 5.1 mangles git commit messages containing double quotes** (native-arg
   quoting). Use Git Bash with `git commit -F -` and a heredoc for anything multiline.
 - ~~**Duplicate DOM id `pp-cancel`** in `index.html` (print overlay's Close + project
@@ -35,11 +35,10 @@ Recovered from the 2026-08-20 handoff (since retired); still true unless struck 
 ```bash
 npm install                 # installs jsdom (from the repo root)
 npm test                    # runs every suite against ../index.html
-npm run test:ref            # runs every suite against ../reference/Timeline_50.html
 
 # a single suite against any build (path relative to repo root):
 node tests/run.js index.html
-node tests/test50.js reference/Timeline_50.html
+node tests/test50.js index.html
 ```
 
 `tests/run.js` runs all suites and exits non-zero if any fail. Each `testNN.js` is also
@@ -92,10 +91,6 @@ non-zero on failure.
   page it was reported on (the new-project draft): meta entities, the departments panel,
   the hotkey focus rule, event default dates, yellow diamonds, marker drag and
   click-to-rename, draft subtasks, draft menus, menu overflow, and the end-to-end create.
-- `test47.js` — 38 assertions. The pre-REV56 subtask hierarchy: row plan,
-  expand/collapse, summary span, linked parent drag, the Link toggle. Skips on REV56+
-  builds (the summary-bar model it asserts is retired there — see `test56.js`); it
-  keeps guarding the frozen reference.
 - `test46.js` — 38 assertions. The REV46 bug fixes plus the invariants the original
   suites guarded: geometry constants vs stylesheet, status migration, scheduler purity,
   PM in `NPV_ALL` not `NPV_TASKS`.

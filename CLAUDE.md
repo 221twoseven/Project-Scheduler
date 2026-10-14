@@ -11,8 +11,8 @@ Project rules and context for working in this repository. Read this before makin
 ## Core files
 
 - **`reference/Timeline_50.html` — immutable reference. NEVER modify it.** The untouched
-  copy of the colleague's working REV50 app, kept in `reference/` as the frozen baseline
-  to diff against and as the control build for `npm run test:ref`. Do not edit its
+  copy of the colleague's working REV50 app, kept in `reference/` as history and a diff
+  baseline. It is no longer a test target (owner, 2026-10-14). Do not edit its
   contents. (It lives in `reference/`, not the repo root, to keep it clearly separate
   from the live app.)
 - **`index.html` — the company-developed application. This is the primary
@@ -111,11 +111,10 @@ The current infrastructure values (for reference — do not change without instr
 - **Run the tests after implementation changes.** `tests/run.js` aggregates every suite
   (behaviour suites `test46`–`test92`, `test-label`, the Phase 1–4 UX/design suites, and
   per-release suites like `test-v102`);
-  see `tests/README.md`. Validate company changes against `index.html`, and the frozen
-  baseline with `test:ref`:
+  see `tests/README.md`. Validate changes against `index.html`:
 
   ```bash
-  npm install && npm test && npm run test:ref
+  npm install && npm test
   ```
 
   Every feature should be asserted on BOTH the new-project draft page and the saved

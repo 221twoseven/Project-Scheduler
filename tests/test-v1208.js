@@ -9,7 +9,7 @@ const fs=require('fs');
 const FILE=process.argv[2]||'index.html';
 const src=fs.readFileSync(FILE,'utf8');
 
-if(src.indexOf("!pm&&'a Project Manager'")<0){
+if(!/!pm&&(\{k:'pm',say:)?'a Project Manager'/.test(src)){ /* v1.47.0 (item 7) reshaped the line; the sniff missed it and the suite skipped silently until 2026-10-14 */
   console.log('test-v1208: skipped — pre-v1.20.8 build ('+FILE+')');
   process.exit(0);
 }

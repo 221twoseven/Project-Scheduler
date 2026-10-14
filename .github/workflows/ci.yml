@@ -4,6 +4,8 @@ name: CI
 # branches, so a broken build is caught before it reaches Pages. Pull requests only
 # (owner, 2026-10-09): the PR run already tests the merged result, so a second run
 # on the push after the merge was dropped. Both branches take changes only by PR.
+# The second run against reference/Timeline_50.html was dropped too (owner, 2026-10-14):
+# the REV50 baseline stopped being a goal, and nearly every suite skipped on it.
 on:
   pull_request:
     branches: [main, development]
@@ -24,6 +26,3 @@ jobs:
 
       - name: Run regression suites against index.html
         run: npm test
-
-      - name: Run regression suites against the reference build
-        run: npm run test:ref
