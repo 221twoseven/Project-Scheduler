@@ -2498,13 +2498,16 @@ async function spInit(){
   else{const r=await PCA.loginPopup({scopes:SCOPES});ACCOUNT=r.account;}
   PCA.setActiveAccount(ACCOUNT);
 }
-async function spToken(){
+/* Item 48, PR 7: `scopes` asks for an extra permission on its own SILENT token (Team members,
+   Mail.Send): no consent or no token throws, and the caller's degrade path runs — never a popup. */
+async function spToken(scopes){
+  if(scopes)return (await PCA.acquireTokenSilent({scopes,account:ACCOUNT})).accessToken;
   try{return (await PCA.acquireTokenSilent({scopes:SCOPES,account:ACCOUNT})).accessToken;}
   catch(e){return (await PCA.acquireTokenPopup({scopes:SCOPES})).accessToken;}
 }
-async function gfetch(url,opts){
+async function gfetch(url,opts,scopes){
   opts=opts||{};
-  const t=await spToken();
+  const t=await spToken(scopes);
   opts.headers=Object.assign({'Content-Type':'application/json'},opts.headers,{Authorization:'Bearer '+t});
   let r=await fetch(url,opts);
   if(r.status===429||r.status===503){
@@ -2515,13 +2518,13 @@ async function gfetch(url,opts){
     r=await fetch(url,opts);
   }
   if(!r.ok){const txt=await r.text();throw new Error('SharePoint '+r.status+': '+txt.slice(0,180));}
-  return r.status===204?null:r.json();
+  return r.status===204||r.status===202?null:r.json();
 }
 /* REV90: follow @odata.nextLink — $top is a page size, not a limit. Without this,
    rows past the first page silently vanished from every load and poll. */
-async function gpageAll(url){
-  let r=await gfetch(url),v=r.value||[];
-  while(r['@odata.nextLink']){r=await gfetch(r['@odata.nextLink']);v=v.concat(r.value||[]);}
+async function gpageAll(url,scopes){
+  let r=await gfetch(url,null,scopes),v=r.value||[];
+  while(r['@odata.nextLink']){r=await gfetch(r['@odata.nextLink'],null,scopes);v=v.concat(r.value||[]);}
   return v;
 }
 async function spSite(){
@@ -2544,6 +2547,9 @@ const STORE_LISTS={
   feedback:{list:LIST_FEEDBACK,top:2000}, employeeContacts:{list:LIST_EC,top:999}
 };
 const store={
+  signIn:spInit,
+  /* PR 7: who is signed in, as {name, email}, or null — the one reader of MSAL's account */
+  who(){return ACCOUNT?{name:ACCOUNT.name||'',email:ACCOUNT.username||''}:null;},
   url(kind){
     const k=STORE_LISTS[kind];
     if(!k)throw new Error('store: unknown kind '+kind);
@@ -2572,15 +2578,8 @@ async function loadTeamMembers(){
   if(TM_MEMBERS!==null)return TM_MEMBERS;
   const out=[];
   try{
-    const t=(await PCA.acquireTokenSilent({scopes:['TeamMember.Read.All'],account:ACCOUNT})).accessToken;
-    let url='https://graph.microsoft.com/v1.0/teams/'+TEAM_GROUP_ID+'/members?$top=100';
-    while(url){
-      const r=await fetch(url,{headers:{Authorization:'Bearer '+t}});
-      if(!r.ok)throw new Error('Graph '+r.status);
-      const j=await r.json();
-      for(const m of (j.value||[]))if(m.displayName)out.push({name:m.displayName,email:String(m.email||'').toLowerCase(),userId:m.userId||''});
-      url=j['@odata.nextLink']||null;
-    }
+    const ms=await gpageAll('https://graph.microsoft.com/v1.0/teams/'+TEAM_GROUP_ID+'/members?$top=100',['TeamMember.Read.All']);
+    for(const m of ms)if(m.displayName)out.push({name:m.displayName,email:String(m.email||'').toLowerCase(),userId:m.userId||''});
     out.sort((a,b)=>a.name.localeCompare(b.name));
     TM_MEMBERS=out;
   }catch(e){
@@ -3013,7 +3012,7 @@ async function updCheck(force){
   }catch(e){}
   /* Refresh only the raw values (minVersion) — never loadConfig(): a blip here must not
      flip CFG_OK or overwrite the grants, which stay read-at-load by design. */
-  if(ACCOUNT)try{
+  if(store.who())try{
     const c=await readConfig();Object.assign(SP_CFG_IDS,c.ids);CFG_RAW=c.raw;
   }catch(e){}
   updApply(latest);
@@ -3065,7 +3064,7 @@ function stripStamps(st){return JSON.stringify(st,(k,v)=>k==='updatedBy'||k==='u
    value (from graphWho/graphWhen above) overwrites this the next time spLoad() runs. */
 function stampUpdated(newList,oldList){
   const om=new Map(oldList.map(x=>[x.id,x]));
-  const who=(typeof ACCOUNT!=='undefined'&&ACCOUNT&&(ACCOUNT.name||ACCOUNT.username))||'You';
+  const w=store.who(),who=(w&&(w.name||w.email))||'You';
   const when=new Date().toISOString();
   return newList.map(n=>{
     const o=om.get(n.id);
@@ -3318,10 +3317,11 @@ function boardClients(){return [...new Set((ST&&ST.projects||[]).map(p=>(p.clien
    against Staff.email first, display name second. Null when unresolved (the
    dashboard-button slice adds the remembered-picker fallback). */
 function meName(){
-  if(!ACCOUNT)return null;
-  const em=String(ACCOUNT.username||'').trim().toLowerCase();
+  const w=store.who();
+  if(!w)return null;
+  const em=w.email.trim().toLowerCase();
   let p=em?PEOPLE.find(x=>String(x.email||'').trim().toLowerCase()===em):null;
-  if(!p){const nm=String(ACCOUNT.name||'').trim().toLowerCase();
+  if(!p){const nm=w.name.trim().toLowerCase();
     if(nm)p=PEOPLE.find(x=>x.name.trim().toLowerCase()===nm);}
   return p?p.name:null;
 }
@@ -3452,7 +3452,7 @@ function applyPerms(){
      while a preview is on (the lit view-as picker already says that). */
   {const tu=document.getElementById('tb-user');
    if(tu){
-     const nm=meName()||(ACCOUNT?ACCOUNT.name:'');
+     const nm=meName()||(store.who()||{}).name||'';
      if(!nm){tu.classList.add('hidden');tu.innerHTML='';}
      else{
        const p=personByName(nm);
@@ -4078,7 +4078,7 @@ let LT_BOUND=false,LT_COMMIT=null; /* v1.12.0: one document listener for the tho
 function renderEmptyState(){
   const old=document.getElementById('empty-state');if(old)old.remove();
   let html;
-  if(!ACCOUNT){
+  if(!store.who()){
     html='<div class="es-big">Shop Timeline</div>'
       +'<div class="es-sub">The shared shop schedule: every project, phase and deadline in one place.<br>Sign in with your work account to see it.</div>'
       +'<button class="btn btn-primary" id="es-signin" style="margin-top:14px">Sign in with Microsoft</button>';
@@ -5295,7 +5295,7 @@ function clogDetail(r){
 }
 function clogDiff(oldST,newST){
   oldST=stripSample(oldST);newST=stripSample(newST);
-  const who=(typeof ACCOUNT!=='undefined'&&ACCOUNT&&(ACCOUNT.name||ACCOUNT.username))||'';
+  const w=store.who(),who=(w&&(w.name||w.email))||'';
   const at=new Date().toISOString(),rows=[];
   /* a created/deleted project's children come and go WITH it — the project row is the
      story, per-child rows would be noise (and a big delete would bulk-collapse) */
@@ -7843,7 +7843,7 @@ function syncSettle(prev){
    undo entry, no change-log row and no sync of anything else. Missing columns (400) say so. */
 async function ppConfirmSchedule(p,btn){
   const id=SP_IDS.proj[p.id];if(!id)return;
-  const at=new Date().toISOString(),by=meName()||(ACCOUNT&&ACCOUNT.name)||'';
+  const at=new Date().toISOString(),by=meName()||(store.who()||{}).name||'';
   const pl=document.getElementById('sync-pill'),prev=pl?{c:pl.className,t:pl.textContent}:null;
   if(btn)btn.disabled=true;setSync('busy');
   try{
@@ -10435,7 +10435,7 @@ function savePageProject(){
       id:genId(),projectId:p.id,dept:t.dept||'',title:t.title.trim(),
       who:t.who||[],due:t.due,start:'',progress:'notstarted',
       priority:t.priority||'medium',notes:'',
-      createdBy:(ACCOUNT&&(ACCOUNT.name||ACCOUNT.username))||'',
+      createdBy:(w=>w&&(w.name||w.email))(store.who())||'',
       completedOn:'',completedBy:'',sortIndex:0}));
     EXPANDED.add(p.id);
     PP_QUIET=true;
@@ -11698,7 +11698,7 @@ document.getElementById('legend-menu').addEventListener('click',ev=>ev.stopPropa
    hashchange then repaints once more, before anything is typed — harmless). */
 function openFeedback(){
   closeMenus();
-  if(!ACCOUNT){toast('Sign in first — reports carry your name.','err');return;}
+  if(!store.who()){toast('Sign in first — reports carry your name.','err');return;}
   location.hash='#/issues';applyRoute();
   const d=document.getElementById('fb-subject')||document.getElementById('fb-desc');if(d)d.focus(); /* v1.28.0: the subject is the first required field */
 }
@@ -11863,7 +11863,7 @@ function renderIssues(){
       +'<div class="clog-list" id="fb-done"></div></div>'
     +'</div>',true);
   const nm=document.getElementById('fb-name'),em=document.getElementById('fb-email');
-  if(ACCOUNT){nm.value=meName()||ACCOUNT.name||'';em.value=ACCOUNT.username||'';}
+  const w=store.who();if(w){nm.value=meName()||w.name;em.value=w.email;}
   document.getElementById('fb-send').addEventListener('click',sendFeedback);
   fbPaintList();
 }
@@ -12103,7 +12103,7 @@ async function sendFeedback(){
       description:desc+extra,appVersion:APP_VER,appId:genId(),
       /* v1.25.0: who really sent it — the sign-in, not the editable email box. The
          reply email goes here (Power Automate on the list; the poller can't send mail). */
-      reporterUpn:ACCOUNT&&ACCOUNT.username||''});
+      reporterUpn:(store.who()||{}).email||''});
     /* v1.8.0 (§3 item 12): the report also mails everyone flagged feedbackRecipient on
        the staff list — Graph sendMail AS THE SIGNED-IN SUBMITTER, on its own Mail.Send
        delegated token (the TeamMember.Read.All pattern: no consent / no token → the
@@ -12112,9 +12112,7 @@ async function sendFeedback(){
     const rcpt=feedbackRecipients();
     if(rcpt.length){
       try{
-        const mt=(await PCA.acquireTokenSilent({scopes:['Mail.Send'],account:ACCOUNT})).accessToken;
-        const mr=await fetch('https://graph.microsoft.com/v1.0/me/sendMail',{method:'POST',
-          headers:{Authorization:'Bearer '+mt,'Content-Type':'application/json'},
+        await gfetch('https://graph.microsoft.com/v1.0/me/sendMail',{method:'POST',
           body:JSON.stringify({message:{
             subject:'[Shop Timeline] '+(kind==='bug'?'Bug':'Feature')+' — '+subj,
             body:{contentType:'Text',content:
@@ -12124,9 +12122,8 @@ async function sendFeedback(){
               +'\n\n'+desc+extra
               +'\n\nAlso filed on the ShopTimeline_Feedback list.'},
             toRecipients:rcpt.map(a=>({emailAddress:{address:a}}))},
-            saveToSentItems:true})});
-        mailed=mr.ok;
-        if(!mr.ok)console.warn('feedback mail failed: '+mr.status);
+            saveToSentItems:true})},['Mail.Send']);
+        mailed=true;
       }catch(e){console.warn('feedback mail skipped:',e&&e.message);}
     }
     closeFeedback();
@@ -12265,7 +12262,7 @@ ST={projects:[],tasks:[],todos:[],events:[]};
 async function boot(){
   try{
     setSync('busy','signing in…');
-    await spInit();          /* Microsoft sign-in */
+    await store.signIn();    /* Microsoft sign-in */
     setSync('busy','loading…');
     ST=mergeSample(await spLoad());   /* pull projects + tasks from SharePoint (+ the local sample, if any) */
     setSync('ok','synced '+stamp());
@@ -12276,7 +12273,7 @@ async function boot(){
   }
   /* Staff list loads separately so a missing ShopTimeline_Staff list doesn't block the
      schedule. Skipped entirely when sign-in failed — one problem, one toast. */
-  if(ACCOUNT)try{
+  if(store.who())try{
     const remote=await spLoadStaff();
     STAFF_OK=true;
     if(!remote.length&&PEOPLE.length){
@@ -12296,8 +12293,8 @@ async function boot(){
   if(STAFF_OK)viewsFromRow();
   ppPaintNeeds(); /* v1.47.3: a draft opened before the roster arrived now counts the PM rule */
   /* N3: the client roster, same graceful-degrade idea (quiet at load, warn on save). */
-  if(ACCOUNT)await loadClients();
-  if(ACCOUNT)await loadConfig(); /* v1.11.0: app-wide settings — grants apply from first render */
+  if(store.who())await loadClients();
+  if(store.who())await loadConfig(); /* v1.11.0: app-wide settings — grants apply from first render */
 }
 (async()=>{
   await boot();
@@ -12306,11 +12303,11 @@ async function boot(){
   /* REV74 (N14): a browser that has never seen the tour gets it once, after sign-in
      has settled and the first render is on screen. Help replays it any time. */
   let coachSeen='1';try{coachSeen=localStorage.getItem(COACH_KEY);}catch(e){}
-  if(ACCOUNT&&!coachSeen&&ROUTE.view==='timeline')setTimeout(coachStart,700);
+  if(store.who()&&!coachSeen&&ROUTE.view==='timeline')setTimeout(coachStart,700);
   /* REV87: the PM late prompt — after the first render settles. pmLateShow
      itself declines to stack on the tour or another overlay, and asks at most
      once a day; a suppressed ask (tour up, project view) just tries next load. */
-  if(ACCOUNT&&ROUTE.view==='timeline')setTimeout(pmLateShow,1200);
+  if(store.who()&&ROUTE.view==='timeline')setTimeout(pmLateShow,1200);
   /* v1.33.0: the update check — see updCheck. A build that boots already retired (served
      from the 10-minute Pages cache after the lever was pulled) probes at once. */
   updSeen();
