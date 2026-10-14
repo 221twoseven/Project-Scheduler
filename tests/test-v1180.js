@@ -39,9 +39,11 @@ setTimeout(main,1300);
 
 function main(){
   sec('source markers');
-  ok('availability rides the tristate mappers',
-     src.indexOf('if(p.availability!=null)f.availability=p.availability')>=0
-     &&src.indexOf('availability:f.availability==null?null:String(f.availability)')>=0);
+  ok('availability rides the tristate mappers',E( /* item 61: a round trip, not the mapper's source text */
+     "personToFields({id:'x',name:'A',depts:[],ooo:[],availability:'unavailable'}).availability==='unavailable'"
+     +"&&!('availability' in personToFields({id:'x',name:'A',depts:[],ooo:[]}))"
+     +"&&fieldsToPerson({appId:'x',Title:'A',availability:'available'}).availability==='available'"
+     +"&&fieldsToPerson({appId:'x',Title:'A'}).availability===null")===true);
   ok('merge keeps the kept record\'s flag first', /availability:keep\.availability!=null\?keep\.availability:dup\.availability/.test(src));
   ok('renderCompanyPage runs applyPerms at the door', /function renderCompanyPage\(\)\{\n[^]{0,300}applyPerms\(\);/.test(src));
   ok('the Driver column centers its check', src.indexOf('.cd-drv{text-align:center}')>=0);

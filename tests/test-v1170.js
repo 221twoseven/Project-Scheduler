@@ -40,9 +40,11 @@ function main(){
      /const sc0=document\.getElementById\('cd-rows'\),st0=sc0\?sc0\.scrollTop:0[;,]/.test(src) /* v1.26.3 (#27): scrollLeft rides on the same line */
      &&src.indexOf("sc1.scrollTop=st0")>=0);
   ok('KBD popover teaches the arrows', /\['↑ ↓','Move selection'\],\['⌘ Z','Undo'\],(\['⌘ Y','Redo'\],)?\['Esc','Back to the timeline'\]/.test(src)); /* v1.20.0 added Redo */
-  ok('driver rides the tristate mappers',
-     src.indexOf("if(p.driver!=null)f.driver=p.driver?'1':''")>=0
-     &&src.indexOf("driver:f.driver==null?null:flagTruthy(f.driver)")>=0);
+  ok('driver rides the tristate mappers',(()=>{ /* item 61: a round trip, not the mapper's source text */
+    const w=E("JSON.stringify([personToFields({id:'x',name:'A',depts:[],ooo:[],driver:true}),personToFields({id:'x',name:'A',depts:[],ooo:[],driver:false}),personToFields({id:'x',name:'A',depts:[],ooo:[]})])");
+    const [on,off,none]=JSON.parse(w);
+    const back=JSON.parse(E("JSON.stringify([fieldsToPerson({appId:'x',Title:'A',driver:'1'}).driver,fieldsToPerson({appId:'x',Title:'A',driver:''}).driver,fieldsToPerson({appId:'x',Title:'A'}).driver])"));
+    return on.driver==='1'&&off.driver===''&&!('driver' in none)&&back[0]===true&&back[1]===false&&back[2]===null;})());
   ok('merge folds the driver flag', /driver:\(keep\.driver\|\|dup\.driver\)\?true/.test(src));
 
   win.location.hash='#/people';

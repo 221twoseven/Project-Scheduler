@@ -51,7 +51,10 @@ setTimeout(main,1300);
 
 function main(){
   sec('source: the wiring the DOM can\'t show');
-  ok('the poll defers while the dock textarea has focus', src.indexOf("closest('#me-dock'))return;")>=0);
+  /* item 61 (v1.48.3): the poll pauses on updBusy(), so check the behaviour, not the old line */
+  ok('the poll defers while the dock textarea has focus', /function updBusy\(/.test(src)
+    ? E("(()=>{const d=document.getElementById('me-dock'),t=document.createElement('textarea');d.appendChild(t);t.focus();const b=updBusy();t.remove();return b;})()")===true
+    : src.indexOf("closest('#me-dock'))return;")>=0);
   ok('npvPaintCalendar honours the live-resize override in BOTH loops',
      (src.match(/NPV_CAL_RZ&&(npvCalKey|calKey)\(t\)===NPV_CAL_RZ\.key/g)||[]).length>=2);
 
