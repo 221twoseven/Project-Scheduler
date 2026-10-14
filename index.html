@@ -1858,7 +1858,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.48.3'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.48.4'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -8045,7 +8045,7 @@ function npvKey(t){
    ahead of it must not take over the row); a department with nothing but ranges left falls back
    to its first bar. */
 function npvPrimary(dept){return NPV_TASKS.find(z=>z.department===dept&&!z.range)||NPV_TASKS.find(z=>z.department===dept)||null;}
-function wdCount(a,b){let n=0,c=new Date(a);while(c<=b){if(isWorking(c))n++;c=addDays(c,1);}return Math.max(1,n);}
+function wdCount(a,b,floor){let n=0,c=new Date(a);while(c<=b){if(isWorking(c))n++;c=addDays(c,1);}return Math.max(floor==null?1:floor,n);} /* floor: 1 for a bar's length (a bar is never 0 days); 0 to count a span that may hold no workday */
 
 /* Read the left-hand form without saving anything. */
 function ppFormInit(){
@@ -11951,6 +11951,7 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.48.4",d:"Oct 14, 2026",n:["The Meeting Sheet's progress bar now shows how much of the scheduled work is done, not how much time has passed, so a quiet stretch between departments no longer makes a project look further along. The dates under it are unchanged."]},
  {v:"v1.48.3",d:"Oct 14, 2026",n:["Teammates' changes now also wait while you're on a New Project page, typing in a toolbar box, or have a save waiting to retry, so nothing redraws under you. They appear as soon as you're done."]},
  {v:"v1.48.2",d:"Oct 14, 2026",n:["When something can't be saved or loaded, the message now says why — this computer is offline, your account has no access, a list or column is missing, or SharePoint is busy — and what to do next. The technical message stays under **Details**."]},
  {v:"v1.48.0–v1.48.1",d:"Oct 13, 2026",n:["A project page now shows who last edited the project and when (\"Last edited by Sam · Oct 12, 2:14 PM\"), and the Meeting Sheet prints the same line under each project. Any change counts, phases and notes included.",
@@ -12222,10 +12223,14 @@ function buildMeetingSheet(){
     for(const p of rows){
       const st=projectStatus(p);
       const ts=tasksOf(p.id);
-      let ps=null,pe=null;
-      for(const x of ts){const a=parseDate(x.startDate),b=parseDate(x.endDate);if(!ps||a<ps)ps=a;if(!pe||b>pe)pe=b;}
-      let pct=0;
-      if(ps&&pe&&pe>ps)pct=Math.max(0,Math.min(100,Math.round((today()-ps)/(pe-ps)*100)));
+      /* item 59 (owner, 2026-10-14): progress is the work done, not the time passed — each block's
+         workdays before today over all blocks' workdays, so a gap between blocks never fills the bar.
+         The dates under it still span first start → last end. */
+      let ps=null,pe=null,wAll=0,wDone=0;const t0=today();
+      for(const x of ts){const a=parseDate(x.startDate),b=parseDate(x.endDate);if(!ps||a<ps)ps=a;if(!pe||b>pe)pe=b;
+        const n=wdCount(a,b,0);wAll+=n;
+        if(t0>b)wDone+=n;else if(t0>a)wDone+=wdCount(a,addDays(t0,-1),0);}
+      const pct=wAll?Math.round(wDone/wAll*100):0;
       const due=dueDate(p),days=workdaysUntil(due); /* v1.26.0: the due date, not the Setup date */
       const tr=document.createElement('tr');tr.className='meet-row'+(prProjOK(p)?'':' dim');
       const le=projLastEdit(p); /* v1.48.0 (item 6): one line under each project */

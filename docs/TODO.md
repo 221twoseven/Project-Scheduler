@@ -64,8 +64,8 @@ is the log in §8.
 ## 0. Where we stand
 
 As of 2026-10-14: production (`main`) runs **v1.48.1**, promoted 2026-10-13
-(release/2026-10-13); `development` runs **v1.48.3** (the storage seam's last PR: error
-messages say why, item 48; then item 61's simplifications). The newest work on production: saved views (item 25) and Protect dates
+(release/2026-10-13); `development` runs **v1.48.4** (the storage seam's last PR: error
+messages say why, item 48; item 61's simplifications; item 59's work-based progress bar). The newest work on production: saved views (item 25) and Protect dates
 (item 2 (c)) follow the person, repeat work is easier to find (item 7), and projects show
 their last edit, a Stale flag and "Schedule still accurate" (item 6). Before that: reporter
 answers show in Open Issues (item 58); Protect dates (item 2: drags never change dates).
@@ -807,7 +807,10 @@ release. Where the app has a part, it's listed.
         changelog rules. Steps 6–7 are rules for how the steps are done, not work of their
         own.
       [style guide §13; `design/Style-Transition-Review.md`]
-- [ ] **59. Whole-project numbers that span gaps: decide whether they change.** Split
+- [x] **59. Whole-project numbers that span gaps: decide whether they change.** Owner picked
+      (c) for progress and (a) for lead time, 2026-10-14. Shipped v1.48.4 (PR #151, 2026-10-14):
+      the Meeting Sheet bar is each block's workdays before today over all blocks' workdays;
+      "Lead time" stays a calendar span (how long the client waits). Suite `tests/test-v1484.js`. Split
       out of item 8 (2026-10-12). Two numbers run from the project's first start to its last
       end, gaps included: the Meeting Sheet progress % and the project page's "Lead time N
       workdays". Neither counts a gap as department work or load.
