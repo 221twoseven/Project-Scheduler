@@ -23,9 +23,9 @@ const D=n=>{const d=new Date();d.setDate(d.getDate()+n);
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
 
 const projects=[{appId:'p1',Title:'Hermes Windows',client:'Hermes',jobCode:'H1',
-  deadline:D(30),status:'in-fabrication',projectManager:'Stan',drafter:'Peter',
-  leadFab:'Nick',activeDepartments:JSON.stringify(['pm','fab']),createdAt:D(-30),sortIndex:0}];
-const tasks=[{appId:'t1',projectId:'p1',department:'fab',assignee:'Nick',startDate:D(-5),
+  deadline:D(30),status:'in-fabrication',projectManager:'Theo',drafter:'Oscar',
+  leadFab:'Milo',activeDepartments:JSON.stringify(['pm','fab']),createdAt:D(-30),sortIndex:0}];
+const tasks=[{appId:'t1',projectId:'p1',department:'fab',assignee:'Milo',startDate:D(-5),
   endDate:D(10),estimatedDays:12,ticketNodes:'[]',notes:'',pinned:false,label:''}];
 
 const dom=boot(FILE,{data:{projects,tasks,staff:[],todos:[]}});

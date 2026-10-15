@@ -7,7 +7,7 @@
 1. **Availability is now explicit.** Many roster names are freelancers who aren't
    active year-round, so the People editor gained an Availability radio group:
    - **Available** and **Not available** — manual, stored in a new `availability`
-     staff column (⚠ Robert creates: single-line text, `available`/`unavailable`,
+     staff column (⚠ the owner creates: single-line text, `available`/`unavailable`,
      empty = available).
    - **Out of office** — automatic: checked (and never hand-selectable) while a
      time-off date range covers today, and it always outranks the manual flag.

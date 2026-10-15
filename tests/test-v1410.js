@@ -25,7 +25,7 @@ const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.l
 const sec=t=>console.log('\n'+t);
 
 const P={appId:'p1',Title:'Q4 Windows',client:'Hermès',jobCode:'HE276',deadline:'2026-11-25',status:'auto',projectManager:'Sam',
-  drafter:'Peter',leadFab:'Nick',fabricators:'',activeDepartments:JSON.stringify(['pm','td','fab','shipping']),createdAt:'2026-07-01',sortIndex:0};
+  drafter:'Oscar',leadFab:'Milo',fabricators:'',activeDepartments:JSON.stringify(['pm','td','fab','shipping']),createdAt:'2026-07-01',sortIndex:0};
 const T=(id,dept,s,e,nodes)=>({appId:id,projectId:'p1',department:dept,assignee:'',startDate:s,endDate:e,estimatedDays:5,
   ticketNodes:JSON.stringify(nodes||[]),notes:'',pinned:false,label:''});
 const same=['SCOTTSDALE','TROY','BOISE'].map((n,i)=>({id:'n'+i,date:'2026-11-23',target:'SHIPPING : '+n}));

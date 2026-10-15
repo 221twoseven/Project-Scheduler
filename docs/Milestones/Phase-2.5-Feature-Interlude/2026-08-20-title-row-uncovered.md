@@ -1,6 +1,6 @@
 # 2026-08-20 — Project-page title row uncovered (REV59)
 
-**What happened:** Robert asked where the N1 breadcrumb was — nowhere to be found, and
+**What happened:** the owner asked where the N1 breadcrumb was — nowhere to be found, and
 the only visible way back to the timeline was the Done button at the bottom.
 
 **Why:** the project page's title row (the ← Timeline button, the project color dot,

@@ -32,7 +32,7 @@ ok('the font is on both deploy sparse-checkout lists (main, development)',
    (yml.match(/design\/fonts\/BrNStdBd\.otf/g)||[]).length===2);
 
 const staff=[
-  {appId:'s1',Title:'Nick',depts:JSON.stringify(['fab']),ooo:'[]',email:'',phone:'212-555-0100',role:'Lead Fabricator'},
+  {appId:'s1',Title:'Milo',depts:JSON.stringify(['fab']),ooo:'[]',email:'',phone:'212-555-0100',role:'Lead Fabricator'},
   {appId:'s2',Title:'Sam',depts:JSON.stringify(['pm']),ooo:'[]',email:'user@example.com',phone:'',role:'PM'}];
 const dom=boot(FILE,{data:{projects:[],tasks:[],staff,todos:[]}});
 const win=dom.window,doc=win.document;
@@ -45,20 +45,20 @@ setTimeout(()=>{main().catch(e=>{console.error(e);process.exit(1);});},1300);
 
 async function main(){
   sec('phone rides the person record');
-  const rt=JSON.parse(E("JSON.stringify(fieldsToPerson(personToFields({id:'x',name:'Ana',email:'a@x.co',phone:'917-555-0101',role:'',depts:[],ooo:[]})))"));
+  const rt=JSON.parse(E("JSON.stringify(fieldsToPerson(personToFields({id:'x',name:'Ana',email:'a@example.com',phone:'917-555-0101',role:'',depts:[],ooo:[]})))"));
   ok('phone survives the field-mapper round trip', rt.phone==='917-555-0101');
-  ok('a loaded person carries the stored phone', E("PEOPLE.find(p=>p.name==='Nick').phone")==='212-555-0100');
+  ok('a loaded person carries the stored phone', E("PEOPLE.find(p=>p.name==='Milo').phone")==='212-555-0100');
 
   sec('the People page reads and edits it');
   E("location.hash='#/people';applyRoute()");
-  E("CD_SEL=PEOPLE.find(p=>p.name==='Nick').id;cdPaintDetail()");
+  E("CD_SEL=PEOPLE.find(p=>p.name==='Milo').id;cdPaintDetail()");
   ok('read mode shows the phone as information', /212-555-0100/.test(q('#cd-detail').textContent)
      &&doc.querySelectorAll('#cd-detail input').length===0);
   E("document.getElementById('cdd-edit').click()");
   ok('the edit state carries a phone input', E("document.getElementById('cde-phone').value")==='212-555-0100');
   E("CD_EDIT.phone=' 646-555-0102 ';cdSavePerson()");
   await wait(120);
-  ok('save trims and persists the phone', E("PEOPLE.find(p=>p.name==='Nick').phone")==='646-555-0102');
+  ok('save trims and persists the phone', E("PEOPLE.find(p=>p.name==='Milo').phone")==='646-555-0102');
   ok('the PATCH body carries the phone field',
      calls().some(c=>c.method==='PATCH'&&c.url.includes('ShopTimeline_Staff')&&c.body&&c.body.phone==='646-555-0102'));
 

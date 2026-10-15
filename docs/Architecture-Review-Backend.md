@@ -142,7 +142,7 @@ registries. The TODO edits in §D add that reading where a decision depends on i
 | item 15 | Weekly Export to Excel; version history | Under C: point-in-time restore plus a tested restore drill; the export becomes a report |
 | item 17 | A cloned test site, or suffixed list names | Under B/C: a separate environment or database |
 | item 42 | Collision-safe codes by "unique column + retry" | A unique constraint in a transaction |
-| §6; the ⚠ convention; the tristate pattern | Robert applies list specs by hand; the app probes for columns live | Under C, schema is versioned migrations in Git, applied by the pipeline after approval. The tristate probing goes |
+| §6; the ⚠ convention; the tristate pattern | the owner applies list specs by hand; the app probes for columns live | Under C, schema is versioned migrations in Git, applied by the pipeline after approval. The tristate probing goes |
 | Storage review ideas 2–4 | Provisioning script; site-scoped `Sites.Selected`; one shared registration | Idea 2 shrinks to files and test sites under B/C. Ideas 3–4 still apply to whatever Graph use remains |
 | `CLAUDE.md`, `ARCHITECTURE.md`, `SETUP.md` | "Backend is SharePoint — no server of our own" | Current state, and correct. They change only when a backend is built |
 
@@ -208,7 +208,7 @@ Moving off SharePoint *for structured business data* doesn't mean eliminating Sh
 
 1. **How much is Office?** Does Office hold line-item estimating (Davis's estimator, §F, as
    the reference), or only an estimate reference with the estimate made elsewhere? This
-   single answer moves D15 more than any technical fact. *Robert, Hubert, the Project
+   single answer moves D15 more than any technical fact. *The owner, the backup maintainer, the Project
    Director, several PMs.*
 2. **Who owns the platform?**
    - For C: who holds the Azure subscription and billing, who is the second administrator
@@ -510,7 +510,7 @@ schemas become the frontend/API contract (§E12).
 
 ### E9. Schema change and migrations
 
-The ⚠ convention survives in a new form. Today Robert applies a list spec by hand. Under C:
+The ⚠ convention survives in a new form. Today the owner applies a list spec by hand. Under C:
 
 1. Claude writes a migration in Git.
 2. CI applies it to a throwaway database and runs the tests.

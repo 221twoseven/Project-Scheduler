@@ -301,7 +301,7 @@ the private tracker next to `poll.mjs`, run it as a second `workflow_dispatch` t
 grant (items only). Raise the bot's grant on TWOSEVENINC from `write` to `manage` (one
 `PATCH /sites/{id}/permissions/{permId}` in Graph Explorer, no Entra change) — verify the
 exact role against the current Graph docs before relying on it. A test site (item 17) gets
-its own grant the same way. Alternative: a delegated run as Robert would need
+its own grant the same way. Alternative: a delegated run as the owner would need
 `Sites.Manage.All` on some registration — a bigger ⚠ than the grant bump.
 
 ## 3. Site-scoped permissions
@@ -436,7 +436,7 @@ dependency order:
 After the sequence, and not "do now": `provision.mjs` in the tracker repo (idea 2, ⚠ grant bump); the scope swap at `2176`
 (idea 3, ⚠ Entra) — timed with the suite registration.
 
-## Open questions for Robert
+## Open questions for the owner
 
 1. **Scope swap.** When the suite registration is set up, is it acceptable to add delegated
    `Sites.Selected` with a site grant for the SPA and remove `Sites.ReadWrite.All`? ⚠

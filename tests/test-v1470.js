@@ -22,10 +22,10 @@ const sec=t=>console.log('\n'+t);
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
 
 const projects=[{appId:'p1',Title:'Hermes Windows',client:'Hermes',jobCode:'H1',deadline:'2026-09-15',status:'auto',
-  projectManager:'Stan',activeDepartments:JSON.stringify(['td','fab']),createdAt:'2026-07-01',sortIndex:0}];
+  projectManager:'Theo',activeDepartments:JSON.stringify(['td','fab']),createdAt:'2026-07-01',sortIndex:0}];
 const tasks=[
-  {appId:'td1',projectId:'p1',department:'td',assignee:'Peter',startDate:'2026-08-03',endDate:'2026-08-07',estimatedDays:5,ticketNodes:'[]',notes:'',pinned:false,label:'Exterior Windows'},
-  {appId:'f1',projectId:'p1',department:'fab',assignee:'Nick',startDate:'2026-08-20',endDate:'2026-09-04',estimatedDays:12,ticketNodes:'[]',notes:'',pinned:false,label:''}];
+  {appId:'td1',projectId:'p1',department:'td',assignee:'Oscar',startDate:'2026-08-03',endDate:'2026-08-07',estimatedDays:5,ticketNodes:'[]',notes:'',pinned:false,label:'Exterior Windows'},
+  {appId:'f1',projectId:'p1',department:'fab',assignee:'Milo',startDate:'2026-08-20',endDate:'2026-09-04',estimatedDays:12,ticketNodes:'[]',notes:'',pinned:false,label:''}];
 
 const dom=boot(FILE,{data:{projects,tasks,staff:[],todos:[]}});
 const win=dom.window,doc=win.document,E=s=>win.eval(s),q=s=>doc.querySelector(s);
@@ -95,7 +95,7 @@ async function main(){
   ok('typing a name drops it from the list',!q('.pp-need[data-need="name"]'),needs().textContent);
   const di=q('#pp-deadline');
   if(di){di.value='2026-12-01';di.dispatchEvent(new win.Event('change',{bubbles:true}));await wait(50);}
-  E("PP_FORM.projectManager='Stan'");E('ppPaintNeeds()');
+  E("PP_FORM.projectManager='Theo'");E('ppPaintNeeds()');
   ok('with all three in, it reads "Ready to create"',/Ready to create/.test(needs().textContent),needs().textContent);
 
   sec('Create still names and focuses what is missing (unchanged behaviour)');

@@ -23,9 +23,9 @@ const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.l
 const sec=t=>console.log('\n'+t);
 
 const proj=(id,name,status,client)=>({appId:id,Title:name,client,jobCode:id.toUpperCase(),
-  deadline:'2026-12-20',status,projectManager:'Sam',drafter:'Ana',leadFab:'Nick',
+  deadline:'2026-12-20',status,projectManager:'Sam',drafter:'Ana',leadFab:'Milo',
   activeDepartments:JSON.stringify(['pm','fab']),createdAt:'2026-07-01'});
-const task=(id,pid,s,e)=>({appId:id,projectId:pid,department:'fab',assignee:'Nick',
+const task=(id,pid,s,e)=>({appId:id,projectId:pid,department:'fab',assignee:'Milo',
   startDate:s,endDate:e,estimatedDays:5,ticketNodes:'[]',notes:'',pinned:false,label:''});
 const DATA={projects:[proj('p1','Hermes Windows','in-fabrication','Hermes'),
                       proj('p2','Aster Lobby','complete','Aster'),

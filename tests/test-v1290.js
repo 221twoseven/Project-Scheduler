@@ -28,15 +28,15 @@ const D=n=>{const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()+n);
 /* SharePoint order deliberately scrambled; ten PMs so the box overflows. Molly Chen goes by Zoe. */
 const P=(id,name,dept,extra)=>Object.assign({appId:id,Title:name,depts:JSON.stringify([dept]),ooo:'[]',email:'',role:''},extra||{});
 const staff=[
-  P('s1','Stan Kim','pm'),P('s2','Matthew Schulz','pm'),P('s3','Tyler Brooks','pm'),P('s4','Caroline Bondi','pm'),
-  P('s5','Robert Maciel','pm'),P('s6','Nina Okafor','pm'),P('s7','Mac Milsark','pm'),P('s8','Molly Chen','pm',{nickname:'Zoe'}),
-  P('s9','Greg Walsh','pm'),P('s10','Hubert Li','pm'),
-  P('s11','Peter Skvarla','td'),P('s12','Jason Pfaeffle','td'),P('s13','Sam Ortiz','td',{email:'user@example.com'}),
-  P('s14','Danny Park','fab'),P('s15','Jeffrey Niles','fab'),P('s16','Emil Byrne','fab')];
+  P('s1','Theo Kim','pm'),P('s2','Matteo Thorne','pm'),P('s3','Tyler Brooks','pm'),P('s4','Cordelia Vance','pm'),
+  P('s5','Rupert Mallory','pm'),P('s6','Nina Okafor','pm'),P('s7','Mal Corvane','pm'),P('s8','Molly Chen','pm',{nickname:'Zoe'}),
+  P('s9','Greg Walsh','pm'),P('s10','Halden Li','pm'),
+  P('s11','Oscar Brandow','td'),P('s12','Elian Quillane','td'),P('s13','Sam Ortiz','td',{email:'user@example.com'}),
+  P('s14','Danny Park','fab'),P('s15','Ambrose Pryce','fab'),P('s16','Emil Byrne','fab')];
 const projects=[{appId:'p1',Title:'Saved Job',client:'C',jobCode:'J1',deadline:D(40),status:'in-fabrication',
-  projectManager:'Hubert Li',drafter:'Peter S.',leadFab:'Emil Byrne',fabricators:'',
+  projectManager:'Halden Li',drafter:'Oscar S.',leadFab:'Emil Byrne',fabricators:'',
   activeDepartments:JSON.stringify(['pm','td']),createdAt:D(-30),sortIndex:0}];
-const tasks=[{appId:'t1',projectId:'p1',department:'td',assignee:'Peter Skvarla',startDate:D(0),endDate:D(4),
+const tasks=[{appId:'t1',projectId:'p1',department:'td',assignee:'Oscar Brandow',startDate:D(0),endDate:D(4),
   estimatedDays:5,ticketNodes:'[]',notes:'',pinned:false,label:''}];
 
 const dom=boot(FILE,{data:{projects,tasks,staff,todos:[]}});
@@ -53,7 +53,7 @@ const rq=id=>q('.pg-rq[data-for="'+id+'"]');
 const tick=id=>{const ck=qa('#pp-r-pm input').find(i=>i.value===id);ck.checked=true;change(ck);return ck;};
 const sorted=a=>a.slice().sort((x,y)=>x.localeCompare(y));
 const patches=()=>win.__spCalls.filter(c=>c.method==='PATCH'&&/ShopTimeline_Projects\//.test(c.url));
-const PM_ORDER='Caroline Bondi, Greg Walsh, Hubert Li, Mac Milsark, Matthew Schulz, Nina Okafor, Robert Maciel, Stan Kim, Tyler Brooks, Zoe';
+const PM_ORDER='Cordelia Vance, Greg Walsh, Halden Li, Mal Corvane, Matteo Thorne, Nina Okafor, Rupert Mallory, Theo Kim, Tyler Brooks, Zoe';
 
 setTimeout(()=>{go('#/project/new');setTimeout(draftPart,800);},1300);
 
@@ -66,7 +66,7 @@ function draftPart(){
   ok('R2: each list has its own Search box above it', ids.every(id=>{const b=rq(id);return !!b&&b.type==='text'&&!!(b.compareDocumentPosition(doc.getElementById(id))&4);}));
   ok('the search box lives outside the list, so the list still holds only checkboxes', qa('#pp-r-pm input').every(i=>i.type==='checkbox')&&qa('#pp-r-pm input').length===10);
   rq('pp-r-pm').value='ma';input(rq('pp-r-pm'));
-  ok('R2 done-when: typing "ma" narrows to the names containing it (any part: Maciel too)', vis('pp-r-pm').join(', ')==='Mac Milsark, Matthew Schulz, Robert Maciel', vis('pp-r-pm').join(', '));
+  ok('R2 done-when: typing "ma" narrows to the names containing it (any part: Mallory too)', vis('pp-r-pm').join(', ')==='Mal Corvane, Matteo Thorne, Rupert Mallory', vis('pp-r-pm').join(', '));
   ok('typing alone does not dirty the draft', E('ppDraftDirty()')===false);
   ok('the other lists are untouched by that search', vis('pp-r-dr').length===texts('pp-r-dr').length);
   rq('pp-r-pm').value='';input(rq('pp-r-pm'));
@@ -74,14 +74,14 @@ function draftPart(){
   rq('pp-r-pm').value='chen';input(rq('pp-r-pm'));
   ok('R2 default: the stored name matches too ("chen" finds Zoe)', vis('pp-r-pm').join(', ')==='Zoe', vis('pp-r-pm').join(', '));
   rq('pp-r-pm').value='';input(rq('pp-r-pm'));
-  tick('Caroline Bondi');
+  tick('Cordelia Vance');
   rq('pp-r-pm').value='zz';input(rq('pp-r-pm'));
-  ok('plan 3 done-when: a checked name stays visible while filtering', vis('pp-r-pm').join(', ')==='Caroline Bondi', vis('pp-r-pm').join(', '));
+  ok('plan 3 done-when: a checked name stays visible while filtering', vis('pp-r-pm').join(', ')==='Cordelia Vance', vis('pp-r-pm').join(', '));
   ok('and every other name is hidden', labels('pp-r-pm').filter(l=>l.classList.contains('hidden')).length===9);
   rq('pp-r-pm').value='ma';input(rq('pp-r-pm'));
-  tick('Mac Milsark');
-  ok('a tick while filtering reaches the draft (hidden checked values included)', E('ppFormSync();PP_FORM.projectManager')==='Caroline Bondi, Mac Milsark', E('PP_FORM.projectManager'));
-  ok('and the typed filter survives the tick', rq('pp-r-pm').value==='ma'&&vis('pp-r-pm').join(', ')==='Caroline Bondi, Mac Milsark, Matthew Schulz, Robert Maciel', vis('pp-r-pm').join(', '));
+  tick('Mal Corvane');
+  ok('a tick while filtering reaches the draft (hidden checked values included)', E('ppFormSync();PP_FORM.projectManager')==='Cordelia Vance, Mal Corvane', E('PP_FORM.projectManager'));
+  ok('and the typed filter survives the tick', rq('pp-r-pm').value==='ma'&&vis('pp-r-pm').join(', ')==='Cordelia Vance, Mal Corvane, Matteo Thorne, Rupert Mallory', vis('pp-r-pm').join(', '));
   ok('the list did not re-sort under the pointer', texts('pp-r-pm').join(', ')===PM_ORDER);
   E('PP_FORM.projectManager="";PP_SNAP=JSON.stringify(PP_FORM)');
   go('#/project/p1');setTimeout(savedPart,800);
@@ -89,19 +89,19 @@ function draftPart(){
 
 function savedPart(){
   sec('Saved project — plan 3 checked at the top, the filter keeps them, saves carry hidden ticks');
-  ok('R1 saved: the checked PM sits first, the rest alphabetical', texts('pp-r-pm').join(', ')==='Hubert Li, Caroline Bondi, Greg Walsh, Mac Milsark, Matthew Schulz, Nina Okafor, Robert Maciel, Stan Kim, Tyler Brooks, Zoe', texts('pp-r-pm').join(', '));
-  ok('and is checked', qa('#pp-r-pm input:checked').map(i=>i.value).join()==='Hubert Li');
-  ok('R1 saved, legacy: "Peter S." checks Peter Skvarla first and adds no phantom box', texts('pp-r-dr').join(', ')==='Peter Skvarla, Jason Pfaeffle, Sam Ortiz'&&qa('#pp-r-dr input:checked').map(i=>i.value).join()==='Peter Skvarla', texts('pp-r-dr').join(', '));
+  ok('R1 saved: the checked PM sits first, the rest alphabetical', texts('pp-r-pm').join(', ')==='Halden Li, Cordelia Vance, Greg Walsh, Mal Corvane, Matteo Thorne, Nina Okafor, Rupert Mallory, Theo Kim, Tyler Brooks, Zoe', texts('pp-r-pm').join(', '));
+  ok('and is checked', qa('#pp-r-pm input:checked').map(i=>i.value).join()==='Halden Li');
+  ok('R1 saved, legacy: "Oscar S." checks Oscar Brandow first and adds no phantom box', texts('pp-r-dr').join(', ')==='Oscar Brandow, Elian Quillane, Sam Ortiz'&&qa('#pp-r-dr input:checked').map(i=>i.value).join()==='Oscar Brandow', texts('pp-r-dr').join(', '));
   ok('the saved page lists checkboxes only in the box', qa('#pp-r-pm input').every(i=>i.type==='checkbox'));
   rq('pp-r-pm').value='ma';input(rq('pp-r-pm'));
-  ok('plan 3 saved: "ma" keeps the checked name visible with the matches', vis('pp-r-pm').join(', ')==='Hubert Li, Mac Milsark, Matthew Schulz, Robert Maciel', vis('pp-r-pm').join(', '));
+  ok('plan 3 saved: "ma" keeps the checked name visible with the matches', vis('pp-r-pm').join(', ')==='Halden Li, Mal Corvane, Matteo Thorne, Rupert Mallory', vis('pp-r-pm').join(', '));
   const n0=patches().length;
-  tick('Matthew Schulz');
+  tick('Matteo Thorne');
   setTimeout(()=>{
     const p=patches().slice(n0);
     ok('a tick while filtering sends one PATCH', p.length===1, p.length);
-    ok('whose Project manager keeps the hidden checked name', p.length===1&&p[0].body.projectManager==='Hubert Li, Matthew Schulz', p.length&&p[0].body.projectManager);
-    ok('the other roles ride along intact', p.length===1&&p[0].body.drafter==='Peter Skvarla'&&p[0].body.leadFab==='Emil Byrne', p.length&&JSON.stringify(p[0].body));
+    ok('whose Project manager keeps the hidden checked name', p.length===1&&p[0].body.projectManager==='Halden Li, Matteo Thorne', p.length&&p[0].body.projectManager);
+    ok('the other roles ride along intact', p.length===1&&p[0].body.drafter==='Oscar Brandow'&&p[0].body.leadFab==='Emil Byrne', p.length&&JSON.stringify(p[0].body));
     ok('the filter survives the save (no repaint under PP_QUIET)', rq('pp-r-pm').value==='ma'&&labels('pp-r-pm').filter(l=>l.classList.contains('hidden')).length===6, vis('pp-r-pm').join(', '));
     change(rq('pp-r-pm'));
     setTimeout(()=>{
@@ -109,8 +109,8 @@ function savedPart(){
       /* a Setup field change repaints the whole panel (ppInspector) — the typed search comes back */
       const st=q('#pp-status');st.value='on-hold';change(st);
       setTimeout(()=>{
-        /* Matthew is checked now too, so the repaint sorts him up beside Hubert (checked first) */
-        ok('the typed search survives a full repaint of the setup panel', rq('pp-r-pm').value==='ma'&&vis('pp-r-pm').join(', ')==='Hubert Li, Matthew Schulz, Mac Milsark, Robert Maciel', rq('pp-r-pm').value+' / '+vis('pp-r-pm').join(', '));
+        /* Matteo is checked now too, so the repaint sorts him up beside Halden (checked first) */
+        ok('the typed search survives a full repaint of the setup panel', rq('pp-r-pm').value==='ma'&&vis('pp-r-pm').join(', ')==='Halden Li, Matteo Thorne, Mal Corvane, Rupert Mallory', rq('pp-r-pm').value+' / '+vis('pp-r-pm').join(', '));
         ok('and the other boxes stay unfiltered', vis('pp-r-dr').length===texts('pp-r-dr').length);
         go('#/project/new');
         setTimeout(()=>{

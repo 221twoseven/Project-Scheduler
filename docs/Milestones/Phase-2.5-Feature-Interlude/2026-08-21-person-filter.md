@@ -10,7 +10,7 @@ Gantt to one person's work, in both lenses.
 
 - **Person menu** in the toolbar: Everyone (default) plus every name from People &
   Availability, rebuilt on every open so roster edits show up immediately. The button
-  reads `Person: Nick` and lights up while a pick is active.
+  reads `Person: Milo` and lights up while a pick is active.
 - **Project lens:** only projects the person is on survive — explicit crew membership
   or implicit ownership via the project team on an unowned umbrella (the same
   `barCrew` rule the overbooking checker uses). Expanded projects show only the
@@ -29,8 +29,8 @@ Gantt to one person's work, in both lenses.
 ## Evidence
 
 - ![Departments lens, everyone](screenshots/after-person-filter-dept-everyone.png)
-- ![Departments lens filtered to Nick, menu open](screenshots/after-person-filter-dept-person.png)
-- ![Project lens filtered to Peter, projects expanded](screenshots/after-person-filter-proj-person.png)
+- ![Departments lens filtered to Milo, menu open](screenshots/after-person-filter-dept-person.png)
+- ![Project lens filtered to Oscar, projects expanded](screenshots/after-person-filter-proj-person.png)
 
 ## Tests
 

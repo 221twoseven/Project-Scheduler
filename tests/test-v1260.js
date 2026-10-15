@@ -29,10 +29,10 @@ const D=n=>{const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()+n);
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
 const nice=iso=>{const [y,m,d]=iso.split('-').map(Number);return new Date(y,m-1,d).toLocaleDateString('en-US',{month:'short',day:'numeric'});};
 const P=(id,name,code,depts,extra)=>Object.assign({appId:id,Title:name,client:'Client '+id,jobCode:code,
-  deadline:D(-60),status:'in-fabrication',projectManager:'Sam',drafter:'Peter',leadFab:'Nick',
+  deadline:D(-60),status:'in-fabrication',projectManager:'Sam',drafter:'Oscar',leadFab:'Milo',
   activeDepartments:JSON.stringify(depts),createdAt:'2026-07-01',sortIndex:0},extra||{});
 const onSite=d=>d==='install'||d==='shipping';
-const T=(id,pid,dept,s,e)=>({appId:id,projectId:pid,department:dept,assignee:onSite(dept)?'[]':'Peter',
+const T=(id,pid,dept,s,e)=>({appId:id,projectId:pid,department:dept,assignee:onSite(dept)?'[]':'Oscar',
   startDate:s,endDate:e,estimatedDays:2,ticketNodes:'[]',notes:'',pinned:false,label:''});
 /* Every Setup date is 60 days back. Only the blocks decide. */
 const projects=[

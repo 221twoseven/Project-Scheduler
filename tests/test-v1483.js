@@ -37,7 +37,7 @@ setTimeout(()=>{
   sec('PERSON_COLS: every optional Staff column round-trips, tristate kept');
   const cols=JSON.parse(E("JSON.stringify(PERSON_COLS)"));
   ok('the table lists the 14 optional columns', cols.length===14, cols.length);
-  const full=E(`JSON.stringify(fieldsToPerson(personToFields({id:'x',name:'A',depts:['fab'],ooo:[],email:'a@x.co',phone:'555-555-0100',role:'R',
+  const full=E(`JSON.stringify(fieldsToPerson(personToFields({id:'x',name:'A',depts:['fab'],ooo:[],email:'a@example.com',phone:'555-555-0100',role:'R',
     ext:'204',admin:true,developer:true,feedbackRecipient:true,personalNotes:'n',status:'Active',nickname:'Ace',driver:false,availability:'available',
     schedule:{days:[1,2],start:'09:00',end:'17:00'},freelance:true,listeningTo:'t',listeningLink:'l',listeningVerb:'v',listeningShow:false})))`);
   const p=JSON.parse(full);

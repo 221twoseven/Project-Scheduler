@@ -36,13 +36,13 @@ const D=n=>{const d=new Date();d.setDate(d.getDate()+n);
 
 const projects=[{appId:'p1',Title:'Hermes Windows',client:'Hermes',jobCode:'H1',
   deadline:D(30),status:'in-fabrication',projectManager:'Sam',drafter:'Sam',
-  leadFab:'Nick',activeDepartments:JSON.stringify(['pm','fab']),createdAt:D(-30),sortIndex:0}];
-const tasks=[{appId:'t1',projectId:'p1',department:'fab',assignee:'Nick',startDate:D(-5),
+  leadFab:'Milo',activeDepartments:JSON.stringify(['pm','fab']),createdAt:D(-30),sortIndex:0}];
+const tasks=[{appId:'t1',projectId:'p1',department:'fab',assignee:'Milo',startDate:D(-5),
   endDate:D(10),estimatedDays:12,ticketNodes:'[]',notes:'check the glass order',pinned:false,label:''}];
 /* Sam matches the harness account (user@example.com) so meName() resolves to Sam. */
 const staff=[
   {appId:'s1',Title:'Sam',depts:JSON.stringify(['pm']),ooo:'[]',email:'user@example.com',role:'PM'},
-  {appId:'s2',Title:'Nick',depts:JSON.stringify(['fab']),ooo:'[]',email:'',role:''}];
+  {appId:'s2',Title:'Milo',depts:JSON.stringify(['fab']),ooo:'[]',email:'',role:''}];
 
 const dom=boot(FILE,{data:{projects,tasks,staff,todos:[]}});
 const win=dom.window,doc=win.document;
@@ -68,8 +68,8 @@ function main(){
   ok('…and the toolbar button lights', q('#btn-dash').classList.contains('active'));
   ok('…and the sidebar label says My Dashboard',
      q('#sb-head .sb-dash-lbl').textContent==='My Dashboard');
-  E("PERSON='Nick';saveUI();render()");
-  ok('another person reads Summary · name', q('#db-name').textContent==='Summary · Nick',
+  E("PERSON='Milo';saveUI();render()");
+  ok('another person reads Summary · name', q('#db-name').textContent==='Summary · Milo',
      q('#db-name').textContent);
   ok('…the My Dashboard button stays dark', !q('#btn-dash').classList.contains('active'));
   ok('…and the sidebar label follows', q('#sb-head .sb-dash-lbl').textContent==='Summary');
@@ -79,7 +79,7 @@ function main(){
   E("LENS='project';saveUI();render()");
   ok('project lens + person still presents as the summary place',
      E('dashOn()')===true&&doc.body.classList.contains('dash-on'));
-  ok('…trail bar and sidebar label intact', q('#db-name').textContent==='Summary · Nick'
+  ok('…trail bar and sidebar label intact', q('#db-name').textContent==='Summary · Milo'
      &&q('#sb-head .sb-dash-lbl').textContent==='Summary');
   ok('…the person never counts as a filter here', E('activeFilterCount()')===0);
   ok('…but the flat treatment stays dept-only (carets/⇕ All keep working)',

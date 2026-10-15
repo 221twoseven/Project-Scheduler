@@ -31,11 +31,11 @@ const route=h=>{win.location.hash=h;win.dispatchEvent(new win.Event('hashchange'
 const tdBars=()=>E("NPV_TASKS.filter(t=>t.department==='td').map(t=>({label:t.label||'',who:t.assignee||''}))");
 
 setTimeout(()=>{
-  E("PEOPLE=[{name:'Peter',depts:['td']},{name:'Chris',depts:['td']},{name:'Kate',depts:['td']},{name:'Stan',depts:['td']}];rebuildStaff();");
+  E("PEOPLE=[{name:'Oscar',depts:['td']},{name:'Felix',depts:['td']},{name:'Ines',depts:['td']},{name:'Theo',depts:['td']}];rebuildStaff();");
   route('#/project/new');
   setTimeout(()=>{
     sec('Three drafters make ONE unowned bar — work priority, not people priority');
-    ['Peter','Chris','Kate'].forEach(n=>{
+    ['Oscar','Felix','Ines'].forEach(n=>{
       const cb=[...doc.querySelectorAll('#pp-r-dr input')].find(i=>i.value===n);
       cb.checked=true;cb.dispatchEvent(new win.Event('change',{bubbles:true}));
     });
@@ -47,21 +47,21 @@ setTimeout(()=>{
       sec('A crew of any size rides on a bar as comma-joined names');
       /* REV82 retired ppPopWho with the popover — the crew now commits to the line */
       E("var _t=NPV_TASKS.find(t=>t.department==='td');"
-        +(/function ppPopWho/.test(src)?"ppPopWho(_t,'Peter, Chris');"
-          :"ppDraftLineFor(_t).who='Peter, Chris';npvRebuild();"));
+        +(/function ppPopWho/.test(src)?"ppPopWho(_t,'Oscar, Felix');"
+          :"ppDraftLineFor(_t).who='Oscar, Felix';npvRebuild();"));
       setTimeout(()=>{
         bars=tdBars();
         ok('still one bar after the crew edit',bars.length===1,JSON.stringify(bars));
-        ok('the bar carries both people',bars[0].who==='Peter, Chris',bars[0].who);
+        ok('the bar carries both people',bars[0].who==='Oscar, Felix',bars[0].who);
         ok('crewOf splits the comma list',
-           E("JSON.stringify(crewOf(NPV_TASKS.find(t=>t.department==='td')))")==='["Peter","Chris"]');
+           E("JSON.stringify(crewOf(NPV_TASKS.find(t=>t.department==='td')))")==='["Oscar","Felix"]');
 
         sec('Renaming the bar keeps its crew');
         E("var _t2=NPV_TASKS.find(t=>t.department==='td');ppPopName(_t2,'Armature');");
         setTimeout(()=>{
           bars=tdBars();
           ok('still one bar',bars.length===1,JSON.stringify(bars));
-          ok('name and crew both held',bars[0].label==='Armature'&&bars[0].who==='Peter, Chris',
+          ok('name and crew both held',bars[0].label==='Armature'&&bars[0].who==='Oscar, Felix',
              JSON.stringify(bars));
 
           sec('A subtask splits the work; a crew edit lands on it alone');
@@ -71,17 +71,17 @@ setTimeout(()=>{
             ok('two bars — the work split',bars.length===2,JSON.stringify(bars));
             ok('the new subtask is born named',bars.some(b=>/^Subtask \d+$/.test(b.label)));
             E("var _t3=NPV_TASKS.find(t=>t.department==='td'&&/^Subtask/.test(t.label||''));"
-              +(/function ppPopWho/.test(src)?"ppPopWho(_t3,'Kate');"
-                :"ppDraftLineFor(_t3).who='Kate';npvRebuild();"));
+              +(/function ppPopWho/.test(src)?"ppPopWho(_t3,'Ines');"
+                :"ppDraftLineFor(_t3).who='Ines';npvRebuild();"));
             setTimeout(()=>{
               bars=tdBars();
-              ok('the crew edit landed on the subtask',bars.some(b=>b.who==='Kate'),JSON.stringify(bars));
+              ok('the crew edit landed on the subtask',bars.some(b=>b.who==='Ines'),JSON.stringify(bars));
               ok('the Armature crew is untouched',
-                 bars.some(b=>b.label==='Armature'&&b.who==='Peter, Chris'),JSON.stringify(bars));
+                 bars.some(b=>b.label==='Armature'&&b.who==='Oscar, Felix'),JSON.stringify(bars));
 
               sec('Deleting one bar of several removes just that bar');
               /* confirm() is stubbed true by the harness. */
-              E("var _t4=NPV_TASKS.find(t=>t.department==='td'&&t.assignee==='Kate');ppPopDelete(_t4);");
+              E("var _t4=NPV_TASKS.find(t=>t.department==='td'&&t.assignee==='Ines');ppPopDelete(_t4);");
               setTimeout(()=>{
                 bars=tdBars();
                 ok('one bar remains',bars.length===1,JSON.stringify(bars));

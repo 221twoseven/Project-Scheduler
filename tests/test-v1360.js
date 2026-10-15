@@ -27,13 +27,13 @@ const sec=t=>console.log('\n'+t);
 const D=n=>{const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()+n);
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
 /* one long job that started well before today — the reporter's scenario */
-const projects=[{appId:'p1',Title:'Stephanie Seafood Madison',client:'Stephanie',jobCode:'TB1',deadline:D(40),
-  status:'in-fabrication',projectManager:'Robert',drafter:'Peter',leadFab:'Nick',
+const projects=[{appId:'p1',Title:'Gwendolyn Seafood Madison',client:'Gwendolyn',jobCode:'TB1',deadline:D(40),
+  status:'in-fabrication',projectManager:'Rupert',drafter:'Oscar',leadFab:'Milo',
   activeDepartments:JSON.stringify(['pm','td','fab','install']),createdAt:'2026-07-01',sortIndex:0}];
 const tasks=[
-  {appId:'a0',projectId:'p1',department:'pm',assignee:'Robert',startDate:D(-40),endDate:D(40),estimatedDays:60,ticketNodes:'[]',notes:'',pinned:false,label:''},
-  {appId:'a1',projectId:'p1',department:'td',assignee:'Peter',startDate:D(-40),endDate:D(20),estimatedDays:45,ticketNodes:'[]',notes:'',pinned:false,label:''},
-  {appId:'a2',projectId:'p1',department:'fab',assignee:'Nick',startDate:D(-30),endDate:D(30),estimatedDays:45,ticketNodes:'[]',notes:'',pinned:false,label:''},
+  {appId:'a0',projectId:'p1',department:'pm',assignee:'Rupert',startDate:D(-40),endDate:D(40),estimatedDays:60,ticketNodes:'[]',notes:'',pinned:false,label:''},
+  {appId:'a1',projectId:'p1',department:'td',assignee:'Oscar',startDate:D(-40),endDate:D(20),estimatedDays:45,ticketNodes:'[]',notes:'',pinned:false,label:''},
+  {appId:'a2',projectId:'p1',department:'fab',assignee:'Milo',startDate:D(-30),endDate:D(30),estimatedDays:45,ticketNodes:'[]',notes:'',pinned:false,label:''},
   {appId:'a3',projectId:'p1',department:'install',assignee:'[]',startDate:D(38),endDate:D(40),estimatedDays:3,ticketNodes:'[]',notes:'',pinned:false,label:''}];
 
 const dom=boot(FILE,{data:{projects,tasks,staff:[],todos:[]}});

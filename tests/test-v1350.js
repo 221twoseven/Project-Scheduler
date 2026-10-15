@@ -31,10 +31,10 @@ const T=(id,pid,dept,who,s,e,label)=>({appId:id,projectId:pid,department:dept,as
 const projects=[P('p1',LONG,'VCA','HE276',0),P('p2','Holiday','Dior','',1),P('p3','Spring Vitrines','','  ',2)]; /* p3: a blank-but-whitespace code counts as none */
 /* long-form dates: both ranges cross a month boundary ("Sep 29–Oct 30"), the widest the dates get */
 const tasks=[
-  T('a1','p1','fab','Nick',D(-2),D(31)),T('a2','p1','install','Nick',D(33),D(36),'mock-up days'),
-  T('b1','p2','fab','Nick',D(2),D(34)),T('c1','p3','install','Nick',D(38),D(39))];
+  T('a1','p1','fab','Milo',D(-2),D(31)),T('a2','p1','install','Milo',D(33),D(36),'mock-up days'),
+  T('b1','p2','fab','Milo',D(2),D(34)),T('c1','p3','install','Milo',D(38),D(39))];
 const staff=[{appId:'s1',Title:'Sam',email:'user@example.com',depts:JSON.stringify(['pm']),ooo:'[]',role:''},
-  {appId:'s2',Title:'Nick',email:'',depts:JSON.stringify(['fab','install']),ooo:'[]',role:''}];
+  {appId:'s2',Title:'Milo',email:'',depts:JSON.stringify(['fab','install']),ooo:'[]',role:''}];
 
 const dom=boot(FILE,{data:{projects,tasks,staff,todos:[]}});
 const win=dom.window,doc=win.document,E=s=>win.eval(s);
@@ -48,18 +48,18 @@ const DATES=/^[A-Z][a-z]{2} \d+–[A-Z][a-z]{2} \d+$/;
 setTimeout(()=>{
   sec('Departments lens — R1 / R2 / Q1 / Q2 / custom label');
   E("LENS='dept';render()");
-  const he=find('Nick',LONG);
+  const he=find('Milo',LONG);
   ok('R1: the coded line reads "HE276" and the dates — no project name, no client', !!he&&he.querySelector('.n').textContent==='HE276'&&DATES.test(he.querySelector('.d').textContent)&&he.textContent.indexOf('Frozen')<0&&he.textContent.indexOf('VCA')<0, he&&he.textContent);
   ok('R2: the code takes the dates\' mono type, by its token, so it fits whole', !!he&&he.querySelector('.n').classList.contains('code')&&/\.sb-asn \.n\.code\{font-family:var\(--mono\)/.test(src));
   ok('R2: the line is still cut before the dates, never the other way round', /\.sb-asn \.n\{overflow:hidden;text-overflow:ellipsis;min-width:0\}/.test(src)&&/\.sb-asn \.d\{[^}]*flex-shrink:0/.test(src));
   ok('Q2: the coded line\'s hover tip reads "Client · Project name · Cost code"', !!he&&he.title==='VCA · '+LONG+' · HE276', he&&he.title);
-  const di=find('Nick','Dior');
+  const di=find('Milo','Dior');
   ok('Q1: the uncoded line reads "Dior", "Holiday" and the dates', !!di&&!!di.querySelector('.c')&&di.querySelector('.c').textContent==='Dior'&&di.querySelector('.n').textContent==='Dior · Holiday'&&DATES.test(di.querySelector('.d').textContent), di&&di.textContent);
   ok('Q1: the uncoded line is prose, not mono', !!di&&!di.querySelector('.n').classList.contains('code'));
   ok('Q2: the uncoded line\'s hover tip carries client and name', !!di&&di.title==='Dior · Holiday', di&&di.title);
-  const sv=find('Nick','Spring Vitrines');
+  const sv=find('Milo','Spring Vitrines');
   ok('Q1: a whitespace-only code counts as none — the name shows, no client, tip is the name', !!sv&&sv.querySelector('.n').textContent==='Spring Vitrines'&&!sv.querySelector('.n').classList.contains('code')&&sv.title==='Spring Vitrines', sv&&(sv.textContent+' / '+sv.title));
-  const lb=find('Nick','mock-up days');
+  const lb=find('Milo','mock-up days');
   ok('custom label: a phase with a custom label reads "HE276 · label"', !!lb&&lb.querySelector('.n').textContent==='HE276 · mock-up days'&&lb.title==='VCA · '+LONG+' · HE276 · mock-up days', lb&&(lb.querySelector('.n').textContent+' / '+lb.title));
 
   sec('Q4 — print follows the screen');
@@ -69,7 +69,7 @@ setTimeout(()=>{
     const pd=E("prBuild('timeline','"+D(-7)+"','"+D(45)+"')");
     const lbls=pd.flatMap(p=>[...p.querySelectorAll('.pr-canvas .job-bar')].map(b=>b.textContent));
     ok('the Departments print carries the cost code on the coded project\'s bars', lbls.some(t=>/HE276/.test(t)), lbls.join(' | '));
-    ok('…and the lane sidebar names Nick, with no per-project lines to cut off', pd.some(p=>[...p.querySelectorAll('.pr-side .sb-row.lane-row .sb-name')].some(e=>e.textContent==='Nick'))&&pd.every(p=>!p.querySelector('.pr-side .sb-asn')));
+    ok('…and the lane sidebar names Milo, with no per-project lines to cut off', pd.some(p=>[...p.querySelectorAll('.pr-side .sb-row.lane-row .sb-name')].some(e=>e.textContent==='Milo'))&&pd.every(p=>!p.querySelector('.pr-side .sb-asn')));
   }else{
     const sheet=E("buildPrintSheet('"+D(-7)+"','"+D(45)+"')");
     const sh=sheet&&sheet.querySelectorAll?sheet:null;

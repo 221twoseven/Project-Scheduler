@@ -27,10 +27,10 @@ const D=n=>{const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()+n);
 const staff=[
  {appId:'s1',Title:'Sam',depts:JSON.stringify(['pm']),ooo:'[]',email:'user@example.com',role:'PM',admin:'dev'},
  /* manual flag alone */
- {appId:'s2',Title:'Dana West',depts:JSON.stringify(['fab']),ooo:'[]',email:'d@x.co',role:'',admin:'',availability:'unavailable'},
+ {appId:'s2',Title:'Dana West',depts:JSON.stringify(['fab']),ooo:'[]',email:'d@example.com',role:'',admin:'',availability:'unavailable'},
  /* active OOO range OUTRANKS the manual flag */
- {appId:'s3',Title:'Cody Hall',depts:JSON.stringify(['fin']),ooo:JSON.stringify([{id:'o1',start:D(-2),end:D(3),note:''}]),email:'c@x.co',role:'',admin:'',availability:'unavailable'},
- {appId:'s4',Title:'Alex Reyes',depts:JSON.stringify(['fab']),ooo:'[]',email:'a@x.co',role:'',admin:''}];
+ {appId:'s3',Title:'Cody Hall',depts:JSON.stringify(['fin']),ooo:JSON.stringify([{id:'o1',start:D(-2),end:D(3),note:''}]),email:'c@example.com',role:'',admin:'',availability:'unavailable'},
+ {appId:'s4',Title:'Alex Reyes',depts:JSON.stringify(['fab']),ooo:'[]',email:'a@example.com',role:'',admin:''}];
 
 const dom=boot(FILE,{data:{projects:[],tasks:[],staff,todos:[]}});
 const win=dom.window,doc=win.document,E=s=>win.eval(s);

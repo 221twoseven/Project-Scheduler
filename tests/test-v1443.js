@@ -26,10 +26,10 @@ const P=(id,name,i)=>({appId:id,Title:name,client:'C',jobCode:'',deadline:D(90),
 const T=(id,p,dept,who,s,e)=>({appId:id,projectId:p,department:dept,assignee:who,startDate:D(s),endDate:D(e),estimatedDays:5,ticketNodes:'[]',notes:'',pinned:false,label:''});
 const projects=[P('p1','Spring 2027',0),P('p2','Handed over',1)];
 const tasks=[T('pm1','p1','pm','',30,90),T('td1','p1','td','',30,60),T('fab1','p1','fab','',61,85),
-  /* p2: the PM bar is still held by Kate, a former PM — the one case the group must show */
-  T('pm2','p2','pm','Kate',-10,90),T('td2','p2','td','',-10,20)];
+  /* p2: the PM bar is still held by Ines, a former PM — the one case the group must show */
+  T('pm2','p2','pm','Ines',-10,90),T('td2','p2','td','',-10,20)];
 const staff=[{appId:'s1',Title:'Sam',depts:'["pm"]',ooo:'[]',email:'user@example.com',role:'PM'},
-  {appId:'s2',Title:'Kate',depts:'["pm"]',ooo:'[]',email:'',role:'PM'}];
+  {appId:'s2',Title:'Ines',depts:'["pm"]',ooo:'[]',email:'',role:'PM'}];
 const dom=boot(FILE,{data:{projects,tasks,staff,todos:[]}});
 const win=dom.window,doc=win.document,E=s=>win.eval(s),q=s=>doc.querySelector(s);
 const change=el=>el.dispatchEvent(new win.Event('change',{bubbles:true}));

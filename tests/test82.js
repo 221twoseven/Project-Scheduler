@@ -27,11 +27,11 @@ const rel=n=>{const d=new Date(D0);d.setDate(d.getDate()+n);return iso(d);};
 /* activeDepartments deliberately ordered install-before-fab: the I12 read side must
    seed the row order from it. */
 const projects=[{appId:'p1',Title:'Anchor Job',client:'',jobCode:'ANC-1',deadline:rel(30),
-  status:'auto',projectManager:'Stan',drafter:'Dana',leadFab:'Nick',
+  status:'auto',projectManager:'Theo',drafter:'Dana',leadFab:'Milo',
   activeDepartments:JSON.stringify(['pm','install','fab']),createdAt:rel(-40)}];
-const tasks=[{appId:'t1',projectId:'p1',department:'fab',assignee:'Nick',
+const tasks=[{appId:'t1',projectId:'p1',department:'fab',assignee:'Milo',
   startDate:rel(-5),endDate:rel(10),estimatedDays:10,ticketNodes:'[]',notes:'',pinned:false,label:''},
- {appId:'t2',projectId:'p1',department:'install',assignee:'["Nick"]',
+ {appId:'t2',projectId:'p1',department:'install',assignee:'["Milo"]',
   startDate:rel(12),endDate:rel(16),estimatedDays:4,ticketNodes:'[]',notes:'',pinned:false,label:''}];
 
 const dom=boot(FILE,{data:{projects,tasks,staff:[],todos:[]}});

@@ -24,19 +24,19 @@ const D=n=>{const d=new Date();d.setDate(d.getDate()+n);
 
 const projects=[
   {appId:'p1',Title:'Hermes Windows',client:'Hermes',jobCode:'H1',deadline:D(30),
-   status:'in-fabrication',projectManager:'Stan',drafter:'Peter',leadFab:'Nick',
+   status:'in-fabrication',projectManager:'Theo',drafter:'Oscar',leadFab:'Milo',
    activeDepartments:JSON.stringify(['pm','fab']),createdAt:D(-30),sortIndex:0},
   {appId:'p2',Title:'Tiffany Vitrines',client:'Tiffany',jobCode:'T2',deadline:D(40),
-   status:'in-fabrication',projectManager:'Stan',drafter:'Peter',leadFab:'Kate',
+   status:'in-fabrication',projectManager:'Theo',drafter:'Oscar',leadFab:'Ines',
    activeDepartments:JSON.stringify(['pm','fab']),createdAt:D(-30),sortIndex:1}];
 const tasks=[
-  {appId:'t1',projectId:'p1',department:'fab',assignee:'Nick',startDate:D(-2),endDate:D(5),
+  {appId:'t1',projectId:'p1',department:'fab',assignee:'Milo',startDate:D(-2),endDate:D(5),
    estimatedDays:6,ticketNodes:'[]',notes:'',pinned:false,label:''},
-  {appId:'t2',projectId:'p2',department:'fab',assignee:'Nick',startDate:D(8),endDate:D(12),
+  {appId:'t2',projectId:'p2',department:'fab',assignee:'Milo',startDate:D(8),endDate:D(12),
    estimatedDays:5,ticketNodes:'[]',notes:'',pinned:false,label:''}];
 const staff=[
-  {appId:'s1',Title:'Nick',depts:JSON.stringify(['fab']),ooo:'[]',email:'',role:''},
-  {appId:'s2',Title:'Kate',depts:JSON.stringify(['fab']),ooo:'[]',email:'',role:''}];
+  {appId:'s1',Title:'Milo',depts:JSON.stringify(['fab']),ooo:'[]',email:'',role:''},
+  {appId:'s2',Title:'Ines',depts:JSON.stringify(['fab']),ooo:'[]',email:'',role:''}];
 
 const dom=boot(FILE,{data:{projects,tasks,staff,todos:[]}});
 const win=dom.window,doc=win.document;
@@ -49,8 +49,8 @@ setTimeout(()=>{
   sec('obj 9 — lane rows: name over department, assignments on the right');
   E("LENS='dept';render()");
   const lane=qa('.sb-row.lane-row').find(r=>{
-    const n=r.querySelector('.sb-2l .sb-name');return n&&n.textContent==='Nick';});
-  ok('Nick has a lane row with a two-line identity column', !!lane);
+    const n=r.querySelector('.sb-2l .sb-name');return n&&n.textContent==='Milo';});
+  ok('Milo has a lane row with a two-line identity column', !!lane);
   ok('the department reads as a subheading under the name',
      lane&&lane.querySelector('.sb-2l .sb-sub')&&lane.querySelector('.sb-2l .sb-sub').textContent.length>0,
      lane&&(lane.querySelector('.sb-2l .sb-sub')||{textContent:'(none)'}).textContent);

@@ -16,9 +16,9 @@ const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.l
 const sec=t=>console.log('\n'+t);
 
 const proj=(id,name,dl)=>({appId:id,Title:name,client:'',jobCode:id.toUpperCase(),
-  deadline:dl,status:'in-fabrication',projectManager:'Stan',drafter:'',
+  deadline:dl,status:'in-fabrication',projectManager:'Theo',drafter:'',
   leadFab:'',activeDepartments:JSON.stringify(['pm','fab']),createdAt:'2026-07-01'});
-const task=(id,pid,s,e)=>({appId:id,projectId:pid,department:'fab',assignee:'Nick',
+const task=(id,pid,s,e)=>({appId:id,projectId:pid,department:'fab',assignee:'Milo',
   startDate:s,endDate:e,estimatedDays:5,ticketNodes:'[]',notes:'',pinned:false,label:''});
 /* Dates ride relative to today: the fixed 2026 seeds went stale on 2026-09-15 when the
    canvas origin crawled past the "near" bar and it stopped being off-screen. Both bars

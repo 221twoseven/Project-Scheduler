@@ -70,7 +70,7 @@ through a schema or data-store change is accepted collateral.** It no longer con
 the schema.
 
 - **Schema changes are owner-applied and deliberate.** The app never writes schema.
-  Deliver Robert the exact spec (list, column, internal name, type, values); additive
+  Deliver the owner the exact spec (list, column, internal name, type, values); additive
   columns are routine (the app probes them live — the tristate pattern). A destructive
   change (rename, delete, type change, moving a store) gets a milestone record naming
   what it breaks and how existing rows migrate. See `docs/TODO.md` §6.

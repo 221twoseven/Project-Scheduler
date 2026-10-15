@@ -30,7 +30,7 @@ const mkTask=(id,pid,dept,who,s,e)=>({appId:id,projectId:pid,department:dept,ass
 
 const dom=boot(FILE,{data:{
   projects:[mkProj('p1','Alpha',0)],
-  tasks:[mkTask('t1','p1','fab','Sam',D(0),D(4)),mkTask('t2','p1','fin','Nick',D(5),D(9))],
+  tasks:[mkTask('t1','p1','fab','Sam',D(0),D(4)),mkTask('t2','p1','fin','Milo',D(5),D(9))],
   staff:[],todos:[]}});
 const win=dom.window,E=s=>win.eval(s),calls=()=>win.__spCalls;
 

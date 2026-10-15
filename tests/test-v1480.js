@@ -23,7 +23,7 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
 const iso=d=>new Date(Date.now()-d*864e5).toISOString();
 
 const P=(id,status)=>({appId:id,Title:'Job '+id,client:'Acme',jobCode:'A1',deadline:'2027-03-01',status:status||'auto',
-  projectManager:'Stan',activeDepartments:'["td"]',createdAt:'2026-07-01',sortIndex:0});
+  projectManager:'Theo',activeDepartments:'["td"]',createdAt:'2026-07-01',sortIndex:0});
 const T=(id,pid)=>({appId:id,projectId:pid,department:'td',assignee:'',startDate:'2027-01-04',endDate:'2027-01-08',
   estimatedDays:5,ticketNodes:'[]',notes:'',pinned:false,label:''});
 
@@ -39,9 +39,9 @@ async function main(){
      (its project row is old), 'old' 30 days ago, 'done' 30 days ago but complete */
   E(`(()=>{const at=(d)=>new Date(Date.now()-d*864e5).toISOString();
     const p=id=>ST.projects.find(x=>x.id===id);
-    p('fresh').updatedAt=at(40);p('fresh').updatedBy='Peter';
+    p('fresh').updatedAt=at(40);p('fresh').updatedBy='Oscar';
     ST.tasks.find(t=>t.id==='t1').updatedAt=at(2);ST.tasks.find(t=>t.id==='t1').updatedBy='Sam';
-    p('old').updatedAt=at(30);p('old').updatedBy='Peter';ST.tasks.find(t=>t.id==='t2').updatedAt=at(31);
+    p('old').updatedAt=at(30);p('old').updatedBy='Oscar';ST.tasks.find(t=>t.id==='t2').updatedAt=at(31);
     p('done').updatedAt=at(30);ST.tasks.find(t=>t.id==='t3').updatedAt=at(30);
     render();})()`);
   await wait(50);
@@ -83,7 +83,7 @@ async function main(){
 
   sec('the Meeting Sheet, one line under each project');
   const sheet=E("(()=>{const w=buildMeetingSheet?buildMeetingSheet():null;return w?w.outerHTML:''})()");
-  ok('each project carries "Last edited by …"',/mr-upd">Last edited by Sam · /.test(sheet)&&/mr-upd">Last edited by Peter · /.test(sheet));
+  ok('each project carries "Last edited by …"',/mr-upd">Last edited by Sam · /.test(sheet)&&/mr-upd">Last edited by Oscar · /.test(sheet));
 
   sec('the prompt: your stale projects on your own dashboard');
   E("enterDash('Sam')");await wait(200);

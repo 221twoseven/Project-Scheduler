@@ -30,8 +30,8 @@ const D0=new Date();D0.setHours(0,0,0,0);
 const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 const rel=(days,months)=>{const d=new Date(D0);if(months)d.setMonth(d.getMonth()+months);if(days)d.setDate(d.getDate()+days);return iso(d);};
 const projects=[{appId:'p1',Title:'Long Haul',client:'',jobCode:'P1',deadline:rel(3,2),status:'in-fabrication',
-  projectManager:'Stan',drafter:'Dana',leadFab:'Nick',activeDepartments:JSON.stringify(['pm','fab','install']),createdAt:rel(-40)}];
-const task=(id,dept,s,e)=>({appId:id,projectId:'p1',department:dept,assignee:'Nick',startDate:s,endDate:e,estimatedDays:5,ticketNodes:'[]',notes:'',pinned:false,label:''});
+  projectManager:'Theo',drafter:'Dana',leadFab:'Milo',activeDepartments:JSON.stringify(['pm','fab','install']),createdAt:rel(-40)}];
+const task=(id,dept,s,e)=>({appId:id,projectId:'p1',department:dept,assignee:'Milo',startDate:s,endDate:e,estimatedDays:5,ticketNodes:'[]',notes:'',pinned:false,label:''});
 const tasks=[task('t1','fab',rel(-75),rel(0,4)),task('t2','install',rel(0,2),rel(3,2))];
 
 const dom=boot(FILE,{data:{projects,tasks,staff:[],todos:[]}});

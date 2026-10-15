@@ -22,12 +22,12 @@ const D=n=>{const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()+n);
 
 const staff=[
   {appId:'s1',Title:'Sam Ortiz',depts:JSON.stringify(['td']),ooo:'[]',email:'user@example.com',role:'Drafter'},
-  {appId:'s2',Title:'Caroline Bondi',depts:JSON.stringify(['pm']),ooo:'[]',email:'',role:'PM'},
-  {appId:'s3',Title:'Stan Kim',depts:JSON.stringify(['pm']),ooo:'[]',email:'',role:'PM'}];
+  {appId:'s2',Title:'Cordelia Vance',depts:JSON.stringify(['pm']),ooo:'[]',email:'',role:'PM'},
+  {appId:'s3',Title:'Theo Kim',depts:JSON.stringify(['pm']),ooo:'[]',email:'',role:'PM'}];
 const projects=[{appId:'p1',Title:'Saved Job',client:'C',jobCode:'J1',deadline:D(40),
-  status:'in-fabrication',projectManager:'Caroline Bondi',drafter:'',leadFab:'',
+  status:'in-fabrication',projectManager:'Cordelia Vance',drafter:'',leadFab:'',
   activeDepartments:JSON.stringify(['pm','fab']),createdAt:D(-30),sortIndex:0}];
-const tasks=[{appId:'t1',projectId:'p1',department:'fab',assignee:'Stan Kim',startDate:D(0),endDate:D(4),
+const tasks=[{appId:'t1',projectId:'p1',department:'fab',assignee:'Theo Kim',startDate:D(0),endDate:D(4),
   estimatedDays:5,ticketNodes:'[]',notes:'',pinned:false,label:''},
   {appId:'t2',projectId:'p1',department:'td',assignee:'Sam Ortiz',startDate:D(0),endDate:D(4),
   estimatedDays:5,ticketNodes:'[]',notes:'',pinned:false,label:''}];
@@ -46,7 +46,7 @@ function draftPart(){
   sec('new-project draft: no Project Manager pre-checked');
   ok('the draft opens with an empty PM', E('PP_FORM.projectManager')==='', E('PP_FORM.projectManager'));
   ok('no PM box is checked', qa('#pp-r-pm input:checked').length===0);
-  ok('the PM roster lists the real PMs', qa('#pp-r-pm input').map(i=>i.value).includes('Caroline Bondi'));
+  ok('the PM roster lists the real PMs', qa('#pp-r-pm input').map(i=>i.value).includes('Cordelia Vance'));
   ok('an untouched draft is not dirty', E('ppDraftDirty()')===false, E('PP_SNAP')+' vs '+E('JSON.stringify(PP_FORM)'));
 
   sec('Create refuses without a Project Manager');
@@ -60,12 +60,12 @@ function draftPart(){
   ok('the toast names the missing PM', /Project Manager/.test(tt), tt);
 
   sec('checking a PM lets Create through');
-  const car=qa('#pp-r-pm input').find(i=>i.value==='Caroline Bondi');
+  const car=qa('#pp-r-pm input').find(i=>i.value==='Cordelia Vance');
   car.click();
   doc.getElementById('pp-save').click();
   setTimeout(()=>{
     ok('the project was created', E('ST.projects.length')===n0+1, E('ST.projects.length'));
-    ok('with the checked PM', E("ST.projects.some(p=>p.name==='Needs a PM'&&p.projectManager==='Caroline Bondi')"));
+    ok('with the checked PM', E("ST.projects.some(p=>p.name==='Needs a PM'&&p.projectManager==='Cordelia Vance')"));
     go('#/project/p1');
     setTimeout(savedPart,800);
   },400);
@@ -74,8 +74,8 @@ function draftPart(){
 function savedPart(){
   sec('saved project page is untouched');
   const checked=qa('#pp-r-pm input:checked').map(i=>i.value);
-  ok('the saved project keeps its own PM', checked.join('|')==='Caroline Bondi', checked.join('|'));
-  ok('the stored record never changed', E("projById('p1').projectManager")==='Caroline Bondi');
+  ok('the saved project keeps its own PM', checked.join('|')==='Cordelia Vance', checked.join('|'));
+  ok('the stored record never changed', E("projById('p1').projectManager")==='Cordelia Vance');
 
   sec('My Dashboard: every milestone listed, nothing folded behind +N more');
   go('#/');

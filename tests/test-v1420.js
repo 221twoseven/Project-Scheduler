@@ -27,16 +27,16 @@ const D=n=>{const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()+n);
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
 
 const P=(id,name,depts,extra)=>Object.assign({appId:id,Title:name,depts:JSON.stringify(depts),ooo:'[]',email:'',role:''},extra||{});
-const staff=[P('s1','Kate',['pm']),P('s2','Sam',['pm'],{email:'user@example.com'}),P('s3','Dana',['td']),P('s4','Eve',['td']),
+const staff=[P('s1','Ines',['pm']),P('s2','Sam',['pm'],{email:'user@example.com'}),P('s3','Dana',['td']),P('s4','Eve',['td']),
   P('s5','Lee',['fab']),P('s6','Mo',['fab']),P('s7','Zed',['fab']),P('s8','Ann',['fab'])];
 const proj=(id,extra)=>Object.assign({appId:id,Title:'Job '+id,client:'C',jobCode:id.toUpperCase(),deadline:D(40),status:'in-fabrication',
-  projectManager:'Kate',drafter:'Dana',leadFab:'Lee',fabricators:'',activeDepartments:JSON.stringify(['pm','td','fab']),createdAt:D(-40),sortIndex:0},extra||{});
+  projectManager:'Ines',drafter:'Dana',leadFab:'Lee',fabricators:'',activeDepartments:JSON.stringify(['pm','td','fab']),createdAt:D(-40),sortIndex:0},extra||{});
 const projects=[proj('p1'),proj('p2',{sortIndex:1})];
 const T=(id,p,dept,who,s,e,extra)=>Object.assign({appId:id,projectId:p,department:dept,assignee:who,
   startDate:D(s),endDate:D(e),estimatedDays:5,ticketNodes:'[]',notes:'',pinned:false,label:''},extra||{});
 const tasks=[
   /* p1: the reporter's case — a Project Management bar with the PM's name baked in */
-  T('pm1','p1','pm','Kate',-30,40),
+  T('pm1','p1','pm','Ines',-30,40),
   /* p2: umbrella bars (no crew of their own) and every edge the spec names */
   T('q-pm','p2','pm','',-20,30),
   T('q-tdold','p2','td','',-25,-15),                                   /* ended umbrella (Q3, R4) */
@@ -64,33 +64,33 @@ setTimeout(()=>{go('#/project/p1');setTimeout(pmNamed,800);},1300);
 
 function pmNamed(){
   sec('R1 / R4 — the PM changes on a bar with the old PM\'s name on it (the reporter\'s case)');
-  ok('setup: the Project manager list offers Kate (checked) and Sam', qa('#pp-r-pm input').some(i=>i.value==='Kate'&&i.checked)&&qa('#pp-r-pm input').some(i=>i.value==='Sam'&&!i.checked));
-  pick('pp-r-pm','Sam');pick('pp-r-pm','Kate',false);
+  ok('setup: the Project manager list offers Ines (checked) and Sam', qa('#pp-r-pm input').some(i=>i.value==='Ines'&&i.checked)&&qa('#pp-r-pm input').some(i=>i.value==='Sam'&&!i.checked));
+  pick('pp-r-pm','Sam');pick('pp-r-pm','Ines',false);
   ok('the project now names Sam as PM', E("ST.projects.find(p=>p.id==='p1').projectManager")==='Sam', E("ST.projects.find(p=>p.id==='p1').projectManager"));
   const all=B('p1','pm'),old=all.find(t=>t.id==='pm1'),nu=all.find(t=>t.id!=='pm1');
   ok('the bar splits on the day of the change: two Project Management bars', all.length===2, all.length);
-  ok('R4: the part up to yesterday keeps Kate', !!old&&old.endDate===D(-1)&&old.startDate===D(-30)&&crew(old).join()==='Kate', old&&(old.startDate+'→'+old.endDate+' '+old.assignee));
+  ok('R4: the part up to yesterday keeps Ines', !!old&&old.endDate===D(-1)&&old.startDate===D(-30)&&crew(old).join()==='Ines', old&&(old.startDate+'→'+old.endDate+' '+old.assignee));
   ok('R1: the part from today is Sam\'s, to the original end', !!nu&&nu.startDate===D(0)&&nu.endDate===D(40)&&crew(nu).join()==='Sam', nu&&(nu.startDate+'→'+nu.endDate+' '+nu.assignee));
   ok('the part from today continues as a range on the department\'s row', !!nu&&nu.range===true);
-  ok('R3: every view that reads running bars sees Sam, not Kate', now('p1','pm')==='Sam', now('p1','pm'));
+  ok('R3: every view that reads running bars sees Sam, not Ines', now('p1','pm')==='Sam', now('p1','pm'));
   /* the Departments lens builds its people lanes with laneRowsForSection — ask it directly */
   const lane=who=>JSON.parse(E("JSON.stringify((laneRowsForSection({kind:'group',id:'pmg',depts:['pm']}).find(l=>l.assignee==="+JSON.stringify(who)+")||{tasks:[]}).tasks.filter(t=>t.projectId==='p1'&&!t.__ghost).map(t=>t.startDate+'>'+t.endDate))"));
-  ok('R3 / R4: Kate\'s Project Management lane keeps only the part up to yesterday', lane('Kate').join()===D(-30)+'>'+D(-1), lane('Kate').join());
+  ok('R3 / R4: Ines\'s Project Management lane keeps only the part up to yesterday', lane('Ines').join()===D(-30)+'>'+D(-1), lane('Ines').join());
   ok('R1: Sam\'s lane holds the project from today', lane('Sam').join()===D(0)+'>'+D(40), lane('Sam').join());
   setTimeout(()=>{ /* the sync runs after the save returns */
     const posts=win.__spCalls.filter(c=>c.method==='POST'&&/ShopTimeline_Tasks\/items/.test(c.url));
     ok('the saved split reached SharePoint: the new part is POSTed with its range flag', posts.some(c=>c.body&&c.body.fields&&c.body.fields.appId===(nu&&nu.id)&&c.body.fields.range===true),
        posts.map(c=>c.body&&c.body.fields&&c.body.fields.appId).join());
-    ok('and the old part is PATCHed to end yesterday with Kate', win.__spCalls.some(c=>c.method==='PATCH'&&/ShopTimeline_Tasks\/items/.test(c.url)&&c.body&&c.body.endDate===D(-1)&&c.body.assignee==='Kate'));
+    ok('and the old part is PATCHed to end yesterday with Ines', win.__spCalls.some(c=>c.method==='PATCH'&&/ShopTimeline_Tasks\/items/.test(c.url)&&c.body&&c.body.endDate===D(-1)&&c.body.assignee==='Ines'));
     go('#/project/p2');setTimeout(umbrellas,800);
   },600);
 }
 
 function umbrellas(){
   sec('R1 / R4 — the PM changes on an umbrella bar (no crew of its own)');
-  pick('pp-r-pm','Sam');pick('pp-r-pm','Kate',false);
+  pick('pp-r-pm','Sam');pick('pp-r-pm','Ines',false);
   const all=B('p2','pm'),old=all.find(t=>t.id==='q-pm'),nu=all.find(t=>t.id!=='q-pm');
-  ok('the umbrella splits: the past part is pinned to Kate by name', !!old&&old.endDate===D(-1)&&old.assignee==='Kate', old&&old.assignee);
+  ok('the umbrella splits: the past part is pinned to Ines by name', !!old&&old.endDate===D(-1)&&old.assignee==='Ines', old&&old.assignee);
   ok('the part from today stays an umbrella and follows the role to Sam', !!nu&&nu.assignee===''&&crew(nu).join()==='Sam', nu&&JSON.stringify(nu.assignee));
 
   sec('R2 — Technical Designer: an ended umbrella is history, a later one just follows');
@@ -147,7 +147,7 @@ function lead(){
 
 function draft(){
   sec('Draft page — the roles picked before Create are the ones on the saved bars');
-  pick('pp-r-pm','Kate');pick('pp-r-pm','Sam');pick('pp-r-pm','Kate',false);
+  pick('pp-r-pm','Ines');pick('pp-r-pm','Sam');pick('pp-r-pm','Ines',false);
   doc.getElementById('pp-name').value='Handover Draft';
   doc.getElementById('pp-save').click();
   setTimeout(()=>{

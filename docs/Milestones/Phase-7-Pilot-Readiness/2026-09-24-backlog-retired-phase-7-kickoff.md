@@ -13,7 +13,7 @@ the new plan is built or started; this record opens the planning phase.
   their ceiling wrongly and were corrected in the carry (e.g. the changelog fetch already
   pages — the real ceiling is an unbounded full-list read; Vivid hides weekends only,
   holidays got name pills in v1.20.0). The other ~130 carried with their gates.
-- **Fact-checked the Project Director's September 2026 brief** (Robert's condensed
+- **Fact-checked the Project Director's September 2026 brief** (the owner's condensed
   version with its "Response" annotations): 125 claims about what the app does today,
   93 confirmed, 28 partly right, 1 refuted, 3 unverifiable from the repo. The corrections
   are folded into the new backlog where they change the plan (see "Found in passing").
@@ -33,7 +33,7 @@ Manager, Personnel Manager, Design Resources Manager) sharing the same lists. Bo
 conflict with the retired backlog's north star — "the app becomes the company's singular
 source of truth" with v2.0.0 as the cutover. Carrying 90 unchecked boxes into that frame
 would have kept planning against a goal nobody holds any more. Development also stops
-being solitary: milestones and the strategy will be presented to Hubert and the key
+being solitary: milestones and the strategy will be presented to the backup maintainer and the key
 users as the phase runs, so the backlog now separates *decisions to take together* (§4)
 from *work to do* (§3).
 
@@ -60,6 +60,6 @@ from *work to do* (§3).
 **Version:** none — docs only.
 
 **Known ceilings / follow-ups.** The Phase 7 build list is a proposal until the owner,
-Hubert and the Project Director agree the scope; the fourteen design decisions in the new
+The backup maintainer and the Project Director agree the scope; the fourteen design decisions in the new
 TODO §4 are open. The condensed brief itself is not in the repository (the repo is public;
 adding it is the owner's call).

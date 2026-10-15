@@ -9,7 +9,7 @@ open there was checked against the code before it was carried; the carried entri
 Two documents set this phase and are the source for most lines below:
 
 - **The Project Director's brief** — *Shop Timeline App: Current Processes and Development
-  Priorities* (September 2026), read here in Robert's condensed, annotated version,
+  Priorities* (September 2026), read here in the owner's condensed, annotated version,
   [`reference/2026-09-22-Shop-Timeline-Brief-Condensed.md`](../reference/2026-09-22-Shop-Timeline-Brief-Condensed.md).
   Cited as **[brief §N]**. Its "Response" annotations were fact-checked
   against the app on 2026-09-24; where a claim was partly wrong, the corrected fact is what
@@ -30,13 +30,13 @@ depends on.
   carried into §3 by hand.
 - **Every unticked item is not started** unless its text says otherwise.
 
-Milestones and this plan are presented to Hubert, the Project Director and the key users
+Milestones and this plan are presented to the backup maintainer, the Project Director and the key users
 as the phase runs.
 
 **Standing rules:**
 
 - ⚠ marks a SharePoint column/list or Entra change. **Not a gate** (owner, 2026-09-01):
-  deliver Robert the exact spec (list, column, type, values) and he applies the list edit;
+  deliver the owner the exact spec (list, column, type, values) and he applies the list edit;
   the app never writes schema. The colleague app no longer constrains the schema (D2,
   ruled 2026-09-24); a destructive change still gets a milestone record naming what it
   breaks and how rows migrate. Entra changes still need explicit instruction (`CLAUDE.md`).
@@ -532,7 +532,7 @@ release. Where the app has a part, it's listed.
 - [ ] **14. Decide the core project registry** (§4 D1). Before deciding, produce a
       side-by-side schema comparison of Current 2-7 Projects / 27 Projects (Archive) and
       `ShopTimeline_Projects`, including what 27 Events and Teams depend on in Current
-      Projects. Robert can do this with read access alone. The comparison is needed
+      Projects. The owner can do this with read access alone. The comparison is needed
       whatever D15 decides: the two lists hold the business knowledge that has to migrate,
       and their dependents are what a cutover re-points (2026-10-08). [brief §6.7, §14]
 - [ ] **15. Backups.** Nothing backs up the nine lists on a schedule.
@@ -545,9 +545,9 @@ release. Where the app has a part, it's listed.
       - Confirm list versioning is on for all nine. Deletes are recovered from the Recycle
         Bin, edits from version history.
       [brief §10.2, §12, §7.2]
-- [ ] **16. Backup maintainer and rollback procedure.** The backup maintainer is Hubert
+- [ ] **16. Backup maintainer and rollback procedure.** The backup maintainer is the backup maintainer
       (owner, 2026-09-24, "for now"). Still to do:
-      - Give Hubert access to the repository (as a collaborator working through ordinary
+      - Give the backup maintainer access to the repository (as a collaborator working through ordinary
         branches and pull requests; the `sandbox` branch flow in
         `docs/Archive/Onboarding-Fork.md` was retired 2026-10-01), Pages, the Entra app
         registration (at least the right to edit redirect URIs) and the recovery docs
@@ -570,7 +570,7 @@ release. Where the app has a part, it's listed.
         tests run against a database that can be wiped. This item and that staging are one
         piece of work, not two (`docs/Architecture-Review-Backend.md` §E8).
       [brief §10, §11.1]
-- [ ] **18. Preload the pilot projects.** The Project Director and Robert enter the pilot
+- [ ] **18. Preload the pilot projects.** The Project Director and the owner enter the pilot
       jobs, so PMs check them instead of re-entering them. Set the end date for parallel
       entry up front, and limit how many projects the pilot covers. [brief §10, §10.2]
 - [ ] **26. Define the information tiers** — a decision with HR and the Project Director.
@@ -625,7 +625,7 @@ release. Where the app has a part, it's listed.
         32–40. Open rows were back-filled; resolved history stays on the list. Commits
         in this repository close tickets with
         `Fixes 221twoseven/Project-Scheduler-issues#N`.
-      - *Hubert* has no GitHub account (owner, 2026-09-25), so tracker access for him is
+      - *The backup maintainer* has no GitHub account (owner, 2026-09-25), so tracker access for him is
         skipped; he sees reports in the app and in the feedback mail.
       - *Still to do* (from `docs/Automations.md`, 2026-10-08):
         - build the **Email reply in** flow (tracker README step 10) and export it to the
@@ -783,6 +783,27 @@ release. Where the app has a part, it's listed.
         - After PR 8: one page size for every list (it changes request URLs, so not during
           the sequence): item 68.
       [`docs/Architecture-Review-Storage.md` §1, "Proposed PR sequence"; D4; D15]
+- [x] **70. No scrapable email addresses in the public repository** (owner, 2026-10-15:
+      spam and phishing about "full stack engineers" reached the team; "until the repo is
+      private, we cannot have scrapable info"). Done 2026-10-15, tests only, no release:
+      every fixture address moves to the reserved `example.com` / `example.org` domains.
+      Some `firstname@twoseven.net` fixtures were real addresses, because that is the
+      company's real format; others used live domains (`x.co`, `gmail.com`).
+      **Real names too** (owner, same day: "scrub the real names from tests and docs"),
+      because a real first name plus the public domain is an address. In tests, the
+      app's sample roster and code comments, each real or likely-real name has a fixed
+      fictional stand-in, kept to the same initial and length so sort-order and search
+      assertions still hold. In docs, the owner is "the owner" and the backup maintainer
+      is "the backup maintainer"; local paths read `users\<user>\`.
+      **Not covered:**
+      - every commit's author address (`github@twoseven.net`) and the names in older
+        commits, PR text and the history of every file stay public. The owner's GitHub
+        email-privacy settings stop the address for new commits; rewriting history
+        isn't worth it;
+      - `reference/Timeline_50.html` (never edited, `CLAUDE.md`) still has the original
+        sample roster's first names;
+      - names inside the screenshots and PDFs under `docs/` (images, not text).
+      [owner ask 2026-10-15]
 - [x] **69. Stop testing against the REV50 reference** (owner, 2026-10-14). Done (PR #153,
       2026-10-14), tooling only, no release. CI and the release checklist no longer run the
       suites against `reference/Timeline_50.html`; the file stays, never edited, as history.
@@ -1584,7 +1605,7 @@ then the recommendation or the dated ruling.
   Phase 8 schema is provisioned, so rows move at most once. Related: D1, D10, D12; item 42.
   [owner 2026-10-01; `docs/Architecture-Review-Storage.md`]
 
-  **Reassessment, 2026-10-08** (owner and Hubert, after research;
+  **Reassessment, 2026-10-08** (owner and the backup maintainer, after research;
   `docs/Architecture-Review-Backend.md`). Two facts weren't weighed on 2026-10-01:
   1. *Office is strongly relational and rule-bound:* lead → estimate → revision →
      location → item → lines, priced from dated catalog rates, then approval → project →
@@ -1648,7 +1669,7 @@ then the recommendation or the dated ruling.
 
   *Gate (unchanged):* rule before the Phase 8 schema is provisioned, so rows move at most
   once. Backend guardrails enter `CLAUDE.md` only when backend work is authorized (§7.4).
-  [owner and Hubert 2026-10-08; `docs/Architecture-Review-Backend.md`]
+  [owner and the backup maintainer 2026-10-08; `docs/Architecture-Review-Backend.md`]
 
 ## 5. Reference material to gather [brief §13]
 
@@ -1662,19 +1683,19 @@ What we still need from people: schemas, rules and examples, not screenshots. St
 | Current Projects and 27 Events: schemas, lookups, status fields, Teams and shop-screen dependencies, where Outlook IDs are stored, an example of an Outlook-only edit and of a deletion | Project Director; flow owner (unknown) | not requested (item 14) |
 | Power Automate: every trigger, action, calendar connection, recipient, error owner, retry policy | flow owner (unknown) | owner not identified |
 | Master Project Tracker and closeout: columns, restricted fields, AMPM fields, closeout email examples, what the Bookkeeper minimally needs | Project Director, Bookkeeper | not requested (items 11, 22) |
-| PTO, holidays, change log: the availability source, how identities are matched, cancellation examples, how holidays are set | operations manager (PTO, the 27 Employees automation); Robert (change log, item 20) | discovery session not held |
+| PTO, holidays, change log: the availability source, how identities are matched, cancellation examples, how holidays are set | operations manager (PTO, the 27 Employees automation); the owner (change log, item 20) | discovery session not held |
 | QuickBooks / TimeClock+ CSV formats | Bookkeeper | not requested (D13) |
-| Who administers which view (the key users), and which permission set each needs | owner, Hubert | in progress (D3) |
-| Davis's estimator: a walkthrough of its model, pricing rules, catalog and rate data, and test estimates; where its database runs | Davis, Robert | not requested (item 44) |
+| Who administers which view (the key users), and which permission set each needs | owner, the backup maintainer | in progress (D3) |
+| Davis's estimator: a walkthrough of its model, pricing rules, catalog and rate data, and test estimates; where its database runs | Davis, the owner | not requested (item 44) |
 | Estimate samples: two or three recent estimates per PM, of different shapes, to re-enter in the estimator's model | several PMs, the Project Director | not requested (item 44) |
-| Platform ownership: who would hold an Azure subscription and its billing, a second administrator, alert recipient, production-migration approver; or who administers a Power Platform environment | owner, Hubert | not requested (D15) |
+| Platform ownership: who would hold an Azure subscription and its billing, a second administrator, alert recipient, production-migration approver; or who administers a Power Platform environment | owner, the backup maintainer | not requested (D15) |
 | Licence inventory and headcount: Power Apps / Power Automate premium licences already held, and how many people would use Systems (viewers included) | tenant admin, owner | not requested (D15) |
 | Colleague app: is it running, who maintains it, which lists it reads and writes | owner | answered 2026-09-24: running, unused, will not return; breakage accepted (D2) |
-| The app itself: lists, registration, scopes, deployment, data model, formulas | Robert | mostly in the repository; item 21 closes the gaps (backups and rollup formulas undocumented) |
+| The app itself: lists, registration, scopes, deployment, data model, formulas | the owner | mostly in the repository; item 21 closes the gaps (backups and rollup formulas undocumented) |
 
-## 6. Data / schema (⚠ shared lists — Robert applies each spec)
+## 6. Data / schema (⚠ shared lists — the owner applies each spec)
 
-The app never changes the schema itself: Robert receives the exact spec and applies it.
+The app never changes the schema itself: The owner receives the exact spec and applies it.
 Adding a column is routine, because the app checks for new columns when it runs and copes
 if one is missing (the "tristate" pattern: a missing column never makes other saves fail).
 A destructive change gets a milestone record with its migration. The colleague app is no
@@ -1804,7 +1825,7 @@ How to read the tags at the end of an entry:
       what a view captures when role-based views are designed, not before. [L963]
 - [ ] **Saved views recall grouping, not each person's own order.** The order
       (`sortIndex`) is shared data; a private order needs a per-user record (spec to
-      Robert when decided). [L965]
+      The owner when decided). [L965]
 - [ ] **The white-bar-text rule covers bar colours only.** Subtask tints (`kidShade()`)
       pick their own text colour. Owner's call (REV80). [L969]
 - [ ] **Drag-to-pan works only on the date header.** Gate: PMs asking to grab the canvas
@@ -2192,7 +2213,7 @@ How to read the tags at the end of an entry:
     #139, #141; the PR numbers for 3–5 were added in this audit); the ponytail audit's
     placements (#136: items 60, 61 and item 48's notes; `test-v1210` re-listed after a month
     out of CI); item 64 (the *new report out* flow, added in this audit).
-  - *Tracker:* four new tickets, all filed 2026-10-13. #39, #40 and #41 (from Caroline:
+  - *Tracker:* four new tickets, all filed 2026-10-13. #39, #40 and #41 (from Cordelia:
     drag the timeline, the crew list jumping to the top, an All Projects button) got
     specs on 2026-10-14 and are items 65, 66 and 67. #42, the owner's test of the new
     flow, is closed. The older ones match their items: #1 → 32 (needs Proceed),
@@ -2288,7 +2309,7 @@ How to read the tags at the end of an entry:
   - The duplicate "42" (tracker #33's shipped Departments line) is relabelled 47.
   - The rule itself is in `CLAUDE.md`, not here.
 
-- 2026-10-08: **D15 reassessed** (owner and Hubert). Office's relational, rule-bound data
+- 2026-10-08: **D15 reassessed** (owner and the backup maintainer). Office's relational, rule-bound data
   and the AI-agent development model move Azure SQL + API from fallback to co-equal
   candidate with Dataverse. SharePoint stays for files and for Timeline until the cutover.
   - The 2026-10-01 analysis is kept and labelled superseded; five corrections to its table
@@ -2357,7 +2378,7 @@ How to read the tags at the end of an entry:
   `docs/Milestones/Phase-7-Pilot-Readiness/2026-09-27-style-guide.md`.
 - 2026-09-25 (later): status rule set — GitHub is the truth once a report has a ticket;
   the poller runs on close/reopen events; tracker #13 → item 41, #14 closed as done;
-  PR #52 merged (Hubert has no GitHub account). The bridge's dev-page buttons ledgered
+  PR #52 merged (the backup maintainer has no GitHub account). The bridge's dev-page buttons ledgered
   in §7.4.
 - 2026-09-25: the bridge ran (item 31 RUNNING) — tracker #1–#12 filed from the 13 rows
   on `ShopTimeline_Feedback`; items 32–40 carried in, #7 folded into item 3, #11 closed
@@ -2371,7 +2392,7 @@ How to read the tags at the end of an entry:
   repository was created and the poller, workflow and setup README pushed; the owner's
   Entra / secrets / column setup is the next step.
 - 2026-09-24 (evening): the owner's rulings folded in (D2 lifted, D3 ruled in principle,
-  Hubert backup maintainer, Config exists, People page current); items 25–30 added and
+  The backup maintainer backup maintainer, Config exists, People page current); items 25–30 added and
   the contingency map written into §2; the condensed brief added as
   `reference/2026-09-22-Shop-Timeline-Brief-Condensed.md`; `CLAUDE.md`, `README.md`,
   `CONTRIBUTING.md`, `SETUP.md`, `ARCHITECTURE.md` colleague-app rule wording updated.
@@ -2387,13 +2408,13 @@ How to read the tags at the end of an entry:
 ### Legend
 
 - **⚠** — touches shared SharePoint schema or Entra (sign-in) configuration. Not a gate:
-  Robert gets the exact spec and applies the list edit himself. Destructive changes get a
+  The owner gets the exact spec and applies the list edit himself. Destructive changes get a
   milestone record (D2 lifted 2026-09-24). Entra changes need explicit instruction
   (`CLAUDE.md`).
 - **Waits on** — the work can't start until the named item is done or the named decision
   is taken. An arrow (←) in the log means the same.
 - **[brief §N]** — the Project Director's September 2026 brief, condensed and annotated by
-  Robert (2026-09-22); section numbers match the original 21-page document.
+  The owner (2026-09-22); section numbers match the original 21-page document.
 - **[vision]** — the owner's 2026-09-24 statement of the portal direction, defined as
   Systems on 2026-09-29 (§1).
 - **[tracker #N]** — an issue in the private tracker `221twoseven/Project-Scheduler-issues`

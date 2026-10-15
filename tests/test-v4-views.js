@@ -28,9 +28,9 @@ for(let i=0;i<30;i++){
   const id='p'+i;
   projects.push({appId:id,Title:'Job '+i,client:'Client '+(i%5),jobCode:'J'+i,
     deadline:'2026-10-'+String((i%28)+1).padStart(2,'0'),status:STATUSES[i%3],
-    projectManager:i<8?'Caroline':'Stan',drafter:'Peter',leadFab:'Nick',
+    projectManager:i<8?'Cordelia':'Theo',drafter:'Oscar',leadFab:'Milo',
     activeDepartments:JSON.stringify(['pm','fab']),createdAt:'2026-07-01',sortIndex:i});
-  tasks.push({appId:'t'+i,projectId:id,department:'fab',assignee:'Nick',
+  tasks.push({appId:'t'+i,projectId:id,department:'fab',assignee:'Milo',
     startDate:'2026-08-24',endDate:'2026-09-04',estimatedDays:10,
     ticketNodes:'[]',notes:'',pinned:false,label:''});
 }

@@ -36,7 +36,7 @@ that didn't need the big inspector convergence. PR:
   it impossible to tell a pinned status from a derived one, or to return to
   Automatic at all).
 - **Keep-pile.** The bar hover tooltip now carries the crew name:
-  `Fabrication · Nick · Mar 3 → Mar 7 · 5d` — one shared line, both pages.
+  `Fabrication · Milo · Mar 3 → Mar 7 · 5d` — one shared line, both pages.
 - Two stray light-grey bar fallbacks (`#8A98AE`) joined the REV80 white-text rule
   (`#6B7484`).
 

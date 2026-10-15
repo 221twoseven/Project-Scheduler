@@ -39,7 +39,7 @@ no-consent degrade).
 
 - Members are fetched once per session (first editor open); a mid-session Team
   change needs a reload to appear.
-- Matching is by exact display name (case-insensitive) — nicknames ("Nick" vs
-  "Nick Barnes") don't auto-match; pick from the suggestions to link them.
+- Matching is by exact display name (case-insensitive) — nicknames ("Milo" vs
+  "Milo Barnes") don't auto-match; pick from the suggestions to link them.
 - The group id is one constant (`TEAM_GROUP_ID`) — repointing to a purpose-built
   Team later is a one-line change.

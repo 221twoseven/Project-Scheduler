@@ -26,7 +26,7 @@ ellipsis covers those cases). The project page gained the same small routine
 
 ## Why it mattered
 
-Hubert's report (2026-09-24): "Keep phase/status labels pinned to the left side of the Gantt
+The backup maintainer's report (2026-09-24): "Keep phase/status labels pinned to the left side of the Gantt
 chart, directly next to the project ribbon, so they remain visible when scrolling
 horizontally."
 

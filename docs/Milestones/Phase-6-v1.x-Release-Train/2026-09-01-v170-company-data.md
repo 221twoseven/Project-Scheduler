@@ -64,7 +64,7 @@ consolidation (TODO §3 item 13) will absorb stores into.
 - **No per-record URLs** — selection is page state; `#/people/:id` is tolerated but
   doesn't select. Gate: someone wants a linkable person/client record.
 - **No Active/Inactive/Archived lifecycle** — Remove is a real delete (with a
-  consequence-naming confirm). Gate: the §5 status column (Robert applies it when
+  consequence-naming confirm). Gate: the §5 status column (the owner applies it when
   that pass is designed).
 - **Client selection is keyed by name** (clients carry no appId) — a concurrent
   remote rename while a record is selected drops the selection to the empty state on

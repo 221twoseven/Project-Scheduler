@@ -1,7 +1,7 @@
 # Shop Timeline App — Brief, Condensed (2026-09-22)
 
 > **Provenance.** The Project Director's 21-page brief, *Shop Timeline App: Current Processes and
-> Development Priorities* (September 2026), condensed by Robert on 2026-09-22 with a **Response**
+> Development Priorities* (September 2026), condensed by the owner on 2026-09-22 with a **Response**
 > annotation after each section stating what the app does today. Section numbers match the original.
 > Added to the repository 2026-09-24 as the source document for Phase 7 (`docs/TODO.md`); a few
 > internal details (a mailbox name, headcount, a location) are generalized because the repository
@@ -333,13 +333,13 @@ Roll out in stages over roughly four to six weeks, and decide which duplicate en
 
 | Stage | Duration | Owner | Output |
 |---|---|---|---|
-| Scope and data mapping | 2–4 days | Project Director, Robert | Field map, workbook rules, who owns which list |
-| Launch blocker fixes | 2–3 days | Robert | P0 items fixed or documented as pilot limits |
+| Scope and data mapping | 2–4 days | Project Director, the owner | Field map, workbook rules, who owns which list |
+| Launch blocker fixes | 2–3 days | the owner | P0 items fixed or documented as pilot limits |
 | Technical test | 2–3 days | Two PMs, a department lead, the Bookkeeper | Code requests, closeout, PTO and repeat-block edge cases tested |
-| Event sync pilot | Several days | Selected PMs, Robert | Create, edit, delete and conflict cases tested; no recurrence |
+| Event sync pilot | Several days | Selected PMs, the owner | Create, edit, delete and conflict cases tested; no recurrence |
 | Controlled pilot | 1 week | Selected PMs | Real projects, old systems still live, daily issue log |
 | Operational pilot | 1–2 weeks | All PMs | Jobs preloaded; PMs verify instead of re-entering |
-| Consolidation decision | After two AMPM cycles | Leadership, PMs, Robert | At least one duplicate-entry process retired or automated |
+| Consolidation decision | After two AMPM cycles | Leadership, PMs, the owner | At least one duplicate-entry process retired or automated |
 
 **10.1** Success looks like: every pilot project has an owner and a visible last update; a normal project takes about five minutes; repeat work blocks go in during creation; gaps never read as work; people without company email can be assigned; failed saves show a clear error; no personal or pay data shows; two cost code requests at once can't collide; the Bookkeeper sees Ready for balance invoice without an email; overdue closeouts escalate; and the team names the next manual entry to remove.
 
@@ -357,12 +357,12 @@ Roll out in stages over roughly four to six weeks, and decide which duplicate en
 
 ## 11. Ownership and maintenance
 
-The Project Director owns the process and Robert owns the app, but the Project Director should stop being the only messenger to Accounting.
+The Project Director owns the process and the owner owns the app, but the Project Director should stop being the only messenger to Accounting.
 
 | Role | Owns |
 |---|---|
 | Project Director | Business process, field definitions, priorities, PM adoption, closeout verification, acceptance criteria |
-| Robert | Architecture, implementation, testing, documentation, deployment, recovery |
+| The owner | Architecture, implementation, testing, documentation, deployment, recovery |
 | Project Managers | Accuracy and timeliness of their projects, schedules, assignments and closeout submissions |
 | Bookkeeper | Cost code approval, QuickBooks and TCP setup, balance invoice status |
 | Production leads | Whether department schedules and workloads are useful |
@@ -383,7 +383,7 @@ The Project Director owns the process and Robert owns the app, but the Project D
 
 ## 12. Continuity and fallback
 
-The data cleanup should pay off even if the app doesn't. The Project Director keeps cleaning the Employee Directory, reconciling cost codes and defining fields and list owners; Robert documents architecture, deployment, permissions and recovery. If the pilot stops, the shop returns to its current process without losing data. No second fallback app.
+The data cleanup should pay off even if the app doesn't. The Project Director keeps cleaning the Employee Directory, reconciling cost codes and defining fields and list owners; the owner documents architecture, deployment, permissions and recovery. If the pilot stops, the shop returns to its current process without losing data. No second fallback app.
 
 > **Response**
 >
@@ -417,7 +417,7 @@ Employee Directory: exact list, field names, types, permissions, a sanitized exp
 
 ## 14. How to use this brief
 
-Treat the brief as an asynchronous reference for planning milestones, not a request to build everything. Robert's review should:
+Treat the brief as an asynchronous reference for planning milestones, not a request to build everything. The owner's review should:
 
 Confirm what already exists in the current build.
 

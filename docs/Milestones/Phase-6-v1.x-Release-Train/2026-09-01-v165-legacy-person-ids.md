@@ -2,8 +2,8 @@
 
 **What:** reviewing live data at `/preview/`, the owner found the Project Management
 department splitting every person in two — an empty lane under their full roster name
-("Davis Smith", "Caroline Bondi") and a working lane under a legacy abbreviation
-("Davis S.", "Caroline B."). Older project records store abbreviated names in the
+("Davis Smith", "Cordelia Vance") and a working lane under a legacy abbreviation
+("Davis S.", "Cordelia B."). Older project records store abbreviated names in the
 `projectManager`/`drafter`/`leadFab` fields and in some bar crews, while the staff
 picker and the signed-in identity chain write full display names — and every consumer
 compared the strings raw.

@@ -2228,7 +2228,7 @@ function backN(end,n){let s=new Date(end);for(let i=1;i<n;i++)s=prevWorkingBefor
 
 /* ===================== SCHEDULER ===================== */
 function genId(){return Date.now().toString(36)+Math.random().toString(36).slice(2,8);}
-/* Roles are stored as comma-joined names ("Nick, Kate") so SharePoint columns stay plain text */
+/* Roles are stored as comma-joined names ("Milo, Ines") so SharePoint columns stay plain text */
 function roleList(v){return String(v||'').split(',').map(s=>s.trim()).filter(Boolean);}
 function roleField(deptId){return deptId==='pm'?'projectManager':deptId==='td'?'drafter':deptId==='fab'?'leadFab':null;}
 function roleListFor(p,deptId){const f=roleField(deptId);return f?roleList(p[f]):[];}
@@ -2403,13 +2403,13 @@ const STATUS_MIGRATE={'approved':'in-fabrication','in-production':'in-fabricatio
 
 /* ===================== DATA LAYER ===================== */
 function seed(){
-  PEOPLE=rostersToPeople({projectManagers:['Stan','Caroline'],drafters:['Peter','Chris'],leadFabs:['Nick','Kate'],metalFabs:[]});
+  PEOPLE=rostersToPeople({projectManagers:['Theo','Cordelia'],drafters:['Oscar','Felix'],leadFabs:['Milo','Ines'],metalFabs:[]});
   rebuildStaff();
   const t=today();
   let d1=addDays(t,35);while(!isWorking(d1))d1=addDays(d1,1);
   let d2=addDays(t,63);while(!isWorking(d2))d2=addDays(d2,1);
-  const p1={id:genId(),name:'Hermès Holiday Windows',client:'Hermès',jobCode:'HER-2419',deadline:fmtDate(d1),status:'auto',projectManager:'Stan',drafter:'Peter',leadFab:'Nick',activeDepartments:['pm','td','cnc','3dprint','fab','finish','install'],createdAt:fmtDate(t)};
-  const p2={id:genId(),name:'Tiffany Spring Vitrines',client:'Tiffany & Co.',jobCode:'TIF-2502',deadline:fmtDate(d2),status:'auto',projectManager:'Caroline',drafter:'Chris',leadFab:'Kate',activeDepartments:['pm','td','print','beamsaw','laser','fab','finish','install'],createdAt:fmtDate(t)};
+  const p1={id:genId(),name:'Hermès Holiday Windows',client:'Hermès',jobCode:'HER-2419',deadline:fmtDate(d1),status:'auto',projectManager:'Theo',drafter:'Oscar',leadFab:'Milo',activeDepartments:['pm','td','cnc','3dprint','fab','finish','install'],createdAt:fmtDate(t)};
+  const p2={id:genId(),name:'Tiffany Spring Vitrines',client:'Tiffany & Co.',jobCode:'TIF-2502',deadline:fmtDate(d2),status:'auto',projectManager:'Cordelia',drafter:'Felix',leadFab:'Ines',activeDepartments:['pm','td','print','beamsaw','laser','fab','finish','install'],createdAt:fmtDate(t)};
   const t1=generateSchedule(p1,{td:10,cnc:5,'3dprint':7,fab:8,finish:4,install:2});
   const t2=generateSchedule(p2,{td:12,print:3,beamsaw:4,laser:3,fab:10,finish:5,install:3});
   const td1=t1.find(x=>x.department==='td');
@@ -3503,7 +3503,7 @@ function taskMatch(t){
   if(p&&projMatch(p))return true;
   const dn=deptById(t.department)?.name||'';
   /* assigneeText renders nicknames (v1.15.0) — search the roster names too, or typing
-     the full name the People page shows ("Seungwoo Hong") stops matching his phases. */
+     the full name the People page shows ("Donghyun Baek") stops matching his phases. */
   return (assigneeText(t)+' '+crewOf(t).map(canonName).join(' ')+' '+dn).toLowerCase().includes(FILTER);
 }
 /* Dim (don't remove) non-matching rows/bars so layout stays put */
@@ -6047,8 +6047,8 @@ function cdSavePerson(){
   savePeople(list); /* re-renders the page through render() */
   toast(per.name+' saved');
 }
-/* v1.15.0 (owner): two roster entries are the same human ("Sean Hong" and
-   "Seungwoo (Sean) Hong") — usually an HR-import name meeting a hand-typed one.
+/* v1.15.0 (owner): two roster entries are the same human ("Dean Baek" and
+   "Donghyun (Dean) Baek") — usually an HR-import name meeting a hand-typed one.
    Keep the OPEN record, fold the picked duplicate in: every stored reference to the
    duplicate's name (project roles, phase crews, note assignees) is rewritten to the
    kept name through the scrub walkers, missing contact/flag fields backfill from
@@ -11424,7 +11424,7 @@ function pmLateList(){
   const me=meName();
   if(!me)return[];
   const td=fmtDate(today());
-  /* REV90: PM is a comma list ("Stan, Caroline") — match through roleList like every
+  /* REV90: PM is a comma list ("Theo, Cordelia") — match through roleList like every
      other reader, or multi-PM projects prompt nobody. */
   return ST.projects.filter(p=>{const d=dueDate(p); /* v1.26.0: the due date, never the Setup date */
     return roleList(p.projectManager).map(canonName).includes(me)&&d&&d<td&&projectStatus(p)!=='complete';});

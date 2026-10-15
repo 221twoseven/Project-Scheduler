@@ -30,9 +30,9 @@ const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+Stri
 const rel=(days,months)=>{const d=new Date(D0);if(months)d.setMonth(d.getMonth()+months);if(days)d.setDate(d.getDate()+days);return iso(d);};
 
 const proj=(id,name,dl)=>({appId:id,Title:name,client:'',jobCode:id.toUpperCase(),
-  deadline:dl,status:'in-fabrication',projectManager:'Stan',drafter:'Dana',
-  leadFab:'Nick',activeDepartments:JSON.stringify(['pm','fab','install']),createdAt:rel(-40)});
-const task=(id,pid,dept,s,e)=>({appId:id,projectId:pid,department:dept,assignee:'Nick',
+  deadline:dl,status:'in-fabrication',projectManager:'Theo',drafter:'Dana',
+  leadFab:'Milo',activeDepartments:JSON.stringify(['pm','fab','install']),createdAt:rel(-40)});
+const task=(id,pid,dept,s,e)=>({appId:id,projectId:pid,department:dept,assignee:'Milo',
   startDate:s,endDate:e,estimatedDays:5,ticketNodes:'[]',notes:'',pinned:false,label:''});
 const projects=[proj('p1','Long Haul',rel(30)),proj('p2','Near Term',rel(15))];
 const tasks=[task('t1','p1','fab',rel(-5),rel(25)),task('t2','p2','fab',rel(0),rel(12))];

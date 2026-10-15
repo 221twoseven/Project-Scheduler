@@ -28,13 +28,13 @@ const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.l
 const sec=t=>console.log('\n'+t);
 
 const projects=[{appId:'p1',Title:'Hermes Windows',client:'Hermes',jobCode:'H1',deadline:'2026-09-15',status:'in-fabrication',
-  projectManager:'Sam',drafter:'Peter',leadFab:'Nick',fabricators:'',activeDepartments:JSON.stringify(['pm','td','finish','install']),createdAt:'2026-07-01',sortIndex:0}];
+  projectManager:'Sam',drafter:'Oscar',leadFab:'Milo',fabricators:'',activeDepartments:JSON.stringify(['pm','td','finish','install']),createdAt:'2026-07-01',sortIndex:0}];
 const T=(id,dept,who,s,e,d,extra)=>Object.assign({appId:id,projectId:'p1',department:dept,assignee:who,startDate:s,endDate:e,estimatedDays:d,ticketNodes:'[]',notes:'',pinned:false,label:''},extra||{});
-const tasks=[T('t0','pm','Sam','2026-08-03','2026-09-15',30),T('td1','td','Peter','2026-08-03','2026-08-07',5),
-  T('f1','finish','Nick','2026-08-10','2026-08-14',5),T('i1','install','[]','2026-09-14','2026-09-15',2)];
+const tasks=[T('t0','pm','Sam','2026-08-03','2026-09-15',30),T('td1','td','Oscar','2026-08-03','2026-08-07',5),
+  T('f1','finish','Milo','2026-08-10','2026-08-14',5),T('i1','install','[]','2026-09-14','2026-09-15',2)];
 const staff=[{appId:'s1',Title:'Sam',email:'user@example.com',depts:JSON.stringify(['pm']),ooo:'[]',role:''},
-  {appId:'s2',Title:'Peter',email:'',depts:JSON.stringify(['td']),ooo:'[]',role:''},
-  {appId:'s3',Title:'Nick',email:'',depts:JSON.stringify(['finish']),ooo:'[]',role:''}];
+  {appId:'s2',Title:'Oscar',email:'',depts:JSON.stringify(['td']),ooo:'[]',role:''},
+  {appId:'s3',Title:'Milo',email:'',depts:JSON.stringify(['finish']),ooo:'[]',role:''}];
 
 const dom=boot(FILE,{data:{projects,tasks,staff,todos:[]}});
 const win=dom.window,doc=win.document,E=s=>win.eval(s);

@@ -27,23 +27,23 @@ const D=n=>{const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()+n);
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
 const NAME='Possible mock up days';
 const projects=[
- {appId:'p1',Title:'Stephanie Temma Hier Madison',client:'Hier',jobCode:'HE275',deadline:D(40),
-  status:'in-fabrication',projectManager:'Caroline Bondi',drafter:'Sean Hong',leadFab:'Jeffrey Niles',
+ {appId:'p1',Title:'Gwendolyn Arden Hier Madison',client:'Hier',jobCode:'HE275',deadline:D(40),
+  status:'in-fabrication',projectManager:'Cordelia Vance',drafter:'Dean Baek',leadFab:'Ambrose Pryce',
   activeDepartments:JSON.stringify(['pm','td','fab','finish','install']),createdAt:D(-40),sortIndex:0},
  {appId:'p2',Title:'Future Job',client:'Acme',jobCode:'AC1',deadline:D(60),
-  status:'in-fabrication',projectManager:'Caroline Bondi',drafter:'',leadFab:'',
+  status:'in-fabrication',projectManager:'Cordelia Vance',drafter:'',leadFab:'',
   activeDepartments:JSON.stringify(['pm','fab']),createdAt:D(-5),sortIndex:1}];
 const T=(id,p,dept,who,s,e,extra)=>Object.assign({appId:id,projectId:p,department:dept,assignee:who,
   startDate:D(s),endDate:D(e),estimatedDays:5,ticketNodes:'[]',notes:'',pinned:false,label:''},extra||{});
 const tasks=[
- T('pm1','p1','pm','Caroline Bondi',-30,40),
- T('td1','p1','td','Sean Hong',-30,-15),
- T('f1','p1','fab','Jeffrey Niles',-10,20),
- /* the second Main Shop Fab block — Hubert's bar — with a milestone sitting on it */
- T('f2','p1','fab','Jeffrey Niles',-2,5,{ticketNodes:'[{"id":"n1","date":"'+D(1)+'","target":"Client sign-off"}]'}),
+ T('pm1','p1','pm','Cordelia Vance',-30,40),
+ T('td1','p1','td','Dean Baek',-30,-15),
+ T('f1','p1','fab','Ambrose Pryce',-10,20),
+ /* the second Main Shop Fab block — Halden's bar — with a milestone sitting on it */
+ T('f2','p1','fab','Ambrose Pryce',-2,5,{ticketNodes:'[{"id":"n1","date":"'+D(1)+'","target":"Client sign-off"}]'}),
  T('pt1','p1','finish','',10,18),
  T('i1','p1','install','[]',25,26),
- T('pm2','p2','pm','Caroline Bondi',-5,60),
+ T('pm2','p2','pm','Cordelia Vance',-5,60),
  /* a named block that has not started — the Meeting Sheet's "Next:" line */
  T('f3','p2','fab','',10,15,{label:NAME})];
 
@@ -189,7 +189,7 @@ function saved3(){
 function dash1(){
   sec('Dashboard — R4: a bar click opens Edit Phase with the new Name field focused and selected');
   E("EXPANDED.add('p1');render()");
-  E("commitPhase('f2','label','')"); /* back to the department name — Hubert's starting point */
+  E("commitPhase('f2','label','')"); /* back to the department name — Halden's starting point */
   E("render()");
   const bar=q('.job-bar[data-tid="f2"]');
   ok('the second Main Shop Fab bar is on the dashboard, reading the department name', !!bar&&bar.querySelector('.bar-lbl')&&bar.querySelector('.bar-lbl').textContent==='Main Shop Fab', bar&&bar.textContent);
@@ -226,7 +226,7 @@ function dash1(){
         E("hideTooltip()");
         sec('Meeting Sheet — "Phase now" reads the block\'s name (Q4 default)');
         const ph=[...E("buildMeetingSheet()").querySelectorAll('tr')].map(tr=>[(tr.querySelector('.mr-name')||{}).textContent,(tr.querySelector('.mr-phase')||{}).textContent]).filter(r=>r[0]);
-        const p1=ph.find(r=>r[0]==='Stephanie Temma Hier Madison'),p2=ph.find(r=>r[0]==='Future Job');
+        const p1=ph.find(r=>r[0]==='Gwendolyn Arden Hier Madison'),p2=ph.find(r=>r[0]==='Future Job');
         ok('while the block is active the sheet reads it beside the department', !!p1&&p1[1]==='Main Shop Fab, '+NAME, p1&&p1[1]);
         ok('before a named block starts the sheet reads "Next: <name> <date>"', !!p2&&p2[1].indexOf('Next: '+NAME+' ')===0, p2&&p2[1]);
         /* Edit Phase reopened: the dirty check counts the Name field */

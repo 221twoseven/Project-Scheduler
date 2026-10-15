@@ -57,7 +57,7 @@ into GitHub.
 - The client secret expires in 24 months; the run then fails with `token: 401`. Rotate
   it in Entra and update the `GRAPH_CLIENT_SECRET` secret.
 - Hourly runs use ~720 of the plan's 2,000 Actions minutes a month for private repos.
-- Hubert still needs collaborator access to the tracker (GitHub username pending).
+- The backup maintainer still needs collaborator access to the tracker (GitHub username pending).
 - The app does not show the ticket link yet — two lines on the developer Bug Reports page
   when wanted (`fbFetch` maps `ghIssue`, `renderReports` prints it).
 - Reports resolved before the bridge existed stay on the list only (one row on

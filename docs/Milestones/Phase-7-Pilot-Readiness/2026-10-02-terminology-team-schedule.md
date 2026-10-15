@@ -43,7 +43,7 @@ Revert the PR. Nothing stored changes.
 
 Saved project with nothing selected, the dock showing the project sections. Before: SETUP ·
 TEAM (… DRAFTER …) · DEPARTMENTS with the right-click hint. After: PROJECT TEAM, TECHNICAL
-DESIGNER, PROJECT SCHEDULE with the new hint, Peter still ticked. Then the New Project draft
+DESIGNER, PROJECT SCHEDULE with the new hint, Oscar still ticked. Then the New Project draft
 with the same three strings, and Help ▸ Legend.
 
 ![before](screenshots/before-wording-team.png)

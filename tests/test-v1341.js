@@ -30,13 +30,13 @@ const DUE=src.indexOf('function dueOf')>=0;      /* #15/#20 in: the header follo
 /* Atlas: Technical Design Thu Oct 1 – Fri Oct 2, Fab Oct 5–16, Installation Saturday Oct 10 (one day),
    target Monday Oct 26 2026. */
 const projects=[{appId:'p1',Title:'Atlas Lobby',client:'Atlas',jobCode:'A1',
-  deadline:'2026-10-26',status:'in-fabrication',projectManager:'Stan',drafter:'Peter',
-  leadFab:'Nick',activeDepartments:JSON.stringify(['pm','td','fab','install']),
+  deadline:'2026-10-26',status:'in-fabrication',projectManager:'Theo',drafter:'Oscar',
+  leadFab:'Milo',activeDepartments:JSON.stringify(['pm','td','fab','install']),
   createdAt:'2026-09-01',sortIndex:0}];
 const tasks=[
- {appId:'td1',projectId:'p1',department:'td',assignee:'Peter',startDate:'2026-10-01',
+ {appId:'td1',projectId:'p1',department:'td',assignee:'Oscar',startDate:'2026-10-01',
   endDate:'2026-10-02',estimatedDays:2,ticketNodes:'[]',notes:'',pinned:false,label:''},
- {appId:'f1',projectId:'p1',department:'fab',assignee:'Nick',startDate:'2026-10-05',
+ {appId:'f1',projectId:'p1',department:'fab',assignee:'Milo',startDate:'2026-10-05',
   endDate:'2026-10-16',estimatedDays:10,ticketNodes:'[]',notes:'',pinned:false,label:''},
  {appId:'i1',projectId:'p1',department:'install',assignee:'[]',startDate:'2026-10-10',
   endDate:'2026-10-10',estimatedDays:1,ticketNodes:'[]',notes:'',pinned:false,label:''}];
