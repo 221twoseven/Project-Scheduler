@@ -12,7 +12,8 @@ client ID, or tenant ID; only add/adjust redirect URIs with care (see `CLAUDE.md
 ## Live app
 
 - **URL:** https://221twoseven.github.io/Project-Scheduler/
-- **Hosting:** GitHub Pages, served from the `main` branch, repo root.
+- **Hosting:** GitHub Pages, published by `.github/workflows/deploy-pages.yml`: `main`
+  at the root, `development` at `/preview/` (same sign-in, same lists).
 - The path is **case-sensitive** (`Project-Scheduler`, capital P and S) and resolves with
   a **trailing slash**. The lowercase form (`/project-scheduler`) is a 404.
 
@@ -54,10 +55,15 @@ Rules:
 
 ### API permissions (Microsoft Graph, delegated)
 
-| Scope | Admin consent required? |
-|---|---|
-| `User.Read` | No |
-| `Sites.ReadWrite.All` | **Yes** |
+| Scope | Admin consent required? | Used for |
+|---|---|---|
+| `User.Read` | No | Sign-in |
+| `Sites.ReadWrite.All` | **Yes** | Every SharePoint list |
+| `TeamMember.Read.All` | **Yes** (granted 2026-08-25) | Staff picker's name suggestions from the company Team |
+| `Mail.Send` | No (admin-consented 2026-09-01) | The feedback form's email to the recipients (v1.8.0) |
+
+- The last two ride their own silent token request: without consent, that one feature
+  degrades (free-text names; report filed, mail skipped) and sign-in is unaffected.
 
 - Grant tenant-wide admin consent (**API permissions → "Grant admin consent for
   <tenant>"**) so ordinary users aren't blocked by a consent screen they can't approve.
@@ -70,12 +76,30 @@ Rules:
 - **Site:** `https://twosevennet.sharepoint.com/sites/TWOSEVENINC`
 - **Lists** (addressed by name; the site ID is resolved at runtime):
   `ShopTimeline_Projects`, `ShopTimeline_Tasks`, `ShopTimeline_Staff`,
-  `ShopTimeline_Tasks2`, `ShopTimeline_Events`.
+  `ShopTimeline_Tasks2`, `ShopTimeline_Events`, `ShopTimeline_Clients`,
+  `ShopTimeline_Config`, `ShopTimeline_Changelog`, `ShopTimeline_Feedback`. HR's
+  `Employee Contacts` is read for the People-page import and never written.
+  Column specs: `docs/TODO.md` §6.
 - **Creating `ShopTimeline_Events`** (standalone events, REV54 — the app runs fine
   without it, falling back to saving events on phases): a plain list with these columns,
   all single-line text unless noted — `appId`, `projectId`, `department`,
   `date` (Date only), `notes` (multi-line text). `Title` (built-in) carries the event
   name. Only this app uses the list; the colleague app never reads it.
+
+## Feedback Bot (the tracker poller's registration)
+
+A second, separate Entra registration — **"ShopTimeline Feedback Bot"** — lets the
+private tracker repository `221twoseven/Project-Scheduler-issues` read
+`ShopTimeline_Feedback` and file each report as a GitHub issue (`docs/Automations.md`).
+
+- **Permission:** Microsoft Graph application `Sites.Selected`, admin-consented
+  2026-09-25, with `write` granted on the TWOSEVENINC site only.
+- **Client ID:** not in this repository. It lives only in the tracker's Actions secret
+  `GRAPH_CLIENT_ID`; read it from Entra (App registrations ▸ ShopTimeline Feedback Bot).
+- **Client secret:** "GitHub Actions Poller", in the tracker's Actions secrets.
+  **It expires on 2028-09-23.** From that day every poll run fails with `token: 401`.
+  Before then: create a new secret on the registration, paste its **Value** (not its
+  Secret ID) into the tracker's secret, and run the poll workflow once to confirm.
 
 ## How to confirm it all works
 

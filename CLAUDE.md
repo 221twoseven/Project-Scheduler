@@ -218,8 +218,8 @@ hand its People and Clients pages to their own products. None of this is built y
 definition is `docs/TODO.md` §1 and the rulings are §4 D4/D8. Until then, Timeline is the
 whole of what ships.
 
-A **single-file, client-only SPA**. `index.html` (one file of roughly seven thousand
-lines — trust `wc -l`, not this sentence) contains all HTML, CSS,
+A **single-file, client-only SPA**. `index.html` (one large file —
+`wc -l` has the count) contains all HTML, CSS,
 and vanilla JavaScript — no framework and no build step. It is a shop-timeline / Gantt
 dashboard for projects, tasks, staff, and to-dos.
 
@@ -229,7 +229,7 @@ dashboard for projects, tasks, staff, and to-dos.
   app registration. Sign-in via `loginPopup`, tokens via `acquireTokenSilent`
   (fallback `acquireTokenPopup`), cached in `sessionStorage`.
 - **Backend is SharePoint — there is no server of our own.** Microsoft Graph v1.0 is the
-  API. The six SharePoint Lists on the `TWOSEVENINC` site are the database. The site ID
+  API. The SharePoint Lists on the `TWOSEVENINC` site are the database. The site ID
   is resolved at runtime; Lists are addressed by name.
 - **Data flow:** load reads all Lists on startup, then a 90-second background poll picks
   up other users' edits (paused during drag/edit/open overlays). Writes are optimistic,
