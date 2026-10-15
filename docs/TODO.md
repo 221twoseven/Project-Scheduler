@@ -50,7 +50,8 @@ as the phase runs.
 - Every milestone gets a record in `docs/Milestones/Phase-7-Pilot-Readiness/`; every
   deliberate skip gets a §7 line with its gate.
 
-Last reviewed: 2026-10-15 — a full audit before the v1.48.1 → v1.48.5 promotion (log in §8).
+Last reviewed: 2026-10-15 — the promotion audit for v1.48.1 → v1.48.5 reaching `main`, after a
+full audit the same day (log in §8).
 Before that, 2026-10-13 — the promotion audit for v1.45.1 → v1.48.1 reaching `main`. Before that, 2026-10-09 — the promotion audits for v1.43.0 → v1.44.3 and v1.44.3 →
 v1.45.1. Before that, 2026-10-08 — D15 (data platform) reassessed: Dataverse and Azure SQL + API
 are now co-equal candidates (`docs/Architecture-Review-Backend.md`); D1, D3, D10–D13 and
@@ -63,15 +64,15 @@ is the log in §8.
 
 ## 0. Where we stand
 
-As of 2026-10-15: production (`main`) runs **v1.48.1**, promoted 2026-10-13
-(release/2026-10-13); `development` runs **v1.48.5** (the storage seam's last PR: error
-messages say why, item 48; item 61's simplifications; item 59's work-based progress bar; item 19's "Away until" fix),
-plus docs and tooling with no release: the reference docs refreshed (item 21), the owed
-milestone records (23), one page size (68), the test-suite tidy (60), the REV50 test run
-dropped (69), and no scrapable emails or real names in the repository (70). Next: the
-promotion to `main`; making the repository private is item 71. The newest work on production: saved views (item 25) and Protect dates
-(item 2 (c)) follow the person, repeat work is easier to find (item 7), and projects show
-their last edit, a Stale flag and "Schedule still accurate" (item 6). Before that: reporter
+As of 2026-10-15: production (`main`) and `development` both run **v1.48.5**, promoted
+2026-10-15 (release/2026-10-15). The newest work on production: error messages say why
+(item 48, the storage seam's last PR), item 61's simplifications, item 59's work-based
+progress bar and item 19's "Away until" fix; plus docs and tooling with no release: the
+reference docs refreshed (item 21), the owed milestone records (23), one page size (68),
+the test-suite tidy (60), the REV50 test run dropped (69), and no scrapable emails or real
+names in the repository (70). Making the repository private is item 71. Before that:
+saved views (item 25) and Protect dates (item 2 (c)) follow the person, repeat work is easier to find (item 7), and projects show
+their last edit, a Stale flag and "Schedule still accurate" (item 6). Earlier: reporter
 answers show in Open Issues (item 58); Protect dates (item 2: drags never change dates).
 Phase 7 has shipped v1.24.0 → v1.48.1 so far.
 `CHANGELOG.md` is the release-by-release record.
@@ -2221,6 +2222,12 @@ How to read the tags at the end of an entry:
   number.
 
 **Log, newest first:**
+
+- 2026-10-15: **v1.48.1 → v1.48.5 promoted to `main`** (release/2026-10-15). The promotion
+  audit follows the full audit logged below, the same day (#160); since then nothing has
+  changed but this promotion. §0 now reads production v1.48.5. No new SharePoint columns
+  in this release. Workflows: `deploy-pages.yml` is identical on both branches; `ci.yml`
+  drops the REV50 run (item 69) and keeps the required `test` job.
 
 - 2026-10-15: **full audit before the v1.48.1 → v1.48.5 promotion** (owner: "fix the rest
   of the TODO").
