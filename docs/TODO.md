@@ -695,7 +695,10 @@ release. Where the app has a part, it's listed.
       current phase, dates, install date and workdays left. Get the AMPM columns of the
       Master Project Tracker from the Project Director and compare; add the closeout /
       aging column when item 11 lands. [brief §3 step 9, §9 P1 "AMPM output"]
-- [ ] **23. Milestone records owed** (the `CLAUDE.md` rule): v1.20.6 Shipping phase (it
+- [x] **23. Milestone records owed** (the `CLAUDE.md` rule). Done 2026-10-15, docs only:
+      five records (`Phase-6-v1.x-Release-Train/` v1.20.6, v1.20.8, v1.20.9;
+      `Phase-7-Pilot-Readiness/` v1.40.1, v1.41.1) and the two ladder rows in
+      `docs/Archive/TODO-v1.x-Archive.md` §4. What was owed: v1.20.6 Shipping phase (it
       changed the phase chain and the department vocabulary, but is documented only as a
       footnote), v1.20.8 (PM required at Create; dashboard columns scroll), v1.20.9. The
       v1.x version ladder also has no rows for v1.20.0–v1.20.9 and v1.21.x: add one
