@@ -32,16 +32,14 @@ git switch -c fix/<slug> origin/development          # or feat/ style/ docs/
   that's the R it covers.
 - **Assert on both the draft page (`#/project/new`) and a saved project** whenever the
   feature lives on the project page (`CLAUDE.md`, the REV49 lesson).
-- **CI also runs every suite against `reference/Timeline_50.html`.** A check for a new
-  feature must skip itself when the feature is missing:
-  `if(!/<marker in new code>/.test(src)){console.log('  SKIP  … pre-v<ver> build');}`.
+- **Suites test the current app only** (owner, 2026-10-14). There's no reference run
+  any more, so a new suite needs no "skip on an older build" guard.
 - Changing a behaviour on purpose? Update the old assertion to the new behaviour; don't
   delete it.
 - Source edits containing backslashes, `#` or regexes go through Edit/Write, never a Bash
   heredoc (see the `bash-heredoc-backslash-trap` memory). Confirm with `grep -F`.
 - Quick checks while you work run one suite at a time (about 30 seconds):
-  `node tests/test-vNNNN.js index.html` and
-  `node tests/test-vNNNN.js reference/Timeline_50.html`.
+  `node tests/test-vNNNN.js index.html`.
 
 ## 3. Version and release notes
 
@@ -117,9 +115,7 @@ The traps are in the `slow-test-runs` and `git-checkout-crlf-trap` memories.
    grep -n "  FAIL  " <log>     # must print nothing
    tail -4 <log>               # must read N/N suites passed
    ```
-5. Also run `npm run test:ref` in the same way, or at least run the new suite against
-   `reference/Timeline_50.html`.
-6. Report failures with their output. Never call a red run green.
+5. Report failures with their output. Never call a red run green.
 
 ## 8. Commit and PR
 
@@ -139,8 +135,7 @@ The PR body (written with Write) holds:
 - **What changed for users:** the CHANGELOG line.
 - **Requirements → tests:** a table of R / assertion / suite, when it comes from a spec.
 - **Evidence:** before/after screenshots.
-- **Checks:** the full suite result (`N/N suites, 0 FAIL`), the reference run, and the
-  code-review outcome.
+- **Checks:** the full suite result (`N/N suites, 0 FAIL`) and the code-review outcome.
 - `Fixes 221twoseven/Project-Scheduler-issues#N` for each tracker issue. They close when
   the PR merges.
 - The PR attribution line from the system reminder.

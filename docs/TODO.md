@@ -773,6 +773,15 @@ release. Where the app has a part, it's listed.
         - After PR 8: one page size for every list (it changes request URLs, so not during
           the sequence).
       [`docs/Architecture-Review-Storage.md` §1, "Proposed PR sequence"; D4; D15]
+- [x] **69. Stop testing against the REV50 reference** (owner, 2026-10-14). Done (PR #153,
+      2026-10-14), tooling only, no release. CI and the release checklist no longer run the
+      suites against `reference/Timeline_50.html`; the file stays, never edited, as history.
+      `npm run test:ref` is gone, and new suites need no skip guard. `test47` and
+      `test-b3-zoom` were deleted (they only ever exercised REV50; `test56` and
+      `test-v150` own their features). `test-v1208`'s feature sniff stopped matching at
+      v1.47.0, so it skipped silently; it was fixed and runs again (16/16). `CLAUDE.md`,
+      `README.md`, `tests/README.md` and the `ship-release` skill follow. Item 60 removes
+      the remaining guards. [owner ask 2026-10-14]
 - [ ] **68. One page size for every list.** `STORE_LISTS` keeps each list's old `$top` (2000,
       500, 200, 999) so the seam PRs sent byte-identical requests. One value (paging already
       follows `@odata.nextLink`) is simpler. It changes request URLs, so tests that match them
@@ -833,7 +842,10 @@ release. Where the app has a part, it's listed.
         into about 118 suites (about 650 lines).
       - A skipping suite exits with code 2, so `run.js` stops reading its printed text to
         count skips.
-      - *Done when:* the full run and the reference run report the same counts as before.
+      - The "skip on a pre-vX build" guards at the top of most suites go: with no reference
+        run (item 69), they only hide a suite whose feature sniff stops matching, as
+        `test-v1208`'s did from v1.47.0 until 2026-10-14.
+      - *Done when:* the full run reports the same counts as before.
       - *Waits on:* nothing. After the 2026-10-12 promotion.
       [ponytail audit 2026-10-12; 2026-09-03 audit]
 - [x] **61. Small simplifications from the 2026-10-12 audit.** Owner accepted the

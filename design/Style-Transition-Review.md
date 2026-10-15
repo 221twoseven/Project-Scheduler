@@ -226,8 +226,8 @@ Company Data pages are not, and today they are not usable at 390px.
 4. **Source-regex tests break on restyle.** `test-v171` (font stack), `test46` (density
    drift), `test-quiet`, `test-c3-status` (pill colours), `test-b4` (markers),
    `test-contrast` (palette), `test-b5`, `test-cb` and others read the CSS as text. Each
-   restyle PR carries its test edits; the full run is 10–15 min and also runs the
-   reference build (new checks need the SKIP guard).
+   restyle PR carries its test edits; the full run is 10–15 min. (The reference-build
+   run and its SKIP guards were dropped 2026-10-14.)
 5. **Two sidebars.** The guide's 168px app-nav rail plus Timeline's 300px project list is
    two rails. Timeline has one section (+ My Dashboard); People/Clients become separate
    apps (D8). Recommendation: a single-section app omits the rail and uses the header
