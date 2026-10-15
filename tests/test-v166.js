@@ -53,9 +53,9 @@ function main(){
 
   sec('item 1 — radios switch the summary in place; Everyone exits like the ×');
   const radios=qa('#person-menu .sm-item');
-  const kate=radios.find(l=>/Ines/.test(l.textContent));
-  kate.querySelector('input').checked=true;
-  kate.querySelector('input').dispatchEvent(new win.Event('change',{bubbles:true}));
+  const ines=radios.find(l=>/Ines/.test(l.textContent));
+  ines.querySelector('input').checked=true;
+  ines.querySelector('input').dispatchEvent(new win.Event('change',{bubbles:true}));
   ok('picking another name keeps the place', E('dashOn()')===true&&E('PERSON')==='Ines');
   ok('…and renames the trail', q('#db-name').textContent==='Summary · Ines',
      q('#db-name').textContent);

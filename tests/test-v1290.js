@@ -14,16 +14,16 @@ const sec=t=>console.log('\n'+t);
 const D=n=>{const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()+n);
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
 
-/* SharePoint order deliberately scrambled; ten PMs so the box overflows. Molly Chen goes by Zoe. */
+/* SharePoint order deliberately scrambled; ten PMs so the box overflows. Moira Chen goes by Zoe. */
 const P=(id,name,dept,extra)=>Object.assign({appId:id,Title:name,depts:JSON.stringify([dept]),ooo:'[]',email:'',role:''},extra||{});
 const staff=[
   P('s1','Theo Kim','pm'),P('s2','Matteo Thorne','pm'),P('s3','Tyler Brooks','pm'),P('s4','Cordelia Vance','pm'),
-  P('s5','Rupert Mallory','pm'),P('s6','Nina Okafor','pm'),P('s7','Mal Corvane','pm'),P('s8','Molly Chen','pm',{nickname:'Zoe'}),
+  P('s5','Rupert Mallory','pm'),P('s6','Nina Okafor','pm'),P('s7','Mal Corvane','pm'),P('s8','Moira Chen','pm',{nickname:'Zoe'}),
   P('s9','Greg Walsh','pm'),P('s10','Halden Li','pm'),
   P('s11','Oscar Brandow','td'),P('s12','Elian Quillane','td'),P('s13','Sam Ortiz','td',{email:'user@example.com'}),
-  P('s14','Danny Park','fab'),P('s15','Ambrose Pryce','fab'),P('s16','Emil Byrne','fab')];
+  P('s14','Dario Park','fab'),P('s15','Ambrose Pryce','fab'),P('s16','Ezra Bowen','fab')];
 const projects=[{appId:'p1',Title:'Saved Job',client:'C',jobCode:'J1',deadline:D(40),status:'in-fabrication',
-  projectManager:'Halden Li',drafter:'Oscar S.',leadFab:'Emil Byrne',fabricators:'',
+  projectManager:'Halden Li',drafter:'Oscar B.',leadFab:'Ezra Bowen',fabricators:'',
   activeDepartments:JSON.stringify(['pm','td']),createdAt:D(-30),sortIndex:0}];
 const tasks=[{appId:'t1',projectId:'p1',department:'td',assignee:'Oscar Brandow',startDate:D(0),endDate:D(4),
   estimatedDays:5,ticketNodes:'[]',notes:'',pinned:false,label:''}];
@@ -80,7 +80,7 @@ function savedPart(){
   sec('Saved project — plan 3 checked at the top, the filter keeps them, saves carry hidden ticks');
   ok('R1 saved: the checked PM sits first, the rest alphabetical', texts('pp-r-pm').join(', ')==='Halden Li, Cordelia Vance, Greg Walsh, Mal Corvane, Matteo Thorne, Nina Okafor, Rupert Mallory, Theo Kim, Tyler Brooks, Zoe', texts('pp-r-pm').join(', '));
   ok('and is checked', qa('#pp-r-pm input:checked').map(i=>i.value).join()==='Halden Li');
-  ok('R1 saved, legacy: "Oscar S." checks Oscar Brandow first and adds no phantom box', texts('pp-r-dr').join(', ')==='Oscar Brandow, Elian Quillane, Sam Ortiz'&&qa('#pp-r-dr input:checked').map(i=>i.value).join()==='Oscar Brandow', texts('pp-r-dr').join(', '));
+  ok('R1 saved, legacy: "Oscar B." checks Oscar Brandow first and adds no phantom box', texts('pp-r-dr').join(', ')==='Oscar Brandow, Elian Quillane, Sam Ortiz'&&qa('#pp-r-dr input:checked').map(i=>i.value).join()==='Oscar Brandow', texts('pp-r-dr').join(', '));
   ok('the saved page lists checkboxes only in the box', qa('#pp-r-pm input').every(i=>i.type==='checkbox'));
   rq('pp-r-pm').value='ma';input(rq('pp-r-pm'));
   ok('plan 3 saved: "ma" keeps the checked name visible with the matches', vis('pp-r-pm').join(', ')==='Halden Li, Mal Corvane, Matteo Thorne, Rupert Mallory', vis('pp-r-pm').join(', '));
@@ -90,7 +90,7 @@ function savedPart(){
     const p=patches().slice(n0);
     ok('a tick while filtering sends one PATCH', p.length===1, p.length);
     ok('whose Project manager keeps the hidden checked name', p.length===1&&p[0].body.projectManager==='Halden Li, Matteo Thorne', p.length&&p[0].body.projectManager);
-    ok('the other roles ride along intact', p.length===1&&p[0].body.drafter==='Oscar Brandow'&&p[0].body.leadFab==='Emil Byrne', p.length&&JSON.stringify(p[0].body));
+    ok('the other roles ride along intact', p.length===1&&p[0].body.drafter==='Oscar Brandow'&&p[0].body.leadFab==='Ezra Bowen', p.length&&JSON.stringify(p[0].body));
     ok('the filter survives the save (no repaint under PP_QUIET)', rq('pp-r-pm').value==='ma'&&labels('pp-r-pm').filter(l=>l.classList.contains('hidden')).length===6, vis('pp-r-pm').join(', '));
     change(rq('pp-r-pm'));
     setTimeout(()=>{

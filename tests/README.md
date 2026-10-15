@@ -12,7 +12,7 @@ Recovered from the 2026-08-20 handoff (since retired); still true unless struck 
 - **The REV49 lesson rules everything:** every feature asserts on BOTH the new-project
   draft page and the saved page (see below).
 - **Suites test the current app only** (owner, 2026-10-14). The run against the frozen
-  REV50 copy (`reference/Timeline_50.html`, still kept and never edited) was dropped, so a
+  REV50 copy was dropped (and the file deleted, item 70), so a
   new suite needs no "skip on an older build" guard. When a behaviour changes on purpose,
   update the old assertion to the new behaviour. The old guards went in item 60.
 - **PowerShell 5.1 mangles git commit messages containing double quotes** (native-arg

@@ -18,7 +18,7 @@ const sec=t=>console.log('\n'+t);
 /* Sam is the harness's sign-in; Milo receives bug reports, so the team email is sent. */
 const staff=[
  {appId:'s1',Title:'Sam',email:'user@example.com',depts:JSON.stringify(['pm']),ooo:'[]',role:''},
- {appId:'s2',Title:'Milo',email:'nick@example.com',depts:JSON.stringify(['fab']),ooo:'[]',role:'',feedbackRecipient:'1'}];
+ {appId:'s2',Title:'Milo',email:'milo@example.com',depts:JSON.stringify(['fab']),ooo:'[]',role:'',feedbackRecipient:'1'}];
 const dom=boot(FILE,{data:{projects:[],tasks:[],staff,todos:[]}});
 const win=dom.window,doc=win.document,E=s=>win.eval(s);
 const q=s=>doc.querySelector(s),qa=s=>[...doc.querySelectorAll(s)];

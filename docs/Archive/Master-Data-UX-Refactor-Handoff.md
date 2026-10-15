@@ -140,7 +140,7 @@ A master/detail layout is preferred if it fits the current UI:
 
 ```text
 ┌───────────────────────────┬──────────────────────────────┐
-│ PEOPLE                    │ ROBERT MACIEL                │
+│ PEOPLE                    │ RUPERT MALLORY                │
 │                           │ Lead Technical Designer      │
 │ Rupert Mallory             │                              │
 │ Ines Smith                │ Work email                   │

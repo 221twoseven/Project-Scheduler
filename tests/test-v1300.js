@@ -64,8 +64,8 @@ function draftPart(){
 
   sec('with #19\'s search — None stays, empty department headers fold');
   const rq=q('.pg-rq[data-for="pp-r-lf"]');
-  rq.value='mi';input(rq);
-  ok('typing "mi" leaves None and Mia', visLead().join(',')==='None,Mia', visLead().join(','));
+  rq.value='mia';input(rq);
+  ok('typing "mia" leaves None and Mia', visLead().join(',')==='None,Mia', visLead().join(','));
   ok('the Project Management header folds away, Metal Shop stays', !headVis('Project Management')&&headVis('Metal Shop'));
   rq.value='';input(rq);
   ok('clearing restores every name and header', visLead().length===10&&heads().every(h=>headVis(h)), visLead().length);

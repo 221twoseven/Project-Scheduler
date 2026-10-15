@@ -793,20 +793,22 @@ release. Where the app has a part, it's listed.
       because a real first name plus the public domain is an address. In tests, the
       app's sample roster and code comments, each real or likely-real name has a fixed
       fictional stand-in, kept to the same initial and length so sort-order and search
-      assertions still hold. In docs, the owner is "the owner" and the backup maintainer
-      is "the backup maintainer"; local paths read `users\<user>\`.
+      assertions still hold (the owner named the others known to be real). In docs, the
+      owner is "the owner", the backup maintainer "the backup maintainer", and the
+      estimator's author "a colleague"; local paths read `users\<user>\`.
+      `reference/Timeline_50.html` is **deleted** (owner, same day): it held the original
+      sample roster's names. `test-quiet` keeps the one REV50 line it compared against.
       **Not covered:**
       - every commit's author address (`github@twoseven.net`) and the names in older
         commits, PR text and the history of every file stay public. The owner's GitHub
         email-privacy settings stop the address for new commits; rewriting history
         isn't worth it;
-      - `reference/Timeline_50.html` (never edited, `CLAUDE.md`) still has the original
-        sample roster's first names;
       - names inside the screenshots and PDFs under `docs/` (images, not text).
       [owner ask 2026-10-15]
 - [x] **69. Stop testing against the REV50 reference** (owner, 2026-10-14). Done (PR #153,
       2026-10-14), tooling only, no release. CI and the release checklist no longer run the
-      suites against `reference/Timeline_50.html`; the file stays, never edited, as history.
+      suites against `reference/Timeline_50.html`; the file stayed as history
+      (deleted 2026-10-15, item 70).
       `npm run test:ref` is gone, and new suites need no skip guard. `test47` and
       `test-b3-zoom` were deleted (they only ever exercised REV50; `test56` and
       `test-v150` own their features). `test-v1208`'s feature sniff stopped matching at
@@ -1211,7 +1213,7 @@ inputs. Closeout is the last step of the cycle and comes last.
       creates a new revision; unbilled scope later blocks Ready at closeout — plus budget
       views per project. Nothing beyond that is specified: scope it with the Project
       Director and the Bookkeeper before design.
-      - *Reference material (2026-10-08):* Davis's estimator, a working Next.js /
+      - *Reference material (2026-10-08):* a colleague's estimator, a working Next.js /
         TypeScript tool on a relational database, is item 44's domain-discovery artifact.
         It is not a schema to port. Concepts to validate:
         - labor / material / install pricing, flat-rate vs per-item rules, and shared
@@ -1692,7 +1694,7 @@ What we still need from people: schemas, rules and examples, not screenshots. St
 | PTO, holidays, change log: the availability source, how identities are matched, cancellation examples, how holidays are set | operations manager (PTO, the 27 Employees automation); the owner (change log, item 20) | discovery session not held |
 | QuickBooks / TimeClock+ CSV formats | Bookkeeper | not requested (D13) |
 | Who administers which view (the key users), and which permission set each needs | owner, the backup maintainer | in progress (D3) |
-| Davis's estimator: a walkthrough of its model, pricing rules, catalog and rate data, and test estimates; where its database runs | Davis, the owner | not requested (item 44) |
+| a colleague's estimator: a walkthrough of its model, pricing rules, catalog and rate data, and test estimates; where its database runs | Daxon, the owner | not requested (item 44) |
 | Estimate samples: two or three recent estimates per PM, of different shapes, to re-enter in the estimator's model | several PMs, the Project Director | not requested (item 44) |
 | Platform ownership: who would hold an Azure subscription and its billing, a second administrator, alert recipient, production-migration approver; or who administers a Power Platform environment | owner, the backup maintainer | not requested (D15) |
 | Licence inventory and headcount: Power Apps / Power Automate premium licences already held, and how many people would use Systems (viewers included) | tenant admin, owner | not requested (D15) |
@@ -2327,7 +2329,7 @@ How to read the tags at the end of an entry:
     permission boundaries people decide first), D10 (UUIDs; store IDs become legacy), D11
     (the relational form), D12 (a read and sync budget on any platform) and D13 (a backend
     job as a second home after CSV).
-  - Item 17 is tied to backend staging, item 44 gains Davis's estimator as discovery
+  - Item 17 is tied to backend staging, item 44 gains a colleague's estimator as discovery
     material, §5 gains four rows, and §7.4 gains two ledger entries.
   - New dated review: `docs/Architecture-Review-Backend.md`. No ruling changed, and
     nothing was provisioned. Noted, not fixed: two §3 items share the number 42 (tracker

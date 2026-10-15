@@ -32,7 +32,7 @@ together as one patch.
 
 `scrubLegacyNames()` — a console-run, one-time pass that makes the v1.6.5 healing
 permanent. Since v1.6.5, `canonName()` resolves legacy abbreviated person strings
-("Davis S.", bare first names) to roster people at compare/display time, but the
+("Daxon S.", bare first names) to roster people at compare/display time, but the
 **stored** values kept their abbreviations until someone happened to re-save the
 record. The scrub rewrites the stored values themselves:
 

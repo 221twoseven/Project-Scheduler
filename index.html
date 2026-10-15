@@ -2044,7 +2044,7 @@ function rebuildStaff(){
 }
 function personByName(n){return PEOPLE.find(p=>p.name===n);}
 /* v1.6.5 (owner report): legacy project records store abbreviated people
-   ("Davis S.", or bare first names) while the staff picker writes full display
+   ("Daxon S.", or bare first names) while the staff picker writes full display
    names — raw string compares split one human into an empty roster lane plus a
    working legacy lane, hid their work from the person filter/dashboards, and made
    the overbooking check skip them. Resolve any crew/role string to its roster

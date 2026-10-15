@@ -97,7 +97,7 @@ async function main(){
   ok('the roster is back to three', E('PEOPLE.length')===3);
 
   sec('index tools');
-  input(q('#cd-q'),'ka');
+  input(q('#cd-q'),'ine');
   ok('search narrows the index', qa('.cd-row').length===1&&/Ines/.test(qa('.cd-row')[0].textContent));
   input(q('#cd-q'),'');
   ok('clearing the search restores the index', qa('.cd-row').length===3);

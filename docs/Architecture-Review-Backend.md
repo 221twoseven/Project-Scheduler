@@ -206,7 +206,7 @@ Moving off SharePoint *for structured business data* doesn't mean eliminating Sh
 
 ### A7. Questions only people can answer (needed before D15 is ruled)
 
-1. **How much is Office?** Does Office hold line-item estimating (Davis's estimator, §F, as
+1. **How much is Office?** Does Office hold line-item estimating (a colleague's estimator, §F, as
    the reference), or only an estimate reference with the estimate made elsewhere? This
    single answer moves D15 more than any technical fact. *The owner, the backup maintainer, the Project
    Director, several PMs.*
@@ -302,7 +302,7 @@ answer is an input, and named human owners are a precondition.
 | §2 "Open, and what they wait on" | D15's inputs rewritten (four inputs; the gate unchanged) | The reassessment |
 | item 14 | Notes that the comparison is needed on any platform: it's the business knowledge that migrates | D1 rewrite |
 | item 17 | Under B/C staging is a separate environment, mandatory before any write path; preview → staging; agents never need production data | Ties staging to D15 instead of a separate initiative |
-| item 44 | Davis's estimator as reference material; the discovery questions; "validate before canonizing" | §F |
+| item 44 | a colleague's estimator as reference material; the discovery questions; "validate before canonizing" | §F |
 | D1 | Business ruling separated from storage; under B/C the answer may be a new `Projects` table | The new framing |
 | D3 | The principle kept; a conditional mechanism for C; the permission decisions people must make first | §A7 Q4–5 |
 | D10 | Durable UUIDs as the target identity; store IDs become legacy columns | The new framing |
@@ -433,7 +433,7 @@ says otherwise.
 
 The criterion is passwordless production access with reproducible migrations, not a brand.
 
-- **Prisma.** Davis has used it successfully, and its schema file is a machine-readable
+- **Prisma.** A colleague has used it successfully, and its schema file is a machine-readable
   contract that suits agents. Current Prisma connects to SQL Server through the
   `@prisma/adapter-mssql` driver adapter. Its README shows Entra authentication through the
   `mssql`/tedious config object, `authentication: { type: 'azure-active-directory-default' }`,
@@ -711,9 +711,9 @@ Once one complete slice works, the remaining CRUD is repetition, not the main un
 
 ---
 
-## F. Office item 44: Davis's estimator as discovery material
+## F. Office item 44: a colleague's estimator as discovery material
 
-Davis has built a working estimator. Per the description given for this review (its code
+A colleague has built a working estimator. Per the description given for this review (its code
 isn't in this repository and wasn't read), it is:
 
 - a Next.js / TypeScript server application on a relational database, with Prisma;

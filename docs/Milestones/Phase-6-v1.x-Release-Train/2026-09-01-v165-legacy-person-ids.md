@@ -2,8 +2,8 @@
 
 **What:** reviewing live data at `/preview/`, the owner found the Project Management
 department splitting every person in two — an empty lane under their full roster name
-("Davis Smith", "Cordelia Vance") and a working lane under a legacy abbreviation
-("Davis S.", "Cordelia B."). Older project records store abbreviated names in the
+("Daxon Smith", "Cordelia Vance") and a working lane under a legacy abbreviation
+("Daxon S.", "Cordelia V."). Older project records store abbreviated names in the
 `projectManager`/`drafter`/`leadFab` fields and in some bar crews, while the staff
 picker and the signed-in identity chain write full display names — and every consumer
 compared the strings raw.
@@ -12,7 +12,7 @@ compared the strings raw.
 
 One resolver, `canonName(s)`: resolve a crew/role string to its roster person when the
 match is unambiguous — exact (case-insensitive), the `First L.` initial form, or a
-bare first name. Ambiguous (two Davises matching "Davis S.") or unknown strings pass
+bare first name. Ambiguous (two Daxons matching "Daxon S.") or unknown strings pass
 through untouched and keep their own lane; the resolver never guesses.
 
 It is applied inside `barCrew()` — the single "who works this bar" authority — and at
@@ -32,8 +32,8 @@ every remaining raw reader of the role fields. Everything heals at once:
   under one heading.
 - **The PM late prompt** reaches a PM whose projects store the legacy form.
 - **Editors resolve, phantom boxes gone:** the project page's Team checkboxes check
-  the roster person instead of rendering a checked "Davis S." next to an unchecked
-  "Davis Smith" (this was the owner's report, verbatim), and the task-modal crew list
+  the roster person instead of rendering a checked "Daxon S." next to an unchecked
+  "Daxon Smith" (this was the owner's report, verbatim), and the task-modal crew list
   pre-checks resolved names instead of dropping them.
 
 **The app never rewrites stored values on its own.** Values heal only when a person

@@ -34,25 +34,25 @@ const mkProj=(id,name,pm,dr,i)=>({appId:id,Title:name,client:'C',jobCode:'J'+i,d
   status:'in-fabrication',projectManager:pm,drafter:dr,leadFab:'',
   activeDepartments:JSON.stringify(['pm','fab']),createdAt:D(-30),sortIndex:i});
 const projects=[
-  mkProj('p1','Legacy Roles','Cordelia B.','Theo',0),      /* both resolve */
-  mkProj('p2','Ambiguous Davis','Davis S.','',1),          /* two Davises → untouched */
+  mkProj('p1','Legacy Roles','Cordelia V.','Theo',0),      /* both resolve */
+  mkProj('p2','Ambiguous Daxon','Daxon S.','',1),          /* two Daxons → untouched */
   mkProj('p3','Already Canonical','Cordelia Vance','',2)];
 const mkTask=(id,pid,dept,who,s,e)=>({appId:id,projectId:pid,department:dept,assignee:who,
   startDate:s,endDate:e,estimatedDays:5,ticketNodes:'[]',notes:'',pinned:false,label:''});
 const tasks=[
-  mkTask('t1','p1','fab','Cordelia B.',D(0),D(4)),              /* comma-string crew */
+  mkTask('t1','p1','fab','Cordelia V.',D(0),D(4)),              /* comma-string crew */
   mkTask('t2','p1','install',JSON.stringify(['Theo','Installation']),D(5),D(8)), /* JSON crew */
   mkTask('t3','p2','othshop','Theo',D(0),D(3)),                 /* free-text dept: label, not a person */
   mkTask('t4','p3','fab','Cordelia Vance',D(0),D(4))];          /* already canonical */
 const todos=[{appId:'k1',Title:'Order acrylic',projectId:'p1',department:'',
-  assignees:JSON.stringify(['Cordelia B.']),dueDate:D(3),startDate:null,progress:'notstarted',
+  assignees:JSON.stringify(['Cordelia V.']),dueDate:D(3),startDate:null,progress:'notstarted',
   priority:'medium',notes:'',labels:'[]',checklist:'[]',createdBy:'',completedOn:null,
   completedBy:'',sortIndex:0}];
 const staff=[
   {appId:'s1',Title:'Cordelia Vance',depts:JSON.stringify(['pm','fab']),ooo:'[]',email:'',role:'PM'},
   {appId:'s2',Title:'Theo Kim',depts:JSON.stringify(['pm','fab']),ooo:'[]',email:'',role:''},
-  {appId:'s3',Title:'Davis Smith',depts:JSON.stringify(['pm']),ooo:'[]',email:'',role:''},
-  {appId:'s4',Title:'Davis Stone',depts:JSON.stringify(['pm']),ooo:'[]',email:'',role:''}];
+  {appId:'s3',Title:'Daxon Smith',depts:JSON.stringify(['pm']),ooo:'[]',email:'',role:''},
+  {appId:'s4',Title:'Daxon Stone',depts:JSON.stringify(['pm']),ooo:'[]',email:'',role:''}];
 
 const dom=boot(FILE,{data:{projects,tasks,staff,todos},todosList:true});
 const win=dom.window,doc=win.document;
@@ -82,22 +82,22 @@ async function main(){
   const rep=JSON.parse(E('JSON.stringify(scrubLegacyNames())'));
   ok('reports the two project role fields', rep.filter(r=>r.kind==='project').length===2,
      JSON.stringify(rep.filter(r=>r.kind==='project')));
-  ok('reports the comma-string crew', rep.some(r=>r.kind==='phase'&&r.before==='Cordelia B.'&&r.after==='Cordelia Vance'));
+  ok('reports the comma-string crew', rep.some(r=>r.kind==='phase'&&r.before==='Cordelia V.'&&r.after==='Cordelia Vance'));
   ok('reports the install crew array, Installation kept',
      rep.some(r=>r.kind==='phase'&&r.after==='Theo Kim, Installation'));
   ok('reports the note assignee', rep.some(r=>r.kind==='note'&&r.after==='Cordelia Vance'));
-  ok('skips the ambiguous Davis', !rep.some(r=>String(r.before).indexOf('Davis')>=0));
+  ok('skips the ambiguous Daxon', !rep.some(r=>String(r.before).indexOf('Daxon')>=0));
   ok('skips the free-text department label', !rep.some(r=>r.record&&String(r.record).indexOf('Other (Shop)')>=0));
   ok('skips already-canonical values', !rep.some(r=>r.before==='Cordelia Vance'));
   ok('dry run made no Graph calls', calls().length===before);
-  ok('stored value untouched on dry run', E("projById('p1').projectManager")==='Cordelia B.');
+  ok('stored value untouched on dry run', E("projById('p1').projectManager")==='Cordelia V.');
 
   sec('scrubLegacyNames(true): applies through the normal save path');
   E('scrubLegacyNames(true)');
   await wait(150);
   ok('project role healed in state', E("projById('p1').projectManager")==='Cordelia Vance'
      && E("projById('p1').drafter")==='Theo Kim');
-  ok('ambiguous Davis untouched in state', E("projById('p2').projectManager")==='Davis S.');
+  ok('ambiguous Daxon untouched in state', E("projById('p2').projectManager")==='Daxon S.');
   ok('comma crew healed in state', E("taskById('t1').assignee")==='Cordelia Vance');
   ok('free-text label untouched in state', E("taskById('t3').assignee")==='Theo');
   ok('note assignee healed in state', E("ST.todos[0].who.join('|')")==='Cordelia Vance');

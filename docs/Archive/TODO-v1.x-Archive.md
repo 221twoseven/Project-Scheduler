@@ -84,7 +84,7 @@ follows the person into the Projects lens — the lens toggle hides whenever a p
 is on; only the dept reading stays flat (`dash-flat`). Record:
 `docs/Milestones/Phase-6-v1.x-Release-Train/2026-09-01-v164-preview-polish-3.md`. Same day, the owner's live-data
 report ("legacy person IDs assigned, authenticated IDs not") shipped as **v1.6.5**:
-`canonName()` resolves legacy abbreviated crew/role strings ("Davis S.", bare first
+`canonName()` resolves legacy abbreviated crew/role strings ("Daxon S.", bare first
 names) to roster people inside `barCrew()` — lanes merge, dashboards/filters find
 legacy work, overbooking stops skipping them; stored values untouched. Record:
 `docs/Milestones/Phase-6-v1.x-Release-Train/2026-09-01-v165-legacy-person-ids.md`. The owner's follow-up on the
@@ -650,7 +650,7 @@ rule §5); old data keeps reading fine.
         name (the scrub walkers, generalized to `scrubNames(mapFn)`), missing
         contact/flag fields backfill, the duplicate row is removed; one confirm
         names the rewrite count. For the Dean Baek / Donghyun (Dean) Baek and
-        Davis Smith / R. Davis Smith pairs the EC import surfaced.
+        Daxon Smith / R. Daxon Smith pairs the EC import surfaced.
       - **Listening-to line hugs the collapse chevron** (the two competing auto
         margins had floated it mid-header).
       - **Copy inventory delivered:** `docs/Copy-Coach-and-Helpers.md` — every
@@ -1271,7 +1271,7 @@ these are the ones still open, plus new deferrals as they happen.
       rewrite rides the normal undo stack for THIS session only; the removed row
       needs re-adding by hand if merged wrong. Gate: a real mis-merge. (v1.15.0)
 - [ ] Merge matches stored strings by EXACT name only — abbreviations of the
-      duplicate ("Donghyun H.") that canonName can't resolve stay behind; run
+      duplicate ("Donghyun B.") that canonName can't resolve stay behind; run
       `scrubLegacyNames(true)` after merging to sweep those. (v1.15.0)
 - [ ] A parked staff save (PENDING_STAFF) retries only via the pill click — no
       automatic replay, and OTHER staff saves during the park sync their own diffs

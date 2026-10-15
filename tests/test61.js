@@ -143,8 +143,8 @@ function savedStage(){
       const row3=q('#pp-insp .ins-row3');
       ok('Who renders above Start/End/Days',
          whoTd&&row3&&(whoTd.compareDocumentPosition(row3)&win.Node.DOCUMENT_POSITION_FOLLOWING));
-      const stan=[...whoTd.querySelectorAll('input')].find(i=>i.value==='Theo');
-      stan.checked=true;change(stan);
+      const theo=[...whoTd.querySelectorAll('input')].find(i=>i.value==='Theo');
+      theo.checked=true;change(theo);
       setTimeout(()=>{
         const calls=win.__spCalls.filter(c=>c.method==='PATCH'&&c.body&&c.body.assignee);
         const last=calls[calls.length-1];

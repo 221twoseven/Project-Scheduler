@@ -10,14 +10,10 @@ Project rules and context for working in this repository. Read this before makin
 
 ## Core files
 
-- **`reference/Timeline_50.html` — immutable reference. NEVER modify it.** The untouched
-  copy of the colleague's working REV50 app, kept in `reference/` as history and a diff
-  baseline. It is no longer a test target (owner, 2026-10-14). Do not edit its
-  contents. (It lives in `reference/`, not the repo root, to keep it clearly separate
-  from the live app.)
 - **`index.html` — the company-developed application. This is the primary
   implementation file.** All company feature work happens here. It began as a
-  byte-for-byte copy of the REV50 reference; divergence is expected over time.
+  byte-for-byte copy of the colleague's REV50 build. That copy was deleted from the repository
+  on 2026-10-15 (item 70: it held real staff names); git history still has it.
 - **`design/Design-Language.md` — the design system. Read it before any change that
   touches appearance or interaction.** If a change contradicts it, either follow the
   doc or update the doc in the same PR — never silently diverge.

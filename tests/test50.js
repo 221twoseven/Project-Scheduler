@@ -1,5 +1,5 @@
 /* One test per reported issue, on the page where it was reported.
-   Run: node tests/run.js  (or: node tests/test50.js reference/Timeline_50.html) */
+   Run: node tests/run.js  (or: node tests/test50.js index.html) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 /* REV57 / N11: bar menus are add-only — rename lives in the inspector/popover. (The old

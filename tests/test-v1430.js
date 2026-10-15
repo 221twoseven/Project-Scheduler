@@ -11,7 +11,7 @@ const {FILE,src,ok,done}=suite();
 const sec=t=>console.log('\n'+t);
 
 const staff=[
-  {appId:'s1',Title:'Milo',depts:JSON.stringify(['fab']),ooo:'[]',email:'nick@example.com',phone:'(555) 555-5555',role:'Lead Fabricator'},
+  {appId:'s1',Title:'Milo',depts:JSON.stringify(['fab']),ooo:'[]',email:'milo@example.com',phone:'(555) 555-5555',role:'Lead Fabricator'},
   {appId:'s2',Title:'Sam',depts:JSON.stringify(['pm']),ooo:'[]',email:'user@example.com',phone:'5555550100',role:'PM'},
   {appId:'s3',Title:'Pat',depts:JSON.stringify(['fab']),ooo:'[]',email:'pat@example.com',phone:'',role:'Shop'}];
 const dom=boot(FILE,{data:{projects:[],tasks:[],staff,todos:[]}});
@@ -89,7 +89,7 @@ async function main(){
    +"{name:'Email',displayName:'Email'},{name:'PersonalEmail',displayName:'Personal Email'},{name:'Primary_x0020_Phone',displayName:'Primary Phone'},"
    +"{name:'Mobile_x0020_Phone',displayName:'Mobile Phone'},{name:'Current_x0020_Title',displayName:'Current Title'},{name:'Department',displayName:'Department'},"
    +"{name:'Pay_x0020_Type',displayName:'Pay Type'}];"
-   +"if(u.indexOf('Employee')>=0)return [{id:'e1',fields:{Title:'Milo',field_3:'Active',Email:'nick@example.com',Primary_x0020_Phone:'555.555.0170'}},"
+   +"if(u.indexOf('Employee')>=0)return [{id:'e1',fields:{Title:'Milo',field_3:'Active',Email:'milo@example.com',Primary_x0020_Phone:'555.555.0170'}},"
    +"{id:'e2',fields:{Title:'Pat',field_3:'Active',Email:'pat@example.com',Mobile_x0020_Phone:'(555) 555-0171'}}];"
    +"if(u.indexOf('/columns')>=0)return [{name:'Title'},{name:'status'}];return [];};");
   E("cdImportEC({disabled:false})");

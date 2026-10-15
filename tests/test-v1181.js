@@ -69,9 +69,9 @@ function main(){
   ok('Everything clears a live client filter', E('CLIENT_FILTER.size')===0, 'size='+E('CLIENT_FILTER.size'));
 
   sec('search matches roster names beside nicknames');
-  E("FILTER='sean'");
+  E("FILTER='dean'");
   ok('the nickname matches', E("taskMatch(ST.tasks.find(t=>t.department==='fab'))")===true);
-  E("FILTER='seungwoo'");
+  E("FILTER='donghyun'");
   ok('the roster name still matches', E("taskMatch(ST.tasks.find(t=>t.department==='fab'))")===true);
   E("FILTER=''");
 

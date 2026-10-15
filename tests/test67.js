@@ -53,7 +53,7 @@ const win=dom.window;
 const E=s=>win.eval(s);
 
 setTimeout(()=>{
-  E("PEOPLE=[{id:'a',name:'Milo',email:'nick@example.com',role:'Lead Fabricator',depts:['fab'],ooo:[{id:'o1',start:'"+D(10)+"',end:'"+D(14)+"',note:'PTO'}]},{id:'b',name:'Ines',email:'',role:'',depts:['fab'],ooo:[]},{id:'c',name:'Felix',email:'',role:'',depts:['td'],ooo:[]}];rebuildStaff();");
+  E("PEOPLE=[{id:'a',name:'Milo',email:'milo@example.com',role:'Lead Fabricator',depts:['fab'],ooo:[{id:'o1',start:'"+D(10)+"',end:'"+D(14)+"',note:'PTO'}]},{id:'b',name:'Ines',email:'',role:'',depts:['fab'],ooo:[]},{id:'c',name:'Felix',email:'',role:'',depts:['td'],ooo:[]}];rebuildStaff();");
 
   sec('Panel appears with Departments lens + person filter');
   E("LENS='dept';PERSON='Milo';render();");
@@ -63,7 +63,7 @@ setTimeout(()=>{
   ok('header shows name, role, dept and email',
      E("document.querySelector('#me-dock .md-hd').textContent").includes('Milo')&&
      E("document.querySelector('#me-dock .md-hd').textContent").includes('Lead Fabricator')&&
-     E("document.querySelector('#me-dock .md-hd').textContent").includes('nick@example.com'));
+     E("document.querySelector('#me-dock .md-hd').textContent").includes('milo@example.com'));
 
   sec('Working on: his bars, NOW tag on the active one');
   const work=E("document.querySelectorAll('#me-dock .ins-sec')[0].textContent");

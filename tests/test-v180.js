@@ -32,18 +32,18 @@ const mkStaff=(id,name,email,extra)=>Object.assign(
 /* ---------- boot A: legacy fixtures (no admin column anywhere) ---------- */
 const bootA=()=>boot(FILE,{data:{
   projects:[mkProj('p1','Alpha',0)],tasks:[mkTask('t1','p1','fab','Sam',D(0),D(4))],
-  staff:[mkStaff('s1','Sam','user@example.com'),mkStaff('s2','Milo','nick@example.com')],todos:[]}});
+  staff:[mkStaff('s1','Sam','user@example.com'),mkStaff('s2','Milo','milo@example.com')],todos:[]}});
 /* ---------- boot B: enforcement on, signed-in Sam is a VIEWER ---------- */
 const bootB=()=>boot(FILE,{data:{
   projects:[mkProj('p1','Alpha',0)],tasks:[mkTask('t1','p1','fab','Sam',D(0),D(4))],
   staff:[mkStaff('s1','Sam','user@example.com'),
-         mkStaff('s2','Milo','nick@example.com',{admin:'1',feedbackRecipient:'1'}),
+         mkStaff('s2','Milo','milo@example.com',{admin:'1',feedbackRecipient:'1'}),
          mkStaff('s3','Ana','ana@example.com',{feedbackRecipient:'1'})],todos:[]}});
 /* ---------- boot C: enforcement on, signed-in Sam is the (only) ADMIN ---------- */
 const bootC=()=>boot(FILE,{data:{
   projects:[mkProj('p1','Alpha',0)],tasks:[mkTask('t1','p1','fab','Sam',D(0),D(4))],
   staff:[mkStaff('s1','Sam','user@example.com',{admin:'1'}),
-         mkStaff('s2','Milo','nick@example.com')],todos:[]}});
+         mkStaff('s2','Milo','milo@example.com')],todos:[]}});
 
 let dom=bootA(),win=dom.window,doc=win.document,E=s=>win.eval(s),calls=()=>win.__spCalls;
 
@@ -136,7 +136,7 @@ async function partB(){
   const mail=calls().slice(n1).find(c=>c.url.includes('/me/sendMail'));
   ok('sendMail goes out as the submitter', !!mail&&mail.method==='POST');
   const addrs=mail?mail.body.message.toRecipients.map(r=>r.emailAddress.address).sort().join('|'):'';
-  ok('…to exactly the flagged recipients', addrs==='ana@example.com|nick@example.com', addrs);
+  ok('…to exactly the flagged recipients', addrs==='ana@example.com|milo@example.com', addrs);
   ok('…with the app version and kind in the mail', mail&&mail.body.message.body.content.indexOf('Bug report')>=0);
 
   dom=bootC();win=dom.window;doc=win.document;E=s=>win.eval(s);calls=()=>win.__spCalls;
