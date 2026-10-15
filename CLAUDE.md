@@ -10,14 +10,10 @@ Project rules and context for working in this repository. Read this before makin
 
 ## Core files
 
-- **`reference/Timeline_50.html` — immutable reference. NEVER modify it.** The untouched
-  copy of the colleague's working REV50 app, kept in `reference/` as the frozen baseline
-  to diff against and as the control build for `npm run test:ref`. Do not edit its
-  contents. (It lives in `reference/`, not the repo root, to keep it clearly separate
-  from the live app.)
 - **`index.html` — the company-developed application. This is the primary
   implementation file.** All company feature work happens here. It began as a
-  byte-for-byte copy of the REV50 reference; divergence is expected over time.
+  byte-for-byte copy of the colleague's REV50 build. That copy was deleted from the repository
+  on 2026-10-15 (item 70: it held real staff names); git history still has it.
 - **`design/Design-Language.md` — the design system. Read it before any change that
   touches appearance or interaction.** If a change contradicts it, either follow the
   doc or update the doc in the same PR — never silently diverge.
@@ -70,7 +66,7 @@ through a schema or data-store change is accepted collateral.** It no longer con
 the schema.
 
 - **Schema changes are owner-applied and deliberate.** The app never writes schema.
-  Deliver Robert the exact spec (list, column, internal name, type, values); additive
+  Deliver the owner the exact spec (list, column, internal name, type, values); additive
   columns are routine (the app probes them live — the tristate pattern). A destructive
   change (rename, delete, type change, moving a store) gets a milestone record naming
   what it breaks and how existing rows migrate. See `docs/TODO.md` §6.
@@ -108,14 +104,13 @@ The current infrastructure values (for reference — do not change without instr
 - **Preserve the existing test harness.** `harness.js` boots a Timeline HTML file in
   jsdom with MSAL and `fetch` stubbed, recording every Graph request so persistence is
   asserted on the actual outgoing request bodies.
-- **Run the tests after implementation changes.** `tests/run.js` aggregates every suite
-  (behaviour suites `test46`–`test92`, `test-label`, the Phase 1–4 UX/design suites, and
-  per-release suites like `test-v102`);
-  see `tests/README.md`. Validate company changes against `index.html`, and the frozen
-  baseline with `test:ref`:
+- **Run the tests after implementation changes.** `tests/run.js` runs every
+  `tests/test*.js` suite (behaviour suites `test46`–`test92`, the Phase 1–4 UX/design suites,
+  and per-release suites like `test-v102`);
+  see `tests/README.md`. Validate changes against `index.html`:
 
   ```bash
-  npm install && npm test && npm run test:ref
+  npm install && npm test
   ```
 
   Every feature should be asserted on BOTH the new-project draft page and the saved
@@ -219,8 +214,8 @@ hand its People and Clients pages to their own products. None of this is built y
 definition is `docs/TODO.md` §1 and the rulings are §4 D4/D8. Until then, Timeline is the
 whole of what ships.
 
-A **single-file, client-only SPA**. `index.html` (one file of roughly seven thousand
-lines — trust `wc -l`, not this sentence) contains all HTML, CSS,
+A **single-file, client-only SPA**. `index.html` (one large file —
+`wc -l` has the count) contains all HTML, CSS,
 and vanilla JavaScript — no framework and no build step. It is a shop-timeline / Gantt
 dashboard for projects, tasks, staff, and to-dos.
 
@@ -230,7 +225,7 @@ dashboard for projects, tasks, staff, and to-dos.
   app registration. Sign-in via `loginPopup`, tokens via `acquireTokenSilent`
   (fallback `acquireTokenPopup`), cached in `sessionStorage`.
 - **Backend is SharePoint — there is no server of our own.** Microsoft Graph v1.0 is the
-  API. The six SharePoint Lists on the `TWOSEVENINC` site are the database. The site ID
+  API. The SharePoint Lists on the `TWOSEVENINC` site are the database. The site ID
   is resolved at runtime; Lists are addressed by name.
 - **Data flow:** load reads all Lists on startup, then a 90-second background poll picks
   up other users' edits (paused during drag/edit/open overlays). Writes are optimistic,

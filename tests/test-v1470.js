@@ -4,28 +4,17 @@
    (3) the New Project divider: a grip that shows before hover, and a footer that counts the required
    fields and links each missing one to its field.
    Run: node tests/test-v1470.js index.html  (or via tests/run.js) */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-if(src.indexOf('function ppPaintNeeds(')<0){
-  console.log('  SKIP  test-v1470: pre-v1.47.0 build ('+FILE+')');
-  console.log('\n'+'-'.repeat(46));
-  console.log('  0 passed, 0 failed   ['+FILE+']');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
 
 const projects=[{appId:'p1',Title:'Hermes Windows',client:'Hermes',jobCode:'H1',deadline:'2026-09-15',status:'auto',
-  projectManager:'Stan',activeDepartments:JSON.stringify(['td','fab']),createdAt:'2026-07-01',sortIndex:0}];
+  projectManager:'Theo',activeDepartments:JSON.stringify(['td','fab']),createdAt:'2026-07-01',sortIndex:0}];
 const tasks=[
-  {appId:'td1',projectId:'p1',department:'td',assignee:'Peter',startDate:'2026-08-03',endDate:'2026-08-07',estimatedDays:5,ticketNodes:'[]',notes:'',pinned:false,label:'Exterior Windows'},
-  {appId:'f1',projectId:'p1',department:'fab',assignee:'Nick',startDate:'2026-08-20',endDate:'2026-09-04',estimatedDays:12,ticketNodes:'[]',notes:'',pinned:false,label:''}];
+  {appId:'td1',projectId:'p1',department:'td',assignee:'Oscar',startDate:'2026-08-03',endDate:'2026-08-07',estimatedDays:5,ticketNodes:'[]',notes:'',pinned:false,label:'Exterior Windows'},
+  {appId:'f1',projectId:'p1',department:'fab',assignee:'Milo',startDate:'2026-08-20',endDate:'2026-09-04',estimatedDays:12,ticketNodes:'[]',notes:'',pinned:false,label:''}];
 
 const dom=boot(FILE,{data:{projects,tasks,staff:[],todos:[]}});
 const win=dom.window,doc=win.document,E=s=>win.eval(s),q=s=>doc.querySelector(s);
@@ -95,7 +84,7 @@ async function main(){
   ok('typing a name drops it from the list',!q('.pp-need[data-need="name"]'),needs().textContent);
   const di=q('#pp-deadline');
   if(di){di.value='2026-12-01';di.dispatchEvent(new win.Event('change',{bubbles:true}));await wait(50);}
-  E("PP_FORM.projectManager='Stan'");E('ppPaintNeeds()');
+  E("PP_FORM.projectManager='Theo'");E('ppPaintNeeds()');
   ok('with all three in, it reads "Ready to create"',/Ready to create/.test(needs().textContent),needs().textContent);
 
   sec('Create still names and focuses what is missing (unchanged behaviour)');
@@ -105,7 +94,5 @@ async function main(){
   ok('it refuses and says what it needs',/Give it a name/.test(doc.body.textContent));
   ok('no project was created',E('ST.projects.length')===1);
 
-  console.log('\n'+'-'.repeat(46));
-  console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-  process.exit(fail?1:0);
+  done();
 }

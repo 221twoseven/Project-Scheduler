@@ -1,6 +1,6 @@
 # 2026-08-20 — Project-page refinement batch (REV57)
 
-**What changed:** the nine ungated items from Robert's recovered 2026-08-17 field notes
+**What changed:** the nine ungated items from the owner's recovered 2026-08-17 field notes
 (TODO §3a), shipped as one REV so hallway test round 2 lands on a finished page.
 
 - **N5 — status labels lose the "In".** Pills now read "Design" / "Fabrication"

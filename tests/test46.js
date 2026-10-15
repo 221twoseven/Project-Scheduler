@@ -1,27 +1,20 @@
 /* Timeline regression suite — run: node test46.js Timeline_46.html
    Covers the four REV46 fixes plus the invariants the old suites guarded. */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'Timeline_46.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-let pass=0,fail=0;
-const ok=(name,cond,extra)=>{
-  if(cond){pass++;console.log('  PASS  '+name);}
-  else{fail++;console.log('  FAIL  '+name+(extra?'   ('+extra+')':''));}
-};
 const sec=t=>console.log('\n'+t);
 
 const projects=[{appId:'p1',Title:'Hermes Windows',client:'Hermes',jobCode:'H1',
-  deadline:'2026-09-15',status:'approved',projectManager:'Stan',drafter:'Peter',
-  leadFab:'Nick',activeDepartments:JSON.stringify(['pm','td','fab','finish','install']),
+  deadline:'2026-09-15',status:'approved',projectManager:'Theo',drafter:'Oscar',
+  leadFab:'Milo',activeDepartments:JSON.stringify(['pm','td','fab','finish','install']),
   createdAt:'2026-07-01',sortIndex:0}];
 const tasks=[
- {appId:'t0',projectId:'p1',department:'pm',assignee:'Stan',startDate:'2026-08-03',
+ {appId:'t0',projectId:'p1',department:'pm',assignee:'Theo',startDate:'2026-08-03',
   endDate:'2026-09-15',estimatedDays:30,ticketNodes:'[]',notes:'',pinned:false,label:''},
- {appId:'t1',projectId:'p1',department:'td',assignee:'Peter',startDate:'2026-08-03',
+ {appId:'t1',projectId:'p1',department:'td',assignee:'Oscar',startDate:'2026-08-03',
   endDate:'2026-08-14',estimatedDays:10,ticketNodes:'[]',notes:'',pinned:false,label:''},
- {appId:'t2',projectId:'p1',department:'fab',assignee:'Nick',startDate:'2026-08-17',
+ {appId:'t2',projectId:'p1',department:'fab',assignee:'Milo',startDate:'2026-08-17',
   endDate:'2026-08-28',estimatedDays:10,ticketNodes:'[]',notes:'',pinned:false,label:''},
  {appId:'t3',projectId:'p1',department:'install',assignee:'[]',startDate:'2026-09-14',
   endDate:'2026-09-15',estimatedDays:2,ticketNodes:'[]',notes:'',pinned:false,label:''}];
@@ -233,11 +226,6 @@ function stage4(){
   },250);
 }
 
-function done(){
-  console.log('\n'+'-'.repeat(46));
-  console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-  process.exit(fail?1:0);
-}
 setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},25000);
 
 

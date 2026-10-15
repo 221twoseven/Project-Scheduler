@@ -4,18 +4,9 @@
    (45° split vs the pan); FIT persists and old step names migrate.
    Project page: a Fit/Week/Month/3-Mo control drives NPV_GEO.dw the same way.
    Run: node tests/test-v150.js index.html  (or via tests/run.js) */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-if(src.indexOf('FIT_STEPS')<0){
-  console.log('test-v150: skipped — pre-v1.5.0 build ('+FILE+')');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 const near=(a,b)=>Math.abs(a-b)<.01;
 
@@ -23,9 +14,9 @@ const D=n=>{const d=new Date();d.setDate(d.getDate()+n);
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
 
 const projects=[{appId:'p1',Title:'Hermes Windows',client:'Hermes',jobCode:'H1',
-  deadline:D(30),status:'in-fabrication',projectManager:'Stan',drafter:'Peter',
-  leadFab:'Nick',activeDepartments:JSON.stringify(['pm','fab']),createdAt:D(-30),sortIndex:0}];
-const tasks=[{appId:'t1',projectId:'p1',department:'fab',assignee:'Nick',startDate:D(-5),
+  deadline:D(30),status:'in-fabrication',projectManager:'Theo',drafter:'Oscar',
+  leadFab:'Milo',activeDepartments:JSON.stringify(['pm','fab']),createdAt:D(-30),sortIndex:0}];
+const tasks=[{appId:'t1',projectId:'p1',department:'fab',assignee:'Milo',startDate:D(-5),
   endDate:D(10),estimatedDays:12,ticketNodes:'[]',notes:'',pinned:false,label:''}];
 
 const dom=boot(FILE,{data:{projects,tasks,staff:[],todos:[]}});
@@ -120,7 +111,6 @@ function npvPart(){
     ok('Fit restores the whole-job scale', E('NPV_GEO.dw')===dwFit, E('NPV_GEO.dw')+' vs '+dwFit);
     E("NPV_MODE='calendar';npvRender();");
     ok('the control hides on the calendar', q('#npv-zoom').classList.contains('hidden'));
-    console.log('\ntest-v150: '+pass+' passed, '+fail+' failed');
-    process.exit(fail?1:0);
+    done();
   },800);
 }

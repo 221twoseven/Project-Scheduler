@@ -19,33 +19,24 @@
    - unnamed calendar milestone bands read "Untitled milestone", never "Fab: ";
    - the People-page pane split reseats the column grips while dragging.
    Run: node tests/test-v1181.js index.html  (or via tests/run.js) */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-if(src.indexOf("month:'month3'")<0){
-  console.log('test-v1181: skipped — pre-v1.18.1 build ('+FILE+')');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 const D=n=>{const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()+n);
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
 
 /* Sam signs in NON-admin (a real admin row exists, so permsLive is true and Sam is a
-   viewer); Seungwoo carries a nickname for the search assertions. */
+   viewer); Donghyun carries a nickname for the search assertions. */
 const staff=[
  {appId:'s1',Title:'Sam',depts:JSON.stringify(['pm']),ooo:'[]',email:'user@example.com',role:'PM',admin:''},
- {appId:'s2',Title:'Rae Admin',depts:JSON.stringify(['pm']),ooo:'[]',email:'r@x.co',role:'',admin:'1'},
- {appId:'s3',Title:'Seungwoo Hong',depts:JSON.stringify(['fab']),ooo:'[]',email:'s@x.co',role:'',nickname:'Sean'}];
+ {appId:'s2',Title:'Rae Admin',depts:JSON.stringify(['pm']),ooo:'[]',email:'r@example.com',role:'',admin:'1'},
+ {appId:'s3',Title:'Donghyun Baek',depts:JSON.stringify(['fab']),ooo:'[]',email:'s@example.com',role:'',nickname:'Dean'}];
 const projects=[{appId:'p1',Title:'Job One',client:'Acme',jobCode:'AC1',deadline:D(30),status:'auto',
   projectManager:'Sam',drafter:'',leadFab:'',fabricators:'',metalFab:'',
   activeDepartments:JSON.stringify(['pm','fab'])}];
 const tasks=[
- {appId:'t1',projectId:'p1',department:'fab',assignee:'Seungwoo Hong',startDate:D(0),endDate:D(4),estimatedDays:5,ticketNodes:'[]',notes:'',pinned:false,label:''}];
+ {appId:'t1',projectId:'p1',department:'fab',assignee:'Donghyun Baek',startDate:D(0),endDate:D(4),estimatedDays:5,ticketNodes:'[]',notes:'',pinned:false,label:''}];
 
 const dom=boot(FILE,{data:{projects,tasks,staff,todos:[]}});
 const win=dom.window,doc=win.document,E=s=>win.eval(s);
@@ -78,14 +69,14 @@ function main(){
   ok('Everything clears a live client filter', E('CLIENT_FILTER.size')===0, 'size='+E('CLIENT_FILTER.size'));
 
   sec('search matches roster names beside nicknames');
-  E("FILTER='sean'");
+  E("FILTER='dean'");
   ok('the nickname matches', E("taskMatch(ST.tasks.find(t=>t.department==='fab'))")===true);
-  E("FILTER='seungwoo'");
+  E("FILTER='donghyun'");
   ok('the roster name still matches', E("taskMatch(ST.tasks.find(t=>t.department==='fab'))")===true);
   E("FILTER=''");
 
   sec('the wordmark goes home from any route');
-  E("PERSON='Seungwoo Hong'");
+  E("PERSON='Donghyun Baek'");
   win.location.hash='#/people';
   win.dispatchEvent(new win.Event('hashchange'));
   setTimeout(()=>{
@@ -98,7 +89,7 @@ function main(){
       win.location.hash='#/people';
       win.dispatchEvent(new win.Event('hashchange'));
       setTimeout(()=>{
-        E("CD_EDIT={id:'s3',name:'Seungwoo Hong',depts:[],ooo:[],email:'',phone:'',role:'Typed'}");
+        E("CD_EDIT={id:'s3',name:'Donghyun Baek',depts:[],ooo:[],email:'',phone:'',role:'Typed'}");
         win.confirm=()=>false;
         doc.getElementById('cd-x').click();
         ok('a declined confirm stays on the page mid-edit', E('ROUTE.view')==='people'&&!!E('CD_EDIT'));
@@ -128,8 +119,7 @@ function main(){
             ok('the phases grant unlocks the dates', !doc.getElementById('tm-start').disabled&&!doc.getElementById('tm-end').disabled);
             E('closeTaskModal(true)');
 
-            console.log('\ntest-v1181: '+pass+' passed, '+fail+' failed');
-            process.exit(fail?1:0);
+            done();
           },400);
         },300);
       },300);

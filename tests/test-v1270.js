@@ -8,20 +8,9 @@
    Timeline page only (the Today button, T and the canvas live there); a guard checks the
    project page leaves the timeline's scroll alone.
    Run: node tests/test-v1270.js index.html  (or via tests/run.js) */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-if(src.indexOf('function weekLeftX')<0){
-  console.log('  SKIP  test-v1270: pre-v1.27.0 build ('+FILE+')');
-  console.log('\n'+'-'.repeat(46));
-  console.log('  0 passed, 0 failed   ['+FILE+']');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 
 /* Dates relative to the run date. One task starts 75 days back so the tasks, not the
@@ -30,8 +19,8 @@ const D0=new Date();D0.setHours(0,0,0,0);
 const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 const rel=(days,months)=>{const d=new Date(D0);if(months)d.setMonth(d.getMonth()+months);if(days)d.setDate(d.getDate()+days);return iso(d);};
 const projects=[{appId:'p1',Title:'Long Haul',client:'',jobCode:'P1',deadline:rel(3,2),status:'in-fabrication',
-  projectManager:'Stan',drafter:'Dana',leadFab:'Nick',activeDepartments:JSON.stringify(['pm','fab','install']),createdAt:rel(-40)}];
-const task=(id,dept,s,e)=>({appId:id,projectId:'p1',department:dept,assignee:'Nick',startDate:s,endDate:e,estimatedDays:5,ticketNodes:'[]',notes:'',pinned:false,label:''});
+  projectManager:'Theo',drafter:'Dana',leadFab:'Milo',activeDepartments:JSON.stringify(['pm','fab','install']),createdAt:rel(-40)}];
+const task=(id,dept,s,e)=>({appId:id,projectId:'p1',department:dept,assignee:'Milo',startDate:s,endDate:e,estimatedDays:5,ticketNodes:'[]',notes:'',pinned:false,label:''});
 const tasks=[task('t1','fab',rel(-75),rel(0,4)),task('t2','install',rel(0,2),rel(3,2))];
 
 const dom=boot(FILE,{data:{projects,tasks,staff:[],todos:[]}});
@@ -145,9 +134,4 @@ function stageSunday(){
   done();
 }
 
-function done(){
-  console.log('\n'+'-'.repeat(46));
-  console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-  process.exit(fail?1:0);
-}
 setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},25000);

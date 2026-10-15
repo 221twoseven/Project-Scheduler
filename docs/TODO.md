@@ -9,7 +9,7 @@ open there was checked against the code before it was carried; the carried entri
 Two documents set this phase and are the source for most lines below:
 
 - **The Project Director's brief** — *Shop Timeline App: Current Processes and Development
-  Priorities* (September 2026), read here in Robert's condensed, annotated version,
+  Priorities* (September 2026), read here in the owner's condensed, annotated version,
   [`reference/2026-09-22-Shop-Timeline-Brief-Condensed.md`](../reference/2026-09-22-Shop-Timeline-Brief-Condensed.md).
   Cited as **[brief §N]**. Its "Response" annotations were fact-checked
   against the app on 2026-09-24; where a claim was partly wrong, the corrected fact is what
@@ -30,13 +30,13 @@ depends on.
   carried into §3 by hand.
 - **Every unticked item is not started** unless its text says otherwise.
 
-Milestones and this plan are presented to Hubert, the Project Director and the key users
+Milestones and this plan are presented to the backup maintainer, the Project Director and the key users
 as the phase runs.
 
 **Standing rules:**
 
 - ⚠ marks a SharePoint column/list or Entra change. **Not a gate** (owner, 2026-09-01):
-  deliver Robert the exact spec (list, column, type, values) and he applies the list edit;
+  deliver the owner the exact spec (list, column, type, values) and he applies the list edit;
   the app never writes schema. The colleague app no longer constrains the schema (D2,
   ruled 2026-09-24); a destructive change still gets a milestone record naming what it
   breaks and how rows migrate. Entra changes still need explicit instruction (`CLAUDE.md`).
@@ -50,8 +50,9 @@ as the phase runs.
 - Every milestone gets a record in `docs/Milestones/Phase-7-Pilot-Readiness/`; every
   deliberate skip gets a §7 line with its gate.
 
-Last reviewed: 2026-10-13 — the promotion audit for v1.45.1 → v1.48.1 reaching `main` (log in
-§8). Before that, 2026-10-09 — the promotion audits for v1.43.0 → v1.44.3 and v1.44.3 →
+Last reviewed: 2026-10-15 — the promotion audit for v1.48.1 → v1.48.5 reaching `main`, after a
+full audit the same day (log in §8).
+Before that, 2026-10-13 — the promotion audit for v1.45.1 → v1.48.1 reaching `main`. Before that, 2026-10-09 — the promotion audits for v1.43.0 → v1.44.3 and v1.44.3 →
 v1.45.1. Before that, 2026-10-08 — D15 (data platform) reassessed: Dataverse and Azure SQL + API
 are now co-equal candidates (`docs/Architecture-Review-Backend.md`); D1, D3, D10–D13 and
 items 14, 17 and 44 given storage-neutral readings. The same day: the opening, §0 and §3's
@@ -63,10 +64,15 @@ is the log in §8.
 
 ## 0. Where we stand
 
-As of 2026-10-13: production (`main`) and `development` both run **v1.48.1**, promoted
-2026-10-13 (release/2026-10-13). The newest work: saved views (item 25) and Protect dates
-(item 2 (c)) follow the person, repeat work is easier to find (item 7), and projects show
-their last edit, a Stale flag and "Schedule still accurate" (item 6). Before that: reporter
+As of 2026-10-15: production (`main`) and `development` both run **v1.48.5**, promoted
+2026-10-15 (release/2026-10-15). The newest work on production: error messages say why
+(item 48, the storage seam's last PR), item 61's simplifications, item 59's work-based
+progress bar and item 19's "Away until" fix; plus docs and tooling with no release: the
+reference docs refreshed (item 21), the owed milestone records (23), one page size (68),
+the test-suite tidy (60), the REV50 test run dropped (69), and no scrapable emails or real
+names in the repository (70). Making the repository private is item 71. Before that:
+saved views (item 25) and Protect dates (item 2 (c)) follow the person, repeat work is easier to find (item 7), and projects show
+their last edit, a Stale flag and "Schedule still accurate" (item 6). Earlier: reporter
 answers show in Open Issues (item 58); Protect dates (item 2: drags never change dates).
 Phase 7 has shipped v1.24.0 → v1.48.1 so far.
 `CHANGELOG.md` is the release-by-release record.
@@ -531,7 +537,7 @@ release. Where the app has a part, it's listed.
 - [ ] **14. Decide the core project registry** (§4 D1). Before deciding, produce a
       side-by-side schema comparison of Current 2-7 Projects / 27 Projects (Archive) and
       `ShopTimeline_Projects`, including what 27 Events and Teams depend on in Current
-      Projects. Robert can do this with read access alone. The comparison is needed
+      Projects. The owner can do this with read access alone. The comparison is needed
       whatever D15 decides: the two lists hold the business knowledge that has to migrate,
       and their dependents are what a cutover re-points (2026-10-08). [brief §6.7, §14]
 - [ ] **15. Backups.** Nothing backs up the nine lists on a schedule.
@@ -544,9 +550,9 @@ release. Where the app has a part, it's listed.
       - Confirm list versioning is on for all nine. Deletes are recovered from the Recycle
         Bin, edits from version history.
       [brief §10.2, §12, §7.2]
-- [ ] **16. Backup maintainer and rollback procedure.** The backup maintainer is Hubert
+- [ ] **16. Backup maintainer and rollback procedure.** A backup maintainer is named
       (owner, 2026-09-24, "for now"). Still to do:
-      - Give Hubert access to the repository (as a collaborator working through ordinary
+      - Give the backup maintainer access to the repository (as a collaborator working through ordinary
         branches and pull requests; the `sandbox` branch flow in
         `docs/Archive/Onboarding-Fork.md` was retired 2026-10-01), Pages, the Entra app
         registration (at least the right to edit redirect URIs) and the recovery docs
@@ -569,7 +575,7 @@ release. Where the app has a part, it's listed.
         tests run against a database that can be wiped. This item and that staging are one
         piece of work, not two (`docs/Architecture-Review-Backend.md` §E8).
       [brief §10, §11.1]
-- [ ] **18. Preload the pilot projects.** The Project Director and Robert enter the pilot
+- [ ] **18. Preload the pilot projects.** The Project Director and the owner enter the pilot
       jobs, so PMs check them instead of re-entering them. Set the end date for parallel
       entry up front, and limit how many projects the pilot covers. [brief §10, §10.2]
 - [ ] **26. Define the information tiers** — a decision with HR and the Project Director.
@@ -610,7 +616,7 @@ release. Where the app has a part, it's listed.
         but can't move a screenshot into GitHub (the premium HTTP action could, but only
         with a Premium licence). The tracker is private because reporter names,
         descriptions and shop screenshots would otherwise be public; this code repository
-        can't be private on GitHub Free, because Pages needs it public.
+        can't be private on GitHub Free, because Pages needs it public (item 71).
       - *Status follows GitHub* (rule set 2026-09-25): closing a ticket marks the row
         `resolved` (it moves to the Resolved column of the Open Issues page), and
         reopening clears it. The poller runs on every close or reopen (about a minute),
@@ -624,7 +630,7 @@ release. Where the app has a part, it's listed.
         32–40. Open rows were back-filled; resolved history stays on the list. Commits
         in this repository close tickets with
         `Fixes 221twoseven/Project-Scheduler-issues#N`.
-      - *Hubert* has no GitHub account (owner, 2026-09-25), so tracker access for him is
+      - *The backup maintainer* has no GitHub account (owner, 2026-09-25), so tracker access for him is
         skipped; he sees reports in the app and in the feedback mail.
       - *Still to do* (from `docs/Automations.md`, 2026-10-08):
         - build the **Email reply in** flow (tracker README step 10) and export it to the
@@ -648,7 +654,14 @@ release. Where the app has a part, it's listed.
       session to identify the nightly 10 pm automation on 27 Employees. Test: multiple,
       adjacent and overlapping requests; partial days; cancellations; people without a
       company email. [brief §7.2, §13]
-- [ ] **20. Write down the change log's limits** (the brief's verification row).
+      - *Done (v1.48.5, PR #152, 2026-10-14):* "Away until" merges back-to-back and
+        overlapping ranges, including across a weekend or holiday (`cdAvail`; suite
+        `tests/test-v1485.js`). Still open: the discovery session (PTO Contract Approvals,
+        the nightly 10 pm automation on 27 Employees) and partial days, which need it.
+- [x] **20. Write down the change log's limits** (the brief's verification row). Done
+      (PR #154, 2026-10-15), docs only: retention and recovery paragraphs added to
+      `docs/Milestones/Phase-6-v1.x-Release-Train/2026-09-02-changelog.md`. They found one open
+      check, whether versioning is on for the nine lists, which joins item 15.
       - *What it covers:* projects, phases, milestones and notes — not people, clients or
         settings. Admins only. History starts 2026-09-02.
       - *No retention limit and no export.* Each time its cache is empty it reads the
@@ -660,8 +673,12 @@ release. Where the app has a part, it's listed.
       - Most of this is in the 2026-09-02 milestone record; retention and recovery are
         the missing paragraphs.
       [brief §7.2]
-- [ ] **21. Refresh the reference docs before reviewers see the repository.** The
-      living docs have drifted from the code:
+- [x] **21. Refresh the reference docs before reviewers see the repository.** Done
+      2026-10-15, docs only (no release): `docs/ARCHITECTURE.md` (all lists, the `store`
+      seam, every route, departments, a "Formulas and rollups" section, hosting),
+      `docs/SETUP.md` (four scopes, all lists, the Feedback Bot and its secret expiry,
+      `/preview/`), `CLAUDE.md` (no line or list counts). The living docs had drifted
+      from the code:
       - `docs/ARCHITECTURE.md` documents 5 lists (9 are in use, plus Employee Contacts);
         leaves out the client, config, changelog and feedback mappers and the
         `#/people`, `#/clients`, `#/changelog`, `#/settings`, `#/reports` routes; and
@@ -683,7 +700,10 @@ release. Where the app has a part, it's listed.
       current phase, dates, install date and workdays left. Get the AMPM columns of the
       Master Project Tracker from the Project Director and compare; add the closeout /
       aging column when item 11 lands. [brief §3 step 9, §9 P1 "AMPM output"]
-- [ ] **23. Milestone records owed** (the `CLAUDE.md` rule): v1.20.6 Shipping phase (it
+- [x] **23. Milestone records owed** (the `CLAUDE.md` rule). Done 2026-10-15, docs only:
+      five records (`Phase-6-v1.x-Release-Train/` v1.20.6, v1.20.8, v1.20.9;
+      `Phase-7-Pilot-Readiness/` v1.40.1, v1.41.1) and the two ladder rows in
+      `docs/Archive/TODO-v1.x-Archive.md` §4. What was owed: v1.20.6 Shipping phase (it
       changed the phase chain and the department vocabulary, but is documented only as a
       footnote), v1.20.8 (PM required at Create; dashboard columns scroll), v1.20.9. The
       v1.x version ladder also has no rows for v1.20.0–v1.20.9 and v1.21.x: add one
@@ -699,9 +719,26 @@ release. Where the app has a part, it's listed.
       sign-on or team roles, so continuity rests on one login. If leadership's
       "company-owned code" requirement matters, plan a transfer to an Organization (the
       Pages URL and the Entra redirect URIs then have to be re-registered — `SETUP.md`).
-      The repository is public, because Pages hosting needs it. That's safe, since access
-      depends on Microsoft sign-in, but leadership should know. [brief §11]
-- [ ] **48. The storage seam.** One `store` object owns every conversation with
+      The repository is public, because Pages hosting needs it; the owner wants it private
+      (item 71). [brief §11]
+- [ ] **71. Make the repository private** (owner, 2026-10-15, after scraper spam reached
+      the team: "until the repo is private, we cannot have scrapable info"; item 70 is the
+      stopgap). Today it is public only because GitHub Pages on a free personal account
+      needs a public repository.
+      - *The blocker:* on GitHub Free, making it private takes the live app and
+        `/preview/` offline. Pages from a private repository needs a paid plan: GitHub Pro
+        on this account (the URL and the Entra redirect URIs stay the same), or an
+        Organization on GitHub Team (item 24; the Pages URL changes, so the redirect URIs
+        are re-registered, `SETUP.md`). Check current prices before deciding.
+      - *What private does not hide:* the published site. `index.html` (code, comments, the
+        sample roster) stays readable at the Pages URL to anyone who has it; sign-in
+        guards the data, not the page. Tests, docs, history and PR text become private.
+      - *Then:* Actions minutes become metered for private repositories (each PR runs the
+        full suite, about 15 minutes), and the `main` ruleset needs the paid plan to stay
+        enforced (`SETUP.md`, "Branch protection"). Confirm both on the chosen plan.
+      - *Waits on:* the owner's choice of plan (and leadership, if it's item 24's
+        Organization). [owner ask 2026-10-15]
+- [x] **48. The storage seam.** One `store` object owns every conversation with
       SharePoint, instead of 37 call sites in 16 functions. It is idea 1 of
       `docs/Architecture-Review-Storage.md`, needed whatever D15 decides, and the path to an
       `apiStore` if D15 picks an API.
@@ -738,6 +775,19 @@ release. Where the app has a part, it's listed.
         PR 5 (Changelog and Feedback on `store`) done 2026-10-13 (PR #141; owner go 2026-10-13); the
         screenshot upload now goes through `gfetch` (same request, no `store.upload`); the
         feedback mail stays for PR 7.
+        PR 6 (the Employee Contacts import on `store`: its column read and its item read) done
+        2026-10-14 (owner go 2026-10-13); the requests are unchanged.
+        PR 7 (identity and the Microsoft extras) done 2026-10-14 (owner go 2026-10-14):
+        `store.signIn` / `store.who()` (no `ACCOUNT` read outside sign-in and `who`); the Team
+        members read and the feedback mail go through `gpageAll` / `gfetch` with a silent
+        `scopes` argument (no `store.people` / `store.mail`, per the audit); a 202 reads as no body.
+        PR 8 (one error rule) Shipped v1.48.2 (PR #149, 2026-10-14; owner go and wording
+        2026-10-14): `store.explain(err)` gives every SharePoint failure message one "why"
+        sentence (offline / no access / list missing / column missing / busy / other), the raw
+        error under Details; panels drop the Details pointer. Suite `tests/test-v1482.js`. The
+        planned `store.available(kind)` swap for the five `*_OK` flags was dropped (§7.4, the
+        owner agreed 2026-10-14). The one-page-size follow-up is item 68. Milestone record
+        `docs/Milestones/Phase-7-Pilot-Readiness/2026-10-14-storage-seam.md`. The sequence is closed.
       - *Folded in from the 2026-10-12 ponytail audit* (owner accepted the placements):
         - PR 3 (Staff): one `PERSON_COLS` table for the 13 optional Staff fields that
           `personToFields`, `fieldsToPerson`, `cdSavePerson` and `cdMergePerson` each list
@@ -753,8 +803,49 @@ release. Where the app has a part, it's listed.
           building their own token headers. This replaces the planned `store.people()`,
           `store.mail()` and `store.upload()` wrappers.
         - After PR 8: one page size for every list (it changes request URLs, so not during
-          the sequence).
+          the sequence): item 68.
       [`docs/Architecture-Review-Storage.md` §1, "Proposed PR sequence"; D4; D15]
+- [x] **70. No scrapable email addresses in the public repository** (owner, 2026-10-15:
+      spam and phishing about "full stack engineers" reached the team; "until the repo is
+      private, we cannot have scrapable info"). Done 2026-10-15, tests only, no release:
+      every fixture address moves to the reserved `example.com` / `example.org` domains.
+      Some `firstname@twoseven.net` fixtures were real addresses, because that is the
+      company's real format; others used live domains (`x.co`, `gmail.com`).
+      **Real names too** (owner, same day: "scrub the real names from tests and docs"),
+      because a real first name plus the public domain is an address. In tests, the
+      app's sample roster and code comments, each real or likely-real name has a fixed
+      fictional stand-in, kept to the same initial and length so sort-order and search
+      assertions still hold (the owner named the others known to be real). In docs, the
+      owner is "the owner", the backup maintainer "the backup maintainer", and the
+      estimator's author "a colleague"; local paths read `users\<user>\`.
+      `reference/Timeline_50.html` is **deleted** (owner, same day): it held the original
+      sample roster's names. `test-quiet` keeps the one REV50 line it compared against.
+      **Not covered:**
+      - every commit's author address (`github@twoseven.net`) and the names in older
+        commits, PR text and the history of every file stay public. The owner's GitHub
+        email-privacy settings stop the address for new commits; rewriting history
+        isn't worth it;
+      - names inside the screenshots and PDFs under `docs/` (images, not text); the owner
+        ruled a check not needed (2026-10-15).
+      [owner ask 2026-10-15]
+- [x] **69. Stop testing against the REV50 reference** (owner, 2026-10-14). Done (PR #153,
+      2026-10-14), tooling only, no release. CI and the release checklist no longer run the
+      suites against `reference/Timeline_50.html`; the file stayed as history
+      (deleted 2026-10-15, item 70).
+      `npm run test:ref` is gone, and new suites need no skip guard. `test47` and
+      `test-b3-zoom` were deleted (they only ever exercised REV50; `test56` and
+      `test-v150` own their features). `test-v1208`'s feature sniff stopped matching at
+      v1.47.0, so it skipped silently; it was fixed and runs again (16/16). `CLAUDE.md`,
+      `README.md`, `tests/README.md` and the `ship-release` skill follow. Item 60 removes
+      the remaining guards. [owner ask 2026-10-14]
+- [x] **68. One page size for every list.** Done 2026-10-15, no release (internal, like
+      seam PRs 6–7): `STORE_LISTS` maps kind → list name, and every read uses
+      `STORE_PAGE` = 2000 — the size the big lists already ran with live, so they still
+      read in one request. Staff, Clients, Config and Employee Contacts change from 500 /
+      500 / 200 / 999 (all far smaller lists, so the same single request). Was: `STORE_LISTS` kept each list's old `$top` (2000,
+      500, 200, 999) so the seam PRs sent byte-identical requests. One value (paging already
+      follows `@odata.nextLink`) is simpler. It changes request URLs, so tests that match them
+      may need edits. Follow-up from item 48. [item 48; 2026-10-12 ponytail audit]
 - [ ] **51. D15's inputs: the platform spikes and the facts a ruling needs.** D15 is
       ruled before the Phase 8 schema is provisioned, on these:
       - *Dataverse:* a licence quote (headcount × $20, $22 from 2027-01-01, plus any
@@ -789,7 +880,10 @@ release. Where the app has a part, it's listed.
         changelog rules. Steps 6–7 are rules for how the steps are done, not work of their
         own.
       [style guide §13; `design/Style-Transition-Review.md`]
-- [ ] **59. Whole-project numbers that span gaps: decide whether they change.** Split
+- [x] **59. Whole-project numbers that span gaps: decide whether they change.** Owner picked
+      (c) for progress and (a) for lead time, 2026-10-14. Shipped v1.48.4 (PR #151, 2026-10-14):
+      the Meeting Sheet bar is each block's workdays before today over all blocks' workdays;
+      "Lead time" stays a calendar span (how long the client waits). Suite `tests/test-v1484.js`. Split
       out of item 8 (2026-10-12). Two numbers run from the project's first start to its last
       end, gaps included: the Meeting Sheet progress % and the project page's "Lead time N
       workdays". Neither counts a gap as department work or load.
@@ -798,8 +892,14 @@ release. Where the app has a part, it's listed.
       - *Waits on:* the owner's pick. If the rule is "gaps never read as work", the
         progress bar is the one to change.
       [brief §7 Rollup, §8.2, §14; item 8]
-- [ ] **60. Test-suite tidy: one shared setup, suites found automatically.** From the
+- [x] **60. Test-suite tidy: one shared setup, suites found automatically.** From the
       2026-10-12 ponytail audit (owner accepted the placement). Test-only, no release.
+      Done 2026-10-15: `run.js` finds `tests/test*.js`; `suite()` in `harness.js` replaces
+      the copied setup and summary in all 123 suites; 117 top-of-suite skip guards
+      removed. The exit-code-2 skip protocol wasn't needed: no suite skips itself any
+      more, so `run.js` no longer looks for skips at all, and any non-zero exit fails.
+      Full run: same per-suite counts as before. A few suites still skip one *section*
+      on a feature sniff (`test46`, `test-contrast`, `test-v1341`); left as they are.
       - `tests/run.js` finds `tests/test*.js` itself instead of the hand-kept `SUITES` list.
         The list already lost one suite: `test-v1210.js` never ran in CI from v1.21.0 until
         it was re-listed on 2026-10-12. Update `.claude/skills/ship-release/SKILL.md` step 2
@@ -808,11 +908,16 @@ release. Where the app has a part, it's listed.
         into about 118 suites (about 650 lines).
       - A skipping suite exits with code 2, so `run.js` stops reading its printed text to
         count skips.
-      - *Done when:* the full run and the reference run report the same counts as before.
+      - The "skip on a pre-vX build" guards at the top of most suites go: with no reference
+        run (item 69), they only hide a suite whose feature sniff stops matching, as
+        `test-v1208`'s did from v1.47.0 until 2026-10-14.
+      - *Done when:* the full run reports the same counts as before.
       - *Waits on:* nothing. After the 2026-10-12 promotion.
       [ponytail audit 2026-10-12; 2026-09-03 audit]
-- [ ] **61. Small simplifications from the 2026-10-12 audit.** Owner accepted the
-      placement; each needs its own check.
+- [x] **61. Small simplifications from the 2026-10-12 audit.** Owner accepted the
+      placement; each needs its own check. Shipped v1.48.3 (PR #150, 2026-10-14; owner OK
+      for the poll change 2026-10-14), all four parts. Suite `tests/test-v1483.js`; the source-text
+      checks in `test-v1170`, `test-v1180`, `test-v1220`, `test-v1230` and `test-v190` became behaviour checks.
       - `canonName` remembers its results until `PEOPLE` is replaced (a speed fix: it runs
         inside sorts and every render).
       - `spLoad`'s four repeated row loops become one helper.
@@ -1017,6 +1122,22 @@ is item 32 (P0), #7 is part of item 3, and #11 and #14 were done by the bridge i
       because the PR run already tests the merged result. Both branches take changes only
       by PR, and `main`'s required `test` check is the PR run. `CONTRIBUTING.md` and
       `docs/Stats-for-Nerds.md` follow. [owner ask 2026-10-09]
+- [x] **65. Dragging a bar: show its dates as it snaps.** Closed with no build: the owner
+      closed tracker #39 on 2026-10-15 ("Click+Drag to edit already exists, make sure to
+      leave 'lock dates' unchecked"). The date chip below was not taken up; reopening the
+      ticket brings it back. Was: Dragging bars already changes dates
+      for editors unless Protect dates is on (likely why the reporter missed it; the owner
+      checks her toggle). New: a date chip above the dragged bar (`Oct 5 – Oct 30 · 20 days`)
+      that pulses each day crossed, more strongly at each new week; no sound; reduced motion
+      turns the pulse off. Spec 2026-10-14; waits on Proceed. [tracker #39]
+- [ ] **66. Ticking crew names keeps your place.** Each tick rebuilds the popover and the
+      phase panel (`ppCommitCrew` → `innerHTML`), so the crew list jumps to the top and a
+      quick second tick can be lost. Keep the scroll, and don't rebuild the box being
+      clicked. Worst on install subtasks (whole staff list). Spec 2026-10-14; waits on
+      Proceed. [tracker #40]
+- [ ] **67. An All Projects button on the toolbar,** between + New Project and My Dashboard:
+      goes to the full timeline and clears filters and the saved view (the wordmark and the
+      crumb only navigate). Copy in the spec. Spec 2026-10-14; waits on Proceed. [tracker #41]
 
 **Shipped or closed with no §3 item** (before the 2026-10-08 every-task rule; the full
 record is each ticket's "Fix shipped" note and `CHANGELOG.md`):
@@ -1037,6 +1158,7 @@ record is each ticket's "Fix shipped" note and `CHANGELOG.md`):
 | #28 | "Past projects show up" | Closed, no change: the table was misread (2026-10-01) |
 | #30 | Phone layout for every page | Declined, 2026-10-01 (§7.5) |
 | #31 | A test ticket | Closed |
+| #42 | The owner's test of the *new report out* flow (item 64) | Closed, 2026-10-13 |
 | — | Owner asks with no ticket: issue replies (v1.25.0–1.25.1), days beside dates (v1.33.1), resolved dates and `/comment` (v1.34.0), Open Issues column labels (v1.40.1), print formatting (v1.41.0), the narrow-sidebar lens switch (v1.41.1) | Shipped |
 
 ### Queued for Phase 8 — waiting on other work (see "What waits on what", §2)
@@ -1117,7 +1239,7 @@ inputs. Closeout is the last step of the cycle and comes last.
       creates a new revision; unbilled scope later blocks Ready at closeout — plus budget
       views per project. Nothing beyond that is specified: scope it with the Project
       Director and the Bookkeeper before design.
-      - *Reference material (2026-10-08):* Davis's estimator, a working Next.js /
+      - *Reference material (2026-10-08):* a colleague's estimator, a working Next.js /
         TypeScript tool on a relational database, is item 44's domain-discovery artifact.
         It is not a schema to port. Concepts to validate:
         - labor / material / install pricing, flat-rate vs per-item rules, and shared
@@ -1517,7 +1639,7 @@ then the recommendation or the dated ruling.
   Phase 8 schema is provisioned, so rows move at most once. Related: D1, D10, D12; item 42.
   [owner 2026-10-01; `docs/Architecture-Review-Storage.md`]
 
-  **Reassessment, 2026-10-08** (owner and Hubert, after research;
+  **Reassessment, 2026-10-08** (owner and the backup maintainer, after research;
   `docs/Architecture-Review-Backend.md`). Two facts weren't weighed on 2026-10-01:
   1. *Office is strongly relational and rule-bound:* lead → estimate → revision →
      location → item → lines, priced from dated catalog rates, then approval → project →
@@ -1581,7 +1703,7 @@ then the recommendation or the dated ruling.
 
   *Gate (unchanged):* rule before the Phase 8 schema is provisioned, so rows move at most
   once. Backend guardrails enter `CLAUDE.md` only when backend work is authorized (§7.4).
-  [owner and Hubert 2026-10-08; `docs/Architecture-Review-Backend.md`]
+  [owner and the backup maintainer 2026-10-08; `docs/Architecture-Review-Backend.md`]
 
 ## 5. Reference material to gather [brief §13]
 
@@ -1595,19 +1717,19 @@ What we still need from people: schemas, rules and examples, not screenshots. St
 | Current Projects and 27 Events: schemas, lookups, status fields, Teams and shop-screen dependencies, where Outlook IDs are stored, an example of an Outlook-only edit and of a deletion | Project Director; flow owner (unknown) | not requested (item 14) |
 | Power Automate: every trigger, action, calendar connection, recipient, error owner, retry policy | flow owner (unknown) | owner not identified |
 | Master Project Tracker and closeout: columns, restricted fields, AMPM fields, closeout email examples, what the Bookkeeper minimally needs | Project Director, Bookkeeper | not requested (items 11, 22) |
-| PTO, holidays, change log: the availability source, how identities are matched, cancellation examples, how holidays are set | operations manager (PTO, the 27 Employees automation); Robert (change log, item 20) | discovery session not held |
+| PTO, holidays, change log: the availability source, how identities are matched, cancellation examples, how holidays are set | operations manager (PTO, the 27 Employees automation); the owner (change log, item 20) | discovery session not held |
 | QuickBooks / TimeClock+ CSV formats | Bookkeeper | not requested (D13) |
-| Who administers which view (the key users), and which permission set each needs | owner, Hubert | in progress (D3) |
-| Davis's estimator: a walkthrough of its model, pricing rules, catalog and rate data, and test estimates; where its database runs | Davis, Robert | not requested (item 44) |
+| Who administers which view (the key users), and which permission set each needs | owner, the backup maintainer | in progress (D3) |
+| a colleague's estimator: a walkthrough of its model, pricing rules, catalog and rate data, and test estimates; where its database runs | the colleague, the owner | not requested (item 44) |
 | Estimate samples: two or three recent estimates per PM, of different shapes, to re-enter in the estimator's model | several PMs, the Project Director | not requested (item 44) |
-| Platform ownership: who would hold an Azure subscription and its billing, a second administrator, alert recipient, production-migration approver; or who administers a Power Platform environment | owner, Hubert | not requested (D15) |
+| Platform ownership: who would hold an Azure subscription and its billing, a second administrator, alert recipient, production-migration approver; or who administers a Power Platform environment | owner, the backup maintainer | not requested (D15) |
 | Licence inventory and headcount: Power Apps / Power Automate premium licences already held, and how many people would use Systems (viewers included) | tenant admin, owner | not requested (D15) |
 | Colleague app: is it running, who maintains it, which lists it reads and writes | owner | answered 2026-09-24: running, unused, will not return; breakage accepted (D2) |
-| The app itself: lists, registration, scopes, deployment, data model, formulas | Robert | mostly in the repository; item 21 closes the gaps (backups and rollup formulas undocumented) |
+| The app itself: lists, registration, scopes, deployment, data model, formulas | the owner | mostly in the repository; item 21 closes the gaps (backups and rollup formulas undocumented) |
 
-## 6. Data / schema (⚠ shared lists — Robert applies each spec)
+## 6. Data / schema (⚠ shared lists — the owner applies each spec)
 
-The app never changes the schema itself: Robert receives the exact spec and applies it.
+The app never changes the schema itself: The owner receives the exact spec and applies it.
 Adding a column is routine, because the app checks for new columns when it runs and copes
 if one is missing (the "tristate" pattern: a missing column never makes other saves fail).
 A destructive change gets a milestone record with its migration. The colleague app is no
@@ -1737,7 +1859,7 @@ How to read the tags at the end of an entry:
       what a view captures when role-based views are designed, not before. [L963]
 - [ ] **Saved views recall grouping, not each person's own order.** The order
       (`sortIndex`) is shared data; a private order needs a per-user record (spec to
-      Robert when decided). [L965]
+      The owner when decided). [L965]
 - [ ] **The white-bar-text rule covers bar colours only.** Subtask tints (`kidShade()`)
       pick their own text colour. Owner's call (REV80). [L969]
 - [ ] **Drag-to-pan works only on the date header.** Gate: PMs asking to grab the canvas
@@ -2014,8 +2136,8 @@ How to read the tags at the end of an entry:
 - [ ] **No release tags, no written rollback procedure, and the repository is under a
       personal account.** Items 16 and 24.
 - [ ] **Shop-terminal account type.** D14. [v1.x §2]
-- [ ] **Docs out of date** (ARCHITECTURE: 5 lists vs 9; SETUP: 2 scopes vs 4; the
-      `CLAUDE.md` line count; the tests/README suite count). Item 21.
+- [x] **Docs out of date** (ARCHITECTURE: 5 lists vs 9; SETUP: 2 scopes vs 4; the
+      `CLAUDE.md` line count; the tests/README suite count). Item 21, done 2026-10-15.
 - [x] **Developer Bug Reports page buttons.** Once a report has a `ghIssue`, the tracker
       poller overrides its Mark resolved / Reopen buttons (GitHub is the source of truth
       for status, 2026-09-25). Done in v1.39.0 (tracker #29): a row with a ticket shows
@@ -2048,6 +2170,11 @@ How to read the tags at the end of an entry:
       numbers are posted in the breakroom and are used on purpose, so this stays. Gate: HR
       or the owner rules that the roster must hold work numbers only; the fix is dropping
       `mobilephone` from `EC_MAP.phone` and reporting the row as "no work phone". [item 9]
+
+- [ ] **`store.available(kind)` instead of the five `*_OK` flags** (2026-10-14, dropped
+      from seam PR 8 with the owner's OK). It renames flags, changes nothing on screen, and
+      would need four test files edited. Gate: D15 picks a non-SharePoint store (an
+      `apiStore` would need it). [item 48]
 
 ### 7.5 Deliberate design limits — no action planned; revisit only on real complaints
 
@@ -2085,7 +2212,7 @@ How to read the tags at the end of an entry:
   true"): every PR updates it, `tests/test-todo.js` checks it in CI, and every promotion
   to `main` audits it and logs the audit here.
 - Keep `docs/ARCHITECTURE.md`, `docs/SETUP.md` and `CLAUDE.md` in step with the app (item
-  21 is the catch-up). Every milestone gets a record in
+  21 caught them up, 2026-10-15). Every milestone gets a record in
   `docs/Milestones/Phase-7-Pilot-Readiness/`; every `APP_VER` bump gets a `CHANGELOG.md`
   line.
 - `reference/Handoff-Notes.md` and `reference/Project-History.md` are history: re-check
@@ -2095,6 +2222,25 @@ How to read the tags at the end of an entry:
   number.
 
 **Log, newest first:**
+
+- 2026-10-15: **v1.48.1 → v1.48.5 promoted to `main`** (release/2026-10-15). The promotion
+  audit follows the full audit logged below, the same day (#160); since then nothing has
+  changed but this promotion. §0 now reads production v1.48.5. No new SharePoint columns
+  in this release. Workflows: `deploy-pages.yml` is identical on both branches; `ci.yml`
+  drops the REV50 run (item 69) and keeps the required `test` job.
+
+- 2026-10-15: **full audit before the v1.48.1 → v1.48.5 promotion** (owner: "fix the rest
+  of the TODO").
+  - *Releases since the last promotion (v1.48.1):* v1.48.2 is item 48 (PR 8), v1.48.3 item
+    61, v1.48.4 item 59, v1.48.5 item 19's code part; all noted. Non-release work, all
+    ticked: items 20, 21, 23, 60, 68, 69, 70.
+  - *Tracker:* open #1 → 32, #7 → 3, #12 → 40, #40 → 66, #41 → 67 match their items. The
+    owner closed #39 with no build, so item 65 is closed (the date chip not taken up).
+  - *⚠ specs:* none new.
+  - *Branches and PRs:* nothing open; only `main` and `development` on the remote.
+  - *Fixed:* two sentences item 70's name scrub broke (item 16 and the 2026-09-24 log
+    line); §0 and "Last reviewed" brought up to date; §8's item-21 pointer.
+  - *Added:* item 71, make the repository private (owner ask).
 
 - 2026-10-09 (second promotion): **v1.44.3 → v1.45.1 promoted to `main`** (release/2026-10-09b).
   The promotion audit (`CLAUDE.md`, "Keeping `docs/TODO.md` true"):
@@ -2120,10 +2266,10 @@ How to read the tags at the end of an entry:
     #139, #141; the PR numbers for 3–5 were added in this audit); the ponytail audit's
     placements (#136: items 60, 61 and item 48's notes; `test-v1210` re-listed after a month
     out of CI); item 64 (the *new report out* flow, added in this audit).
-  - *Tracker:* four new tickets, all filed 2026-10-13. #39, #40 and #41 (from Caroline:
-    drag the timeline, the crew list jumping to the top, an All Projects button) are
-    untriaged, and the `triage-issues` skill's step 1 is next. #42 is the owner's test of
-    the new flow; it can close. The older ones match their items: #1 → 32 (needs Proceed),
+  - *Tracker:* four new tickets, all filed 2026-10-13. #39, #40 and #41 (one reporter:
+    drag the timeline, the crew list jumping to the top, an All Projects button) got
+    specs on 2026-10-14 and are items 65, 66 and 67. #42, the owner's test of the new
+    flow, is closed. The older ones match their items: #1 → 32 (needs Proceed),
     #7 → 3 (on hold), #12 → 40.
   - *⚠ specs:* none awaiting creation. The owner added `savedViews` on Staff (2026-10-12)
     and `confirmedAt` / `confirmedBy` on Projects (2026-10-13); both are in §6's created
@@ -2216,7 +2362,7 @@ How to read the tags at the end of an entry:
   - The duplicate "42" (tracker #33's shipped Departments line) is relabelled 47.
   - The rule itself is in `CLAUDE.md`, not here.
 
-- 2026-10-08: **D15 reassessed** (owner and Hubert). Office's relational, rule-bound data
+- 2026-10-08: **D15 reassessed** (owner and the backup maintainer). Office's relational, rule-bound data
   and the AI-agent development model move Azure SQL + API from fallback to co-equal
   candidate with Dataverse. SharePoint stays for files and for Timeline until the cutover.
   - The 2026-10-01 analysis is kept and labelled superseded; five corrections to its table
@@ -2228,7 +2374,7 @@ How to read the tags at the end of an entry:
     permission boundaries people decide first), D10 (UUIDs; store IDs become legacy), D11
     (the relational form), D12 (a read and sync budget on any platform) and D13 (a backend
     job as a second home after CSV).
-  - Item 17 is tied to backend staging, item 44 gains Davis's estimator as discovery
+  - Item 17 is tied to backend staging, item 44 gains a colleague's estimator as discovery
     material, §5 gains four rows, and §7.4 gains two ledger entries.
   - New dated review: `docs/Architecture-Review-Backend.md`. No ruling changed, and
     nothing was provisioned. Noted, not fixed: two §3 items share the number 42 (tracker
@@ -2285,7 +2431,7 @@ How to read the tags at the end of an entry:
   `docs/Milestones/Phase-7-Pilot-Readiness/2026-09-27-style-guide.md`.
 - 2026-09-25 (later): status rule set — GitHub is the truth once a report has a ticket;
   the poller runs on close/reopen events; tracker #13 → item 41, #14 closed as done;
-  PR #52 merged (Hubert has no GitHub account). The bridge's dev-page buttons ledgered
+  PR #52 merged (the backup maintainer has no GitHub account). The bridge's dev-page buttons ledgered
   in §7.4.
 - 2026-09-25: the bridge ran (item 31 RUNNING) — tracker #1–#12 filed from the 13 rows
   on `ShopTimeline_Feedback`; items 32–40 carried in, #7 folded into item 3, #11 closed
@@ -2299,7 +2445,7 @@ How to read the tags at the end of an entry:
   repository was created and the poller, workflow and setup README pushed; the owner's
   Entra / secrets / column setup is the next step.
 - 2026-09-24 (evening): the owner's rulings folded in (D2 lifted, D3 ruled in principle,
-  Hubert backup maintainer, Config exists, People page current); items 25–30 added and
+  a backup maintainer named, Config exists, People page current); items 25–30 added and
   the contingency map written into §2; the condensed brief added as
   `reference/2026-09-22-Shop-Timeline-Brief-Condensed.md`; `CLAUDE.md`, `README.md`,
   `CONTRIBUTING.md`, `SETUP.md`, `ARCHITECTURE.md` colleague-app rule wording updated.
@@ -2315,13 +2461,13 @@ How to read the tags at the end of an entry:
 ### Legend
 
 - **⚠** — touches shared SharePoint schema or Entra (sign-in) configuration. Not a gate:
-  Robert gets the exact spec and applies the list edit himself. Destructive changes get a
+  The owner gets the exact spec and applies the list edit himself. Destructive changes get a
   milestone record (D2 lifted 2026-09-24). Entra changes need explicit instruction
   (`CLAUDE.md`).
 - **Waits on** — the work can't start until the named item is done or the named decision
   is taken. An arrow (←) in the log means the same.
 - **[brief §N]** — the Project Director's September 2026 brief, condensed and annotated by
-  Robert (2026-09-22); section numbers match the original 21-page document.
+  The owner (2026-09-22); section numbers match the original 21-page document.
 - **[vision]** — the owner's 2026-09-24 statement of the portal direction, defined as
   Systems on 2026-09-29 (§1).
 - **[tracker #N]** — an issue in the private tracker `221twoseven/Project-Scheduler-issues`

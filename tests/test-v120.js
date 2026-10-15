@@ -8,30 +8,21 @@
    - the summary dock keeps its info but gains the REV99 collapse control, persisted
      under its own key
    Run: node tests/test-v120.js index.html */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-if(src.indexOf('dash-bar')<0){
-  console.log('test-v120: skipped — pre-v1.2.0 build ('+FILE+')');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 const D=n=>{const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()+n);
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
 
 const projects=[
  {appId:'p1',Title:'Hermes Windows',client:'Hermes',jobCode:'H1',deadline:D(45),
-  status:'in-fabrication',projectManager:'Stan',drafter:'Peter',leadFab:'Nick',
+  status:'in-fabrication',projectManager:'Theo',drafter:'Oscar',leadFab:'Milo',
   activeDepartments:JSON.stringify(['pm','td','fab']),createdAt:D(-30),sortIndex:0}];
 const tasks=[
- {appId:'t1',projectId:'p1',department:'fab',assignee:'Nick',startDate:D(-2),endDate:D(3),
+ {appId:'t1',projectId:'p1',department:'fab',assignee:'Milo',startDate:D(-2),endDate:D(3),
   estimatedDays:5,ticketNodes:'[]',notes:'',pinned:false,label:''},
- {appId:'t2',projectId:'p1',department:'td',assignee:'Nick',startDate:D(-8),endDate:D(-4),
+ {appId:'t2',projectId:'p1',department:'td',assignee:'Milo',startDate:D(-8),endDate:D(-4),
   estimatedDays:4,ticketNodes:'[]',notes:'',pinned:false,label:'Drawings'}];
 
 const dom=boot(FILE,{data:{projects,tasks,staff:[],todos:[]}});
@@ -51,15 +42,15 @@ ok('sidebar collapse carets hide in dashboard (CSS)',
    /body\.dash-(on|flat) \.sb-chev\{visibility:hidden\}/.test(src));
 
 setTimeout(()=>{
-  E("PEOPLE=[{id:'a',name:'Nick',email:'',role:'Lead Fabricator',depts:['fab'],ooo:[]}];rebuildStaff();");
-  E("localStorage.setItem(ME_KEY,'Nick');LENS='project';PERSON=null;render();");
+  E("PEOPLE=[{id:'a',name:'Milo',email:'',role:'Lead Fabricator',depts:['fab'],ooo:[]}];rebuildStaff();");
+  E("localStorage.setItem(ME_KEY,'Milo');LENS='project';PERSON=null;render();");
   ok('outside the dashboard the bar is hidden',
      q('#dash-bar').classList.contains('hidden')&&!doc.body.classList.contains('dash-on'));
 
   sec('entering: the dashboard is its own place');
   E("document.getElementById('btn-dash').click();");
   ok('the trail bar shows', !q('#dash-bar').classList.contains('hidden'));
-  ok('…named for the person', q('#db-name').textContent==='My Dashboard · Nick');
+  ok('…named for the person', q('#db-name').textContent==='My Dashboard · Milo');
   ok('body carries dash-on (lens toggles/carets hidden by CSS)',
      doc.body.classList.contains('dash-on'));
   ok('the sidebar label swap is in place', !!q('#sb-head .sb-dash-lbl'));
@@ -93,8 +84,6 @@ setTimeout(()=>{
   E("document.getElementById('db-all').click();");
   ok('the All Projects crumb exits the same way', E('PERSON===null')&&q('#dash-bar').classList.contains('hidden'));
 
-  console.log('\n'+'-'.repeat(46));
-  console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-  process.exit(fail?1:0);
+  done();
 },1500);
 setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},20000);

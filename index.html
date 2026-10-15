@@ -1858,7 +1858,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.48.1'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.48.5'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -2044,15 +2044,24 @@ function rebuildStaff(){
 }
 function personByName(n){return PEOPLE.find(p=>p.name===n);}
 /* v1.6.5 (owner report): legacy project records store abbreviated people
-   ("Davis S.", or bare first names) while the staff picker writes full display
+   ("Daxon S.", or bare first names) while the staff picker writes full display
    names — raw string compares split one human into an empty roster lane plus a
    working legacy lane, hid their work from the person filter/dashboards, and made
    the overbooking check skip them. Resolve any crew/role string to its roster
    person when the match is unambiguous (exact, "First L." initial form, or bare
    first name); ambiguous or unknown strings pass through untouched. Comparisons
    and grouping only — stored values are never rewritten. */
+/* Item 61: canonName runs inside sorts and every render, so it remembers its answers until the
+   roster changes (a new PEOPLE array, or one pushed onto). */
+let CANON_FOR=null,CANON_N=-1;const CANON=new Map();
 function canonName(s){
   s=String(s||'').trim();if(!s||!PEOPLE.length)return s;
+  if(CANON_FOR!==PEOPLE||CANON_N!==PEOPLE.length){CANON_FOR=PEOPLE;CANON_N=PEOPLE.length;CANON.clear();}
+  let r=CANON.get(s);
+  if(r===undefined){r=canonCalc(s);CANON.set(s,r);}
+  return r;
+}
+function canonCalc(s){
   const low=s.toLowerCase();
   let hit=PEOPLE.filter(p=>p.name.trim().toLowerCase()===low);
   if(!hit.length){
@@ -2219,7 +2228,7 @@ function backN(end,n){let s=new Date(end);for(let i=1;i<n;i++)s=prevWorkingBefor
 
 /* ===================== SCHEDULER ===================== */
 function genId(){return Date.now().toString(36)+Math.random().toString(36).slice(2,8);}
-/* Roles are stored as comma-joined names ("Nick, Kate") so SharePoint columns stay plain text */
+/* Roles are stored as comma-joined names ("Milo, Ines") so SharePoint columns stay plain text */
 function roleList(v){return String(v||'').split(',').map(s=>s.trim()).filter(Boolean);}
 function roleField(deptId){return deptId==='pm'?'projectManager':deptId==='td'?'drafter':deptId==='fab'?'leadFab':null;}
 function roleListFor(p,deptId){const f=roleField(deptId);return f?roleList(p[f]):[];}
@@ -2394,13 +2403,13 @@ const STATUS_MIGRATE={'approved':'in-fabrication','in-production':'in-fabricatio
 
 /* ===================== DATA LAYER ===================== */
 function seed(){
-  PEOPLE=rostersToPeople({projectManagers:['Stan','Caroline'],drafters:['Peter','Chris'],leadFabs:['Nick','Kate'],metalFabs:[]});
+  PEOPLE=rostersToPeople({projectManagers:['Theo','Cordelia'],drafters:['Oscar','Felix'],leadFabs:['Milo','Ines'],metalFabs:[]});
   rebuildStaff();
   const t=today();
   let d1=addDays(t,35);while(!isWorking(d1))d1=addDays(d1,1);
   let d2=addDays(t,63);while(!isWorking(d2))d2=addDays(d2,1);
-  const p1={id:genId(),name:'Hermès Holiday Windows',client:'Hermès',jobCode:'HER-2419',deadline:fmtDate(d1),status:'auto',projectManager:'Stan',drafter:'Peter',leadFab:'Nick',activeDepartments:['pm','td','cnc','3dprint','fab','finish','install'],createdAt:fmtDate(t)};
-  const p2={id:genId(),name:'Tiffany Spring Vitrines',client:'Tiffany & Co.',jobCode:'TIF-2502',deadline:fmtDate(d2),status:'auto',projectManager:'Caroline',drafter:'Chris',leadFab:'Kate',activeDepartments:['pm','td','print','beamsaw','laser','fab','finish','install'],createdAt:fmtDate(t)};
+  const p1={id:genId(),name:'Hermès Holiday Windows',client:'Hermès',jobCode:'HER-2419',deadline:fmtDate(d1),status:'auto',projectManager:'Theo',drafter:'Oscar',leadFab:'Milo',activeDepartments:['pm','td','cnc','3dprint','fab','finish','install'],createdAt:fmtDate(t)};
+  const p2={id:genId(),name:'Tiffany Spring Vitrines',client:'Tiffany & Co.',jobCode:'TIF-2502',deadline:fmtDate(d2),status:'auto',projectManager:'Cordelia',drafter:'Felix',leadFab:'Ines',activeDepartments:['pm','td','print','beamsaw','laser','fab','finish','install'],createdAt:fmtDate(t)};
   const t1=generateSchedule(p1,{td:10,cnc:5,'3dprint':7,fab:8,finish:4,install:2});
   const t2=generateSchedule(p2,{td:12,print:3,beamsaw:4,laser:3,fab:10,finish:5,install:3});
   const td1=t1.find(x=>x.department==='td');
@@ -2498,13 +2507,16 @@ async function spInit(){
   else{const r=await PCA.loginPopup({scopes:SCOPES});ACCOUNT=r.account;}
   PCA.setActiveAccount(ACCOUNT);
 }
-async function spToken(){
+/* Item 48, PR 7: `scopes` asks for an extra permission on its own SILENT token (Team members,
+   Mail.Send): no consent or no token throws, and the caller's degrade path runs — never a popup. */
+async function spToken(scopes){
+  if(scopes)return (await PCA.acquireTokenSilent({scopes,account:ACCOUNT})).accessToken;
   try{return (await PCA.acquireTokenSilent({scopes:SCOPES,account:ACCOUNT})).accessToken;}
   catch(e){return (await PCA.acquireTokenPopup({scopes:SCOPES})).accessToken;}
 }
-async function gfetch(url,opts){
+async function gfetch(url,opts,scopes){
   opts=opts||{};
-  const t=await spToken();
+  const t=await spToken(scopes);
   opts.headers=Object.assign({'Content-Type':'application/json'},opts.headers,{Authorization:'Bearer '+t});
   let r=await fetch(url,opts);
   if(r.status===429||r.status===503){
@@ -2515,13 +2527,13 @@ async function gfetch(url,opts){
     r=await fetch(url,opts);
   }
   if(!r.ok){const txt=await r.text();throw new Error('SharePoint '+r.status+': '+txt.slice(0,180));}
-  return r.status===204?null:r.json();
+  return r.status===204||r.status===202?null:r.json();
 }
 /* REV90: follow @odata.nextLink — $top is a page size, not a limit. Without this,
    rows past the first page silently vanished from every load and poll. */
-async function gpageAll(url){
-  let r=await gfetch(url),v=r.value||[];
-  while(r['@odata.nextLink']){r=await gfetch(r['@odata.nextLink']);v=v.concat(r.value||[]);}
+async function gpageAll(url,scopes){
+  let r=await gfetch(url,null,scopes),v=r.value||[];
+  while(r['@odata.nextLink']){r=await gfetch(r['@odata.nextLink'],null,scopes);v=v.concat(r.value||[]);}
   return v;
 }
 async function spSite(){
@@ -2534,30 +2546,47 @@ function listUrl(l){return 'https://graph.microsoft.com/v1.0/sites/'+SITE_ID+'/l
 /* Item 48 (the storage seam), PR 1: one object that owns every conversation with the
    lists. No callers yet; PRs 2–7 move each call site onto it, with the Graph requests
    unchanged byte for byte (docs/Architecture-Review-Storage.md, "Proposed PR sequence").
-   `top` is each list's page size as the call sites use it today. Items come back raw
-   ({id, fields, lastModifiedBy, …}), so the fieldsTo* mappers stay where they are. */
+   Items come back raw ({id, fields, lastModifiedBy, …}), so the fieldsTo* mappers stay
+   where they are. */
 const STORE_LISTS={
-  proj:{list:LIST_PROJECTS,top:2000}, task:{list:LIST_TASKS,top:2000},
-  todo:{list:LIST_TODOS,top:2000},    event:{list:LIST_EVENTS,top:2000},
-  staff:{list:LIST_STAFF,top:500},    client:{list:LIST_CLIENTS,top:500},
-  config:{list:LIST_CONFIG,top:200},  changelog:{list:LIST_CHANGELOG,top:2000},
-  feedback:{list:LIST_FEEDBACK,top:2000}, employeeContacts:{list:LIST_EC,top:999}
+  proj:LIST_PROJECTS, task:LIST_TASKS, todo:LIST_TODOS, event:LIST_EVENTS,
+  staff:LIST_STAFF, client:LIST_CLIENTS, config:LIST_CONFIG, changelog:LIST_CHANGELOG,
+  feedback:LIST_FEEDBACK, employeeContacts:LIST_EC
 };
+/* Item 68: one page size for every list — gpageAll follows @odata.nextLink, so this is a
+   page, not a limit. 2000 is the size the big lists already used live: one request each. */
+const STORE_PAGE=2000;
 const store={
+  signIn:spInit,
+  /* PR 7: who is signed in, as {name, email}, or null — the one reader of MSAL's account */
+  who(){return ACCOUNT?{name:ACCOUNT.name||'',email:ACCOUNT.username||''}:null;},
   url(kind){
-    const k=STORE_LISTS[kind];
-    if(!k)throw new Error('store: unknown kind '+kind);
-    return listUrl(encodeURIComponent(k.list));
+    const l=STORE_LISTS[kind];
+    if(!l)throw new Error('store: unknown kind '+kind);
+    return listUrl(encodeURIComponent(l));
   },
   /* expand: 'fields' by default; the Employee Contacts import passes its own select. */
   async list(kind,expand){
     await spSite();
-    return gpageAll(store.url(kind)+'/items?expand='+(expand||'fields')+'&$top='+STORE_LISTS[kind].top);
+    return gpageAll(store.url(kind)+'/items?expand='+(expand||'fields')+'&$top='+STORE_PAGE);
   },
   async columns(kind){await spSite();return gpageAll(store.url(kind)+'/columns');},
   async create(kind,fields){await spSite();return gfetch(store.url(kind)+'/items',{method:'POST',body:JSON.stringify({fields})});},
   async update(kind,id,fields){await spSite();return gfetch(store.url(kind)+'/items/'+id+'/fields',{method:'PATCH',body:JSON.stringify(fields)});},
-  async remove(kind,id){await spSite();return gfetch(store.url(kind)+'/items/'+id,{method:'DELETE'});}
+  async remove(kind,id){await spSite();return gfetch(store.url(kind)+'/items/'+id,{method:'DELETE'});},
+  /* PR 8, the one error rule (wording: owner, 2026-10-14): why a call failed, in one sentence.
+     Messages read "<what failed>: <explain> <next step>", with the raw error under the toast's
+     Details. `panel`: the text sits in a panel, which has no Details link to point at. */
+  explain(e,panel){
+    /* unanchored: the staff sync wraps the Graph error ("2 staff rows didn't save — Sam: SharePoint 400: …") */
+    const m=String((e&&e.message)||e||''),st=+((m.match(/SharePoint (\d{3})/)||[])[1]||0);
+    if(!st&&/failed to fetch|networkerror|load failed|network request failed|endpoints_resolution_error|no_network/i.test(m))return 'This computer looks offline. Check your internet connection.';
+    if(st===401||st===403)return 'Your Microsoft account doesn’t have access to that list.';
+    if(st===404&&!/itemNotFound/i.test(m))return 'The list isn’t on the TWOSEVENINC site.'; /* a row someone else deleted is a 404 too */
+    if(st===400&&/not recognized|does not exist/i.test(m))return 'A column is missing from the list.'+(panel?'':' Click Details below to see which one.'); /* other 400s are bad values */
+    if(st===429||st>=500)return 'SharePoint is busy right now.';
+    return 'SharePoint returned an error.'+(panel?'':' Click Details below for the full message.');
+  }
 };
 
 /* ===== 5b: TEAMS MEMBERSHIP (People & Availability picker) =====
@@ -2572,15 +2601,8 @@ async function loadTeamMembers(){
   if(TM_MEMBERS!==null)return TM_MEMBERS;
   const out=[];
   try{
-    const t=(await PCA.acquireTokenSilent({scopes:['TeamMember.Read.All'],account:ACCOUNT})).accessToken;
-    let url='https://graph.microsoft.com/v1.0/teams/'+TEAM_GROUP_ID+'/members?$top=100';
-    while(url){
-      const r=await fetch(url,{headers:{Authorization:'Bearer '+t}});
-      if(!r.ok)throw new Error('Graph '+r.status);
-      const j=await r.json();
-      for(const m of (j.value||[]))if(m.displayName)out.push({name:m.displayName,email:String(m.email||'').toLowerCase(),userId:m.userId||''});
-      url=j['@odata.nextLink']||null;
-    }
+    const ms=await gpageAll('https://graph.microsoft.com/v1.0/teams/'+TEAM_GROUP_ID+'/members?$top=100',['TeamMember.Read.All']);
+    for(const m of ms)if(m.displayName)out.push({name:m.displayName,email:String(m.email||'').toLowerCase(),userId:m.userId||''});
     out.sort((a,b)=>a.name.localeCompare(b.name));
     TM_MEMBERS=out;
   }catch(e){
@@ -2655,39 +2677,31 @@ function flagTruthy(v){return v===true||v===1||/^(1|yes|true)$/i.test(String(v||
    become the hyphenated form; anything else (a foreign number, text) stays exactly as typed. */
 function fmtPhone(v){const s=String(v||'').trim(),d=s.replace(/\D/g,''),n=d.length===11&&d[0]==='1'?d.slice(1):d;
   return n.length===10&&/^[\d\s().+-]+$/.test(s)?n.slice(0,3)+'-'+n.slice(3,6)+'-'+n.slice(6):s;}
+/* Item 61: the optional Staff columns, in write order. Each is tristate: omitted until the row
+   carries it (null), so a site without the column never 400s. text = as typed; flag = '1'/'';
+   json = JSON text. admin also carries developer ('dev'). */
+const PERSON_COLS=[
+  ['ext','text'],              /* v1.43.0 (item 9): Office Extension — its own field, never part of the phone number; typed by hand, Employee Contacts has none */
+  ['admin','admin'],           /* v1.8.0: '1' admin, 'dev' admin + developer */
+  ['feedbackRecipient','flag'],
+  ['personalNotes','text'],    /* v1.9.0 (item 30) */
+  ['status','text'],           /* v1.13.0: lifecycle, vocabulary = Employee Contacts' Status (Active/Off Payroll/Terminated/Archived) */
+  ['nickname','text'],         /* v1.15.0: how the name reads everywhere (display only) */
+  ['driver','flag'],           /* v1.17.0: drives for the company */
+  ['availability','text'],     /* v1.18.0: manual available/unavailable (freelancers); OOO ranges override */
+  ['schedule','json'],         /* v1.22.0: weekly hours {days:[getDay ints],start:'HH:MM',end:'HH:MM'} */
+  ['freelance','flag'],        /* v1.23.0: freelancer — no set weekly schedule */
+  ['listeningTo','text'],['listeningLink','text'],['listeningVerb','text'],['listeningShow','flag'] /* v1.12.0 (item 30): the "Listening to" quartet */
+];
 function personToFields(p){const f={Title:p.name||'',depts:JSON.stringify(p.depts||[]),ooo:JSON.stringify(p.ooo||[]),email:p.email||'',phone:p.phone||'',role:p.role||'',appId:p.id};
-  if(p.ext!=null)f.ext=p.ext; /* v1.43.0 (item 9): Office Extension, for office-to-office calls from office phones — its own field, never part of the phone number (a mobile has none); typed by hand, Employee Contacts has none. Same tristate rule */
-  if(p.admin!=null)f.admin=(p.developer&&p.admin)?'dev':(p.admin?'1':'');
-  if(p.feedbackRecipient!=null)f.feedbackRecipient=p.feedbackRecipient?'1':'';
-  if(p.personalNotes!=null)f.personalNotes=p.personalNotes; /* v1.9.0 (item 30): tristate like the flags — omitted until the row carries it, so a site without the column never 400s */
-  if(p.status!=null)f.status=p.status; /* v1.13.0: lifecycle, vocabulary = Employee Contacts' Status (Active/Off Payroll/Terminated/Archived) */
-  if(p.nickname!=null)f.nickname=p.nickname; /* v1.15.0: how the name reads everywhere (display only) */
-  if(p.driver!=null)f.driver=p.driver?'1':''; /* v1.17.0: drives for the company — same tristate rule */
-  if(p.availability!=null)f.availability=p.availability; /* v1.18.0: manual available/unavailable (freelancers); OOO ranges override */
-  if(p.schedule!=null)f.schedule=JSON.stringify(p.schedule); /* v1.22.0: weekly hours {days:[getDay ints],start:'HH:MM',end:'HH:MM'} — same tristate rule */
-  if(p.freelance!=null)f.freelance=p.freelance?'1':''; /* v1.23.0: freelancer — no set weekly schedule; same tristate rule */
-  /* v1.12.0 (item 30 second half): the "Listening to" quartet — same tristate rule. */
-  if(p.listeningTo!=null)f.listeningTo=p.listeningTo;
-  if(p.listeningLink!=null)f.listeningLink=p.listeningLink;
-  if(p.listeningVerb!=null)f.listeningVerb=p.listeningVerb;
-  if(p.listeningShow!=null)f.listeningShow=p.listeningShow?'1':'';
+  for(const[k,t]of PERSON_COLS){const v=p[k];if(v==null)continue;
+    f[k]=t==='flag'?(v?'1':''):t==='json'?JSON.stringify(v):t==='admin'?((p.developer&&v)?'dev':(v?'1':'')):v;}
   return f;}
-function fieldsToPerson(f){return{id:f.appId,name:f.Title||'',depts:safeArr(f.depts),ooo:safeArr(f.ooo),email:f.email||'',phone:fmtPhone(f.phone),role:f.role||'', /* v1.43.0 (9c): stored numbers read in the one format; the row is rewritten the next time it's saved */
-  ext:f.ext==null?null:String(f.ext),
-  admin:f.admin==null?null:(flagTruthy(f.admin)||/^dev/i.test(String(f.admin))),
-  developer:f.admin!=null&&/^dev/i.test(String(f.admin)),
-  feedbackRecipient:f.feedbackRecipient==null?null:flagTruthy(f.feedbackRecipient),
-  personalNotes:f.personalNotes==null?null:String(f.personalNotes),
-  status:f.status==null?null:String(f.status),
-  nickname:f.nickname==null?null:String(f.nickname),
-  driver:f.driver==null?null:flagTruthy(f.driver),
-  availability:f.availability==null?null:String(f.availability),
-  schedule:f.schedule==null?null:schedSafe(f.schedule),
-  freelance:f.freelance==null?null:flagTruthy(f.freelance),
-  listeningTo:f.listeningTo==null?null:String(f.listeningTo),
-  listeningLink:f.listeningLink==null?null:String(f.listeningLink),
-  listeningVerb:f.listeningVerb==null?null:String(f.listeningVerb),
-  listeningShow:f.listeningShow==null?null:flagTruthy(f.listeningShow)};}
+function fieldsToPerson(f){const p={id:f.appId,name:f.Title||'',depts:safeArr(f.depts),ooo:safeArr(f.ooo),email:f.email||'',phone:fmtPhone(f.phone),role:f.role||''}; /* v1.43.0 (9c): stored numbers read in the one format; the row is rewritten the next time it's saved */
+  for(const[k,t]of PERSON_COLS){const v=f[k];
+    if(t==='admin'){p.admin=v==null?null:(flagTruthy(v)||/^dev/i.test(String(v)));p.developer=v!=null&&/^dev/i.test(String(v));continue;}
+    p[k]=v==null?null:t==='flag'?flagTruthy(v):t==='json'?schedSafe(v):String(v);}
+  return p;}
 
 async function spLoadStaff(){
   await spSite();
@@ -2757,22 +2771,24 @@ async function spLoad(){
   /* SharePoint/Graph tracks this on every item automatically — no custom column required */
   const graphWho=it=>it.lastModifiedBy&&it.lastModifiedBy.user?(it.lastModifiedBy.user.displayName||it.lastModifiedBy.user.email||''):'';
   const graphWhen=it=>it.lastModifiedDateTime||'';
-  for(const it of pr){if(!it.fields.appId)continue;SP_IDS.proj[it.fields.appId]=it.id;const pr2=fieldsToProj(it.fields);pr2.updatedBy=graphWho(it);pr2.updatedAt=graphWhen(it);projects.push(pr2);}
-  for(const it of tr){if(!it.fields.appId)continue;SP_IDS.task[it.fields.appId]=it.id;const tk=fieldsToTask(it.fields);tk.updatedBy=graphWho(it);tk.updatedAt=graphWhen(it);tasks.push(tk);}
+  /* item 61: one loop for the four lists — rows without an appId are skipped, ids are kept, and
+     `stamp` adds Graph's last-modified who/when */
+  const rows=(items,kind,map,stamp,out)=>{for(const it of items){if(!it.fields.appId)continue;SP_IDS[kind][it.fields.appId]=it.id;
+    const r=map(it.fields);if(stamp){r.updatedBy=graphWho(it);r.updatedAt=graphWhen(it);}out.push(r);}};
+  rows(pr,'proj',fieldsToProj,true,projects);
+  rows(tr,'task',fieldsToTask,true,tasks);
   /* Tasks are optional: the list may not have been created yet. */
   const todos=[];SP_IDS.todo={};
   try{
     const dr=await store.list('todo');
-    for(const it of dr){if(!it.fields.appId)continue;SP_IDS.todo[it.fields.appId]=it.id;
-      const td=fieldsToTodo(it.fields);td.updatedBy=graphWho(it);td.updatedAt=graphWhen(it);todos.push(td);}
+    rows(dr,'todo',fieldsToTodo,true,todos);
     TODOS_OK=true;
   }catch(e){TODOS_OK=false;console.warn('ShopTimeline_Tasks2 not reachable — tasks stay local.');}
   /* Events are optional the same way. */
   const events=[];SP_IDS.event={};
   try{
     const er=await store.list('event');
-    for(const it of er){if(!it.fields.appId)continue;SP_IDS.event[it.fields.appId]=it.id;
-      events.push(fieldsToEvent(it.fields));}
+    rows(er,'event',fieldsToEvent,false,events);
     EVENTS_OK=true;
   }catch(e){EVENTS_OK=false;console.warn('ShopTimeline_Events not reachable — events save on host phases (legacy).');}
   return migrate({projects,tasks,todos,events});
@@ -3013,7 +3029,7 @@ async function updCheck(force){
   }catch(e){}
   /* Refresh only the raw values (minVersion) — never loadConfig(): a blip here must not
      flip CFG_OK or overwrite the grants, which stay read-at-load by design. */
-  if(ACCOUNT)try{
+  if(store.who())try{
     const c=await readConfig();Object.assign(SP_CFG_IDS,c.ids);CFG_RAW=c.raw;
   }catch(e){}
   updApply(latest);
@@ -3065,7 +3081,7 @@ function stripStamps(st){return JSON.stringify(st,(k,v)=>k==='updatedBy'||k==='u
    value (from graphWho/graphWhen above) overwrites this the next time spLoad() runs. */
 function stampUpdated(newList,oldList){
   const om=new Map(oldList.map(x=>[x.id,x]));
-  const who=(typeof ACCOUNT!=='undefined'&&ACCOUNT&&(ACCOUNT.name||ACCOUNT.username))||'You';
+  const w=store.who(),who=(w&&(w.name||w.email))||'You';
   const when=new Date().toISOString();
   return newList.map(n=>{
     const o=om.get(n.id);
@@ -3123,7 +3139,7 @@ function syncNow(oldST,newST){
       SYNCING--;
       console.error(e);
       setSync('err','not saved — click to retry');
-      toast('Couldn\'t save to SharePoint. Your change is still on screen — click "not saved" at the top right to retry.','err',null,e.message);
+      toast('Couldn\'t save to SharePoint: '+store.explain(e)+' Your change is still on screen — click "not saved" at the top right to retry.','err',null,e.message);
       /* REV90: merge consecutive failures instead of clobbering — retry replays the
          span from the FIRST failed snapshot to the latest state, so no edit is lost. */
       PENDING_SYNC=PENDING_SYNC?{oldST:PENDING_SYNC.oldST,newST}:{oldST,newST};
@@ -3192,8 +3208,8 @@ function runClientSync(old,again){
     .catch(e=>{console.error(e);
       PENDING_CLIENTS={old:again?old:((PENDING_CLIENTS&&PENDING_CLIENTS.old)||old)};
       setSync('err','clients not saved — click to retry');
-      toast(again?'Still couldn\'t save the client list — click "clients not saved" to retry again.'
-        :'Couldn\'t save the client list to SharePoint. Your change is still on screen — click "clients not saved" at the top right to retry.','err',null,e.message);});
+      toast(again?'Still couldn\'t save the client list: '+store.explain(e)+' Click "clients not saved" to retry again.'
+        :'Couldn\'t save the client list to SharePoint: '+store.explain(e)+' Your change is still on screen — click "clients not saved" at the top right to retry.','err',null,e.message);});
 }
 let PENDING_CLIENTS=null; /* {old}: the diff base from the first failed client sync */
 function retryClientSync(){
@@ -3238,7 +3254,7 @@ function savePeople(np,self){
     .catch(e=>{SYNCING--;console.error(e);
       PENDING_STAFF={old:(PENDING_STAFF&&PENDING_STAFF.old)||old,after:PENDING_STAFF&&PENDING_STAFF.after};
       setSync('err','staff not saved — click to retry');
-      toast('Couldn\'t save some of the staff list to SharePoint. Your edits are still on screen — click "staff not saved" at the top right to retry.','err',null,e.message);
+      toast('Couldn\'t save some of the staff list to SharePoint: '+store.explain(e)+' Your edits are still on screen — click "staff not saved" at the top right to retry.','err',null,e.message);
       return false;});
 }
 let PENDING_STAFF=null; /* {old, after?}: diff base from the first failed staff sync, plus an optional continuation the retry runs on success (the merge's scrub) */
@@ -3252,7 +3268,7 @@ function retryStaffSync(){
     .catch(e=>{SYNCING--;console.error(e);
       PENDING_STAFF={old:p.old,after:p.after};
       setSync('err','staff not saved — click to retry');
-      toast('Still couldn\'t save the staff list — the error names the field: create any missing column on ShopTimeline_Staff, then click retry again.','err',null,e.message);});
+      toast('Still couldn\'t save the staff list: '+store.explain(e)+' Then click "staff not saved" to retry.','err',null,e.message);});
 }
 /* V4/B6: the view snapshot — every piece of timeline state a saved view captures.
    viewState() reads it, applyViewState() writes it (state + the matching controls).
@@ -3318,10 +3334,11 @@ function boardClients(){return [...new Set((ST&&ST.projects||[]).map(p=>(p.clien
    against Staff.email first, display name second. Null when unresolved (the
    dashboard-button slice adds the remembered-picker fallback). */
 function meName(){
-  if(!ACCOUNT)return null;
-  const em=String(ACCOUNT.username||'').trim().toLowerCase();
+  const w=store.who();
+  if(!w)return null;
+  const em=w.email.trim().toLowerCase();
   let p=em?PEOPLE.find(x=>String(x.email||'').trim().toLowerCase()===em):null;
-  if(!p){const nm=String(ACCOUNT.name||'').trim().toLowerCase();
+  if(!p){const nm=w.name.trim().toLowerCase();
     if(nm)p=PEOPLE.find(x=>x.name.trim().toLowerCase()===nm);}
   return p?p.name:null;
 }
@@ -3410,7 +3427,7 @@ function saveConfigKey(k,v){
     .catch(e=>{console.error(e);
       PENDING_CFG={...(PENDING_CFG||{}),[k]:v}; /* park the key so the pill can replay it */
       setSync('err','setting not saved — click to retry');
-      toast('Couldn\'t save the setting to SharePoint — it\'s applied in this browser only for now. Click "setting not saved" at the top right to retry.','err',null,e.message);});
+      toast('Couldn\'t save the setting to SharePoint: '+store.explain(e)+' It\'s applied in this browser only for now. Click "setting not saved" at the top right to retry.','err',null,e.message);});
   }else{
     toast('Saved in this browser only — create the ShopTimeline_Config list to share settings with everyone.','err');
   }
@@ -3452,7 +3469,7 @@ function applyPerms(){
      while a preview is on (the lit view-as picker already says that). */
   {const tu=document.getElementById('tb-user');
    if(tu){
-     const nm=meName()||(ACCOUNT?ACCOUNT.name:'');
+     const nm=meName()||(store.who()||{}).name||'';
      if(!nm){tu.classList.add('hidden');tu.innerHTML='';}
      else{
        const p=personByName(nm);
@@ -3486,7 +3503,7 @@ function taskMatch(t){
   if(p&&projMatch(p))return true;
   const dn=deptById(t.department)?.name||'';
   /* assigneeText renders nicknames (v1.15.0) — search the roster names too, or typing
-     the full name the People page shows ("Seungwoo Hong") stops matching his phases. */
+     the full name the People page shows ("Donghyun Baek") stops matching his phases. */
   return (assigneeText(t)+' '+crewOf(t).map(canonName).join(' ')+' '+dn).toLowerCase().includes(FILTER);
 }
 /* Dim (don't remove) non-matching rows/bars so layout stays put */
@@ -4078,7 +4095,7 @@ let LT_BOUND=false,LT_COMMIT=null; /* v1.12.0: one document listener for the tho
 function renderEmptyState(){
   const old=document.getElementById('empty-state');if(old)old.remove();
   let html;
-  if(!ACCOUNT){
+  if(!store.who()){
     html='<div class="es-big">Shop Timeline</div>'
       +'<div class="es-sub">The shared shop schedule: every project, phase and deadline in one place.<br>Sign in with your work account to see it.</div>'
       +'<button class="btn btn-primary" id="es-signin" style="margin-top:14px">Sign in with Microsoft</button>';
@@ -5295,7 +5312,7 @@ function clogDetail(r){
 }
 function clogDiff(oldST,newST){
   oldST=stripSample(oldST);newST=stripSample(newST);
-  const who=(typeof ACCOUNT!=='undefined'&&ACCOUNT&&(ACCOUNT.name||ACCOUNT.username))||'';
+  const w=store.who(),who=(w&&(w.name||w.email))||'';
   const at=new Date().toISOString(),rows=[];
   /* a created/deleted project's children come and go WITH it — the project row is the
      story, per-child rows would be noise (and a big delete would bulk-collapse) */
@@ -5408,7 +5425,7 @@ function renderChangelog(){
   }).catch(e=>{
     console.warn(e);
     const el=document.getElementById('clog-list');
-    if(el)el.innerHTML='<div class="clog-empty">Couldn’t reach the ShopTimeline_Changelog list — check it lives on the TWOSEVENINC site (Site contents), not My Lists.</div>';
+    if(el)el.innerHTML='<div class="clog-empty">Couldn’t load the changelog: '+store.explain(e,true)+'</div>';
   });
 }
 /* The project page's second dock. Only one dock viewable at a time (owner ruling). */
@@ -5430,7 +5447,7 @@ function ppClogShow(on,repaint){
   }).catch(e=>{
     console.warn(e);
     const el2=document.getElementById('pp-clog-list');
-    if(el2)el2.innerHTML='<div class="clog-empty">Couldn’t reach the ShopTimeline_Changelog list.</div>';
+    if(el2)el2.innerHTML='<div class="clog-empty">Couldn’t load the changelog: '+store.explain(e,true)+'</div>';
   });
 }
 
@@ -5488,15 +5505,15 @@ async function cdImportEC(btn){
        v1.43.0 (9a): the definitions come FIRST — they're what the item request selects by.
        Without them nothing is fetched: never fall back to "every field". */
     let ecCols=null;
-    try{ecCols=await gpageAll(listUrl(encodeURIComponent(LIST_EC))+'/columns');}catch(e){}
+    try{ecCols=await store.columns('employeeContacts');}catch(e){}
     if(!ecCols){toast('Couldn\'t read the Employee Contacts column list, so nothing was imported — the import asks only for the fields it uses, and needs that list to name them.','err');return;}
     console.log('[import] Employee Contacts columns (internal → display):',
       ecCols.map(c=>c.name+' → '+c.displayName));
     const sel=ecSelect(ecCols);
     if(sel.length<2){toast('None of the expected columns (Status, Email, Primary Phone, Current Title, Department) are on Employee Contacts, so nothing was imported — the column list is in the browser console (F12).','err');return;}
     let rows;
-    try{rows=await gpageAll(listUrl(encodeURIComponent(LIST_EC))+'/items?expand=fields(select='+sel.map(encodeURIComponent).join(',')+')&$top=999');}
-    catch(e){toast('Couldn\'t read the Employee Contacts list — check it lives on the TWOSEVENINC site and you can open it there.','err',null,e.message);return;}
+    try{rows=await store.list('employeeContacts','fields(select='+sel.map(encodeURIComponent).join(',')+')');}
+    catch(e){toast('Couldn\'t read the Employee Contacts list: '+store.explain(e),'err',null,e.message);return;}
     /* status only syncs once the owner-created column exists — probe, don't 400 */
     let hasStatus=false;
     try{const cols=await store.columns('staff');hasStatus=cols.some(c=>c.name==='status');}catch(e){}
@@ -5562,7 +5579,15 @@ async function cdImportEC(btn){
 function cdAvail(per){
   const t=fmtDate(today());
   const cur=(per.ooo||[]).find(o=>o.start&&o.end&&o.start<=t&&t<=o.end);
-  if(cur)return{now:true,txt:'Away until '+fmtNice(cur.end)};
+  if(cur){
+    /* item 19: back-to-back or overlapping ranges read as one absence — keep extending while another
+       range starts by the next workday after this end (a weekend or holiday in between still counts) */
+    let end=cur.end,grew=true;
+    while(grew){grew=false;
+      let d=addDays(parseDate(end),1);while(!isWorking(d))d=addDays(d,1);const lim=fmtDate(d);
+      for(const o of per.ooo)if(o.start&&o.end&&o.start<=lim&&o.end>end){end=o.end;grew=true;}}
+    return{now:true,txt:'Away until '+fmtNice(end)};
+  }
   /* v1.18.0 (owner): manual flag for freelancers — an active OOO range outranks it */
   if(per.availability==='unavailable')return{now:true,off:true,txt:'Not available'};
   const nx=(per.ooo||[]).filter(o=>o.start&&o.start>t).sort((a,b)=>a.start.localeCompare(b.start))[0];
@@ -6022,8 +6047,8 @@ function cdSavePerson(){
   savePeople(list); /* re-renders the page through render() */
   toast(per.name+' saved');
 }
-/* v1.15.0 (owner): two roster entries are the same human ("Sean Hong" and
-   "Seungwoo (Sean) Hong") — usually an HR-import name meeting a hand-typed one.
+/* v1.15.0 (owner): two roster entries are the same human ("Dean Baek" and
+   "Donghyun (Dean) Baek") — usually an HR-import name meeting a hand-typed one.
    Keep the OPEN record, fold the picked duplicate in: every stored reference to the
    duplicate's name (project roles, phase crews, note assignees) is rewritten to the
    kept name through the scrub walkers, missing contact/flag fields backfill from
@@ -7843,7 +7868,7 @@ function syncSettle(prev){
    undo entry, no change-log row and no sync of anything else. Missing columns (400) say so. */
 async function ppConfirmSchedule(p,btn){
   const id=SP_IDS.proj[p.id];if(!id)return;
-  const at=new Date().toISOString(),by=meName()||(ACCOUNT&&ACCOUNT.name)||'';
+  const at=new Date().toISOString(),by=meName()||(store.who()||{}).name||'';
   const pl=document.getElementById('sync-pill'),prev=pl?{c:pl.className,t:pl.textContent}:null;
   if(btn)btn.disabled=true;setSync('busy');
   try{
@@ -7853,10 +7878,7 @@ async function ppConfirmSchedule(p,btn){
     if(ROUTE.view==='project')renderProjectPage();else render();
   }catch(e){
     if(btn)btn.disabled=false;syncSettle(prev);
-    const m=String(e&&e.message);
-    toast(/ 400/.test(m)&&/confirmed/i.test(m)
-      ?'Can’t record the confirmation yet: the Projects list needs the confirmedAt and confirmedBy columns. Ask whoever maintains the app.'
-      :'Couldn’t record the confirmation — check your connection and try again.','err',null,m);
+    toast('Couldn’t record the confirmation: '+store.explain(e),'err',null,String(e&&e.message));
   }
 }
 function ppPaintMeta(p){
@@ -8032,7 +8054,7 @@ function npvKey(t){
    ahead of it must not take over the row); a department with nothing but ranges left falls back
    to its first bar. */
 function npvPrimary(dept){return NPV_TASKS.find(z=>z.department===dept&&!z.range)||NPV_TASKS.find(z=>z.department===dept)||null;}
-function wdCount(a,b){let n=0,c=new Date(a);while(c<=b){if(isWorking(c))n++;c=addDays(c,1);}return Math.max(1,n);}
+function wdCount(a,b,floor){let n=0,c=new Date(a);while(c<=b){if(isWorking(c))n++;c=addDays(c,1);}return Math.max(floor==null?1:floor,n);} /* floor: 1 for a bar's length (a bar is never 0 days); 0 to count a span that may hold no workday */
 
 /* Read the left-hand form without saving anything. */
 function ppFormInit(){
@@ -10435,7 +10457,7 @@ function savePageProject(){
       id:genId(),projectId:p.id,dept:t.dept||'',title:t.title.trim(),
       who:t.who||[],due:t.due,start:'',progress:'notstarted',
       priority:t.priority||'medium',notes:'',
-      createdBy:(ACCOUNT&&(ACCOUNT.name||ACCOUNT.username))||'',
+      createdBy:(w=>w&&(w.name||w.email))(store.who())||'',
       completedOn:'',completedBy:'',sortIndex:0}));
     EXPANDED.add(p.id);
     PP_QUIET=true;
@@ -11402,7 +11424,7 @@ function pmLateList(){
   const me=meName();
   if(!me)return[];
   const td=fmtDate(today());
-  /* REV90: PM is a comma list ("Stan, Caroline") — match through roleList like every
+  /* REV90: PM is a comma list ("Theo, Cordelia") — match through roleList like every
      other reader, or multi-PM projects prompt nobody. */
   return ST.projects.filter(p=>{const d=dueDate(p); /* v1.26.0: the due date, never the Setup date */
     return roleList(p.projectManager).map(canonName).includes(me)&&d&&d<td&&projectStatus(p)!=='complete';});
@@ -11698,7 +11720,7 @@ document.getElementById('legend-menu').addEventListener('click',ev=>ev.stopPropa
    hashchange then repaints once more, before anything is typed — harmless). */
 function openFeedback(){
   closeMenus();
-  if(!ACCOUNT){toast('Sign in first — reports carry your name.','err');return;}
+  if(!store.who()){toast('Sign in first — reports carry your name.','err');return;}
   location.hash='#/issues';applyRoute();
   const d=document.getElementById('fb-subject')||document.getElementById('fb-desc');if(d)d.focus(); /* v1.28.0: the subject is the first required field */
 }
@@ -11810,9 +11832,9 @@ function fbPaintList(force){
     el.innerHTML=open.length?colHd(false)+open.map(row).join(''):empty(rows.length?'No open issues — everything filed has been resolved.':'Nothing filed yet — be the first.');
     if(dn)dn.innerHTML=done.length?colHd(true)+done.map(row).join(''):empty('Nothing resolved yet.');
     const h=document.querySelector('.clog-row.fb-hit');if(h&&h.scrollIntoView)h.scrollIntoView({block:'center'});
-  }).catch(()=>{
+  }).catch(er=>{
     if(gen!==FB_PAINT)return;
-    for(const e of els())if(e)e.innerHTML=empty('Couldn’t reach the ShopTimeline_Feedback list.');
+    for(const e of els())if(e)e.innerHTML=empty('Couldn’t load the reports: '+store.explain(er,true));
   });
 }
 /* The report form's HTML — the retired modal's body, verbatim ids so sendFeedback
@@ -11863,7 +11885,7 @@ function renderIssues(){
       +'<div class="clog-list" id="fb-done"></div></div>'
     +'</div>',true);
   const nm=document.getElementById('fb-name'),em=document.getElementById('fb-email');
-  if(ACCOUNT){nm.value=meName()||ACCOUNT.name||'';em.value=ACCOUNT.username||'';}
+  const w=store.who();if(w){nm.value=meName()||w.name;em.value=w.email;}
   document.getElementById('fb-send').addEventListener('click',sendFeedback);
   fbPaintList();
 }
@@ -11912,9 +11934,9 @@ function renderReports(){
       const b=ev.target&&ev.target.closest?ev.target.closest('.fbr-tog'):null;
       if(b)fbSetStatus(b.dataset.spid,b.dataset.next,b);
     });
-  }).catch(()=>{
+  }).catch(e=>{
     const el=document.getElementById('fbr-list');
-    if(el)el.innerHTML='<div class="clog-empty">Couldn’t reach the ShopTimeline_Feedback list.</div>';
+    if(el)el.innerHTML='<div class="clog-empty">Couldn’t load the reports: '+store.explain(e,true)+'</div>';
   });
 }
 /* Flip one report's status on the list, then repaint. Never deletes a row. */
@@ -11928,7 +11950,7 @@ async function fbSetStatus(spId,status,btn){
   }catch(e){
     console.warn(e);
     if(btn){btn.disabled=false;btn.textContent=status==='resolved'?'Mark resolved':'Reopen';}
-    toast('Couldn’t save the status — has the `status` column been created on ShopTimeline_Feedback?','err');
+    toast('Couldn’t save the status: '+store.explain(e),'err',null,String(e&&e.message));
   }
 }
 /* ===== Help ▸ Release notes (v1.20.0) — plain-language, per version, newest first.
@@ -11938,6 +11960,10 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.48.5",d:"Oct 14, 2026",n:["On the People page, time off entered as back-to-back or overlapping requests now reads as one absence: \"Away until\" shows the day the person is really back, even across a weekend or holiday."]},
+ {v:"v1.48.4",d:"Oct 14, 2026",n:["The Meeting Sheet's progress bar now shows how much of the scheduled work is done, not how much time has passed, so a quiet stretch between departments no longer makes a project look further along. The dates under it are unchanged."]},
+ {v:"v1.48.3",d:"Oct 14, 2026",n:["Teammates' changes now also wait while you're on a New Project page, typing in a toolbar box, or have a save waiting to retry, so nothing redraws under you. They appear as soon as you're done."]},
+ {v:"v1.48.2",d:"Oct 14, 2026",n:["When something can't be saved or loaded, the message now says why — this computer is offline, your account has no access, a list or column is missing, or SharePoint is busy — and what to do next. The technical message stays under **Details**."]},
  {v:"v1.48.0–v1.48.1",d:"Oct 13, 2026",n:["A project page now shows who last edited the project and when (\"Last edited by Sam · Oct 12, 2:14 PM\"), and the Meeting Sheet prints the same line under each project. Any change counts, phases and notes included.",
    "Projects nobody has touched in 14 days get a grey **Stale** tag in the sidebar, so a forgotten schedule stands out. Completed and On Hold projects never do.",
    "If a stale project's schedule is still right, press **Schedule still accurate** on its page: the tag clears without editing anything, and the header notes who confirmed it and when. My Dashboard lists the stale projects you manage, each one a click away."]},
@@ -12103,7 +12129,7 @@ async function sendFeedback(){
       description:desc+extra,appVersion:APP_VER,appId:genId(),
       /* v1.25.0: who really sent it — the sign-in, not the editable email box. The
          reply email goes here (Power Automate on the list; the poller can't send mail). */
-      reporterUpn:ACCOUNT&&ACCOUNT.username||''});
+      reporterUpn:(store.who()||{}).email||''});
     /* v1.8.0 (§3 item 12): the report also mails everyone flagged feedbackRecipient on
        the staff list — Graph sendMail AS THE SIGNED-IN SUBMITTER, on its own Mail.Send
        delegated token (the TeamMember.Read.All pattern: no consent / no token → the
@@ -12112,9 +12138,7 @@ async function sendFeedback(){
     const rcpt=feedbackRecipients();
     if(rcpt.length){
       try{
-        const mt=(await PCA.acquireTokenSilent({scopes:['Mail.Send'],account:ACCOUNT})).accessToken;
-        const mr=await fetch('https://graph.microsoft.com/v1.0/me/sendMail',{method:'POST',
-          headers:{Authorization:'Bearer '+mt,'Content-Type':'application/json'},
+        await gfetch('https://graph.microsoft.com/v1.0/me/sendMail',{method:'POST',
           body:JSON.stringify({message:{
             subject:'[Shop Timeline] '+(kind==='bug'?'Bug':'Feature')+' — '+subj,
             body:{contentType:'Text',content:
@@ -12124,16 +12148,15 @@ async function sendFeedback(){
               +'\n\n'+desc+extra
               +'\n\nAlso filed on the ShopTimeline_Feedback list.'},
             toRecipients:rcpt.map(a=>({emailAddress:{address:a}}))},
-            saveToSentItems:true})});
-        mailed=mr.ok;
-        if(!mr.ok)console.warn('feedback mail failed: '+mr.status);
+            saveToSentItems:true})},['Mail.Send']);
+        mailed=true;
       }catch(e){console.warn('feedback mail skipped:',e&&e.message);}
     }
     closeFeedback();
     toast(mailed?'Thanks — the report is filed and emailed to the team.':'Thanks — the report is filed.');
   }catch(e){
     console.error(e);
-    toast('Could not reach the ShopTimeline_Feedback list — check it lives on the TWOSEVENINC site (Site contents), not My Lists.','err');
+    toast('Couldn’t send the report: '+store.explain(e),'err',null,String(e&&e.message));
   }finally{btn.disabled=false;btn.textContent='Send report';}
 }
 document.getElementById('mi-report').addEventListener('click',openFeedback);
@@ -12210,10 +12233,14 @@ function buildMeetingSheet(){
     for(const p of rows){
       const st=projectStatus(p);
       const ts=tasksOf(p.id);
-      let ps=null,pe=null;
-      for(const x of ts){const a=parseDate(x.startDate),b=parseDate(x.endDate);if(!ps||a<ps)ps=a;if(!pe||b>pe)pe=b;}
-      let pct=0;
-      if(ps&&pe&&pe>ps)pct=Math.max(0,Math.min(100,Math.round((today()-ps)/(pe-ps)*100)));
+      /* item 59 (owner, 2026-10-14): progress is the work done, not the time passed — each block's
+         workdays before today over all blocks' workdays, so a gap between blocks never fills the bar.
+         The dates under it still span first start → last end. */
+      let ps=null,pe=null,wAll=0,wDone=0;const t0=today();
+      for(const x of ts){const a=parseDate(x.startDate),b=parseDate(x.endDate);if(!ps||a<ps)ps=a;if(!pe||b>pe)pe=b;
+        const n=wdCount(a,b,0);wAll+=n;
+        if(t0>b)wDone+=n;else if(t0>a)wDone+=wdCount(a,addDays(t0,-1),0);}
+      const pct=wAll?Math.round(wDone/wAll*100):0;
       const due=dueDate(p),days=workdaysUntil(due); /* v1.26.0: the due date, not the Setup date */
       const tr=document.createElement('tr');tr.className='meet-row'+(prProjOK(p)?'':' dim');
       const le=projLastEdit(p); /* v1.48.0 (item 6): one line under each project */
@@ -12265,18 +12292,18 @@ ST={projects:[],tasks:[],todos:[],events:[]};
 async function boot(){
   try{
     setSync('busy','signing in…');
-    await spInit();          /* Microsoft sign-in */
+    await store.signIn();    /* Microsoft sign-in */
     setSync('busy','loading…');
     ST=mergeSample(await spLoad());   /* pull projects + tasks from SharePoint (+ the local sample, if any) */
     setSync('ok','synced '+stamp());
   }catch(e){
     console.error(e);
     setSync('err','offline');
-    toast('Couldn\'t sign in or reach SharePoint. Check your connection, then use "Sign in with Microsoft" to try again.','err',null,e.message);
+    toast('Couldn\'t sign in or reach SharePoint: '+store.explain(e)+' Then use "Sign in with Microsoft" to try again.','err',null,e.message);
   }
   /* Staff list loads separately so a missing ShopTimeline_Staff list doesn't block the
      schedule. Skipped entirely when sign-in failed — one problem, one toast. */
-  if(ACCOUNT)try{
+  if(store.who())try{
     const remote=await spLoadStaff();
     STAFF_OK=true;
     if(!remote.length&&PEOPLE.length){
@@ -12290,14 +12317,14 @@ async function boot(){
   }catch(e){
     console.error(e);
     STAFF_OK=false;
-    toast('Couldn\'t load the staff list from SharePoint, so staff lives in this browser only for now.','err',null,e.message);
+    toast('Couldn\'t load the staff list from SharePoint: '+store.explain(e)+' Staff lives in this browser only for now.','err',null,e.message);
   }
   rebuildStaff();
   if(STAFF_OK)viewsFromRow();
   ppPaintNeeds(); /* v1.47.3: a draft opened before the roster arrived now counts the PM rule */
   /* N3: the client roster, same graceful-degrade idea (quiet at load, warn on save). */
-  if(ACCOUNT)await loadClients();
-  if(ACCOUNT)await loadConfig(); /* v1.11.0: app-wide settings — grants apply from first render */
+  if(store.who())await loadClients();
+  if(store.who())await loadConfig(); /* v1.11.0: app-wide settings — grants apply from first render */
 }
 (async()=>{
   await boot();
@@ -12306,11 +12333,11 @@ async function boot(){
   /* REV74 (N14): a browser that has never seen the tour gets it once, after sign-in
      has settled and the first render is on screen. Help replays it any time. */
   let coachSeen='1';try{coachSeen=localStorage.getItem(COACH_KEY);}catch(e){}
-  if(ACCOUNT&&!coachSeen&&ROUTE.view==='timeline')setTimeout(coachStart,700);
+  if(store.who()&&!coachSeen&&ROUTE.view==='timeline')setTimeout(coachStart,700);
   /* REV87: the PM late prompt — after the first render settles. pmLateShow
      itself declines to stack on the tour or another overlay, and asks at most
      once a day; a suppressed ask (tour up, project view) just tries next load. */
-  if(ACCOUNT&&ROUTE.view==='timeline')setTimeout(pmLateShow,1200);
+  if(store.who()&&ROUTE.view==='timeline')setTimeout(pmLateShow,1200);
   /* v1.33.0: the update check — see updCheck. A build that boots already retired (served
      from the 10-minute Pages cache after the lever was pulled) probes at once. */
   updSeen();
@@ -12323,13 +12350,10 @@ async function boot(){
   let POLL_N=0;
   setInterval(async()=>{
     if(document.hidden)return;   /* a backgrounded tab shouldn't poll all day — biggest idle-traffic cut */
-    if(DRAG||PENDING_SYNC||SYNCING)return;   /* SYNCING: never read half-committed rows mid-save */
-    if(COACH)return;   /* REV74: don't redraw bars under the tour's spotlight */
-    if([...document.querySelectorAll('.overlay')].some(o=>!o.classList.contains('hidden')))return;
-    if(document.getElementById('npv-pop')||document.getElementById('npv-menu'))return; /* don't rebuild under an open editor/menu */
-    if(CD_EDIT)return; /* v1.7.0: a Company Data record mid-edit — same defer as an open popover */
-    if(document.activeElement&&document.activeElement.closest&&document.activeElement.closest('#page'))return;
-    if(document.activeElement&&document.activeElement.closest&&document.activeElement.closest('#me-dock'))return; /* v1.9.0: User Notes mid-type — a tick would rebuild the dock under the caret */
+    /* item 61 (owner OK 2026-10-14): one "don't disturb" rule with the update check — a drag, a
+       save in flight or parked, the tour, an overlay, editor or menu, a record mid-edit, a cursor
+       in a field (page, User Notes, toolbar), New Project, a typed bug report */
+    if(updBusy())return;
     POLL_N++;
     try{
       /* A5: re-attach the sample before comparing, or every tick would wipe it.

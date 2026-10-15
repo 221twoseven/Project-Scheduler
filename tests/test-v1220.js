@@ -4,24 +4,15 @@
      allowed, typed values snap to the half hour)
    - stored as JSON in the new `schedule` staff column, tristate like the other flags
    Run: node tests/test-v1220.js index.html  (or via tests/run.js) */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-if(src.indexOf('cde-sched')<0){
-  console.log('test-v1220: skipped — pre-v1.22.0 build ('+FILE+')');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 
 const staff=[
  {appId:'s1',Title:'Sam',depts:JSON.stringify(['pm']),ooo:'[]',email:'user@example.com',role:'PM',admin:'dev',schedule:JSON.stringify({days:[1,2,3,4,5],start:'09:00',end:'18:00'})},
- {appId:'s2',Title:'Dana West',depts:JSON.stringify(['fab']),ooo:'[]',email:'d@x.co',role:'',admin:'',schedule:JSON.stringify({days:[2,3,4],start:'11:00',end:'16:00'})},
- {appId:'s3',Title:'Alex Reyes',depts:JSON.stringify(['fab']),ooo:'[]',email:'a@x.co',role:'',admin:''}];
+ {appId:'s2',Title:'Dana West',depts:JSON.stringify(['fab']),ooo:'[]',email:'d@example.com',role:'',admin:'',schedule:JSON.stringify({days:[2,3,4],start:'11:00',end:'16:00'})},
+ {appId:'s3',Title:'Alex Reyes',depts:JSON.stringify(['fab']),ooo:'[]',email:'a@example.com',role:'',admin:''}];
 
 const dom=boot(FILE,{data:{projects:[],tasks:[],staff,todos:[]}});
 const win=dom.window,doc=win.document,E=s=>win.eval(s);
@@ -38,9 +29,13 @@ function main(){
   ok('typed 9 is the morning, 5 the afternoon', E("schedParse('9')")==='09:00'&&E("schedParse('5')")==='17:00');
   ok('am/pm and 24h are honoured', E("schedParse('5am')")==='05:00'&&E("schedParse('17:00')")==='17:00');
   ok('garbage reads as no time', E("schedParse('soon')")==='');
-  ok('schedule rides the tristate mappers',
-     src.indexOf('if(p.schedule!=null)f.schedule=JSON.stringify(p.schedule)')>=0
-     &&src.indexOf('schedule:f.schedule==null?null:schedSafe(f.schedule)')>=0);
+  ok('schedule rides the tristate mappers',(()=>{ /* item 61: a round trip, not the mapper's source text */
+    const S={days:[1,2,3],start:'09:00',end:'17:00'};
+    const f=JSON.parse(E("JSON.stringify(personToFields({id:'x',name:'A',depts:[],ooo:[],schedule:"+JSON.stringify(S)+"}))"));
+    const none=JSON.parse(E("JSON.stringify(personToFields({id:'x',name:'A',depts:[],ooo:[]}))"));
+    const back=JSON.parse(E("JSON.stringify(fieldsToPerson({appId:'x',Title:'A',schedule:"+JSON.stringify(JSON.stringify(S))+"}).schedule)"));
+    return typeof f.schedule==='string'&&!('schedule' in none)&&JSON.stringify(back)===JSON.stringify(S)
+      &&E("fieldsToPerson({appId:'x',Title:'A'}).schedule")===null;})());
   ok('merge keeps the kept record\'s schedule first', src.indexOf('schedule:keep.schedule!=null?keep.schedule:dup.schedule')>=0);
 
   win.location.hash='#/people';
@@ -85,8 +80,7 @@ function main(){
         ok('Alex keeps a null schedule', E("PEOPLE.find(p=>p.name==='Alex Reyes').schedule")===null);
         const sent=win.__spCalls.slice(n0).filter(c=>c.method==='PATCH'&&/ShopTimeline_Staff/.test(c.url));
         ok('the PATCH omits the schedule field', sent.length>0&&sent.every(c=>!('schedule' in (c.body||{}))));
-        console.log('\ntest-v1220: '+pass+' passed, '+fail+' failed');
-        process.exit(fail?1:0);
+        done();
       },350);
     },350);
   },350);

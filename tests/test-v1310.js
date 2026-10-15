@@ -8,20 +8,9 @@
    v1.35.0 (#33, Q2 default): a coded Departments line reads the cost code and the client
    moves into its hover tip; the muted prefix stays on lines with no code (p5 here).
    Run: node tests/test-v1310.js index.html  (or via tests/run.js) */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-if(src.indexOf('sb-cl')<0){
-  console.log('  SKIP  test-v1310: pre-v1.31.0 build ('+FILE+')');
-  console.log('\n'+'-'.repeat(46));
-  console.log('  0 passed, 0 failed   ['+FILE+']');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 const D=n=>{const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()+n);
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
@@ -37,13 +26,13 @@ const projects=[
   P('p4','No Dates','Cartier','',['pm'],{sortIndex:3}),
   P('p5','Soho Vitrines','Bulgari','',['pm','fab'],{sortIndex:4})]; /* v1.35.0: no code, so its Departments line keeps the muted client */
 const tasks=[
-  T('a1','p1','fab','Nick',D(-2),D(5)),T('a2','p1','install','',D(19),D(21)),
-  T('b1','p2','fab','Nick',D(8),D(12),'mock-up'),
-  T('c1','p3','fab','Nick',D(14),D(16)),
-  T('e1','p5','fab','Kate',D(2),D(4))]; /* on Kate's lane: Nick's row height fits three lines */
+  T('a1','p1','fab','Milo',D(-2),D(5)),T('a2','p1','install','',D(19),D(21)),
+  T('b1','p2','fab','Milo',D(8),D(12),'mock-up'),
+  T('c1','p3','fab','Milo',D(14),D(16)),
+  T('e1','p5','fab','Ines',D(2),D(4))]; /* on Ines's lane: Milo's row height fits three lines */
 const staff=[{appId:'s1',Title:'Sam',email:'user@example.com',depts:JSON.stringify(['pm']),ooo:'[]',role:''},
-  {appId:'s2',Title:'Nick',email:'',depts:JSON.stringify(['fab']),ooo:'[]',role:''},
-  {appId:'s3',Title:'Kate',email:'',depts:JSON.stringify(['fab']),ooo:'[]',role:''}];
+  {appId:'s2',Title:'Milo',email:'',depts:JSON.stringify(['fab']),ooo:'[]',role:''},
+  {appId:'s3',Title:'Ines',email:'',depts:JSON.stringify(['fab']),ooo:'[]',role:''}];
 
 const dom=boot(FILE,{data:{projects,tasks,staff,todos:[]}});
 const win=dom.window,doc=win.document,E=s=>win.eval(s);
@@ -76,17 +65,17 @@ function stage1(){
 
   sec('Departments view — R1 / plan 2: the client in the hover tip (#33 Q2) or, with no code, a muted prefix; plan 4: never doubled');
   E("LENS='dept';render()");
-  const art=line('Nick','Artport');
+  const art=line('Milo','Artport');
   ok('R1: the client is in the Departments hover tip (the line itself reads the cost code, #33)', !!art&&!art.querySelector('.c')&&art.querySelector('.n').textContent==='WMU004'&&art.title.indexOf('Whitney Museum')===0, art&&(art.textContent+' / '+art.title));
   ok('plan 2 (#33): the tip reads "Whitney Museum · Artport 2026 · WMU004"', !!art&&art.title==='Whitney Museum · Artport 2026 · WMU004', art&&art.title);
   ok('the dates still follow', !!art&&DATES.test(art.querySelector('.d').textContent), art&&art.querySelector('.d').textContent);
-  const soho=line('Kate','Soho');
+  const soho=line('Ines','Soho');
   ok('plan 2: a line with no cost code starts with the muted client', !!soho&&!!soho.querySelector('.c')&&soho.querySelector('.c').textContent==='Bulgari'&&soho.querySelector('.n').textContent==='Bulgari · Soho Vitrines', soho&&soho.querySelector('.n').textContent);
   ok('R3: the whole line is on hover', !!soho&&soho.title==='Bulgari · Soho Vitrines', soho&&soho.title);
-  const dior=line('Nick','Dior');
+  const dior=line('Milo','Dior');
   ok('plan 4: "Dior - HOD Holiday" is not prefixed with Dior in its tip', !!dior&&!dior.querySelector('.c')&&dior.title==='Dior - HOD Holiday · DI251 · mock-up', dior&&dior.title);
   ok('plan 4 / #33: its line reads the code and the custom label', !!dior&&dior.querySelector('.n').textContent==='DI251 · mock-up', dior&&dior.querySelector('.n').textContent);
-  const hw=line('Nick','Holiday Windows');
+  const hw=line('Milo','Holiday Windows');
   ok('plan 2: a project with no client has no client in its tip', !!hw&&!hw.querySelector('.c')&&hw.title==='Holiday Windows · HW1', hw&&hw.title);
   ok('clientLead(): the seam #33 names', E("clientLead(projById('p1'))")==='Whitney Museum'&&E("clientLead(projById('p2'))")===''&&E("clientLead(null)")==='');
   ok('the prefix takes the dates\' grey, by its token', /\.sb-asn \.c\{color:var\(--txt-micro\)\}/.test(src));
@@ -104,7 +93,7 @@ function stage1(){
   }else{
     const sheet=E("buildPrintSheet('"+D(-7)+"','"+D(30)+"')");
     const sh=sheet&&sheet.querySelectorAll?sheet:null;
-    const nC=qa('#side-rows .sb-asn .c').length; /* Kate's fab lane lists Soho Vitrines (no code, so the prefix stays) */
+    const nC=qa('#side-rows .sb-asn .c').length; /* Ines's fab lane lists Soho Vitrines (no code, so the prefix stays) */
     ok('the Departments print sheet carries the client prefixes the sidebar shows', !!sh&&nC>=1&&sh.querySelectorAll('.sb-asn .c').length===nC, (sh&&sh.querySelectorAll('.sb-asn .c').length)+' vs '+nC);
     E("LENS='project';render()");
     const sheet2=E("buildPrintSheet('"+D(-7)+"','"+D(30)+"')");
@@ -129,7 +118,7 @@ function stage2(){
       setTimeout(()=>{
         ok('R4: the Projects view shows the new client', !!cl('Artport 2026')&&cl('Artport 2026').textContent==='Whitney Museum of American Art'&&cl('Artport 2026').title==='Whitney Museum of American Art', cl('Artport 2026')&&cl('Artport 2026').textContent);
         E("LENS='dept';render()");
-        const art=line('Nick','Artport');
+        const art=line('Milo','Artport');
         ok('R4: the Departments hover tip carries it too (#33: the line reads the code)', !!art&&art.querySelector('.n').textContent==='WMU004'&&art.title==='Whitney Museum of American Art · Artport 2026 · WMU004', art&&art.title);
         E("LENS='project';render()");
         stage3();
@@ -159,9 +148,4 @@ function stage3(){
   },600);
 }
 
-function done(){
-  console.log('\n'+'-'.repeat(46));
-  console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-  process.exit(fail?1:0);
-}
 setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},25000);

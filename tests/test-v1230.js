@@ -2,25 +2,16 @@
    Schedule block greys the day/hour controls out; the Schedule column and record read
    "Freelance". Stored as `freelance` ('1'/empty) on the staff row, tristate.
    Run: node tests/test-v1230.js index.html  (or via tests/run.js) */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-if(src.indexOf('cde-free')<0){
-  console.log('test-v1230: skipped — pre-v1.23.0 build ('+FILE+')');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 
 const staff=[
  {appId:'s1',Title:'Sam',depts:JSON.stringify(['pm']),ooo:'[]',email:'user@example.com',role:'PM',admin:'dev',schedule:JSON.stringify({days:[1,2,3,4,5],start:'09:00',end:'18:00'})},
  /* freelance with stale hours on the row — the flag wins */
- {appId:'s2',Title:'Dana West',depts:JSON.stringify(['fab']),ooo:'[]',email:'d@x.co',role:'',admin:'',freelance:'1',schedule:JSON.stringify({days:[2,3,4],start:'11:00',end:'16:00'})},
- {appId:'s3',Title:'Alex Reyes',depts:JSON.stringify(['fab']),ooo:'[]',email:'a@x.co',role:'',admin:'',freelance:''}];
+ {appId:'s2',Title:'Dana West',depts:JSON.stringify(['fab']),ooo:'[]',email:'d@example.com',role:'',admin:'',freelance:'1',schedule:JSON.stringify({days:[2,3,4],start:'11:00',end:'16:00'})},
+ {appId:'s3',Title:'Alex Reyes',depts:JSON.stringify(['fab']),ooo:'[]',email:'a@example.com',role:'',admin:'',freelance:''}];
 
 const dom=boot(FILE,{data:{projects:[],tasks:[],staff,todos:[]}});
 const win=dom.window,doc=win.document,E=s=>win.eval(s);
@@ -29,9 +20,11 @@ setTimeout(main,1300);
 
 function main(){
   sec('source markers');
-  ok('freelance rides the tristate mappers',
-     src.indexOf("if(p.freelance!=null)f.freelance=p.freelance?'1':''")>=0
-     &&src.indexOf('freelance:f.freelance==null?null:flagTruthy(f.freelance)')>=0);
+  ok('freelance rides the tristate mappers',(()=>{ /* item 61: a round trip, not the mapper's source text */
+    const w=E("JSON.stringify([personToFields({id:'x',name:'A',depts:[],ooo:[],freelance:true}),personToFields({id:'x',name:'A',depts:[],ooo:[],freelance:false}),personToFields({id:'x',name:'A',depts:[],ooo:[]})])");
+    const [on,off,none]=JSON.parse(w);
+    const back=JSON.parse(E("JSON.stringify([fieldsToPerson({appId:'x',Title:'A',freelance:'1'}).freelance,fieldsToPerson({appId:'x',Title:'A',freelance:''}).freelance,fieldsToPerson({appId:'x',Title:'A'}).freelance])"));
+    return on.freelance==='1'&&off.freelance===''&&!('freelance' in none)&&back[0]===true&&back[1]===false&&back[2]===null;})());
   ok('merge folds the flag', /freelance:\(keep\.freelance\|\|dup\.freelance\)\?true/.test(src));
 
   win.location.hash='#/people';
@@ -73,8 +66,7 @@ function main(){
         const sent=win.__spCalls.slice(n0).filter(c=>c.method==='PATCH'&&/ShopTimeline_Staff/.test(c.url));
         ok('Sam keeps a null flag and the PATCH omits it',
            E("PEOPLE.find(p=>p.name==='Sam').freelance")===null&&sent.length>0&&sent.every(c=>!('freelance' in (c.body||{}))));
-        console.log('\ntest-v1230: '+pass+' passed, '+fail+' failed');
-        process.exit(fail?1:0);
+        done();
       },350);
     },350);
   },350);

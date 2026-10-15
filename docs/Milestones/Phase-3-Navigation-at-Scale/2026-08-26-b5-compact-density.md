@@ -24,7 +24,7 @@ v3b-density-levels → development (#20)
 - At Compact the sidebar's two-line rows keep both lines — project name over
   code · date — with tighter leading; nothing informational drops below 11px.
 - **Group headers now collapse.** When the sidebar is grouped (by PM, client, or
-  status), clicking a header — "Caroline · 8", say — folds her projects away behind
+  status), clicking a header — "Cordelia · 8", say — folds her projects away behind
   the header; the chevron and count stay. Collapsed groups persist per grouping mode
   (folding a PM doesn't hide anything in the client grouping) and survive a reload.
   Same pattern the Departments lens has always had.
@@ -36,7 +36,7 @@ Stubbed-data captures (headless Chrome), 30 projects at Month zoom, 1600×1000:
 - [Comfortable — 56px rows, unchanged from REV76](screenshots/before-b5-rows.png)
 - [Snug — 44px rows](screenshots/after-b5-snug.png)
 - [Compact — 32px rows](screenshots/after-b5-compact.png) (sidebar still two-line; ~26 rows on screen)
-- [Grouped by PM, "Caroline · 8" collapsed](screenshots/after-b5-collapsed.png) — all 30 projects accounted for on one screen
+- [Grouped by PM, "Cordelia · 8" collapsed](screenshots/after-b5-collapsed.png) — all 30 projects accounted for on one screen
 
 ## Why it mattered
 

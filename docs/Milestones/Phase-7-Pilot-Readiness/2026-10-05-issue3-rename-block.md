@@ -1,12 +1,12 @@
 # 2026-10-05 — Name a block (v1.38.0)
 
 **Version:** v1.38.0 · **PR:** `feat/issue3-rename-block` → `development` · **Source:** tracker
-#3 (Hubert Li, 2026-09-24; revised spec 2026-10-02, "Proceed with fix" 2026-10-05) · **TODO:**
+#3 (the backup maintainer, 2026-09-24; revised spec 2026-10-02, "Proceed with fix" 2026-10-05) · **TODO:**
 §3 item 34, §7.3 L1092
 
 ## What changed
 
-Hubert wanted a second Main Shop Fab block to read "Possible mock up days", the way the shop's
+The backup maintainer wanted a second Main Shop Fab block to read "Possible mock up days", the way the shop's
 Excel calendar names a sub-range, instead of parking that in the block's notes. The name field
 already existed (`label`, the inspector's Name field on the project page), but it could not be
 reached from the dashboard at all, and nobody found it.
@@ -37,7 +37,7 @@ reached from the dashboard at all, and nobody found it.
 
 ## Evidence
 
-- `screenshots/before-issue3-rename-block.png` — Hubert's scenario on v1.34.0: Edit Phase on the
+- `screenshots/before-issue3-rename-block.png` — the backup maintainer's scenario on v1.34.0: Edit Phase on the
   second Main Shop Fab bar has no Name field.
 - `screenshots/after-issue3-rename-block.png` — v1.38.0: the same dialog with Name first, focused
   and selected; the sidebar row behind it already reads the name.

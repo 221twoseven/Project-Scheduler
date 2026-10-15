@@ -14,7 +14,7 @@ when the v1 backlog was retired to
 except the entries carried into §2 and §7 below. Anything touching **SharePoint schema**
 or **Entra/auth** is marked ⚠ (shared with a separately maintained colleague app — see
 `CLAUDE.md`). **Process change (owner, 2026-09-01): ⚠ items are not gates.** Schema
-changes don't wait for a formal approval cycle — deliver Robert the exact spec (list,
+changes don't wait for a formal approval cycle — deliver the owner the exact spec (list,
 column name, type) and he applies the list edit himself; the app never writes schema.
 Additive-only and the colleague-app awareness rule still stand. Same spirit for missing
 info generally: prompt for what's needed instead of parking the item.
@@ -84,7 +84,7 @@ follows the person into the Projects lens — the lens toggle hides whenever a p
 is on; only the dept reading stays flat (`dash-flat`). Record:
 `docs/Milestones/Phase-6-v1.x-Release-Train/2026-09-01-v164-preview-polish-3.md`. Same day, the owner's live-data
 report ("legacy person IDs assigned, authenticated IDs not") shipped as **v1.6.5**:
-`canonName()` resolves legacy abbreviated crew/role strings ("Davis S.", bare first
+`canonName()` resolves legacy abbreviated crew/role strings ("Daxon S.", bare first
 names) to roster people inside `barCrew()` — lanes merge, dashboards/filters find
 legacy work, overbooking stops skipping them; stored values untouched. Record:
 `docs/Milestones/Phase-6-v1.x-Release-Train/2026-09-01-v165-legacy-person-ids.md`. The owner's follow-up on the
@@ -192,7 +192,7 @@ Owner's objective numbers in parentheses. Each batch: build on `development`, ve
 ### Fonts (patch/minor — one licensing check first)
 
 - [x] **6. (Obj 10) Brauer Neue for the app title — DONE 2026-09-01 (v1.7.1).**
-      Licence confirmed same day (owner); Robert supplied the family in `fonts/`,
+      Licence confirmed same day (owner); the owner supplied the family in `fonts/`,
       and **only `BrNStdBd.otf` is committed and deployed** (the owner named
       BrNStdBd as the title face; the public site publishes only what it uses).
       `@font-face 'Brauer Neue'` + the `.tb-co` rule; the file joined all three
@@ -278,14 +278,14 @@ Owner's objective numbers in parentheses. Each batch: build on `development`, ve
       reports mail every `feedbackRecipient` via Graph `sendMail` as the submitter
       on a dedicated `Mail.Send` silent token. Record:
       `docs/Milestones/Phase-6-v1.x-Release-Train/2026-09-01-v180-permissions.md`. Suite: `tests/test-v180.js`.
-      **Rollout note: only Robert's row is flagged — everyone else becomes a viewer
+      **Rollout note: only the owner's row is flagged — everyone else becomes a viewer
       the moment this build reaches them; flag the admins on the People page (shared
       data — works from `/preview/` even while production runs older builds).**
       Original scope:
       - Admin roster: a checkbox per person, populated from the same staff list
         People & Availability uses; admins can grant/revoke admin (checkbox inside
         People & Availability — after §3 item 27 lands, this surface is the People
-        page's edit state). **`admin` column CREATED 2026-09-01 (Robert), `1` on
+        page's edit state). **`admin` column CREATED 2026-09-01 (the owner), `1` on
         his row — nothing blocks this item now; it's the next batch (v1.8.0).**
       - Admins: full access as the app is today.
       - Non-admins: no client list, no people edits, no department/phase edits;
@@ -293,10 +293,10 @@ Owner's objective numbers in parentheses. Each batch: build on `development`, ve
         render as plain text (not inputs/checkboxes) — visible, locked.
       - **Feedback recipients (owner, 2026-09-01):** a second per-person checkbox —
         who receives bug reports / feature requests. **`feedbackRecipient` column
-        CREATED 2026-09-01 (Robert), `1` on his row. Delivery DECIDED same day:
+        CREATED 2026-09-01 (the owner), `1` on his row. Delivery DECIDED same day:
         Graph `sendMail` as the signed-in submitter** — needs the `Mail.Send`
         delegated permission added to the Entra app registration + admin consent
-        (spec delivered to Robert 2026-09-01; **DONE 2026-09-01 — set up in Entra,
+        (spec delivered to the owner 2026-09-01; **DONE 2026-09-01 — set up in Entra,
         admin-consented**; the app requests the scope on its own token, the
         TeamMember.Read.All pattern). ⚠ Entra — owner-executed, per CLAUDE.md.
       - ~~Owner's brief cut off at "This form is its own page with its own toolbar ("~~
@@ -491,7 +491,7 @@ rule §5); old data keeps reading fine.
       the normal optimistic sync. Heals project roles, phase crews (all three stored
       shapes), note assignees; never touches ambiguous/unknown strings or free-text
       departments. **Stays in the app for re-runs** — the owner expects more edits as
-      staff lists reconcile and users are added. Robert runs it on `/preview/`.
+      staff lists reconcile and users are added. The owner runs it on `/preview/`.
       (Related later problem, owner-parked: name presentation on project-edit/
       subtask-edit pages.)
 - [x] **30. (09-01 items 1–2) My Dashboard personal fields — DONE: personalNotes
@@ -511,7 +511,7 @@ rule §5); old data keeps reading fine.
       - [x] **"Listening to:" — SHIPPED 2026-09-02 (v1.12.0)** to the owner's revised
         spec (a popover editor + verb + show/hide, not the original two dock fields);
         displayed in the Summary dock header, experimental (`exp.listening`).
-      - Storage ⚠ (spec revised 2026-09-02, Robert applies): FIVE columns on
+      - Storage ⚠ (spec revised 2026-09-02, the owner applies): FIVE columns on
         `ShopTimeline_Staff` — `personalNotes` (multi-line, plain text; v1.9.0),
         `listeningTo`, `listeningLink`, `listeningVerb` (single line) and
         `listeningShow` (single line, `1`/empty). Save path is a self-row-only PATCH.
@@ -649,8 +649,8 @@ rule §5); old data keeps reading fine.
         into the open record — every stored assignment string rewrites to the kept
         name (the scrub walkers, generalized to `scrubNames(mapFn)`), missing
         contact/flag fields backfill, the duplicate row is removed; one confirm
-        names the rewrite count. For the Sean Hong / Seungwoo (Sean) Hong and
-        Davis Smith / R. Davis Smith pairs the EC import surfaced.
+        names the rewrite count. For the Dean Baek / Donghyun (Dean) Baek and
+        Daxon Smith / R. Daxon Smith pairs the EC import surfaced.
       - **Listening-to line hugs the collapse chevron** (the two competing auto
         margins had floated it mid-header).
       - **Copy inventory delivered:** `docs/Copy-Coach-and-Helpers.md` — every
@@ -755,7 +755,7 @@ rule §5); old data keeps reading fine.
       - 27 Events (Archive) (SharePoint list)
       - PTO Contract Approvals (SharePoint list) — **fed by a Teams PowerApps plugin
         built by the operations manager (identified 2026-09-01; he's on vacation
-        until ~2026-09-08 — Robert schedules the discovery session with him in a
+        until ~2026-09-08 — the owner schedules the discovery session with him in a
         couple of weeks); must connect to the People page; nothing moves before
         that flow is understood ⚠**
       - Material Deliveries (SharePoint list)
@@ -775,7 +775,7 @@ rule §5); old data keeps reading fine.
         Title, Department, Company Driver. **The likely identity/lifecycle master
         for the staffing consolidation; carries HR-sensitive fields (pay type,
         personal contacts) that must NOT surface in the app.**
-      **Staffing reconciliation ruling (2026-09-01, from Robert's read of the two
+      **Staffing reconciliation ruling (2026-09-01, from the owner's read of the two
       lists):** `ShopTimeline_Staff` stays the app's operational roster,
       parallel-run (the proven client-list pattern) — additive columns land as
       needed (`admin`, `feedbackRecipient`, `phone` all created 2026-09-01), the
@@ -841,6 +841,8 @@ rule §5); old data keeps reading fine.
 | v1.18.3 | ✅ Shipped 2026-09-02 — 42 (child-first deletes in spSync: a mid-queue failure can no longer orphan task/todo/event rows behind a deleted project — the live "TBD lane" orphan's root cause) |
 | v1.19.0 | ✅ Shipped 2026-09-02 — 26 (change log): saves write `ShopTimeline_Changelog`; global `#/changelog` page + second project-page dock (one viewable at a time), both admin-only |
 | v1.19.1 | ✅ Shipped 2026-09-03 — tour step 8 fix: `.pg-trail` also matches the hidden dashboard bar first in DOM order, so the coach card landed ON the real breadcrumb bar; step targets now resolve visible-first (`coachEl`) |
+| v1.20.0–v1.20.9 | ✅ Shipped 2026-09-03 → 09-08 (row added 2026-10-15, item 23) — owner batch: dept-scoped crew pickers, named holidays, undo/redo, Release notes + Open issues pages (1.20.0); resolved reports leave Open Issues, Technical Design loses its Other bucket (1.20.1); undo/redo + favicon polish, Help menu tidy, Repository link (1.20.2–1.20.5); Shipping phase, generated release notes, dev view-as picker (1.20.6); Resolved column (1.20.7); PM required on Create, dashboard lists every row (1.20.8); subtask names + nicknames (1.20.9). Records in `docs/Milestones/Phase-6-v1.x-Release-Train/` |
+| v1.21.0–v1.21.2 | ✅ Shipped 2026-09-09 (row added 2026-10-15, item 23) — project calendar detail levels (1.21.0); tour step on the calendar legend (1.21.1); Changelog folds phase-notes text to added / edited / cleared (1.21.2). Record: `2026-09-09-calendar-detail-levels.md` |
 | v1.22.0 | ✅ Shipped 2026-09-15 (development) — 43 (People-page weekly schedule: day boxes + half-hour times in the editor, "M-F 9-6" column after Status; ⚠ `schedule` staff column) |
 | v1.23.0 | ✅ Shipped 2026-09-15 (development) — 44 (Freelance flag greys the weekly schedule out; ⚠ `freelance` staff column) |
 | v2.0.0 | 13 (single source of truth) ⚠ — likely several minors along the way (one per absorbed store), with v2.0.0 as the cutover declaration |
@@ -860,33 +862,33 @@ rule §5); old data keeps reading fine.
   Title, projectId, who, at, field, detail (multi-line), appId. **The app writes
   and reads it as of v1.19.0 (2026-09-02).**
 - ~~Verify before first use: both new lists must live on the TWOSEVENINC site~~ —
-  **VERIFIED 2026-09-01 (Robert): `ShopTimeline_Feedback` and
+  **VERIFIED 2026-09-01 (the owner): `ShopTimeline_Feedback` and
   `ShopTimeline_Changelog` both live on the TWOSEVENINC site.** (The app resolves
   lists by name on the site and cannot see personal "My Lists".)
 - `admin`, `feedbackRecipient`, and `phone` columns on `ShopTimeline_Staff` —
-  **CREATED 2026-09-01 (Robert)**; `1` on his row for the first two. The app reads
+  **CREATED 2026-09-01 (the owner)**; `1` on his row for the first two. The app reads
   and writes `phone` as of v1.7.1 (field mappers + People page). ~~Verify the
   phone column's internal name is exactly `phone`~~ — **VERIFIED 2026-09-01
-  (Robert): internal name is `phone`.** **v1.9.0 (no schema change): the admin
+  (the owner): internal name is `phone`.** **v1.9.0 (no schema change): the admin
   column accepts a third VALUE, `dev` = developer (admin + the Viewer preview
-  toggle) — Robert types it onto his own row directly on the list.**
+  toggle) — the owner types it onto his own row directly on the list.**
 - Entra: `Mail.Send` (Delegated) joins the app registration for §3 item 12's
-  feedback mail — owner-executed + admin consent; **DONE 2026-09-01 (Robert:
+  feedback mail — owner-executed + admin consent; **DONE 2026-09-01 (the owner:
   set up + admin-consented).** The app requests the scope on its own silent token
   (v1.8.0), so a consent gap degrades to "report filed, mail skipped". ⚠
-- Columns for §3 item 30 — **CREATED 2026-09-02, late (Robert), all five**: on
+- Columns for §3 item 30 — **CREATED 2026-09-02, late (the owner), all five**: on
   `ShopTimeline_Staff` — `personalNotes` (multi-line, plain text; v1.9.0 writer) plus
   the v1.12.0 quartet, all single-line text: `listeningTo`, `listeningLink`,
   `listeningVerb`, `listeningShow` (`1`/empty). All additive, tristate in the app —
   a site without them never 400s on OTHER saves, but the feature's own first save
   needs them. App reads/writes them only on the signed-in user's own row. ⚠
-- `ShopTimeline_Config` (§3 item 34) — **spec delivered 2026-09-02, Robert creates:**
+- `ShopTimeline_Config` (§3 item 34) — **spec delivered 2026-09-02, the owner creates:**
   app-only list, Title (= setting key) plus ONE single-line text column named
   `value`. Holds the dev App Settings switches (viewer permission grants +
   experimental features); read by everyone at sign-in, written only from the dev
   page. Until it exists, settings stay browser-local (inline warning on the page). ⚠
 - `status` column on `ShopTimeline_Staff` (§3 items 27/36) — **CREATED 2026-09-02,
-  late (Robert)** (re-run the People-page import to start syncing it): single-line text, vocabulary EXACTLY Employee
+  late (the owner)** (re-run the People-page import to start syncing it): single-line text, vocabulary EXACTLY Employee
   Contacts' Status values (Active / Off Payroll / Terminated / Archived — the
   2026-09-01 don't-invent-a-third-vocabulary ruling). The v1.13.0 import probes for
   it live and starts syncing it the run after it exists; it reads as information on
@@ -895,18 +897,18 @@ rule §5); old data keeps reading fine.
   it for the People-page import and never writes it or touches its schema; Pay Type
   and PersonalEmail are never read at all.
 - `nickname` column on `ShopTimeline_Staff` (§3 item 38) — spec delivered
-  2026-09-02 — **CREATED 2026-09-02 (Robert).**
+  2026-09-02 — **CREATED 2026-09-02 (the owner).**
 - `driver` column on `ShopTimeline_Staff` (§3 item 40) — spec delivered
-  2026-09-02 — **CREATED 2026-09-02 (Robert).** Reads as a ✓ column on the People
+  2026-09-02 — **CREATED 2026-09-02 (the owner).** Reads as a ✓ column on the People
   index, a Yes/— row on the record, and a checkbox in the editor.
 - `availability` column on `ShopTimeline_Staff` (§3 item 41) — **CREATED
-  2026-09-02, late (Robert):** single-line text, values `available` /
+  2026-09-02, late (the owner):** single-line text, values `available` /
   `unavailable` (empty = available). Manual flag for freelancers, set by the
   People editor's Availability radios; an active OOO range always outranks it.
   Additive, tristate (other saves never 400 without it; a save after touching
   the radios parks with the named-field toast until it exists). ⚠
 - `schedule` column on `ShopTimeline_Staff` (§3 item 43) — **spec delivered
-  2026-09-15 — CREATED 2026-09-15 (Robert).** Single line of text, internal name exactly
+  2026-09-15 — CREATED 2026-09-15 (the owner).** Single line of text, internal name exactly
   `schedule`. Holds the person's weekly hours as JSON, e.g.
   `{"days":[1,2,3,4,5],"start":"09:00","end":"18:00"}` (days are JS getDay
   numbers, 0 = Sunday; times 24-hour on the half hour). Written only by the
@@ -914,14 +916,14 @@ rule §5); old data keeps reading fine.
   Additive, tristate (other saves never 400 without it; a save after touching the
   schedule controls parks with the named-field toast until it exists). ⚠
 - `freelance` column on `ShopTimeline_Staff` (§3 item 44) — **spec delivered
-  2026-09-15 — CREATED 2026-09-15 (Robert).** Single line of text, internal name exactly
+  2026-09-15 — CREATED 2026-09-15 (the owner).** Single line of text, internal name exactly
   `freelance`, values `1` / empty (the driver pattern). Set by the People editor's
   Freelance checkbox; reads as "Freelance" in the Schedule column and greys the
   week controls out. Additive, tristate (other saves never 400 without it; a save
   after touching the box parks with the named-field toast until it exists). ⚠
 - Candidate new column: a lifecycle/`status` column (Active/Inactive/Archived) on
   `ShopTimeline_Staff` and `ShopTimeline_Clients` (§3 item 27's archive-not-delete
-  model) — additive; Robert applies it when item 27's lifecycle pass is designed
+  model) — additive; the owner applies it when item 27's lifecycle pass is designed
   (exact spec to be delivered with that batch). Item 27's first pass ships without it.
 - **Non-change to note:** the Checkpoint→Milestone / Task→Note renames (§3 items
   21–22) are UI copy only — stored field names do not change.
@@ -1119,7 +1121,7 @@ these are the ones still open, plus new deferrals as they happen.
       values keep their old abbreviations until re-saved. Gate: the owner ordering
       the scrub. **Gate FIRED 2026-09-01 (owner: "Do it") — v1.7.2 ships
       `scrubLegacyNames()`** (console dry-run + apply with a change report; §3
-      item 29). Robert runs it on `/preview/`; it stays in the app for re-runs as
+      item 29). The owner runs it on `/preview/`; it stays in the app for re-runs as
       the staff lists reconcile — people not yet on the roster stay abbreviated
       until a later pass. (v1.6.5 → v1.7.2)
 - [ ] `canonName` covers bar crews and role fields, not to-do assignees — a to-do
@@ -1143,7 +1145,7 @@ these are the ones still open, plus new deferrals as they happen.
       person/client record. (v1.7.0, 2026-09-01)
 - [ ] No Active/Inactive/Archived lifecycle on people/clients — Remove is a real
       delete behind a consequence-naming confirm (assignment/project counts). Gate:
-      the §5 status column (Robert applies it when that pass is designed).
+      the §5 status column (the owner applies it when that pass is designed).
       (v1.7.0)
 - [ ] Client selection is keyed by name (clients carry no appId) — a concurrent
       remote rename while selected drops the selection to the empty state on the
@@ -1194,10 +1196,10 @@ these are the ones still open, plus new deferrals as they happen.
       is that no preview shows your page as others see it any more (check a
       colleague's Summary for the shape). Suites test-v190/test-v1100 updated.
 - [x] User Notes saves need the `personalNotes` column on `ShopTimeline_Staff`
-      (§5 spec, Robert applies) — before it exists the first save surfaces the
+      (§5 spec, the owner applies) — before it exists the first save surfaces the
       normal staff sync-error toast (localStorage copy still holds locally).
       Gate: column created. (v1.9.0) **Gate FIRED 2026-09-02 (late): column
-      created (Robert).**
+      created (the owner).**
 - [ ] The saveState choke point opens WHOLESALE for a viewer once ANY viewer.* grant
       is on — the UI doors carry the per-kind granularity (a granted viewer who found
       an ungated door could write past their grant; same workflow-not-security
@@ -1222,7 +1224,7 @@ these are the ones still open, plus new deferrals as they happen.
 - [x] The Listening-to feature needs its four §5 columns — before they exist the
       popover's first save surfaces the staff sync-error toast (same shape as the
       personalNotes entry above). Gate: columns created. (v1.12.0) **Gate FIRED
-      2026-09-02 (late): all four created (Robert).**
+      2026-09-02 (late): all four created (the owner).**
 - [ ] The Employee Contacts import maps departments by exact name/group match + a
       small alias table — unrecognized strings (e.g. "Warehouse") are reported and
       left unset, never guessed. Gate: real HR dept strings that should map; fix is
@@ -1269,7 +1271,7 @@ these are the ones still open, plus new deferrals as they happen.
       rewrite rides the normal undo stack for THIS session only; the removed row
       needs re-adding by hand if merged wrong. Gate: a real mis-merge. (v1.15.0)
 - [ ] Merge matches stored strings by EXACT name only — abbreviations of the
-      duplicate ("Seungwoo H.") that canonName can't resolve stay behind; run
+      duplicate ("Donghyun B.") that canonName can't resolve stay behind; run
       `scrubLegacyNames(true)` after merging to sweep those. (v1.15.0)
 - [ ] A parked staff save (PENDING_STAFF) retries only via the pill click — no
       automatic replay, and OTHER staff saves during the park sync their own diffs
@@ -1306,7 +1308,7 @@ these are the ones still open, plus new deferrals as they happen.
       dragging for it. (v1.19.0)
 - [x] Open Issues has no resolved/closed state — ShopTimeline_Feedback carries no
       status column, so every filed report lists forever. Gate: the list needing
-      triage; fix is a ⚠ additive `status` column spec for Robert. (v1.20.0,
+      triage; fix is a ⚠ additive `status` column spec for the owner. (v1.20.0,
       2026-09-03) **Gate FIRED same day (owner asked for status on the dev page) —
       v1.20.1: ⚠ spec delivered (`status`, single-line text, `resolved`/empty on
       ShopTimeline_Feedback); dev page shows a RESOLVED chip + Mark resolved/Reopen
@@ -1353,7 +1355,7 @@ full-size band. Calendar detail levels and marker-text state reset per project v
 ### Legend
 
 - ⚠ Touches shared SharePoint schema or Entra/auth config. **Not a gate (owner,
-  2026-09-01):** deliver Robert the exact spec and he applies the list edit;
+  2026-09-01):** deliver the owner the exact spec and he applies the list edit;
   additive-only and colleague-app awareness still apply. Entra/auth changes still
   need explicit instruction (CLAUDE.md).
 - (Obj N) = the owner's objective numbering from the 2026-08-28 v2 brief.

@@ -11,18 +11,9 @@
      9. gpageAll follows @odata.nextLink; parseHash survives malformed hashes;
     10. saved views restore an explicitly-empty status set.
    Run: node tests/test90.js index.html */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-if(src.indexOf('gpageAll')<0){
-  console.log('test90: skipped — pre-REV90 build ('+FILE+')');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x!==undefined?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 
 const dom=boot(FILE,{data:{projects:[],tasks:[],staff:[],todos:[]}});
@@ -48,10 +39,10 @@ setTimeout(()=>{
      E('(()=>{try{location.hash="#/project/%zz";const r=parseHash();location.hash="";return r.view==="project";}catch(e){return false;}})()'));
 
   sec('2 · pmLateList matches comma-listed PMs');
-  E('meName=()=>"Caroline"');
+  E('meName=()=>"Cordelia"');
   /* v1.26.0 (#15): lateness follows the Installation block's end, so each project carries
      an install that ended on the old deadline; older builds read the deadline and ignore it. */
-  E('ST={...ST,projects:[{id:"pl1",name:"Late",projectManager:"Stan, Caroline",deadline:"2026-01-01",status:"in-fabrication"},{id:"pl2",name:"Solo",projectManager:"Stan",deadline:"2026-01-01",status:"in-fabrication"}],'
+  E('ST={...ST,projects:[{id:"pl1",name:"Late",projectManager:"Theo, Cordelia",deadline:"2026-01-01",status:"in-fabrication"},{id:"pl2",name:"Solo",projectManager:"Theo",deadline:"2026-01-01",status:"in-fabrication"}],'
    +'tasks:[...(ST.tasks||[]),{id:"pli1",projectId:"pl1",department:"install",assignee:[],startDate:"2025-12-31",endDate:"2026-01-01",estimatedDays:2},{id:"pli2",projectId:"pl2",department:"install",assignee:[],startDate:"2025-12-31",endDate:"2026-01-01",estimatedDays:2}]}');
   ok('a two-PM project prompts the second PM too',E('pmLateList().length')===1,E('pmLateList().length'));
   ok('…and not projects the user is no PM of',E('pmLateList()[0].id')==='pl1');
@@ -122,9 +113,7 @@ setTimeout(()=>{
           ok('the inspector change listener binds once (dataset.bound guard)',src.indexOf('box.dataset.bound')>=0);
           ok('the Delete-project button uses a class that exists (.btn-del)',src.indexOf('btn btn-del" id="pp-del"')>=0&&src.indexOf('btn-danger')<0);
 
-          console.log('\n'+'-'.repeat(46));
-          console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-          process.exit(fail?1:0);
+          done();
         },100);
       },150);
     },150);

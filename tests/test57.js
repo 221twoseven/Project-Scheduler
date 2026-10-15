@@ -8,36 +8,25 @@
    N16 — calendar collapses roster fan-out; "Selected only" filters the bands.
    Skips entirely on builds that predate the edit popover (the frozen REV50 reference).
    Run: node test57.js index.html */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 /* v1.38.0 (tracker #3): the bar menu leads with Rename (in place) — the one edit on it */
 const REN=/npvRenameBar/.test(src);
 
-if(!/npvEditPop/.test(src)){
-  console.log('  SKIP  build predates the edit popover — nothing to assert');
-  console.log('\n'+'-'.repeat(46));
-  console.log('  0 passed, 0 failed   ['+FILE+']');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 
 const projects=[{appId:'p1',Title:'Hermes Windows',client:'Hermes',jobCode:'H1',
-  deadline:'2026-09-15',status:'in-fabrication',projectManager:'Stan',drafter:'Peter',
-  leadFab:'Nick',activeDepartments:JSON.stringify(['pm','td','fab','install']),
+  deadline:'2026-09-15',status:'in-fabrication',projectManager:'Theo',drafter:'Oscar',
+  leadFab:'Milo',activeDepartments:JSON.stringify(['pm','td','fab','install']),
   createdAt:'2026-07-01',sortIndex:0}];
 /* Two fab bars with the same label and window but different assignees — the roster
    fan-out N16 collapses on the calendar. */
 const tasks=[
- {appId:'td1',projectId:'p1',department:'td',assignee:'Peter',startDate:'2026-08-03',
+ {appId:'td1',projectId:'p1',department:'td',assignee:'Oscar',startDate:'2026-08-03',
   endDate:'2026-08-07',estimatedDays:5,ticketNodes:'[]',notes:'',pinned:false,label:'Exterior Windows'},
- {appId:'f1',projectId:'p1',department:'fab',assignee:'Nick',startDate:'2026-08-20',
+ {appId:'f1',projectId:'p1',department:'fab',assignee:'Milo',startDate:'2026-08-20',
   endDate:'2026-09-04',estimatedDays:12,ticketNodes:'[]',notes:'',pinned:false,label:''},
- {appId:'f2',projectId:'p1',department:'fab',assignee:'Kate',startDate:'2026-08-20',
+ {appId:'f2',projectId:'p1',department:'fab',assignee:'Ines',startDate:'2026-08-20',
   endDate:'2026-09-04',estimatedDays:12,ticketNodes:'[]',notes:'',pinned:false,label:''},
  {appId:'i1',projectId:'p1',department:'install',assignee:'[]',startDate:'2026-09-14',
   endDate:'2026-09-15',estimatedDays:2,ticketNodes:'[]',notes:'',pinned:false,label:''}];
@@ -206,9 +195,4 @@ function stage5(){
   },800);
 }
 
-function done(){
-  console.log('\n'+'-'.repeat(46));
-  console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-  process.exit(fail?1:0);
-}
 setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},35000);

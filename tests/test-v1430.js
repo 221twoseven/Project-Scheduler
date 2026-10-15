@@ -5,26 +5,15 @@
    9c one phone format, 555-555-5555, whatever way it was typed or stored;
    Ext — a desk extension typed by hand on the People page (the HR list has none).
    Run: node tests/test-v1430.js index.html  (or via tests/run.js) */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-if(src.indexOf('function fmtPhone(')<0){
-  console.log('  SKIP  test-v1430: pre-v1.43.0 build ('+FILE+')');
-  console.log('\n'+'-'.repeat(46));
-  console.log('  0 passed, 0 failed   ['+FILE+']');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 
 const staff=[
-  {appId:'s1',Title:'Nick',depts:JSON.stringify(['fab']),ooo:'[]',email:'nick@x.co',phone:'(555) 555-5555',role:'Lead Fabricator'},
+  {appId:'s1',Title:'Milo',depts:JSON.stringify(['fab']),ooo:'[]',email:'milo@example.com',phone:'(555) 555-5555',role:'Lead Fabricator'},
   {appId:'s2',Title:'Sam',depts:JSON.stringify(['pm']),ooo:'[]',email:'user@example.com',phone:'5555550100',role:'PM'},
-  {appId:'s3',Title:'Pat',depts:JSON.stringify(['fab']),ooo:'[]',email:'pat@x.co',phone:'',role:'Shop'}];
+  {appId:'s3',Title:'Pat',depts:JSON.stringify(['fab']),ooo:'[]',email:'pat@example.com',phone:'',role:'Shop'}];
 const dom=boot(FILE,{data:{projects:[],tasks:[],staff,todos:[]}});
 const win=dom.window,doc=win.document,E=s=>win.eval(s),q=s=>doc.querySelector(s);
 const calls=()=>win.__spCalls;
@@ -41,12 +30,12 @@ async function main(){
   ok('a foreign number stays as typed', F('+44 20 7946 0958')==='+44 20 7946 0958');
   ok('text with the number stays as typed (nothing is dropped)', F('555-555-5555 x12')==='555-555-5555 x12');
   ok('blank stays blank', F('')===''&&F(null)==='');
-  ok('a stored number loads in the one format', E("PEOPLE.find(p=>p.name==='Nick').phone")==='555-555-5555'&&E("PEOPLE.find(p=>p.name==='Sam').phone")==='555-555-0100');
+  ok('a stored number loads in the one format', E("PEOPLE.find(p=>p.name==='Milo').phone")==='555-555-5555'&&E("PEOPLE.find(p=>p.name==='Sam').phone")==='555-555-0100');
 
   sec('9c — the one-time tidy rewrites the rows still stored another way');
   E("location.hash='#/people';applyRoute()");
   const tidy=q('#cd-tidy');
-  ok('the People page offers "Tidy 2 phone numbers" (Nick and Sam; Pat has none)', !!tidy&&tidy.textContent==='Tidy 2 phone numbers', tidy&&tidy.textContent);
+  ok('the People page offers "Tidy 2 phone numbers" (Milo and Sam; Pat has none)', !!tidy&&tidy.textContent==='Tidy 2 phone numbers', tidy&&tidy.textContent);
   const n0=calls().length;
   tidy.click();
   await wait(300);
@@ -59,7 +48,7 @@ async function main(){
 
   sec('Office Extension — its own field (tristate column `ext`)');
   ok('a row without the column carries no ext (null), and the save omits it',
-     E("PEOPLE.find(p=>p.name==='Nick').ext")===null&&E("'ext' in personToFields(PEOPLE.find(p=>p.name==='Nick'))")===false);
+     E("PEOPLE.find(p=>p.name==='Milo').ext")===null&&E("'ext' in personToFields(PEOPLE.find(p=>p.name==='Milo'))")===false);
   const rt=JSON.parse(E("JSON.stringify(fieldsToPerson(personToFields({id:'x',name:'A',email:'',phone:'555.555.5555',role:'',depts:[],ooo:[],ext:'204'})))"));
   ok('ext survives the mapper round trip', rt.ext==='204'&&rt.phone==='555-555-5555');
   ok('the People table has an Office Extension column right after Phone',
@@ -90,7 +79,7 @@ async function main(){
   ok('searching an extension finds its person', [...doc.querySelectorAll('.cd-row.pp7')].map(r=>r.querySelector('b').textContent).join()==='Pat');
   E("CD_Q='5555555555';cdPaintRows()");
   const hits=[...doc.querySelectorAll('.cd-row.pp7')].map(r=>r.querySelector('b').textContent);
-  ok('searching the bare digits finds the person stored hyphenated', hits.length===1&&/Nick/.test(hits[0]), hits.join());
+  ok('searching the bare digits finds the person stored hyphenated', hits.length===1&&/Milo/.test(hits[0]), hits.join());
   E("CD_Q=''");
 
   sec('9a — the import asks for the fields it uses, and nothing else');
@@ -100,8 +89,8 @@ async function main(){
    +"{name:'Email',displayName:'Email'},{name:'PersonalEmail',displayName:'Personal Email'},{name:'Primary_x0020_Phone',displayName:'Primary Phone'},"
    +"{name:'Mobile_x0020_Phone',displayName:'Mobile Phone'},{name:'Current_x0020_Title',displayName:'Current Title'},{name:'Department',displayName:'Department'},"
    +"{name:'Pay_x0020_Type',displayName:'Pay Type'}];"
-   +"if(u.indexOf('Employee')>=0)return [{id:'e1',fields:{Title:'Nick',field_3:'Active',Email:'nick@x.co',Primary_x0020_Phone:'555.555.0170'}},"
-   +"{id:'e2',fields:{Title:'Pat',field_3:'Active',Email:'pat@x.co',Mobile_x0020_Phone:'(555) 555-0171'}}];"
+   +"if(u.indexOf('Employee')>=0)return [{id:'e1',fields:{Title:'Milo',field_3:'Active',Email:'milo@example.com',Primary_x0020_Phone:'555.555.0170'}},"
+   +"{id:'e2',fields:{Title:'Pat',field_3:'Active',Email:'pat@example.com',Mobile_x0020_Phone:'(555) 555-0171'}}];"
    +"if(u.indexOf('/columns')>=0)return [{name:'Title'},{name:'status'}];return [];};");
   E("cdImportEC({disabled:false})");
   await wait(400);
@@ -111,7 +100,7 @@ async function main(){
   ok('it names the six mapped fields by their internal names', ['Title','field_3','Email','Primary_x0020_Phone','Mobile_x0020_Phone','Current_x0020_Title','Department'].every(n=>selPart.split(',').includes(n)), selPart);
   ok('Pay Type and Personal Email are never requested', !/Pay_x0020_Type|PersonalEmail/.test(selPart), selPart);
   ok('the column list is read before the items', E("window.__seen.findIndex(u=>u.indexOf('Employee')>=0&&u.indexOf('/columns')>=0)")<E("window.__seen.findIndex(u=>u.indexOf('Employee')>=0&&u.indexOf('/items')>=0)"));
-  ok('9c: an imported number lands hyphenated', E("PEOPLE.find(p=>p.name==='Nick').phone")==='555-555-0170', E("PEOPLE.find(p=>p.name==='Nick').phone"));
+  ok('9c: an imported number lands hyphenated', E("PEOPLE.find(p=>p.name==='Milo').phone")==='555-555-0170', E("PEOPLE.find(p=>p.name==='Milo').phone"));
   ok('9b deferred: a row with only a Mobile Phone still imports it', E("PEOPLE.find(p=>p.name==='Pat').phone")==='555-555-0171', E("PEOPLE.find(p=>p.name==='Pat').phone"));
   ok('the import never touches the hand-typed ext', E("PEOPLE.find(p=>p.name==='Pat').ext")==='204');
 
@@ -121,14 +110,14 @@ async function main(){
   E("window.__seen=[];gpageAll=async u=>{u=String(u);window.__seen.push(u);"
    +"if(u.indexOf('Employee')>=0&&u.indexOf('/columns')>=0)return [{name:'Title',displayName:'Title'},{name:'Status',displayName:'Status'},"
    +"{name:'Email',displayName:'Personal Email'},{name:'WorkEmail',displayName:'Email'}];"
-   +"if(u.indexOf('Employee')>=0)return [{id:'e9',fields:{Title:'Zoe New',Status:'Active',WorkEmail:'zoe@twoseven.net',Email:'zoe.home@gmail.com'}}];"
+   +"if(u.indexOf('Employee')>=0)return [{id:'e9',fields:{Title:'Zoe New',Status:'Active',WorkEmail:'zoe@example.com',Email:'zoe.home@example.org'}}];"
    +"if(u.indexOf('/columns')>=0)return [{name:'Title'},{name:'status'}];return [];};");
   E("cdImportEC({disabled:false})");
   await wait(400);
   const items2=E("window.__seen.find(u=>u.indexOf('Employee')>=0&&u.indexOf('/items')>=0)||''");
   const sel2=decodeURIComponent((items2.match(/fields\(select=([^)]*)\)/)||[])[1]||'').split(',');
   ok('the renamed personal column (internal Email) is not requested', !sel2.includes('Email')&&sel2.includes('WorkEmail'), sel2.join());
-  ok('the work address is read from the column now called Email', E("(PEOPLE.find(p=>p.name==='Zoe New')||{}).email")==='zoe@twoseven.net', E("(PEOPLE.find(p=>p.name==='Zoe New')||{}).email"));
+  ok('the work address is read from the column now called Email', E("(PEOPLE.find(p=>p.name==='Zoe New')||{}).email")==='zoe@example.com', E("(PEOPLE.find(p=>p.name==='Zoe New')||{}).email"));
   ok('the personal address is nowhere on the roster', E("JSON.stringify(PEOPLE)").indexOf('gmail')<0);
 
   sec('9a — no column list, no import (never a fall-back to every field)');
@@ -139,7 +128,5 @@ async function main(){
   ok('the HR items are never requested', !E("window.__seen.some(u=>u.indexOf('Employee')>=0&&u.indexOf('/items')>=0)"));
   ok('the roster is unchanged', E("JSON.stringify(PEOPLE)")===before);
 
-  console.log('\n'+'-'.repeat(46));
-  console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-  process.exit(fail?1:0);
+  done();
 }

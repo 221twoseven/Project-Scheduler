@@ -29,8 +29,7 @@ treat it as optional background, not a prerequisite.
 |---|---|
 | `index.html` | **The company application — the primary implementation file.** |
 | `msal-browser.min.js` | MSAL auth library, vendored locally (not a CDN). Loaded by `index.html` as a sibling — must stay at repo root. |
-| `reference/Timeline_50.html` | **Immutable reference** — frozen copy of the colleague's working REV50 build. Never modified; used as a diff baseline and the `npm run test:ref` control. |
-| `tests/` | jsdom regression suites (48 suites, ~1,100 assertions) and the `harness.js` that boots a build with MSAL and `fetch` stubbed. See `tests/README.md`. |
+| `tests/` | jsdom regression suites (every `tests/test*.js`, run by `tests/run.js`) and the `harness.js` that boots a build with MSAL and `fetch` stubbed. See `tests/README.md`. |
 | `docs/` | Architecture reference, hosting/auth setup (`SETUP.md`), design language, and the backlog (`TODO.md`). Retired planning docs and the completed v1 backlog live in `docs/Archive/`; milestone records, one folder per development phase, in `docs/Milestones/`. |
 | `reference/` | Frozen, not-actively-maintained material: the REV50 baseline, the original developer's handoff notes, and the project history. |
 | `CLAUDE.md` | Working rules and guardrails for anyone (human or AI) making changes. **Read this first.** |
@@ -45,9 +44,6 @@ npm install
 
 # 2. Run the full regression suite against the company app
 npm test
-
-# 3. Run it against the immutable reference build instead
-npm run test:ref
 ```
 
 To view the app locally, open `index.html` in a browser, or serve the folder
@@ -66,7 +62,6 @@ handoff (setup rationale, conventions, traps, version history).
 
 ## Ground rules (see `CLAUDE.md` for the full set)
 
-- `reference/Timeline_50.html` is a read-only reference — never edit it.
 - Work on the `development` branch; `main` is production / GitHub Pages.
 - The SharePoint Lists are shared infrastructure (hand edits, flows, a retired colleague
   app). Schema changes are owner-applied and deliberate — see `CLAUDE.md`; never change

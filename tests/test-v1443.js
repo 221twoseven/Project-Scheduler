@@ -2,20 +2,9 @@
    automatic Project Management row. The group stays in the page, hidden (saves read its checkbox),
    the visible groups number from 1, and it shows only when its "Hand over from today" note applies.
    Run: node tests/test-v1443.js index.html  (or via tests/run.js) */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-if(src.indexOf('class="idg-pm')<0){
-  console.log('  SKIP  test-v1443: pre-v1.44.3 build ('+FILE+')');
-  console.log('\n'+'-'.repeat(46));
-  console.log('  0 passed, 0 failed   ['+FILE+']');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 const D=n=>{const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()+n);
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
@@ -26,10 +15,10 @@ const P=(id,name,i)=>({appId:id,Title:name,client:'C',jobCode:'',deadline:D(90),
 const T=(id,p,dept,who,s,e)=>({appId:id,projectId:p,department:dept,assignee:who,startDate:D(s),endDate:D(e),estimatedDays:5,ticketNodes:'[]',notes:'',pinned:false,label:''});
 const projects=[P('p1','Spring 2027',0),P('p2','Handed over',1)];
 const tasks=[T('pm1','p1','pm','',30,90),T('td1','p1','td','',30,60),T('fab1','p1','fab','',61,85),
-  /* p2: the PM bar is still held by Kate, a former PM — the one case the group must show */
-  T('pm2','p2','pm','Kate',-10,90),T('td2','p2','td','',-10,20)];
+  /* p2: the PM bar is still held by Ines, a former PM — the one case the group must show */
+  T('pm2','p2','pm','Ines',-10,90),T('td2','p2','td','',-10,20)];
 const staff=[{appId:'s1',Title:'Sam',depts:'["pm"]',ooo:'[]',email:'user@example.com',role:'PM'},
-  {appId:'s2',Title:'Kate',depts:'["pm"]',ooo:'[]',email:'',role:'PM'}];
+  {appId:'s2',Title:'Ines',depts:'["pm"]',ooo:'[]',email:'',role:'PM'}];
 const dom=boot(FILE,{data:{projects,tasks,staff,todos:[]}});
 const win=dom.window,doc=win.document,E=s=>win.eval(s),q=s=>doc.querySelector(s);
 const change=el=>el.dispatchEvent(new win.Event('change',{bubbles:true}));
@@ -86,7 +75,5 @@ async function main(){
   const np=E("(ST.projects.find(p=>p.name==='Draft job')||{}).id");
   ok('creating from the draft still saves pm and a PM bar', !!np&&E("projById('"+np+"').activeDepartments.includes('pm')")&&!!E("tasksOf('"+np+"').find(t=>t.department==='pm')"));
 
-  console.log('\n'+'-'.repeat(46));
-  console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-  process.exit(fail?1:0);
+  done();
 }

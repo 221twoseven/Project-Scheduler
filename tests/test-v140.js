@@ -7,30 +7,21 @@
    3) (obj 4) Project-Gantt marker labels retired — the name lives in the hover
       title; click still opens the edit popover.
    Run: node tests/test-v140.js index.html  (or via tests/run.js) */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-if(src.indexOf('Milestones & Notes')<0){
-  console.log('test-v140: skipped — pre-v1.4.0 build ('+FILE+')');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 
 const D=n=>{const d=new Date();d.setDate(d.getDate()+n);
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
 
 const projects=[{appId:'p1',Title:'Hermes Windows',client:'Hermes',jobCode:'H1',
-  deadline:D(30),status:'in-fabrication',projectManager:'Stan',drafter:'Peter',
-  leadFab:'Nick',activeDepartments:JSON.stringify(['pm','td','fab']),createdAt:D(-30),sortIndex:0}];
+  deadline:D(30),status:'in-fabrication',projectManager:'Theo',drafter:'Oscar',
+  leadFab:'Milo',activeDepartments:JSON.stringify(['pm','td','fab']),createdAt:D(-30),sortIndex:0}];
 const tasks=[
- {appId:'t1',projectId:'p1',department:'td',assignee:'Peter',startDate:D(-5),endDate:D(5),
+ {appId:'t1',projectId:'p1',department:'td',assignee:'Oscar',startDate:D(-5),endDate:D(5),
   estimatedDays:8,ticketNodes:'[]',notes:'',pinned:false,label:''},
- {appId:'f1',projectId:'p1',department:'fab',assignee:'Nick',startDate:D(6),endDate:D(20),
+ {appId:'f1',projectId:'p1',department:'fab',assignee:'Milo',startDate:D(6),endDate:D(20),
   estimatedDays:10,ticketNodes:'[]',notes:'',pinned:false,label:''}];
 
 const dom=boot(FILE,{data:{projects,tasks,staff:[],todos:[]},todosList:true});
@@ -105,8 +96,7 @@ function main(){
            row&&!!row.querySelector('input[type=text]')&&!row.querySelector('select'));
         ok('no notes input remains', row&&row.querySelectorAll('input').length===2,
            row&&row.querySelectorAll('input').length+' inputs');
-        console.log('\ntest-v140: '+pass+' passed, '+fail+' failed');
-        process.exit(fail?1:0);
+        done();
       },800);
     },350);
   },400);

@@ -32,7 +32,7 @@ together as one patch.
 
 `scrubLegacyNames()` — a console-run, one-time pass that makes the v1.6.5 healing
 permanent. Since v1.6.5, `canonName()` resolves legacy abbreviated person strings
-("Davis S.", bare first names) to roster people at compare/display time, but the
+("Daxon S.", bare first names) to roster people at compare/display time, but the
 **stored** values kept their abbreviations until someone happened to re-save the
 record. The scrub rewrites the stored values themselves:
 
@@ -48,7 +48,7 @@ record. The scrub rewrites the stored values themselves:
   change report, writing nothing. `scrubLegacyNames(true)` applies the same changes
   through `saveState` — the normal optimistic path: per-record diff sync, sync pill,
   one retry, undo toast.
-- **Operator note (Robert):** run the dry pass on `/preview/`, read the table, then
+- **Operator note (the owner):** run the dry pass on `/preview/`, read the table, then
   re-run with `true`. The owner expects further passes as the staff lists reconcile
   and new users are added — the function stays in the app and reports "0 fields to
   heal" when there's nothing left.

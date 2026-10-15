@@ -1,6 +1,6 @@
 # 2026-08-20 — Roster fan-out vs. named lines (REV62)
 
-Robert's field report from the draft page: "2 designers adds one as a subtask and one
+The owner's field report from the draft page: "2 designers adds one as a subtask and one
 overlaid on the main bar; 3 drafters = 2 subtasks; renaming a subtask removes all
 subtasks and renames the main bar — can't parse the logic."
 
@@ -28,8 +28,8 @@ Two behaviors were colliding, one deliberate and one broken:
 
 Before a department's first line is created, every bar it currently draws is
 line-backed (`ppSeedLines` — name and person preserved), unnamed-but-assigned lines
-now render, and deleting one bar of several removes only that bar. Renaming Chris's
-bar now renames exactly Chris's bar; Peter and Kate stay.
+now render, and deleting one bar of several removes only that bar. Renaming Felix's
+bar now renames exactly Felix's bar; Oscar and Ines stay.
 
 - Suite: `tests/test62.js` (13 assertions — fan-out, rename, who-edit, delete,
   +Subtask, and the collapsed-parent rendering note; skips pre-REV62).

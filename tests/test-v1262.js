@@ -9,33 +9,22 @@
    jsdom has no layout, so geometry comes from a stub of getBoundingClientRect and the
    pass-through is asserted on the stylesheet. Saved project, New Project draft, dashboard.
    Run: node tests/test-v1262.js index.html  (or via tests/run.js) */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-if(src.indexOf('function toastPlace')<0){
-  console.log('  SKIP  test-v1262: pre-v1.26.2 build ('+FILE+')');
-  console.log('\n'+'-'.repeat(46));
-  console.log('  0 passed, 0 failed   ['+FILE+']');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 
 /* Hermes as in test-e3-resize: td Aug 3–14, fab pinned, install Sep 14–15. */
 const projects=[{appId:'p1',Title:'Hermes Windows',client:'Hermes',jobCode:'H1',
-  deadline:'2026-09-15',status:'approved',projectManager:'Stan',drafter:'Peter',
-  leadFab:'Nick',activeDepartments:JSON.stringify(['pm','td','fab','install']),
+  deadline:'2026-09-15',status:'approved',projectManager:'Theo',drafter:'Oscar',
+  leadFab:'Milo',activeDepartments:JSON.stringify(['pm','td','fab','install']),
   createdAt:'2026-07-01',sortIndex:0}];
 const tasks=[
- {appId:'t0',projectId:'p1',department:'pm',assignee:'Stan',startDate:'2026-08-03',
+ {appId:'t0',projectId:'p1',department:'pm',assignee:'Theo',startDate:'2026-08-03',
   endDate:'2026-09-15',estimatedDays:30,ticketNodes:'[]',notes:'',pinned:false,label:''},
- {appId:'t1',projectId:'p1',department:'td',assignee:'Peter',startDate:'2026-08-03',
+ {appId:'t1',projectId:'p1',department:'td',assignee:'Oscar',startDate:'2026-08-03',
   endDate:'2026-08-14',estimatedDays:10,ticketNodes:'[]',notes:'',pinned:false,label:''},
- {appId:'t2',projectId:'p1',department:'fab',assignee:'Nick',startDate:'2026-08-17',
+ {appId:'t2',projectId:'p1',department:'fab',assignee:'Milo',startDate:'2026-08-17',
   endDate:'2026-08-28',estimatedDays:10,ticketNodes:'[]',notes:'',pinned:false,label:''},
  {appId:'t3',projectId:'p1',department:'install',assignee:'[]',startDate:'2026-09-14',
   endDate:'2026-09-15',estimatedDays:2,ticketNodes:'[]',notes:'',pinned:false,label:''}];
@@ -247,9 +236,4 @@ function stageC(){
   },700);
 }
 
-function done(){
-  console.log('\n'+'-'.repeat(46));
-  console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-  process.exit(fail?1:0);
-}
 setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},45000);

@@ -10,18 +10,9 @@
      via canonName; dry-run by default, applies through saveState. Free-text
      departments and ambiguous/unknown strings are never touched.
    Run: node tests/test-v172.js index.html  (or via tests/run.js) */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-if(src.indexOf('scrubLegacyNames')<0){
-  console.log('test-v172: skipped — pre-v1.7.2 build ('+FILE+')');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 const D=n=>{const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()+n);
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
@@ -43,25 +34,25 @@ const mkProj=(id,name,pm,dr,i)=>({appId:id,Title:name,client:'C',jobCode:'J'+i,d
   status:'in-fabrication',projectManager:pm,drafter:dr,leadFab:'',
   activeDepartments:JSON.stringify(['pm','fab']),createdAt:D(-30),sortIndex:i});
 const projects=[
-  mkProj('p1','Legacy Roles','Caroline B.','Stan',0),      /* both resolve */
-  mkProj('p2','Ambiguous Davis','Davis S.','',1),          /* two Davises → untouched */
-  mkProj('p3','Already Canonical','Caroline Bondi','',2)];
+  mkProj('p1','Legacy Roles','Cordelia V.','Theo',0),      /* both resolve */
+  mkProj('p2','Ambiguous Daxon','Daxon S.','',1),          /* two Daxons → untouched */
+  mkProj('p3','Already Canonical','Cordelia Vance','',2)];
 const mkTask=(id,pid,dept,who,s,e)=>({appId:id,projectId:pid,department:dept,assignee:who,
   startDate:s,endDate:e,estimatedDays:5,ticketNodes:'[]',notes:'',pinned:false,label:''});
 const tasks=[
-  mkTask('t1','p1','fab','Caroline B.',D(0),D(4)),              /* comma-string crew */
-  mkTask('t2','p1','install',JSON.stringify(['Stan','Installation']),D(5),D(8)), /* JSON crew */
-  mkTask('t3','p2','othshop','Stan',D(0),D(3)),                 /* free-text dept: label, not a person */
-  mkTask('t4','p3','fab','Caroline Bondi',D(0),D(4))];          /* already canonical */
+  mkTask('t1','p1','fab','Cordelia V.',D(0),D(4)),              /* comma-string crew */
+  mkTask('t2','p1','install',JSON.stringify(['Theo','Installation']),D(5),D(8)), /* JSON crew */
+  mkTask('t3','p2','othshop','Theo',D(0),D(3)),                 /* free-text dept: label, not a person */
+  mkTask('t4','p3','fab','Cordelia Vance',D(0),D(4))];          /* already canonical */
 const todos=[{appId:'k1',Title:'Order acrylic',projectId:'p1',department:'',
-  assignees:JSON.stringify(['Caroline B.']),dueDate:D(3),startDate:null,progress:'notstarted',
+  assignees:JSON.stringify(['Cordelia V.']),dueDate:D(3),startDate:null,progress:'notstarted',
   priority:'medium',notes:'',labels:'[]',checklist:'[]',createdBy:'',completedOn:null,
   completedBy:'',sortIndex:0}];
 const staff=[
-  {appId:'s1',Title:'Caroline Bondi',depts:JSON.stringify(['pm','fab']),ooo:'[]',email:'',role:'PM'},
-  {appId:'s2',Title:'Stan Kim',depts:JSON.stringify(['pm','fab']),ooo:'[]',email:'',role:''},
-  {appId:'s3',Title:'Davis Smith',depts:JSON.stringify(['pm']),ooo:'[]',email:'',role:''},
-  {appId:'s4',Title:'Davis Stone',depts:JSON.stringify(['pm']),ooo:'[]',email:'',role:''}];
+  {appId:'s1',Title:'Cordelia Vance',depts:JSON.stringify(['pm','fab']),ooo:'[]',email:'',role:'PM'},
+  {appId:'s2',Title:'Theo Kim',depts:JSON.stringify(['pm','fab']),ooo:'[]',email:'',role:''},
+  {appId:'s3',Title:'Daxon Smith',depts:JSON.stringify(['pm']),ooo:'[]',email:'',role:''},
+  {appId:'s4',Title:'Daxon Stone',depts:JSON.stringify(['pm']),ooo:'[]',email:'',role:''}];
 
 const dom=boot(FILE,{data:{projects,tasks,staff,todos},todosList:true});
 const win=dom.window,doc=win.document;
@@ -91,37 +82,36 @@ async function main(){
   const rep=JSON.parse(E('JSON.stringify(scrubLegacyNames())'));
   ok('reports the two project role fields', rep.filter(r=>r.kind==='project').length===2,
      JSON.stringify(rep.filter(r=>r.kind==='project')));
-  ok('reports the comma-string crew', rep.some(r=>r.kind==='phase'&&r.before==='Caroline B.'&&r.after==='Caroline Bondi'));
+  ok('reports the comma-string crew', rep.some(r=>r.kind==='phase'&&r.before==='Cordelia V.'&&r.after==='Cordelia Vance'));
   ok('reports the install crew array, Installation kept',
-     rep.some(r=>r.kind==='phase'&&r.after==='Stan Kim, Installation'));
-  ok('reports the note assignee', rep.some(r=>r.kind==='note'&&r.after==='Caroline Bondi'));
-  ok('skips the ambiguous Davis', !rep.some(r=>String(r.before).indexOf('Davis')>=0));
+     rep.some(r=>r.kind==='phase'&&r.after==='Theo Kim, Installation'));
+  ok('reports the note assignee', rep.some(r=>r.kind==='note'&&r.after==='Cordelia Vance'));
+  ok('skips the ambiguous Daxon', !rep.some(r=>String(r.before).indexOf('Daxon')>=0));
   ok('skips the free-text department label', !rep.some(r=>r.record&&String(r.record).indexOf('Other (Shop)')>=0));
-  ok('skips already-canonical values', !rep.some(r=>r.before==='Caroline Bondi'));
+  ok('skips already-canonical values', !rep.some(r=>r.before==='Cordelia Vance'));
   ok('dry run made no Graph calls', calls().length===before);
-  ok('stored value untouched on dry run', E("projById('p1').projectManager")==='Caroline B.');
+  ok('stored value untouched on dry run', E("projById('p1').projectManager")==='Cordelia V.');
 
   sec('scrubLegacyNames(true): applies through the normal save path');
   E('scrubLegacyNames(true)');
   await wait(150);
-  ok('project role healed in state', E("projById('p1').projectManager")==='Caroline Bondi'
-     && E("projById('p1').drafter")==='Stan Kim');
-  ok('ambiguous Davis untouched in state', E("projById('p2').projectManager")==='Davis S.');
-  ok('comma crew healed in state', E("taskById('t1').assignee")==='Caroline Bondi');
-  ok('free-text label untouched in state', E("taskById('t3').assignee")==='Stan');
-  ok('note assignee healed in state', E("ST.todos[0].who.join('|')")==='Caroline Bondi');
+  ok('project role healed in state', E("projById('p1').projectManager")==='Cordelia Vance'
+     && E("projById('p1').drafter")==='Theo Kim');
+  ok('ambiguous Daxon untouched in state', E("projById('p2').projectManager")==='Daxon S.');
+  ok('comma crew healed in state', E("taskById('t1').assignee")==='Cordelia Vance');
+  ok('free-text label untouched in state', E("taskById('t3').assignee")==='Theo');
+  ok('note assignee healed in state', E("ST.todos[0].who.join('|')")==='Cordelia Vance');
   const pat=calls().filter(c=>c.method==='PATCH');
   ok('the healed project PATCHes canonical names',
-     pat.some(c=>c.url.includes('ShopTimeline_Projects')&&c.body&&c.body.projectManager==='Caroline Bondi'&&c.body.drafter==='Stan Kim'));
+     pat.some(c=>c.url.includes('ShopTimeline_Projects')&&c.body&&c.body.projectManager==='Cordelia Vance'&&c.body.drafter==='Theo Kim'));
   ok('the healed crew PATCHes the roster name',
-     pat.some(c=>c.url.includes('ShopTimeline_Tasks')&&c.body&&c.body.assignee==='Caroline Bondi'));
+     pat.some(c=>c.url.includes('ShopTimeline_Tasks')&&c.body&&c.body.assignee==='Cordelia Vance'));
   ok('the install crew PATCHes as JSON with Installation kept',
-     pat.some(c=>c.body&&c.body.assignee==='["Stan Kim","Installation"]'));
+     pat.some(c=>c.body&&c.body.assignee==='["Theo Kim","Installation"]'));
   ok('the untouched canonical task never syncs',
      !pat.some(c=>c.body&&c.body.appId==='t4'));
   ok('a second run finds nothing left', JSON.parse(E('JSON.stringify(scrubLegacyNames())')).length===0);
 
-  console.log('\ntest-v172: '+pass+' passed, '+fail+' failed');
-  process.exit(fail?1:0);
+  done();
 }
 setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},25000);

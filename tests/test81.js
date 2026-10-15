@@ -9,18 +9,9 @@
          (currently: …)" carrying the derived status;
      keep-pile: the bar hover tooltip carries the crew name.
    Run: node tests/test81.js index.html */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-if(src.indexOf('ins-pin')<0){
-  console.log('test81: skipped — no phase-panel Pin in '+FILE+' (pre-REV81 build)');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 
 const D0=new Date();D0.setHours(0,0,0,0);
@@ -28,11 +19,11 @@ const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+Stri
 const rel=n=>{const d=new Date(D0);d.setDate(d.getDate()+n);return iso(d);};
 
 const projects=[{appId:'p1',Title:'Anchor Job',client:'',jobCode:'ANC-1',deadline:rel(30),
-  status:'auto',projectManager:'Stan',drafter:'Dana',leadFab:'Nick',
+  status:'auto',projectManager:'Theo',drafter:'Dana',leadFab:'Milo',
   activeDepartments:JSON.stringify(['pm','fab','install']),createdAt:rel(-40)}];
-const tasks=[{appId:'t1',projectId:'p1',department:'fab',assignee:'Nick',
+const tasks=[{appId:'t1',projectId:'p1',department:'fab',assignee:'Milo',
   startDate:rel(-5),endDate:rel(10),estimatedDays:10,ticketNodes:'[]',notes:'',pinned:false,label:''},
- {appId:'t2',projectId:'p1',department:'install',assignee:'["Nick"]',
+ {appId:'t2',projectId:'p1',department:'install',assignee:'["Milo"]',
   startDate:rel(12),endDate:rel(16),estimatedDays:4,ticketNodes:'[]',notes:'',pinned:false,label:''}];
 
 const dom=boot(FILE,{data:{projects,tasks,staff:[],todos:[]}});
@@ -58,7 +49,7 @@ function savedPage(){
   sec('keep-pile · the bar tooltip carries the crew');
   const bar=doc.querySelector('#npv-body .npv-bar');
   ok('a bar rendered',!!bar);
-  ok('its hover tooltip names the crew',!!bar&&/Nick/.test(bar.getAttribute('title')||''),bar&&bar.getAttribute('title'));
+  ok('its hover tooltip names the crew',!!bar&&/Milo/.test(bar.getAttribute('title')||''),bar&&bar.getAttribute('title'));
 
   sec('D7 · the saved page footer keeps its real status pill');
   const sp=doc.querySelector('#npv-foot .sum-pill');
@@ -139,9 +130,4 @@ function draftPage(){
   },2200);
 }
 
-function done(){
-  console.log('\n'+'-'.repeat(46));
-  console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-  process.exit(fail?1:0);
-}
 setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},30000);

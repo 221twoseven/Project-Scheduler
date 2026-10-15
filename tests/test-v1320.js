@@ -11,30 +11,19 @@
    sorts first never takes the row's day count, a subtask's nesting or the draft's selection.
    Both pages: a saved project and the New Project draft. Fixed 2026 dates (Aug 3 is a Monday).
    Run: node tests/test-v1320.js index.html  (or via tests/run.js) */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-if(src.indexOf('function npvCreateRange')<0){
-  console.log('  SKIP  test-v1320: pre-v1.32.0 build ('+FILE+')');
-  console.log('\n'+'-'.repeat(46));
-  console.log('  0 passed, 0 failed   ['+FILE+']');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 
 const projects=[{appId:'p1',Title:'Hermes Windows',client:'Hermes',jobCode:'H1',deadline:'2026-09-15',status:'in-fabrication',
-  projectManager:'Sam',drafter:'Peter',leadFab:'Nick',fabricators:'',activeDepartments:JSON.stringify(['pm','td','finish','install']),createdAt:'2026-07-01',sortIndex:0}];
+  projectManager:'Sam',drafter:'Oscar',leadFab:'Milo',fabricators:'',activeDepartments:JSON.stringify(['pm','td','finish','install']),createdAt:'2026-07-01',sortIndex:0}];
 const T=(id,dept,who,s,e,d,extra)=>Object.assign({appId:id,projectId:'p1',department:dept,assignee:who,startDate:s,endDate:e,estimatedDays:d,ticketNodes:'[]',notes:'',pinned:false,label:''},extra||{});
-const tasks=[T('t0','pm','Sam','2026-08-03','2026-09-15',30),T('td1','td','Peter','2026-08-03','2026-08-07',5),
-  T('f1','finish','Nick','2026-08-10','2026-08-14',5),T('i1','install','[]','2026-09-14','2026-09-15',2)];
+const tasks=[T('t0','pm','Sam','2026-08-03','2026-09-15',30),T('td1','td','Oscar','2026-08-03','2026-08-07',5),
+  T('f1','finish','Milo','2026-08-10','2026-08-14',5),T('i1','install','[]','2026-09-14','2026-09-15',2)];
 const staff=[{appId:'s1',Title:'Sam',email:'user@example.com',depts:JSON.stringify(['pm']),ooo:'[]',role:''},
-  {appId:'s2',Title:'Peter',email:'',depts:JSON.stringify(['td']),ooo:'[]',role:''},
-  {appId:'s3',Title:'Nick',email:'',depts:JSON.stringify(['finish']),ooo:'[]',role:''}];
+  {appId:'s2',Title:'Oscar',email:'',depts:JSON.stringify(['td']),ooo:'[]',role:''},
+  {appId:'s3',Title:'Milo',email:'',depts:JSON.stringify(['finish']),ooo:'[]',role:''}];
 
 const dom=boot(FILE,{data:{projects,tasks,staff,todos:[]}});
 const win=dom.window,doc=win.document,E=s=>win.eval(s);
@@ -340,9 +329,4 @@ function draft2(){
   },900);
 }
 
-function done(){
-  console.log('\n'+'-'.repeat(46));
-  console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-  process.exit(fail?1:0);
-}
 setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},45000);

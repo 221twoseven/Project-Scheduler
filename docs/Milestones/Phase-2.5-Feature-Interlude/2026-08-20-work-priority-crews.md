@@ -31,7 +31,7 @@ Now the model is work-first:
 
 ## Storage / colleague-app compatibility
 
-Crews save as **plain comma-joined names** ("Peter, Chris") in the existing `assignee`
+Crews save as **plain comma-joined names** ("Oscar, Felix") in the existing `assignee`
 text column — the same convention project roles already use. No SharePoint schema
 change. The colleague app shows the comma list as literal text; its person-lane grouping
 treats a multi-name crew as one label (known, accepted trade-off — single-name bars are

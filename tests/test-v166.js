@@ -8,37 +8,28 @@
       #fm-showall "Show everything" — restores every status, clears client picks,
       and clears the person (leaving a summary like the ×).
    Run: node tests/test-v166.js index.html  (or via tests/run.js) */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-if(src.indexOf('fm-showall')<0){
-  console.log('test-v166: skipped — pre-v1.6.6 build ('+FILE+')');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 const D=n=>{const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()+n);
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
 
 const projects=[
   {appId:'p1',Title:'Hermes Windows',client:'Hermes',jobCode:'H1',deadline:D(40),
-   status:'in-fabrication',projectManager:'Sam',drafter:'',leadFab:'Nick',
+   status:'in-fabrication',projectManager:'Sam',drafter:'',leadFab:'Milo',
    activeDepartments:JSON.stringify(['pm','fab']),createdAt:D(-30),sortIndex:0},
   {appId:'p2',Title:'Madison Facade',client:'Madison',jobCode:'M2',deadline:D(60),
-   status:'in-design',projectManager:'Sam',drafter:'',leadFab:'Kate',
+   status:'in-design',projectManager:'Sam',drafter:'',leadFab:'Ines',
    activeDepartments:JSON.stringify(['pm','fab']),createdAt:D(-20),sortIndex:1}];
 const tasks=[
-  {appId:'t1',projectId:'p1',department:'fab',assignee:'Nick',startDate:D(-2),endDate:D(5),
+  {appId:'t1',projectId:'p1',department:'fab',assignee:'Milo',startDate:D(-2),endDate:D(5),
    estimatedDays:6,ticketNodes:'[]',notes:'',pinned:false,label:''},
-  {appId:'t2',projectId:'p2',department:'fab',assignee:'Kate',startDate:D(1),endDate:D(8),
+  {appId:'t2',projectId:'p2',department:'fab',assignee:'Ines',startDate:D(1),endDate:D(8),
    estimatedDays:6,ticketNodes:'[]',notes:'',pinned:false,label:''}];
 const staff=[
-  {appId:'s1',Title:'Nick',depts:JSON.stringify(['fab']),ooo:'[]',email:'',role:''},
-  {appId:'s2',Title:'Kate',depts:JSON.stringify(['fab']),ooo:'[]',email:'',role:''},
+  {appId:'s1',Title:'Milo',depts:JSON.stringify(['fab']),ooo:'[]',email:'',role:''},
+  {appId:'s2',Title:'Ines',depts:JSON.stringify(['fab']),ooo:'[]',email:'',role:''},
   {appId:'s3',Title:'Sam',depts:JSON.stringify(['pm']),ooo:'[]',email:'user@example.com',role:'PM'}];
 
 const dom=boot(FILE,{data:{projects,tasks,staff,todos:[]}});
@@ -52,9 +43,9 @@ setTimeout(main,1300);
 function main(){
   sec('item 1 — the Person section survives inside a summary');
   ok('the v1.2.2 CSS hide is gone', !/body\.dash-on #fm-person-sec/.test(src));
-  E("LENS='project';PERSON='Nick';saveUI();render();buildFiltersMenu()");
+  E("LENS='project';PERSON='Milo';saveUI();render();buildFiltersMenu()");
   ok('summary is on', E('dashOn()')===true);
-  ok('the person radios are present and Nick is picked',
+  ok('the person radios are present and Milo is picked',
      qa('#person-menu input[type=radio]').length>=3
      &&qa('#person-menu input:checked').length===1);
   ok('…and the person still never chips or counts', E('activeFilterCount()')===0
@@ -62,11 +53,11 @@ function main(){
 
   sec('item 1 — radios switch the summary in place; Everyone exits like the ×');
   const radios=qa('#person-menu .sm-item');
-  const kate=radios.find(l=>/Kate/.test(l.textContent));
-  kate.querySelector('input').checked=true;
-  kate.querySelector('input').dispatchEvent(new win.Event('change',{bubbles:true}));
-  ok('picking another name keeps the place', E('dashOn()')===true&&E('PERSON')==='Kate');
-  ok('…and renames the trail', q('#db-name').textContent==='Summary · Kate',
+  const ines=radios.find(l=>/Ines/.test(l.textContent));
+  ines.querySelector('input').checked=true;
+  ines.querySelector('input').dispatchEvent(new win.Event('change',{bubbles:true}));
+  ok('picking another name keeps the place', E('dashOn()')===true&&E('PERSON')==='Ines');
+  ok('…and renames the trail', q('#db-name').textContent==='Summary · Ines',
      q('#db-name').textContent);
   E('buildFiltersMenu()');
   /* enter via the dashboard button so PREV_LENS is armed, then Everyone must restore it */
@@ -86,7 +77,7 @@ function main(){
   ok('the menu-wide button sits at the top of the dropdown',
      !!q('#filters-menu .sm-btns #fm-showall')
      &&q('#filters-menu').firstElementChild.contains(q('#fm-showall')));
-  E("SHOW_STATUS=new Set(['in-design']);CLIENT_FILTER.add('Hermes');PERSON='Nick';LENS='project';saveUI();render();buildFiltersMenu()");
+  E("SHOW_STATUS=new Set(['in-design']);CLIENT_FILTER.add('Hermes');PERSON='Milo';LENS='project';saveUI();render();buildFiltersMenu()");
   ok('filters armed for the test', E('activeFilterCount()')>=2&&E('dashOn()')===true);
   q('#fm-showall').click();
   ok('every status is back', E('SHOW_STATUS.size')===E('ALL_STATUSES.length'));
@@ -96,7 +87,6 @@ function main(){
   ok('the menu stayed open for confirmation', !q('#filters-menu').classList.contains('hidden')
      ||qa('#status-menu input:checked').length===E('ALL_STATUSES.length'));
 
-  console.log('\ntest-v166: '+pass+' passed, '+fail+' failed');
-  process.exit(fail?1:0);
+  done();
 }
 setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},25000);

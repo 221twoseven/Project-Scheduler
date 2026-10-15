@@ -8,25 +8,14 @@
    - Absent list degrades to browser-local with a warning on save, quiet at load.
    Skips on builds that predate the client list.
    Run: node test69.js index.html */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-if(!/ShopTimeline_Clients/.test(src)){
-  console.log('  SKIP  build predates the client list (no ShopTimeline_Clients) — nothing to assert');
-  console.log('\n'+'-'.repeat(46));
-  console.log('  0 passed, 0 failed   ['+FILE+']');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 
 const projects=[
  {appId:'p1',Title:'Hermes Windows',client:'Hermès',jobCode:'HER-2419',deadline:'2026-10-02',
-  status:'in-fabrication',projectManager:'Stan',drafter:'Peter',leadFab:'Nick',
+  status:'in-fabrication',projectManager:'Theo',drafter:'Oscar',leadFab:'Milo',
   activeDepartments:JSON.stringify(['pm','td','fab']),createdAt:'2026-07-01',sortIndex:0}];
 const clients=[
  {Title:'Hermès',field_2:'HER'},
@@ -103,9 +92,7 @@ setTimeout(()=>{
           ok('save still lands locally',E("CLIENTS[0].name")==='LocalOnly'&&
              E("JSON.parse(localStorage.getItem(CLIENTS_KEY))[0].name")==='LocalOnly');
 
-          console.log('\n'+'-'.repeat(46));
-          console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-          process.exit(fail?1:0);
+          done();
         },400);
       },300);
     },300);

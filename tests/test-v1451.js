@@ -3,20 +3,9 @@
    kind:'reporter') shows in the Open Issues thread beside the team's /reply and /comment notes, each
    labelled Team or Reporter; the summary counts comments, not "developer comments".
    Run: node tests/test-v1451.js index.html  (or via tests/run.js) */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-if(src.indexOf("reporter:c.kind==='reporter'")<0){
-  console.log('  SKIP  test-v1451: pre-v1.45.1 build ('+FILE+')');
-  console.log('\n'+'-'.repeat(46));
-  console.log('  0 passed, 0 failed   ['+FILE+']');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 
 const item=(id,created,f)=>({id,createdDateTime:created,lastModifiedDateTime:created,fields:f});
@@ -49,7 +38,7 @@ function main(){
   ok('each says who wrote it: Team, Reporter, Team (in ticket order)', who.join()==='Team,Reporter,Team', who.join());
   ok('the reporter\'s answer shows its text', ones[1]&&ones[1].querySelector('.clog-det').textContent==='It was Chrome.');
   ok('the reporter\'s answer is marked apart (.rep)', ones[1]&&ones[1].classList.contains('rep')&&!ones[0].classList.contains('rep'));
-  ok('names stay off the public page: the label is "Reporter", never a name', !/Kate|@/.test(cm?cm.textContent:''));
+  ok('names stay off the public page: the label is "Reporter", never a name', !/Ines|@/.test(cm?cm.textContent:''));
   ok('the email link (#/issues/5) opens that thread', !!cm&&cm.open);
   const one=q('#fb-list .clog-row[data-spid="6"] details.fb-cm');
   ok('a single comment reads "1 comment"', !!one&&one.querySelector('summary').textContent==='1 comment', one&&one.querySelector('summary').textContent);
@@ -61,7 +50,5 @@ function main(){
   sec('older rows without a kind still read as the team');
   ok('fbComments: no kind → Team, kind reporter → Reporter', E("JSON.stringify(fbComments(JSON.stringify([{at:'a',text:'x'},{at:'b',text:'y',kind:'reporter'},{at:'c',text:'z',kind:'comment'}])).map(c=>c.reporter))")==='[false,true,false]');
 
-  console.log('\n'+'-'.repeat(46));
-  console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-  process.exit(fail?1:0);
+  done();
 }

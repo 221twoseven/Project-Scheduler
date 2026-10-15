@@ -1,6 +1,6 @@
 ﻿/* The project dashboard. Run: node test49.js Timeline_49.html */
-const {boot}=require('./harness');
-const FILE=process.argv[2]||'Timeline_49.html';
+const {boot,suite}=require('./harness');
+const {FILE,ok,done}=suite();
 
 /* The frozen REV50 reference predates E1 (bottom dock) â€” same convention as
    test-b1.js: E1-only assertions are skipped on pre-E1 builds. */
@@ -16,22 +16,20 @@ const N11=/npvEditPop/.test(require('fs').readFileSync(FILE,'utf8'));
 const REN=/npvRenameBar/.test(require('fs').readFileSync(FILE,'utf8'));
 const DUP=require('fs').readFileSync(FILE,'utf8').indexOf('Duplicate is an add')>=0; /* v1.47.0 (item 7): Duplicate joins the bar menu */
 
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 
 const projects=[{appId:'p1',Title:'Hermes Windows',client:'Hermes',jobCode:'H1-2049',
-  deadline:'2026-09-15',status:'in-fabrication',projectManager:'Stan',drafter:'Peter',
-  leadFab:'Nick',activeDepartments:JSON.stringify(['pm','td','fab','install']),
+  deadline:'2026-09-15',status:'in-fabrication',projectManager:'Theo',drafter:'Oscar',
+  leadFab:'Milo',activeDepartments:JSON.stringify(['pm','td','fab','install']),
   createdAt:'2026-07-01',sortIndex:0}];
 const tasks=[
- {appId:'pm1',projectId:'p1',department:'pm',assignee:'Stan',startDate:'2026-08-03',
+ {appId:'pm1',projectId:'p1',department:'pm',assignee:'Theo',startDate:'2026-08-03',
   endDate:'2026-09-15',estimatedDays:30,ticketNodes:'[]',notes:'',pinned:false,label:''},
- {appId:'td1',projectId:'p1',department:'td',assignee:'Peter',startDate:'2026-08-03',
+ {appId:'td1',projectId:'p1',department:'td',assignee:'Oscar',startDate:'2026-08-03',
   endDate:'2026-08-07',estimatedDays:5,ticketNodes:'[]',notes:'',pinned:false,label:'Exterior Windows'},
- {appId:'td2',projectId:'p1',department:'td',assignee:'Peter',startDate:'2026-08-10',
+ {appId:'td2',projectId:'p1',department:'td',assignee:'Oscar',startDate:'2026-08-10',
   endDate:'2026-08-14',estimatedDays:5,ticketNodes:'[]',notes:'',pinned:false,label:'Interior Windows'},
- {appId:'f1',projectId:'p1',department:'fab',assignee:'Nick',startDate:'2026-08-20',
+ {appId:'f1',projectId:'p1',department:'fab',assignee:'Milo',startDate:'2026-08-20',
   endDate:'2026-09-04',estimatedDays:12,ticketNodes:'[]',notes:'',pinned:false,label:''},
  {appId:'i1',projectId:'p1',department:'install',assignee:'[]',startDate:'2026-09-14',
   endDate:'2026-09-15',estimatedDays:2,ticketNodes:'[]',notes:'',pinned:false,label:''}];
@@ -359,10 +357,5 @@ function stage7(){
   },200);
 }
 
-function done(){
-  console.log('\n'+'-'.repeat(46));
-  console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-  process.exit(fail?1:0);
-}
 setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},40000);
 

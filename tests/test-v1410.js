@@ -8,24 +8,13 @@
    R5 project Calendar: weeks grow to fit their content; a month that outgrows its page continues on the next;
       a milestone named after its block is not prefixed twice ("SHIPPING : AVE", not "Shipping: SHIPPING : AVE")
    Run: node tests/test-v1410.js index.html  (or via tests/run.js) */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-if(src.indexOf('function setPrBars(')<0){
-  console.log('  SKIP  test-v1410: pre-v1.41.0 build ('+FILE+')');
-  console.log('\n'+'-'.repeat(46));
-  console.log('  0 passed, 0 failed   ['+FILE+']');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 
 const P={appId:'p1',Title:'Q4 Windows',client:'Hermès',jobCode:'HE276',deadline:'2026-11-25',status:'auto',projectManager:'Sam',
-  drafter:'Peter',leadFab:'Nick',fabricators:'',activeDepartments:JSON.stringify(['pm','td','fab','shipping']),createdAt:'2026-07-01',sortIndex:0};
+  drafter:'Oscar',leadFab:'Milo',fabricators:'',activeDepartments:JSON.stringify(['pm','td','fab','shipping']),createdAt:'2026-07-01',sortIndex:0};
 const T=(id,dept,s,e,nodes)=>({appId:id,projectId:'p1',department:dept,assignee:'',startDate:s,endDate:e,estimatedDays:5,
   ticketNodes:JSON.stringify(nodes||[]),notes:'',pinned:false,label:''});
 const same=['SCOTTSDALE','TROY','BOISE'].map((n,i)=>({id:'n'+i,date:'2026-11-23',target:'SHIPPING : '+n}));
@@ -102,8 +91,3 @@ function project(){
   },1200);
 }
 
-function done(){
-  console.log('\n'+'-'.repeat(46));
-  console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-  process.exit(fail?1:0);
-}

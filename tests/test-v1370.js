@@ -6,26 +6,15 @@
       is shown is muted and carries a grey "Completed" tag under the name (not red, no
       strike-through). Reopening a job (changing its status) moves it back to Active.
    Run: node tests/test-v1370.js index.html  (or via tests/run.js) */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-if(!/function doneMode/.test(src)){
-  console.log('  SKIP  test-v1370: pre-v1.37.0 build ('+FILE+')');
-  console.log('\n'+'-'.repeat(46));
-  console.log('  0 passed, 0 failed   ['+FILE+']');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 
 const proj=(id,name,status,client)=>({appId:id,Title:name,client,jobCode:id.toUpperCase(),
-  deadline:'2026-12-20',status,projectManager:'Sam',drafter:'Ana',leadFab:'Nick',
+  deadline:'2026-12-20',status,projectManager:'Sam',drafter:'Ana',leadFab:'Milo',
   activeDepartments:JSON.stringify(['pm','fab']),createdAt:'2026-07-01'});
-const task=(id,pid,s,e)=>({appId:id,projectId:pid,department:'fab',assignee:'Nick',
+const task=(id,pid,s,e)=>({appId:id,projectId:pid,department:'fab',assignee:'Milo',
   startDate:s,endDate:e,estimatedDays:5,ticketNodes:'[]',notes:'',pinned:false,label:''});
 const DATA={projects:[proj('p1','Hermes Windows','in-fabrication','Hermes'),
                       proj('p2','Aster Lobby','complete','Aster'),
@@ -134,8 +123,6 @@ function reload(){
     ok('a save made with the switch restores it (Completed)', E3("doneMode()")==='completed'&&[...d3.window.document.querySelectorAll('#side-rows .sb-row.proj-head .sb-name')].map(n=>n.textContent).join()==='Aster Lobby');
     ok('a fresh browser opens on Active', E4("doneMode()")==='active');
     ok('the tour\'s sidebar step still resolves', E4("COACH_STEPS.every(s=>!!document.querySelector(s.sel))"));
-    console.log('\n'+'-'.repeat(46));
-    console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-    process.exit(fail?1:0);
+    done();
   },1300);
 }

@@ -8,35 +8,25 @@
    4) (obj 12) The toolbar is the mellowed slate bar, not the ink-black gradient.
    5) Stale "Settings" strings are gone (the menu retired in REV95 — it's Resources).
    Run: node tests/test-v102.js index.html  (or via tests/run.js) */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-/* Pre-v1.0.2 builds (and the frozen reference) lack the vivid weekend rule. */
-if(src.indexOf('body.vivid .wknd-col{display:none}')<0){
-  console.log('test-v102: skipped — pre-v1.0.2 build ('+FILE+')');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 
 const projects=[{appId:'p1',Title:'Hermes Windows',client:'Hermes',jobCode:'H1',
-  deadline:'2026-09-15',status:'approved',projectManager:'Stan',drafter:'Peter',
-  leadFab:'Nick',activeDepartments:JSON.stringify(['pm','td','fab']),
+  deadline:'2026-09-15',status:'approved',projectManager:'Theo',drafter:'Oscar',
+  leadFab:'Milo',activeDepartments:JSON.stringify(['pm','td','fab']),
   createdAt:'2026-07-01',sortIndex:0}];
 const tasks=[
- {appId:'t0',projectId:'p1',department:'pm',assignee:'Stan',startDate:'2026-08-03',
+ {appId:'t0',projectId:'p1',department:'pm',assignee:'Theo',startDate:'2026-08-03',
   endDate:'2026-09-15',estimatedDays:30,ticketNodes:'[]',notes:'',pinned:false,label:''},
- {appId:'t1',projectId:'p1',department:'td',assignee:'Peter',startDate:'2026-08-03',
+ {appId:'t1',projectId:'p1',department:'td',assignee:'Oscar',startDate:'2026-08-03',
   endDate:'2026-08-14',estimatedDays:10,ticketNodes:'[]',notes:'',pinned:false,label:''},
- {appId:'t1b',projectId:'p1',department:'td',assignee:'Peter',startDate:'2026-08-05',
+ {appId:'t1b',projectId:'p1',department:'td',assignee:'Oscar',startDate:'2026-08-05',
   endDate:'2026-08-10',estimatedDays:4,ticketNodes:'[]',notes:'',pinned:false,label:'Panels'},
- {appId:'f1',projectId:'p1',department:'fab',assignee:'Nick',startDate:'2026-08-17',
+ {appId:'f1',projectId:'p1',department:'fab',assignee:'Milo',startDate:'2026-08-17',
   endDate:'2026-08-21',estimatedDays:5,ticketNodes:'[]',notes:'',pinned:false,label:''},
- {appId:'f2',projectId:'p1',department:'fab',assignee:'Nick',startDate:'2026-08-18',
+ {appId:'f2',projectId:'p1',department:'fab',assignee:'Milo',startDate:'2026-08-18',
   endDate:'2026-08-20',estimatedDays:3,ticketNodes:'[]',notes:'',pinned:false,label:'Welds'}];
 
 const dom=boot(FILE,{data:{projects,tasks,staff:[],todos:[]}});
@@ -152,8 +142,7 @@ function calendarPopoverClick(){
   ok('quiet weekend cell has no inline tint (CSS hatch shows)', !!weQ&&!/background/.test(weQ.getAttribute('style')||''));
 
   if(src.indexOf('popAt')>=0)return v110(); /* obj 7/9 shipped in the same file era */
-  console.log('\n'+pass+' passed, '+fail+' failed');
-  process.exit(fail?1:0);
+  done();
 }
 
 function v110(){
@@ -212,8 +201,7 @@ function v110(){
         ok('the department joins the draft', E("PP_FORM.activeDepartments.includes('"+d2+"')")===true);
         ok('the fresh phase is selected with its popover open',
            E('PP_SEL')!==null&&!!q('#npv-pop'), 'PP_SEL='+E('PP_SEL')+' pop='+!!q('#npv-pop'));
-        console.log('\n'+pass+' passed, '+fail+' failed');
-        process.exit(fail?1:0);
+        done();
       },300);
     },300);
   },350);

@@ -7,35 +7,26 @@
    passed, not complete, with the signed-in user as PM, prompt once a day —
    Mark complete files right there, Later dismisses, the key stops a same-day
    re-ask. Run: node tests/test87.js index.html */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-if(src.indexOf('pmlate-overlay')<0){
-  console.log('test87: skipped — no completion flow in '+FILE+' (pre-REV87 build)');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 
 /* Sam (the harness's stubbed sign-in) PMs both projects; both installs passed.
    p2 is the prompt's subject; p1 exercises the page button. */
 const projects=[
  {appId:'p1',Title:'Hermes Windows',client:'Hermes',jobCode:'H1',
-  deadline:'2026-08-20',status:'in-fabrication',projectManager:'Sam',drafter:'Peter',
-  leadFab:'Nick',activeDepartments:JSON.stringify(['pm','td','install']),
+  deadline:'2026-08-20',status:'in-fabrication',projectManager:'Sam',drafter:'Oscar',
+  leadFab:'Milo',activeDepartments:JSON.stringify(['pm','td','install']),
   createdAt:'2026-07-01',sortIndex:0},
  {appId:'p2',Title:'Aster Lobby',client:'Aster',jobCode:'A2',
-  deadline:'2026-08-14',status:'in-fabrication',projectManager:'Sam',drafter:'Peter',
-  leadFab:'Nick',activeDepartments:JSON.stringify(['pm','td','install']),
+  deadline:'2026-08-14',status:'in-fabrication',projectManager:'Sam',drafter:'Oscar',
+  leadFab:'Milo',activeDepartments:JSON.stringify(['pm','td','install']),
   createdAt:'2026-07-01',sortIndex:1}];
 const tasks=[
- {appId:'td1',projectId:'p1',department:'td',assignee:'Peter',startDate:'2026-08-03',
+ {appId:'td1',projectId:'p1',department:'td',assignee:'Oscar',startDate:'2026-08-03',
   endDate:'2026-08-21',estimatedDays:14,ticketNodes:'[]',notes:'',pinned:false,label:''},
- {appId:'td2',projectId:'p2',department:'td',assignee:'Peter',startDate:'2026-08-03',
+ {appId:'td2',projectId:'p2',department:'td',assignee:'Oscar',startDate:'2026-08-03',
   endDate:'2026-08-10',estimatedDays:6,ticketNodes:'[]',notes:'',pinned:false,label:''}];
 /* v1.26.0 (#15): lateness follows the Installation block's end, not the Setup date, so
    on that build each project carries the install that already passed. */
@@ -116,9 +107,4 @@ function draftPage(){
   },700);
 }
 
-function done(){
-  console.log('\n'+'-'.repeat(46));
-  console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-  process.exit(fail?1:0);
-}
 setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},20000);

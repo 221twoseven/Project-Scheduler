@@ -10,25 +10,16 @@
    - v1.13.0: People page mirrors Employee Contacts (read-only HR list): adds active
      employees, HR wins on title/phone/status, curated departments kept.
    Run: node tests/test-v1100.js index.html  (or via tests/run.js) */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-if(src.indexOf('cdImportEC')<0){
-  console.log('test-v1100: skipped — pre-v1.10.0 build ('+FILE+')');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 const D=n=>{const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()+n);
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
 
 const staff=[
   {appId:'s1',Title:'Sam',depts:JSON.stringify(['pm']),ooo:'[]',email:'user@example.com',phone:'',role:'PM',admin:'dev'},
-  {appId:'s2',Title:'Pat',depts:JSON.stringify(['fab']),ooo:'[]',email:'pat@x.co',phone:'',role:'',admin:'1',
+  {appId:'s2',Title:'Pat',depts:JSON.stringify(['fab']),ooo:'[]',email:'pat@example.com',phone:'',role:'',admin:'1',
    listeningTo:'Chet Baker',listeningLink:'example.com/chet',listeningVerb:'listening to',listeningShow:'1'},
   {appId:'s3',Title:'Kim',depts:JSON.stringify(['fab']),ooo:'[]',email:'',phone:'',role:'',admin:''}];
 const projects=[{appId:'p1',Title:'Alpha',client:'Acme',jobCode:'J1',deadline:D(30),
@@ -242,9 +233,9 @@ function stageImport(){
    +"{name:'Email',displayName:'Email'},{name:'Primary_x0020_Phone',displayName:'Primary Phone'},{name:'Current_x0020_Title',displayName:'Current Title'},"
    +"{name:'Department',displayName:'Department'},{name:'Pay_x0020_Type',displayName:'Pay Type'}];"
    +"if(u.indexOf('Employee')>=0)return ["
-   +"{id:'e1',fields:{Title:'Pat',Status:'Active',Email:'pat@x.co',Primary_x0020_Phone:'555-1',Current_x0020_Title:'Shop Lead',Department:'Fabrication',Pay_x0020_Type:'NOPE'}},"
-   +"{id:'e2',fields:{Title:'Marcus Webb',Status:'Active',Email:'marcus@x.co',Current_x0020_Title:'Logistics Coordinator',Department:'Logistics'}},"
-   +"{id:'e3',fields:{Title:'Gone Guy',Status:'Terminated',Email:'gone@x.co'}}];"
+   +"{id:'e1',fields:{Title:'Pat',Status:'Active',Email:'pat@example.com',Primary_x0020_Phone:'555-1',Current_x0020_Title:'Shop Lead',Department:'Fabrication',Pay_x0020_Type:'NOPE'}},"
+   +"{id:'e2',fields:{Title:'Marcus Webb',Status:'Active',Email:'marcus@example.com',Current_x0020_Title:'Logistics Coordinator',Department:'Logistics'}},"
+   +"{id:'e3',fields:{Title:'Gone Guy',Status:'Terminated',Email:'gone@example.com'}}];"
    +"if(u.indexOf('/columns')>=0)return [{name:'Title'},{name:'status'}];"
    +"return [];};");
   E("cdImportEC({disabled:false})");
@@ -278,7 +269,7 @@ function stage15(){
   E("PEOPLE.find(p=>p.name==='Sam').nickname=null");
 
   sec('v1.15.0 — merge duplicate: assignments rewritten, fields backfilled, row gone');
-  E("PEOPLE.push({id:'dupX',name:'Samuel (Sam) Q',depts:['fab'],ooo:[],email:'samq@x.co',phone:'555-9',role:'Fabricator',admin:null})");
+  E("PEOPLE.push({id:'dupX',name:'Samuel (Sam) Q',depts:['fab'],ooo:[],email:'samq@example.com',phone:'555-9',role:'Fabricator',admin:null})");
   E("ST.tasks.push({id:'tmX',projectId:'p1',department:'fab',assignee:'Samuel (Sam) Q',startDate:'"+D(2)+"',endDate:'"+D(4)+"',estimatedDays:2,ticketNodes:[],notes:'',pinned:false,label:''})");
   E("cdMergePerson(PEOPLE.find(p=>p.name==='Kim').id,'dupX')"); /* harness confirm = yes */
   ok('the duplicate row is gone and fields backfilled',
@@ -372,8 +363,7 @@ function stageTour(){
     ok('coachEl falls back to the first match when nothing reports a rect',
        E("coachEl('.pg-trail')!==null"));
     E('coachEnd()');
-    console.log('\ntest-v1100: '+pass+' passed, '+fail+' failed');
-    process.exit(fail?1:0);
+    done();
   },700);
 }
 setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},30000);

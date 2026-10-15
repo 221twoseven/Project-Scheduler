@@ -6,25 +6,16 @@
    5. Poll repaints keep the index/detail scroll positions
    6. ↑↓ walk the index selection
    Run: node tests/test-v1170.js index.html  (or via tests/run.js) */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-if(src.indexOf('cd-drv')<0){
-  console.log('test-v1170: skipped — pre-v1.17.0 build ('+FILE+')');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 
 const staff=[
  {appId:'s1',Title:'Sam',depts:JSON.stringify(['pm']),ooo:'[]',email:'user@example.com',role:'PM1 - Project Manager',admin:'dev',driver:'1'},
- {appId:'s2',Title:'Alex Reyes',depts:JSON.stringify(['fab']),ooo:'[]',email:'alex@x.com',role:'SFAB1 - Seasonal Fabricator',admin:'',driver:''},
- {appId:'s3',Title:'Bea Chen',depts:JSON.stringify(['td']),ooo:'[]',email:'bea@x.com',role:'TD2 - Technical Designer',admin:'1',feedbackRecipient:'1',driver:'1'},
- {appId:'s4',Title:'Cody Hall',depts:JSON.stringify(['fin']),ooo:'[]',email:'cody@x.com',role:'Co-Director of Finishing',admin:''}];
+ {appId:'s2',Title:'Alex Reyes',depts:JSON.stringify(['fab']),ooo:'[]',email:'alex@example.com',role:'SFAB1 - Seasonal Fabricator',admin:'',driver:''},
+ {appId:'s3',Title:'Bea Chen',depts:JSON.stringify(['td']),ooo:'[]',email:'bea@example.com',role:'TD2 - Technical Designer',admin:'1',feedbackRecipient:'1',driver:'1'},
+ {appId:'s4',Title:'Cody Hall',depts:JSON.stringify(['fin']),ooo:'[]',email:'cody@example.com',role:'Co-Director of Finishing',admin:''}];
 
 const dom=boot(FILE,{data:{projects:[],tasks:[],staff,todos:[]}});
 const win=dom.window,doc=win.document,E=s=>win.eval(s);
@@ -40,9 +31,11 @@ function main(){
      /const sc0=document\.getElementById\('cd-rows'\),st0=sc0\?sc0\.scrollTop:0[;,]/.test(src) /* v1.26.3 (#27): scrollLeft rides on the same line */
      &&src.indexOf("sc1.scrollTop=st0")>=0);
   ok('KBD popover teaches the arrows', /\['↑ ↓','Move selection'\],\['⌘ Z','Undo'\],(\['⌘ Y','Redo'\],)?\['Esc','Back to the timeline'\]/.test(src)); /* v1.20.0 added Redo */
-  ok('driver rides the tristate mappers',
-     src.indexOf("if(p.driver!=null)f.driver=p.driver?'1':''")>=0
-     &&src.indexOf("driver:f.driver==null?null:flagTruthy(f.driver)")>=0);
+  ok('driver rides the tristate mappers',(()=>{ /* item 61: a round trip, not the mapper's source text */
+    const w=E("JSON.stringify([personToFields({id:'x',name:'A',depts:[],ooo:[],driver:true}),personToFields({id:'x',name:'A',depts:[],ooo:[],driver:false}),personToFields({id:'x',name:'A',depts:[],ooo:[]})])");
+    const [on,off,none]=JSON.parse(w);
+    const back=JSON.parse(E("JSON.stringify([fieldsToPerson({appId:'x',Title:'A',driver:'1'}).driver,fieldsToPerson({appId:'x',Title:'A',driver:''}).driver,fieldsToPerson({appId:'x',Title:'A'}).driver])"));
+    return on.driver==='1'&&off.driver===''&&!('driver' in none)&&back[0]===true&&back[1]===false&&back[2]===null;})());
   ok('merge folds the driver flag', /driver:\(keep\.driver\|\|dup\.driver\)\?true/.test(src));
 
   win.location.hash='#/people';
@@ -128,8 +121,7 @@ function main(){
          doc.querySelector('.cd-list').style.width==='320px'
          &&doc.querySelector('.cd-list').style.getPropertyValue('--cdc1')==='60px');
 
-      console.log('\ntest-v1170: '+pass+' passed, '+fail+' failed');
-      process.exit(fail?1:0);
+      done();
     },350);
   },350);
 }

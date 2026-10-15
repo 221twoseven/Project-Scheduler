@@ -8,18 +8,9 @@
    - renderCompanyPage runs applyPerms at the door (direct #/people loads left the
      dev cluster and Help entries stale).
    Run: node tests/test-v1180.js index.html  (or via tests/run.js) */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-if(src.indexOf('cde-av-a')<0){
-  console.log('test-v1180: skipped — pre-v1.18.0 build ('+FILE+')');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 const D=n=>{const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()+n);
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
@@ -27,10 +18,10 @@ const D=n=>{const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()+n);
 const staff=[
  {appId:'s1',Title:'Sam',depts:JSON.stringify(['pm']),ooo:'[]',email:'user@example.com',role:'PM',admin:'dev'},
  /* manual flag alone */
- {appId:'s2',Title:'Dana West',depts:JSON.stringify(['fab']),ooo:'[]',email:'d@x.co',role:'',admin:'',availability:'unavailable'},
+ {appId:'s2',Title:'Dana West',depts:JSON.stringify(['fab']),ooo:'[]',email:'d@example.com',role:'',admin:'',availability:'unavailable'},
  /* active OOO range OUTRANKS the manual flag */
- {appId:'s3',Title:'Cody Hall',depts:JSON.stringify(['fin']),ooo:JSON.stringify([{id:'o1',start:D(-2),end:D(3),note:''}]),email:'c@x.co',role:'',admin:'',availability:'unavailable'},
- {appId:'s4',Title:'Alex Reyes',depts:JSON.stringify(['fab']),ooo:'[]',email:'a@x.co',role:'',admin:''}];
+ {appId:'s3',Title:'Cody Hall',depts:JSON.stringify(['fin']),ooo:JSON.stringify([{id:'o1',start:D(-2),end:D(3),note:''}]),email:'c@example.com',role:'',admin:'',availability:'unavailable'},
+ {appId:'s4',Title:'Alex Reyes',depts:JSON.stringify(['fab']),ooo:'[]',email:'a@example.com',role:'',admin:''}];
 
 const dom=boot(FILE,{data:{projects:[],tasks:[],staff,todos:[]}});
 const win=dom.window,doc=win.document,E=s=>win.eval(s);
@@ -39,9 +30,11 @@ setTimeout(main,1300);
 
 function main(){
   sec('source markers');
-  ok('availability rides the tristate mappers',
-     src.indexOf('if(p.availability!=null)f.availability=p.availability')>=0
-     &&src.indexOf('availability:f.availability==null?null:String(f.availability)')>=0);
+  ok('availability rides the tristate mappers',E( /* item 61: a round trip, not the mapper's source text */
+     "personToFields({id:'x',name:'A',depts:[],ooo:[],availability:'unavailable'}).availability==='unavailable'"
+     +"&&!('availability' in personToFields({id:'x',name:'A',depts:[],ooo:[]}))"
+     +"&&fieldsToPerson({appId:'x',Title:'A',availability:'available'}).availability==='available'"
+     +"&&fieldsToPerson({appId:'x',Title:'A'}).availability===null")===true);
   ok('merge keeps the kept record\'s flag first', /availability:keep\.availability!=null\?keep\.availability:dup\.availability/.test(src));
   ok('renderCompanyPage runs applyPerms at the door', /function renderCompanyPage\(\)\{\n[^]{0,300}applyPerms\(\);/.test(src));
   ok('the Driver column centers its check', src.indexOf('.cd-drv{text-align:center}')>=0);
@@ -94,8 +87,7 @@ function main(){
          vs.value==='dev'&&!vs.classList.contains('active')
          &&!doc.getElementById('mi-appset').classList.contains('hidden')&&!!doc.getElementById('cd-add'));
 
-      console.log('\ntest-v1180: '+pass+' passed, '+fail+' failed');
-      process.exit(fail?1:0);
+      done();
     },350);
   },350);
 }

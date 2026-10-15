@@ -8,18 +8,9 @@
    - Style parity: the Projects-lens sort-group headers take the Departments-lens
      section-header look (same bar color, hover, typography, count chip).
    Run: node tests/test-v181.js index.html  (or via tests/run.js) */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-if(src.indexOf('.sb-row.grp-head{background:#D6DFEB')<0){
-  console.log('test-v181: skipped — pre-v1.8.1 build ('+FILE+')');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 const D=n=>{const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()+n);
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
@@ -98,7 +89,6 @@ function main(){
   ok('a stored height restores through the loader guard',
      src.indexOf("localStorage.getItem('shopTimelineMeDockH')")>=0);
 
-  console.log('\ntest-v181: '+pass+' passed, '+fail+' failed');
-  process.exit(fail?1:0);
+  done();
 }
 setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},25000);

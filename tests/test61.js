@@ -10,30 +10,19 @@
      typing or drag-selecting) no longer closes it; page scrolls still do.
    Skips entirely on builds that predate REV61.
    Run: node test61.js index.html */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-if(!/ppPopDate/.test(src)){
-  console.log('  SKIP  build predates REV61 (draft popover dates not editable) — nothing to assert');
-  console.log('\n'+'-'.repeat(46));
-  console.log('  0 passed, 0 failed   ['+FILE+']');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 
 const projects=[{appId:'p1',Title:'Hermes Windows',client:'Hermes',jobCode:'H1',
-  deadline:'2026-09-15',status:'in-fabrication',projectManager:'Stan',drafter:'Peter',
-  leadFab:'Nick',activeDepartments:JSON.stringify(['pm','td','install']),
+  deadline:'2026-09-15',status:'in-fabrication',projectManager:'Theo',drafter:'Oscar',
+  leadFab:'Milo',activeDepartments:JSON.stringify(['pm','td','install']),
   createdAt:'2026-07-01',sortIndex:0}];
 const tasks=[
- {appId:'td1',projectId:'p1',department:'td',assignee:'Peter',startDate:'2026-08-03',
+ {appId:'td1',projectId:'p1',department:'td',assignee:'Oscar',startDate:'2026-08-03',
   endDate:'2026-08-07',estimatedDays:5,ticketNodes:'[]',notes:'',pinned:false,label:''},
- {appId:'i1',projectId:'p1',department:'install',assignee:'["Nick"]',startDate:'2026-09-14',
+ {appId:'i1',projectId:'p1',department:'install',assignee:'["Milo"]',startDate:'2026-09-14',
   endDate:'2026-09-15',estimatedDays:2,ticketNodes:'[]',notes:'',pinned:false,label:''}];
 
 const dom=boot(FILE,{data:{projects,tasks,staff:[],todos:[]}});
@@ -45,7 +34,7 @@ const route=h=>{win.location.hash=h;win.dispatchEvent(new win.Event('hashchange'
 const change=el=>el.dispatchEvent(new win.Event('change',{bubbles:true}));
 
 setTimeout(()=>{
-  E("PEOPLE=[{name:'Alice A.'},{name:'Bob B.'},{name:'Nick'},{name:'Peter'}];");
+  E("PEOPLE=[{name:'Alice A.'},{name:'Bob B.'},{name:'Milo'},{name:'Oscar'}];");
   route('#/project/new');
   setTimeout(draftStage,900);
 },1300);
@@ -147,21 +136,21 @@ function savedStage(){
       ok('Crew is a checkbox list on a roster phase too',
          !!whoTd&&!!whoTd.querySelector('input[type="checkbox"]'));
       ok('the pool culls to the project team, not the whole staff',
-         !!whoTd&&[...whoTd.querySelectorAll('input')].some(i=>i.value==='Stan')
+         !!whoTd&&[...whoTd.querySelectorAll('input')].some(i=>i.value==='Theo')
          &&![...whoTd.querySelectorAll('input')].some(i=>i.value==='Alice A.'));
       ok('the current crew is pre-checked',
-         !!whoTd&&[...whoTd.querySelectorAll('input:checked')].map(i=>i.value).join()==='Peter');
+         !!whoTd&&[...whoTd.querySelectorAll('input:checked')].map(i=>i.value).join()==='Oscar');
       const row3=q('#pp-insp .ins-row3');
       ok('Who renders above Start/End/Days',
          whoTd&&row3&&(whoTd.compareDocumentPosition(row3)&win.Node.DOCUMENT_POSITION_FOLLOWING));
-      const stan=[...whoTd.querySelectorAll('input')].find(i=>i.value==='Stan');
-      stan.checked=true;change(stan);
+      const theo=[...whoTd.querySelectorAll('input')].find(i=>i.value==='Theo');
+      theo.checked=true;change(theo);
       setTimeout(()=>{
         const calls=win.__spCalls.filter(c=>c.method==='PATCH'&&c.body&&c.body.assignee);
         const last=calls[calls.length-1];
         ok('a second name saves as a plain comma list (colleague-app-readable)',
            !!last&&!/[\[\]"]/.test(last.body.assignee)
-           &&/Peter/.test(last.body.assignee)&&/Stan/.test(last.body.assignee),
+           &&/Oscar/.test(last.body.assignee)&&/Theo/.test(last.body.assignee),
            last&&last.body.assignee);
 
       sec('Install crew is a multi-select people picker that persists');
@@ -172,14 +161,14 @@ function savedStage(){
         ok('it is fed by the people list',
            !!crew&&qa('#ins-crew input').some(i=>i.value==='Alice A.'));
         ok('the current crew is pre-checked',
-           !!crew&&qa('#ins-crew input:checked').map(i=>i.value).join()==='Nick');
+           !!crew&&qa('#ins-crew input:checked').map(i=>i.value).join()==='Milo');
         const alice=qa('#ins-crew input').find(i=>i.value==='Alice A.');
         alice.checked=true;change(alice);
         setTimeout(()=>{
           const calls=win.__spCalls.filter(c=>c.method==='PATCH'&&c.body&&c.body.assignee);
           const last=calls[calls.length-1];
           ok('checking a name saves the crew to SharePoint',
-             !!last&&/Nick/.test(last.body.assignee)&&/Alice A\./.test(last.body.assignee),
+             !!last&&/Milo/.test(last.body.assignee)&&/Alice A\./.test(last.body.assignee),
              last&&last.body.assignee);
           done();
         },600);
@@ -189,9 +178,4 @@ function savedStage(){
   },800);
 }
 
-function done(){
-  console.log('\n'+'-'.repeat(46));
-  console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-  process.exit(fail?1:0);
-}
 setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},20000);

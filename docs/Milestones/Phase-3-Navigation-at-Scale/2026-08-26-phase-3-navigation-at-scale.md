@@ -49,7 +49,7 @@ back to that exact setup in one click, or zero on launch.
 | Zoom — Month (a season, one screen) | [after-b3-month.png](screenshots/after-b3-month.png) |
 | Density — Comfortable (before) | [before-b5-rows.png](screenshots/before-b5-rows.png) |
 | Density — Compact (after) | [after-b5-compact.png](screenshots/after-b5-compact.png) |
-| Group "Caroline · 8" collapsed | [after-b5-collapsed.png](screenshots/after-b5-collapsed.png) |
+| Group "Cordelia · 8" collapsed | [after-b5-collapsed.png](screenshots/after-b5-collapsed.png) |
 | Views menu open | [after-b6-views-menu.png](screenshots/after-b6-views-menu.png) |
 | A saved view applied, one click | [after-b6-view-applied.png](screenshots/after-b6-view-applied.png) |
 

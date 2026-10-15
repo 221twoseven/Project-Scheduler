@@ -189,9 +189,9 @@ Roughly in build order:
       main-timeline bar opens it (Design-Language §6); the project page keeps
       click-selects-into-inspector.
 
-### 3a. Project Page Refinement — recovered field notes (Robert, 2026-08-17)
+### 3a. Project Page Refinement — recovered field notes (the owner, 2026-08-17)
 
-Robert's project-page review notes (N1–N16) travelled in a handoff that went missing;
+The owner's project-page review notes (N1–N16) travelled in a handoff that went missing;
 it surfaced 2026-08-20 and is reconciled here. Four of the sixteen were built in the
 meantime without the doc (the notes reached the team through the owner directly):
 

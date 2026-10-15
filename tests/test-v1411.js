@@ -4,20 +4,9 @@
    R2 the full words stay in the button text, the tooltip and the accessible name.
    jsdom cannot evaluate container queries; the widths 180–300px were measured in Chrome (all fit).
    Run: node tests/test-v1411.js index.html  (or via tests/run.js) */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-if(src.indexOf('container:sbhead/inline-size')<0){
-  console.log('  SKIP  test-v1411: pre-v1.41.1 build ('+FILE+')');
-  console.log('\n'+'-'.repeat(46));
-  console.log('  0 passed, 0 failed   ['+FILE+']');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 
 ok('R1: the sidebar header is a size container', /#sb-head\{container:sbhead\/inline-size\}/.test(src));
 ok('R1: a narrow header swaps the labels for their short forms', /@container sbhead \(max-width:\d+px\)\{\s*#sb-head \.sb-lens \.t-btn\{font-size:0;[^}]*\}\s*#sb-head \.sb-lens \.t-btn::after\{content:attr\(data-short\)/.test(src));
@@ -29,7 +18,5 @@ setTimeout(()=>{
   ok('R1: the short forms are Proj and Dept', p.dataset.short==='Proj'&&d.dataset.short==='Dept');
   ok('R2: the button text is still the full word', p.textContent==='Projects'&&d.textContent==='Departments');
   ok('R2: the accessible name and tooltip keep the full word', p.getAttribute('aria-label')==='Projects'&&d.getAttribute('aria-label')==='Departments'&&/by project/.test(p.title)&&/by department/.test(d.title));
-  console.log('\n'+'-'.repeat(46));
-  console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-  process.exit(fail?1:0);
+  done();
 },800);

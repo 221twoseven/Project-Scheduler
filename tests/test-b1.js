@@ -1,24 +1,15 @@
 /* B1 / Design-Language §6: a main-timeline row whose bars all sit outside the
    horizontal viewport gets an edge chip naming the bar's near edge; clicking it
    scrolls the bar into view (centred). Run: node tests/test-b1.js index.html */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
+const {boot,suite}=require('./harness');
+const {FILE,ok,done}=suite();
 
-/* The frozen REV50 reference predates B1 — same convention as test-e3-resize.js. */
-if(fs.readFileSync(FILE,'utf8').indexOf('updateEdgeIndicators')<0){
-  console.log('test-b1: skipped — no updateEdgeIndicators() in '+FILE+' (pre-B1 build)');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 
 const proj=(id,name,dl)=>({appId:id,Title:name,client:'',jobCode:id.toUpperCase(),
-  deadline:dl,status:'in-fabrication',projectManager:'Stan',drafter:'',
+  deadline:dl,status:'in-fabrication',projectManager:'Theo',drafter:'',
   leadFab:'',activeDepartments:JSON.stringify(['pm','fab']),createdAt:'2026-07-01'});
-const task=(id,pid,s,e)=>({appId:id,projectId:pid,department:'fab',assignee:'Nick',
+const task=(id,pid,s,e)=>({appId:id,projectId:pid,department:'fab',assignee:'Milo',
   startDate:s,endDate:e,estimatedDays:5,ticketNodes:'[]',notes:'',pinned:false,label:''});
 /* Dates ride relative to today: the fixed 2026 seeds went stale on 2026-09-15 when the
    canvas origin crawled past the "near" bar and it stopped being off-screen. Both bars
@@ -104,9 +95,4 @@ setTimeout(()=>{
   },80);
 },1300);
 
-function done(){
-  console.log('\n'+'-'.repeat(46));
-  console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-  process.exit(fail?1:0);
-}
 setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},25000);

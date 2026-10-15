@@ -30,7 +30,7 @@ default).
 
 ## Why it mattered
 
-Tracker #33 (Robert, 2026-10-01): the code is the identifier the shop recognises in a
+Tracker #33 (the owner, 2026-10-01): the code is the identifier the shop recognises in a
 narrow space; the long name is cut off anyway. Approved "Proceed with fix" 2026-10-05.
 Rides on #24 (v1.31.0), which put the client on this line: under the spec's Q2 default the
 code wins the line and the client moves into the hover tip; #24's Departments assertions in

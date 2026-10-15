@@ -6,7 +6,7 @@ owner 2026-09-01)
 
 ## What shipped
 
-Two per-person flags on `ShopTimeline_Staff` (columns created by Robert 2026-09-01,
+Two per-person flags on `ShopTimeline_Staff` (columns created by the owner 2026-09-01,
 `1` on his row) now drive who can change shared data and who receives feedback mail:
 
 - **Admins** — full access, exactly the app as it was.
@@ -59,7 +59,7 @@ the shared Lists have had all along; accepted as such in the brief.
 
 ## Rollout note
 
-At ship time only Robert's row is flagged — **every other user becomes a viewer
+At ship time only the owner's row is flagged — **every other user becomes a viewer
 the moment this build reaches them.** That's the intended starting point (flip
 `admin` per person on the People page as roles firm up), but worth remembering
 when reading `/preview/` feedback: "I can't edit anymore" is the feature.

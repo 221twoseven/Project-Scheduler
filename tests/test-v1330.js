@@ -11,20 +11,9 @@
    countdown, and a Reload that would lose a save or a mid-edit record is refused · D1 a
    minVersion the served build cannot satisfy never starts a reload loop.
    Run: node tests/test-v1330.js index.html  (or via tests/run.js) */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-if(src.indexOf('function updCheck')<0){
-  console.log('  SKIP  test-v1330: pre-v1.33.0 build ('+FILE+')');
-  console.log('\n'+'-'.repeat(46));
-  console.log('  0 passed, 0 failed   ['+FILE+']');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
 
@@ -58,10 +47,8 @@ const focus=()=>doc.dispatchEvent(new win.Event('visibilitychange'));
 const reloads=()=>E("window.__reloads||0");
 
 setTimeout(async()=>{
-  try{await run();}catch(e){fail++;console.log('  FAIL  suite threw: '+(e&&e.stack||e));}
-  console.log('\n'+'-'.repeat(46));
-  console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-  process.exit(fail?1:0);
+  try{await run();}catch(e){ok('suite threw: '+(e&&e.stack||e),false);}
+  done();
 },1300);
 
 async function run(){

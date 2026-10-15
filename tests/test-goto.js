@@ -2,18 +2,10 @@
    header, or the ? legend open one popover (native date input + quick picks); choosing a
    date centers it in the viewport; the Today button centers instead of parking left.
    Run: node tests/test-goto.js index.html */
-const {boot}=require('./harness');
+const {boot,suite}=require('./harness');
 const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
+const {FILE,ok,done}=suite();
 
-/* The frozen REV50 reference predates B3b — same convention as test-b3-zoom.js. */
-if(fs.readFileSync(FILE,'utf8').indexOf('goto-menu')<0){
-  console.log('test-goto: skipped — no goto-menu in '+FILE+' (pre-B3b build)');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 
 /* Seed dates relative to the run date so "today", "+3 months" and "next install" stay
@@ -24,9 +16,9 @@ const rel=(days,months)=>{const d=new Date(D0);if(months)d.setMonth(d.getMonth()
 const INSTALL_ISO=rel(0,2); /* the only install task — deterministic "next install" */
 
 const proj=(id,name,dl)=>({appId:id,Title:name,client:'',jobCode:id.toUpperCase(),
-  deadline:dl,status:'in-fabrication',projectManager:'Stan',drafter:'Dana',
-  leadFab:'Nick',activeDepartments:JSON.stringify(['pm','fab','install']),createdAt:rel(-40)});
-const task=(id,pid,dept,s,e)=>({appId:id,projectId:pid,department:dept,assignee:'Nick',
+  deadline:dl,status:'in-fabrication',projectManager:'Theo',drafter:'Dana',
+  leadFab:'Milo',activeDepartments:JSON.stringify(['pm','fab','install']),createdAt:rel(-40)});
+const task=(id,pid,dept,s,e)=>({appId:id,projectId:pid,department:dept,assignee:'Milo',
   startDate:s,endDate:e,estimatedDays:5,ticketNodes:'[]',notes:'',pinned:false,label:''});
 const projects=[proj('p1','Long Haul',rel(3,2)),proj('p2','Near Term',rel(15))];
 const tasks=[task('t1','p1','fab',rel(-30),rel(0,4)),
@@ -127,9 +119,4 @@ setTimeout(()=>{
   },160);
 },1300);
 
-function done(){
-  console.log('\n'+'-'.repeat(46));
-  console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-  process.exit(fail?1:0);
-}
 setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},25000);

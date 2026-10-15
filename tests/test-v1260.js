@@ -8,20 +8,9 @@
    department dates · R5 Shipping scheduled and Installation unticked reads "Ships", never
    "Installs" · R6 neither scheduled: no date shown, never late.
    Run: node tests/test-v1260.js index.html  (or via tests/run.js) */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-if(src.indexOf('function dueOf')<0){
-  console.log('  SKIP  test-v1260: pre-v1.26.0 build ('+FILE+')');
-  console.log('\n'+'-'.repeat(46));
-  console.log('  0 passed, 0 failed   ['+FILE+']');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 
 /* Dates relative to today, so the suite stays true next month. */
@@ -29,10 +18,10 @@ const D=n=>{const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()+n);
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
 const nice=iso=>{const [y,m,d]=iso.split('-').map(Number);return new Date(y,m-1,d).toLocaleDateString('en-US',{month:'short',day:'numeric'});};
 const P=(id,name,code,depts,extra)=>Object.assign({appId:id,Title:name,client:'Client '+id,jobCode:code,
-  deadline:D(-60),status:'in-fabrication',projectManager:'Sam',drafter:'Peter',leadFab:'Nick',
+  deadline:D(-60),status:'in-fabrication',projectManager:'Sam',drafter:'Oscar',leadFab:'Milo',
   activeDepartments:JSON.stringify(depts),createdAt:'2026-07-01',sortIndex:0},extra||{});
 const onSite=d=>d==='install'||d==='shipping';
-const T=(id,pid,dept,s,e)=>({appId:id,projectId:pid,department:dept,assignee:onSite(dept)?'[]':'Peter',
+const T=(id,pid,dept,s,e)=>({appId:id,projectId:pid,department:dept,assignee:onSite(dept)?'[]':'Oscar',
   startDate:s,endDate:e,estimatedDays:2,ticketNodes:'[]',notes:'',pinned:false,label:''});
 /* Every Setup date is 60 days back. Only the blocks decide. */
 const projects=[
@@ -163,9 +152,4 @@ function stage3(){
   },600);
 }
 
-function done(){
-  console.log('\n'+'-'.repeat(46));
-  console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-  process.exit(fail?1:0);
-}
 setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},40000);

@@ -28,7 +28,7 @@
 
 ## Why it mattered
 
-Tracker #6 (Hubert, 2026-09-24): completed jobs stayed in the main view with no sign they were
+Tracker #6 (the backup maintainer, 2026-09-24): completed jobs stayed in the main view with no sign they were
 done, cluttering the board; they must still be reachable for revisions, closeout, storage and
 billing.
 

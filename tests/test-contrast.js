@@ -3,18 +3,11 @@
    entry in the CSS must itself hit ≥4.5:1. Fails when a palette edit regresses.
    Run: node tests/test-contrast.js index.html */
 const fs=require('fs'),path=require('path');
-const {boot}=require('./harness');
-const FILE=process.argv[2]||'index.html';
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 
-const src=fs.readFileSync(FILE,'utf8');
-if(!/function labelColor/.test(src)){
-  console.log('test-contrast: skipped — no labelColor() in '+path.basename(FILE)+' (pre-C4 build)');
-  process.exit(0);
-}
 
 const dom=boot(FILE,{data:{projects:[],tasks:[],todos:[]}});
 const win=dom.window,E=s=>win.eval(s);
@@ -97,6 +90,5 @@ if(tok('ts-muted')){
   ok('no input border is a pale divider',!paleInput.test(css));
 }else console.log('  SKIP  chrome text / input boundary checks — pre-v1.24.0 build (no --ts-muted)');
 
-console.log('\ncontrast: '+pass+' passed, '+fail+' failed');
-process.exit(fail?1:0);
+done();
 setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},20000);

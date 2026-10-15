@@ -8,20 +8,9 @@
    scheduler (no manual placement) · Q2 default: the panel's and the popover's Days field on a
    saved project move the end too.
    Run: node tests/test-v1341.js index.html  (or via tests/run.js) */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-if(src.indexOf('function ppDeptDays')<0){
-  console.log('  SKIP  test-v1341: pre-v1.34.1 build ('+FILE+')');
-  console.log('\n'+'-'.repeat(46));
-  console.log('  0 passed, 0 failed   ['+FILE+']');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 
 const CAL=src.indexOf('function typedDates')>=0; /* #26 in: Installation counts calendar days */
@@ -30,13 +19,13 @@ const DUE=src.indexOf('function dueOf')>=0;      /* #15/#20 in: the header follo
 /* Atlas: Technical Design Thu Oct 1 – Fri Oct 2, Fab Oct 5–16, Installation Saturday Oct 10 (one day),
    target Monday Oct 26 2026. */
 const projects=[{appId:'p1',Title:'Atlas Lobby',client:'Atlas',jobCode:'A1',
-  deadline:'2026-10-26',status:'in-fabrication',projectManager:'Stan',drafter:'Peter',
-  leadFab:'Nick',activeDepartments:JSON.stringify(['pm','td','fab','install']),
+  deadline:'2026-10-26',status:'in-fabrication',projectManager:'Theo',drafter:'Oscar',
+  leadFab:'Milo',activeDepartments:JSON.stringify(['pm','td','fab','install']),
   createdAt:'2026-09-01',sortIndex:0}];
 const tasks=[
- {appId:'td1',projectId:'p1',department:'td',assignee:'Peter',startDate:'2026-10-01',
+ {appId:'td1',projectId:'p1',department:'td',assignee:'Oscar',startDate:'2026-10-01',
   endDate:'2026-10-02',estimatedDays:2,ticketNodes:'[]',notes:'',pinned:false,label:''},
- {appId:'f1',projectId:'p1',department:'fab',assignee:'Nick',startDate:'2026-10-05',
+ {appId:'f1',projectId:'p1',department:'fab',assignee:'Milo',startDate:'2026-10-05',
   endDate:'2026-10-16',estimatedDays:10,ticketNodes:'[]',notes:'',pinned:false,label:''},
  {appId:'i1',projectId:'p1',department:'install',assignee:'[]',startDate:'2026-10-10',
   endDate:'2026-10-10',estimatedDays:1,ticketNodes:'[]',notes:'',pinned:false,label:''}];
@@ -227,9 +216,4 @@ function stageC(){
   },900);
 }
 
-function done(){
-  console.log('\n'+'-'.repeat(46));
-  console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-  process.exit(fail?1:0);
-}
 setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},60000);

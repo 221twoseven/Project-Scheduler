@@ -5,34 +5,23 @@
    - A removable "Client: X" chip shows, Filters counts it, Clear wipes it.
    - The pick persists in UI prefs and restores on load.
    Run: node tests/test-client-filter.js index.html */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-if(!/CLIENT_FILTER/.test(src)){
-  console.log('  SKIP  build predates the client filter (no CLIENT_FILTER) — nothing to assert');
-  console.log('\n'+'-'.repeat(46));
-  console.log('  0 passed, 0 failed   ['+FILE+']');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 
 /* Three projects, two clients — Acme (p1,p2) and Beta (p3); each with one fab bar. */
 const projects=[
  {appId:'p1',Title:'Acme Lobby',client:'Acme',jobCode:'A1',deadline:'2026-09-15',
-  status:'in-fabrication',projectManager:'Stan',drafter:'Peter',leadFab:'Nick',
+  status:'in-fabrication',projectManager:'Theo',drafter:'Oscar',leadFab:'Milo',
   activeDepartments:JSON.stringify(['pm','fab']),createdAt:'2026-07-01',sortIndex:0},
  {appId:'p2',Title:'Acme Annex',client:'Acme',jobCode:'A2',deadline:'2026-09-20',
-  status:'in-design',projectManager:'Stan',drafter:'Peter',leadFab:'Nick',
+  status:'in-design',projectManager:'Theo',drafter:'Oscar',leadFab:'Milo',
   activeDepartments:JSON.stringify(['pm','fab']),createdAt:'2026-07-02',sortIndex:1},
  {appId:'p3',Title:'Beta Tower',client:'Beta',jobCode:'B1',deadline:'2026-10-01',
-  status:'in-fabrication',projectManager:'Caroline',drafter:'Peter',leadFab:'Kate',
+  status:'in-fabrication',projectManager:'Cordelia',drafter:'Oscar',leadFab:'Ines',
   activeDepartments:JSON.stringify(['pm','fab']),createdAt:'2026-07-03',sortIndex:2}];
-const tasks=projects.map((p,i)=>({appId:'t'+i,projectId:p.appId,department:'fab',assignee:'Nick',
+const tasks=projects.map((p,i)=>({appId:'t'+i,projectId:p.appId,department:'fab',assignee:'Milo',
   startDate:'2026-08-24',endDate:'2026-09-04',estimatedDays:10,ticketNodes:'[]',notes:'',pinned:false,label:''}));
 
 const dom=boot(FILE,{data:{projects,tasks,staff:[],todos:[]}});
@@ -70,8 +59,6 @@ setTimeout(()=>{
   E("CLIENT_FILTER=new Set();loadLocalPrefs();");
   ok('restored on load',E("[...CLIENT_FILTER].join(',')")==='Beta',E("[...CLIENT_FILTER].join(',')"));
 
-  console.log('\n'+'-'.repeat(46));
-  console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-  process.exit(fail?1:0);
+  done();
 },1300);
 setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},20000);
