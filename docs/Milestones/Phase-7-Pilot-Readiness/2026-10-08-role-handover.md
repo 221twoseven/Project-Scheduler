@@ -1,6 +1,6 @@
 # 2026-10-08 — A role change moves the project to the new holder (v1.42.0)
 
-**Version:** v1.42.0 · **PR:** #111 · **Tracker:** #34 (Ines Dovell, "When a PM is changed
+**Version:** v1.42.0 · **PR:** #111 · **Tracker:** #34 (a reporter, "When a PM is changed
 post project creation it still shows up in originals PM's bucket"), approved "proceed with
 fix" 2026-10-06 · **TODO:** item 53.
 
