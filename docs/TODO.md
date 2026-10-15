@@ -665,8 +665,12 @@ release. Where the app has a part, it's listed.
       - Most of this is in the 2026-09-02 milestone record; retention and recovery are
         the missing paragraphs.
       [brief §7.2]
-- [ ] **21. Refresh the reference docs before reviewers see the repository.** The
-      living docs have drifted from the code:
+- [x] **21. Refresh the reference docs before reviewers see the repository.** Done
+      2026-10-15, docs only (no release): `docs/ARCHITECTURE.md` (all lists, the `store`
+      seam, every route, departments, a "Formulas and rollups" section, hosting),
+      `docs/SETUP.md` (four scopes, all lists, the Feedback Bot and its secret expiry,
+      `/preview/`), `CLAUDE.md` (no line or list counts). The living docs had drifted
+      from the code:
       - `docs/ARCHITECTURE.md` documents 5 lists (9 are in use, plus Employee Contacts);
         leaves out the client, config, changelog and feedback mappers and the
         `#/people`, `#/clients`, `#/changelog`, `#/settings`, `#/reports` routes; and
@@ -2067,8 +2071,8 @@ How to read the tags at the end of an entry:
 - [ ] **No release tags, no written rollback procedure, and the repository is under a
       personal account.** Items 16 and 24.
 - [ ] **Shop-terminal account type.** D14. [v1.x §2]
-- [ ] **Docs out of date** (ARCHITECTURE: 5 lists vs 9; SETUP: 2 scopes vs 4; the
-      `CLAUDE.md` line count; the tests/README suite count). Item 21.
+- [x] **Docs out of date** (ARCHITECTURE: 5 lists vs 9; SETUP: 2 scopes vs 4; the
+      `CLAUDE.md` line count; the tests/README suite count). Item 21, done 2026-10-15.
 - [x] **Developer Bug Reports page buttons.** Once a report has a `ghIssue`, the tracker
       poller overrides its Mark resolved / Reopen buttons (GitHub is the source of truth
       for status, 2026-09-25). Done in v1.39.0 (tracker #29): a row with a ticket shows
