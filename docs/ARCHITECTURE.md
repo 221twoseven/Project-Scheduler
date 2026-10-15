@@ -66,7 +66,8 @@ Microsoft Graph  v1.0  ──►  SharePoint site  /sites/TWOSEVENINC
   lists: `store.list(kind)`, `columns`, `create`, `update`, `remove`, plus `signIn`,
   `who` and `explain`. `STORE_LISTS` maps each kind (`proj`, `task`, `todo`, `event`,
   `staff`, `client`, `config`, `changelog`, `feedback`, `employeeContacts`) to its list
-  name and page size. Nothing outside `store` builds a list URL.
+  name; every list reads in pages of `STORE_PAGE` (item 68). Nothing outside `store`
+  builds a list URL.
 - `spSite()` resolves the SharePoint site id once (`GET /sites/{host}:{path}`). Lists are
   then addressed by **name** under that site id — no List GUIDs are stored.
 - `spLoad()` reads Projects and Tasks in parallel, then Tasks2 (to-dos) and Events each

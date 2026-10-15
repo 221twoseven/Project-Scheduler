@@ -2546,28 +2546,29 @@ function listUrl(l){return 'https://graph.microsoft.com/v1.0/sites/'+SITE_ID+'/l
 /* Item 48 (the storage seam), PR 1: one object that owns every conversation with the
    lists. No callers yet; PRs 2–7 move each call site onto it, with the Graph requests
    unchanged byte for byte (docs/Architecture-Review-Storage.md, "Proposed PR sequence").
-   `top` is each list's page size as the call sites use it today. Items come back raw
-   ({id, fields, lastModifiedBy, …}), so the fieldsTo* mappers stay where they are. */
+   Items come back raw ({id, fields, lastModifiedBy, …}), so the fieldsTo* mappers stay
+   where they are. */
 const STORE_LISTS={
-  proj:{list:LIST_PROJECTS,top:2000}, task:{list:LIST_TASKS,top:2000},
-  todo:{list:LIST_TODOS,top:2000},    event:{list:LIST_EVENTS,top:2000},
-  staff:{list:LIST_STAFF,top:500},    client:{list:LIST_CLIENTS,top:500},
-  config:{list:LIST_CONFIG,top:200},  changelog:{list:LIST_CHANGELOG,top:2000},
-  feedback:{list:LIST_FEEDBACK,top:2000}, employeeContacts:{list:LIST_EC,top:999}
+  proj:LIST_PROJECTS, task:LIST_TASKS, todo:LIST_TODOS, event:LIST_EVENTS,
+  staff:LIST_STAFF, client:LIST_CLIENTS, config:LIST_CONFIG, changelog:LIST_CHANGELOG,
+  feedback:LIST_FEEDBACK, employeeContacts:LIST_EC
 };
+/* Item 68: one page size for every list — gpageAll follows @odata.nextLink, so this is a
+   page, not a limit. 2000 is the size the big lists already used live: one request each. */
+const STORE_PAGE=2000;
 const store={
   signIn:spInit,
   /* PR 7: who is signed in, as {name, email}, or null — the one reader of MSAL's account */
   who(){return ACCOUNT?{name:ACCOUNT.name||'',email:ACCOUNT.username||''}:null;},
   url(kind){
-    const k=STORE_LISTS[kind];
-    if(!k)throw new Error('store: unknown kind '+kind);
-    return listUrl(encodeURIComponent(k.list));
+    const l=STORE_LISTS[kind];
+    if(!l)throw new Error('store: unknown kind '+kind);
+    return listUrl(encodeURIComponent(l));
   },
   /* expand: 'fields' by default; the Employee Contacts import passes its own select. */
   async list(kind,expand){
     await spSite();
-    return gpageAll(store.url(kind)+'/items?expand='+(expand||'fields')+'&$top='+STORE_LISTS[kind].top);
+    return gpageAll(store.url(kind)+'/items?expand='+(expand||'fields')+'&$top='+STORE_PAGE);
   },
   async columns(kind){await spSite();return gpageAll(store.url(kind)+'/columns');},
   async create(kind,fields){await spSite();return gfetch(store.url(kind)+'/items',{method:'POST',body:JSON.stringify({fields})});},

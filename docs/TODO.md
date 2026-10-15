@@ -781,7 +781,7 @@ release. Where the app has a part, it's listed.
           building their own token headers. This replaces the planned `store.people()`,
           `store.mail()` and `store.upload()` wrappers.
         - After PR 8: one page size for every list (it changes request URLs, so not during
-          the sequence).
+          the sequence): item 68.
       [`docs/Architecture-Review-Storage.md` §1, "Proposed PR sequence"; D4; D15]
 - [x] **69. Stop testing against the REV50 reference** (owner, 2026-10-14). Done (PR #153,
       2026-10-14), tooling only, no release. CI and the release checklist no longer run the
@@ -792,7 +792,11 @@ release. Where the app has a part, it's listed.
       v1.47.0, so it skipped silently; it was fixed and runs again (16/16). `CLAUDE.md`,
       `README.md`, `tests/README.md` and the `ship-release` skill follow. Item 60 removes
       the remaining guards. [owner ask 2026-10-14]
-- [ ] **68. One page size for every list.** `STORE_LISTS` keeps each list's old `$top` (2000,
+- [x] **68. One page size for every list.** Done 2026-10-15, no release (internal, like
+      seam PRs 6–7): `STORE_LISTS` maps kind → list name, and every read uses
+      `STORE_PAGE` = 2000 — the size the big lists already ran with live, so they still
+      read in one request. Staff, Clients, Config and Employee Contacts change from 500 /
+      500 / 200 / 999 (all far smaller lists, so the same single request). Was: `STORE_LISTS` kept each list's old `$top` (2000,
       500, 200, 999) so the seam PRs sent byte-identical requests. One value (paging already
       follows `@odata.nextLink`) is simpler. It changes request URLs, so tests that match them
       may need edits. Follow-up from item 48. [item 48; 2026-10-12 ponytail audit]
