@@ -6,20 +6,9 @@
    "Add a department" is now "Add a phase" — same action, honest name.
    Skips entirely on builds that predate it (the frozen REV50 reference).
    Run: node test71.js index.html */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-if(src.indexOf('cal-dragging')<0){
-  console.log('  SKIP  build predates REV71 (no calendar drag) — nothing to assert');
-  console.log('\n'+'-'.repeat(46));
-  console.log('  0 passed, 0 failed   ['+FILE+']');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 
 const projects=[{appId:'p1',Title:'Hermes Windows',client:'Hermes',jobCode:'H1',
@@ -217,9 +206,4 @@ function stage6(){
   },800);
 }
 
-function done(){
-  console.log('\n'+'-'.repeat(46));
-  console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-  process.exit(fail?1:0);
-}
 setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},35000);

@@ -7,20 +7,9 @@
    Q1 the change takes effect today · Q2 a bar crewed by a third person is left alone and a
    note offers the hand-over · Q3 a bar that already ended is history.
    Run: node tests/test-v1420.js index.html  (or via tests/run.js) */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-if(src.indexOf('function roleHandover(')<0){
-  console.log('  SKIP  test-v1420: pre-v1.42.0 build ('+FILE+')');
-  console.log('\n'+'-'.repeat(46));
-  console.log('  0 passed, 0 failed   ['+FILE+']');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 /* dates ride relative to today — the hand-over happens "today" */
 const D=n=>{const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()+n);
@@ -156,8 +145,6 @@ function draft(){
     const pm=pid?B(pid,'pm'):[];
     ok('one Project Management bar, not split', pm.length===1, pm.length);
     ok('it follows the final PM, Sam', pm.length===1&&crew(pm[0]).join()==='Sam', pm[0]&&JSON.stringify(pm[0].assignee));
-    console.log('\n'+'-'.repeat(46));
-    console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-    process.exit(fail?1:0);
+    done();
   },800);
 }

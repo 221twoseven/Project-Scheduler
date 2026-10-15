@@ -4,20 +4,9 @@
    update check's updBusy() (owner OK 2026-10-14), so it also waits on New Project, a cursor in a
    toolbar field, or a parked client/settings save.
    Run: node tests/test-v1483.js index.html  (or via tests/run.js) */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-if(src.indexOf('const PERSON_COLS=')<0){
-  console.log('  SKIP  test-v1483: pre-v1.48.3 build ('+FILE+')');
-  console.log('\n'+'-'.repeat(46));
-  console.log('  0 passed, 0 failed   ['+FILE+']');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 
 const staff=[{appId:'s1',Title:'Sam Smith',email:'user@example.com',depts:'["pm"]',ooo:'[]'}];
@@ -58,7 +47,5 @@ setTimeout(()=>{
   ok('a cursor in a toolbar field counts as busy', E("(()=>{const i=document.createElement('input');document.getElementById('toolbar').appendChild(i);i.focus();const b=updBusy();i.remove();return b;})()")===true);
   ok('idle is not busy', E("(document.activeElement&&document.activeElement.blur&&document.activeElement.blur(),updBusy())")===false);
 
-  console.log('\n'+'-'.repeat(46));
-  console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-  process.exit(fail?1:0);
+  done();
 },1500);

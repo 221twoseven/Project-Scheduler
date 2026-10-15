@@ -5,20 +5,9 @@
    9c one phone format, 555-555-5555, whatever way it was typed or stored;
    Ext — a desk extension typed by hand on the People page (the HR list has none).
    Run: node tests/test-v1430.js index.html  (or via tests/run.js) */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-if(src.indexOf('function fmtPhone(')<0){
-  console.log('  SKIP  test-v1430: pre-v1.43.0 build ('+FILE+')');
-  console.log('\n'+'-'.repeat(46));
-  console.log('  0 passed, 0 failed   ['+FILE+']');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 
 const staff=[
@@ -139,7 +128,5 @@ async function main(){
   ok('the HR items are never requested', !E("window.__seen.some(u=>u.indexOf('Employee')>=0&&u.indexOf('/items')>=0)"));
   ok('the roster is unchanged', E("JSON.stringify(PEOPLE)")===before);
 
-  console.log('\n'+'-'.repeat(46));
-  console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-  process.exit(fail?1:0);
+  done();
 }

@@ -6,18 +6,9 @@
    saves clone the shared list, swap one record, and ride savePeople()/saveClients(),
    so the assertions here land on the same outgoing Graph calls as the modals made.
    Run: node tests/test-v170.js index.html  (or via tests/run.js) */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-if(src.indexOf('renderCompanyPage')<0){
-  console.log('test-v170: skipped — pre-v1.7.0 build ('+FILE+')');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 const D=n=>{const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()+n);
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
@@ -149,6 +140,5 @@ async function main(){
   ok('People & Availability became People', /id="mi-people"[^>]*>People</.test(src));
   ok('the menu items navigate instead of opening modals', /goPeople\(\)/.test(src)&&/goClients\(\)/.test(src));
 
-  console.log('\ntest-v170: '+pass+' passed, '+fail+' failed');
-  process.exit(fail?1:0);
+  done();
 }

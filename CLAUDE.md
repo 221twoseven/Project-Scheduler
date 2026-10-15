@@ -108,9 +108,9 @@ The current infrastructure values (for reference — do not change without instr
 - **Preserve the existing test harness.** `harness.js` boots a Timeline HTML file in
   jsdom with MSAL and `fetch` stubbed, recording every Graph request so persistence is
   asserted on the actual outgoing request bodies.
-- **Run the tests after implementation changes.** `tests/run.js` aggregates every suite
-  (behaviour suites `test46`–`test92`, `test-label`, the Phase 1–4 UX/design suites, and
-  per-release suites like `test-v102`);
+- **Run the tests after implementation changes.** `tests/run.js` runs every
+  `tests/test*.js` suite (behaviour suites `test46`–`test92`, the Phase 1–4 UX/design suites,
+  and per-release suites like `test-v102`);
   see `tests/README.md`. Validate changes against `index.html`:
 
   ```bash

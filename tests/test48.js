@@ -1,9 +1,7 @@
 ﻿/* Canvas create menu + full-height subtask bars.
    Run: node test48.js Timeline_48.html */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'Timeline_48.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 /* REV56: a subtask created inside its parent's window is born named and half the
    parent's length (see test56); older builds borrow the neighbours' average. */
 const R56=src.indexOf('npv-env')>=0;
@@ -14,8 +12,6 @@ const N11=/npvEditPop/.test(src);
 /* v1.38.0 (tracker #3): the bar menu leads with Rename (in place) — the one edit on it */
 const REN=/npvRenameBar/.test(src);
 
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 
 const projects=[{appId:'p1',Title:'Hermes Windows',client:'Hermes',jobCode:'H1',
@@ -307,10 +303,5 @@ function stage6(){
   },300);
 }
 
-function done(){
-  console.log('\n'+'-'.repeat(46));
-  console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-  process.exit(fail?1:0);
-}
 setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},35000);
 

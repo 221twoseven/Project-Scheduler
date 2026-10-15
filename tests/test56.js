@@ -8,20 +8,9 @@
    parent window (parallel subtasks, legacy layouts) stay free.
    Skips on builds that predate REV56 (the frozen REV50 reference).
    Run: node test56.js index.html */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-if(src.indexOf('npv-env')<0){
-  console.log('  SKIP  build predates REV56 (summary-bar model â€” see test47)');
-  console.log('\n'+'-'.repeat(46));
-  console.log('  0 passed, 0 failed   ['+FILE+']');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 
 const projects=[{appId:'p1',Title:'Hermes Windows',client:'Hermes',jobCode:'H1',
@@ -280,10 +269,5 @@ function stage7(){
   },800);
 }
 
-function done(){
-  console.log('\n'+'-'.repeat(46));
-  console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-  process.exit(fail?1:0);
-}
 setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},40000);
 

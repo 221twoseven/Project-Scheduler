@@ -3,22 +3,11 @@
    is asserted both directions. Covers the Gantt and the calendar.
    Skips on builds that predate the popover (the frozen REV50 reference).
    Run: node test91.js index.html */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 /* v1.38.0 (tracker #3): the bar menu leads with Rename (in place) — the one edit on it */
 const REN=/npvRenameBar/.test(src);
 
-if(!/npvEditPop/.test(src)){
-  console.log('  SKIP  build predates the edit popover — nothing to assert');
-  console.log('\n'+'-'.repeat(46));
-  console.log('  0 passed, 0 failed   ['+FILE+']');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 
 const projects=[{appId:'p1',Title:'Hermes Windows',client:'Hermes',jobCode:'H1',
@@ -195,9 +184,4 @@ function stage6(){
   },200);
 }
 
-function done(){
-  console.log('\n'+'-'.repeat(46));
-  console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-  process.exit(fail?1:0);
-}
 setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},35000);

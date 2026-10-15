@@ -846,8 +846,14 @@ release. Where the app has a part, it's listed.
       - *Waits on:* the owner's pick. If the rule is "gaps never read as work", the
         progress bar is the one to change.
       [brief §7 Rollup, §8.2, §14; item 8]
-- [ ] **60. Test-suite tidy: one shared setup, suites found automatically.** From the
+- [x] **60. Test-suite tidy: one shared setup, suites found automatically.** From the
       2026-10-12 ponytail audit (owner accepted the placement). Test-only, no release.
+      Done 2026-10-15: `run.js` finds `tests/test*.js`; `suite()` in `harness.js` replaces
+      the copied setup and summary in all 123 suites; 117 top-of-suite skip guards
+      removed. The exit-code-2 skip protocol wasn't needed: no suite skips itself any
+      more, so `run.js` no longer looks for skips at all, and any non-zero exit fails.
+      Full run: same per-suite counts as before. A few suites still skip one *section*
+      on a feature sniff (`test46`, `test-contrast`, `test-v1341`); left as they are.
       - `tests/run.js` finds `tests/test*.js` itself instead of the hand-kept `SUITES` list.
         The list already lost one suite: `test-v1210.js` never ran in CI from v1.21.0 until
         it was re-listed on 2026-10-12. Update `.claude/skills/ship-release/SKILL.md` step 2

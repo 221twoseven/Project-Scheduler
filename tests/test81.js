@@ -9,18 +9,9 @@
          (currently: …)" carrying the derived status;
      keep-pile: the bar hover tooltip carries the crew name.
    Run: node tests/test81.js index.html */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-if(src.indexOf('ins-pin')<0){
-  console.log('test81: skipped — no phase-panel Pin in '+FILE+' (pre-REV81 build)');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 
 const D0=new Date();D0.setHours(0,0,0,0);
@@ -139,9 +130,4 @@ function draftPage(){
   },2200);
 }
 
-function done(){
-  console.log('\n'+'-'.repeat(46));
-  console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-  process.exit(fail?1:0);
-}
 setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},30000);

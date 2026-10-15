@@ -7,18 +7,9 @@
    passed, not complete, with the signed-in user as PM, prompt once a day —
    Mark complete files right there, Later dismisses, the key stops a same-day
    re-ask. Run: node tests/test87.js index.html */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-if(src.indexOf('pmlate-overlay')<0){
-  console.log('test87: skipped — no completion flow in '+FILE+' (pre-REV87 build)');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 
 /* Sam (the harness's stubbed sign-in) PMs both projects; both installs passed.
@@ -116,9 +107,4 @@ function draftPage(){
   },700);
 }
 
-function done(){
-  console.log('\n'+'-'.repeat(46));
-  console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-  process.exit(fail?1:0);
-}
 setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},20000);

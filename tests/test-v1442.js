@@ -2,20 +2,9 @@
    Shop starts begin at its first real phase, not at the hidden Project Management bar (which keeps
    the start it was generated with). A new project's PM bar starts with its first phase.
    Run: node tests/test-v1442.js index.html  (or via tests/run.js) */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-if(src.indexOf('function projSpan(')<0){
-  console.log('  SKIP  test-v1442: pre-v1.44.2 build ('+FILE+')');
-  console.log('\n'+'-'.repeat(46));
-  console.log('  0 passed, 0 failed   ['+FILE+']');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 const D=n=>{const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()+n);
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
@@ -89,7 +78,5 @@ async function main(){
   ok('its saved PM bar starts on the first phase', !!np&&E("tasksOf('"+np+"').find(t=>t.department==='pm').startDate")===firstNow,
      np&&E("tasksOf('"+np+"').find(t=>t.department==='pm').startDate"));
 
-  console.log('\n'+'-'.repeat(46));
-  console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-  process.exit(fail?1:0);
+  done();
 }

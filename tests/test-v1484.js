@@ -3,20 +3,9 @@
    so a gap between blocks never fills it. "Lead time" on the project page is unchanged.
    Fixture dates are relative to today, so the expected numbers are computed the same way.
    Run: node tests/test-v1484.js index.html  (or via tests/run.js) */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-if(src.indexOf('wAll=0,wDone=0')<0){
-  console.log('  SKIP  test-v1484: pre-v1.48.4 build ('+FILE+')');
-  console.log('\n'+'-'.repeat(46));
-  console.log('  0 passed, 0 failed   ['+FILE+']');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 
 const iso=n=>{const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()+n);
@@ -61,7 +50,5 @@ setTimeout(()=>{
   ok('wdCount keeps its floor of 1 by default', E("(()=>{const s=new Date(2026,9,17);return wdCount(s,s);})()")===1); /* a Saturday */
   ok('…and counts 0 when asked', E("(()=>{const s=new Date(2026,9,17);return wdCount(s,s,0);})()")===0);
 
-  console.log('\n'+'-'.repeat(46));
-  console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-  process.exit(fail?1:0);
+  done();
 },1500);

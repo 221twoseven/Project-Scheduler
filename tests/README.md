@@ -2,7 +2,8 @@
 
 jsdom suites that boot a Timeline HTML build with MSAL and `fetch` stubbed, and assert
 behaviour on the actual outgoing Microsoft Graph requests rather than on internal state.
-**`npm test` prints the live per-suite totals** (`tests/run.js` holds the current list).
+**`npm test` prints the live per-suite totals.** Every `tests/test*.js` file is a suite;
+`tests/run.js` finds them itself.
 
 ## Traps for the next person
 
@@ -13,7 +14,7 @@ Recovered from the 2026-08-20 handoff (since retired); still true unless struck 
 - **Suites test the current app only** (owner, 2026-10-14). The run against the frozen
   REV50 copy (`reference/Timeline_50.html`, still kept and never edited) was dropped, so a
   new suite needs no "skip on an older build" guard. When a behaviour changes on purpose,
-  update the old assertion to the new behaviour. The existing guards go with item 60.
+  update the old assertion to the new behaviour. The old guards went in item 60.
 - **PowerShell 5.1 mangles git commit messages containing double quotes** (native-arg
   quoting). Use Git Bash with `git commit -F -` and a heredoc for anything multiline.
 - ~~**Duplicate DOM id `pp-cancel`** in `index.html` (print overlay's Close + project
@@ -53,7 +54,10 @@ non-zero on failure.
   `ShopTimeline_Events` Lists existing. Records every Graph request on
   `window.__spCalls`, so persistence is asserted on the actual outgoing body rather
   than on internal state.
-- `run.js` — runs all suites against one build and aggregates pass/fail.
+- `harness.js` also exports `suite()`: `const {FILE,src,ok,done}=suite();` gives the build
+  under test, its source text, the `ok(name, cond, detail)` PASS/FAIL line and `done()`,
+  which prints the summary and exits non-zero on any FAIL.
+- `run.js` — runs every `test*.js` against one build and aggregates pass/fail.
 - `test57.js` — 35 assertions. The project-page refinement batch (REV57, field notes
   N1–N16): status labels lose the "In", the orphan row reads "Events", the toolbar
   mutes on the project page, the status pill anchors in the schedule footer, the
@@ -61,13 +65,11 @@ non-zero on failure.
   commit bidirectionally with workday snap, right-click menus are add-only with an
   inline name field (Enter creates), the calendar collapses roster fan-out and filters
   to the selection, and a dirty unsaved draft asks before it is discarded.
-  Skips on builds without the add-menu name field (the frozen reference).
 - `test56.js` — 44 assertions. Project-page subtask hierarchy (REV56): the department's
   primary bar is the parent row (no synthetic summary bar, primary never re-listed as a
   subtask), subtasks in a lighter shade of the parent hue, linked/unlinked parent drag,
   parent resize independence, new subtasks born named/nested/half-length, the nested
   min/max clamp on drag and resize, parallel-subtask freedom, marker rows, draft parity.
-  Skips on builds without the envelope track (the frozen reference).
 - `test49.js` — 78 assertions. The dashboard: inspector replacing the tabs, the meta
   strip, selection driving the pane, right-click on bars / summaries / gutters, undo
   toasts, the keyboard, Escape layering, the agenda.
@@ -76,17 +78,15 @@ non-zero on failure.
 - `test53.js` — 38 assertions. Calendar create menu + parity (REV53): cells resolve to
   dates without layout, the create menu on empty cells, the bar menu and selection on
   phase bands, keyboard in calendar mode, and the draft/saved split on band clicks.
-  Skips on builds without `npvCalHit` (the frozen reference).
 - `test54.js` — 27 assertions. Standalone events (REV54): with the Events list present,
   events are rows (create needs no host phase, rename/delete in place, asserted on the
   outgoing Graph bodies); deleting a phase rescues its hosted events; deleting a project
   removes its events; the draft page files events as rows; without the list, the legacy
-  phase-hosted behaviour is untouched. Skips on builds without `ShopTimeline_Events`.
+  phase-hosted behaviour is untouched.
 - `test55.js` — 17 assertions. Draft/saved subtask convergence (REV55): a draft
   subtask's manual placement survives rebuilds (it used to snap back), a rename carries
   the placement, same-named lines stay distinct via the split bar's embedded line id,
   Save files exactly the previewed rows, and the saved path still makes real rows.
-  Skips on builds without the post-split overlay (the frozen reference).
 - `test50.js` — 51 assertions. One per issue reported against REV49, each verified on the
   page it was reported on (the new-project draft): meta entities, the departments panel,
   the hotkey focus rule, event default dates, yellow diamonds, marker drag and

@@ -4,18 +4,9 @@
      allowed, typed values snap to the half hour)
    - stored as JSON in the new `schedule` staff column, tristate like the other flags
    Run: node tests/test-v1220.js index.html  (or via tests/run.js) */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-if(src.indexOf('cde-sched')<0){
-  console.log('test-v1220: skipped — pre-v1.22.0 build ('+FILE+')');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 
 const staff=[
@@ -89,8 +80,7 @@ function main(){
         ok('Alex keeps a null schedule', E("PEOPLE.find(p=>p.name==='Alex Reyes').schedule")===null);
         const sent=win.__spCalls.slice(n0).filter(c=>c.method==='PATCH'&&/ShopTimeline_Staff/.test(c.url));
         ok('the PATCH omits the schedule field', sent.length>0&&sent.every(c=>!('schedule' in (c.body||{}))));
-        console.log('\ntest-v1220: '+pass+' passed, '+fail+' failed');
-        process.exit(fail?1:0);
+        done();
       },350);
     },350);
   },350);

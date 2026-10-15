@@ -1,15 +1,8 @@
 /* Timeline regression suite — run: node test46.js Timeline_46.html
    Covers the four REV46 fixes plus the invariants the old suites guarded. */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'Timeline_46.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-let pass=0,fail=0;
-const ok=(name,cond,extra)=>{
-  if(cond){pass++;console.log('  PASS  '+name);}
-  else{fail++;console.log('  FAIL  '+name+(extra?'   ('+extra+')':''));}
-};
 const sec=t=>console.log('\n'+t);
 
 const projects=[{appId:'p1',Title:'Hermes Windows',client:'Hermes',jobCode:'H1',
@@ -233,11 +226,6 @@ function stage4(){
   },250);
 }
 
-function done(){
-  console.log('\n'+'-'.repeat(46));
-  console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-  process.exit(fail?1:0);
-}
 setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},25000);
 
 

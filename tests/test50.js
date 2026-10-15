@@ -1,9 +1,7 @@
 /* One test per reported issue, on the page where it was reported.
    Run: node tests/run.js  (or: node tests/test50.js reference/Timeline_50.html) */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'reference/Timeline_50.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 /* REV57 / N11: bar menus are add-only — rename lives in the inspector/popover. (The old
    inline name field is retired; a New action opens the edit popover, sniffed here.) */
 const N11=/npvEditPop/.test(src);
@@ -11,8 +9,6 @@ const N11=/npvEditPop/.test(src);
 const REN=/npvRenameBar/.test(src);
 const DUP=src.indexOf('Duplicate is an add')>=0; /* v1.47.0 (item 7): Duplicate joins the bar menu */
 
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 
 const dom=boot(FILE,{data:{projects:[],tasks:[],staff:[],todos:[]}});
@@ -269,10 +265,5 @@ function stage5(){
   },400);
 }
 
-function done(){
-  console.log('\n'+'-'.repeat(46));
-  console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-  process.exit(fail?1:0);
-}
 setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},40000);
 

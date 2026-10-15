@@ -6,16 +6,12 @@
    true is the human half: the ship-release and triage-issues skills.
    Run: node tests/test-todo.js index.html  (or via tests/run.js) */
 const fs=require('fs'),path=require('path');
-const FILE=process.argv[2]||'index.html';
-/* the frozen reference build has no TODO of its own */
-if(path.basename(FILE)!=='index.html'){console.log('test-todo: skipped — not the company index.html ('+FILE+')');process.exit(0);}
+const {suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 const root=path.dirname(path.resolve(FILE));
-const src=fs.readFileSync(FILE,'utf8');
 const todo=fs.readFileSync(path.join(root,'docs','TODO.md'),'utf8').replace(/\r\n/g,'\n');
 const log=fs.readFileSync(path.join(root,'CHANGELOG.md'),'utf8');
 
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const section=(a,b)=>{const i=todo.indexOf('\n## '+a),j=todo.indexOf('\n## '+b,i+1);return i<0?'':todo.slice(i,j<0?undefined:j);};
 
 const ver=(src.match(/const APP_VER='([0-9.]+)'/)||[])[1];
@@ -46,6 +42,4 @@ const wrong=[];
 for(const b of ticked)for(const m of b.matchAll(/Shipped (?:in )?v([0-9]+\.[0-9]+\.[0-9]+)/g))if(!rel.has(m[1]))wrong.push(m[1]);
 ok('every ticked item\'s "Shipped vX" is a CHANGELOG.md release', !wrong.length, wrong.join(', '));
 
-console.log('\n'+'-'.repeat(46));
-console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-process.exit(fail?1:0);
+done();
