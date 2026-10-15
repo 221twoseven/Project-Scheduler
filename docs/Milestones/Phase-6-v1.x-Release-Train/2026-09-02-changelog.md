@@ -25,6 +25,30 @@ app-settings edits ride other save paths and are not logged; reads are on-demand
 with a short cache, never added to the 90-second poll; and nothing backfills edits
 made before today — **history starts 2026-09-02**.
 
+**Retention (added 2026-10-15, TODO item 20):** nothing is ever trimmed or archived; the
+list grows for as long as the app runs, and there's no export button (an admin can
+export `ShopTimeline_Changelog` to Excel from SharePoint). Opening either view reads the
+**whole list**, in pages, then caches it for one minute. The screens show the latest
+**500** entries (Company Data) or **300** for one project; older rows stay on the list,
+but only SharePoint shows them. Since v1.48.1 a "Schedule still accurate" confirmation
+isn't logged either: it's a stamp, not an edit. If the list grows large enough that
+opening the log slows down, the fix is a date-bounded read; nothing needs it yet.
+
+**Recovery: the log is evidence, not a restore tool.** Nothing in the app rebuilds a
+record from the log. To get something back:
+
+- **Within the session:** Undo (Ctrl+Z) steps back through your own last **20** project
+  edits. It covers projects, phases, milestones and notes, not people, clients or
+  settings. It's lost on reload, and it clears when a teammate's edit arrives by poll.
+- **A deleted row:** SharePoint's **Recycle Bin** on the TWOSEVENINC site, then the
+  site-collection Recycle Bin (93 days in total by default).
+- **An edited row:** the list item's **Version history** in SharePoint, which can
+  restore an earlier version. This works if versioning is on for that list; it's on by
+  default for new lists, but nobody has confirmed it for the nine `ShopTimeline_*` lists
+  (List settings ▸ Versioning settings). That check belongs with backups, item 15.
+- **The log tells you what to restore:** who changed what, when, and the old value of
+  each field.
+
 **Evidence:** suite `tests/test-v1190.js` (16 assertions on the outgoing Graph
 rows and both surfaces, jsdom); verified live in a browser against a stubbed
 preview — dock swap, per-project filtering, global filter, and the exact row an
