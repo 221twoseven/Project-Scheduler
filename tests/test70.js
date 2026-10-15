@@ -8,20 +8,9 @@
    - Membership is a menu, not a sync: only explicitly saved people join the roster.
    Skips on builds that predate the Teams picker.
    Run: node test70.js index.html */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-if(!/TEAM_GROUP_ID/.test(src)){
-  console.log('  SKIP  build predates the Teams picker (no TEAM_GROUP_ID) — nothing to assert');
-  console.log('\n'+'-'.repeat(46));
-  console.log('  0 passed, 0 failed   ['+FILE+']');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 
 const teamMembers=[
@@ -36,9 +25,7 @@ const win=dom.window;
 const E=s=>win.eval(s);
 
 const finish=()=>{
-  console.log('\n'+'-'.repeat(46));
-  console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-  process.exit(fail?1:0);
+  done();
 };
 
 setTimeout(()=>{

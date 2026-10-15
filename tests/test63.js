@@ -6,20 +6,9 @@
      different projects flags both — whether the name is explicit or implicit.
    Skips on builds that predate the work-priority change.
    Run: node test63.js index.html */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-if(!/barCrew/.test(src)){
-  console.log('  SKIP  build predates work-priority crews (no barCrew) — nothing to assert');
-  console.log('\n'+'-'.repeat(46));
-  console.log('  0 passed, 0 failed   ['+FILE+']');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 
 const projects=[
@@ -65,8 +54,6 @@ setTimeout(()=>{
   ok('the implicit umbrella is flagged too',E("CONFLICTS.has('t2')"));
   ok('the lone fab bar is not',!E("CONFLICTS.has('t3')"));
 
-  console.log('\n'+'-'.repeat(46));
-  console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-  process.exit(fail?1:0);
+  done();
 },1500);
 setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},20000);

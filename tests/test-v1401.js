@@ -6,20 +6,9 @@
    R3 every date's hover tip names it in full — submitted, resolved (or, unstamped, "not recorded"
       plus the last change it stands in for) and the latest developer comment.
    Run: node tests/test-v1401.js index.html  (or via tests/run.js) */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-if(!/function fbWhenTip\(/.test(src)){
-  console.log('  SKIP  test-v1401: pre-v1.40.1 build ('+FILE+')');
-  console.log('\n'+'-'.repeat(46));
-  console.log('  0 passed, 0 failed   ['+FILE+']');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 
 const item=(id,created,modified,f)=>({id,createdDateTime:created,lastModifiedDateTime:modified,fields:f});
@@ -72,8 +61,6 @@ function main(){
   E("FB_CACHE=[];FB_AT=Date.now();fbPaintList()");
   setTimeout(()=>{
     ok('no reports → the empty note, no orphan labels', !q('#fb-list .fb-colhd')&&!!q('#fb-list .clog-empty')&&!q('#fb-done .fb-colhd'));
-    console.log('\n'+'-'.repeat(46));
-    console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-    process.exit(fail?1:0);
+    done();
   },300);
 }

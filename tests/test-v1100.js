@@ -10,18 +10,9 @@
    - v1.13.0: People page mirrors Employee Contacts (read-only HR list): adds active
      employees, HR wins on title/phone/status, curated departments kept.
    Run: node tests/test-v1100.js index.html  (or via tests/run.js) */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-if(src.indexOf('cdImportEC')<0){
-  console.log('test-v1100: skipped — pre-v1.10.0 build ('+FILE+')');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 const D=n=>{const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()+n);
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
@@ -372,8 +363,7 @@ function stageTour(){
     ok('coachEl falls back to the first match when nothing reports a rect',
        E("coachEl('.pg-trail')!==null"));
     E('coachEnd()');
-    console.log('\ntest-v1100: '+pass+' passed, '+fail+' failed');
-    process.exit(fail?1:0);
+    done();
   },700);
 }
 setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},30000);

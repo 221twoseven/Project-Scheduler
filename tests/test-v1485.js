@@ -3,20 +3,9 @@
    it, so a weekend or holiday in between still counts; a real working day in between stops it.
    Fixture dates are relative to today.
    Run: node tests/test-v1485.js index.html  (or via tests/run.js) */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-if(src.indexOf('let end=cur.end,grew=true')<0){
-  console.log('  SKIP  test-v1485: pre-v1.48.5 build ('+FILE+')');
-  console.log('\n'+'-'.repeat(46));
-  console.log('  0 passed, 0 failed   ['+FILE+']');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 
 const dom=boot(FILE,{data:{projects:[],tasks:[],staff:[],todos:[]}});
@@ -44,7 +33,5 @@ setTimeout(()=>{
   ok('upcoming time off still reads as upcoming', /^OOO /.test(A("av([{start:d(5),end:d(7)}])")));
   ok('nobody away reads Available', A("av([])")==='Available');
 
-  console.log('\n'+'-'.repeat(46));
-  console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-  process.exit(fail?1:0);
+  done();
 },1500);

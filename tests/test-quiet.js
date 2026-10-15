@@ -1,23 +1,11 @@
 /* C2 quiet-canvas suite — run: node tests/test-quiet.js ./index.html
    Design-Language §2.4: quiet is the default, the vivid MONTH_HSL look lives
    behind the "Vivid months" toggle, print never emits vivid tints. */
-const {boot}=require('./harness');
+const {boot,suite}=require('./harness');
 const fs=require('fs');
 const path=require('path');
-const FILE=process.argv[2]||'./index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {FILE,src,ok,done}=suite();
 
-/* The frozen REV50 reference predates C2 — same convention as test-c1-color.js. */
-if(src.indexOf('quietCellBg')<0){
-  console.log('test-quiet: skipped — no quietCellBg() in '+FILE+' (pre-C2 build)');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(name,cond,extra)=>{
-  if(cond){pass++;console.log('  PASS  '+name);}
-  else{fail++;console.log('  FAIL  '+name+(extra?'   ('+extra+')':''));}
-};
 const sec=t=>console.log('\n'+t);
 
 const projects=[{appId:'p1',Title:'Hermes Windows',client:'Hermes',jobCode:'H1',
@@ -144,9 +132,4 @@ function stage2(){
   },600);
 }
 
-function done(){
-  console.log('\n'+'-'.repeat(46));
-  console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-  process.exit(fail?1:0);
-}
 setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},25000);

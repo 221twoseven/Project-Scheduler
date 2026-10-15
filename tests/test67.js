@@ -4,10 +4,8 @@
    Hidden in the project lens and once the person clears; its ✕ clears the filter.
    Skips on builds that predate the panel.
    Run: node test67.js index.html */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
 const V12=src.indexOf('dash-bar')>=0; /* v1.2.0: exits live on the dashboard bar */
 const V164=src.indexOf('dash-flat')>=0; /* v1.6.4: the panel follows the person into either lens */
@@ -19,15 +17,7 @@ const V190=src.indexOf('md-stack')>=0;
    are back in their own columns. Another person's Summary: stack | Milestones | Notes. */
 const V1100=src.indexOf('md-listen')>=0;
 const SECN=V190?3:4, TK=V1100?2:V190?1:2, OFF=V1100?0:V190?2:3;
-if(!/me-dock/.test(src)){
-  console.log('  SKIP  build predates the person panel (no me-dock) — nothing to assert');
-  console.log('\n'+'-'.repeat(46));
-  console.log('  0 passed, 0 failed   ['+FILE+']');
-  process.exit(0);
-}
 
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 const D=n=>{const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()+n);
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
@@ -106,8 +96,6 @@ setTimeout(()=>{
   ok('✕ clears the person filter and hides the panel',
      E('PERSON===null')&&!E("document.body.classList.contains('me-dock-on')"));
 
-  console.log('\n'+'-'.repeat(46));
-  console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-  process.exit(fail?1:0);
+  done();
 },1500);
 setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},20000);

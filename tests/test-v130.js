@@ -4,19 +4,9 @@
    2) (obj 9) Lane rows read name-over-department on the left (.sb-2l), and the
       right side lists that lane's assignments with dates, current work first.
    Run: node tests/test-v130.js index.html  (or via tests/run.js) */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-/* Pre-v1.3.0 builds (and the frozen reference) lack the lane assignment column. */
-if(src.indexOf('sb-asns')<0){
-  console.log('test-v130: skipped — pre-v1.3.0 build ('+FILE+')');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 
 const D=n=>{const d=new Date();d.setDate(d.getDate()+n);
@@ -83,8 +73,7 @@ setTimeout(()=>{
       click(bar2);
       ok('the modal opens as before', !q('#task-overlay').classList.contains('hidden'));
       ok('the route stayed on the timeline', win.location.hash.indexOf('/project/')<0, win.location.hash);
-      console.log('\ntest-v130: '+pass+' passed, '+fail+' failed');
-      process.exit(fail?1:0);
+      done();
     },800);
   },800);
 },1300);

@@ -4,19 +4,9 @@
    v1.2.1 (08-31 obj 11) forecast is the one exception — uncolored (FORECAST_GREY).
    The bar checks compare against projColor, which carries the rule either way.
    Run: node tests/test-c3-status.js index.html */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-/* The frozen REV50 reference predates C3 — same convention as test-b1.js. */
-if(!/legend-menu/.test(src)){
-  console.log('test-c3-status: skipped — no legend in '+FILE+' (pre-C3 build)');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 
 const proj=(id,name,status)=>({appId:id,Title:name,client:'',jobCode:id.toUpperCase(),
@@ -108,9 +98,4 @@ setTimeout(()=>{
   done();
 },1300);
 
-function done(){
-  console.log('\n'+'-'.repeat(46));
-  console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-  process.exit(fail?1:0);
-}
 setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},25000);

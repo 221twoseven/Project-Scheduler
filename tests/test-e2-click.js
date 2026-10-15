@@ -3,19 +3,9 @@
    attempted, or a resize — suppresses it. Pinned bars behave identically.
    Project page: a plain click selects (drives the inspector); a drag never selects.
    Run: node tests/test-e2-click.js index.html  (or via tests/run.js) */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-/* The frozen REV50 reference predates E2 — same convention as test-e3-resize.js. */
-if(src.indexOf('click hierarchy')<0){
-  console.log('test-e2-click: skipped — no §6 click-hierarchy code in '+FILE+' (pre-E2 build)');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 
 const projects=[{appId:'p1',Title:'Hermes Windows',client:'Hermes',jobCode:'H1',
@@ -166,9 +156,4 @@ function page3(){
   },100);
 }
 
-function done(){
-  console.log('\n'+'-'.repeat(46));
-  console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-  process.exit(fail?1:0);
-}
 setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},25000);

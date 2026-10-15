@@ -9,20 +9,9 @@
    explained, not silently moved · R5 the report's exact case (Setup Jan 2 2027,
    Installation Jan 1 → Jan 2).
    Run: node tests/test-v1252.js index.html  (or via tests/run.js) */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-if(src.indexOf('function typedDates')<0){
-  console.log('  SKIP  test-v1252: pre-v1.25.2 build ('+FILE+')');
-  console.log('\n'+'-'.repeat(46));
-  console.log('  0 passed, 0 failed   ['+FILE+']');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 
 /* Hermes: td Aug 3–7 (shop), install Sep 14–15 (on-site), deadline Tue Sep 15 2026. */
@@ -194,8 +183,3 @@ function stageB2(){
   },400);
 }
 
-function done(){
-  console.log('\n'+'-'.repeat(46));
-  console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-  process.exit(fail?1:0);
-}

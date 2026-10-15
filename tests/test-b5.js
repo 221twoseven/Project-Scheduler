@@ -5,18 +5,9 @@
    - Clicking a grp-head collapses its group; collapsed sets persist in UI_KEY keyed
      by group mode and survive a reload.
    Run: node tests/test-b5.js index.html */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
+const {boot,suite}=require('./harness');
+const {FILE,ok,done}=suite();
 
-/* The frozen REV50 reference predates B5 — same convention as test-b3-zoom.js. */
-if(fs.readFileSync(FILE,'utf8').indexOf('applyDensity')<0){
-  console.log('test-b5: skipped — no applyDensity in '+FILE+' (pre-B5 build)');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 
 /* 30 projects — 8 for Caroline, 22 for Stan — each with one fab bar. sortIndex keeps
@@ -117,9 +108,4 @@ setTimeout(()=>{
   done();
 },1300);
 
-function done(){
-  console.log('\n'+'-'.repeat(46));
-  console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-  process.exit(fail?1:0);
-}
 setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},25000);

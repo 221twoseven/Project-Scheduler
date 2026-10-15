@@ -7,20 +7,9 @@
    - Skip / Back / Next buttons; Next reads "Done" on the last step.
    Skips on builds that predate the tour.
    Run: node test74.js index.html */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-if(!/btn-help/.test(src)){
-  console.log('  SKIP  build predates the coach-mark tour (no btn-help) — nothing to assert');
-  console.log('\n'+'-'.repeat(46));
-  console.log('  0 passed, 0 failed   ['+FILE+']');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 /* v1.10.0: the last home step chains into the project tour instead of reading Done */
 const V1100=src.indexOf('coachUnchain')>=0;
@@ -94,9 +83,7 @@ setTimeout(()=>{
   const dom2=require('./harness').boot(FILE,{data:{projects:[],tasks:[],todos:[]}});
   setTimeout(()=>{
     ok('no auto-tour when the flag is set',dom2.window.eval("document.getElementById('coach').classList.contains('hidden')"));
-    console.log('\n'+'-'.repeat(46));
-    console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-    process.exit(fail?1:0);
+    done();
   },1500);
 },1500);
 setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},20000);

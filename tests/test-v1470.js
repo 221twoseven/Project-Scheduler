@@ -4,20 +4,9 @@
    (3) the New Project divider: a grip that shows before hover, and a footer that counts the required
    fields and links each missing one to its field.
    Run: node tests/test-v1470.js index.html  (or via tests/run.js) */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-if(src.indexOf('function ppPaintNeeds(')<0){
-  console.log('  SKIP  test-v1470: pre-v1.47.0 build ('+FILE+')');
-  console.log('\n'+'-'.repeat(46));
-  console.log('  0 passed, 0 failed   ['+FILE+']');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
 
@@ -105,7 +94,5 @@ async function main(){
   ok('it refuses and says what it needs',/Give it a name/.test(doc.body.textContent));
   ok('no project was created',E('ST.projects.length')===1);
 
-  console.log('\n'+'-'.repeat(46));
-  console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-  process.exit(fail?1:0);
+  done();
 }

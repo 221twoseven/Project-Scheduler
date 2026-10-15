@@ -5,19 +5,9 @@
    toggle became a Color by ▾ dropdown; the scale stays a visible segmented control.
    This suite asserts that end state.
    Run: node tests/test88.js index.html */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-/* pre-Phase-2 builds (and the frozen REV50 reference) have no View menu */
-if(src.indexOf('btn-view')<0){
-  console.log('test88: skipped — no View menu in '+FILE+' (pre-Phase-2 build)');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 
 const dom=boot(FILE,{data:{projects:[],tasks:[],staff:[],todos:[]}});
@@ -91,8 +81,6 @@ setTimeout(()=>{
   ok('Help is a menu with a tour and keyboard shortcuts',
      !!doc.getElementById('btn-help')&&!!doc.getElementById('mi-tour')&&!!doc.getElementById('mi-shortcuts'));
 
-  console.log('\n'+'-'.repeat(46));
-  console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-  process.exit(fail?1:0);
+  done();
 },1300);
 setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},20000);
