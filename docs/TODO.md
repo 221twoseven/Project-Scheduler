@@ -653,7 +653,10 @@ release. Where the app has a part, it's listed.
         overlapping ranges, including across a weekend or holiday (`cdAvail`; suite
         `tests/test-v1485.js`). Still open: the discovery session (PTO Contract Approvals,
         the nightly 10 pm automation on 27 Employees) and partial days, which need it.
-- [ ] **20. Write down the change log's limits** (the brief's verification row).
+- [x] **20. Write down the change log's limits** (the brief's verification row). Done
+      (PR #154, 2026-10-15), docs only: retention and recovery paragraphs added to
+      `docs/Milestones/Phase-6-v1.x-Release-Train/2026-09-02-changelog.md`. They found one open
+      check, whether versioning is on for the nine lists, which joins item 15.
       - *What it covers:* projects, phases, milestones and notes — not people, clients or
         settings. Admins only. History starts 2026-09-02.
       - *No retention limit and no export.* Each time its cache is empty it reads the
