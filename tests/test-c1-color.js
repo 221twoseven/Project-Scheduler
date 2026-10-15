@@ -2,18 +2,9 @@
    Adding, deleting, or re-sorting projects must never change any other project's
    color; visible-collision shifts go to the nearest free slot; nothing nears
    INSTALL_RED. Run: node tests/test-c1-color.js index.html */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
+const {boot,suite}=require('./harness');
+const {FILE,ok,done}=suite();
 
-/* The frozen REV50 reference predates C1 — same convention as test-e3-resize.js. */
-if(fs.readFileSync(FILE,'utf8').indexOf('hashSlot')<0){
-  console.log('test-c1-color: skipped — no hashSlot() in '+FILE+' (pre-C1 build)');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 
 /* ids chosen for known hash slots: pa→5, pb→6, pc→7, pm→5 (collides with pa) */
@@ -63,8 +54,6 @@ setTimeout(()=>{
     ok(c+' is ≥20° from INSTALL_RED',diff>=20,Math.round(diff)+'°');
   }
 
-  console.log('\n'+'-'.repeat(46));
-  console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-  process.exit(fail?1:0);
+  done();
 },1300);
 setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},20000);

@@ -9,20 +9,9 @@
    jsdom has no layout, so geometry comes from a stub of getBoundingClientRect and the
    pass-through is asserted on the stylesheet. Saved project, New Project draft, dashboard.
    Run: node tests/test-v1262.js index.html  (or via tests/run.js) */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-if(src.indexOf('function toastPlace')<0){
-  console.log('  SKIP  test-v1262: pre-v1.26.2 build ('+FILE+')');
-  console.log('\n'+'-'.repeat(46));
-  console.log('  0 passed, 0 failed   ['+FILE+']');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 
 /* Hermes as in test-e3-resize: td Aug 3–14, fab pinned, install Sep 14–15. */
@@ -247,9 +236,4 @@ function stageC(){
   },700);
 }
 
-function done(){
-  console.log('\n'+'-'.repeat(46));
-  console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-  process.exit(fail?1:0);
-}
 setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},45000);

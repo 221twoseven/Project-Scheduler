@@ -85,4 +85,14 @@ function makeFetch(data,opts){
     lastModifiedBy:{user:{displayName:'Sam'}},lastModifiedDateTime:'2026-07-30T12:00:00Z'};}
 }
 
-module.exports={boot};
+/* Item 60: what every suite shares — the build under test and its source text, the PASS/FAIL
+   lines, and the summary + exit code (non-zero on any FAIL) that run.js and CI read. */
+function suite(){
+  const FILE=process.argv[2]||'index.html';
+  let pass=0,fail=0;
+  return {FILE,src:fs.readFileSync(FILE,'utf8'),
+    ok(n,c,x){if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}},
+    done(){console.log('\n'+'-'.repeat(46));console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');process.exit(fail?1:0);}};
+}
+
+module.exports={boot,suite};

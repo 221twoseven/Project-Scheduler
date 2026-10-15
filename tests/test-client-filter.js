@@ -5,20 +5,9 @@
    - A removable "Client: X" chip shows, Filters counts it, Clear wipes it.
    - The pick persists in UI prefs and restores on load.
    Run: node tests/test-client-filter.js index.html */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-if(!/CLIENT_FILTER/.test(src)){
-  console.log('  SKIP  build predates the client filter (no CLIENT_FILTER) — nothing to assert');
-  console.log('\n'+'-'.repeat(46));
-  console.log('  0 passed, 0 failed   ['+FILE+']');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 
 /* Three projects, two clients — Acme (p1,p2) and Beta (p3); each with one fab bar. */
@@ -70,8 +59,6 @@ setTimeout(()=>{
   E("CLIENT_FILTER=new Set();loadLocalPrefs();");
   ok('restored on load',E("[...CLIENT_FILTER].join(',')")==='Beta',E("[...CLIENT_FILTER].join(',')"));
 
-  console.log('\n'+'-'.repeat(46));
-  console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-  process.exit(fail?1:0);
+  done();
 },1300);
 setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},20000);

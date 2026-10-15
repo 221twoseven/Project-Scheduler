@@ -11,18 +11,9 @@
      9. gpageAll follows @odata.nextLink; parseHash survives malformed hashes;
     10. saved views restore an explicitly-empty status set.
    Run: node tests/test90.js index.html */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-if(src.indexOf('gpageAll')<0){
-  console.log('test90: skipped — pre-REV90 build ('+FILE+')');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x!==undefined?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 
 const dom=boot(FILE,{data:{projects:[],tasks:[],staff:[],todos:[]}});
@@ -122,9 +113,7 @@ setTimeout(()=>{
           ok('the inspector change listener binds once (dataset.bound guard)',src.indexOf('box.dataset.bound')>=0);
           ok('the Delete-project button uses a class that exists (.btn-del)',src.indexOf('btn btn-del" id="pp-del"')>=0&&src.indexOf('btn-danger')<0);
 
-          console.log('\n'+'-'.repeat(46));
-          console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-          process.exit(fail?1:0);
+          done();
         },100);
       },150);
     },150);

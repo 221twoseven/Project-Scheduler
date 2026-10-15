@@ -7,23 +7,12 @@
      unwinds to the home view, restoring the lens you came from.
    Skips on builds that predate the dashboard button.
    Run: node test68.js index.html */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 /* v1.2.0 (obj 1): the trail and the × moved off the dock header onto the #dash-bar. */
 const V12=src.indexOf('dash-bar')>=0;
 const HOME=V12?'db-all':'md-home', X=V12?'db-x':'md-close';
 
-if(!/btn-dash/.test(src)){
-  console.log('  SKIP  build predates the dashboard button (no btn-dash) — nothing to assert');
-  console.log('\n'+'-'.repeat(46));
-  console.log('  0 passed, 0 failed   ['+FILE+']');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 const D=n=>{const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()+n);
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
@@ -81,8 +70,6 @@ setTimeout(()=>{
   E("localStorage.setItem(ME_KEY,'Ghost');PEOPLE=[{id:'a',name:'Milo',email:'',role:'',depts:['fab'],ooo:[]}];rebuildStaff();");
   ok('rememberedMe() rejects names not on the roster',E("rememberedMe()")===null);
 
-  console.log('\n'+'-'.repeat(46));
-  console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-  process.exit(fail?1:0);
+  done();
 },1500);
 setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},20000);

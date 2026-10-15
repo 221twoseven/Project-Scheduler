@@ -2,18 +2,10 @@
    header, or the ? legend open one popover (native date input + quick picks); choosing a
    date centers it in the viewport; the Today button centers instead of parking left.
    Run: node tests/test-goto.js index.html */
-const {boot}=require('./harness');
+const {boot,suite}=require('./harness');
 const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
+const {FILE,ok,done}=suite();
 
-/* The frozen REV50 reference predates B3b — same convention as test-b3-zoom.js. */
-if(fs.readFileSync(FILE,'utf8').indexOf('goto-menu')<0){
-  console.log('test-goto: skipped — no goto-menu in '+FILE+' (pre-B3b build)');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 
 /* Seed dates relative to the run date so "today", "+3 months" and "next install" stay
@@ -127,9 +119,4 @@ setTimeout(()=>{
   },160);
 },1300);
 
-function done(){
-  console.log('\n'+'-'.repeat(46));
-  console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-  process.exit(fail?1:0);
-}
 setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},25000);

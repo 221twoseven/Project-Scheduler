@@ -2,20 +2,9 @@
    sentence (wording: owner, 2026-10-14); error messages read "<what failed>: <why> <next step>",
    the raw error under the toast's Details. Panels (no Details link) drop the "Click Details" part.
    Run: node tests/test-v1482.js index.html  (or via tests/run.js) */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-if(src.indexOf('explain(e,panel)')<0){
-  console.log('  SKIP  test-v1482: pre-v1.48.2 build ('+FILE+')');
-  console.log('\n'+'-'.repeat(46));
-  console.log('  0 passed, 0 failed   ['+FILE+']');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
 
@@ -53,7 +42,5 @@ setTimeout(async()=>{
   ok('Details carries the raw error', /Failed to fetch/.test(E("(document.querySelector('#toasts .toast:last-child .toast-tech')||{}).textContent||''")));
   E("fetch=window.__f");
 
-  console.log('\n'+'-'.repeat(46));
-  console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-  process.exit(fail?1:0);
+  done();
 },1500);

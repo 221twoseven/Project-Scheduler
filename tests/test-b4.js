@@ -1,19 +1,9 @@
 /* B4 / Design-Language §7: Today = full-day wash + 2px --late line + TODAY pill;
    deadline = per-project ▸ pennant + dotted neutral-ink drop-line, never red.
    Run: node tests/test-b4.js index.html */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-/* The frozen REV50 reference predates B4 — same convention as test-b1.js. */
-if(!/\.dl-flag\{[^}]*dotted/.test(src)){
-  console.log('test-b4: skipped — no dotted deadline drop-line in '+FILE+' (pre-B4 build)');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 
 /* v1.26.0 (#15/#20): the drop-line marks the due date, which is the Installation block's
@@ -86,9 +76,4 @@ setTimeout(()=>{
   },600);
 },1300);
 
-function done(){
-  console.log('\n'+'-'.repeat(46));
-  console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-  process.exit(fail?1:0);
-}
 setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},25000);

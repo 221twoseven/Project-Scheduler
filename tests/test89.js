@@ -6,18 +6,9 @@
      4. drive-by data-loss fix: undo() no longer drops ST.events (it used to diff
         events → undefined, deleting every ShopTimeline_Events row).
    Run: node tests/test89.js index.html */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-if(src.indexOf('es-sample')<0){
-  console.log('test89: skipped — no sample-project button in '+FILE+' (pre-REV89 build)');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 
 const dom=boot(FILE,{data:{projects:[],tasks:[],staff:[],todos:[]}});
@@ -88,9 +79,7 @@ setTimeout(()=>{
       ok('bars advertise the context menu on hover (⋯ ::after)',
          src.indexOf('.job-bar:not(.lg-bar):hover::after')>=0);
 
-      console.log('\n'+'-'.repeat(46));
-      console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-      process.exit(fail?1:0);
+      done();
     },250);
   },250);
 },1300);

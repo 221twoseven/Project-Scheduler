@@ -13,18 +13,9 @@
      /me/sendMail as the signed-in submitter, on its own Mail.Send token
      (consent missing → mail skipped, the report is already on the list).
    Run: node tests/test-v180.js index.html  (or via tests/run.js) */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-if(src.indexOf('function isAdmin(')<0){
-  console.log('test-v180: skipped — pre-v1.8.0 build ('+FILE+')');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 const D=n=>{const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()+n);
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
@@ -195,7 +186,6 @@ async function partC(){
   ok('the report still posts', calls().slice(n1).some(c=>c.method==='POST'&&c.url.includes('ShopTimeline_Feedback')));
   ok('no sendMail call', !calls().slice(n1).some(c=>c.url.includes('/me/sendMail')));
 
-  console.log('\ntest-v180: '+pass+' passed, '+fail+' failed');
-  process.exit(fail?1:0);
+  done();
 }
 setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},60000);

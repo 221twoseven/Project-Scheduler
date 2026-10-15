@@ -3,18 +3,9 @@
    (JSON [{at,text}]); Open Issues folds them open under the report, #/issues/<spId>
    (the reply email's link) opens that one, and a new report stamps `reporterUpn`.
    Run: node tests/test-v1250.js index.html  (or via tests/run.js) */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-if(src.indexOf('function fbComments')<0){
-  console.log('test-v1250: skipped — pre-v1.25.0 build ('+FILE+')');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 
 const dom=boot(FILE,{data:{projects:[],tasks:[],staff:[],todos:[]}});
@@ -58,8 +49,7 @@ function main(){
         const p=win.__spCalls.filter(c=>c.method==='POST'&&c.url.indexOf('ShopTimeline_Feedback')>=0);
         const f=p.length?p[0].body.fields:{};
         ok('reporterUpn is the sign-in, not the typed email', f.reporterUpn==='user@example.com'&&f.email==='someone-else@example.com', f.reporterUpn);
-        console.log('\ntest-v1250: '+pass+' passed, '+fail+' failed');
-        process.exit(fail?1:0);
+        done();
       },400);
     },300);
   },300);

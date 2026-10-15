@@ -9,20 +9,9 @@
       touches it) · R4 the flip to `review` is automatic (poller selftest); the app never sets
       a status by hand — there is no Pending / In review control.
    Run: node tests/test-v1390.js index.html  (or via tests/run.js) */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-if(src.indexOf('function fbStatusTag')<0){
-  console.log('  SKIP  test-v1390: pre-v1.39.0 build ('+FILE+')');
-  console.log('\n'+'-'.repeat(46));
-  console.log('  0 passed, 0 failed   ['+FILE+']');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 
 const TICKET='https://github.com/221twoseven/Project-Scheduler-issues/issues/29';
@@ -96,8 +85,6 @@ function dev(){
   setTimeout(()=>{
     const p=win.__spCalls.slice(before).filter(c=>c.method==='PATCH'&&c.url.indexOf('ShopTimeline_Feedback')>=0);
     ok('Reopen on a ticketless row still PATCHes status (fbSetStatus kept for the pre-bridge history)', p.length===1&&/\/items\/4\/fields$/.test(p[0].url)&&p[0].body.status==='', p.length&&p[0].url);
-    console.log('\n'+'-'.repeat(46));
-    console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-    process.exit(fail?1:0);
+    done();
   },400);
 }

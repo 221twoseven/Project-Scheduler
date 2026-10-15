@@ -26,8 +26,9 @@ git switch -c fix/<slug> origin/development          # or feat/ style/ docs/
 ## 2. Build it, with tests per requirement
 
 - Put the new assertions in **`tests/test-v<MAJOR><MINOR><PATCH>.js`** (v1.26.0 →
-  `test-v1260.js`). Copy the header of the latest `test-v*.js` and **add the file to the
-  list in `tests/run.js`**.
+  `test-v1260.js`). Copy the header of the latest `test-v*.js`: `const {FILE,src,ok,done}=suite();`
+  from `tests/harness.js`, and end with `done()`. `tests/run.js` finds every `tests/test*.js`
+  itself, so there's no list to update.
 - Name each assertion after what it proves. When the work comes from `triage-issues`,
   that's the R it covers.
 - **Assert on both the draft page (`#/project/new`) and a saved project** whenever the

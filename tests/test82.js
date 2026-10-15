@@ -6,18 +6,9 @@
    stack; Link carries subtasks on drafts; saved-page row reorder persists.
    Also guards the notes fix (commitPhase used to drop the field silently).
    Run: node tests/test82.js index.html */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-if(src.indexOf('ppDraftResolve')<0){
-  console.log('test82: skipped — no draft selection layer in '+FILE+' (pre-REV82 build)');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 
 const D0=new Date();D0.setHours(0,0,0,0);
@@ -145,8 +136,6 @@ function draftPage(){
      !!ds&&ds.disabled&&/checklist/i.test(ds.title||''),
      'sel='+E('PP_SEL')+' resolved='+!!E('ppSelected()')+' ds='+(ds?('disabled='+ds.disabled+' title='+ds.title):'null'));
 
-  console.log('\n'+'-'.repeat(46));
-  console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-  process.exit(fail?1:0);
+  done();
 }
 setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},30000);

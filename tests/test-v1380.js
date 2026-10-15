@@ -6,20 +6,9 @@
    second click of a double-click). Right-click Rename on the bar menu; New subtask stays a
    plain quick-add; the custom name reaches calendar milestone bands and the Meeting Sheet.
    Run: node tests/test-v1380.js index.html  (or via tests/run.js) */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-if(src.indexOf('function npvRenameBar(')<0){
-  console.log('  SKIP  test-v1380: pre-v1.38.0 build ('+FILE+')');
-  console.log('\n'+'-'.repeat(46));
-  console.log('  0 passed, 0 failed   ['+FILE+']');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 
 /* dates ride relative to today — the Meeting Sheet's "Phase now" reads the clock */
@@ -309,8 +298,3 @@ function draft1(){
   },500);
 }
 
-function done(){
-  console.log('\n'+'-'.repeat(46));
-  console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-  process.exit(fail?1:0);
-}

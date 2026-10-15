@@ -10,21 +10,10 @@
    - A person with nothing scheduled gets an explanatory empty-state card.
    Skips on builds that predate the person filter.
    Run: node test65.js index.html */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 const V164=src.indexOf('dash-flat')>=0; /* v1.6.4: any person filter IS the summary place */
 
-if(!/btn-filters/.test(src)){
-  console.log('  SKIP  build predates the consolidated Filters menu (no btn-filters) — nothing to assert');
-  console.log('\n'+'-'.repeat(46));
-  console.log('  0 passed, 0 failed   ['+FILE+']');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 
 const projects=[
@@ -133,8 +122,6 @@ setTimeout(()=>{
   ok('search ∩ spotlight = nothing shows the card',E("!!document.getElementById('empty-state')"));
   E("SPOT.clear();FILTER='';applyFilter();");
 
-  console.log('\n'+'-'.repeat(46));
-  console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-  process.exit(fail?1:0);
+  done();
 },1500);
 setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},20000);

@@ -4,20 +4,9 @@
    (ppCommitDepts / readPageDraft / the change delegate) query .ddays under the row, so moving
    it changes nothing they see. Both pages: a saved project and the New Project draft.
    Run: node tests/test-v1331.js index.html  (or via tests/run.js) */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-if(src.indexOf('v1.33.1: the day count sits beside its own date pair')<0){
-  console.log('  SKIP  test-v1331: pre-v1.33.1 build ('+FILE+')');
-  console.log('\n'+'-'.repeat(46));
-  console.log('  0 passed, 0 failed   ['+FILE+']');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 
 const projects=[{appId:'p1',Title:'Hermes Windows',client:'Hermes',jobCode:'H1',deadline:'2026-09-15',status:'in-fabrication',
@@ -64,8 +53,3 @@ setTimeout(()=>{E("NPV_OPEN=new Set();LINK_SUBS=true;location.hash='#/project/p1
   },500);
 },900);},1300);
 
-function done(){
-  console.log('\n'+'-'.repeat(46));
-  console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-  process.exit(fail?1:0);
-}

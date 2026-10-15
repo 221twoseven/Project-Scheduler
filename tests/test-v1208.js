@@ -4,18 +4,9 @@
    box the way a missing name or install date is marked. Also: My Dashboard lists every
    row (no "+N more" cap) and an untouched draft does not read dirty.
    Run: node tests/test-v1208.js index.html  (or via tests/run.js) */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-if(!/!pm&&(\{k:'pm',say:)?'a Project Manager'/.test(src)){ /* v1.47.0 (item 7) reshaped the line; the sniff missed it and the suite skipped silently until 2026-10-14 */
-  console.log('test-v1208: skipped — pre-v1.20.8 build ('+FILE+')');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 const D=n=>{const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()+n);
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
@@ -86,6 +77,5 @@ function savedPart(){
   ok('no +N more stub anywhere in the dock', !doc.querySelector('#me-dock .md-more'));
   ok('the column body scrolls (stylesheet rule)', src.includes('.ins-sec .in{padding:8px 15px 14px;flex:1;min-height:0;overflow-y:auto}'));
 
-  console.log('\n'+pass+' passed, '+fail+' failed');
-  process.exit(fail?1:0);
+  done();
 }

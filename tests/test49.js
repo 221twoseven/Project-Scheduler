@@ -1,6 +1,6 @@
 ﻿/* The project dashboard. Run: node test49.js Timeline_49.html */
-const {boot}=require('./harness');
-const FILE=process.argv[2]||'Timeline_49.html';
+const {boot,suite}=require('./harness');
+const {FILE,ok,done}=suite();
 
 /* The frozen REV50 reference predates E1 (bottom dock) â€” same convention as
    test-b1.js: E1-only assertions are skipped on pre-E1 builds. */
@@ -16,8 +16,6 @@ const N11=/npvEditPop/.test(require('fs').readFileSync(FILE,'utf8'));
 const REN=/npvRenameBar/.test(require('fs').readFileSync(FILE,'utf8'));
 const DUP=require('fs').readFileSync(FILE,'utf8').indexOf('Duplicate is an add')>=0; /* v1.47.0 (item 7): Duplicate joins the bar menu */
 
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 
 const projects=[{appId:'p1',Title:'Hermes Windows',client:'Hermes',jobCode:'H1-2049',
@@ -359,10 +357,5 @@ function stage7(){
   },200);
 }
 
-function done(){
-  console.log('\n'+'-'.repeat(46));
-  console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-  process.exit(fail?1:0);
-}
 setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},40000);
 

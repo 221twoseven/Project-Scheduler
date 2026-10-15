@@ -4,20 +4,9 @@
    (2) the button never hides a parked failed save: the sync pill keeps its "not saved — click to retry"
        text when a save is still waiting, and only reads "synced" when nothing is.
    Run: node tests/test-v1481.js index.html  (or via tests/run.js) */
-const {boot}=require('./harness');
-const fs=require('fs');
-const FILE=process.argv[2]||'index.html';
-const src=fs.readFileSync(FILE,'utf8');
+const {boot,suite}=require('./harness');
+const {FILE,src,ok,done}=suite();
 
-if(src.indexOf('function syncSettle(')<0){
-  console.log('  SKIP  test-v1481: pre-v1.48.1 build ('+FILE+')');
-  console.log('\n'+'-'.repeat(46));
-  console.log('  0 passed, 0 failed   ['+FILE+']');
-  process.exit(0);
-}
-
-let pass=0,fail=0;
-const ok=(n,c,x)=>{if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}};
 const sec=t=>console.log('\n'+t);
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
 
@@ -61,7 +50,5 @@ async function main(){
   q('#pp-confirm').click();await wait(300);
   ok('with nothing parked, it reads "synced"',/synced/.test(pill().textContent)&&pill().className==='ok',pill().textContent);
 
-  console.log('\n'+'-'.repeat(46));
-  console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');
-  process.exit(fail?1:0);
+  done();
 }
