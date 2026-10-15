@@ -10,10 +10,10 @@ const {FILE,src,ok,done}=suite();
 const sec=t=>console.log('\n'+t);
 
 const projects=[{appId:'p1',Title:'Hermes Windows',client:'Hermes',jobCode:'H1',deadline:'2026-09-15',status:'in-fabrication',
-  projectManager:'Sam',drafter:'Peter',leadFab:'Nick',fabricators:'',activeDepartments:JSON.stringify(['pm','td','finish']),createdAt:'2026-07-01',sortIndex:0}];
+  projectManager:'Sam',drafter:'Oscar',leadFab:'Milo',fabricators:'',activeDepartments:JSON.stringify(['pm','td','finish']),createdAt:'2026-07-01',sortIndex:0}];
 const T=(id,dept,who,s,e,d,extra)=>Object.assign({appId:id,projectId:'p1',department:dept,assignee:who,startDate:s,endDate:e,estimatedDays:d,ticketNodes:'[]',notes:'',pinned:false,label:''},extra||{});
-const tasks=[T('t0','pm','Sam','2026-08-03','2026-09-15',30),T('td1','td','Peter','2026-08-03','2026-08-07',5),
-  T('td2','td','Peter','2026-08-10','2026-08-12',3,{range:true}),T('f1','finish','Nick','2026-08-10','2026-08-14',5)];
+const tasks=[T('t0','pm','Sam','2026-08-03','2026-09-15',30),T('td1','td','Oscar','2026-08-03','2026-08-07',5),
+  T('td2','td','Oscar','2026-08-10','2026-08-12',3,{range:true}),T('f1','finish','Milo','2026-08-10','2026-08-14',5)];
 const staff=[{appId:'s1',Title:'Sam',email:'user@example.com',depts:JSON.stringify(['pm']),ooo:'[]',role:''}];
 
 const dom=boot(FILE,{data:{projects,tasks,staff,todos:[]}});

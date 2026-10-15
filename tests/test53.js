@@ -15,13 +15,13 @@ const DUP=src.indexOf('Duplicate is an add')>=0; /* v1.47.0 (item 7): Duplicate 
 const sec=t=>console.log('\n'+t);
 
 const projects=[{appId:'p1',Title:'Hermes Windows',client:'Hermes',jobCode:'H1',
-  deadline:'2026-09-15',status:'in-fabrication',projectManager:'Stan',drafter:'Peter',
-  leadFab:'Nick',activeDepartments:JSON.stringify(['pm','td','fab','install']),
+  deadline:'2026-09-15',status:'in-fabrication',projectManager:'Theo',drafter:'Oscar',
+  leadFab:'Milo',activeDepartments:JSON.stringify(['pm','td','fab','install']),
   createdAt:'2026-07-01',sortIndex:0}];
 const tasks=[
- {appId:'td1',projectId:'p1',department:'td',assignee:'Peter',startDate:'2026-08-03',
+ {appId:'td1',projectId:'p1',department:'td',assignee:'Oscar',startDate:'2026-08-03',
   endDate:'2026-08-07',estimatedDays:5,ticketNodes:'[]',notes:'',pinned:false,label:'Exterior Windows'},
- {appId:'f1',projectId:'p1',department:'fab',assignee:'Nick',startDate:'2026-08-20',
+ {appId:'f1',projectId:'p1',department:'fab',assignee:'Milo',startDate:'2026-08-20',
   endDate:'2026-09-04',estimatedDays:12,ticketNodes:'[]',notes:'',pinned:false,label:''},
  {appId:'i1',projectId:'p1',department:'install',assignee:'[]',startDate:'2026-09-14',
   endDate:'2026-09-15',estimatedDays:2,ticketNodes:'[]',notes:'',pinned:false,label:''}];

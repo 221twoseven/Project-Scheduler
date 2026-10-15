@@ -16,17 +16,17 @@ const sec=t=>console.log('\n'+t);
    p2 is the prompt's subject; p1 exercises the page button. */
 const projects=[
  {appId:'p1',Title:'Hermes Windows',client:'Hermes',jobCode:'H1',
-  deadline:'2026-08-20',status:'in-fabrication',projectManager:'Sam',drafter:'Peter',
-  leadFab:'Nick',activeDepartments:JSON.stringify(['pm','td','install']),
+  deadline:'2026-08-20',status:'in-fabrication',projectManager:'Sam',drafter:'Oscar',
+  leadFab:'Milo',activeDepartments:JSON.stringify(['pm','td','install']),
   createdAt:'2026-07-01',sortIndex:0},
  {appId:'p2',Title:'Aster Lobby',client:'Aster',jobCode:'A2',
-  deadline:'2026-08-14',status:'in-fabrication',projectManager:'Sam',drafter:'Peter',
-  leadFab:'Nick',activeDepartments:JSON.stringify(['pm','td','install']),
+  deadline:'2026-08-14',status:'in-fabrication',projectManager:'Sam',drafter:'Oscar',
+  leadFab:'Milo',activeDepartments:JSON.stringify(['pm','td','install']),
   createdAt:'2026-07-01',sortIndex:1}];
 const tasks=[
- {appId:'td1',projectId:'p1',department:'td',assignee:'Peter',startDate:'2026-08-03',
+ {appId:'td1',projectId:'p1',department:'td',assignee:'Oscar',startDate:'2026-08-03',
   endDate:'2026-08-21',estimatedDays:14,ticketNodes:'[]',notes:'',pinned:false,label:''},
- {appId:'td2',projectId:'p2',department:'td',assignee:'Peter',startDate:'2026-08-03',
+ {appId:'td2',projectId:'p2',department:'td',assignee:'Oscar',startDate:'2026-08-03',
   endDate:'2026-08-10',estimatedDays:6,ticketNodes:'[]',notes:'',pinned:false,label:''}];
 /* v1.26.0 (#15): lateness follows the Installation block's end, not the Setup date, so
    on that build each project carries the install that already passed. */

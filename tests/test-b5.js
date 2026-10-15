@@ -10,17 +10,17 @@ const {FILE,ok,done}=suite();
 
 const sec=t=>console.log('\n'+t);
 
-/* 30 projects — 8 for Caroline, 22 for Stan — each with one fab bar. sortIndex keeps
+/* 30 projects — 8 for Cordelia, 22 for Theo — each with one fab bar. sortIndex keeps
    each PM's block contiguous so grouping draws one header per PM. */
 const projects=[],tasks=[];
 for(let i=0;i<30;i++){
-  const pm=i<8?'Caroline':'Stan';
+  const pm=i<8?'Cordelia':'Theo';
   const id='p'+i;
   projects.push({appId:id,Title:'Job '+i,client:'Client '+(i%5),jobCode:'J'+i,
     deadline:'2026-10-'+String((i%28)+1).padStart(2,'0'),status:'in-fabrication',
-    projectManager:pm,drafter:'Peter',leadFab:'Nick',
+    projectManager:pm,drafter:'Oscar',leadFab:'Milo',
     activeDepartments:JSON.stringify(['pm','fab']),createdAt:'2026-07-01',sortIndex:i});
-  tasks.push({appId:'t'+i,projectId:id,department:'fab',assignee:'Nick',
+  tasks.push({appId:'t'+i,projectId:id,department:'fab',assignee:'Milo',
     startDate:'2026-08-24',endDate:'2026-09-04',estimatedDays:10,
     ticketNodes:'[]',notes:'',pinned:false,label:''});
 }
@@ -78,23 +78,23 @@ setTimeout(()=>{
   E("GROUP_BY='pm';render();");
   const heads=[...doc.querySelectorAll('#side-rows .sb-row.grp-head')];
   ok('two group headers render',heads.length===2,heads.length+' heads');
-  const car=heads.find(h=>h.textContent.indexOf('Caroline')>=0);
-  ok('Caroline’s header shows her count of 8',car&&car.querySelector('.sb-count').textContent==='8');
+  const car=heads.find(h=>h.textContent.indexOf('Cordelia')>=0);
+  ok('Cordelia’s header shows her count of 8',car&&car.querySelector('.sb-count').textContent==='8');
   ok('headers carry a chevron, open',car&&!!car.querySelector('.sb-chev.open'));
   const rowsBefore=E('ROWS.length');
   click(car);
   ok('clicking collapses — her 8 project rows drop',E('ROWS.length')===rowsBefore-8,
      rowsBefore+' -> '+E('ROWS.length'));
-  const car2=[...doc.querySelectorAll('#side-rows .sb-row.grp-head')].find(h=>h.textContent.indexOf('Caroline')>=0);
+  const car2=[...doc.querySelectorAll('#side-rows .sb-row.grp-head')].find(h=>h.textContent.indexOf('Cordelia')>=0);
   ok('the header itself stays, chevron closed, count intact',
      car2&&!car2.querySelector('.sb-chev.open')&&car2.querySelector('.sb-count').textContent==='8');
   ok('no bar of a collapsed project remains',
      ![...doc.querySelectorAll('.job-bar.summary')].some(b=>{
-       const p=E("projById('"+b.dataset.pid+"')");return p&&p.projectManager==='Caroline';}));
+       const p=E("projById('"+b.dataset.pid+"')");return p&&p.projectManager==='Cordelia';}));
 
   sec('collapse persists in UI_KEY, keyed by group mode');
   ui=JSON.parse(win.localStorage.getItem('shopTimelineUI_v1')||'{}');
-  ok('collapsedGroups.pm holds Caroline',(ui.collapsedGroups&&ui.collapsedGroups.pm||[]).indexOf('Caroline')>=0,
+  ok('collapsedGroups.pm holds Cordelia',(ui.collapsedGroups&&ui.collapsedGroups.pm||[]).indexOf('Cordelia')>=0,
      JSON.stringify(ui.collapsedGroups));
   E("GRP_COLLAPSED={};loadLocalPrefs();render();");
   ok('a reload keeps her collapsed',E('ROWS.length')===rowsBefore-8);
@@ -102,7 +102,7 @@ setTimeout(()=>{
   ok('the client mode is untouched (sets are per mode)',
      E("ROWS.filter(r=>r.kind==='projHead').length")===30);
   E("GROUP_BY='pm';render();");
-  click([...doc.querySelectorAll('#side-rows .sb-row.grp-head')].find(h=>h.textContent.indexOf('Caroline')>=0));
+  click([...doc.querySelectorAll('#side-rows .sb-row.grp-head')].find(h=>h.textContent.indexOf('Cordelia')>=0));
   ok('clicking again expands',E('ROWS.length')===rowsBefore);
 
   done();

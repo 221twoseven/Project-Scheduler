@@ -255,7 +255,7 @@ owner-revised copy through dedicated copy documents); and rollout sequencing
 (permissions flagged before the build reached general users) [TODO §4;
 V1-Releases records].
 
-**Credit: the current developer (Robert), as product owner and design
+**Credit: the current developer (the owner), as product owner and design
 director** — for the productization listed above, directing AI assistants as the
 implementation team under his specification, review, and live verification, and
 with the substantial qualification that **what** to build was frequently set or
@@ -401,8 +401,8 @@ are marked; nothing below is guessed.*
    repository's dated punch lists and briefs are consistent with this account
    but do not independently record the sessions; the scripted round-2 protocol
    was designed and then skipped. See §6.2 for the attested/documented split.
-3. **"Owner" and "Robert" are the same person** — confirmed by the developer
-   (2026-09-03): the planning documents' "owner" (briefs, rulings) and "Robert"
+3. **"Owner" and "the owner" are the same person** — confirmed by the developer
+   (2026-09-03): the planning documents' "owner" (briefs, rulings) and "the owner"
    (schema changes, live testing) are one person acting as product owner and
    design director; the single committer account is `221twoseven`. Stated here
    because the documents themselves never say it in one place.

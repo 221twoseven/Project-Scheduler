@@ -15,11 +15,11 @@ const D=n=>{const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()+n);
 
 /* No "Drafter" anywhere in the data, so a whole-page sweep is meaningful. */
 const staff=[{appId:'s1',Title:'Sam',email:'user@example.com',depts:JSON.stringify(['pm']),ooo:'[]',role:''},
-  {appId:'s2',Title:'Peter',email:'',depts:JSON.stringify(['td']),ooo:'[]',role:''},
-  {appId:'s3',Title:'Nick',email:'',depts:JSON.stringify(['fab']),ooo:'[]',role:''}];
+  {appId:'s2',Title:'Oscar',email:'',depts:JSON.stringify(['td']),ooo:'[]',role:''},
+  {appId:'s3',Title:'Milo',email:'',depts:JSON.stringify(['fab']),ooo:'[]',role:''}];
 const projects=[{appId:'p1',Title:'Artport 2026',jobCode:'WMU004',client:'Whitney Museum',deadline:D(40),status:'in-fabrication',
-  projectManager:'Sam',drafter:'Peter',leadFab:'Nick',fabricators:'',activeDepartments:JSON.stringify(['pm','td','fab','install']),createdAt:D(-30),sortIndex:0}];
-const tasks=[{appId:'t1',projectId:'p1',department:'td',assignee:'Peter',startDate:D(0),endDate:D(4),estimatedDays:5,ticketNodes:'[]',notes:'',pinned:false,label:''}];
+  projectManager:'Sam',drafter:'Oscar',leadFab:'Milo',fabricators:'',activeDepartments:JSON.stringify(['pm','td','fab','install']),createdAt:D(-30),sortIndex:0}];
+const tasks=[{appId:'t1',projectId:'p1',department:'td',assignee:'Oscar',startDate:D(0),endDate:D(4),estimatedDays:5,ticketNodes:'[]',notes:'',pinned:false,label:''}];
 
 const dom=boot(FILE,{data:{projects,tasks,staff,todos:[]}});
 const win=dom.window,doc=win.document,E=s=>win.eval(s);
@@ -50,8 +50,8 @@ function stage2(){
   ok('#22 R1: the Team section reads Project Team', h4('team')==='Project Team', h4('team'));
   ok('#22 R2: the Departments section reads Project Schedule', h4('depts')==='Project Schedule', h4('depts'));
   ok('#17 R1: the Team labels read Project manager · Technical Designer · Project lead · Fabricators', rl()==='Project manager · Technical Designer · Project lead · Fabricators', rl());
-  ok('#17 default: the existing assignment still shows (Peter checked)', !!qa('#pp-r-dr input').find(i=>i.value==='Peter'&&i.checked));
-  ok('#17 default: the stored key is still drafter', E("Object.keys(projToFields(projById('p1'))).includes('drafter')&&projById('p1').drafter==='Peter'"));
+  ok('#17 default: the existing assignment still shows (Oscar checked)', !!qa('#pp-r-dr input').find(i=>i.value==='Oscar'&&i.checked));
+  ok('#17 default: the stored key is still drafter', E("Object.keys(projToFields(projById('p1'))).includes('drafter')&&projById('p1').drafter==='Oscar'"));
   ok('#17 R1: no visible "Drafter" on the project page', !/Drafter/.test(vis()));
   ok('#22 plan: the hint under Project Schedule names the two doors that exist', hint()===HINT, hint());
   try{E("coachStart(COACH_PP_STEPS);COACH.i=COACH.steps.findIndex(s=>s.sel==='#pp-insp');coachShow()");}catch(e){}

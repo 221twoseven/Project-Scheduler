@@ -15,19 +15,19 @@ const D=n=>{const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()+n);
 
 const projects=[
   {appId:'p1',Title:'Hermes Windows',client:'Hermes',jobCode:'H1',deadline:D(40),
-   status:'in-fabrication',projectManager:'Sam',drafter:'',leadFab:'Nick',
+   status:'in-fabrication',projectManager:'Sam',drafter:'',leadFab:'Milo',
    activeDepartments:JSON.stringify(['pm','fab']),createdAt:D(-30),sortIndex:0},
   {appId:'p2',Title:'Madison Facade',client:'Madison',jobCode:'M2',deadline:D(60),
-   status:'complete',projectManager:'Sam',drafter:'',leadFab:'Kate',
+   status:'complete',projectManager:'Sam',drafter:'',leadFab:'Ines',
    activeDepartments:JSON.stringify(['pm','fab']),createdAt:D(-20),sortIndex:1}];
 const tasks=[
-  {appId:'t1',projectId:'p1',department:'fab',assignee:'Nick',startDate:D(-2),endDate:D(5),
+  {appId:'t1',projectId:'p1',department:'fab',assignee:'Milo',startDate:D(-2),endDate:D(5),
    estimatedDays:6,ticketNodes:'[]',notes:'',pinned:false,label:''},
-  {appId:'t2',projectId:'p2',department:'fab',assignee:'Kate',startDate:D(1),endDate:D(8),
+  {appId:'t2',projectId:'p2',department:'fab',assignee:'Ines',startDate:D(1),endDate:D(8),
    estimatedDays:6,ticketNodes:'[]',notes:'',pinned:false,label:''}];
 const staff=[
-  {appId:'s1',Title:'Nick',depts:JSON.stringify(['fab']),ooo:'[]',email:'',role:''},
-  {appId:'s2',Title:'Kate',depts:JSON.stringify(['fab']),
+  {appId:'s1',Title:'Milo',depts:JSON.stringify(['fab']),ooo:'[]',email:'',role:''},
+  {appId:'s2',Title:'Ines',depts:JSON.stringify(['fab']),
    ooo:JSON.stringify([{id:'o1',start:D(3),end:D(6),note:'PTO'}]),email:'',role:''},
   {appId:'s3',Title:'Sam',depts:JSON.stringify(['pm']),ooo:'[]',email:'user@example.com',role:'PM'}];
 const clients=[
@@ -59,10 +59,10 @@ async function main(){
   sec('read-first index and record');
   const rows=qa('.cd-row');
   ok('every roster person is a row', rows.length===3);
-  ok('rows sort alphabetically', /Kate/.test(rows[0].textContent)&&/Sam/.test(rows[2].textContent));
-  ok('Kate\'s row flags her upcoming OOO', /OOO/.test(rows[0].textContent));
+  ok('rows sort alphabetically', /Ines/.test(rows[0].textContent)&&/Sam/.test(rows[2].textContent));
+  ok('Ines\'s row flags her upcoming OOO', /OOO/.test(rows[0].textContent));
   ok('no record selected → no form controls anywhere', qa('#cd-detail input').length===0);
-  rows[1].click(); /* Nick — on p1's fab bar */
+  rows[1].click(); /* Milo — on p1's fab bar */
   ok('the record shows derived schedule context', /On 1 phase across 1 project/.test(q('#cd-detail').textContent));
   qa('.cd-row')[2].click(); /* Sam */
   ok('the record renders as information, not inputs', /PM/.test(q('#cd-detail').textContent)&&qa('#cd-detail input').length===0);
@@ -97,13 +97,13 @@ async function main(){
   ok('the roster is back to three', E('PEOPLE.length')===3);
 
   sec('index tools');
-  input(q('#cd-q'),'ka');
-  ok('search narrows the index', qa('.cd-row').length===1&&/Kate/.test(qa('.cd-row')[0].textContent));
+  input(q('#cd-q'),'ine');
+  ok('search narrows the index', qa('.cd-row').length===1&&/Ines/.test(qa('.cd-row')[0].textContent));
   input(q('#cd-q'),'');
   ok('clearing the search restores the index', qa('.cd-row').length===3);
 
   sec('the page is not a filter state');
-  E("PERSON='Nick'");
+  E("PERSON='Milo'");
   ok('a person filter never flips the summary chrome here', E('dashOn()')===false);
   E("PERSON=''");
 

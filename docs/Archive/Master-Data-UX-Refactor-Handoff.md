@@ -126,9 +126,9 @@ Company roster, roles, departments and availability
 Search people…          Department: All     Status: Active
 
 NAME              ROLE                  DEPARTMENTS      AVAILABILITY
-Robert Maciel     Lead Technical...     Design, DFAB     Available
-Kate Smith        Production Manager    Production       Available
-Peter Jones       Technical Director    Design, Shop     Sep 8–12 OOO
+Rupert Mallory     Lead Technical...     Design, DFAB     Available
+Ines Smith        Production Manager    Production       Available
+Oscar Jones       Technical Director    Design, Shop     Sep 8–12 OOO
 ...
 ```
 
@@ -140,11 +140,11 @@ A master/detail layout is preferred if it fits the current UI:
 
 ```text
 ┌───────────────────────────┬──────────────────────────────┐
-│ PEOPLE                    │ ROBERT MACIEL                │
+│ PEOPLE                    │ RUPERT MALLORY                │
 │                           │ Lead Technical Designer      │
-│ Robert Maciel             │                              │
-│ Kate Smith                │ Work email                   │
-│ Peter Jones               │ ...                          │
+│ Rupert Mallory             │                              │
+│ Ines Smith                │ Work email                   │
+│ Oscar Jones               │ ...                          │
 │ ...                       │                              │
 │                           │ Role                         │
 │                           │ ...                          │
@@ -175,7 +175,7 @@ Do NOT simply move the existing editable form onto a full page.
 
 Default record presentation should read like:
 
-> This is the company record for Robert Maciel.
+> This is the company record for Rupert Mallory.
 
 rather than:
 
@@ -380,7 +380,7 @@ Where existing project relationships can be determined, prevent obviously destru
 For example, if an employee is actively assigned to projects, eventual deactivation UX could communicate:
 
 ```text
-Peter is assigned to 6 active projects.
+Oscar is assigned to 6 active projects.
 
 Reassign those responsibilities before deactivating this person.
 ```

@@ -2,20 +2,18 @@
    Design-Language §2.4: quiet is the default, the vivid MONTH_HSL look lives
    behind the "Vivid months" toggle, print never emits vivid tints. */
 const {boot,suite}=require('./harness');
-const fs=require('fs');
-const path=require('path');
 const {FILE,src,ok,done}=suite();
 
 const sec=t=>console.log('\n'+t);
 
 const projects=[{appId:'p1',Title:'Hermes Windows',client:'Hermes',jobCode:'H1',
-  deadline:'2026-09-15',status:'approved',projectManager:'Stan',drafter:'Peter',
-  leadFab:'Nick',activeDepartments:JSON.stringify(['td','fab','install']),
+  deadline:'2026-09-15',status:'approved',projectManager:'Theo',drafter:'Oscar',
+  leadFab:'Milo',activeDepartments:JSON.stringify(['td','fab','install']),
   createdAt:'2026-07-01',sortIndex:0}];
 const tasks=[
- {appId:'t1',projectId:'p1',department:'td',assignee:'Peter',startDate:'2026-08-03',
+ {appId:'t1',projectId:'p1',department:'td',assignee:'Oscar',startDate:'2026-08-03',
   endDate:'2026-08-14',estimatedDays:10,ticketNodes:'[]',notes:'',pinned:false,label:''},
- {appId:'t2',projectId:'p1',department:'fab',assignee:'Nick',startDate:'2026-08-17',
+ {appId:'t2',projectId:'p1',department:'fab',assignee:'Milo',startDate:'2026-08-17',
   endDate:'2026-09-11',estimatedDays:20,ticketNodes:'[]',notes:'',pinned:false,label:''},
  {appId:'t3',projectId:'p1',department:'install',assignee:'[]',startDate:'2026-09-14',
   endDate:'2026-09-15',estimatedDays:2,ticketNodes:'[]',notes:'',pinned:false,label:''}];
@@ -70,7 +68,8 @@ function run(){
   ok('the View ▾ menu carries a Vivid months toggle',
      (function(){E('buildViewMenu()');return [...doc.querySelectorAll('#view-menu .sm-item')].some(l=>l.textContent.trim()==='Vivid months');})());
   ok('cellBg formula is byte-identical to the REV50 reference', (function(){
-    const ref=fs.readFileSync(path.join(__dirname,'..','reference','Timeline_50.html'),'utf8');
+    /* REV50's line, kept here since its file left the repo (item 70) */
+    const ref="function cellBg(m,par){const[h,s,l]=MONTH_HSL[m];const s2=Math.max(8,s*.5);return par===0?`hsl(${h},${Math.max(6,s2-5)}%,${l+21}%)`:`hsl(${h},${s2}%,${l+15}%)`;}";
     const g=s=>(s.match(/function cellBg\([^\n]*/)||[''])[0].replace(/\r$/,'');
     return g(ref)!==''&&g(ref)===g(src);
   })());

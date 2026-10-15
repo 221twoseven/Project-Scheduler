@@ -41,7 +41,7 @@ Standing rules per brief (once): *read `CLAUDE.md` + `docs/Design-Language.md` +
 
 > Implement finding B5 per Design-Language §4, plus the missing collapse on REV44's group headers. Density: a Comfortable/Compact toggle (Settings menu, persisted in `UI_KEY`) switching `--row-h` 44px ↔ 32px. Sweep every consumer of row height: sidebar rows (two-line layout from T5 must degrade gracefully — at Compact, name and code·date go single-line each with tighter leading), gantt row geometry, bar padding, edge indicators, lane math where the JS mirrors CSS — add the Compact value to the drift test. All hit targets stay ≥24px (§4): at Compact, bar edge-resize zones and grip dots must not shrink below that.
 > Group collapse: clicking a `grp-head` row (~2549) collapses/expands its group (chevron + count already present in the header pattern); collapsed sets persist in `UI_KEY` keyed by group mode, mirroring the existing `COLLAPSED` depts pattern.
-> **Acceptance:** 30 seeded projects fit one screen at Compact + Month step; nothing becomes unclickable; collapsing "Caroline · 8 projects" hides her rows and survives reload.
+> **Acceptance:** 30 seeded projects fit one screen at Compact + Month step; nothing becomes unclickable; collapsing "Cordelia · 8 projects" hides her rows and survives reload.
 
 ### V4 — Named saved views (B6)
 

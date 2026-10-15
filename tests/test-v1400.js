@@ -17,7 +17,7 @@ const sec=t=>console.log('\n'+t);
 
 /* ---- the demo: twenty projects over Jul 2026 – Jan 2027, every status, Laser + install, a three-month job ---- */
 const P=(id,name,client,code,pm,depts,extra)=>Object.assign({appId:id,Title:name,client,jobCode:code,deadline:'2026-12-01',status:'auto',
-  projectManager:pm,drafter:'Peter',leadFab:'Nick',fabricators:'',activeDepartments:JSON.stringify(depts),createdAt:'2026-07-01',sortIndex:0},extra||{});
+  projectManager:pm,drafter:'Oscar',leadFab:'Milo',fabricators:'',activeDepartments:JSON.stringify(depts),createdAt:'2026-07-01',sortIndex:0},extra||{});
 const T=(id,pid,dept,who,s,e,d)=>({appId:id,projectId:pid,department:dept,assignee:who,startDate:s,endDate:e,estimatedDays:d,ticketNodes:'[]',notes:'',pinned:false,label:''});
 const projects=[
   P('p1','Hermès Windows','Hermès','H1','Sam',['pm','td','laser','fab','install']),
@@ -27,22 +27,22 @@ const projects=[
   P('p5','Holiday Windows','Dior','D5','Sam',['pm','td','fab','install']),
   P('p6','Three Month Job','Tiffany','T6','Kim',['pm','td','fab','install'])];
 const tasks=[
-  T('t1a','p1','td','Peter','2026-09-07','2026-09-18',10),T('t1b','p1','laser','','2026-09-21','2026-09-25',5),T('t1c','p1','fab','Nick','2026-09-28','2026-10-16',15),T('t1d','p1','install','[]','2026-10-19','2026-10-21',3),
-  T('t2a','p2','td','Peter','2026-10-12','2026-10-23',10),T('t2b','p2','fab','Nick','2026-11-02','2026-11-20',15),T('t2c','p2','install','[]','2026-12-07','2026-12-09',3),
-  T('t3a','p3','td','Peter','2026-10-19','2026-10-30',10),T('t3b','p3','cnc','','2026-11-02','2026-11-06',5),T('t3c','p3','finish','','2026-11-09','2026-11-13',5),T('t3d','p3','install','[]','2026-11-16','2026-11-17',2),
-  T('t4a','p4','fab','Nick','2026-10-05','2026-10-23',15),T('t4b','p4','shipping','[]','2026-11-02','2026-11-03',2),
-  T('t5a','p5','td','Peter','2026-08-03','2026-08-14',10),T('t5b','p5','fab','Nick','2026-08-17','2026-09-18',25),T('t5c','p5','install','[]','2026-09-28','2026-09-30',3),
-  T('t6a','p6','td','Peter','2026-10-12','2026-10-30',15),T('t6b','p6','fab','Nick','2026-11-02','2026-11-27',20),T('t6c','p6','install','[]','2026-12-14','2026-12-16',3)];
+  T('t1a','p1','td','Oscar','2026-09-07','2026-09-18',10),T('t1b','p1','laser','','2026-09-21','2026-09-25',5),T('t1c','p1','fab','Milo','2026-09-28','2026-10-16',15),T('t1d','p1','install','[]','2026-10-19','2026-10-21',3),
+  T('t2a','p2','td','Oscar','2026-10-12','2026-10-23',10),T('t2b','p2','fab','Milo','2026-11-02','2026-11-20',15),T('t2c','p2','install','[]','2026-12-07','2026-12-09',3),
+  T('t3a','p3','td','Oscar','2026-10-19','2026-10-30',10),T('t3b','p3','cnc','','2026-11-02','2026-11-06',5),T('t3c','p3','finish','','2026-11-09','2026-11-13',5),T('t3d','p3','install','[]','2026-11-16','2026-11-17',2),
+  T('t4a','p4','fab','Milo','2026-10-05','2026-10-23',15),T('t4b','p4','shipping','[]','2026-11-02','2026-11-03',2),
+  T('t5a','p5','td','Oscar','2026-08-03','2026-08-14',10),T('t5b','p5','fab','Milo','2026-08-17','2026-09-18',25),T('t5c','p5','install','[]','2026-09-28','2026-09-30',3),
+  T('t6a','p6','td','Oscar','2026-10-12','2026-10-30',15),T('t6b','p6','fab','Milo','2026-11-02','2026-11-27',20),T('t6c','p6','install','[]','2026-12-14','2026-12-16',3)];
 const clients=['Hermès','Dior','Tiffany','Cartier'],pms=['Sam','Kim'];
 for(let i=7;i<=20;i++){
   const m=String(7+Math.floor((i-7)/3)).padStart(2,'0'),d=String(1+((i*3)%20)).padStart(2,'0');
   projects.push(P('p'+i,'Job '+i,clients[i%4],'J'+i,pms[i%2],['pm','td','fab','install']));
-  tasks.push(T('t'+i+'a','p'+i,'td','Peter','2026-'+m+'-'+d,'2026-'+m+'-'+String(Math.min(28,+d+9)).padStart(2,'0'),8));
+  tasks.push(T('t'+i+'a','p'+i,'td','Oscar','2026-'+m+'-'+d,'2026-'+m+'-'+String(Math.min(28,+d+9)).padStart(2,'0'),8));
   tasks.push(T('t'+i+'b','p'+i,'install','[]','2026-12-'+String(1+(i%20)).padStart(2,'0'),'2026-12-'+String(2+(i%20)).padStart(2,'0'),2));
 }
 const staff=[{appId:'s1',Title:'Sam',email:'user@example.com',depts:JSON.stringify(['pm']),ooo:'[]',role:''},
-  {appId:'s2',Title:'Peter',email:'',depts:JSON.stringify(['td']),ooo:'[]',role:''},
-  {appId:'s3',Title:'Nick',email:'',depts:JSON.stringify(['fab']),ooo:'[]',role:''},
+  {appId:'s2',Title:'Oscar',email:'',depts:JSON.stringify(['td']),ooo:'[]',role:''},
+  {appId:'s3',Title:'Milo',email:'',depts:JSON.stringify(['fab']),ooo:'[]',role:''},
   {appId:'s4',Title:'Kim',email:'',depts:JSON.stringify(['pm']),ooo:'[]',role:''}];
 
 const dom=boot(FILE,{data:{projects,tasks,staff,todos:[]}});
@@ -186,9 +186,9 @@ function stage1(){
   const names=sc.flatMap(p=>[...p.querySelectorAll('.meet-row .mr-name')].map(e=>e.textContent));
   ok('Q5: with a Client filter the sheet lists only that client\'s projects', names.length===5&&names.every(n=>/Atrium|Holiday Windows|Job (9|13|17)/.test(n)), names.join(', '));
   ok('Q5: …and the header names the filter', /Filters · Client: Dior$/.test(txt(sc[0],'.pr-h2')), txt(sc[0],'.pr-h2'));
-  E("CLIENT_FILTER.clear();PERSON='Nick';render()");
+  E("CLIENT_FILTER.clear();PERSON='Milo';render()");
   const spn=E("prBuild('sheet')");
-  ok('Q5: the Person filter drops the projects without that person, as the screen does', spn.flatMap(p=>[...p.querySelectorAll('.meet-row')]).length===E("buildRows().rows.filter(r=>r.kind==='projHead').length")&&/Person: Nick/.test(txt(spn[0],'.pr-h2')), txt(spn[0],'.pr-h2'));
+  ok('Q5: the Person filter drops the projects without that person, as the screen does', spn.flatMap(p=>[...p.querySelectorAll('.meet-row')]).length===E("buildRows().rows.filter(r=>r.kind==='projHead').length")&&/Person: Milo/.test(txt(spn[0],'.pr-h2')), txt(spn[0],'.pr-h2'));
   E("PERSON=null;FILTER='windows';render()");
   const ss=E("prBuild('sheet')");
   const rows=ss.flatMap(p=>[...p.querySelectorAll('.meet-row')]);
@@ -255,7 +255,7 @@ function saved(){
   ok('R4: the project Gantt prints with its own title and the same line two', g.length===1&&txt(g[0],'.pr-title')==='Shop Timeline · Three Month Job'&&txt(g[0],'.pr-h2')==='T6 · Tiffany · PM Kim · Due Dec 16, 2026', txt(g[0],'.pr-title')+' | '+txt(g[0],'.pr-h2'));
   ok('step 9: the phase gutter stands in for the sidebar, one 32px row per department, bars 24px', g[0].querySelectorAll('.pr-gut').length===3&&g[0].querySelectorAll('.pr-canvas .job-bar').length===3&&[...g[0].querySelectorAll('.pr-canvas .job-bar')].every(b=>b.style.height==='24px'), g[0].querySelectorAll('.pr-gut').length);
   ok('step 9: the span is whole weeks, Monday to Sunday', /^Oct 12 to Dec 20, 2026$/.test(txt(g[0],'.pr-range')), txt(g[0],'.pr-range'));
-  ok('step 9: no phase apart from its project — one page, every department of the job on it', [...g[0].querySelectorAll('.pr-gut')].map(e=>e.textContent).join('|')==='Technical Design · Peter|Main Shop Fab · Nick|Installation', [...g[0].querySelectorAll('.pr-gut')].map(e=>e.textContent).join('|'));
+  ok('step 9: no phase apart from its project — one page, every department of the job on it', [...g[0].querySelectorAll('.pr-gut')].map(e=>e.textContent).join('|')==='Technical Design · Oscar|Main Shop Fab · Milo|Installation', [...g[0].querySelectorAll('.pr-gut')].map(e=>e.textContent).join('|'));
   click(q('#mi-print-timeline'));
   ok('step 2: on a project\'s page the first entry opens the preview without From/To', !q('#print-overlay').classList.contains('hidden')&&q('#print-overlay').classList.contains('no-range')&&qa('#pp-zoom-inner .pr-page').length===1&&txt(q('#pp-zoom-inner'),'.pr-title')==='Shop Timeline · Three Month Job');
   click(q('#pp-close'));

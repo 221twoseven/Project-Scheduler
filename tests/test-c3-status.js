@@ -10,9 +10,9 @@ const {FILE,src,ok,done}=suite();
 const sec=t=>console.log('\n'+t);
 
 const proj=(id,name,status)=>({appId:id,Title:name,client:'',jobCode:id.toUpperCase(),
-  deadline:'2026-12-20',status,projectManager:'Stan',drafter:'Ana',
-  leadFab:'Nick',activeDepartments:JSON.stringify(['pm','fab']),createdAt:'2026-07-01'});
-const task=(id,pid,s,e)=>({appId:id,projectId:pid,department:'fab',assignee:'Nick',
+  deadline:'2026-12-20',status,projectManager:'Theo',drafter:'Ana',
+  leadFab:'Milo',activeDepartments:JSON.stringify(['pm','fab']),createdAt:'2026-07-01'});
+const task=(id,pid,s,e)=>({appId:id,projectId:pid,department:'fab',assignee:'Milo',
   startDate:s,endDate:e,estimatedDays:5,ticketNodes:'[]',notes:'',pinned:false,label:''});
 const projects=[proj('p1','Hermes Windows','forecast'),proj('p2','Near Now','complete'),
   proj('p3','Held Job','on-hold')];

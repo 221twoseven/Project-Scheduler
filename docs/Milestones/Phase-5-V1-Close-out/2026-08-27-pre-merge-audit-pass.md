@@ -30,7 +30,7 @@ and everything actionable was fixed on the spot. Rides the same promotion PR
 **Visible behaviour fixes:**
 
 - Multi-PM projects now prompt every listed PM about late deadlines (the REV87
-  prompt matched the raw comma string, so "Stan, Caroline" prompted nobody).
+  prompt matched the raw comma string, so "Theo, Cordelia" prompted nobody).
 - The Delete-project button gets its danger styling back (`.btn-danger` never
   existed in the stylesheet; it now uses the real `.btn-del`).
 - Unit 7's departments (Soft Goods, Vinyl, Other) appear in the Departments lens —

@@ -12,7 +12,7 @@
    all-caps/digits code followed by a hyphen is stripped.
 2. **Driver column.** New ✓ column on the index, a Yes/— row on the record, and a
    "Drives for the company" checkbox in the editor. Backed by a new `driver`
-   staff column (single-line text, `1`/empty — ⚠ Robert creates it; until then a
+   staff column (single-line text, `1`/empty — ⚠ the owner creates it; until then a
    save that touches the checkbox parks with the named-field toast, v1.15.2
    style). Tristate like the other flags; merges fold it.
 3. **Permission filter.** A second dropdown beside the department filter:

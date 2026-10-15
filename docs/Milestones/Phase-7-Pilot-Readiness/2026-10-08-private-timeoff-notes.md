@@ -10,7 +10,7 @@ saw that note, in four places:
 
 - the People record, under Availability;
 - the people lanes on the dashboard ("OUT · Doctor appointment", and the bar's hover text);
-- a phase's hover tip ("Nick is out Oct 7 → Oct 11 (Doctor appointment)");
+- a phase's hover tip ("Milo is out Oct 7 → Oct 11 (Doctor appointment)");
 - the person panel's Time off list.
 
 ## What changed

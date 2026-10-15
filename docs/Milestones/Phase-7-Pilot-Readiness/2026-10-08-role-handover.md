@@ -1,6 +1,6 @@
 # 2026-10-08 — A role change moves the project to the new holder (v1.42.0)
 
-**Version:** v1.42.0 · **PR:** #111 · **Tracker:** #34 (Kate Krabel, "When a PM is changed
+**Version:** v1.42.0 · **PR:** #111 · **Tracker:** #34 (Ines Dovell, "When a PM is changed
 post project creation it still shows up in originals PM's bucket"), approved "proceed with
 fix" 2026-10-06 · **TODO:** item 53.
 
@@ -31,10 +31,10 @@ never got it.
   - It is one save and one undo, and the Changelog records each bar.
 - **A note for bars the change never reached.** Old projects were changed before this fix:
   the reporter's case. When a role-owned bar is still held by someone outside the role,
-  Project Schedule now says "Bar is held by Nick Ruiz · the Project lead is Cris Carianna",
+  Project Schedule now says "Bar is held by Milo Ruiz · the Project lead is Remy Fenwicke",
   with a **Hand over from today** button. Nothing is rewritten without that click.
 
-| Before: after a PM change from Kate to Sam, the job stays in Kate's lane | After: Kate keeps the days already worked; Sam has it from today |
+| Before: after a PM change from Ines to Sam, the job stays in Ines's lane | After: Ines keeps the days already worked; Sam has it from today |
 |---|---|
 | ![before](screenshots/before-role-handover-lanes.png) | ![after](screenshots/after-role-handover-lanes.png) |
 

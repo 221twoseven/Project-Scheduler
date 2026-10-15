@@ -2,7 +2,7 @@
 
 **What changed:** the app now keeps a history of project edits. Every save that
 actually lands on SharePoint also writes one row per changed record to the
-`ShopTimeline_Changelog` list (created by Robert 2026-08-31): who made the change,
+`ShopTimeline_Changelog` list (created by the owner 2026-08-31): who made the change,
 when, which fields, and each field's old → new value. Two admin-only places to read
 it:
 

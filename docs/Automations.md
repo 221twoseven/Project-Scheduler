@@ -13,10 +13,10 @@ its entry. If it's turned off, mark it *retired* and keep the entry.
 
 | Automation | Kind | What it does | Owner | Status |
 |---|---|---|---|---|
-| [Feedback poller](#feedback-poller) | GitHub Actions | Files each feedback report as a tracker issue; syncs status, the resolved date and `/reply` / `/comment` comments back to the list | Robert | live since 2026-09-25 |
-| [Reply email](#reply-email) | Power Automate | Emails a new `/reply` to the person who filed the report, and tells them they can answer; emails them when their report is resolved | Robert | live since 2026-09-30; resolved branch live since 2026-10-09 (tracker README step 11) |
-| [Email reply in](#email-reply-in) | Power Automate | Sends the reporter's email answer to the tracker, where it becomes a comment on the ticket and in the app | Robert | live since 2026-10-09 (rebuilt; tracker README step 10) |
-| [New report out](#new-report-out) | Power Automate | Tells the tracker the moment a report is saved, so its issue opens within minutes | Robert | live since 2026-10-13 (tracker README step 12) |
+| [Feedback poller](#feedback-poller) | GitHub Actions | Files each feedback report as a tracker issue; syncs status, the resolved date and `/reply` / `/comment` comments back to the list | the owner | live since 2026-09-25 |
+| [Reply email](#reply-email) | Power Automate | Emails a new `/reply` to the person who filed the report, and tells them they can answer; emails them when their report is resolved | the owner | live since 2026-09-30; resolved branch live since 2026-10-09 (tracker README step 11) |
+| [Email reply in](#email-reply-in) | Power Automate | Sends the reporter's email answer to the tracker, where it becomes a comment on the ticket and in the app | the owner | live since 2026-10-09 (rebuilt; tracker README step 10) |
+| [New report out](#new-report-out) | Power Automate | Tells the tracker the moment a report is saved, so its issue opens within minutes | the owner | live since 2026-10-13 (tracker README step 12) |
 | 27 Events → Outlook | Power Automate | Syncs the company calendar list to Outlook | unknown | **undocumented**: TODO §5, item 12 |
 | 27 Employees (PTO) | Power Automate | PTO / availability automation | operations manager | **undocumented**: TODO §5 |
 
@@ -85,7 +85,7 @@ it off.
   Writes nothing, so it can't trigger itself.
 - **Depends on:** version history being on for the list. Without it, the trigger's token
   is blank and *Get changes* fails with "Invalid format for version input value".
-- **Runs as:** Robert's SharePoint and Outlook connections. The mail comes from his
+- **Runs as:** the owner's SharePoint and Outlook connections. The mail comes from his
   mailbox, so replies to it reach him.
 - **Definition:** Power Automate ▸ My flows ▸ *Shop Timeline — reply email*. The
   step-by-step build is in the tracker README, step 9, and the resolved branch is step 11.
@@ -108,7 +108,7 @@ it off.
 - **Reads / writes:** reads the email's subject, sender, received time and body (converted
   to plain text). Sends a GitHub `repository_dispatch` (`email-reply`) to
   `221twoseven/Project-Scheduler-issues`. Writes nothing to SharePoint.
-- **Runs as:** Robert's Outlook connection, plus a GitHub connection signed in as
+- **Runs as:** the owner's Outlook connection, plus a GitHub connection signed in as
   `221twoseven`. The GitHub connector is standard, not premium.
 - **Safeguards:** the poller posts only a reply (subject starting `RE:`, `AW:` or `SV:`; the
   flow also sees the team's own outgoing emails) and only when the sender is the report's
@@ -134,7 +134,7 @@ it off.
 - **Reads / writes:** reads nothing from the new row. Sends a GitHub `repository_dispatch`
   (`feedback`) to `221twoseven/Project-Scheduler-issues`, and the poller runs its normal sync.
   Writes nothing to SharePoint.
-- **Runs as:** Robert's SharePoint connection, plus the same GitHub connection as *Email reply
+- **Runs as:** the owner's SharePoint connection, plus the same GitHub connection as *Email reply
   in* (`221twoseven`). Both connectors are standard, not premium.
 - **Definition:** Power Automate ▸ My flows ▸ *Shop Timeline — new report out*. The build is in
   the tracker README, step 12. Exported package: tracker `flows/shop-timeline-new-report-out.zip`,

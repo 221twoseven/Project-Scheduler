@@ -1,6 +1,6 @@
 # 2026-08-20 — Left-click editor cleanup (REV61)
 
-Robert's project-edit notes, applied to both left-click editing surfaces: the popover
+The owner's project-edit notes, applied to both left-click editing surfaces: the popover
 that opens on a draft bar, and the inspector pane on a saved project. Right-click
 menus are untouched.
 

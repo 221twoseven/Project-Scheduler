@@ -38,7 +38,7 @@ function main(){
   ok('each says who wrote it: Team, Reporter, Team (in ticket order)', who.join()==='Team,Reporter,Team', who.join());
   ok('the reporter\'s answer shows its text', ones[1]&&ones[1].querySelector('.clog-det').textContent==='It was Chrome.');
   ok('the reporter\'s answer is marked apart (.rep)', ones[1]&&ones[1].classList.contains('rep')&&!ones[0].classList.contains('rep'));
-  ok('names stay off the public page: the label is "Reporter", never a name', !/Kate|@/.test(cm?cm.textContent:''));
+  ok('names stay off the public page: the label is "Reporter", never a name', !/Ines|@/.test(cm?cm.textContent:''));
   ok('the email link (#/issues/5) opens that thread', !!cm&&cm.open);
   const one=q('#fb-list .clog-row[data-spid="6"] details.fb-cm');
   ok('a single comment reads "1 comment"', !!one&&one.querySelector('summary').textContent==='1 comment', one&&one.querySelector('summary').textContent);

@@ -9,7 +9,7 @@ const sec=t=>console.log('\n'+t);
 
 /* ids chosen for known hash slots: pa→5, pb→6, pc→7, pm→5 (collides with pa) */
 const proj=(id,name)=>({appId:id,Title:name,client:'',jobCode:id.toUpperCase(),
-  deadline:'2026-10-01',status:'in-fabrication',projectManager:'Stan',drafter:'',
+  deadline:'2026-10-01',status:'in-fabrication',projectManager:'Theo',drafter:'',
   leadFab:'',activeDepartments:JSON.stringify(['pm','fab']),createdAt:'2026-07-01'});
 const projects=[proj('pa','Alpha'),proj('pb','Bravo'),proj('pc','Charlie')];
 

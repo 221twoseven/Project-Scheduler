@@ -15,7 +15,7 @@ const D=n=>{const d=new Date();d.setDate(d.getDate()+n);
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
 
 const P=(id,name,extra)=>({appId:id,Title:name,client:'C',jobCode:id.toUpperCase(),
-  deadline:D(20),status:'auto',projectManager:'Stan',drafter:'',leadFab:'',
+  deadline:D(20),status:'auto',projectManager:'Theo',drafter:'',leadFab:'',
   activeDepartments:JSON.stringify(['pm','fab']),createdAt:D(-60),sortIndex:0,...extra});
 const T=(id,pid,who,s,e,extra)=>({appId:id,projectId:pid,department:'fab',assignee:who,
   startDate:s,endDate:e,estimatedDays:5,ticketNodes:'[]',notes:'',pinned:false,label:'',...extra});
@@ -27,11 +27,11 @@ const projects=[
   P('p1','Alpha Active',{sortIndex:1}),
   P('p3','Gamma Coming',{deadline:D(40),sortIndex:2})];
 const tasks=[
-  T('t2','p2','Nick',D(-30),D(-10)),
-  T('t1','p1','Nick',D(-2),D(6),
+  T('t2','p2','Milo',D(-30),D(-10)),
+  T('t1','p1','Milo',D(-2),D(6),
     {ticketNodes:'[{"id":"n1","date":"'+D(2)+'","target":"Client sign-off"}]'}),
-  T('t3','p3','Nick',D(12),D(18))];
-const staff=[{appId:'s1',Title:'Nick',depts:JSON.stringify(['fab']),ooo:'[]',email:'',role:''}];
+  T('t3','p3','Milo',D(12),D(18))];
+const staff=[{appId:'s1',Title:'Milo',depts:JSON.stringify(['fab']),ooo:'[]',email:'',role:''}];
 const todos=[{appId:'td1',projectId:'p1',department:'fab',Title:'Check hardware',
   assignees:'[]',dueDate:D(3),startDate:null,progress:'notstarted',priority:'medium',
   notes:'',createdBy:'',completedOn:null,completedBy:'',sortIndex:0}];
@@ -67,7 +67,7 @@ function main(){
   sec('item 6 — lane summaries drop wrapped assignments');
   E("LENS='dept';render()");
   const lane=qa('.sb-row.lane-row').find(r=>{
-    const n=r.querySelector('.sb-2l .sb-name');return n&&n.textContent==='Nick';});
+    const n=r.querySelector('.sb-2l .sb-name');return n&&n.textContent==='Milo';});
   const asns=lane?[...lane.querySelectorAll('.sb-asns .sb-asn')].map(a=>a.textContent):[];
   ok('current and upcoming assignments still list',
      asns.some(a=>/Alpha|P1/.test(a))&&asns.some(a=>/Gamma|P3/.test(a)), asns.join(' | ')); /* v1.35.0 (#33): lines read the cost code */

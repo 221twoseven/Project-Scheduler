@@ -50,7 +50,7 @@ the old code reads them as before.
 ## Screenshots
 
 Saved project, Team section. Before (v1.29.0): LEAD FABRICATOR as a checkbox list of the
-fab roster. After: PROJECT LEAD as a single-choice list grouped by department, Nick
+fab roster. After: PROJECT LEAD as a single-choice list grouped by department, Milo
 checked under Main Shop Fab; then with Mia (Metal Shop) as the lead. Then the chart with
 the **L** chip on the bar, and Help ▸ Legend reading PM · D · L.
 

@@ -19,7 +19,7 @@ const D=n=>{const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()+n);
 
 const staff=[
   {appId:'s1',Title:'Sam',depts:JSON.stringify(['pm']),ooo:'[]',email:'user@example.com',phone:'',role:'PM',admin:'dev'},
-  {appId:'s2',Title:'Pat',depts:JSON.stringify(['fab']),ooo:'[]',email:'pat@x.co',phone:'',role:'',admin:'1',
+  {appId:'s2',Title:'Pat',depts:JSON.stringify(['fab']),ooo:'[]',email:'pat@example.com',phone:'',role:'',admin:'1',
    listeningTo:'Chet Baker',listeningLink:'example.com/chet',listeningVerb:'listening to',listeningShow:'1'},
   {appId:'s3',Title:'Kim',depts:JSON.stringify(['fab']),ooo:'[]',email:'',phone:'',role:'',admin:''}];
 const projects=[{appId:'p1',Title:'Alpha',client:'Acme',jobCode:'J1',deadline:D(30),
@@ -233,9 +233,9 @@ function stageImport(){
    +"{name:'Email',displayName:'Email'},{name:'Primary_x0020_Phone',displayName:'Primary Phone'},{name:'Current_x0020_Title',displayName:'Current Title'},"
    +"{name:'Department',displayName:'Department'},{name:'Pay_x0020_Type',displayName:'Pay Type'}];"
    +"if(u.indexOf('Employee')>=0)return ["
-   +"{id:'e1',fields:{Title:'Pat',Status:'Active',Email:'pat@x.co',Primary_x0020_Phone:'555-1',Current_x0020_Title:'Shop Lead',Department:'Fabrication',Pay_x0020_Type:'NOPE'}},"
-   +"{id:'e2',fields:{Title:'Marcus Webb',Status:'Active',Email:'marcus@x.co',Current_x0020_Title:'Logistics Coordinator',Department:'Logistics'}},"
-   +"{id:'e3',fields:{Title:'Gone Guy',Status:'Terminated',Email:'gone@x.co'}}];"
+   +"{id:'e1',fields:{Title:'Pat',Status:'Active',Email:'pat@example.com',Primary_x0020_Phone:'555-1',Current_x0020_Title:'Shop Lead',Department:'Fabrication',Pay_x0020_Type:'NOPE'}},"
+   +"{id:'e2',fields:{Title:'Marcus Webb',Status:'Active',Email:'marcus@example.com',Current_x0020_Title:'Logistics Coordinator',Department:'Logistics'}},"
+   +"{id:'e3',fields:{Title:'Gone Guy',Status:'Terminated',Email:'gone@example.com'}}];"
    +"if(u.indexOf('/columns')>=0)return [{name:'Title'},{name:'status'}];"
    +"return [];};");
   E("cdImportEC({disabled:false})");
@@ -269,7 +269,7 @@ function stage15(){
   E("PEOPLE.find(p=>p.name==='Sam').nickname=null");
 
   sec('v1.15.0 — merge duplicate: assignments rewritten, fields backfilled, row gone');
-  E("PEOPLE.push({id:'dupX',name:'Samuel (Sam) Q',depts:['fab'],ooo:[],email:'samq@x.co',phone:'555-9',role:'Fabricator',admin:null})");
+  E("PEOPLE.push({id:'dupX',name:'Samuel (Sam) Q',depts:['fab'],ooo:[],email:'samq@example.com',phone:'555-9',role:'Fabricator',admin:null})");
   E("ST.tasks.push({id:'tmX',projectId:'p1',department:'fab',assignee:'Samuel (Sam) Q',startDate:'"+D(2)+"',endDate:'"+D(4)+"',estimatedDays:2,ticketNodes:[],notes:'',pinned:false,label:''})");
   E("cdMergePerson(PEOPLE.find(p=>p.name==='Kim').id,'dupX')"); /* harness confirm = yes */
   ok('the duplicate row is gone and fields backfilled',

@@ -20,7 +20,7 @@ const mkTask=(id,pid,dept,who,s,e)=>({appId:id,projectId:pid,department:dept,ass
 
 const dom=boot(FILE,{data:{
   projects:[mkProj('p1','Alpha',0),mkProj('p2','Beta',1)],
-  tasks:[mkTask('t1','p1','fab','Sam',D(0),D(4)),mkTask('t2','p2','fab','Nick',D(0),D(4))],
+  tasks:[mkTask('t1','p1','fab','Sam',D(0),D(4)),mkTask('t2','p2','fab','Milo',D(0),D(4))],
   staff:[],todos:[]}});
 const win=dom.window,E=s=>win.eval(s),calls=()=>win.__spCalls;
 const clogPosts=from=>calls().slice(from).filter(c=>c.method==='POST'&&/ShopTimeline_Changelog/.test(c.url));
@@ -46,7 +46,7 @@ async function main(){
 
   sec('a new phase logs created');
   n0=calls().length;
-  E("saveState({projects:ST.projects,tasks:ST.tasks.concat([{id:'t3',projectId:'p1',department:'fin',assignee:'Kate',startDate:'"+D(5)+"',endDate:'"+D(9)+"',estimatedDays:5,ticketNodes:[],notes:'',pinned:false,label:''}])})");
+  E("saveState({projects:ST.projects,tasks:ST.tasks.concat([{id:'t3',projectId:'p1',department:'fin',assignee:'Ines',startDate:'"+D(5)+"',endDate:'"+D(9)+"',estimatedDays:5,ticketNodes:[],notes:'',pinned:false,label:''}])})");
   await wait(500);
   rows=clogPosts(n0).map(c=>c.body.fields);
   ok('one created row for the phase', rows.length===1&&rows[0].field==='created', rows.map(r=>r.field).join('|'));

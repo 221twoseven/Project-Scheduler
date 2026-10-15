@@ -15,7 +15,7 @@ const sec=t=>console.log('\n'+t);
 
 const projects=[
  {appId:'p1',Title:'Hermes Windows',client:'Hermès',jobCode:'HER-2419',deadline:'2026-10-02',
-  status:'in-fabrication',projectManager:'Stan',drafter:'Peter',leadFab:'Nick',
+  status:'in-fabrication',projectManager:'Theo',drafter:'Oscar',leadFab:'Milo',
   activeDepartments:JSON.stringify(['pm','td','fab']),createdAt:'2026-07-01',sortIndex:0}];
 const clients=[
  {Title:'Hermès',field_2:'HER'},

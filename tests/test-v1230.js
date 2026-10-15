@@ -10,8 +10,8 @@ const sec=t=>console.log('\n'+t);
 const staff=[
  {appId:'s1',Title:'Sam',depts:JSON.stringify(['pm']),ooo:'[]',email:'user@example.com',role:'PM',admin:'dev',schedule:JSON.stringify({days:[1,2,3,4,5],start:'09:00',end:'18:00'})},
  /* freelance with stale hours on the row — the flag wins */
- {appId:'s2',Title:'Dana West',depts:JSON.stringify(['fab']),ooo:'[]',email:'d@x.co',role:'',admin:'',freelance:'1',schedule:JSON.stringify({days:[2,3,4],start:'11:00',end:'16:00'})},
- {appId:'s3',Title:'Alex Reyes',depts:JSON.stringify(['fab']),ooo:'[]',email:'a@x.co',role:'',admin:'',freelance:''}];
+ {appId:'s2',Title:'Dana West',depts:JSON.stringify(['fab']),ooo:'[]',email:'d@example.com',role:'',admin:'',freelance:'1',schedule:JSON.stringify({days:[2,3,4],start:'11:00',end:'16:00'})},
+ {appId:'s3',Title:'Alex Reyes',depts:JSON.stringify(['fab']),ooo:'[]',email:'a@example.com',role:'',admin:'',freelance:''}];
 
 const dom=boot(FILE,{data:{projects:[],tasks:[],staff,todos:[]}});
 const win=dom.window,doc=win.document,E=s=>win.eval(s);

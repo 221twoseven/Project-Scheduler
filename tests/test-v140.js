@@ -16,12 +16,12 @@ const D=n=>{const d=new Date();d.setDate(d.getDate()+n);
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
 
 const projects=[{appId:'p1',Title:'Hermes Windows',client:'Hermes',jobCode:'H1',
-  deadline:D(30),status:'in-fabrication',projectManager:'Stan',drafter:'Peter',
-  leadFab:'Nick',activeDepartments:JSON.stringify(['pm','td','fab']),createdAt:D(-30),sortIndex:0}];
+  deadline:D(30),status:'in-fabrication',projectManager:'Theo',drafter:'Oscar',
+  leadFab:'Milo',activeDepartments:JSON.stringify(['pm','td','fab']),createdAt:D(-30),sortIndex:0}];
 const tasks=[
- {appId:'t1',projectId:'p1',department:'td',assignee:'Peter',startDate:D(-5),endDate:D(5),
+ {appId:'t1',projectId:'p1',department:'td',assignee:'Oscar',startDate:D(-5),endDate:D(5),
   estimatedDays:8,ticketNodes:'[]',notes:'',pinned:false,label:''},
- {appId:'f1',projectId:'p1',department:'fab',assignee:'Nick',startDate:D(6),endDate:D(20),
+ {appId:'f1',projectId:'p1',department:'fab',assignee:'Milo',startDate:D(6),endDate:D(20),
   estimatedDays:10,ticketNodes:'[]',notes:'',pinned:false,label:''}];
 
 const dom=boot(FILE,{data:{projects,tasks,staff:[],todos:[]},todosList:true});

@@ -13,15 +13,15 @@ const sec=t=>console.log('\n'+t);
 /* Three projects, two clients — Acme (p1,p2) and Beta (p3); each with one fab bar. */
 const projects=[
  {appId:'p1',Title:'Acme Lobby',client:'Acme',jobCode:'A1',deadline:'2026-09-15',
-  status:'in-fabrication',projectManager:'Stan',drafter:'Peter',leadFab:'Nick',
+  status:'in-fabrication',projectManager:'Theo',drafter:'Oscar',leadFab:'Milo',
   activeDepartments:JSON.stringify(['pm','fab']),createdAt:'2026-07-01',sortIndex:0},
  {appId:'p2',Title:'Acme Annex',client:'Acme',jobCode:'A2',deadline:'2026-09-20',
-  status:'in-design',projectManager:'Stan',drafter:'Peter',leadFab:'Nick',
+  status:'in-design',projectManager:'Theo',drafter:'Oscar',leadFab:'Milo',
   activeDepartments:JSON.stringify(['pm','fab']),createdAt:'2026-07-02',sortIndex:1},
  {appId:'p3',Title:'Beta Tower',client:'Beta',jobCode:'B1',deadline:'2026-10-01',
-  status:'in-fabrication',projectManager:'Caroline',drafter:'Peter',leadFab:'Kate',
+  status:'in-fabrication',projectManager:'Cordelia',drafter:'Oscar',leadFab:'Ines',
   activeDepartments:JSON.stringify(['pm','fab']),createdAt:'2026-07-03',sortIndex:2}];
-const tasks=projects.map((p,i)=>({appId:'t'+i,projectId:p.appId,department:'fab',assignee:'Nick',
+const tasks=projects.map((p,i)=>({appId:'t'+i,projectId:p.appId,department:'fab',assignee:'Milo',
   startDate:'2026-08-24',endDate:'2026-09-04',estimatedDays:10,ticketNodes:'[]',notes:'',pinned:false,label:''}));
 
 const dom=boot(FILE,{data:{projects,tasks,staff:[],todos:[]}});

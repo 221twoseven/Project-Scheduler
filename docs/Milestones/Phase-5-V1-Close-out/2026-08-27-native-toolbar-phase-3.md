@@ -19,7 +19,7 @@ add a new **Client** filter.
   the board (`boardClients()`), not the whole Clients master. It persists in the
   UI prefs and restores on load, and rides along in saved Views.
 - **Active-filter chips + count.** Each active constraint shows as a removable
-  chip beside the button (`Status (5/6) ×`, `Client: Acme ×`, `Person: Robert ×`),
+  chip beside the button (`Status (5/6) ×`, `Client: Acme ×`, `Person: Rupert ×`),
   and the button carries a count (`Filters (2)`).
 - **Contextual Clear.** "Clear filters" is hidden until a filter, search, or
   spotlight is active — it no longer sits on the row permanently.

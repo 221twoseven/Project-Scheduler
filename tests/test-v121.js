@@ -17,7 +17,7 @@ const D=n=>{const d=new Date();d.setDate(d.getDate()+n);
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
 
 const P=(id,name,extra)=>({appId:id,Title:name,client:'C',jobCode:id.toUpperCase(),
-  deadline:D(20),status:'auto',projectManager:'Stan',drafter:'',leadFab:'',
+  deadline:D(20),status:'auto',projectManager:'Theo',drafter:'',leadFab:'',
   activeDepartments:JSON.stringify(['pm','fab']),createdAt:D(-60),sortIndex:0,...extra});
 const T=(id,pid,who,s,e,extra)=>({appId:id,projectId:pid,department:'fab',assignee:who,
   startDate:s,endDate:e,estimatedDays:5,ticketNodes:'[]',notes:'',pinned:false,label:'',...extra});
@@ -30,17 +30,17 @@ const projects=[
   P('p5','Echo LateLive',{deadline:D(-3)}),             /* late but still running */
   P('p6','Foxtrot Forecast',{deadline:D(40),status:'forecast'})];
 const tasks=[
-  T('t1','p1','Nick',D(-2),D(5)),
-  T('x1','p2','Nick',D(-1),D(3)),                       /* conflict job #1 for t1 */
-  T('x2','p3','Nick',D(0),D(2)),                        /* conflict job #2 for t1 */
-  T('t4','p4','Peter',D(-40),D(-25)),
-  T('t5','p5','Kate',D(-10),D(4)),
-  T('k1','p2','Kate',D(0),D(2)),                        /* Kate's ONLY other job — the singular case */
-  T('t6','p6','Peter',D(10),D(15))];
+  T('t1','p1','Milo',D(-2),D(5)),
+  T('x1','p2','Milo',D(-1),D(3)),                       /* conflict job #1 for t1 */
+  T('x2','p3','Milo',D(0),D(2)),                        /* conflict job #2 for t1 */
+  T('t4','p4','Oscar',D(-40),D(-25)),
+  T('t5','p5','Ines',D(-10),D(4)),
+  T('k1','p2','Ines',D(0),D(2)),                        /* Ines's ONLY other job — the singular case */
+  T('t6','p6','Oscar',D(10),D(15))];
 const staff=[
-  {appId:'s1',Title:'Nick',depts:JSON.stringify(['fab']),ooo:'[]',email:'',role:''},
-  {appId:'s2',Title:'Peter',depts:JSON.stringify(['fab']),ooo:'[]',email:'',role:''},
-  {appId:'s3',Title:'Kate',depts:JSON.stringify(['fab']),ooo:'[]',email:'',role:''}];
+  {appId:'s1',Title:'Milo',depts:JSON.stringify(['fab']),ooo:'[]',email:'',role:''},
+  {appId:'s2',Title:'Oscar',depts:JSON.stringify(['fab']),ooo:'[]',email:'',role:''},
+  {appId:'s3',Title:'Ines',depts:JSON.stringify(['fab']),ooo:'[]',email:'',role:''}];
 
 const dom=boot(FILE,{data:{projects,tasks,staff,todos:[]}});
 const win=dom.window,doc=win.document;
@@ -91,7 +91,7 @@ function main(){
      sum&&sum.style.backgroundColor);
 
   sec('v1.2.2 — the dashboard never presents as a filtered view');
-  E("LENS='dept';PERSON='Nick';saveUI();render()");
+  E("LENS='dept';PERSON='Milo';saveUI();render()");
   ok('dashboard is on', E('dashOn()')===true);
   ok('the person does not count as an active filter', E('activeFilterCount()')===0);
   ok('no "Person:" chip renders', !qa('#filter-chips .f-chip').some(c=>/Person:/.test(c.textContent)));
@@ -108,17 +108,17 @@ function main(){
   ok('a client filter surfaces Clear filters again', !q('#btn-reset').classList.contains('hidden'));
   q('#btn-reset').click();
   ok('Clear filters clears the client filter', E('CLIENT_FILTER.size')===0);
-  ok('…but never exits the dashboard', E('dashOn()')===true&&E('PERSON')==='Nick');
+  ok('…but never exits the dashboard', E('dashOn()')===true&&E('PERSON')==='Milo');
   E("LENS='project';render()");
   /* v1.6.4 flipped this: the summary place follows the person into the Projects
      lens, so the person never presents as a filter there either. */
   if(src.indexOf('dash-flat')>=0)
     ok('on the Projects lens the person is STILL the summary place (v1.6.4)',
-       !qa('#filter-chips .f-chip').some(c=>/Person: Nick/.test(c.textContent))
+       !qa('#filter-chips .f-chip').some(c=>/Person: Milo/.test(c.textContent))
        &&E('dashOn()')===true);
   else
     ok('on the Projects lens the same person IS a filter again',
-       qa('#filter-chips .f-chip').some(c=>/Person: Nick/.test(c.textContent))
+       qa('#filter-chips .f-chip').some(c=>/Person: Milo/.test(c.textContent))
        &&!q('#btn-reset').classList.contains('hidden'));
   E("PERSON=null;saveUI();updateFilterBadges();render()");
 

@@ -13,9 +13,9 @@ const sec=t=>console.log('\n'+t);
 
 const staff=[
  {appId:'s1',Title:'Sam',depts:JSON.stringify(['pm']),ooo:'[]',email:'user@example.com',role:'PM1 - Project Manager',admin:'dev',driver:'1'},
- {appId:'s2',Title:'Alex Reyes',depts:JSON.stringify(['fab']),ooo:'[]',email:'alex@x.com',role:'SFAB1 - Seasonal Fabricator',admin:'',driver:''},
- {appId:'s3',Title:'Bea Chen',depts:JSON.stringify(['td']),ooo:'[]',email:'bea@x.com',role:'TD2 - Technical Designer',admin:'1',feedbackRecipient:'1',driver:'1'},
- {appId:'s4',Title:'Cody Hall',depts:JSON.stringify(['fin']),ooo:'[]',email:'cody@x.com',role:'Co-Director of Finishing',admin:''}];
+ {appId:'s2',Title:'Alex Reyes',depts:JSON.stringify(['fab']),ooo:'[]',email:'alex@example.com',role:'SFAB1 - Seasonal Fabricator',admin:'',driver:''},
+ {appId:'s3',Title:'Bea Chen',depts:JSON.stringify(['td']),ooo:'[]',email:'bea@example.com',role:'TD2 - Technical Designer',admin:'1',feedbackRecipient:'1',driver:'1'},
+ {appId:'s4',Title:'Cody Hall',depts:JSON.stringify(['fin']),ooo:'[]',email:'cody@example.com',role:'Co-Director of Finishing',admin:''}];
 
 const dom=boot(FILE,{data:{projects:[],tasks:[],staff,todos:[]}});
 const win=dom.window,doc=win.document,E=s=>win.eval(s);

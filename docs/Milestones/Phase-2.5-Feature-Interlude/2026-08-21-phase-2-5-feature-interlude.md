@@ -18,7 +18,7 @@ categorized here as **Phase 2.5**. One-file records for each REV live in
   snapping back; Save files exactly what the preview shows.
 - **REV56 — Subtask hierarchy.** The department's primary bar *is* the parent row;
   subtasks render in a lighter shade, clamp to the parent window, resize from both edges.
-- **REV57 — Project-page refinement batch.** The ungated items from Robert's N1–N16
+- **REV57 — Project-page refinement batch.** The ungated items from the owner's N1–N16
   field notes (status labels, muted toolbar, anchored status pill, breadcrumb, unsaved
   warning, manual department dates, calendar density, left/right-click discipline).
 - **REV58 — Draft autosave.** A slept or discarded tab no longer wipes an unsaved draft.

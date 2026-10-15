@@ -15,9 +15,9 @@ const D=n=>{const d=new Date(mon);d.setDate(d.getDate()+n);
 
 const staff=[
   {appId:'s1',Title:'Sam Ortiz',depts:JSON.stringify(['td']),ooo:'[]',email:'user@example.com',role:'Drafter'},
-  {appId:'s2',Title:'Caroline Bondi',depts:JSON.stringify(['pm']),ooo:'[]',email:'',role:'PM'}];
+  {appId:'s2',Title:'Cordelia Vance',depts:JSON.stringify(['pm']),ooo:'[]',email:'',role:'PM'}];
 const projects=[{appId:'p1',Title:'Stacked Job',client:'C',jobCode:'J1',deadline:D(20),
-  status:'in-fabrication',projectManager:'Caroline Bondi',drafter:'',leadFab:'',
+  status:'in-fabrication',projectManager:'Cordelia Vance',drafter:'',leadFab:'',
   activeDepartments:JSON.stringify(['pm','td','fab']),createdAt:D(-30),sortIndex:0}];
 const tasks=[
   {appId:'t1',projectId:'p1',department:'fab',assignee:'',startDate:D(0),endDate:D(4),estimatedDays:5,ticketNodes:'[]',notes:'',pinned:false,label:''},

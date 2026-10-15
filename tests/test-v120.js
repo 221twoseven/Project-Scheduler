@@ -17,12 +17,12 @@ const D=n=>{const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()+n);
 
 const projects=[
  {appId:'p1',Title:'Hermes Windows',client:'Hermes',jobCode:'H1',deadline:D(45),
-  status:'in-fabrication',projectManager:'Stan',drafter:'Peter',leadFab:'Nick',
+  status:'in-fabrication',projectManager:'Theo',drafter:'Oscar',leadFab:'Milo',
   activeDepartments:JSON.stringify(['pm','td','fab']),createdAt:D(-30),sortIndex:0}];
 const tasks=[
- {appId:'t1',projectId:'p1',department:'fab',assignee:'Nick',startDate:D(-2),endDate:D(3),
+ {appId:'t1',projectId:'p1',department:'fab',assignee:'Milo',startDate:D(-2),endDate:D(3),
   estimatedDays:5,ticketNodes:'[]',notes:'',pinned:false,label:''},
- {appId:'t2',projectId:'p1',department:'td',assignee:'Nick',startDate:D(-8),endDate:D(-4),
+ {appId:'t2',projectId:'p1',department:'td',assignee:'Milo',startDate:D(-8),endDate:D(-4),
   estimatedDays:4,ticketNodes:'[]',notes:'',pinned:false,label:'Drawings'}];
 
 const dom=boot(FILE,{data:{projects,tasks,staff:[],todos:[]}});
@@ -42,15 +42,15 @@ ok('sidebar collapse carets hide in dashboard (CSS)',
    /body\.dash-(on|flat) \.sb-chev\{visibility:hidden\}/.test(src));
 
 setTimeout(()=>{
-  E("PEOPLE=[{id:'a',name:'Nick',email:'',role:'Lead Fabricator',depts:['fab'],ooo:[]}];rebuildStaff();");
-  E("localStorage.setItem(ME_KEY,'Nick');LENS='project';PERSON=null;render();");
+  E("PEOPLE=[{id:'a',name:'Milo',email:'',role:'Lead Fabricator',depts:['fab'],ooo:[]}];rebuildStaff();");
+  E("localStorage.setItem(ME_KEY,'Milo');LENS='project';PERSON=null;render();");
   ok('outside the dashboard the bar is hidden',
      q('#dash-bar').classList.contains('hidden')&&!doc.body.classList.contains('dash-on'));
 
   sec('entering: the dashboard is its own place');
   E("document.getElementById('btn-dash').click();");
   ok('the trail bar shows', !q('#dash-bar').classList.contains('hidden'));
-  ok('…named for the person', q('#db-name').textContent==='My Dashboard · Nick');
+  ok('…named for the person', q('#db-name').textContent==='My Dashboard · Milo');
   ok('body carries dash-on (lens toggles/carets hidden by CSS)',
      doc.body.classList.contains('dash-on'));
   ok('the sidebar label swap is in place', !!q('#sb-head .sb-dash-lbl'));
