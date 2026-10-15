@@ -359,7 +359,11 @@ What the pilot can't start without.
       stale project's header writes `confirmedAt` / `confirmedBy` (owner added them 2026-10-13) on its Projects row and
       clears the tag without a fake edit; the header then adds "· confirmed Oct 13 by Sam";
       the PM's own My Dashboard lists "Your stale projects"; the chip's tooltip says what to
-      do. Before the columns exist the button explains they're missing. Suite `tests/test-v1480.js`. Who last edited a project and when
+      do. Before the columns exist the button explains they're missing. Suite `tests/test-v1480.js`.
+      *Live check owed* (as of 2026-10-15, production v1.48.5): "Schedule still accurate" has
+      not yet been pressed on production, because no project was stale on 2026-10-14. On
+      the first stale project, press it and confirm the tag clears and the header notes who
+      confirmed it. That is the first live write to `confirmedAt` / `confirmedBy`. Who last edited a project and when
       (`updatedBy` / `updatedAt`) already comes from Graph, but shows only in hover cards
       (and, for admins, the change log). Put the last editor and time on the project page
       header and the Meeting Sheet. Add a "stale" chip in the sidebar and legend for a
