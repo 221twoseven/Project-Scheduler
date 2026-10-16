@@ -1279,9 +1279,10 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
    to the page — a capture guard swallows every click except the highlighted button. */
 #coach.chain{pointer-events:none}
 #coach.chain #coach-card{pointer-events:auto}
-#coach.chain #coach-next{display:none}
+/* v1.49.0 (tracker #7): Next stays on the chain step and presses the highlighted button.
+   Hiding it put Back in the card's forward corner, so clicking onward bounced 7 back to 6. */
 #coach-hole{position:absolute;border-radius:10px;box-shadow:0 0 0 9999px rgba(13,19,29,.55);outline:2px solid var(--acc);outline-offset:2px;transition:left .18s ease-out,top .18s ease-out,width .18s ease-out,height .18s ease-out}
-#coach-card{position:absolute;width:300px;background:#fff;border:1.5px solid #CBD5E1;border-radius:var(--r-l);box-shadow:0 10px 30px rgba(15,23,42,.25);padding:14px 16px;cursor:default;transition:left .18s ease-out,top .18s ease-out}
+#coach-card{position:absolute;width:360px;background:#fff;border:1.5px solid #CBD5E1;border-radius:var(--r-l);box-shadow:0 10px 30px rgba(15,23,42,.25);padding:14px 16px;cursor:default;transition:left .18s ease-out,top .18s ease-out}
 #coach-step{font-family:var(--mono);font-size:var(--fs-fine);font-weight:600;letter-spacing:.1em;color:var(--ts-muted)}
 #coach-title{font-size:var(--fs-title);font-weight:700;color:var(--ink);margin:4px 0 6px}
 #coach-body{font-size:var(--fs-body);line-height:1.4;color:#33415A}
@@ -1289,7 +1290,7 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 .coach-btns .t-btn{background:#EDF1F7;border:1px solid var(--side-line);color:#33415A}
 .coach-btns .t-btn:disabled{opacity:.4;cursor:default}
 .coach-btns .t-btn.accent{background:var(--acc);border-color:var(--acc-deep);color:#fff;margin-left:auto}
-#coach-skip{margin-right:auto}
+#coach-off{margin-right:auto} /* v1.49.0: the two ways out sit left, Back/Next right; the card grew 300 → 360px to hold four buttons */
 /* v1.16.0: demo preamble — developer-only intro "slides" shown before the tour.
    The standard .overlay/.modal chrome; only the type is tuned for reading aloud. */
 #demo-modal{width:560px}
@@ -1832,6 +1833,7 @@ body.cd-route #dash-bar{display:none!important}
     <div id="coach-body"></div>
     <div class="coach-btns">
       <button id="coach-skip" class="t-btn" title="End the tour — Help brings it back any time">Skip tour</button>
+      <button id="coach-off" class="t-btn">Don't show again</button>
       <button id="coach-back" class="t-btn" title="Previous step (←)">Back</button>
       <button id="coach-next" class="t-btn accent" title="Next step (Enter or →)">Next</button>
     </div>
@@ -1858,7 +1860,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.48.5'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.49.0'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -3413,6 +3415,11 @@ async function loadConfig(){
     try{Object.assign(CFG,JSON.parse(localStorage.getItem(CFG_KEY)||'{}'));}catch(e2){}
   }
 }
+/* One Config row upsert: update the key's row, or create it and remember its id. */
+function cfgWrite(k,sv){
+  return SP_CFG_IDS[k]?store.update('config',SP_CFG_IDS[k],{value:sv})
+    :store.create('config',{Title:k,value:sv}).then(r=>{SP_CFG_IDS[k]=r.id;});
+}
 function saveConfigKey(k,v){
   /* v1.33.0: a string value is written as-is (update.minVersion); switches stay '1'/''. */
   const sv=typeof v==='string'?v:(v?'1':'');
@@ -3420,10 +3427,7 @@ function saveConfigKey(k,v){
   try{localStorage.setItem(CFG_KEY,JSON.stringify(CFG));}catch(e){}
   if(CFG_OK){
     setSync('busy');
-    (SP_CFG_IDS[k]
-      ?store.update('config',SP_CFG_IDS[k],{value:sv})
-      :store.create('config',{Title:k,value:sv}).then(r=>{SP_CFG_IDS[k]=r.id;}))
-    .then(()=>setSync('ok','synced '+stamp()))
+    cfgWrite(k,sv).then(()=>setSync('ok','synced '+stamp()))
     .catch(e=>{console.error(e);
       PENDING_CFG={...(PENDING_CFG||{}),[k]:v}; /* park the key so the pill can replay it */
       setSync('err','setting not saved — click to retry');
@@ -11558,20 +11562,31 @@ function coachEnd(){
    in DOM order, a hidden one, so step 8's hole spotlit nothing and the card landed
    at the origin ON TOP of the real breadcrumb bar. Prefer the first VISIBLE match;
    fall back to the first match so jsdom (no layout, zero rects everywhere) keeps
-   the old behavior. */
+   the old behavior. v1.49.0: in a laid-out page a match that isn't drawn is no
+   target at all — the step is skipped instead of spotlighting nothing. */
 function coachEl(sel){
   const els=[...document.querySelectorAll(sel)];
-  return els.find(el=>el.getClientRects&&el.getClientRects().length)||els[0]||null;
+  return els.find(el=>el.getClientRects&&el.getClientRects().length)
+    ||(document.body.getClientRects().length?null:els[0])||null;
 }
-function coachShow(){
+/* dir: -1 when stepping Back. v1.49.0 (tracker #7): a target that has gone since the
+   tour started drops its step and the tour carries on the way it was going — never
+   bounced back, never a crash on a missing element. */
+function coachShow(dir){
   coachUnchain();
   const s=COACH.steps[COACH.i];
   if(s.on)s.on(); /* v1.21.1: a step may set the view up before it is measured */
-  const r=coachEl(s.sel).getBoundingClientRect();
+  const el=coachEl(s.sel);
+  if(!el){
+    COACH.steps.splice(COACH.i,1);COACH.total-=1+(s.chain?COACH_PP_DRAFT_N:0);
+    if(dir<0&&COACH.i)COACH.i--;
+    if(COACH.i>=COACH.steps.length){coachEnd();return;}
+    return coachShow(dir);
+  }
+  const r=el.getBoundingClientRect();
   const hole=document.getElementById('coach-hole'),card=document.getElementById('coach-card');
   if(s.chain){
     document.getElementById('coach').classList.add('chain');
-    const el=coachEl(s.sel);
     /* the project half continues the count where the home half leaves off */
     const fn=()=>{const b=COACH?COACH.steps.length:0;
       coachEnd();setTimeout(()=>coachStart(COACH_PP_STEPS,b),450);};
@@ -11585,9 +11600,9 @@ function coachShow(){
   document.getElementById('coach-title').textContent=s.t;
   document.getElementById('coach-body').textContent=s.b;
   document.getElementById('coach-back').disabled=COACH.i===0;
-  document.getElementById('coach-next').textContent=COACH.i===COACH.steps.length-1?'Done':'Next';
+  document.getElementById('coach-next').textContent=(COACH.i===COACH.steps.length-1&&!s.chain)?'Done':'Next';
   /* card below the hole, else above, else beside it; a full-screen target holds it inside */
-  const vw=window.innerWidth,vh=window.innerHeight,cw=300,ch=card.offsetHeight||180;
+  const vw=window.innerWidth,vh=window.innerHeight,cw=card.offsetWidth||360,ch=card.offsetHeight||180;
   const below=r.bottom+pad+12,above=r.top-pad-12-ch,beside=r.right+pad+12;
   let cl=Math.max(12,Math.min(vw-cw-12,r.left)),ct;
   if(below+ch<vh-12)ct=below;
@@ -11613,9 +11628,23 @@ function coachStart(stepList,base){
 }
 function coachNext(){if(!COACH)return;
   const s=COACH.steps[COACH.i];
-  if(s.chain){const el=document.querySelector(s.sel);if(el)el.click();return;} /* Enter = press the highlighted button */
+  /* Next / Enter = press the highlighted button — the very element the chain is wired to */
+  if(s.chain&&COACH_CHAIN){COACH_CHAIN.el.click();return;}
   if(COACH.i>=COACH.steps.length-1){coachEnd();return;}COACH.i++;coachShow();}
-function coachBack(){if(!COACH||!COACH.i)return;COACH.i--;coachShow();}
+function coachBack(){if(!COACH||!COACH.i)return;COACH.i--;coachShow(-1);}
+/* v1.49.0 (tracker #7): "Don't show again" — the tour never AUTO-starts again for this
+   signed-in person on any machine: a per-person row in ShopTimeline_Config, written
+   quietly. Help ▸ Take a tour still runs it. With no Config list, the browser's
+   seen flag (coachEnd sets it) is the fallback. Never on App Settings: that page
+   lists only its own keys. */
+function coachOffKey(){const w=store.who();return w&&w.email?'tour.off.'+w.email.toLowerCase():'';}
+function coachOff(){
+  coachEnd();
+  const k=coachOffKey();
+  if(!k||!CFG_OK||CFG_RAW[k]==='1')return;
+  CFG_RAW[k]='1';
+  cfgWrite(k,'1').catch(e=>console.error(e)); /* quiet: a failed write still leaves this browser's seen flag */
+}
 /* Phase 4: Help is a menu now. "Take a tour" keeps the route-aware behaviour —
    project pages get their own shared tour in place (REV86). */
 function tourStart(){
@@ -11960,6 +11989,8 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.49.0",d:"Oct 16, 2026",n:["The tour no longer sends you back and forth between steps 6 and 7: step 7 now has a Next button that opens a new project and carries on, where before the button in that spot was Back.",
+   "The tour card has a new \"Don't show again\" button. It closes the tour, and the tour won't start by itself for you again on any computer. Help ▸ Take a tour still runs it whenever you like."]},
  {v:"v1.48.5",d:"Oct 14, 2026",n:["On the People page, time off entered as back-to-back or overlapping requests now reads as one absence: \"Away until\" shows the day the person is really back, even across a weekend or holiday."]},
  {v:"v1.48.4",d:"Oct 14, 2026",n:["The Meeting Sheet's progress bar now shows how much of the scheduled work is done, not how much time has passed, so a quiet stretch between departments no longer makes a project look further along. The dates under it are unchanged."]},
  {v:"v1.48.3",d:"Oct 14, 2026",n:["Teammates' changes now also wait while you're on a New Project page, typing in a toolbar box, or have a save waiting to retry, so nothing redraws under you. They appear as soon as you're done."]},
@@ -12172,6 +12203,7 @@ document.getElementById('mi-repo').addEventListener('click',()=>{closeMenus();wi
 document.getElementById('coach').addEventListener('click',coachNext);
 document.getElementById('coach-card').addEventListener('click',ev=>ev.stopPropagation());
 document.getElementById('coach-skip').addEventListener('click',coachEnd);
+document.getElementById('coach-off').addEventListener('click',coachOff);
 document.getElementById('coach-back').addEventListener('click',coachBack);
 document.getElementById('coach-next').addEventListener('click',coachNext);
 window.addEventListener('resize',()=>{if(COACH)coachShow();});
@@ -12333,7 +12365,10 @@ async function boot(){
   /* REV74 (N14): a browser that has never seen the tour gets it once, after sign-in
      has settled and the first render is on screen. Help replays it any time. */
   let coachSeen='1';try{coachSeen=localStorage.getItem(COACH_KEY);}catch(e){}
-  if(store.who()&&!coachSeen&&ROUTE.view==='timeline')setTimeout(coachStart,700);
+  /* v1.49.0: "Don't show again" on any machine (the Config row) stops it too; and the
+     timer never restarts a tour already up or lands on a page the user has left for. */
+  if(store.who()&&!coachSeen&&CFG_RAW[coachOffKey()]!=='1'&&ROUTE.view==='timeline')
+    setTimeout(()=>{if(!COACH&&ROUTE.view==='timeline')coachStart();},700);
   /* REV87: the PM late prompt — after the first render settles. pmLateShow
      itself declines to stack on the tour or another overlay, and asks at most
      once a day; a suppressed ask (tour up, project view) just tries next load. */

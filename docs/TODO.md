@@ -64,7 +64,8 @@ is the log in §8.
 
 ## 0. Where we stand
 
-As of 2026-10-15: production (`main`) and `development` both run **v1.48.5**, promoted
+As of 2026-10-16: `development` runs **v1.49.0** (item 3: the tour's 6↔7 loop fixed, plus
+"Don't show again"). Production (`main`) runs **v1.48.5**, promoted
 2026-10-15 (release/2026-10-15). The newest work on production: error messages say why
 (item 48, the storage seam's last PR), item 61's simplifications, item 59's work-based
 progress bar and item 19's "Away until" fix; plus docs and tooling with no release: the
@@ -300,7 +301,16 @@ What the pilot can't start without.
           `viewer.phases` grant — and say so in the tooltip.
       - *Waits on:* nothing.
       [brief §5.1, §7 "Tour and Lock dates"]
-- [ ] **3. The tour keeps looping: reproduce it, then fix or gate it.**
+- [x] **3. The tour keeps looping: reproduce it, then fix or gate it.** Shipped v1.49.0
+      (PR #166, 2026-10-16). *Cause, reproduced in headless Chrome with real clicks:*
+      step 7 (the + New Project hand-off) hid Next, so Back sat in the card's forward
+      corner; a user clicking onward went 7 → 6 → 7 → 6. Not browser-specific. Next now
+      stays there and presses + New Project; a step whose target is gone is skipped in
+      the direction of travel; the auto-run can't restart a tour already up. **Don't show
+      again** on the card writes a per-person `ShopTimeline_Config` row
+      (`tour.off.<account>`, no schema change) so the tour never auto-starts again on any
+      computer; Help still runs it. Suite `tests/test-v1490.js`. Safari wasn't tested
+      (no Mac here); the cause is in the tour's own logic, so it applies there too.
       - *Report (tracker #7, 2026-09-24):* the walkthrough loops between steps 6 and 7 of
         14. The browser wasn't recorded, so test Safari, Chrome, Edge and Firefox.
       - *Best guess:* a browser that forgets local storage every session (a private

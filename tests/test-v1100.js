@@ -342,8 +342,9 @@ function stageTour(){
      E('COACH.total')===homeN+E('COACH_PP_DRAFT_N')
      &&doc.getElementById('coach-step').textContent==='STEP 1 OF '+E('COACH.total'));
   E('COACH.i=COACH.steps.length-1;coachShow()');
-  ok('the chain step: overlay class on, Next hidden by it',
-     doc.getElementById('coach').classList.contains('chain'));
+  ok('the chain step: overlay class on, Next kept as "Next" (v1.49.0, tracker #7)',
+     doc.getElementById('coach').classList.contains('chain')
+     &&doc.getElementById('coach-next').textContent==='Next');
   doc.getElementById('btn-new-proj').click();
   win.dispatchEvent(new win.Event('hashchange'));
   setTimeout(()=>{
@@ -358,8 +359,10 @@ function stageTour(){
        step targets must resolve through the visible-first coachEl, not querySelector
        (jsdom has no layout, so assert the mechanism + its fallback, not geometry). */
     ok('step targets resolve visible-first (coachEl, v1.19.1)',
-       src.indexOf('coachEl(s.sel).getBoundingClientRect()')>=0
-       &&src.indexOf('els.find(el=>el.getClientRects&&el.getClientRects().length)||els[0]')>=0);
+       /* v1.49.0: coachShow measures the coachEl result it null-checked; the
+          first-match fallback now applies only on a layout-less page (jsdom) */
+       src.indexOf('const el=coachEl(s.sel);')>=0&&src.indexOf('const r=el.getBoundingClientRect();')>=0
+       &&src.indexOf('els.find(el=>el.getClientRects&&el.getClientRects().length)\n    ||(document.body.getClientRects().length?null:els[0])')>=0);
     ok('coachEl falls back to the first match when nothing reports a rect',
        E("coachEl('.pg-trail')!==null"));
     E('coachEnd()');

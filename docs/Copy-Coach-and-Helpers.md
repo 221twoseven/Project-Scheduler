@@ -55,8 +55,11 @@ instead (so a full run is 7 steps, never both).
 | 14a | Create project button (drafts only) | Nothing is real yet | This page is a draft kept in this tab. Drafts survive a page refresh. Create project files it to SharePoint. Cancel or the × closes without saving. |
 | 14b | The ✓ Changes saved tag (saved pages only) | Everything saves itself | Edits file to SharePoint as you make them. The pill in the toolbar shows sync. Done takes you back to the timeline. |
 
-Tour buttons: **Skip tour** · **Back** · **Next** (hidden on step 7, where the body
-asks for the real click).
+Tour buttons: **Skip tour** · **Don't show again** · **Back** · **Next**. On step 7,
+Next presses + New Project for you (v1.49.0; it used to hide there, which left Back in
+its place and bounced people from 7 back to 6). **Don't show again** (v1.49.0,
+owner-approved wording) ends the tour and stops it ever starting by itself for you,
+on any computer; Help ▸ Take a tour still runs it.
 
 ## 3. Field placeholders — project edit page
 
