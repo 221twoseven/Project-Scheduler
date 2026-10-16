@@ -743,6 +743,16 @@ release. Where the app has a part, it's listed.
         enforced (`SETUP.md`, "Branch protection"). Confirm both on the chosen plan.
       - *Waits on:* the owner's choice of plan (and leadership, if it's item 24's
         Organization). [owner ask 2026-10-15]
+- [ ] **72. A `/test/` site for one feature on trial** (owner, 2026-10-16: item 32 goes
+      "on its own branch for testing", before `/preview/`). Pages publishes a third
+      subpath, `/test/`, from a `test` branch; the deploy workflow builds all three on a
+      push to any of them. `test` is reset to the branch on trial merged with
+      `development`, and never merged anywhere.
+      - *Owner applies:* register `https://221twoseven.github.io/Project-Scheduler/test/`
+        as an SPA redirect URI in Entra (`SETUP.md`); until then sign-in on `/test/` fails.
+      - *Until the next promotion:* `main`'s copy of the workflow has no `/test/`, so a push
+        to `main` empties `/test/` until the next push to `test` or `development`.
+      - *Same data:* `/test/` writes to the production lists, like `/preview/` (item 17).
 - [x] **48. The storage seam.** One `store` object owns every conversation with
       SharePoint, instead of 37 call sites in 16 functions. It is idea 1 of
       `docs/Architecture-Review-Storage.md`, needed whatever D15 decides, and the path to an
