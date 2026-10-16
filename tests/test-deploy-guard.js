@@ -11,9 +11,11 @@ const {FILE,src,ok,done}=suite();
 const yml=fs.readFileSync(path.join(path.dirname(FILE),'.github/workflows/deploy-pages.yml'),'utf8');
 
 
-/* every sparse-checkout list in the workflow; a file must be on all of them (main and development) */
+/* every sparse-checkout list in the workflow; a file must be on all of them (main, development, test) */
 const lists=[...yml.matchAll(/sparse-checkout: \|\r?\n((?:[ \t]+\S[^\n]*\n)+)/g)].map(m=>m[1].split('\n').map(s=>s.trim()).filter(Boolean)); /* \r? and trim: a CRLF checkout reads the same */
-ok('the workflow has the two sparse-checkout lists (site root and /preview/)', lists.length===2, lists.length);
+ok('the workflow has the three sparse-checkout lists (site root, /preview/, /test/)', lists.length===3, lists.length);
+/* item 72: each published branch triggers the deploy, or a push to it would never reach its subpath */
+ok('a push to main, development or test deploys', /branches: \[main, development, test\]/.test(yml));
 
 /* the guard's own extraction: grep -oE '(src|href)="[^"]+"', strip the attribute, skip the schemes */
 const refs=[...src.matchAll(/(src|href)="[^"]+"/g)].map(m=>m[0].replace(/^(src|href)="/,'').replace(/"$/,''))
