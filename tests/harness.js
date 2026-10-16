@@ -74,6 +74,8 @@ function makeFetch(data,opts){
       if(opts.teamMembers)return ok({value:data.teamMembers||[]});
       return fail(403);
     }
+    /* v1.49.0: Config rows ({Title,value}) when a suite seeds data.config; else the empty list */
+    if(u.includes('ShopTimeline_Config')&&data.config&&(!init||!init.method))return ok({value:data.config.map(toItem)});
     if(u.includes(listNames.staff))return ok({value:(data.staff||[]).map(toItem)});
     if(u.includes(listNames.projects))return ok({value:(data.projects||[]).map(toItem)});
     if(u.includes(listNames.tasks))return ok({value:(data.tasks||[]).map(toItem)});

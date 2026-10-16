@@ -798,7 +798,7 @@ inside the edit state with consequences counted, trail bar reads `N records · S
 .empty-state{background:#fff;border:1.5px dashed #C4D0E0;border-radius:var(--r-l);padding:28px 36px;text-align:center;color:#5E7292;box-shadow:0 6px 24px rgba(20,40,70,.08)}
 .empty-state .es-big{font-size:15px;font-weight:700;color:#33415A;margin-bottom:6px}   .empty-state .es-sub{font-size:12px;line-height:1.6}
 #coach-hole{position:absolute;border-radius:10px;box-shadow:0 0 0 9999px rgba(13,19,29,.55);outline:2px solid var(--acc);outline-offset:2px}
-#coach-card{position:absolute;width:300px;background:#fff;border:1.5px solid #CBD5E1;border-radius:var(--r-l);box-shadow:0 10px 30px rgba(15,23,42,.25);padding:14px 16px}
+#coach-card{position:absolute;width:360px;background:#fff;border:1.5px solid #CBD5E1;border-radius:var(--r-l);box-shadow:0 10px 30px rgba(15,23,42,.25);padding:14px 16px}
 #coach-step{font-family:var(--mono);font-size:var(--fs-fine);font-weight:600;letter-spacing:.1em;color:#7488A3}
 #coach-title{font-size:var(--fs-title);font-weight:700;color:var(--ink);margin:4px 0 6px}
 #coach-body{font-size:var(--fs-body);line-height:1.4;color:#33415A}

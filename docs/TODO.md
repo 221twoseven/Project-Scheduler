@@ -64,8 +64,9 @@ is the log in §8.
 
 ## 0. Where we stand
 
-As of 2026-10-16: `development` runs **v1.50.0** (item 32's Top · Both · Phase milestone
-switch, on test at /test/ first). Production (`main`) runs **v1.48.5**, promoted
+As of 2026-10-16: `development` runs **v1.50.0** (item 32: milestones sit on their phase,
+set in Help ▸ My settings) and v1.49.0 (item 3: the tour's 6↔7 loop fixed, plus "Don't show
+again"). Production (`main`) runs **v1.48.5**, promoted
 2026-10-15 (release/2026-10-15). The newest work on production: error messages say why
 (item 48, the storage seam's last PR), item 61's simplifications, item 59's work-based
 progress bar and item 19's "Away until" fix; plus docs and tooling with no release: the
@@ -301,7 +302,16 @@ What the pilot can't start without.
           `viewer.phases` grant — and say so in the tooltip.
       - *Waits on:* nothing.
       [brief §5.1, §7 "Tour and Lock dates"]
-- [ ] **3. The tour keeps looping: reproduce it, then fix or gate it.**
+- [x] **3. The tour keeps looping: reproduce it, then fix or gate it.** Shipped v1.49.0
+      (PR #166, 2026-10-16). *Cause, reproduced in headless Chrome with real clicks:*
+      step 7 (the + New Project hand-off) hid Next, so Back sat in the card's forward
+      corner; a user clicking onward went 7 → 6 → 7 → 6. Not browser-specific. Next now
+      stays there and presses + New Project; a step whose target is gone is skipped in
+      the direction of travel; the auto-run can't restart a tour already up. **Don't show
+      again** on the card writes a per-person `ShopTimeline_Config` row
+      (`tour.off.<account>`, no schema change) so the tour never auto-starts again on any
+      computer; Help still runs it. Suite `tests/test-v1490.js`. Safari wasn't tested
+      (no Mac here); the cause is in the tour's own logic, so it applies there too.
       - *Report (tracker #7, 2026-09-24):* the walkthrough loops between steps 6 and 7 of
         14. The browser wasn't recorded, so test Safari, Chrome, Edge and Firefox.
       - *Best guess:* a browser that forgets local storage every session (a private
@@ -750,6 +760,16 @@ release. Where the app has a part, it's listed.
         enforced (`SETUP.md`, "Branch protection"). Confirm both on the chosen plan.
       - *Waits on:* the owner's choice of plan (and leadership, if it's item 24's
         Organization). [owner ask 2026-10-15]
+- [ ] **72. A `/test/` site for one feature on trial** (owner, 2026-10-16: item 32 goes
+      "on its own branch for testing", before `/preview/`). Pages publishes a third
+      subpath, `/test/`, from a `test` branch; the deploy workflow builds all three on a
+      push to any of them. `test` is reset to the branch on trial merged with
+      `development`, and never merged anywhere.
+      - *Owner applies:* register `https://221twoseven.github.io/Project-Scheduler/test/`
+        as an SPA redirect URI in Entra (`SETUP.md`); until then sign-in on `/test/` fails.
+      - *Until the next promotion:* `main`'s copy of the workflow has no `/test/`, so a push
+        to `main` empties `/test/` until the next push to `test` or `development`.
+      - *Same data:* `/test/` writes to the production lists, like `/preview/` (item 17).
 - [x] **48. The storage seam.** One `store` object owns every conversation with
       SharePoint, instead of 37 call sites in 16 functions. It is idea 1 of
       `docs/Architecture-Review-Storage.md`, needed whatever D15 decides, and the path to an
