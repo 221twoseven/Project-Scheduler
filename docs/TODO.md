@@ -474,8 +474,9 @@ What the pilot can't start without.
       - *Waits on:* nothing. Additive column; the spec comes with the batch.
       [brief §2 "plan saved views and permissions now", §7 Audience views]
 - [x] **32. Shipping bar missing; Shipping milestones don't attach.** Shipped v1.50.0
-      (PR #165, 2026-10-16): a Top · Both · Phase switch at the top right of the project
-      Gantt (default Top = the 09-03 behaviour). Suite `tests/test-v1500.js`. A user added
+      (PR #165, 2026-10-16): Help ▸ My settings chooses where the project Gantt draws
+      milestones (On their phase, the default · Both · Milestones row only). Suite
+      `tests/test-v1500.js`. A user added
       Shipping milestones, saw no Shipping bar, and the milestones didn't attach to the
       shipping phase. `shipping` has been an end department since v1.20.6 (`DEPTS`,
       `grp:'install'`). First, reproduce it on the real project: is Shipping ticked in the
@@ -489,9 +490,10 @@ What the pilot can't start without.
         - The Shipping-bar half is met by the same placement rule once Shipping is ticked.
       - *Approved (2026-10-16):* "Proceed", with changes: a toggle, not a move, so current
         users aren't surprised.
-      - *2026-10-16:* on test at /test/; the owner picks the default before it reaches
-        /preview/. Possible follow-ups, unapproved copy so not built: a "Shipping (not
-        scheduled)" label in the Phase dropdown, and a one-click "Add Shipping" offer.
+      - *2026-10-16:* Owner ruling: Phase is the default; the choice lives in Help ▸ My
+        settings and follows the person. Possible follow-ups, unapproved copy so not built: a
+        "Shipping (not scheduled)" label in the Phase dropdown, and a one-click "Add
+        Shipping" offer.
       [tracker #1]
 - [x] **53. A role change must move the project to the new holder** (P0 bug, tracker #34).
       Shipped v1.42.0 (PR #111, 2026-10-08). On the saved page, a role change hands that

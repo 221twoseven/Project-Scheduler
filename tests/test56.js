@@ -218,7 +218,9 @@ function stage6(){
       ok('event marker is drawn', !!ev);
       if(ev){
         const top=parseFloat(ev.style.top);
-        const tdRow=E("NPV_PLAN.findIndex(r=>r.dept==='td')");
+        /* v1.50.0 (item 32): the default "On their phase" puts it back on its phase's row,
+           below the two marker rows (NPV_TOP) — the 09-03 build drew it on row 0 */
+        const tdRow=E("NPV_PLAN.findIndex(r=>r.dept==='td')")+E('NPV_TOP');
         ok('marker sits on the collapsed parent row',
            Math.floor(top/E('NPV_ROWH'))===tdRow, 'top '+top+' row '+tdRow);
       }

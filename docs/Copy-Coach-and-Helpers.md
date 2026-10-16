@@ -132,6 +132,23 @@ Page subtitles: "The company roster — roles, departments and availability" /
 | Page subtitle | Developer switches. Everyone reads these at sign-in — a change reaches users on their next reload. |
 | Viewer-permissions note | Each switch opens one edit door for non-admin users. All off = the v1.8.0 read-only viewer. |
 
+## 9. My settings (everyone — v1.50.0, owner-approved 2026-10-16)
+
+Help ▸ My settings (`renderMySettings` in `index.html`). Personal choices that follow the
+signed-in person. Change this copy only with the owner.
+
+| Where | Text |
+|---|---|
+| Help menu item | My settings |
+| Help menu item title (hover) | Your own display choices. They follow you to any computer. |
+| Page heading | My settings |
+| Page sub line | Only you see these. They follow your sign-in to any computer or browser. |
+| Section heading | Project page |
+| Setting label | Milestones on the Gantt |
+| Option 1 (default) | **On their phase** — A milestone with a phase sits on that phase's bar. The rest stay in the Milestones row. |
+| Option 2 | **Both** — In the Milestones row, plus a copy on the phase's bar. |
+| Option 3 | **Milestones row only** — Every milestone in the Milestones row. |
+
 ---
 
 *Coach copy revision has been tabled since 2026-08-28 (owner). This document lifts
