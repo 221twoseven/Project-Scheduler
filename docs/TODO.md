@@ -778,6 +778,15 @@ release. Where the app has a part, it's listed.
       - *Collision:* item 32's placement maths reads `NPV_ROWH`, so build this after
         item 32's default is settled (PR #165).
       - *Personal:* once item 73 lands, it joins that value.
+- [ ] **75. A Today button on the project page** (owner, 2026-10-16). The project chart
+      opens fitted to the whole job, but once you zoom in, the only way back to today is
+      scrolling. Add a "Today" button to the chart's header row, beside the zoom buttons
+      and Reset, with the hover text "Scroll to today".
+      - *Gantt:* it brings today into view.
+      - *Calendar:* it jumps to the current week.
+      - *Applies to:* both the draft and the saved page.
+      - *No shortcut:* T already means New note on the project page.
+      - *Order:* build after item 32 (PR #165), which changes the same header row.
 - [x] **48. The storage seam.** One `store` object owns every conversation with
       SharePoint, instead of 37 call sites in 16 functions. It is idea 1 of
       `docs/Architecture-Review-Storage.md`, needed whatever D15 decides, and the path to an
