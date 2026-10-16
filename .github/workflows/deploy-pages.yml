@@ -1,15 +1,17 @@
 name: Deploy Pages
 
-# One Pages site, two versions:
+# One Pages site, three versions:
 #   /          <- main         (production)
 #   /preview/  <- development  (shareable preview for testing)
-# Every deploy rebuilds the WHOLE site from both branches, because the Pages
+#   /test/     <- test         (one feature on trial before it reaches development;
+#                               item 72 — the branch is reset to whatever is on trial)
+# Every deploy rebuilds the WHOLE site from all three branches, because the Pages
 # artifact fully replaces the live site each run. Triggered by pushes to any of
-# them, so this workflow must exist on BOTH branches, identical — otherwise
+# them, so this workflow must exist on ALL THREE branches, identical — otherwise
 # a push to a branch whose workflow omits a subpath would wipe that subpath.
 on:
   push:
-    branches: [main, development]
+    branches: [main, development, test]
   workflow_dispatch:
 
 permissions:
@@ -59,12 +61,24 @@ jobs:
             fonts/BrNStdBd.otf
           sparse-checkout-cone-mode: false
 
+      - name: Checkout test into /test (one feature on trial)
+        uses: actions/checkout@v4
+        with:
+          ref: test
+          path: site/test
+          sparse-checkout: |
+            index.html
+            msal-browser.min.js
+            design/fonts/BrNStdBd.otf
+            fonts/BrNStdBd.otf
+          sparse-checkout-cone-mode: false
+
       - name: Drop nested .git so it isn't published
-        run: rm -rf site/.git site/preview/.git
+        run: rm -rf site/.git site/preview/.git site/test/.git
 
       - name: Guard — every local file the app references must be in the deploy
         run: |
-          for d in site site/preview; do
+          for d in site site/preview site/test; do
             grep -oE '(src|href)="[^"]+"' "$d/index.html" \
               | sed -E 's/^(src|href)="//; s/"$//' \
               | grep -vE '^(https?:|//|#|data:|mailto:|javascript:)' \
