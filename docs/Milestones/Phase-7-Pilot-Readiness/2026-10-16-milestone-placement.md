@@ -1,6 +1,6 @@
 # Milestones can sit on their phase's bar — v1.50.0 (2026-10-16)
 
-**TODO item 32**, tracker #1. PR #NNN. On test at /test/ first; the owner picks the default
+**TODO item 32**, tracker #1. PR #165. On test at /test/ first; the owner picks the default
 before it reaches /preview/.
 
 ## What changed and why

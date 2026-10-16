@@ -464,7 +464,7 @@ What the pilot can't start without.
       - *Waits on:* nothing. Additive column; the spec comes with the batch.
       [brief §2 "plan saved views and permissions now", §7 Audience views]
 - [x] **32. Shipping bar missing; Shipping milestones don't attach.** Shipped v1.50.0
-      (PR #NNN, 2026-10-16): a Top · Both · Phase switch at the top right of the project
+      (PR #165, 2026-10-16): a Top · Both · Phase switch at the top right of the project
       Gantt (default Top = the 09-03 behaviour). Suite `tests/test-v1500.js`. A user added
       Shipping milestones, saw no Shipping bar, and the milestones didn't attach to the
       shipping phase. `shipping` has been an end department since v1.20.6 (`DEPTS`,
