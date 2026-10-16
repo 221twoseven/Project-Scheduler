@@ -1279,9 +1279,10 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
    to the page — a capture guard swallows every click except the highlighted button. */
 #coach.chain{pointer-events:none}
 #coach.chain #coach-card{pointer-events:auto}
-#coach.chain #coach-next{display:none}
+/* v1.49.0 (tracker #7): Next stays on the chain step and presses the highlighted button.
+   Hiding it put Back in the card's forward corner, so clicking onward bounced 7 back to 6. */
 #coach-hole{position:absolute;border-radius:10px;box-shadow:0 0 0 9999px rgba(13,19,29,.55);outline:2px solid var(--acc);outline-offset:2px;transition:left .18s ease-out,top .18s ease-out,width .18s ease-out,height .18s ease-out}
-#coach-card{position:absolute;width:300px;background:#fff;border:1.5px solid #CBD5E1;border-radius:var(--r-l);box-shadow:0 10px 30px rgba(15,23,42,.25);padding:14px 16px;cursor:default;transition:left .18s ease-out,top .18s ease-out}
+#coach-card{position:absolute;width:360px;background:#fff;border:1.5px solid #CBD5E1;border-radius:var(--r-l);box-shadow:0 10px 30px rgba(15,23,42,.25);padding:14px 16px;cursor:default;transition:left .18s ease-out,top .18s ease-out}
 #coach-step{font-family:var(--mono);font-size:var(--fs-fine);font-weight:600;letter-spacing:.1em;color:var(--ts-muted)}
 #coach-title{font-size:var(--fs-title);font-weight:700;color:var(--ink);margin:4px 0 6px}
 #coach-body{font-size:var(--fs-body);line-height:1.4;color:#33415A}
@@ -1289,7 +1290,7 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 .coach-btns .t-btn{background:#EDF1F7;border:1px solid var(--side-line);color:#33415A}
 .coach-btns .t-btn:disabled{opacity:.4;cursor:default}
 .coach-btns .t-btn.accent{background:var(--acc);border-color:var(--acc-deep);color:#fff;margin-left:auto}
-#coach-skip{margin-right:auto}
+#coach-off{margin-right:auto} /* v1.49.0: the two ways out sit left, Back/Next right; the card grew 300 → 360px to hold four buttons */
 /* v1.16.0: demo preamble — developer-only intro "slides" shown before the tour.
    The standard .overlay/.modal chrome; only the type is tuned for reading aloud. */
 #demo-modal{width:560px}
@@ -1531,7 +1532,7 @@ body.cd-route #dash-bar{display:none!important}
 .as-note{font-size:12px;color:var(--ts-muted);margin-bottom:10px}
 .as-row{display:flex;align-items:flex-start;gap:10px;padding:9px 10px;border:1px solid #E2E8F0;border-radius:8px;margin-bottom:6px;cursor:pointer;background:#fff}
 .as-row:hover{border-color:#CBD6E4}
-.as-row input[type=checkbox]{width:14px;height:14px;margin-top:2px;accent-color:#3B7FD6;flex-shrink:0}
+.as-row input[type=checkbox],.as-row input[type=radio]{width:14px;height:14px;margin-top:2px;accent-color:#3B7FD6;flex-shrink:0}
 .as-txt{display:flex;flex-direction:column;gap:2px}
 .as-txt b{font-size:12.5px;color:#1E293B;font-weight:600}
 .as-txt span{font-size:11.5px;color:var(--ts-muted)}
@@ -1577,6 +1578,7 @@ body.cd-route #dash-bar{display:none!important}
         <div class="sm-item" id="mi-legend" title="What the colors, patterns and markers mean">Legend</div>
         <div class="sm-item" id="mi-report" title="File a bug or ask for a feature, and see what's already been reported — lands on SharePoint with your name attached">Report a bug or idea</div>
         <div class="sm-item" id="mi-relnotes" title="What changed in each version, in plain language">Release notes</div>
+        <div class="sm-item" id="mi-myset" title="Your own display choices. They follow you to any computer.">My settings</div>
         <div class="sm-item" id="mi-repo" title="Open the source code on GitHub in a new tab">Repository ↗</div>
         <div class="sm-item hidden" id="mi-appset" title="Developer switches — viewer permission grants and experimental features">App settings</div>
         <div class="sm-item hidden" id="mi-reports" title="Developer view — every bug report and feature request in full, as mailed">Bug reports (dev)</div>
@@ -1832,6 +1834,7 @@ body.cd-route #dash-bar{display:none!important}
     <div id="coach-body"></div>
     <div class="coach-btns">
       <button id="coach-skip" class="t-btn" title="End the tour — Help brings it back any time">Skip tour</button>
+      <button id="coach-off" class="t-btn">Don't show again</button>
       <button id="coach-back" class="t-btn" title="Previous step (←)">Back</button>
       <button id="coach-next" class="t-btn accent" title="Next step (Enter or →)">Next</button>
     </div>
@@ -3413,6 +3416,11 @@ async function loadConfig(){
     try{Object.assign(CFG,JSON.parse(localStorage.getItem(CFG_KEY)||'{}'));}catch(e2){}
   }
 }
+/* One Config row upsert: update the key's row, or create it and remember its id. */
+function cfgWrite(k,sv){
+  return SP_CFG_IDS[k]?store.update('config',SP_CFG_IDS[k],{value:sv})
+    :store.create('config',{Title:k,value:sv}).then(r=>{SP_CFG_IDS[k]=r.id;});
+}
 function saveConfigKey(k,v){
   /* v1.33.0: a string value is written as-is (update.minVersion); switches stay '1'/''. */
   const sv=typeof v==='string'?v:(v?'1':'');
@@ -3420,10 +3428,7 @@ function saveConfigKey(k,v){
   try{localStorage.setItem(CFG_KEY,JSON.stringify(CFG));}catch(e){}
   if(CFG_OK){
     setSync('busy');
-    (SP_CFG_IDS[k]
-      ?store.update('config',SP_CFG_IDS[k],{value:sv})
-      :store.create('config',{Title:k,value:sv}).then(r=>{SP_CFG_IDS[k]=r.id;}))
-    .then(()=>setSync('ok','synced '+stamp()))
+    cfgWrite(k,sv).then(()=>setSync('ok','synced '+stamp()))
     .catch(e=>{console.error(e);
       PENDING_CFG={...(PENDING_CFG||{}),[k]:v}; /* park the key so the pill can replay it */
       setSync('err','setting not saved — click to retry');
@@ -3888,6 +3893,7 @@ function render(){
      source of the editor's values, so a repaint mid-edit keeps everything typed. */
   if(typeof ROUTE!=='undefined'&&ROUTE&&(ROUTE.view==='people'||ROUTE.view==='clients')){document.body.classList.remove('me-dock-on');renderCompanyPage();return;}
   if(typeof ROUTE!=='undefined'&&ROUTE&&ROUTE.view==='settings'){document.body.classList.remove('me-dock-on');renderAppSettings();return;} /* v1.11.0 */
+  if(typeof ROUTE!=='undefined'&&ROUTE&&ROUTE.view==='mysettings'){document.body.classList.remove('me-dock-on');renderMySettings();return;} /* v1.50.0 */
   if(typeof ROUTE!=='undefined'&&ROUTE&&ROUTE.view==='changelog'){document.body.classList.remove('me-dock-on');return;} /* v1.19.0: the log isn't ST data — a repaint would only wipe the filter box */
   if(typeof ROUTE!=='undefined'&&ROUTE&&(ROUTE.view==='releases'||ROUTE.view==='issues'||ROUTE.view==='reports')){document.body.classList.remove('me-dock-on');return;} /* v1.20.0: none are ST data — a repaint would wipe a half-typed report */
   DW_PX=vpw()/FIT; /* v1.5.0: px-per-day follows the live viewport, once per render */
@@ -5197,6 +5203,37 @@ document.getElementById('mi-people').addEventListener('click',()=>{closeMenus();
 document.getElementById('mi-clients').addEventListener('click',()=>{closeMenus();goClients();});
 document.getElementById('mi-changelog').addEventListener('click',()=>{closeMenus();location.hash='#/changelog';});
 document.getElementById('mi-appset').addEventListener('click',()=>{closeMenus();location.hash='#/settings';});
+document.getElementById('mi-myset').addEventListener('click',()=>{closeMenus();location.hash='#/mysettings';});
+
+/* ===== v1.50.0 (item 32, owner 2026-10-16): Help ▸ My settings ===== */
+/* Personal display choices, for every signed-in user (viewers too) — App settings stays
+   developer-only and app-wide. Each choice rides the Staff row's savedViews beside
+   Protect dates (pushViews / viewsFromRow); no row = this browser only. Copy is
+   owner-approved: change it only with the owner. */
+function renderMySettings(){
+  const pg=document.getElementById('page');
+  const opt=(v,b,t)=>'<label class="as-row"><input type="radio" name="ms-msp" value="'+v+'"'+(NPV_MSP===v?' checked':'')+'>'
+    +'<span class="as-txt"><b>'+b+'</b><span>'+t+'</span></span></label>';
+  let h='<div class="pg dash">';
+  h+='<div class="dash-top"><nav class="pg-trail">'
+   +'<button class="pg-cr" id="cd-back" title="Back to the timeline (Esc)">All Projects</button>'
+   +'<span class="pg-sep">&rsaquo;</span>'
+   +'<span class="pg-cr cur">My settings</span></nav>'
+   +'<button class="pg-x" id="cd-x" title="Close — back to the timeline (Esc)">&times;</button></div>';
+  h+='<div class="cd-head"><h2>My settings</h2>'
+   +'<span class="cd-sub">Only you see these. They follow your sign-in to any computer or browser.</span></div>';
+  h+='<div class="as-body"><h3>Project page</h3>'
+   +'<div class="as-note" id="ms-msp-lbl">Milestones on the Gantt</div>'
+   +'<div role="radiogroup" aria-labelledby="ms-msp-lbl">'
+   +opt('phase','On their phase','A milestone with a phase sits on that phase\'s bar. The rest stay in the Milestones row.')
+   +opt('both','Both','In the Milestones row, plus a copy on the phase\'s bar.')
+   +opt('top','Milestones row only','Every milestone in the Milestones row.')
+   +'</div></div></div>';
+  pg.innerHTML=h;
+  document.getElementById('cd-back').addEventListener('click',goTimeline);
+  document.getElementById('cd-x').addEventListener('click',goTimeline);
+  pg.querySelectorAll('input[name="ms-msp"]').forEach(r=>r.addEventListener('change',()=>{if(r.checked)saveMsp(r.value);}));
+}
 
 /* ===== v1.11.0 (owner ask 09-02): the developer App Settings page ===== */
 /* Help ▸ App settings, developers only (menu entry hidden otherwise; a direct hash
@@ -6646,6 +6683,7 @@ function parseHash(){
   if(h==='people'||h.indexOf('people/')===0)return{view:'people',id:null,creating:false};
   if(h==='clients'||h.indexOf('clients/')===0)return{view:'clients',id:null,creating:false};
   if(h==='settings')return{view:'settings',id:null,creating:false}; /* v1.11.0: dev App Settings */
+  if(h==='mysettings')return{view:'mysettings',id:null,creating:false}; /* v1.50.0: Help ▸ My settings */
   if(h==='changelog')return{view:'changelog',id:null,creating:false}; /* v1.19.0 (§3 item 26) */
   if(h==='releases')return{view:'releases',id:null,creating:false}; /* v1.20.0: Help ▸ Release notes */
   if(h==='issues')return{view:'issues',id:null,creating:false};     /* v1.20.0: Help ▸ Open issues (report form + list) */
@@ -6690,7 +6728,7 @@ function applyRoute(){
     document.body.classList.remove('me-dock-on');
     mn.classList.add('hidden');pg.classList.remove('hidden');
     renderProjectPage();
-  }else if(r.view==='people'||r.view==='clients'||r.view==='settings'||r.view==='changelog'
+  }else if(r.view==='people'||r.view==='clients'||r.view==='settings'||r.view==='mysettings'||r.view==='changelog'
          ||r.view==='releases'||r.view==='issues'||r.view==='reports'){
     /* v1.7.0: a Company Data page — the project page's chrome pattern (own location,
        #main hidden, timeline toolbar row gone), read-first master/detail inside.
@@ -6702,6 +6740,7 @@ function applyRoute(){
     document.body.classList.remove('me-dock-on');
     mn.classList.add('hidden');pg.classList.remove('hidden');
     if(r.view==='settings')renderAppSettings();
+    else if(r.view==='mysettings')renderMySettings();
     else if(r.view==='changelog')renderChangelog();
     else if(r.view==='releases')renderReleases();
     else if(r.view==='issues')renderIssues();
@@ -6825,11 +6864,7 @@ function renderProjectPage(){
    + '<div class="npv-subs"><button id="npv-tint" title="Colour the calendar background vividly by month">Vivid months</button>'
    + '<button id="npv-link" title="Dragging a department bar moves its subtasks with it">Link</button>'
    + '<button id="npv-focus" class="hidden" title="Show only the selected phase\'s bands on the calendar">Selected only</button></div>'
-   + '<button class="npv-btn" id="npv-reset" disabled title="Put the rows back in the schedule\'s own order">Reset</button>'
-   /* v1.50.0 (item 32): where milestones draw — see NPV_MSP */
-   + '<div class="npv-modes" id="npv-msp"><button data-msp="top" title="All milestones in the Milestones row">Top</button>'
-   + '<button data-msp="both" title="Milestones row, plus a copy on each milestone\'s phase bar">Both</button>'
-   + '<button data-msp="phase" title="Milestones with a phase sit on that phase\'s bar; the rest stay in the Milestones row">Phase</button></div></div>'
+   + '<button class="npv-btn" id="npv-reset" disabled title="Put the rows back in the schedule\'s own order">Reset</button></div>'
    + '<div class="npv-leg" id="npv-leg"></div>'
    /* The wrap gives the gutter-resize handle a non-scrolling box to pin to — the
       gutter cells are sticky, so their edge always sits at NPV_GUT from the left. */
@@ -6960,10 +6995,6 @@ function renderProjectPage(){
                    :'Subtasks stay put — move them one at a time');});
   const fk=document.getElementById('npv-focus');
   if(fk)fk.addEventListener('click',()=>{NPV_CAL_FOCUS=!NPV_CAL_FOCUS;npvRender();});
-  document.querySelectorAll('#npv-msp button').forEach(b=>b.addEventListener('click',()=>{
-    NPV_MSP=b.dataset.msp;
-    try{localStorage.setItem('shopTimelineMsPlace',NPV_MSP);}catch(e){}
-    npvRender();}));
   if(!NPV_RESIZE_BOUND){window.addEventListener('resize',()=>{if(ROUTE.view==='project')npvQueue();});NPV_RESIZE_BOUND=true;}
 
   /* Drag the gutter edge to resize the name column. The handle re-renders with the
@@ -7964,11 +7995,13 @@ let NPV_FIT=null;
    (old integer steps still parse the same). */
 try{const f=parseFloat(localStorage.getItem('shopTimelineNpvFit'));if(f>=FIT_MIN&&f<=FIT_MAX)NPV_FIT=f;}catch(e){}
 /* v1.50.0 (item 32, tracker #1): where a milestone draws on the project Gantt —
-   'top' (the Milestones row only, the default), 'both' (that row plus a copy on its
-   phase's row) or 'phase' (only on its phase's row when the phase has a bar here).
-   Per-browser pref. */
-let NPV_MSP='top';
-try{const v=localStorage.getItem('shopTimelineMsPlace');if(v==='both'||v==='phase')NPV_MSP=v;}catch(e){}
+   'phase' (on its phase's row when the phase has a row here; the default, owner
+   2026-10-16), 'both' (the Milestones row plus a copy on its phase's row) or 'top' (the
+   Milestones row only). Set in Help ▸ My settings; follows the person (MSP_KEY). */
+const MSP_KEY='shopTimelineMsPlace';
+const MSP_OK=v=>v==='top'||v==='both'||v==='phase';
+function loadMsp(){let v=null;try{v=localStorage.getItem(MSP_KEY);}catch(e){}return MSP_OK(v)?v:null;}
+let NPV_MSP=loadMsp()||'phase';
 let NPV_CAL_FOCUS=false; /* N16: calendar shows only the selected phase's bands */
 /* v1.9.0 (owner ask): live resize override — while an edge drag has left the grabbed
    segment's home week, {key,s,e} makes npvPaintCalendar draw that phase (twins merged,
@@ -8731,10 +8764,6 @@ function npvRender(){
   if(zm2){zm2.classList.toggle('hidden',NPV_MODE!=='gantt'); /* the calendar has its own scale */
     zm2.querySelectorAll('button').forEach(b=>b.classList.toggle('on',
       (b.dataset.fit?parseInt(b.dataset.fit,10):null)===NPV_FIT));}
-  const msp2=document.getElementById('npv-msp');
-  if(msp2){msp2.classList.toggle('hidden',NPV_MODE!=='gantt'); /* the calendar has no rows to place on */
-    msp2.querySelectorAll('button').forEach(b=>{const on=b.dataset.msp===NPV_MSP;
-      b.classList.toggle('on',on);b.setAttribute('aria-pressed',on?'true':'false');});}
   npvRenderLegend();
 
   if(!NPV_TASKS.length){
@@ -8877,12 +8906,14 @@ function npvRender(){
   }
 
   /* Milestones lead on row 0 and notes on row 1 (owner ask 09-03); notes stay there
-     in every mode. v1.50.0 (item 32): the Top/Both/Phase toggle
+     in every mode. v1.50.0 (item 32): Help ▸ My settings' milestone choice
      (NPV_MSP) can also put a phased milestone on its phase's row — the department's
      row whose bars cover the date, else its first row. A phase with no row here (e.g.
-     Shipping not ticked) keeps the milestone on row 0, so nothing silently vanishes. */
+     Shipping not ticked) keeps the milestone on row 0, so nothing silently vanishes.
+     The Milestones row is Project Management's home (owner, 2026-10-16): a pm or
+     unphased milestone always draws there, never on a PM bar. */
   const msRow=mk=>{
-    if(!mk.dept)return -1;
+    if(!mk.dept||mk.dept==='pm')return -1;
     let first=-1;
     for(let r=0;r<NPV_PLAN.length;r++){
       const row=NPV_PLAN[r];
@@ -10193,32 +10224,53 @@ function npvBindDrag(){
       if(!id)return;
       const x0=ev.clientX,y0=ev.clientY,dwv=NPV_GEO.dw,left0=parseFloat(mk.style.left)||0;
       mk.classList.add('dragging');
-      let days=0;
+      let days=0,dy=0,dept,hot=null;
       /* v1.50.0 (item 32): in Both mode a milestone has a twin on its phase row — move it too */
       const twins=[...host.querySelectorAll('.npv-ev,.npv-tk')].filter(m=>m.dataset.mkId===id&&m.dataset.mkK===k);
+      /* v1.50.0 (item 32, owner 2026-10-16): unless My settings says "Milestones row only", a
+         milestone also drags up or down — the row it lands on becomes its phase: the
+         Milestones row = Project Management (pm); the Notes row or no row = unchanged.
+         Same gate as the date (vcan('milestones')); Protect dates covers bars, not markers. */
+      const vert=k==='ev'&&NPV_MSP!=='top';
+      const top0=parseFloat(mk.style.top)||0,row0=Math.round((top0-9.5)/NPV_ROWH);
+      const rows=host.querySelectorAll('.npv-row');
       const mv=e2=>{
         days=Math.round((e2.clientX-x0)/dwv);
         twins.forEach(m=>{m.style.left=(left0+days*dwv)+'px';});
+        if(!vert)return;
+        dy=e2.clientY-y0;mk.style.top=(top0+dy)+'px';
+        const ri=Math.round((top0+dy-9.5)/NPV_ROWH);
+        dept=ri===row0?undefined:ri===0?'pm':(ri>=NPV_TOP&&ri-NPV_TOP<NPV_PLAN.length)?NPV_PLAN[ri-NPV_TOP].dept:undefined;
+        if(hot)hot.classList.remove('pickrow');
+        hot=dept!==undefined?rows[ri]:null; /* the target row lights up, the way a selected bar's row does */
+        if(hot&&hot.classList.contains('pickrow'))hot=null; /* already lit (the selected bar's row): leave it be */
+        if(hot)hot.classList.add('pickrow');
       };
       const up=()=>{
         document.removeEventListener('mousemove',mv);
         document.removeEventListener('mouseup',up);
         mk.classList.remove('dragging');
-        if(!days){
+        if(hot)hot.classList.remove('pickrow');
+        const m0=k==='ev'&&dept!==undefined?npvMarkers().find(m=>m.k==='ev'&&m.id===id):null;
+        if(m0&&(m0.dept===dept||(dept==='pm'&&!m0.dept)))dept=undefined; /* landed on its own phase */
+        if(!days&&dept===undefined){
+          mk.style.top=top0+'px';
+          if(Math.abs(dy)>3)return; /* dropped where it started: snap back */
           /* a click: open the in-place editor on this checkpoint/task */
           ppInspector();
           npvEditPop(k,id,x0,y0);
           return;
         }
-        const nd=fmtDate(addDays(parseDate(d0),days));
+        const nd=days?fmtDate(addDays(parseDate(d0),days)):null;
         if(NPV_LIVE){
-          if(k==='ev')liveCommitEvent(id,'date',nd);else liveCommitTodo(id,'due',nd);
+          if(nd){if(k==='ev')liveCommitEvent(id,'date',nd);else liveCommitTodo(id,'due',nd);}
+          if(dept!==undefined)liveCommitEvent(id,'dept',dept);
         }else{
-          if(k==='ev'){const e=NPV_EVENTS.find(x=>x.id===id);if(e)e.date=nd;}
+          if(k==='ev'){const e=NPV_EVENTS.find(x=>x.id===id);if(e){if(nd)e.date=nd;if(dept!==undefined)e.dept=dept;}}
           else{const t=NPV_TODOS.find(x=>x.id===id);if(t)t.due=nd;}
         }
         npvRebuild();ppInspector();
-        toastU((k==='ev'?'Milestone':'Note')+' moved to '+fmtNice(nd));
+        if(nd)toastU((k==='ev'?'Milestone':'Note')+' moved to '+fmtNice(nd));
       };
       document.addEventListener('mousemove',mv);
       document.addEventListener('mouseup',up);
@@ -10572,7 +10624,7 @@ document.addEventListener('keydown',ev=>{
     }
     /* v1.7.0: the Company Data pages — menu, typing, open editor, then the page.
        v1.11.0: App Settings walks home the same way (CD_EDIT is never set there). */
-    if(ROUTE.view==='people'||ROUTE.view==='clients'||ROUTE.view==='settings'||ROUTE.view==='changelog'
+    if(ROUTE.view==='people'||ROUTE.view==='clients'||ROUTE.view==='settings'||ROUTE.view==='mysettings'||ROUTE.view==='changelog'
      ||ROUTE.view==='releases'||ROUTE.view==='issues'||ROUTE.view==='reports'){
       if(document.querySelector('.tb-menu:not(.hidden)')){closeMenus();ev.preventDefault();return;}
       if(typing){ev.target.blur();return;}
@@ -11252,10 +11304,17 @@ function setProtect(on){ /* viewers stay forced on (applyPerms); the phases gran
   document.body.classList.toggle('dates-locked',DATE_LOCK);
 }
 function saveProtect(on){try{localStorage.setItem(PROTECT_KEY,on?'1':'0');}catch(e){}pushViews();}
+/* v1.50.0 (item 32): My settings' milestone placement rides the same value as `milestones` */
+function setMsp(v){
+  NPV_MSP=v;
+  if(ROUTE.view==='project')npvRender();
+  else if(ROUTE.view==='mysettings')renderMySettings();
+}
+function saveMsp(v){if(!MSP_OK(v))return;try{localStorage.setItem(MSP_KEY,v);}catch(e){}setMsp(v);pushViews();}
 function pushViews(){
   const id=myStaffId();if(!STAFF_OK||VIEWS_ROW_OFF||!id)return;
-  const v=loadViews(),p=loadProtect();if(!v&&p==null)return;
-  const txt=JSON.stringify({...(v?{views:v}:{}),...(p!=null?{protectDates:p}:{})});
+  const v=loadViews(),p=loadProtect(),m=loadMsp();if(!v&&p==null&&!m)return;
+  const txt=JSON.stringify({...(v?{views:v}:{}),...(p!=null?{protectDates:p}:{}),...(m?{milestones:m}:{})}); /* v1.50.0: + My settings' milestone choice */
   STAFF_VIEWS[id]=txt;VIEWS_PUSHING++;VIEWS_GEN++;setViewsOwner(id);
   store.update('staff',SP_IDS.staff[id],{savedViews:txt})
     .catch(e=>{const m=String(e&&e.message);if(/ 400/.test(m)&&/savedViews/.test(m))VIEWS_ROW_OFF=true; /* the column isn't on the list */
@@ -11280,7 +11339,8 @@ function viewsFromRow(){
        waits, for the next poll — flipping the switch mid-drag would change its outcome. */
     if(DRAG)return;
     if(loadProtect()!=null)setProtect(false);
-    try{localStorage.removeItem(VIEWS_KEY);localStorage.removeItem(PROTECT_KEY);}catch(e){}}
+    try{localStorage.removeItem(VIEWS_KEY);localStorage.removeItem(PROTECT_KEY);localStorage.removeItem(MSP_KEY);}catch(e){}
+    NPV_MSP='phase';}
   setViewsOwner(id);
   let j=null;try{j=JSON.parse(STAFF_VIEWS[id]||'null');}catch(e){}
   if(Array.isArray(j))j={views:j};
@@ -11303,6 +11363,11 @@ function viewsFromRow(){
     /* never mid-drag or mid-edit (owner rule: no auto action while working); the next poll retries */
     if(hadP!==j.protectDates&&!updBusy()){try{localStorage.setItem(PROTECT_KEY,j.protectDates?'1':'0');}catch(e){}setProtect(j.protectDates);}
   }else if(hadP!=null)push=true;
+  /* v1.50.0 (item 32): My settings' milestone choice, the same way */
+  const hadM=loadMsp();
+  if(MSP_OK(j.milestones)){
+    if(hadM!==j.milestones&&!updBusy()){try{localStorage.setItem(MSP_KEY,j.milestones);}catch(e){}setMsp(j.milestones);}
+  }else if(hadM)push=true;
   if(push)pushViews();
 }
 function defaultViewState(){return{lens:'project',group:'',status:[...ALL_STATUSES],person:'',search:'',
@@ -11591,20 +11656,31 @@ function coachEnd(){
    in DOM order, a hidden one, so step 8's hole spotlit nothing and the card landed
    at the origin ON TOP of the real breadcrumb bar. Prefer the first VISIBLE match;
    fall back to the first match so jsdom (no layout, zero rects everywhere) keeps
-   the old behavior. */
+   the old behavior. v1.49.0: in a laid-out page a match that isn't drawn is no
+   target at all — the step is skipped instead of spotlighting nothing. */
 function coachEl(sel){
   const els=[...document.querySelectorAll(sel)];
-  return els.find(el=>el.getClientRects&&el.getClientRects().length)||els[0]||null;
+  return els.find(el=>el.getClientRects&&el.getClientRects().length)
+    ||(document.body.getClientRects().length?null:els[0])||null;
 }
-function coachShow(){
+/* dir: -1 when stepping Back. v1.49.0 (tracker #7): a target that has gone since the
+   tour started drops its step and the tour carries on the way it was going — never
+   bounced back, never a crash on a missing element. */
+function coachShow(dir){
   coachUnchain();
   const s=COACH.steps[COACH.i];
   if(s.on)s.on(); /* v1.21.1: a step may set the view up before it is measured */
-  const r=coachEl(s.sel).getBoundingClientRect();
+  const el=coachEl(s.sel);
+  if(!el){
+    COACH.steps.splice(COACH.i,1);COACH.total-=1+(s.chain?COACH_PP_DRAFT_N:0);
+    if(dir<0&&COACH.i)COACH.i--;
+    if(COACH.i>=COACH.steps.length){coachEnd();return;}
+    return coachShow(dir);
+  }
+  const r=el.getBoundingClientRect();
   const hole=document.getElementById('coach-hole'),card=document.getElementById('coach-card');
   if(s.chain){
     document.getElementById('coach').classList.add('chain');
-    const el=coachEl(s.sel);
     /* the project half continues the count where the home half leaves off */
     const fn=()=>{const b=COACH?COACH.steps.length:0;
       coachEnd();setTimeout(()=>coachStart(COACH_PP_STEPS,b),450);};
@@ -11618,9 +11694,9 @@ function coachShow(){
   document.getElementById('coach-title').textContent=s.t;
   document.getElementById('coach-body').textContent=s.b;
   document.getElementById('coach-back').disabled=COACH.i===0;
-  document.getElementById('coach-next').textContent=COACH.i===COACH.steps.length-1?'Done':'Next';
+  document.getElementById('coach-next').textContent=(COACH.i===COACH.steps.length-1&&!s.chain)?'Done':'Next';
   /* card below the hole, else above, else beside it; a full-screen target holds it inside */
-  const vw=window.innerWidth,vh=window.innerHeight,cw=300,ch=card.offsetHeight||180;
+  const vw=window.innerWidth,vh=window.innerHeight,cw=card.offsetWidth||360,ch=card.offsetHeight||180;
   const below=r.bottom+pad+12,above=r.top-pad-12-ch,beside=r.right+pad+12;
   let cl=Math.max(12,Math.min(vw-cw-12,r.left)),ct;
   if(below+ch<vh-12)ct=below;
@@ -11646,9 +11722,23 @@ function coachStart(stepList,base){
 }
 function coachNext(){if(!COACH)return;
   const s=COACH.steps[COACH.i];
-  if(s.chain){const el=document.querySelector(s.sel);if(el)el.click();return;} /* Enter = press the highlighted button */
+  /* Next / Enter = press the highlighted button — the very element the chain is wired to */
+  if(s.chain&&COACH_CHAIN){COACH_CHAIN.el.click();return;}
   if(COACH.i>=COACH.steps.length-1){coachEnd();return;}COACH.i++;coachShow();}
-function coachBack(){if(!COACH||!COACH.i)return;COACH.i--;coachShow();}
+function coachBack(){if(!COACH||!COACH.i)return;COACH.i--;coachShow(-1);}
+/* v1.49.0 (tracker #7): "Don't show again" — the tour never AUTO-starts again for this
+   signed-in person on any machine: a per-person row in ShopTimeline_Config, written
+   quietly. Help ▸ Take a tour still runs it. With no Config list, the browser's
+   seen flag (coachEnd sets it) is the fallback. Never on App Settings: that page
+   lists only its own keys. */
+function coachOffKey(){const w=store.who();return w&&w.email?'tour.off.'+w.email.toLowerCase():'';}
+function coachOff(){
+  coachEnd();
+  const k=coachOffKey();
+  if(!k||!CFG_OK||CFG_RAW[k]==='1')return;
+  CFG_RAW[k]='1';
+  cfgWrite(k,'1').catch(e=>console.error(e)); /* quiet: a failed write still leaves this browser's seen flag */
+}
 /* Phase 4: Help is a menu now. "Take a tour" keeps the route-aware behaviour —
    project pages get their own shared tour in place (REV86). */
 function tourStart(){
@@ -11993,7 +12083,11 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
- {v:"v1.50.0",d:"Oct 16, 2026",n:["On a project's Gantt, a new Top · Both · Phase switch at the top right chooses where milestones show: all in the Milestones row (Top, as before), in that row plus on their phase's bar (Both), or only on their phase's bar (Phase). Milestones with no phase, or whose phase isn't scheduled on the job, stay in the Milestones row. Your choice is remembered on this computer."]},
+ {v:"v1.50.0",d:"Oct 16, 2026",n:["On a project's Gantt, a milestone with a phase now sits on that phase's bar, so \"ALL CNC DONE\" shows on the CNC bar. Milestones with no phase or a Project Management phase, or whose phase isn't scheduled on the job, stay in the Milestones row.",
+   "Drag a milestone up or down onto another phase's row to change its phase; drop it on the Milestones row to make it Project Management's. Dragging sideways still changes its date, and one drag can do both.",
+   "New page: Help ▸ My settings, for everyone. Under \"Milestones on the Gantt\" you can keep milestones on their phase (the default), show them in both places, or put them all back in the Milestones row. Your choice follows your sign-in to any computer."]},
+ {v:"v1.49.0",d:"Oct 16, 2026",n:["The tour no longer sends you back and forth between steps 6 and 7: step 7 now has a Next button that opens a new project and carries on, where before the button in that spot was Back.",
+   "The tour card has a new \"Don't show again\" button. It closes the tour, and the tour won't start by itself for you again on any computer. Help ▸ Take a tour still runs it whenever you like."]},
  {v:"v1.48.5",d:"Oct 14, 2026",n:["On the People page, time off entered as back-to-back or overlapping requests now reads as one absence: \"Away until\" shows the day the person is really back, even across a weekend or holiday."]},
  {v:"v1.48.4",d:"Oct 14, 2026",n:["The Meeting Sheet's progress bar now shows how much of the scheduled work is done, not how much time has passed, so a quiet stretch between departments no longer makes a project look further along. The dates under it are unchanged."]},
  {v:"v1.48.3",d:"Oct 14, 2026",n:["Teammates' changes now also wait while you're on a New Project page, typing in a toolbar box, or have a save waiting to retry, so nothing redraws under you. They appear as soon as you're done."]},
@@ -12206,6 +12300,7 @@ document.getElementById('mi-repo').addEventListener('click',()=>{closeMenus();wi
 document.getElementById('coach').addEventListener('click',coachNext);
 document.getElementById('coach-card').addEventListener('click',ev=>ev.stopPropagation());
 document.getElementById('coach-skip').addEventListener('click',coachEnd);
+document.getElementById('coach-off').addEventListener('click',coachOff);
 document.getElementById('coach-back').addEventListener('click',coachBack);
 document.getElementById('coach-next').addEventListener('click',coachNext);
 window.addEventListener('resize',()=>{if(COACH)coachShow();});
@@ -12367,7 +12462,10 @@ async function boot(){
   /* REV74 (N14): a browser that has never seen the tour gets it once, after sign-in
      has settled and the first render is on screen. Help replays it any time. */
   let coachSeen='1';try{coachSeen=localStorage.getItem(COACH_KEY);}catch(e){}
-  if(store.who()&&!coachSeen&&ROUTE.view==='timeline')setTimeout(coachStart,700);
+  /* v1.49.0: "Don't show again" on any machine (the Config row) stops it too; and the
+     timer never restarts a tour already up or lands on a page the user has left for. */
+  if(store.who()&&!coachSeen&&CFG_RAW[coachOffKey()]!=='1'&&ROUTE.view==='timeline')
+    setTimeout(()=>{if(!COACH&&ROUTE.view==='timeline')coachStart();},700);
   /* REV87: the PM late prompt — after the first render settles. pmLateShow
      itself declines to stack on the tour or another overlay, and asks at most
      once a day; a suppressed ask (tour up, project view) just tries next load. */

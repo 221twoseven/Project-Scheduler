@@ -10,7 +10,13 @@ what changed *for the team*, not how. Developer-only tooling doesn't need a line
 Collect lines for the next version under `## Unreleased` and rename it when you ship.
 
 ## v1.50.0 — Oct 16, 2026
-- On a project's Gantt, a new Top · Both · Phase switch at the top right chooses where milestones show: all in the Milestones row (Top, as before), in that row plus on their phase's bar (Both), or only on their phase's bar (Phase). Milestones with no phase, or whose phase isn't scheduled on the job, stay in the Milestones row. Your choice is remembered on this computer.
+- On a project's Gantt, a milestone with a phase now sits on that phase's bar, so "ALL CNC DONE" shows on the CNC bar. Milestones with no phase or a Project Management phase, or whose phase isn't scheduled on the job, stay in the Milestones row.
+- Drag a milestone up or down onto another phase's row to change its phase; drop it on the Milestones row to make it Project Management's. Dragging sideways still changes its date, and one drag can do both.
+- New page: Help ▸ My settings, for everyone. Under "Milestones on the Gantt" you can keep milestones on their phase (the default), show them in both places, or put them all back in the Milestones row. Your choice follows your sign-in to any computer.
+
+## v1.49.0 — Oct 16, 2026
+- The tour no longer sends you back and forth between steps 6 and 7: step 7 now has a Next button that opens a new project and carries on, where before the button in that spot was Back.
+- The tour card has a new "Don't show again" button. It closes the tour, and the tour won't start by itself for you again on any computer. Help ▸ Take a tour still runs it whenever you like.
 
 ## v1.48.5 — Oct 14, 2026
 - On the People page, time off entered as back-to-back or overlapping requests now reads as one absence: "Away until" shows the day the person is really back, even across a weekend or holiday.
