@@ -26,6 +26,19 @@ developer-only and app-wide.
 - **Same diamond everywhere:** both copies share the popover, hover title, drag and right-click
   delete; in Both, the twin moves with a drag. Dragging changes only the date. A phase change
   (popover or Milestones & Notes) moves the diamond on the next paint.
+- **The Milestones row is Project Management's home** (owner, 2026-10-16): a milestone whose
+  phase is Project Management, or that has none, always draws there, in every mode. (The project
+  Gantt doesn't draw a PM bar at all; the rule also guards the placement code.)
+- **Drag up or down to change the phase** (owner, 2026-10-16), in "On their phase" and "Both":
+  drop a diamond on another phase's row and that becomes its phase; drop it on the Milestones row
+  and it becomes Project Management's. The Notes row, or no row, leaves the phase alone. A
+  sideways drag still sets the date, and one diagonal drag does both. While dragging, the diamond
+  follows the pointer and the target row's name lights up (the selected-row style, no new text).
+  Either copy in Both reassigns. "Milestones row only" drags change the date only, as before.
+  Commits go through the popover's path (`liveCommitEvent`, or the draft's own list), so undo,
+  the change log and the save queue apply; a diagonal drag is two saves, so two undo steps.
+  Gates: the same `milestones` permission as the date drag, so viewers without it can't drag.
+  Protect dates is unchanged: it covers bars, and milestone dates never followed it.
 - **Unchanged:** notes stay on the Notes row; Calendar mode, the dashboard and print are untouched.
 - **It follows the person.** The choice rides the signed-in user's Staff row, in the same
   `savedViews` value as saved views and Protect dates (`{…,"milestones":"phase"}`), with a browser
@@ -49,7 +62,9 @@ Technical Design and "Kickoff" with no phase.
 `tests/test-v1500.js`: all three options on the draft and a saved project (the saved page driven
 through the My settings page), the no-phase and no-Shipping milestones, a popover phase change, drag
 changing only the date, the page and its exact copy for an admin and a viewer, the Staff-row write
-and adoption, and the no-row fallback. `test56`'s collapsed-parent check now adds the two marker
+and adoption, and the no-row fallback; plus the vertical drag (row 0 → CNC, CNC → row 0 = pm, a
+diagonal drag, a drop on the Notes row, no vertical move in "Milestones row only", a viewer can't
+drag) and a pm milestone in row 0 in all three modes. `test56`'s collapsed-parent check now adds the two marker
 rows (the marker is back on its phase row). `test48` and `test-v1320` are unchanged and pass.
 
 ## Known limits

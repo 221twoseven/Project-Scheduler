@@ -20,7 +20,7 @@ const projects=[{appId:'p1',Title:'Q4 Frozen In Time 2026',client:'Example Clien
   activeDepartments:JSON.stringify(['pm','cnc','install']),createdAt:D(-10),sortIndex:0}];
 const T=(id,dept,s,e)=>({appId:id,projectId:'p1',department:dept,assignee:dept==='install'?'[]':'Sam',
   startDate:s,endDate:e,estimatedDays:3,ticketNodes:'[]',notes:'',pinned:false,label:''});
-const tasks=[T('t1','cnc',D(5),D(12)),T('t2','install',D(25),D(27))];
+const tasks=[T('t0','pm',D(-5),D(28)),T('t1','cnc',D(5),D(12)),T('t2','install',D(25),D(27))];
 const EV=(id,name,dept,date)=>({appId:id,projectId:'p1',department:dept,Title:name,date:date,notes:''});
 const events=[EV('e1','ALL CNC DONE','cnc',D(10)),EV('e2','Kickoff','',D(3)),EV('e3','Truck leaves','shipping',D(26))];
 const todos=[{appId:'n1',Title:'Order sheet stock',projectId:'p1',department:'cnc',assignees:'[]',
@@ -84,6 +84,46 @@ function pageCopy(w,who){
   const same=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
   /* the draft can't leave its page, so it drives the setting's own handler */
   const set=m=>E("saveMsp('"+m+"')");
+  const dia=name=>qa('#npv-body .npv-ev').find(m=>m.title.indexOf(name+' ·')===0);
+  const mouse=(el,type,dd,dy)=>el.dispatchEvent(new w.MouseEvent(type,{bubbles:true,cancelable:true,button:0,
+    clientX:100+dd*E('NPV_GEO.dw'),clientY:100+dy}));
+  const drag=async(el,dd,dy,ms)=>{mouse(el,'mousedown',0,0);mouse(doc,'mousemove',dd,dy);mouse(doc,'mouseup',dd,dy);await wait(ms);};
+
+  /* item 32, owner 2026-10-16: a vertical drag reassigns the phase; the Milestones row is pm's home.
+     Starts with Kickoff on the CNC row (the popover test before it). */
+  async function dragSuite(where,get,ms){
+    const g=()=>JSON.parse(E('JSON.stringify('+get+')'));
+    set('phase');
+    sec(where+': dragging a milestone up or down changes its phase');
+    const d0=g().date,plus=n=>E("fmtDate(addDays(parseDate('"+d0+"'),"+n+"))");
+    await drag(dia('Kickoff'),0,y0()-yDept('cnc'),ms);
+    ok(where+': CNC to the Milestones row sets the phase to Project Management', g().dept==='pm'&&g().date===d0, JSON.stringify(g()));
+    ok(where+': and it stays in row 0', same(tops('Kickoff'),[y0()]), JSON.stringify(tops('Kickoff')));
+
+    {const el=dia('Kickoff');
+      mouse(el,'mousedown',0,0);mouse(doc,'mousemove',0,yDept('cnc')-y0());
+      const ri=E('NPV_TOP')+E("NPV_PLAN.findIndex(r=>r.dept==='cnc')");
+      ok(where+': during the drag the diamond follows and the CNC row lights up', parseFloat(el.style.top)===yDept('cnc')
+         &&qa('#npv-body .npv-row')[ri].classList.contains('pickrow'));
+      mouse(doc,'mouseup',0,yDept('cnc')-y0());await wait(ms);}
+    ok(where+': a vertical drag from row 0 onto the CNC row sets the phase to CNC', g().dept==='cnc'&&g().date===d0, JSON.stringify(g()));
+    ok(where+': and redraws it on the CNC row', same(tops('Kickoff'),[yDept('cnc')]), JSON.stringify(tops('Kickoff')));
+
+    await drag(dia('Kickoff'),2,y0()-yDept('cnc'),ms);
+    ok(where+': a diagonal drag changes both date and phase', g().date===plus(2)&&g().dept==='pm', JSON.stringify(g()));
+
+    await drag(dia('Kickoff'),1,RH(),ms);
+    ok(where+': a drop on the Notes row changes the date only', g().date===plus(3)&&g().dept==='pm', JSON.stringify(g()));
+    ok(where+': and it is back in row 0', same(tops('Kickoff'),[y0()]), JSON.stringify(tops('Kickoff')));
+
+    set('top');
+    await drag(dia('Kickoff'),0,yDept('cnc')-y0(),ms);
+    ok(where+': Milestones row only: a vertical drag changes neither row nor phase', g().dept==='pm'&&g().date===plus(3)&&same(tops('Kickoff'),[y0()]), JSON.stringify(g()));
+    E('npvPopClose()'); /* a drag that moved nothing is a click */
+
+    for(const m of ['top','both','phase']){set(m);
+      ok(where+': a Project Management milestone sits in row 0 only ('+m+')', same(tops('Kickoff'),[y0()]), JSON.stringify(tops('Kickoff')));}
+  }
 
   function modes(where,cnc,drive){
     drive('top');
@@ -138,6 +178,7 @@ function pageCopy(w,who){
   if(sel){sel.value='cnc';change(sel);}
   ok('draft: Kickoff now sits on the CNC row', same(tops('Kickoff'),[yDept('cnc')]), JSON.stringify(tops('Kickoff')));
   E('npvPopClose()');
+  await dragSuite('draft',"NPV_EVENTS.find(e=>e.id==='d2')",0);
   E('ppDraftDirty=()=>false;');
 
   sec('saved page — driven through Help ▸ My settings');
@@ -163,6 +204,7 @@ function pageCopy(w,who){
   ok('saved: the change was saved', E("ST.events.find(e=>e.id==='e2').dept")==='cnc');
   ok('saved: Kickoff now sits on the CNC row', same(tops('Kickoff'),[yDept('cnc')]), JSON.stringify(tops('Kickoff')));
   E('npvPopClose()');
+  await dragSuite('saved',"ST.events.find(e=>e.id==='e2')",300);
 
   sec('saved: dragging the phase-row copy (Both) changes only the date');
   set('both');
@@ -170,9 +212,9 @@ function pageCopy(w,who){
     .sort((a,b)=>parseFloat(a.style.top)-parseFloat(b.style.top));
   const mk=cp[1],l0=mk.style.left,dw=E('NPV_GEO.dw');
   mk.dispatchEvent(new w.MouseEvent('mousedown',{bubbles:true,cancelable:true,button:0,clientX:100,clientY:100}));
-  doc.dispatchEvent(new w.MouseEvent('mousemove',{bubbles:true,clientX:100+2*dw,clientY:160}));
+  doc.dispatchEvent(new w.MouseEvent('mousemove',{bubbles:true,clientX:100+2*dw,clientY:100}));
   ok('saved: the Milestones-row twin follows the drag', cp[0].style.left===mk.style.left&&mk.style.left!==l0, cp[0].style.left+' vs '+mk.style.left);
-  doc.dispatchEvent(new w.MouseEvent('mouseup',{bubbles:true,clientX:100+2*dw,clientY:160}));
+  doc.dispatchEvent(new w.MouseEvent('mouseup',{bubbles:true,clientX:100+2*dw,clientY:100}));
   set('phase');
   await wait(300);
   const e1=JSON.parse(E("JSON.stringify(ST.events.find(e=>e.id==='e1'))"));
@@ -189,6 +231,12 @@ function pageCopy(w,who){
     const r=v.document.querySelector('input[name="ms-msp"][value="top"]');r.checked=true;r.dispatchEvent(new v.Event('change',{bubbles:true}));await wait(50);
     ok('viewer: picking an option saves it', v.eval('NPV_MSP')==='top'&&v.localStorage.getItem(MK)==='top'&&(lastRow(v)||{}).milestones==='top',
        JSON.stringify(lastRow(v)));
+    v.eval("saveMsp('phase')");goW(v,'#/project/p1');await wait(900);
+    const vk=[...v.document.querySelectorAll('#npv-body .npv-ev')].find(m=>m.title.indexOf('Kickoff ·')===0);
+    const vm=(el,type,dy)=>el.dispatchEvent(new v.MouseEvent(type,{bubbles:true,cancelable:true,button:0,clientX:150,clientY:100+dy}));
+    vm(vk,'mousedown',0);vm(v.document,'mousemove',80);vm(v.document,'mouseup',80);await wait(300);
+    const ve=JSON.parse(v.eval("JSON.stringify(ST.events.find(e=>e.id==='e2'))"));
+    ok('viewer: no drag — the milestone keeps its phase, date and row', ve.dept===''&&ve.date===D(3)&&parseFloat(vk.style.top)===9.5, JSON.stringify(ve));
   }
 
   sec('it follows the person');

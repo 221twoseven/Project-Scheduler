@@ -491,9 +491,11 @@ What the pilot can't start without.
       - *Approved (2026-10-16):* "Proceed", with changes: a toggle, not a move, so current
         users aren't surprised.
       - *2026-10-16:* Owner ruling: Phase is the default; the choice lives in Help ▸ My
-        settings and follows the person. Possible follow-ups, unapproved copy so not built: a
-        "Shipping (not scheduled)" label in the Phase dropdown, and a one-click "Add
-        Shipping" offer.
+        settings and follows the person.
+      - *2026-10-16:* Owner ruling 2026-10-16: drag a milestone up or down to change its
+        phase; the Milestones row means Project Management.
+      - Possible follow-ups, unapproved copy so not built: a "Shipping (not scheduled)" label
+        in the Phase dropdown, and a one-click "Add Shipping" offer.
       [tracker #1]
 - [x] **53. A role change must move the project to the new holder** (P0 bug, tracker #34).
       Shipped v1.42.0 (PR #111, 2026-10-08). On the saved page, a role change hands that

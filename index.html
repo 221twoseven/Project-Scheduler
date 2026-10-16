@@ -8909,9 +8909,11 @@ function npvRender(){
      in every mode. v1.50.0 (item 32): Help ▸ My settings' milestone choice
      (NPV_MSP) can also put a phased milestone on its phase's row — the department's
      row whose bars cover the date, else its first row. A phase with no row here (e.g.
-     Shipping not ticked) keeps the milestone on row 0, so nothing silently vanishes. */
+     Shipping not ticked) keeps the milestone on row 0, so nothing silently vanishes.
+     The Milestones row is Project Management's home (owner, 2026-10-16): a pm or
+     unphased milestone always draws there, never on a PM bar. */
   const msRow=mk=>{
-    if(!mk.dept)return -1;
+    if(!mk.dept||mk.dept==='pm')return -1;
     let first=-1;
     for(let r=0;r<NPV_PLAN.length;r++){
       const row=NPV_PLAN[r];
@@ -10222,32 +10224,53 @@ function npvBindDrag(){
       if(!id)return;
       const x0=ev.clientX,y0=ev.clientY,dwv=NPV_GEO.dw,left0=parseFloat(mk.style.left)||0;
       mk.classList.add('dragging');
-      let days=0;
+      let days=0,dy=0,dept,hot=null;
       /* v1.50.0 (item 32): in Both mode a milestone has a twin on its phase row — move it too */
       const twins=[...host.querySelectorAll('.npv-ev,.npv-tk')].filter(m=>m.dataset.mkId===id&&m.dataset.mkK===k);
+      /* v1.50.0 (item 32, owner 2026-10-16): unless My settings says "Milestones row only", a
+         milestone also drags up or down — the row it lands on becomes its phase: the
+         Milestones row = Project Management (pm); the Notes row or no row = unchanged.
+         Same gate as the date (vcan('milestones')); Protect dates covers bars, not markers. */
+      const vert=k==='ev'&&NPV_MSP!=='top';
+      const top0=parseFloat(mk.style.top)||0,row0=Math.round((top0-9.5)/NPV_ROWH);
+      const rows=host.querySelectorAll('.npv-row');
       const mv=e2=>{
         days=Math.round((e2.clientX-x0)/dwv);
         twins.forEach(m=>{m.style.left=(left0+days*dwv)+'px';});
+        if(!vert)return;
+        dy=e2.clientY-y0;mk.style.top=(top0+dy)+'px';
+        const ri=Math.round((top0+dy-9.5)/NPV_ROWH);
+        dept=ri===row0?undefined:ri===0?'pm':(ri>=NPV_TOP&&ri-NPV_TOP<NPV_PLAN.length)?NPV_PLAN[ri-NPV_TOP].dept:undefined;
+        if(hot)hot.classList.remove('pickrow');
+        hot=dept!==undefined?rows[ri]:null; /* the target row lights up, the way a selected bar's row does */
+        if(hot&&hot.classList.contains('pickrow'))hot=null; /* already lit (the selected bar's row): leave it be */
+        if(hot)hot.classList.add('pickrow');
       };
       const up=()=>{
         document.removeEventListener('mousemove',mv);
         document.removeEventListener('mouseup',up);
         mk.classList.remove('dragging');
-        if(!days){
+        if(hot)hot.classList.remove('pickrow');
+        const m0=k==='ev'&&dept!==undefined?npvMarkers().find(m=>m.k==='ev'&&m.id===id):null;
+        if(m0&&(m0.dept===dept||(dept==='pm'&&!m0.dept)))dept=undefined; /* landed on its own phase */
+        if(!days&&dept===undefined){
+          mk.style.top=top0+'px';
+          if(Math.abs(dy)>3)return; /* dropped where it started: snap back */
           /* a click: open the in-place editor on this checkpoint/task */
           ppInspector();
           npvEditPop(k,id,x0,y0);
           return;
         }
-        const nd=fmtDate(addDays(parseDate(d0),days));
+        const nd=days?fmtDate(addDays(parseDate(d0),days)):null;
         if(NPV_LIVE){
-          if(k==='ev')liveCommitEvent(id,'date',nd);else liveCommitTodo(id,'due',nd);
+          if(nd){if(k==='ev')liveCommitEvent(id,'date',nd);else liveCommitTodo(id,'due',nd);}
+          if(dept!==undefined)liveCommitEvent(id,'dept',dept);
         }else{
-          if(k==='ev'){const e=NPV_EVENTS.find(x=>x.id===id);if(e)e.date=nd;}
+          if(k==='ev'){const e=NPV_EVENTS.find(x=>x.id===id);if(e){if(nd)e.date=nd;if(dept!==undefined)e.dept=dept;}}
           else{const t=NPV_TODOS.find(x=>x.id===id);if(t)t.due=nd;}
         }
         npvRebuild();ppInspector();
-        toastU((k==='ev'?'Milestone':'Note')+' moved to '+fmtNice(nd));
+        if(nd)toastU((k==='ev'?'Milestone':'Note')+' moved to '+fmtNice(nd));
       };
       document.addEventListener('mousemove',mv);
       document.addEventListener('mouseup',up);
@@ -12060,7 +12083,8 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
- {v:"v1.50.0",d:"Oct 16, 2026",n:["On a project's Gantt, a milestone with a phase now sits on that phase's bar, so \"ALL CNC DONE\" shows on the CNC bar. Milestones with no phase, or whose phase isn't scheduled on the job, stay in the Milestones row.",
+ {v:"v1.50.0",d:"Oct 16, 2026",n:["On a project's Gantt, a milestone with a phase now sits on that phase's bar, so \"ALL CNC DONE\" shows on the CNC bar. Milestones with no phase or a Project Management phase, or whose phase isn't scheduled on the job, stay in the Milestones row.",
+   "Drag a milestone up or down onto another phase's row to change its phase; drop it on the Milestones row to make it Project Management's. Dragging sideways still changes its date, and one drag can do both.",
    "New page: Help ▸ My settings, for everyone. Under \"Milestones on the Gantt\" you can keep milestones on their phase (the default), show them in both places, or put them all back in the Milestones row. Your choice follows your sign-in to any computer."]},
  {v:"v1.49.0",d:"Oct 16, 2026",n:["The tour no longer sends you back and forth between steps 6 and 7: step 7 now has a Next button that opens a new project and carries on, where before the button in that spot was Back.",
    "The tour card has a new \"Don't show again\" button. It closes the tour, and the tour won't start by itself for you again on any computer. Help ▸ Take a tour still runs it whenever you like."]},
