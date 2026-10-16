@@ -1858,7 +1858,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.48.5'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.50.0'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -6825,7 +6825,11 @@ function renderProjectPage(){
    + '<div class="npv-subs"><button id="npv-tint" title="Colour the calendar background vividly by month">Vivid months</button>'
    + '<button id="npv-link" title="Dragging a department bar moves its subtasks with it">Link</button>'
    + '<button id="npv-focus" class="hidden" title="Show only the selected phase\'s bands on the calendar">Selected only</button></div>'
-   + '<button class="npv-btn" id="npv-reset" disabled title="Put the rows back in the schedule\'s own order">Reset</button></div>'
+   + '<button class="npv-btn" id="npv-reset" disabled title="Put the rows back in the schedule\'s own order">Reset</button>'
+   /* v1.50.0 (item 32): where milestones draw — see NPV_MSP */
+   + '<div class="npv-modes" id="npv-msp"><button data-msp="top" title="All milestones in the Milestones row">Top</button>'
+   + '<button data-msp="both" title="Milestones row, plus a copy on each milestone\'s phase bar">Both</button>'
+   + '<button data-msp="phase" title="Milestones with a phase sit on that phase\'s bar; the rest stay in the Milestones row">Phase</button></div></div>'
    + '<div class="npv-leg" id="npv-leg"></div>'
    /* The wrap gives the gutter-resize handle a non-scrolling box to pin to — the
       gutter cells are sticky, so their edge always sits at NPV_GUT from the left. */
@@ -6956,6 +6960,10 @@ function renderProjectPage(){
                    :'Subtasks stay put — move them one at a time');});
   const fk=document.getElementById('npv-focus');
   if(fk)fk.addEventListener('click',()=>{NPV_CAL_FOCUS=!NPV_CAL_FOCUS;npvRender();});
+  document.querySelectorAll('#npv-msp button').forEach(b=>b.addEventListener('click',()=>{
+    NPV_MSP=b.dataset.msp;
+    try{localStorage.setItem('shopTimelineMsPlace',NPV_MSP);}catch(e){}
+    npvRender();}));
   if(!NPV_RESIZE_BOUND){window.addEventListener('resize',()=>{if(ROUTE.view==='project')npvQueue();});NPV_RESIZE_BOUND=true;}
 
   /* Drag the gutter edge to resize the name column. The handle re-renders with the
@@ -7955,6 +7963,12 @@ let NPV_FIT=null;
 /* v1.6.2: a drag-set fit is continuous, so accept any stored value in the 7–91 range
    (old integer steps still parse the same). */
 try{const f=parseFloat(localStorage.getItem('shopTimelineNpvFit'));if(f>=FIT_MIN&&f<=FIT_MAX)NPV_FIT=f;}catch(e){}
+/* v1.50.0 (item 32, tracker #1): where a milestone draws on the project Gantt —
+   'top' (the Milestones row only, the default), 'both' (that row plus a copy on its
+   phase's row) or 'phase' (only on its phase's row when the phase has a bar here).
+   Per-browser pref. */
+let NPV_MSP='top';
+try{const v=localStorage.getItem('shopTimelineMsPlace');if(v==='both'||v==='phase')NPV_MSP=v;}catch(e){}
 let NPV_CAL_FOCUS=false; /* N16: calendar shows only the selected phase's bands */
 /* v1.9.0 (owner ask): live resize override — while an edge drag has left the grabbed
    segment's home week, {key,s,e} makes npvPaintCalendar draw that phase (twins merged,
@@ -8717,6 +8731,10 @@ function npvRender(){
   if(zm2){zm2.classList.toggle('hidden',NPV_MODE!=='gantt'); /* the calendar has its own scale */
     zm2.querySelectorAll('button').forEach(b=>b.classList.toggle('on',
       (b.dataset.fit?parseInt(b.dataset.fit,10):null)===NPV_FIT));}
+  const msp2=document.getElementById('npv-msp');
+  if(msp2){msp2.classList.toggle('hidden',NPV_MODE!=='gantt'); /* the calendar has no rows to place on */
+    msp2.querySelectorAll('button').forEach(b=>{const on=b.dataset.msp===NPV_MSP;
+      b.classList.toggle('on',on);b.setAttribute('aria-pressed',on?'true':'false');});}
   npvRenderLegend();
 
   if(!NPV_TASKS.length){
@@ -8858,22 +8876,35 @@ function npvRender(){
      + '</div>';
   }
 
-  /* Milestones and notes each live on their own leading row (owner ask 09-03) —
-     they no longer ride phase rows, so nothing can silently vanish and the two
-     rows are always where you left them: the top. */
+  /* Milestones lead on row 0 and notes on row 1 (owner ask 09-03); notes stay there
+     in every mode. v1.50.0 (item 32): the Top/Both/Phase toggle
+     (NPV_MSP) can also put a phased milestone on its phase's row — the department's
+     row whose bars cover the date, else its first row. A phase with no row here (e.g.
+     Shipping not ticked) keeps the milestone on row 0, so nothing silently vanishes. */
+  const msRow=mk=>{
+    if(!mk.dept)return -1;
+    let first=-1;
+    for(let r=0;r<NPV_PLAN.length;r++){
+      const row=NPV_PLAN[r];
+      if(row.dept!==mk.dept)continue;
+      if(first<0)first=r;
+      if(row.bars.some(b=>b.t.startDate<=mk.date&&mk.date<=b.t.endDate))return r;
+    }
+    return first;
+  };
   const marks=npvMarkers();
   for(const mk of marks){
     const d=parseDate(mk.date);
     if(d<lo||d>hi)continue;
-    const ri=mk.k==='ev'?0:1;
+    const pr=(mk.k==='ev'&&NPV_MSP!=='top')?msRow(mk):-1;
+    const rows=mk.k!=='ev'?[1]:pr<0?[0]:NPV_MSP==='both'?[0,NPV_TOP+pr]:[NPV_TOP+pr];
     const left=x(d)+Math.floor(dwv/2);
-    const top=ri*NPV_ROWH+(mk.k==='ev'?9.5:9);
     const cls=mk.k==='ev'?'npv-ev':('npv-tk'+(mk.pr==='high'||mk.pr==='urgent'?' hi':''));
     const nm=mk.nm||(mk.k==='ev'?'Untitled milestone':'Untitled note');
     /* v1.4.0 (08-31 obj 4): no inline label next to the marker \u2014 adjacent labels were
        unreadable; the hover title carries the name and a click opens the edit popover. */
-    h+='<div class="'+cls+'" data-mk-id="'+esc(mk.id||'')+'" data-mk-k="'+mk.k+'" '
-     + 'data-mk-date="'+esc(mk.date)+'" style="left:'+left+'px;top:'+top+'px" '
+    for(const ri of rows)h+='<div class="'+cls+'" data-mk-id="'+esc(mk.id||'')+'" data-mk-k="'+mk.k+'" '
+     + 'data-mk-date="'+esc(mk.date)+'" style="left:'+left+'px;top:'+(ri*NPV_ROWH+(mk.k==='ev'?9.5:9))+'px" '
      + 'title="'+esc(nm+' \u00b7 '+fmtNice(mk.date)+' \u2014 drag to move, click to edit, right-click to delete')+'"></div>';
   }
   /* Weekend columns moved into the tint layer below (v1.6.2) — see the CSS note. */
@@ -10163,9 +10194,11 @@ function npvBindDrag(){
       const x0=ev.clientX,y0=ev.clientY,dwv=NPV_GEO.dw,left0=parseFloat(mk.style.left)||0;
       mk.classList.add('dragging');
       let days=0;
+      /* v1.50.0 (item 32): in Both mode a milestone has a twin on its phase row — move it too */
+      const twins=[...host.querySelectorAll('.npv-ev,.npv-tk')].filter(m=>m.dataset.mkId===id&&m.dataset.mkK===k);
       const mv=e2=>{
         days=Math.round((e2.clientX-x0)/dwv);
-        mk.style.left=(left0+days*dwv)+'px';
+        twins.forEach(m=>{m.style.left=(left0+days*dwv)+'px';});
       };
       const up=()=>{
         document.removeEventListener('mousemove',mv);
@@ -11960,6 +11993,7 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.50.0",d:"Oct 16, 2026",n:["On a project's Gantt, a new Top · Both · Phase switch at the top right chooses where milestones show: all in the Milestones row (Top, as before), in that row plus on their phase's bar (Both), or only on their phase's bar (Phase). Milestones with no phase, or whose phase isn't scheduled on the job, stay in the Milestones row. Your choice is remembered on this computer."]},
  {v:"v1.48.5",d:"Oct 14, 2026",n:["On the People page, time off entered as back-to-back or overlapping requests now reads as one absence: \"Away until\" shows the day the person is really back, even across a weekend or holiday."]},
  {v:"v1.48.4",d:"Oct 14, 2026",n:["The Meeting Sheet's progress bar now shows how much of the scheduled work is done, not how much time has passed, so a quiet stretch between departments no longer makes a project look further along. The dates under it are unchanged."]},
  {v:"v1.48.3",d:"Oct 14, 2026",n:["Teammates' changes now also wait while you're on a New Project page, typing in a toolbar box, or have a save waiting to retry, so nothing redraws under you. They appear as soon as you're done."]},
