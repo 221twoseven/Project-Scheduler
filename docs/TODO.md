@@ -764,23 +764,22 @@ release. Where the app has a part, it's listed.
         enforced (`SETUP.md`, "Branch protection"). Confirm both on the chosen plan.
       - *Waits on:* the owner's choice of plan (and leadership, if it's item 24's
         Organization). [owner ask 2026-10-15]
-- [ ] **72. A `/test/` site for one feature on trial** (owner, 2026-10-16: item 32 goes
-      "on its own branch for testing", before `/preview/`). Pages publishes a third
-      subpath, `/test/`, from a `test` branch; the deploy workflow builds all three on a
-      push to any of them. `test` is reset to the branch on trial merged with
-      `development`, and never merged anywhere.
-      - *Owner applies:* register `https://221twoseven.github.io/Project-Scheduler/test/`
-        as an SPA redirect URI in Entra (`SETUP.md`); until then sign-in on `/test/` fails.
-      - *Until the next promotion:* `main`'s copy of the workflow has no `/test/`, so a push
-        to `main` empties `/test/` until the next push to `test` or `development`.
-      - *Same data:* `/test/` writes to the production lists, like `/preview/` (item 17).
+- [x] **72. A `/test/` site for one feature on trial** (owner, 2026-10-16: item 32 goes
+      "on its own branch for testing", before `/preview/`). Built in PR #164 (2026-10-16):
+      Pages published a third subpath, `/test/`, from a `test` branch. Item 32 was tried
+      there and merged (PR #165).
+      - *Retired 2026-10-19* (owner: "managing too many branches is going to get sloppy").
+        The deploy is back to `/` and `/preview/`, and the `test` branch and its Pages
+        deploy permission are deleted. The owner may remove the `/test/` redirect URI from
+        Entra. A future trial goes straight to `/preview/`.
 - [ ] **73. View settings follow the person** (owner, 2026-10-16). Today these live only in
       the browser: Vivid months (`shopTimelineTint`), Link subtasks, Group by / the
-      Department lens, print paper and printed bars, and, if it survives the trial, item
-      32's Top · Both · Phase. Move them into the signed-in person's Staff row, in the
-      `savedViews` value that already carries saved views and Protect dates (item 25,
-      item 2 (c)). The browser copy stays as the cache, as it does for those two, and no
-      column is added.
+      Department lens, and print paper and printed bars. Move them into the signed-in
+      person's Staff row, in the `savedViews` value that already carries saved views,
+      Protect dates and item 32's "Milestones on the Gantt" (item 25, item 2 (c), v1.50.0).
+      The browser copy stays as the cache, as it does for those, and no column is added.
+      Each one also gets a row on Help ▸ My settings (v1.50.0), with its wording shown
+      to the owner first.
       - *Stays per browser:* panel heights, collapsed panels, list width, the Gantt zoom
         and which departments are open. These depend on the screen, or change minute to
         minute.

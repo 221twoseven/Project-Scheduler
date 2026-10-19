@@ -52,13 +52,10 @@ Project rules and context for working in this repository. Read this before makin
   branch beside a "functionality" branch): the two tracks — the §3 queue and the style
   guide's §13 steps — interleave through the one queue in `docs/TODO.md`.
 - **Pushes auto-deploy to GitHub Pages** via `.github/workflows/deploy-pages.yml`:
-  `main` → `/`, `development` → `/preview/`, `test` → `/test/`. The workflow rebuilds the
-  whole site from all three branches each run, so it must stay identical on all three.
-  (`sandbox` → `/sandbox/` was retired 2026-10-01.)
-- **`/test/` is for one feature on trial** (item 72, owner 2026-10-16): when the owner
-  wants a change tried before it reaches `development`, its PR stays open and `test` is
-  reset to that branch merged with `origin/development`. `test` is never merged anywhere;
-  it writes to the same SharePoint lists as production (item 17).
+  `main` → `/`, `development` → `/preview/`. The workflow rebuilds the whole site from
+  both branches each run, so it must stay identical on both. (`sandbox` → `/sandbox/` was
+  retired 2026-10-01; `test` → `/test/` ran for item 32's trial and was retired
+  2026-10-19, owner: "managing too many branches is going to get sloppy", item 72.)
 
 ## Shared infrastructure — SharePoint & Entra
 

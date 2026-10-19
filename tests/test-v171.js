@@ -21,9 +21,9 @@ ok('Brauer Neue @font-face points at the committed bold file',
 ok('the TWOSEVEN title asks for Brauer Neue first', /\.tb-co\{font-family:'Brauer Neue',var\(--sans\)/.test(src));
 ok('Bahnschrift leads the app-wide stack via local()', /--sans:Bahnschrift,'Segoe UI'/.test(src));
 const yml=fs.readFileSync('.github/workflows/deploy-pages.yml','utf8');
-/* item 72: one list per published branch (main, development, test), so count lists, don't hard-code */
+/* one list per published branch, so count lists, don't hard-code (a third ran 2026-10-16 → 19, item 72) */
 const nLists=(yml.match(/sparse-checkout: \|/g)||[]).length;
-ok('the font is on every deploy sparse-checkout list (main, development, test)',
+ok('the font is on every deploy sparse-checkout list',
    nLists>=2&&(yml.match(/design\/fonts\/BrNStdBd\.otf/g)||[]).length===nLists, nLists);
 
 const staff=[
