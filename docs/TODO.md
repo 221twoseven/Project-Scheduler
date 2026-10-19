@@ -774,6 +774,40 @@ release. Where the app has a part, it's listed.
       - *Until the next promotion:* `main`'s copy of the workflow has no `/test/`, so a push
         to `main` empties `/test/` until the next push to `test` or `development`.
       - *Same data:* `/test/` writes to the production lists, like `/preview/` (item 17).
+- [ ] **73. View settings follow the person** (owner, 2026-10-16). Today these live only in
+      the browser: Vivid months (`shopTimelineTint`), Link subtasks, Group by / the
+      Department lens, print paper and printed bars, and, if it survives the trial, item
+      32's Top · Both · Phase. Move them into the signed-in person's Staff row, in the
+      `savedViews` value that already carries saved views and Protect dates (item 25,
+      item 2 (c)). The browser copy stays as the cache, as it does for those two, and no
+      column is added.
+      - *Stays per browser:* panel heights, collapsed panels, list width, the Gantt zoom
+        and which departments are open. These depend on the screen, or change minute to
+        minute.
+      - *Then:* item 3's "Don't show again" lives in a `ShopTimeline_Config` row
+        (`tour.off.<account>`), because it must work for people with no Staff row. Decide
+        whether it moves into the Staff row with the rest.
+      - *No new on-screen copy.*
+- [ ] **74. Row height on the project page** (owner, 2026-10-16: the edit page "gets
+      more direct use"). View ▸ Row height (Comfortable / Snug / Compact) sets the
+      timeline only; the project page's rows are fixed at 34 px (`NPV_ROWH`).
+      - *Ruling:* the project page gets **its own** row-height setting, separate from the
+        timeline's, under View ▸ Row height while a project is open. It defaults to
+        Compact at today's 34 px rows, so nothing changes until someone picks another.
+        The Snug and Comfortable heights for this page are set when it's built.
+      - *Applies to:* both the draft and the saved page.
+      - *Collision:* item 32's placement maths reads `NPV_ROWH`, so build this after
+        item 32's default is settled (PR #165).
+      - *Personal:* once item 73 lands, it joins that value.
+- [ ] **75. A Today button on the project page** (owner, 2026-10-16). The project chart
+      opens fitted to the whole job, but once you zoom in, the only way back to today is
+      scrolling. Add a "Today" button to the chart's header row, beside the zoom buttons
+      and Reset, with the hover text "Scroll to today".
+      - *Gantt:* it brings today into view.
+      - *Calendar:* it jumps to the current week.
+      - *Applies to:* both the draft and the saved page.
+      - *No shortcut:* T already means New note on the project page.
+      - *Order:* build after item 32 (PR #165), which changes the same header row.
 - [x] **48. The storage seam.** One `store` object owns every conversation with
       SharePoint, instead of 37 call sites in 16 functions. It is idea 1 of
       `docs/Architecture-Review-Storage.md`, needed whatever D15 decides, and the path to an
