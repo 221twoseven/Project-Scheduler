@@ -50,9 +50,9 @@ as the phase runs.
 - Every milestone gets a record in `docs/Milestones/Phase-7-Pilot-Readiness/`; every
   deliberate skip gets a §7 line with its gate.
 
-Last reviewed: 2026-10-15 — the promotion audit for v1.48.1 → v1.48.5 reaching `main`, after a
-full audit the same day (log in §8).
-Before that, 2026-10-13 — the promotion audit for v1.45.1 → v1.48.1 reaching `main`. Before that, 2026-10-09 — the promotion audits for v1.43.0 → v1.44.3 and v1.44.3 →
+Last reviewed: 2026-10-19 — the promotion audit for v1.48.5 → v1.51.0 reaching `main` (log in §8).
+Before that, 2026-10-15 — the promotion audit for v1.48.1 → v1.48.5, after a full audit the
+same day. Before that, 2026-10-13 — the promotion audit for v1.45.1 → v1.48.1 reaching `main`. Before that, 2026-10-09 — the promotion audits for v1.43.0 → v1.44.3 and v1.44.3 →
 v1.45.1. Before that, 2026-10-08 — D15 (data platform) reassessed: Dataverse and Azure SQL + API
 are now co-equal candidates (`docs/Architecture-Review-Backend.md`); D1, D3, D10–D13 and
 items 14, 17 and 44 given storage-neutral readings. The same day: the opening, §0 and §3's
@@ -64,19 +64,29 @@ is the log in §8.
 
 ## 0. Where we stand
 
-As of 2026-10-19: `development` runs **v1.51.0** (item 75: a Today button on the project
-page), v1.50.0 (item 32: milestones sit on their phase, set in Help ▸ My settings) and v1.49.0 (item 3: the tour's 6↔7 loop fixed, plus "Don't show
-again"). Production (`main`) runs **v1.48.5**, promoted
-2026-10-15 (release/2026-10-15). The newest work on production: error messages say why
-(item 48, the storage seam's last PR), item 61's simplifications, item 59's work-based
-progress bar and item 19's "Away until" fix; plus docs and tooling with no release: the
-reference docs refreshed (item 21), the owed milestone records (23), one page size (68),
-the test-suite tidy (60), the REV50 test run dropped (69), and no scrapable emails or real
-names in the repository (70). Making the repository private is item 71. Before that:
-saved views (item 25) and Protect dates (item 2 (c)) follow the person, repeat work is easier to find (item 7), and projects show
-their last edit, a Stale flag and "Schedule still accurate" (item 6). Earlier: reporter
-answers show in Open Issues (item 58); Protect dates (item 2: drags never change dates).
-Phase 7 has shipped v1.24.0 → v1.48.1 so far.
+As of 2026-10-19: production (`main`) and `development` both run **v1.51.0**, promoted
+2026-10-19 (release/2026-10-19).
+
+The newest work on production:
+- v1.51.0: a Today button on the project page (item 75);
+- v1.50.0: milestones sit on their phase, chosen in the new Help ▸ My settings, and can be
+  dragged up or down to change phase (item 32);
+- v1.49.0: the tour's 6↔7 loop is fixed, and the tour has "Don't show again" (item 3).
+
+The `/test/` trial site ran for item 32 and was retired (item 72). Making the repository
+private is item 71.
+
+Before that:
+- v1.48.5: error messages say why (item 48, the storage seam's last PR), item 61's
+  simplifications, item 59's work-based progress bar and item 19's "Away until" fix;
+- saved views (item 25) and Protect dates (item 2 (c)) follow the person;
+- repeat work is easier to find (item 7);
+- projects show their last edit, a Stale flag and "Schedule still accurate" (item 6).
+
+Earlier: reporter answers show in Open Issues (item 58); Protect dates (item 2: drags
+never change dates).
+
+Phase 7 has shipped v1.24.0 → v1.51.0 so far.
 `CHANGELOG.md` is the release-by-release record.
 
 ## 1. North star — Systems
@@ -2295,6 +2305,29 @@ How to read the tags at the end of an entry:
   number.
 
 **Log, newest first:**
+
+- 2026-10-19: **v1.48.5 → v1.51.0 promoted to `main`** (release/2026-10-19).
+  - *Releases since the last promotion:*
+    - v1.49.0 is item 3 (PR #166, tracker #7);
+    - v1.50.0 is item 32 (PR #165, tracker #1);
+    - v1.51.0 is item 75 (PR #169).
+
+    All three are ticked.
+  - *Docs and tooling with no release:*
+    - item 72, the `/test/` site: built in PR #164, retired in PR #168;
+    - items 73–75 added (PR #167).
+  - *Tracker:*
+    - #1 and #7 close with this promotion ("Fix shipped" posted after the merge);
+    - #40 is approved and in build as item 66 (v1.51.1, not in this promotion);
+    - #41 (item 67) is on hold and #12 (item 40) stays on hold. The owner ruled both on
+      2026-10-19, and the dated lines land with item 66's PR.
+  - *Schema:* no new SharePoint columns. Item 32's setting rides in the Staff row's
+    existing `savedViews` value. Item 3's "Don't show again" writes one
+    `ShopTimeline_Config` row per person (`tour.off.<account>`).
+  - *Workflows:* `deploy-pages.yml` is identical on both branches again (two sites, `/` and
+    `/preview/`), and the `test` branch and its Pages permission are deleted.
+  - *Branches:* only `main`, `development`, this release branch and item 66's
+    `fix/crew-list-scroll` exist.
 
 - 2026-10-15: **v1.48.1 → v1.48.5 promoted to `main`** (release/2026-10-15). The promotion
   audit follows the full audit logged below, the same day (#160); since then nothing has
