@@ -799,7 +799,7 @@ release. Where the app has a part, it's listed.
         item 32's default is settled (PR #165).
       - *Personal:* once item 73 lands, it joins that value.
 - [x] **75. A Today button on the project page** (owner, 2026-10-16). Shipped v1.51.0
-      (PR #NNN, 2026-10-19): Gantt puts this week's Monday at the left edge (the timeline's
+      (PR #169, 2026-10-19): Gantt puts this week's Monday at the left edge (the timeline's
       rule, item 33); Calendar puts the current week's row at the top, or the job's first or
       last week when the job lies wholly after or before today. Suite `tests/test-v1510.js`.
       The project chart

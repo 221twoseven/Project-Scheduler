@@ -1,6 +1,6 @@
 # A Today button on the project page — v1.51.0 (2026-10-19)
 
-**TODO item 75** (owner, 2026-10-16). PR #NNN.
+**TODO item 75** (owner, 2026-10-16). PR #169.
 
 ## What changed and why
 
