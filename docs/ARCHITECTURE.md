@@ -201,8 +201,7 @@ conventions, traps, and version history (REV34–REV50).
 ## Hosting
 
 A GitHub Actions workflow (`.github/workflows/deploy-pages.yml`) publishes `main` at `/`
-`development` at `/preview/` and `test` at `/test/` (one feature on trial) on every push to
-any of them. GitHub Pages serves the static
+and `development` at `/preview/` on every push to either. GitHub Pages serves the static
 `index.html` with `Cache-Control: max-age=600`
 (the page's `no-cache` meta tags don't override that header), so a fresh visit picks up a
 new build within ten minutes and a plain reload at once. An open tab finds out by itself
