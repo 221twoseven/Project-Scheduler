@@ -50,8 +50,8 @@ as the phase runs.
 - Every milestone gets a record in `docs/Milestones/Phase-7-Pilot-Readiness/`; every
   deliberate skip gets a §7 line with its gate.
 
-Last reviewed: 2026-10-19 — the promotion audit for v1.48.5 → v1.51.0 reaching `main` (log in §8).
-Before that, 2026-10-15 — the promotion audit for v1.48.1 → v1.48.5, after a full audit the
+Last reviewed: 2026-10-19 — the promotion audits for v1.48.5 → v1.51.0 and v1.51.0 → v1.51.1
+reaching `main` (log in §8). Before that, 2026-10-15 — the promotion audit for v1.48.1 → v1.48.5, after a full audit the
 same day. Before that, 2026-10-13 — the promotion audit for v1.45.1 → v1.48.1 reaching `main`. Before that, 2026-10-09 — the promotion audits for v1.43.0 → v1.44.3 and v1.44.3 →
 v1.45.1. Before that, 2026-10-08 — D15 (data platform) reassessed: Dataverse and Azure SQL + API
 are now co-equal candidates (`docs/Architecture-Review-Backend.md`); D1, D3, D10–D13 and
@@ -64,10 +64,11 @@ is the log in §8.
 
 ## 0. Where we stand
 
-As of 2026-10-19: production (`main`) and `development` both run **v1.51.0**, promoted
-2026-10-19 (release/2026-10-19).
+As of 2026-10-19: production (`main`) and `development` both run **v1.51.1**, promoted
+2026-10-19 (release/2026-10-19b).
 
 The newest work on production:
+- v1.51.1: ticking crew names keeps your place, and no tick is lost (item 66);
 - v1.51.0: a Today button on the project page (item 75);
 - v1.50.0: milestones sit on their phase, chosen in the new Help ▸ My settings, and can be
   dragged up or down to change phase (item 32);
@@ -86,7 +87,7 @@ Before that:
 Earlier: reporter answers show in Open Issues (item 58); Protect dates (item 2: drags
 never change dates).
 
-Phase 7 has shipped v1.24.0 → v1.51.0 so far.
+Phase 7 has shipped v1.24.0 → v1.51.1 so far.
 `CHANGELOG.md` is the release-by-release record.
 
 ## 1. North star — Systems
@@ -1123,6 +1124,7 @@ is item 32 (P0), #7 is part of item 3, and #11 and #14 were done by the bridge i
         products (portal, People, Clients, Office) have content. The owner asked whether the
         DNS and Entra setup can be done ahead of them; the revised spec of the same day
         answers that.
+      - *Hold continued 2026-10-19* (owner).
       [tracker #12]
 - [x] **41. People page: column widths.** Shipped v1.26.3 (PR #81, 2026-10-02), with tracker
       #27's header spill-over in the same PR. The columns are hard to line up. Make each fit
@@ -1213,14 +1215,19 @@ is item 32 (P0), #7 is part of item 3, and #11 and #14 were done by the bridge i
       checks her toggle). New: a date chip above the dragged bar (`Oct 5 – Oct 30 · 20 days`)
       that pulses each day crossed, more strongly at each new week; no sound; reduced motion
       turns the pulse off. Spec 2026-10-14; waits on Proceed. [tracker #39]
-- [ ] **66. Ticking crew names keeps your place.** Each tick rebuilds the popover and the
-      phase panel (`ppCommitCrew` → `innerHTML`), so the crew list jumps to the top and a
-      quick second tick can be lost. Keep the scroll, and don't rebuild the box being
-      clicked. Worst on install subtasks (whole staff list). Spec 2026-10-14; waits on
-      Proceed. [tracker #40]
+- [x] **66. Ticking crew names keeps your place.** Shipped v1.51.1 (PR #172, 2026-10-19):
+      a repaint gives the crew list back its scroll and focus, and the panel section's
+      scroll (`crewHold`, popover and phase panel). A poll repaint that lands while a name
+      is pressed waits until the click is over. Suite `tests/test-v1511.js`; §7.5 notes
+      the press hold covers crew lists only. Each tick rebuilt the popover and the
+      phase panel (`ppCommitCrew` → `innerHTML`), so the crew list jumped to the top and a
+      quick second tick could be lost. Keep the scroll, and don't rebuild the box being
+      clicked. Worst on install subtasks (whole staff list). Spec 2026-10-14; Proceed
+      2026-10-19. [tracker #40]
 - [ ] **67. An All Projects button on the toolbar,** between + New Project and My Dashboard:
       goes to the full timeline and clears filters and the saved view (the wordmark and the
       crumb only navigate). Copy in the spec. Spec 2026-10-14; waits on Proceed. [tracker #41]
+      - *On hold 2026-10-19* (owner).
 
 **Shipped or closed with no §3 item** (before the 2026-10-08 every-task rule; the full
 record is each ticket's "Fix shipped" note and `CHANGELOG.md`):
@@ -2286,6 +2293,11 @@ How to read the tags at the end of an entry:
   expands them (v1.21.0).
 - Calendar detail levels and marker-text state reset on each project visit. They'd
   persist per browser, like `NPV_OPEN`, only if asked (v1.21.0).
+- A background page repaint (poll, autosave) waits for the click only when a **crew name**
+  is pressed (item 66, v1.51.1). A repaint that lands mid-press on any other control on the
+  project page (a zoom button, a department checkbox) still drops that click in Chrome. It
+  needs a poll to land inside a ~100 ms press, so it is rare. Gate: a report of a lost click
+  elsewhere on the page; then widen the `CREW_PRESS` hold to any press inside `#page`.
 
 ## 8. Documentation upkeep
 
@@ -2305,6 +2317,14 @@ How to read the tags at the end of an entry:
   number.
 
 **Log, newest first:**
+
+- 2026-10-19: **v1.51.0 → v1.51.1 promoted to `main`** (release/2026-10-19b; the owner
+  asked for item 66 to go out as soon as it was ready).
+  - v1.51.1 is item 66 (PR #172, tracker #40), ticked.
+  - The same PR recorded the owner's holds on item 67 (#41) and item 40 (#12).
+  - #40 closes with this promotion.
+  - No new SharePoint columns, and the workflows are unchanged.
+  - Branches: only `main`, `development` and this release branch.
 
 - 2026-10-19: **v1.48.5 → v1.51.0 promoted to `main`** (release/2026-10-19).
   - *Releases since the last promotion:*
