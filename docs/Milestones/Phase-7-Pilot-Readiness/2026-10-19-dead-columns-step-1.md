@@ -1,6 +1,6 @@
 # The dead columns, step 1: the app stops using them — v1.51.2 (2026-10-19)
 
-**TODO item 29** (owner, 2026-10-19: "let's continue to clean up as we go").
+**TODO item 29** (owner, 2026-10-19: "let's continue to clean up as we go"). PR #176.
 
 ## What changed and why
 

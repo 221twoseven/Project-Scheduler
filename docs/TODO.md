@@ -1282,7 +1282,7 @@ record is each ticket's "Fix shipped" note and `CHANGELOG.md`):
       deliberate cleanup now that D2 is lifted. The app stops writing them one release
       before the columns are deleted; milestone record. ⚠
       - [x] *Step 1:* the app no longer reads, writes or searches them. Shipped v1.51.2
-        (PR pending, 2026-10-19). Suite `tests/test-v1512.js`.
+        (PR #176, 2026-10-19). Suite `tests/test-v1512.js`.
       - [ ] *Step 2, the owner (once v1.51.2 is on `main`):* set the Config key
         `update.minVersion` to `1.51.2` (Help ▸ App settings ▸ "Ask everyone to reload") so
         open tabs on an older build reload. Then
