@@ -64,8 +64,9 @@ is the log in §8.
 
 ## 0. Where we stand
 
-As of 2026-10-19: production (`main`) and `development` both run **v1.51.1**, promoted
-2026-10-19 (release/2026-10-19b).
+As of 2026-10-19: production (`main`) runs **v1.51.1**, promoted 2026-10-19
+(release/2026-10-19b). `development` runs **v1.51.2**: the app stops using the dead
+columns (item 29's first step).
 
 The newest work on production:
 - v1.51.1: ticking crew names keeps your place, and no tick is lost (item 66);
@@ -1283,6 +1284,15 @@ record is each ticket's "Fix shipped" note and `CHANGELOG.md`):
 - [ ] **29. Drop the dead columns** `metalFab`, `labels` and `checklist` (§7.2, L1040). A
       deliberate cleanup now that D2 is lifted. The app stops writing them one release
       before the columns are deleted; milestone record. ⚠
+      - [x] *Step 1:* the app no longer reads, writes or searches them. Shipped v1.51.2
+        (PR #176, 2026-10-19). Suite `tests/test-v1512.js`.
+      - [ ] *Step 2, the owner (once v1.51.2 is on `main`):* set the Config key
+        `update.minVersion` to `1.51.2` (Help ▸ App settings ▸ "Ask everyone to reload") so
+        open tabs on an older build reload. Then
+        delete `metalFab` from `ShopTimeline_Projects` and `labels` and `checklist` from
+        `ShopTimeline_Tasks2`. Before deleting `metalFab`, sort the list by it: any row
+        that holds a value is legacy crew text, so copy it into that project's
+        Fabricators first, or tell Claude.
 - [ ] **49. The Systems portal and the Timeline move (D4's reshape PR).** Timeline moves
       from `/` to `/timeline/`, and a static portal page of product tiles takes `/`. One
       release, one `CHANGELOG.md` line, no behaviour change.
