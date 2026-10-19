@@ -809,6 +809,7 @@ release. Where the app has a part, it's listed.
       - *Collision:* item 32's placement maths reads `NPV_ROWH`, so build this after
         item 32's default is settled (PR #165).
       - *Personal:* once item 73 lands, it joins that value.
+      - *Deferred 2026-10-19* (owner: "For now we won't be doing this"). §7.4 has the entry.
 - [x] **75. A Today button on the project page** (owner, 2026-10-16). Shipped v1.51.0
       (PR #169, 2026-10-19): Gantt puts this week's Monday at the left edge (the timeline's
       rule, item 33); Calendar puts the current week's row at the top, or the job's first or
@@ -2265,6 +2266,10 @@ How to read the tags at the end of an entry:
       from seam PR 8 with the owner's OK). It renames flags, changes nothing on screen, and
       would need four test files edited. Gate: D15 picks a non-SharePoint store (an
       `apiStore` would need it). [item 48]
+- [ ] **The project page keeps its fixed 34 px rows** (item 74, deferred by the owner
+      2026-10-19: "For now we won't be doing this"). View ▸ Row height still sets the
+      timeline only. Gate: the owner picks item 74 back up; the spec in §3 stands as written.
+      [item 74]
 
 ### 7.5 Deliberate design limits — no action planned; revisit only on real complaints
 
