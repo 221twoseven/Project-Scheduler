@@ -1,6 +1,6 @@
 # Ticking crew names keeps your place — v1.51.1 (2026-10-19)
 
-**TODO item 66**, tracker #40 (Proceed 2026-10-19). PR #170.
+**TODO item 66**, tracker #40 (Proceed 2026-10-19). PR #172.
 
 ## What changed and why
 

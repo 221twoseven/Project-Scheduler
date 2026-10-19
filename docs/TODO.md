@@ -1204,7 +1204,7 @@ is item 32 (P0), #7 is part of item 3, and #11 and #14 were done by the bridge i
       checks her toggle). New: a date chip above the dragged bar (`Oct 5 – Oct 30 · 20 days`)
       that pulses each day crossed, more strongly at each new week; no sound; reduced motion
       turns the pulse off. Spec 2026-10-14; waits on Proceed. [tracker #39]
-- [x] **66. Ticking crew names keeps your place.** Shipped v1.51.1 (PR #170, 2026-10-19):
+- [x] **66. Ticking crew names keeps your place.** Shipped v1.51.1 (PR #172, 2026-10-19):
       a repaint gives the crew list back its scroll and focus, and the panel section's
       scroll (`crewHold`, popover and phase panel). A poll repaint that lands while a name
       is pressed waits until the click is over. Suite `tests/test-v1511.js`; §7.5 notes
