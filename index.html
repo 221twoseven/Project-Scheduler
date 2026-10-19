@@ -1861,7 +1861,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.50.0'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.51.0'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -6861,6 +6861,7 @@ function renderProjectPage(){
    + '<button data-fit="7" title="One week fills the panel">Week</button>'
    + '<button data-fit="30" title="One month fills the panel">Month</button>'
    + '<button data-fit="91" title="Three months fill the panel — drag the date strip up or down to zoom anywhere between">3 Mo</button></div>'
+   + '<button class="npv-btn" id="npv-today" title="Scroll to today">Today</button>' /* v1.51.0 (item 75): npvToday */
    + '<div class="npv-subs"><button id="npv-tint" title="Colour the calendar background vividly by month">Vivid months</button>'
    + '<button id="npv-link" title="Dragging a department bar moves its subtasks with it">Link</button>'
    + '<button id="npv-focus" class="hidden" title="Show only the selected phase\'s bands on the calendar">Selected only</button></div>'
@@ -6995,6 +6996,8 @@ function renderProjectPage(){
                    :'Subtasks stay put — move them one at a time');});
   const fk=document.getElementById('npv-focus');
   if(fk)fk.addEventListener('click',()=>{NPV_CAL_FOCUS=!NPV_CAL_FOCUS;npvRender();});
+  const tdy=document.getElementById('npv-today');
+  if(tdy)tdy.addEventListener('click',npvToday);
   if(!NPV_RESIZE_BOUND){window.addEventListener('resize',()=>{if(ROUTE.view==='project')npvQueue();});NPV_RESIZE_BOUND=true;}
 
   /* Drag the gutter edge to resize the name column. The handle re-renders with the
@@ -8996,6 +8999,31 @@ function npvRender(){
    of the gutter), rides with the bar once its start scrolls into view, and never leaves
    its own bar: the margin stops LBL_TAIL px short of the bar's end and the .npv-lbl
    ellipsis trims it from there. Runs after every gantt paint and on every scroll. */
+/* v1.51.0 (item 75): the project chart's Today button. Gantt: this week's Monday at the
+   left edge, just right of the name column — the timeline's Today rule (item 33); the
+   range always holds today (npvRender stretches it), so only the left end clamps.
+   Calendar: this week's row at the top; its range is NOT stretched to today, so a job
+   wholly before or after today lands on its last or first week. */
+function npvToday(){
+  const sc=document.getElementById('npv-scroll');if(!sc)return;
+  const reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const go=o=>{
+    if(!reduce&&sc.scrollTo){try{sc.scrollTo(Object.assign({behavior:'smooth'},o));return;}catch(e){}}
+    if('left' in o)sc.scrollLeft=o.left;else sc.scrollTop=o.top;
+  };
+  const t=today();
+  if(NPV_MODE==='calendar'){
+    const wks=[...sc.querySelectorAll('.cal-wk')];if(!wks.length)return;
+    const iso=fmtDate(t),d0=wks[0].querySelector('.cal-dn');
+    const wk=wks.find(w=>w.querySelector('.cal-dn[data-d="'+iso+'"]'))
+      ||(d0&&iso<d0.dataset.d?wks[0]:wks[wks.length-1]);
+    go({top:Math.max(0,sc.scrollTop+wk.getBoundingClientRect().top-sc.getBoundingClientRect().top)});
+    return;
+  }
+  if(!NPV_GEO)return;
+  const w=t.getDay();
+  go({left:Math.max(0,diffDays(NPV_GEO.lo,addDays(t,-(w===0?6:w-1)))*NPV_GEO.dw)});
+}
 function npvStickLabels(){
   const sc=document.getElementById('npv-scroll');if(!sc)return;
   const edge=sc.scrollLeft+NPV_GUT+8;
@@ -12083,6 +12111,7 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.51.0",d:"Oct 19, 2026",n:["The project page has a **Today** button beside the zoom buttons. On the Gantt it scrolls back so this week starts at the left edge; on the Calendar it jumps to the current week."]},
  {v:"v1.50.0",d:"Oct 16, 2026",n:["On a project's Gantt, a milestone with a phase now sits on that phase's bar, so \"ALL CNC DONE\" shows on the CNC bar. Milestones with no phase or a Project Management phase, or whose phase isn't scheduled on the job, stay in the Milestones row.",
    "Drag a milestone up or down onto another phase's row to change its phase; drop it on the Milestones row to make it Project Management's. Dragging sideways still changes its date, and one drag can do both.",
    "New page: Help ▸ My settings, for everyone. Under \"Milestones on the Gantt\" you can keep milestones on their phase (the default), show them in both places, or put them all back in the Milestones row. Your choice follows your sign-in to any computer."]},
