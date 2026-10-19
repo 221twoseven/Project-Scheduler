@@ -9,7 +9,7 @@ Format: `## <label> — <date>` then one `- ` line per change. Keep lines concre
 what changed *for the team*, not how. Developer-only tooling doesn't need a line.
 Collect lines for the next version under `## Unreleased` and rename it when you ship.
 
-## v1.51.1 — Oct 19, 2026
+## v1.51.1–v1.51.2 — Oct 19, 2026
 - Ticking names in a crew list (the bar's popover or the panel below the chart) no longer jumps the list back to the top, and every tick counts, even several in a row on an install's full staff list.
 
 ## v1.51.0 — Oct 19, 2026
