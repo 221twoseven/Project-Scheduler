@@ -1280,6 +1280,27 @@ record is each ticket's "Fix shipped" note and `CHANGELOG.md`):
       - `personId` on assignments (Tasks and the project role fields), so the
         name-matching helpers (`canonName` and the legacy-name scrub) can retire.
       - D2 is lifted, so Tasks can change. ⚠
+      - *Plan, 2026-10-19 (PR #177, waits on the owner's go):* the names stay. Each record
+        also stores which person or client every name means.
+        - ⚠ *Columns:* `refs`, multiple lines of text (plain), on `ShopTimeline_Projects`,
+          `ShopTimeline_Tasks` and `ShopTimeline_Tasks2`. It holds JSON mapping each stored
+          name to its ID: `{"people":{"<name>":"<Staff appId>"},"client":{"<name>":"<Clients spId>"}}`.
+        - *Read:* after people and clients load, and on every poll, a name with a ref
+          reads as that person's or client's current name; one without works as today.
+        - *Write:* every save writes the names as now, plus `refs`. The column is probed
+          once per session (`store.columns`), so a list without it never 400s.
+        - *Match:* only unambiguous matches get an ID: the `canonName` rule for people, the
+          exact name (ignoring case) for clients. Free-text departments are skipped.
+        - *Backfill:* `backfillRefs()` in the console runs a dry run that lists every name
+          it can't match; `backfillRefs(true)` writes the refs.
+        - *(a) v1.52.0:* refs read, written and backfilled. A rename on People or Clients
+          then carries its projects, phases and notes with it; today it doesn't.
+        - *(b) Once the dry run shows nothing unmatched:* `canonName`'s matching and
+          `scrubLegacyNames` retire, and the People merge repoints IDs.
+        - *Not in it:* the stamps (`createdBy`, `completedBy`, `updatedBy`, `confirmedBy`,
+          Changelog `who`) stay names, as a record of who it was at the time.
+        - *Ceiling:* `refs` is JSON, so SharePoint can't filter by it. At the D15 cutover it
+          becomes the migration key (D10's target identity).
       [brief §8]
 - [ ] **29. Drop the dead columns** `metalFab`, `labels` and `checklist` (§7.2, L1040). A
       deliberate cleanup now that D2 is lifted. The app stops writing them one release
@@ -1638,6 +1659,8 @@ then the recommendation or the dated ruling.
   legacy columns for the migration, then rewritten into references once. Names stay
   display values and never join. On SQL this becomes foreign keys; on any platform it is
   the step that makes moving rows a script. [brief §8]
+  *For the SharePoint phase (2026-10-19):* item 28's plan (PR #177) stores the IDs beside
+  the names. The owner's go on it rules D10 for this phase.
 - **D11 — Departments and shop closures as data.** *Open.* Departments and the six
   holidays are fixed in code; the brief wants configurable departments and a Shop Closure
   list. *Recommend:* Phase 8, after D1. The department list just changed (Logistics and
@@ -1871,6 +1894,8 @@ constraint (D2, lifted 2026-09-24).
 
 **Candidates this phase** (the spec is delivered with the item's batch):
 
+- `refs` (multiple lines of text, plain) on `ShopTimeline_Projects`, `ShopTimeline_Tasks`
+  and `ShopTimeline_Tasks2` — item 28, spec in the item. Not yet created (2026-10-19).
 - `dateCertainty` on `ShopTimeline_Projects` — item 5.
 - `closeoutStatus` and `billingStatus` (plus `closeoutBy` and `closeoutAt` if needed) on
   `ShopTimeline_Projects` — item 11.
