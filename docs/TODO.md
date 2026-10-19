@@ -798,6 +798,8 @@ release. Where the app has a part, it's listed.
         (`tour.off.<account>`), because it must work for people with no Staff row. Decide
         whether it moves into the Staff row with the rest.
       - *No new on-screen copy.*
+      - *Deferred 2026-10-19* (owner: quality-of-life work waits while the north star moves).
+        The draft My settings wording is on PR #175. §7.4 has the entry.
 - [ ] **74. Row height on the project page** (owner, 2026-10-16: the edit page "gets
       more direct use"). View ▸ Row height (Comfortable / Snug / Compact) sets the
       timeline only; the project page's rows are fixed at 34 px (`NPV_ROWH`).
@@ -2270,6 +2272,10 @@ How to read the tags at the end of an entry:
       2026-10-19: "For now we won't be doing this"). View ▸ Row height still sets the
       timeline only. Gate: the owner picks item 74 back up; the spec in §3 stands as written.
       [item 74]
+- [ ] **View settings stay per browser** (item 73, deferred by the owner 2026-10-19:
+      quality-of-life work waits while the north star moves). Vivid months, Link subtasks,
+      Group by, the lens and print paper/bars are still remembered by the browser only.
+      Gate: the owner picks item 73 back up; the draft wording is on PR #175. [item 73]
 
 ### 7.5 Deliberate design limits — no action planned; revisit only on real complaints
 
