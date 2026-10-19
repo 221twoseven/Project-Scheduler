@@ -64,8 +64,8 @@ is the log in §8.
 
 ## 0. Where we stand
 
-As of 2026-10-16: `development` runs **v1.50.0** (item 32: milestones sit on their phase,
-set in Help ▸ My settings) and v1.49.0 (item 3: the tour's 6↔7 loop fixed, plus "Don't show
+As of 2026-10-19: `development` runs **v1.51.0** (item 75: a Today button on the project
+page), v1.50.0 (item 32: milestones sit on their phase, set in Help ▸ My settings) and v1.49.0 (item 3: the tour's 6↔7 loop fixed, plus "Don't show
 again"). Production (`main`) runs **v1.48.5**, promoted
 2026-10-15 (release/2026-10-15). The newest work on production: error messages say why
 (item 48, the storage seam's last PR), item 61's simplifications, item 59's work-based
@@ -798,7 +798,11 @@ release. Where the app has a part, it's listed.
       - *Collision:* item 32's placement maths reads `NPV_ROWH`, so build this after
         item 32's default is settled (PR #165).
       - *Personal:* once item 73 lands, it joins that value.
-- [ ] **75. A Today button on the project page** (owner, 2026-10-16). The project chart
+- [x] **75. A Today button on the project page** (owner, 2026-10-16). Shipped v1.51.0
+      (PR #NNN, 2026-10-19): Gantt puts this week's Monday at the left edge (the timeline's
+      rule, item 33); Calendar puts the current week's row at the top, or the job's first or
+      last week when the job lies wholly after or before today. Suite `tests/test-v1510.js`.
+      The project chart
       opens fitted to the whole job, but once you zoom in, the only way back to today is
       scrolling. Add a "Today" button to the chart's header row, beside the zoom buttons
       and Reset, with the hover text "Scroll to today".
