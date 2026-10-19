@@ -13,7 +13,8 @@ client ID, or tenant ID; only add/adjust redirect URIs with care (see `CLAUDE.md
 
 - **URL:** https://221twoseven.github.io/Project-Scheduler/
 - **Hosting:** GitHub Pages, published by `.github/workflows/deploy-pages.yml`: `main`
-  at the root, `development` at `/preview/` (same sign-in, same lists).
+  at the root, `development` at `/preview/` (same sign-in, same lists). Each subpath is
+  its own Entra SPA redirect URI.
 - The path is **case-sensitive** (`Project-Scheduler`, capital P and S) and resolves with
   a **trailing slash**. The lowercase form (`/project-scheduler`) is a 404.
 
@@ -36,7 +37,11 @@ So Entra must hold that exact string, registered under the **Single-page applica
 
 ```
 https://221twoseven.github.io/Project-Scheduler/
+https://221twoseven.github.io/Project-Scheduler/preview/
 ```
+
+One line per subpath: production and `/preview/`. (`/test/` was registered for item 72 on
+2026-10-16 and retired 2026-10-19; its URI can be removed.)
 
 Rules:
 

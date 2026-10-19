@@ -50,9 +50,9 @@ as the phase runs.
 - Every milestone gets a record in `docs/Milestones/Phase-7-Pilot-Readiness/`; every
   deliberate skip gets a §7 line with its gate.
 
-Last reviewed: 2026-10-15 — the promotion audit for v1.48.1 → v1.48.5 reaching `main`, after a
-full audit the same day (log in §8).
-Before that, 2026-10-13 — the promotion audit for v1.45.1 → v1.48.1 reaching `main`. Before that, 2026-10-09 — the promotion audits for v1.43.0 → v1.44.3 and v1.44.3 →
+Last reviewed: 2026-10-19 — the promotion audit for v1.48.5 → v1.51.0 reaching `main` (log in §8).
+Before that, 2026-10-15 — the promotion audit for v1.48.1 → v1.48.5, after a full audit the
+same day. Before that, 2026-10-13 — the promotion audit for v1.45.1 → v1.48.1 reaching `main`. Before that, 2026-10-09 — the promotion audits for v1.43.0 → v1.44.3 and v1.44.3 →
 v1.45.1. Before that, 2026-10-08 — D15 (data platform) reassessed: Dataverse and Azure SQL + API
 are now co-equal candidates (`docs/Architecture-Review-Backend.md`); D1, D3, D10–D13 and
 items 14, 17 and 44 given storage-neutral readings. The same day: the opening, §0 and §3's
@@ -64,17 +64,29 @@ is the log in §8.
 
 ## 0. Where we stand
 
-As of 2026-10-15: production (`main`) and `development` both run **v1.48.5**, promoted
-2026-10-15 (release/2026-10-15). The newest work on production: error messages say why
-(item 48, the storage seam's last PR), item 61's simplifications, item 59's work-based
-progress bar and item 19's "Away until" fix; plus docs and tooling with no release: the
-reference docs refreshed (item 21), the owed milestone records (23), one page size (68),
-the test-suite tidy (60), the REV50 test run dropped (69), and no scrapable emails or real
-names in the repository (70). Making the repository private is item 71. Before that:
-saved views (item 25) and Protect dates (item 2 (c)) follow the person, repeat work is easier to find (item 7), and projects show
-their last edit, a Stale flag and "Schedule still accurate" (item 6). Earlier: reporter
-answers show in Open Issues (item 58); Protect dates (item 2: drags never change dates).
-Phase 7 has shipped v1.24.0 → v1.48.1 so far.
+As of 2026-10-19: production (`main`) and `development` both run **v1.51.0**, promoted
+2026-10-19 (release/2026-10-19).
+
+The newest work on production:
+- v1.51.0: a Today button on the project page (item 75);
+- v1.50.0: milestones sit on their phase, chosen in the new Help ▸ My settings, and can be
+  dragged up or down to change phase (item 32);
+- v1.49.0: the tour's 6↔7 loop is fixed, and the tour has "Don't show again" (item 3).
+
+The `/test/` trial site ran for item 32 and was retired (item 72). Making the repository
+private is item 71.
+
+Before that:
+- v1.48.5: error messages say why (item 48, the storage seam's last PR), item 61's
+  simplifications, item 59's work-based progress bar and item 19's "Away until" fix;
+- saved views (item 25) and Protect dates (item 2 (c)) follow the person;
+- repeat work is easier to find (item 7);
+- projects show their last edit, a Stale flag and "Schedule still accurate" (item 6).
+
+Earlier: reporter answers show in Open Issues (item 58); Protect dates (item 2: drags
+never change dates).
+
+Phase 7 has shipped v1.24.0 → v1.51.0 so far.
 `CHANGELOG.md` is the release-by-release record.
 
 ## 1. North star — Systems
@@ -300,7 +312,16 @@ What the pilot can't start without.
           `viewer.phases` grant — and say so in the tooltip.
       - *Waits on:* nothing.
       [brief §5.1, §7 "Tour and Lock dates"]
-- [ ] **3. The tour keeps looping: reproduce it, then fix or gate it.**
+- [x] **3. The tour keeps looping: reproduce it, then fix or gate it.** Shipped v1.49.0
+      (PR #166, 2026-10-16). *Cause, reproduced in headless Chrome with real clicks:*
+      step 7 (the + New Project hand-off) hid Next, so Back sat in the card's forward
+      corner; a user clicking onward went 7 → 6 → 7 → 6. Not browser-specific. Next now
+      stays there and presses + New Project; a step whose target is gone is skipped in
+      the direction of travel; the auto-run can't restart a tour already up. **Don't show
+      again** on the card writes a per-person `ShopTimeline_Config` row
+      (`tour.off.<account>`, no schema change) so the tour never auto-starts again on any
+      computer; Help still runs it. Suite `tests/test-v1490.js`. Safari wasn't tested
+      (no Mac here); the cause is in the tour's own logic, so it applies there too.
       - *Report (tracker #7, 2026-09-24):* the walkthrough loops between steps 6 and 7 of
         14. The browser wasn't recorded, so test Safari, Chrome, Edge and Firefox.
       - *Best guess:* a browser that forgets local storage every session (a private
@@ -359,7 +380,12 @@ What the pilot can't start without.
       stale project's header writes `confirmedAt` / `confirmedBy` (owner added them 2026-10-13) on its Projects row and
       clears the tag without a fake edit; the header then adds "· confirmed Oct 13 by Sam";
       the PM's own My Dashboard lists "Your stale projects"; the chip's tooltip says what to
-      do. Before the columns exist the button explains they're missing. Suite `tests/test-v1480.js`. Who last edited a project and when
+      do. Before the columns exist the button explains they're missing. Suite `tests/test-v1480.js`.
+      *Checked live* 2026-10-15 on production v1.48.5 (owner): with `stale.days` set to 1
+      on App settings, "Schedule still accurate" cleared a project's Stale tag, the first
+      live write to `confirmedAt` / `confirmedBy`; `stale.days` is back to 14. To check it
+      again, lower `stale.days` the same way rather than waiting for a project to go stale.
+      Who last edited a project and when
       (`updatedBy` / `updatedAt`) already comes from Graph, but shows only in hover cards
       (and, for admins, the change log). Put the last editor and time on the project page
       header and the Meeting Sheet. Add a "stale" chip in the sidebar and legend for a
@@ -457,7 +483,10 @@ What the pilot can't start without.
         Phase 9.
       - *Waits on:* nothing. Additive column; the spec comes with the batch.
       [brief §2 "plan saved views and permissions now", §7 Audience views]
-- [ ] **32. Shipping bar missing; Shipping milestones don't attach.** A user added
+- [x] **32. Shipping bar missing; Shipping milestones don't attach.** Shipped v1.50.0
+      (PR #165, 2026-10-16): Help ▸ My settings chooses where the project Gantt draws
+      milestones (On their phase, the default · Both · Milestones row only). Suite
+      `tests/test-v1500.js`. A user added
       Shipping milestones, saw no Shipping bar, and the milestones didn't attach to the
       shipping phase. `shipping` has been an end department since v1.20.6 (`DEPTS`,
       `grp:'install'`). First, reproduce it on the real project: is Shipping ticked in the
@@ -469,7 +498,14 @@ What the pilot can't start without.
         - *Root cause:* `npvRender` draws every milestone in the top row on purpose, per a
           2026-09-03 ask. The fix reverses that ruling for phased milestones.
         - The Shipping-bar half is met by the same placement rule once Shipping is ticked.
-      - *Waits on:* the owner's "Proceed with fix" on the revised spec.
+      - *Approved (2026-10-16):* "Proceed", with changes: a toggle, not a move, so current
+        users aren't surprised.
+      - *2026-10-16:* Owner ruling: Phase is the default; the choice lives in Help ▸ My
+        settings and follows the person.
+      - *2026-10-16:* Owner ruling 2026-10-16: drag a milestone up or down to change its
+        phase; the Milestones row means Project Management.
+      - Possible follow-ups, unapproved copy so not built: a "Shipping (not scheduled)" label
+        in the Phase dropdown, and a one-click "Add Shipping" offer.
       [tracker #1]
 - [x] **53. A role change must move the project to the new holder** (P0 bug, tracker #34).
       Shipped v1.42.0 (PR #111, 2026-10-08). On the saved page, a role change hands that
@@ -738,6 +774,53 @@ release. Where the app has a part, it's listed.
         enforced (`SETUP.md`, "Branch protection"). Confirm both on the chosen plan.
       - *Waits on:* the owner's choice of plan (and leadership, if it's item 24's
         Organization). [owner ask 2026-10-15]
+- [x] **72. A `/test/` site for one feature on trial** (owner, 2026-10-16: item 32 goes
+      "on its own branch for testing", before `/preview/`). Built in PR #164 (2026-10-16):
+      Pages published a third subpath, `/test/`, from a `test` branch. Item 32 was tried
+      there and merged (PR #165).
+      - *Retired 2026-10-19* (owner: "managing too many branches is going to get sloppy").
+        The deploy is back to `/` and `/preview/`, and the `test` branch and its Pages
+        deploy permission are deleted. The owner may remove the `/test/` redirect URI from
+        Entra. A future trial goes straight to `/preview/`.
+- [ ] **73. View settings follow the person** (owner, 2026-10-16). Today these live only in
+      the browser: Vivid months (`shopTimelineTint`), Link subtasks, Group by / the
+      Department lens, and print paper and printed bars. Move them into the signed-in
+      person's Staff row, in the `savedViews` value that already carries saved views,
+      Protect dates and item 32's "Milestones on the Gantt" (item 25, item 2 (c), v1.50.0).
+      The browser copy stays as the cache, as it does for those, and no column is added.
+      Each one also gets a row on Help ▸ My settings (v1.50.0), with its wording shown
+      to the owner first.
+      - *Stays per browser:* panel heights, collapsed panels, list width, the Gantt zoom
+        and which departments are open. These depend on the screen, or change minute to
+        minute.
+      - *Then:* item 3's "Don't show again" lives in a `ShopTimeline_Config` row
+        (`tour.off.<account>`), because it must work for people with no Staff row. Decide
+        whether it moves into the Staff row with the rest.
+      - *No new on-screen copy.*
+- [ ] **74. Row height on the project page** (owner, 2026-10-16: the edit page "gets
+      more direct use"). View ▸ Row height (Comfortable / Snug / Compact) sets the
+      timeline only; the project page's rows are fixed at 34 px (`NPV_ROWH`).
+      - *Ruling:* the project page gets **its own** row-height setting, separate from the
+        timeline's, under View ▸ Row height while a project is open. It defaults to
+        Compact at today's 34 px rows, so nothing changes until someone picks another.
+        The Snug and Comfortable heights for this page are set when it's built.
+      - *Applies to:* both the draft and the saved page.
+      - *Collision:* item 32's placement maths reads `NPV_ROWH`, so build this after
+        item 32's default is settled (PR #165).
+      - *Personal:* once item 73 lands, it joins that value.
+- [x] **75. A Today button on the project page** (owner, 2026-10-16). Shipped v1.51.0
+      (PR #169, 2026-10-19): Gantt puts this week's Monday at the left edge (the timeline's
+      rule, item 33); Calendar puts the current week's row at the top, or the job's first or
+      last week when the job lies wholly after or before today. Suite `tests/test-v1510.js`.
+      The project chart
+      opens fitted to the whole job, but once you zoom in, the only way back to today is
+      scrolling. Add a "Today" button to the chart's header row, beside the zoom buttons
+      and Reset, with the hover text "Scroll to today".
+      - *Gantt:* it brings today into view.
+      - *Calendar:* it jumps to the current week.
+      - *Applies to:* both the draft and the saved page.
+      - *No shortcut:* T already means New note on the project page.
+      - *Order:* build after item 32 (PR #165), which changes the same header row.
 - [x] **48. The storage seam.** One `store` object owns every conversation with
       SharePoint, instead of 37 call sites in 16 functions. It is idea 1 of
       `docs/Architecture-Review-Storage.md`, needed whatever D15 decides, and the path to an
@@ -2222,6 +2305,29 @@ How to read the tags at the end of an entry:
   number.
 
 **Log, newest first:**
+
+- 2026-10-19: **v1.48.5 → v1.51.0 promoted to `main`** (release/2026-10-19).
+  - *Releases since the last promotion:*
+    - v1.49.0 is item 3 (PR #166, tracker #7);
+    - v1.50.0 is item 32 (PR #165, tracker #1);
+    - v1.51.0 is item 75 (PR #169).
+
+    All three are ticked.
+  - *Docs and tooling with no release:*
+    - item 72, the `/test/` site: built in PR #164, retired in PR #168;
+    - items 73–75 added (PR #167).
+  - *Tracker:*
+    - #1 and #7 close with this promotion ("Fix shipped" posted after the merge);
+    - #40 is approved and in build as item 66 (v1.51.1, not in this promotion);
+    - #41 (item 67) is on hold and #12 (item 40) stays on hold. The owner ruled both on
+      2026-10-19, and the dated lines land with item 66's PR.
+  - *Schema:* no new SharePoint columns. Item 32's setting rides in the Staff row's
+    existing `savedViews` value. Item 3's "Don't show again" writes one
+    `ShopTimeline_Config` row per person (`tour.off.<account>`).
+  - *Workflows:* `deploy-pages.yml` is identical on both branches again (two sites, `/` and
+    `/preview/`), and the `test` branch and its Pages permission are deleted.
+  - *Branches:* only `main`, `development`, this release branch and item 66's
+    `fix/crew-list-scroll` exist.
 
 - 2026-10-15: **v1.48.1 → v1.48.5 promoted to `main`** (release/2026-10-15). The promotion
   audit follows the full audit logged below, the same day (#160); since then nothing has

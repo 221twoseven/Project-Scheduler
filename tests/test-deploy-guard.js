@@ -14,6 +14,8 @@ const yml=fs.readFileSync(path.join(path.dirname(FILE),'.github/workflows/deploy
 /* every sparse-checkout list in the workflow; a file must be on all of them (main and development) */
 const lists=[...yml.matchAll(/sparse-checkout: \|\r?\n((?:[ \t]+\S[^\n]*\n)+)/g)].map(m=>m[1].split('\n').map(s=>s.trim()).filter(Boolean)); /* \r? and trim: a CRLF checkout reads the same */
 ok('the workflow has the two sparse-checkout lists (site root and /preview/)', lists.length===2, lists.length);
+/* each published branch triggers the deploy, or a push to it would never reach its subpath */
+ok('a push to main or development deploys', /branches: \[main, development\]/.test(yml));
 
 /* the guard's own extraction: grep -oE '(src|href)="[^"]+"', strip the attribute, skip the schemes */
 const refs=[...src.matchAll(/(src|href)="[^"]+"/g)].map(m=>m[0].replace(/^(src|href)="/,'').replace(/"$/,''))

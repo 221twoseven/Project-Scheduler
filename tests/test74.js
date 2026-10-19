@@ -48,10 +48,11 @@ setTimeout(()=>{
   sec('The last step finishes; Escape and Skip end early');
   E("COACH.i=COACH.steps.length-1;coachShow();");
   if(V1100){
-    /* v1.10.0: the last home step CHAINS into the project tour — Next hides, the
-       overlay lets the + New Project click through. Ending it here without clicking
-       keeps this suite on the timeline; the chain itself is test-v1100's job. */
-    ok('the chain step hides Next and arms the click-through',
+    /* v1.10.0: the last home step CHAINS into the project tour — the overlay lets the
+       + New Project click through. v1.49.0: Next no longer hides there (it presses the
+       button; test-v1490). Ending it here without clicking keeps this suite on the
+       timeline; the chain itself is test-v1100's job. */
+    ok('the chain step arms the click-through',
        E("document.getElementById('coach').classList.contains('chain')")
        &&E("COACH.steps[COACH.i].chain===true"));
     E('coachEnd()');

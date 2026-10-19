@@ -38,7 +38,8 @@ function main(){
      into devUI() — only the plain Developer view opens the slides. */
   ok('mi-tour gates the slides on devUI(), off project pages',
      /devUI\(\)&&ROUTE\.view!=='project'\)\{demoStart\(\);return;\}/.test(src));
-  ok('first-visit auto-run still starts the plain tour', /setTimeout\(coachStart,700\)/.test(src));
+  /* v1.49.0: the timer is guarded (no restart over a tour already up) — still plain coachStart() */
+  ok('first-visit auto-run still starts the plain tour', /setTimeout\(\(\)=>\{if\(!COACH&&ROUTE\.view==='timeline'\)coachStart\(\);\},700\)/.test(src));
 
   E('coachEnd()'); /* the first-visit auto tour may be up — clear the deck */
   sec('a developer’s Help ▸ Take a tour opens the slides');

@@ -55,8 +55,11 @@ instead (so a full run is 7 steps, never both).
 | 14a | Create project button (drafts only) | Nothing is real yet | This page is a draft kept in this tab. Drafts survive a page refresh. Create project files it to SharePoint. Cancel or the × closes without saving. |
 | 14b | The ✓ Changes saved tag (saved pages only) | Everything saves itself | Edits file to SharePoint as you make them. The pill in the toolbar shows sync. Done takes you back to the timeline. |
 
-Tour buttons: **Skip tour** · **Back** · **Next** (hidden on step 7, where the body
-asks for the real click).
+Tour buttons: **Skip tour** · **Don't show again** · **Back** · **Next**. On step 7,
+Next presses + New Project for you (v1.49.0; it used to hide there, which left Back in
+its place and bounced people from 7 back to 6). **Don't show again** (v1.49.0,
+owner-approved wording) ends the tour and stops it ever starting by itself for you,
+on any computer; Help ▸ Take a tour still runs it.
 
 ## 3. Field placeholders — project edit page
 
@@ -128,6 +131,23 @@ Page subtitles: "The company roster — roles, departments and availability" /
 |---|---|
 | Page subtitle | Developer switches. Everyone reads these at sign-in — a change reaches users on their next reload. |
 | Viewer-permissions note | Each switch opens one edit door for non-admin users. All off = the v1.8.0 read-only viewer. |
+
+## 9. My settings (everyone — v1.50.0, owner-approved 2026-10-16)
+
+Help ▸ My settings (`renderMySettings` in `index.html`). Personal choices that follow the
+signed-in person. Change this copy only with the owner.
+
+| Where | Text |
+|---|---|
+| Help menu item | My settings |
+| Help menu item title (hover) | Your own display choices. They follow you to any computer. |
+| Page heading | My settings |
+| Page sub line | Only you see these. They follow your sign-in to any computer or browser. |
+| Section heading | Project page |
+| Setting label | Milestones on the Gantt |
+| Option 1 (default) | **On their phase** — A milestone with a phase sits on that phase's bar. The rest stay in the Milestones row. |
+| Option 2 | **Both** — In the Milestones row, plus a copy on the phase's bar. |
+| Option 3 | **Milestones row only** — Every milestone in the Milestones row. |
 
 ---
 

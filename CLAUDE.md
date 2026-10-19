@@ -54,7 +54,8 @@ Project rules and context for working in this repository. Read this before makin
 - **Pushes auto-deploy to GitHub Pages** via `.github/workflows/deploy-pages.yml`:
   `main` → `/`, `development` → `/preview/`. The workflow rebuilds the whole site from
   both branches each run, so it must stay identical on both. (`sandbox` → `/sandbox/` was
-  retired 2026-10-01.)
+  retired 2026-10-01; `test` → `/test/` ran for item 32's trial and was retired
+  2026-10-19, owner: "managing too many branches is going to get sloppy", item 72.)
 
 ## Shared infrastructure — SharePoint & Entra
 

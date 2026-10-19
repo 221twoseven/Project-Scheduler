@@ -365,7 +365,10 @@ for every future company master-data section (departments, project types, holida
   **+ New Project** and asks for a real click — the overlay turns click-through for
   that one target (`#coach.chain`; a capture guard swallows everything else, Enter
   presses the button) — and the project-page tour continues on the draft that opens.
-  Viewers skip the chain step (the button is hidden for them).
+  Viewers skip the chain step (the button is hidden for them). v1.49.0: Next stays
+  on that step and presses the button too, so the card's forward corner always moves
+  forward (hiding it put Back there: tracker #7's 6↔7 loop). The footer is
+  Skip tour · Don't show again on the left, Back · Next on the right.
 - **"Listening to" (v1.12.0, experimental — `exp.listening`).** A personal line in
   the dock header, SUMMARY view only: right-justified muted text
   `listening to|reading|thinking about: Title`, title hyperlinked when a link is set.
