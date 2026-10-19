@@ -64,8 +64,8 @@ is the log in §8.
 
 ## 0. Where we stand
 
-As of 2026-10-19: `development` runs **v1.51.0** (item 75: a Today button on the project
-page), v1.50.0 (item 32: milestones sit on their phase, set in Help ▸ My settings) and v1.49.0 (item 3: the tour's 6↔7 loop fixed, plus "Don't show
+As of 2026-10-19: `development` runs **v1.51.1** (item 66: ticking crew names keeps your
+place), v1.51.0 (item 75: a Today button on the project page), v1.50.0 (item 32: milestones sit on their phase, set in Help ▸ My settings) and v1.49.0 (item 3: the tour's 6↔7 loop fixed, plus "Don't show
 again"). Production (`main`) runs **v1.48.5**, promoted
 2026-10-15 (release/2026-10-15). The newest work on production: error messages say why
 (item 48, the storage seam's last PR), item 61's simplifications, item 59's work-based
@@ -1113,6 +1113,7 @@ is item 32 (P0), #7 is part of item 3, and #11 and #14 were done by the bridge i
         products (portal, People, Clients, Office) have content. The owner asked whether the
         DNS and Entra setup can be done ahead of them; the revised spec of the same day
         answers that.
+      - *Hold continued 2026-10-19* (owner).
       [tracker #12]
 - [x] **41. People page: column widths.** Shipped v1.26.3 (PR #81, 2026-10-02), with tracker
       #27's header spill-over in the same PR. The columns are hard to line up. Make each fit
@@ -1203,14 +1204,19 @@ is item 32 (P0), #7 is part of item 3, and #11 and #14 were done by the bridge i
       checks her toggle). New: a date chip above the dragged bar (`Oct 5 – Oct 30 · 20 days`)
       that pulses each day crossed, more strongly at each new week; no sound; reduced motion
       turns the pulse off. Spec 2026-10-14; waits on Proceed. [tracker #39]
-- [ ] **66. Ticking crew names keeps your place.** Each tick rebuilds the popover and the
-      phase panel (`ppCommitCrew` → `innerHTML`), so the crew list jumps to the top and a
-      quick second tick can be lost. Keep the scroll, and don't rebuild the box being
-      clicked. Worst on install subtasks (whole staff list). Spec 2026-10-14; waits on
-      Proceed. [tracker #40]
+- [x] **66. Ticking crew names keeps your place.** Shipped v1.51.1 (PR #170, 2026-10-19):
+      a repaint gives the crew list back its scroll and focus, and the panel section's
+      scroll (`crewHold`, popover and phase panel). A poll repaint that lands while a name
+      is pressed waits until the click is over. Suite `tests/test-v1511.js`; §7.5 notes
+      the press hold covers crew lists only. Each tick rebuilt the popover and the
+      phase panel (`ppCommitCrew` → `innerHTML`), so the crew list jumped to the top and a
+      quick second tick could be lost. Keep the scroll, and don't rebuild the box being
+      clicked. Worst on install subtasks (whole staff list). Spec 2026-10-14; Proceed
+      2026-10-19. [tracker #40]
 - [ ] **67. An All Projects button on the toolbar,** between + New Project and My Dashboard:
       goes to the full timeline and clears filters and the saved view (the wordmark and the
       crumb only navigate). Copy in the spec. Spec 2026-10-14; waits on Proceed. [tracker #41]
+      - *On hold 2026-10-19* (owner).
 
 **Shipped or closed with no §3 item** (before the 2026-10-08 every-task rule; the full
 record is each ticket's "Fix shipped" note and `CHANGELOG.md`):
@@ -2276,6 +2282,11 @@ How to read the tags at the end of an entry:
   expands them (v1.21.0).
 - Calendar detail levels and marker-text state reset on each project visit. They'd
   persist per browser, like `NPV_OPEN`, only if asked (v1.21.0).
+- A background page repaint (poll, autosave) waits for the click only when a **crew name**
+  is pressed (item 66, v1.51.1). A repaint that lands mid-press on any other control on the
+  project page (a zoom button, a department checkbox) still drops that click in Chrome. It
+  needs a poll to land inside a ~100 ms press, so it is rare. Gate: a report of a lost click
+  elsewhere on the page; then widen the `CREW_PRESS` hold to any press inside `#page`.
 
 ## 8. Documentation upkeep
 

@@ -1861,7 +1861,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.51.0'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.51.1'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -6793,6 +6793,7 @@ function ppColor(p){return p&&p.id?projColor(p.id):'#94A3B8';}
 let PG_RQ={},PG_RQ_PID=null; /* v1.29.0 (#19): the Team lists' typed search text, per box, for one project */
 let PG_RADIO_T=null;         /* v1.30.0 (#18): the pending Project lead save (arrow-key runs coalesce) */
 function renderProjectPage(){
+  if(PP_KEEP&&CREW_PRESS){CREW_PRESS=2;PP_KEEP=false;return;} /* v1.51.1: after the crew click (crewRelease) */
   const isNew=ROUTE.creating;
   {const pid=isNew?'new':ROUTE.id;if(PG_RQ_PID!==pid){PG_RQ={};PG_RQ_PID=pid;}}
   /* v1.8.0: creating projects is admin-only — covers the button, the N key and a
@@ -6914,6 +6915,7 @@ function renderProjectPage(){
   /* v1.6.1: the pp-ks sheet retired \u2014 the ? key and Help \u25be open the route-aware
      #kbd-menu popover instead (openKbdMenu). */
 
+  const crewBack=crewHold('pp-insp'); /* v1.51.1: a poll repaint keeps the crew list too */
   document.getElementById('page').innerHTML=h;
 
   /* draft state is only reset when starting a brand new project */
@@ -6921,7 +6923,7 @@ function renderProjectPage(){
   if(nums)nums.textContent='Schedule';
 
   PP_SEL=keepSel;PP_INSP=keepSel?'phase':'project';
-  ppInspector();
+  ppInspector();crewBack();
   /* v1.20.8: the department checklist fills est/otherLabels on render, so the snapshot
      is taken AFTER the form exists — an untouched draft must not read dirty (it used to
      ask 'Discard this unsaved project?' with nothing typed). A restored stash skips
@@ -7591,7 +7593,8 @@ function ppInspector(){
     h+=ppAgendaHTML(p,null);
     h+='</div>';
   }
-  box.innerHTML=h;
+  const back=crewHold('pp-insp');
+  box.innerHTML=h;back();
   ppBindInspector(p,sel);
   viewerLock(box,sel?'phases':'project'); /* v1.8.0: fields render as information for viewers (v1.11.0: the section's grant unlocks it; agenda rows self-grade) */
 }
@@ -10032,6 +10035,42 @@ function ppCommitCrew(sel,names){
   }
   npvRebuild();ppSelect(PP_SEL||k0,true);
 }
+/* v1.51.1 (item 66, tracker #40): a crew list keeps your place through a repaint. A tick
+   repaints the popover and the bottom panel, and a poll repaints the page; each rebuilt the
+   list at the top, so the next click, aimed at the next name, hit another one. A painter
+   calls crewHold(box id) before its innerHTML rewrite and the result after it (the cd-rows
+   save/restore pattern): the same phase's fresh list gets the old scroll and focus back,
+   and so does each box it sits in up to the painter's own (the panel's section scrolls too).
+   Another phase's list starts at the top. A draft's first crew tick moves its key from
+   d:dept to l:line (the line is seeded), so a draft compares the bar the keys resolve to. */
+function crewHold(id){
+  const get=()=>{const b=document.getElementById(id);return b&&b.querySelector('.crew-list');};
+  const up=el=>{const r=[];for(let x=el;x;x=x.parentElement){r.push(x);if(x.id===id)break;}return r;};
+  const o=get(),tops=o?up(o).map(x=>x.scrollTop):[],sel=o&&o.crewSel;
+  const a=document.activeElement,fv=o&&a&&o.contains(a)?a.value:null;
+  return ()=>{
+    const n=get();
+    if(!n)return;
+    if(n!==o&&sel&&(sel===PP_SEL||!NPV_LIVE&&ppDraftResolve(sel)===ppSelected())){
+      up(n).forEach((x,k)=>{if(tops[k])x.scrollTop=tops[k];});
+      const f=fv!=null&&[...n.querySelectorAll('input')].find(i=>i.value===fv);
+      if(f)f.focus({preventScroll:true});
+    }
+    n.crewSel=PP_SEL;
+  };
+}
+/* v1.51.1 (item 66): a background repaint of the page (poll, autosave, resize) that lands
+   while a crew name is pressed takes the checkbox away mid-click, and Chrome drops that click.
+   So renderProjectPage holds it until just after the release (a key press for Space, too).
+   ponytail: the 100 ms covers a touch tap's late click; a second press inside it is unguarded. */
+let CREW_PRESS=0; /* 0 idle, 1 pressed in a crew list, 2 pressed and a repaint is waiting */
+function crewRelease(){const due=CREW_PRESS===2;CREW_PRESS=0;if(due)render();}
+const crewArm=e=>{if(!CREW_PRESS&&e.target&&e.target.closest&&
+  e.target.closest('#pp-insp .crew-list,#npv-pop .crew-list'))CREW_PRESS=1;};
+document.addEventListener('pointerdown',crewArm,true);document.addEventListener('keydown',crewArm,true);
+['pointerup','keyup'].forEach(t=>document.addEventListener(t,()=>{if(CREW_PRESS)setTimeout(crewRelease,100);},true));
+['pointercancel','contextmenu'].forEach(t=>document.addEventListener(t,crewRelease,true));
+window.addEventListener('blur',crewRelease);
 
 function npvPopClose(){
   const el=document.getElementById('npv-pop');
@@ -10094,7 +10133,8 @@ function npvPopRender(){
   if(NPV_POP.kind==='phase'){
     const sel=ppSelected();
     if(!sel){npvPopClose();return;}
-    el.innerHTML=npvPopPhaseHTML(sel);
+    const back=crewHold('npv-pop');
+    el.innerHTML=npvPopPhaseHTML(sel);back();
     npvPopPosition(el,NPV_POP.x,NPV_POP.y);
     npvPopBindPhase(el);
   }else{
@@ -12111,6 +12151,7 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.51.1",d:"Oct 19, 2026",n:["Ticking names in a crew list (the bar's popover or the panel below the chart) no longer jumps the list back to the top, and every tick counts, even several in a row on an install's full staff list."]},
  {v:"v1.51.0",d:"Oct 19, 2026",n:["The project page has a **Today** button beside the zoom buttons. On the Gantt it scrolls back so this week starts at the left edge; on the Calendar it jumps to the current week."]},
  {v:"v1.50.0",d:"Oct 16, 2026",n:["On a project's Gantt, a milestone with a phase now sits on that phase's bar, so \"ALL CNC DONE\" shows on the CNC bar. Milestones with no phase or a Project Management phase, or whose phase isn't scheduled on the job, stay in the Milestones row.",
    "Drag a milestone up or down onto another phase's row to change its phase; drop it on the Milestones row to make it Project Management's. Dragging sideways still changes its date, and one drag can do both.",
