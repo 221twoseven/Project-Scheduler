@@ -64,8 +64,9 @@ is the log in §8.
 
 ## 0. Where we stand
 
-As of 2026-10-16: `development` runs **v1.49.0** (item 3: the tour's 6↔7 loop fixed, plus
-"Don't show again"). Production (`main`) runs **v1.48.5**, promoted
+As of 2026-10-16: `development` runs **v1.50.0** (item 32: milestones sit on their phase,
+set in Help ▸ My settings) and v1.49.0 (item 3: the tour's 6↔7 loop fixed, plus "Don't show
+again"). Production (`main`) runs **v1.48.5**, promoted
 2026-10-15 (release/2026-10-15). The newest work on production: error messages say why
 (item 48, the storage seam's last PR), item 61's simplifications, item 59's work-based
 progress bar and item 19's "Away until" fix; plus docs and tooling with no release: the
@@ -472,7 +473,10 @@ What the pilot can't start without.
         Phase 9.
       - *Waits on:* nothing. Additive column; the spec comes with the batch.
       [brief §2 "plan saved views and permissions now", §7 Audience views]
-- [ ] **32. Shipping bar missing; Shipping milestones don't attach.** A user added
+- [x] **32. Shipping bar missing; Shipping milestones don't attach.** Shipped v1.50.0
+      (PR #165, 2026-10-16): Help ▸ My settings chooses where the project Gantt draws
+      milestones (On their phase, the default · Both · Milestones row only). Suite
+      `tests/test-v1500.js`. A user added
       Shipping milestones, saw no Shipping bar, and the milestones didn't attach to the
       shipping phase. `shipping` has been an end department since v1.20.6 (`DEPTS`,
       `grp:'install'`). First, reproduce it on the real project: is Shipping ticked in the
@@ -484,7 +488,14 @@ What the pilot can't start without.
         - *Root cause:* `npvRender` draws every milestone in the top row on purpose, per a
           2026-09-03 ask. The fix reverses that ruling for phased milestones.
         - The Shipping-bar half is met by the same placement rule once Shipping is ticked.
-      - *Waits on:* the owner's "Proceed with fix" on the revised spec.
+      - *Approved (2026-10-16):* "Proceed", with changes: a toggle, not a move, so current
+        users aren't surprised.
+      - *2026-10-16:* Owner ruling: Phase is the default; the choice lives in Help ▸ My
+        settings and follows the person.
+      - *2026-10-16:* Owner ruling 2026-10-16: drag a milestone up or down to change its
+        phase; the Milestones row means Project Management.
+      - Possible follow-ups, unapproved copy so not built: a "Shipping (not scheduled)" label
+        in the Phase dropdown, and a one-click "Add Shipping" offer.
       [tracker #1]
 - [x] **53. A role change must move the project to the new holder** (P0 bug, tracker #34).
       Shipped v1.42.0 (PR #111, 2026-10-08). On the saved page, a role change hands that

@@ -1532,7 +1532,7 @@ body.cd-route #dash-bar{display:none!important}
 .as-note{font-size:12px;color:var(--ts-muted);margin-bottom:10px}
 .as-row{display:flex;align-items:flex-start;gap:10px;padding:9px 10px;border:1px solid #E2E8F0;border-radius:8px;margin-bottom:6px;cursor:pointer;background:#fff}
 .as-row:hover{border-color:#CBD6E4}
-.as-row input[type=checkbox]{width:14px;height:14px;margin-top:2px;accent-color:#3B7FD6;flex-shrink:0}
+.as-row input[type=checkbox],.as-row input[type=radio]{width:14px;height:14px;margin-top:2px;accent-color:#3B7FD6;flex-shrink:0}
 .as-txt{display:flex;flex-direction:column;gap:2px}
 .as-txt b{font-size:12.5px;color:#1E293B;font-weight:600}
 .as-txt span{font-size:11.5px;color:var(--ts-muted)}
@@ -1578,6 +1578,7 @@ body.cd-route #dash-bar{display:none!important}
         <div class="sm-item" id="mi-legend" title="What the colors, patterns and markers mean">Legend</div>
         <div class="sm-item" id="mi-report" title="File a bug or ask for a feature, and see what's already been reported — lands on SharePoint with your name attached">Report a bug or idea</div>
         <div class="sm-item" id="mi-relnotes" title="What changed in each version, in plain language">Release notes</div>
+        <div class="sm-item" id="mi-myset" title="Your own display choices. They follow you to any computer.">My settings</div>
         <div class="sm-item" id="mi-repo" title="Open the source code on GitHub in a new tab">Repository ↗</div>
         <div class="sm-item hidden" id="mi-appset" title="Developer switches — viewer permission grants and experimental features">App settings</div>
         <div class="sm-item hidden" id="mi-reports" title="Developer view — every bug report and feature request in full, as mailed">Bug reports (dev)</div>
@@ -1860,7 +1861,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.49.0'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.50.0'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -3892,6 +3893,7 @@ function render(){
      source of the editor's values, so a repaint mid-edit keeps everything typed. */
   if(typeof ROUTE!=='undefined'&&ROUTE&&(ROUTE.view==='people'||ROUTE.view==='clients')){document.body.classList.remove('me-dock-on');renderCompanyPage();return;}
   if(typeof ROUTE!=='undefined'&&ROUTE&&ROUTE.view==='settings'){document.body.classList.remove('me-dock-on');renderAppSettings();return;} /* v1.11.0 */
+  if(typeof ROUTE!=='undefined'&&ROUTE&&ROUTE.view==='mysettings'){document.body.classList.remove('me-dock-on');renderMySettings();return;} /* v1.50.0 */
   if(typeof ROUTE!=='undefined'&&ROUTE&&ROUTE.view==='changelog'){document.body.classList.remove('me-dock-on');return;} /* v1.19.0: the log isn't ST data — a repaint would only wipe the filter box */
   if(typeof ROUTE!=='undefined'&&ROUTE&&(ROUTE.view==='releases'||ROUTE.view==='issues'||ROUTE.view==='reports')){document.body.classList.remove('me-dock-on');return;} /* v1.20.0: none are ST data — a repaint would wipe a half-typed report */
   DW_PX=vpw()/FIT; /* v1.5.0: px-per-day follows the live viewport, once per render */
@@ -5201,6 +5203,37 @@ document.getElementById('mi-people').addEventListener('click',()=>{closeMenus();
 document.getElementById('mi-clients').addEventListener('click',()=>{closeMenus();goClients();});
 document.getElementById('mi-changelog').addEventListener('click',()=>{closeMenus();location.hash='#/changelog';});
 document.getElementById('mi-appset').addEventListener('click',()=>{closeMenus();location.hash='#/settings';});
+document.getElementById('mi-myset').addEventListener('click',()=>{closeMenus();location.hash='#/mysettings';});
+
+/* ===== v1.50.0 (item 32, owner 2026-10-16): Help ▸ My settings ===== */
+/* Personal display choices, for every signed-in user (viewers too) — App settings stays
+   developer-only and app-wide. Each choice rides the Staff row's savedViews beside
+   Protect dates (pushViews / viewsFromRow); no row = this browser only. Copy is
+   owner-approved: change it only with the owner. */
+function renderMySettings(){
+  const pg=document.getElementById('page');
+  const opt=(v,b,t)=>'<label class="as-row"><input type="radio" name="ms-msp" value="'+v+'"'+(NPV_MSP===v?' checked':'')+'>'
+    +'<span class="as-txt"><b>'+b+'</b><span>'+t+'</span></span></label>';
+  let h='<div class="pg dash">';
+  h+='<div class="dash-top"><nav class="pg-trail">'
+   +'<button class="pg-cr" id="cd-back" title="Back to the timeline (Esc)">All Projects</button>'
+   +'<span class="pg-sep">&rsaquo;</span>'
+   +'<span class="pg-cr cur">My settings</span></nav>'
+   +'<button class="pg-x" id="cd-x" title="Close — back to the timeline (Esc)">&times;</button></div>';
+  h+='<div class="cd-head"><h2>My settings</h2>'
+   +'<span class="cd-sub">Only you see these. They follow your sign-in to any computer or browser.</span></div>';
+  h+='<div class="as-body"><h3>Project page</h3>'
+   +'<div class="as-note" id="ms-msp-lbl">Milestones on the Gantt</div>'
+   +'<div role="radiogroup" aria-labelledby="ms-msp-lbl">'
+   +opt('phase','On their phase','A milestone with a phase sits on that phase\'s bar. The rest stay in the Milestones row.')
+   +opt('both','Both','In the Milestones row, plus a copy on the phase\'s bar.')
+   +opt('top','Milestones row only','Every milestone in the Milestones row.')
+   +'</div></div></div>';
+  pg.innerHTML=h;
+  document.getElementById('cd-back').addEventListener('click',goTimeline);
+  document.getElementById('cd-x').addEventListener('click',goTimeline);
+  pg.querySelectorAll('input[name="ms-msp"]').forEach(r=>r.addEventListener('change',()=>{if(r.checked)saveMsp(r.value);}));
+}
 
 /* ===== v1.11.0 (owner ask 09-02): the developer App Settings page ===== */
 /* Help ▸ App settings, developers only (menu entry hidden otherwise; a direct hash
@@ -6650,6 +6683,7 @@ function parseHash(){
   if(h==='people'||h.indexOf('people/')===0)return{view:'people',id:null,creating:false};
   if(h==='clients'||h.indexOf('clients/')===0)return{view:'clients',id:null,creating:false};
   if(h==='settings')return{view:'settings',id:null,creating:false}; /* v1.11.0: dev App Settings */
+  if(h==='mysettings')return{view:'mysettings',id:null,creating:false}; /* v1.50.0: Help ▸ My settings */
   if(h==='changelog')return{view:'changelog',id:null,creating:false}; /* v1.19.0 (§3 item 26) */
   if(h==='releases')return{view:'releases',id:null,creating:false}; /* v1.20.0: Help ▸ Release notes */
   if(h==='issues')return{view:'issues',id:null,creating:false};     /* v1.20.0: Help ▸ Open issues (report form + list) */
@@ -6694,7 +6728,7 @@ function applyRoute(){
     document.body.classList.remove('me-dock-on');
     mn.classList.add('hidden');pg.classList.remove('hidden');
     renderProjectPage();
-  }else if(r.view==='people'||r.view==='clients'||r.view==='settings'||r.view==='changelog'
+  }else if(r.view==='people'||r.view==='clients'||r.view==='settings'||r.view==='mysettings'||r.view==='changelog'
          ||r.view==='releases'||r.view==='issues'||r.view==='reports'){
     /* v1.7.0: a Company Data page — the project page's chrome pattern (own location,
        #main hidden, timeline toolbar row gone), read-first master/detail inside.
@@ -6706,6 +6740,7 @@ function applyRoute(){
     document.body.classList.remove('me-dock-on');
     mn.classList.add('hidden');pg.classList.remove('hidden');
     if(r.view==='settings')renderAppSettings();
+    else if(r.view==='mysettings')renderMySettings();
     else if(r.view==='changelog')renderChangelog();
     else if(r.view==='releases')renderReleases();
     else if(r.view==='issues')renderIssues();
@@ -7959,6 +7994,14 @@ let NPV_FIT=null;
 /* v1.6.2: a drag-set fit is continuous, so accept any stored value in the 7–91 range
    (old integer steps still parse the same). */
 try{const f=parseFloat(localStorage.getItem('shopTimelineNpvFit'));if(f>=FIT_MIN&&f<=FIT_MAX)NPV_FIT=f;}catch(e){}
+/* v1.50.0 (item 32, tracker #1): where a milestone draws on the project Gantt —
+   'phase' (on its phase's row when the phase has a row here; the default, owner
+   2026-10-16), 'both' (the Milestones row plus a copy on its phase's row) or 'top' (the
+   Milestones row only). Set in Help ▸ My settings; follows the person (MSP_KEY). */
+const MSP_KEY='shopTimelineMsPlace';
+const MSP_OK=v=>v==='top'||v==='both'||v==='phase';
+function loadMsp(){let v=null;try{v=localStorage.getItem(MSP_KEY);}catch(e){}return MSP_OK(v)?v:null;}
+let NPV_MSP=loadMsp()||'phase';
 let NPV_CAL_FOCUS=false; /* N16: calendar shows only the selected phase's bands */
 /* v1.9.0 (owner ask): live resize override — while an edge drag has left the grabbed
    segment's home week, {key,s,e} makes npvPaintCalendar draw that phase (twins merged,
@@ -8862,22 +8905,37 @@ function npvRender(){
      + '</div>';
   }
 
-  /* Milestones and notes each live on their own leading row (owner ask 09-03) —
-     they no longer ride phase rows, so nothing can silently vanish and the two
-     rows are always where you left them: the top. */
+  /* Milestones lead on row 0 and notes on row 1 (owner ask 09-03); notes stay there
+     in every mode. v1.50.0 (item 32): Help ▸ My settings' milestone choice
+     (NPV_MSP) can also put a phased milestone on its phase's row — the department's
+     row whose bars cover the date, else its first row. A phase with no row here (e.g.
+     Shipping not ticked) keeps the milestone on row 0, so nothing silently vanishes.
+     The Milestones row is Project Management's home (owner, 2026-10-16): a pm or
+     unphased milestone always draws there, never on a PM bar. */
+  const msRow=mk=>{
+    if(!mk.dept||mk.dept==='pm')return -1;
+    let first=-1;
+    for(let r=0;r<NPV_PLAN.length;r++){
+      const row=NPV_PLAN[r];
+      if(row.dept!==mk.dept)continue;
+      if(first<0)first=r;
+      if(row.bars.some(b=>b.t.startDate<=mk.date&&mk.date<=b.t.endDate))return r;
+    }
+    return first;
+  };
   const marks=npvMarkers();
   for(const mk of marks){
     const d=parseDate(mk.date);
     if(d<lo||d>hi)continue;
-    const ri=mk.k==='ev'?0:1;
+    const pr=(mk.k==='ev'&&NPV_MSP!=='top')?msRow(mk):-1;
+    const rows=mk.k!=='ev'?[1]:pr<0?[0]:NPV_MSP==='both'?[0,NPV_TOP+pr]:[NPV_TOP+pr];
     const left=x(d)+Math.floor(dwv/2);
-    const top=ri*NPV_ROWH+(mk.k==='ev'?9.5:9);
     const cls=mk.k==='ev'?'npv-ev':('npv-tk'+(mk.pr==='high'||mk.pr==='urgent'?' hi':''));
     const nm=mk.nm||(mk.k==='ev'?'Untitled milestone':'Untitled note');
     /* v1.4.0 (08-31 obj 4): no inline label next to the marker \u2014 adjacent labels were
        unreadable; the hover title carries the name and a click opens the edit popover. */
-    h+='<div class="'+cls+'" data-mk-id="'+esc(mk.id||'')+'" data-mk-k="'+mk.k+'" '
-     + 'data-mk-date="'+esc(mk.date)+'" style="left:'+left+'px;top:'+top+'px" '
+    for(const ri of rows)h+='<div class="'+cls+'" data-mk-id="'+esc(mk.id||'')+'" data-mk-k="'+mk.k+'" '
+     + 'data-mk-date="'+esc(mk.date)+'" style="left:'+left+'px;top:'+(ri*NPV_ROWH+(mk.k==='ev'?9.5:9))+'px" '
      + 'title="'+esc(nm+' \u00b7 '+fmtNice(mk.date)+' \u2014 drag to move, click to edit, right-click to delete')+'"></div>';
   }
   /* Weekend columns moved into the tint layer below (v1.6.2) — see the CSS note. */
@@ -10166,30 +10224,53 @@ function npvBindDrag(){
       if(!id)return;
       const x0=ev.clientX,y0=ev.clientY,dwv=NPV_GEO.dw,left0=parseFloat(mk.style.left)||0;
       mk.classList.add('dragging');
-      let days=0;
+      let days=0,dy=0,dept,hot=null;
+      /* v1.50.0 (item 32): in Both mode a milestone has a twin on its phase row — move it too */
+      const twins=[...host.querySelectorAll('.npv-ev,.npv-tk')].filter(m=>m.dataset.mkId===id&&m.dataset.mkK===k);
+      /* v1.50.0 (item 32, owner 2026-10-16): unless My settings says "Milestones row only", a
+         milestone also drags up or down — the row it lands on becomes its phase: the
+         Milestones row = Project Management (pm); the Notes row or no row = unchanged.
+         Same gate as the date (vcan('milestones')); Protect dates covers bars, not markers. */
+      const vert=k==='ev'&&NPV_MSP!=='top';
+      const top0=parseFloat(mk.style.top)||0,row0=Math.round((top0-9.5)/NPV_ROWH);
+      const rows=host.querySelectorAll('.npv-row');
       const mv=e2=>{
         days=Math.round((e2.clientX-x0)/dwv);
-        mk.style.left=(left0+days*dwv)+'px';
+        twins.forEach(m=>{m.style.left=(left0+days*dwv)+'px';});
+        if(!vert)return;
+        dy=e2.clientY-y0;mk.style.top=(top0+dy)+'px';
+        const ri=Math.round((top0+dy-9.5)/NPV_ROWH);
+        dept=ri===row0?undefined:ri===0?'pm':(ri>=NPV_TOP&&ri-NPV_TOP<NPV_PLAN.length)?NPV_PLAN[ri-NPV_TOP].dept:undefined;
+        if(hot)hot.classList.remove('pickrow');
+        hot=dept!==undefined?rows[ri]:null; /* the target row lights up, the way a selected bar's row does */
+        if(hot&&hot.classList.contains('pickrow'))hot=null; /* already lit (the selected bar's row): leave it be */
+        if(hot)hot.classList.add('pickrow');
       };
       const up=()=>{
         document.removeEventListener('mousemove',mv);
         document.removeEventListener('mouseup',up);
         mk.classList.remove('dragging');
-        if(!days){
+        if(hot)hot.classList.remove('pickrow');
+        const m0=k==='ev'&&dept!==undefined?npvMarkers().find(m=>m.k==='ev'&&m.id===id):null;
+        if(m0&&(m0.dept===dept||(dept==='pm'&&!m0.dept)))dept=undefined; /* landed on its own phase */
+        if(!days&&dept===undefined){
+          mk.style.top=top0+'px';
+          if(Math.abs(dy)>3)return; /* dropped where it started: snap back */
           /* a click: open the in-place editor on this checkpoint/task */
           ppInspector();
           npvEditPop(k,id,x0,y0);
           return;
         }
-        const nd=fmtDate(addDays(parseDate(d0),days));
+        const nd=days?fmtDate(addDays(parseDate(d0),days)):null;
         if(NPV_LIVE){
-          if(k==='ev')liveCommitEvent(id,'date',nd);else liveCommitTodo(id,'due',nd);
+          if(nd){if(k==='ev')liveCommitEvent(id,'date',nd);else liveCommitTodo(id,'due',nd);}
+          if(dept!==undefined)liveCommitEvent(id,'dept',dept);
         }else{
-          if(k==='ev'){const e=NPV_EVENTS.find(x=>x.id===id);if(e)e.date=nd;}
+          if(k==='ev'){const e=NPV_EVENTS.find(x=>x.id===id);if(e){if(nd)e.date=nd;if(dept!==undefined)e.dept=dept;}}
           else{const t=NPV_TODOS.find(x=>x.id===id);if(t)t.due=nd;}
         }
         npvRebuild();ppInspector();
-        toastU((k==='ev'?'Milestone':'Note')+' moved to '+fmtNice(nd));
+        if(nd)toastU((k==='ev'?'Milestone':'Note')+' moved to '+fmtNice(nd));
       };
       document.addEventListener('mousemove',mv);
       document.addEventListener('mouseup',up);
@@ -10543,7 +10624,7 @@ document.addEventListener('keydown',ev=>{
     }
     /* v1.7.0: the Company Data pages — menu, typing, open editor, then the page.
        v1.11.0: App Settings walks home the same way (CD_EDIT is never set there). */
-    if(ROUTE.view==='people'||ROUTE.view==='clients'||ROUTE.view==='settings'||ROUTE.view==='changelog'
+    if(ROUTE.view==='people'||ROUTE.view==='clients'||ROUTE.view==='settings'||ROUTE.view==='mysettings'||ROUTE.view==='changelog'
      ||ROUTE.view==='releases'||ROUTE.view==='issues'||ROUTE.view==='reports'){
       if(document.querySelector('.tb-menu:not(.hidden)')){closeMenus();ev.preventDefault();return;}
       if(typing){ev.target.blur();return;}
@@ -11223,10 +11304,17 @@ function setProtect(on){ /* viewers stay forced on (applyPerms); the phases gran
   document.body.classList.toggle('dates-locked',DATE_LOCK);
 }
 function saveProtect(on){try{localStorage.setItem(PROTECT_KEY,on?'1':'0');}catch(e){}pushViews();}
+/* v1.50.0 (item 32): My settings' milestone placement rides the same value as `milestones` */
+function setMsp(v){
+  NPV_MSP=v;
+  if(ROUTE.view==='project')npvRender();
+  else if(ROUTE.view==='mysettings')renderMySettings();
+}
+function saveMsp(v){if(!MSP_OK(v))return;try{localStorage.setItem(MSP_KEY,v);}catch(e){}setMsp(v);pushViews();}
 function pushViews(){
   const id=myStaffId();if(!STAFF_OK||VIEWS_ROW_OFF||!id)return;
-  const v=loadViews(),p=loadProtect();if(!v&&p==null)return;
-  const txt=JSON.stringify({...(v?{views:v}:{}),...(p!=null?{protectDates:p}:{})});
+  const v=loadViews(),p=loadProtect(),m=loadMsp();if(!v&&p==null&&!m)return;
+  const txt=JSON.stringify({...(v?{views:v}:{}),...(p!=null?{protectDates:p}:{}),...(m?{milestones:m}:{})}); /* v1.50.0: + My settings' milestone choice */
   STAFF_VIEWS[id]=txt;VIEWS_PUSHING++;VIEWS_GEN++;setViewsOwner(id);
   store.update('staff',SP_IDS.staff[id],{savedViews:txt})
     .catch(e=>{const m=String(e&&e.message);if(/ 400/.test(m)&&/savedViews/.test(m))VIEWS_ROW_OFF=true; /* the column isn't on the list */
@@ -11251,7 +11339,8 @@ function viewsFromRow(){
        waits, for the next poll — flipping the switch mid-drag would change its outcome. */
     if(DRAG)return;
     if(loadProtect()!=null)setProtect(false);
-    try{localStorage.removeItem(VIEWS_KEY);localStorage.removeItem(PROTECT_KEY);}catch(e){}}
+    try{localStorage.removeItem(VIEWS_KEY);localStorage.removeItem(PROTECT_KEY);localStorage.removeItem(MSP_KEY);}catch(e){}
+    NPV_MSP='phase';}
   setViewsOwner(id);
   let j=null;try{j=JSON.parse(STAFF_VIEWS[id]||'null');}catch(e){}
   if(Array.isArray(j))j={views:j};
@@ -11274,6 +11363,11 @@ function viewsFromRow(){
     /* never mid-drag or mid-edit (owner rule: no auto action while working); the next poll retries */
     if(hadP!==j.protectDates&&!updBusy()){try{localStorage.setItem(PROTECT_KEY,j.protectDates?'1':'0');}catch(e){}setProtect(j.protectDates);}
   }else if(hadP!=null)push=true;
+  /* v1.50.0 (item 32): My settings' milestone choice, the same way */
+  const hadM=loadMsp();
+  if(MSP_OK(j.milestones)){
+    if(hadM!==j.milestones&&!updBusy()){try{localStorage.setItem(MSP_KEY,j.milestones);}catch(e){}setMsp(j.milestones);}
+  }else if(hadM)push=true;
   if(push)pushViews();
 }
 function defaultViewState(){return{lens:'project',group:'',status:[...ALL_STATUSES],person:'',search:'',
@@ -11989,6 +12083,9 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.50.0",d:"Oct 16, 2026",n:["On a project's Gantt, a milestone with a phase now sits on that phase's bar, so \"ALL CNC DONE\" shows on the CNC bar. Milestones with no phase or a Project Management phase, or whose phase isn't scheduled on the job, stay in the Milestones row.",
+   "Drag a milestone up or down onto another phase's row to change its phase; drop it on the Milestones row to make it Project Management's. Dragging sideways still changes its date, and one drag can do both.",
+   "New page: Help ▸ My settings, for everyone. Under \"Milestones on the Gantt\" you can keep milestones on their phase (the default), show them in both places, or put them all back in the Milestones row. Your choice follows your sign-in to any computer."]},
  {v:"v1.49.0",d:"Oct 16, 2026",n:["The tour no longer sends you back and forth between steps 6 and 7: step 7 now has a Next button that opens a new project and carries on, where before the button in that spot was Back.",
    "The tour card has a new \"Don't show again\" button. It closes the tour, and the tour won't start by itself for you again on any computer. Help ▸ Take a tour still runs it whenever you like."]},
  {v:"v1.48.5",d:"Oct 14, 2026",n:["On the People page, time off entered as back-to-back or overlapping requests now reads as one absence: \"Away until\" shows the day the person is really back, even across a weekend or holiday."]},
