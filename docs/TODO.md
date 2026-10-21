@@ -50,8 +50,8 @@ as the phase runs.
 - Every milestone gets a record in `docs/Milestones/Phase-7-Pilot-Readiness/`; every
   deliberate skip gets a §7 line with its gate.
 
-Last reviewed: 2026-10-19 — the promotion audits for v1.48.5 → v1.51.0 and v1.51.0 → v1.51.1
-reaching `main` (log in §8). Before that, 2026-10-15 — the promotion audit for v1.48.1 → v1.48.5, after a full audit the
+Last reviewed: 2026-10-19 — the promotion audits for v1.48.5 → v1.51.0, v1.51.0 → v1.51.1
+and v1.51.1 → v1.51.2 reaching `main` (log in §8). Before that, 2026-10-15 — the promotion audit for v1.48.1 → v1.48.5, after a full audit the
 same day. Before that, 2026-10-13 — the promotion audit for v1.45.1 → v1.48.1 reaching `main`. Before that, 2026-10-09 — the promotion audits for v1.43.0 → v1.44.3 and v1.44.3 →
 v1.45.1. Before that, 2026-10-08 — D15 (data platform) reassessed: Dataverse and Azure SQL + API
 are now co-equal candidates (`docs/Architecture-Review-Backend.md`); D1, D3, D10–D13 and
@@ -64,11 +64,12 @@ is the log in §8.
 
 ## 0. Where we stand
 
-As of 2026-10-19: production (`main`) runs **v1.51.1**, promoted 2026-10-19
-(release/2026-10-19b). `development` runs **v1.51.2**: the app stops using the dead
-columns (item 29's first step).
+As of 2026-10-19: production (`main`) and `development` both run **v1.51.2**, promoted
+2026-10-19 (release/2026-10-19c).
 
 The newest work on production:
+- v1.51.2: the app stops using the dead columns, so the owner can delete them (item 29's
+  first step);
 - v1.51.1: ticking crew names keeps your place, and no tick is lost (item 66);
 - v1.51.0: a Today button on the project page (item 75);
 - v1.50.0: milestones sit on their phase, chosen in the new Help ▸ My settings, and can be
@@ -1280,7 +1281,7 @@ record is each ticket's "Fix shipped" note and `CHANGELOG.md`):
       - `personId` on assignments (Tasks and the project role fields), so the
         name-matching helpers (`canonName` and the legacy-name scrub) can retire.
       - D2 is lifted, so Tasks can change. ⚠
-      - *Plan, 2026-10-19 (PR #177, waits on the owner's go):* the names stay. Each record
+      - *Plan, 2026-10-19 (PR #177; the owner merged it as the go, 2026-10-19):* the names stay. Each record
         also stores which person or client every name means.
         - ⚠ *Columns:* `refs`, multiple lines of text (plain), on `ShopTimeline_Projects`,
           `ShopTimeline_Tasks` and `ShopTimeline_Tasks2`. It holds JSON mapping each stored
@@ -1309,11 +1310,14 @@ record is each ticket's "Fix shipped" note and `CHANGELOG.md`):
         (PR #176, 2026-10-19). Suite `tests/test-v1512.js`.
       - [ ] *Step 2, the owner (once v1.51.2 is on `main`):* set the Config key
         `update.minVersion` to `1.51.2` (Help ▸ App settings ▸ "Ask everyone to reload") so
-        open tabs on an older build reload. Then
-        delete `metalFab` from `ShopTimeline_Projects` and `labels` and `checklist` from
-        `ShopTimeline_Tasks2`. Before deleting `metalFab`, sort the list by it: any row
-        that holds a value is legacy crew text, so copy it into that project's
-        Fabricators first, or tell Claude.
+        open tabs on an older build reload. **Wait a working day**, so laptops that were
+        asleep wake, check and reload: a tab still on v1.51.1 can't save once the columns
+        are gone, and its unsaved change is lost when it reloads. Then export
+        `ShopTimeline_Projects` and `ShopTimeline_Tasks2` to CSV (a deleted column can't be
+        restored, and there are no backups yet, item 15). Sort by `metalFab`: any value is
+        legacy crew text, so copy it into that project's Fabricators first, or tell Claude.
+        Then delete `metalFab` from `ShopTimeline_Projects` and `labels` and `checklist`
+        from `ShopTimeline_Tasks2`.
 - [ ] **49. The Systems portal and the Timeline move (D4's reshape PR).** Timeline moves
       from `/` to `/timeline/`, and a static portal page of product tiles takes `/`. One
       release, one `CHANGELOG.md` line, no behaviour change.
@@ -1476,7 +1480,7 @@ then the recommendation or the dated ruling.
 | D7 | What v2.0.0 means | Open — recommendation stands |
 | D8 | The Company Data pages' future | **Ruled** 2026-09-29 |
 | D9 | Worker type vocabulary | Open |
-| D10 | Stable IDs | Open |
+| D10 | Stable IDs | **Ruled** for the SharePoint phase 2026-10-19 (item 28) |
 | D11 | Departments and shop closures as data | Open |
 | D12 | Polling budget | Open |
 | D13 | Integrations: ADP, TimeClock+, QuickBooks | Open |
@@ -1646,7 +1650,7 @@ then the recommendation or the dated ruling.
   taken from Employee Contacts if HR agrees, mapped onto the flag until Phase 8. A related
   limit: the weekly schedule is one time range per person (no split shifts, no per-day
   hours), the first ceiling a TimeClock+ hours integration will hit (§7.4). [brief §8.1]
-- **D10 — Stable IDs.** *Open.* Assignments store people's *names*, matched up through
+- **D10 — Stable IDs.** *Ruled for the SharePoint phase 2026-10-19 (item 28's plan); the target identity below stays the Phase 8 goal.* Assignments store people's *names*, matched up through
   `canonName`; projects store the client as a *name*. Clients have no `appId` but do have
   a stable `spId` (the SharePoint item ID). *Recommend:* in Phase 8, add `clientId` on
   Projects (additive, with a one-time backfill from name to ID in the same milestone) and
@@ -1660,7 +1664,7 @@ then the recommendation or the dated ruling.
   display values and never join. On SQL this becomes foreign keys; on any platform it is
   the step that makes moving rows a script. [brief §8]
   *For the SharePoint phase (2026-10-19):* item 28's plan (PR #177) stores the IDs beside
-  the names. The owner's go on it rules D10 for this phase.
+  the names. The owner merged it as the go on 2026-10-19, ruling D10 for this phase.
 - **D11 — Departments and shop closures as data.** *Open.* Departments and the six
   holidays are fixed in code; the brief wants configurable departments and a Shop Closure
   list. *Recommend:* Phase 8, after D1. The department list just changed (Logistics and
@@ -2363,6 +2367,18 @@ How to read the tags at the end of an entry:
   number.
 
 **Log, newest first:**
+
+- 2026-10-19: **v1.51.1 → v1.51.2 promoted to `main`** (release/2026-10-19c), so the owner
+  can delete the dead columns (item 29, step 2).
+  - v1.51.2 is item 29's step 1 (PR #176), ticked. Step 2 is the owner's and listed.
+  - *Docs with no release:*
+    - items 73 and 74 deferred by the owner (PR #175, §7.4);
+    - item 28's stable-IDs plan (PR #177). The owner merged it as the go.
+  - *Tracker:* no change. #41 (item 67) and #12 (item 40) stay on hold.
+  - *Schema:* this release needs no column. ⚠ Item 28's three `refs` columns are listed in
+    §6 as not yet created. Item 29's three columns are deleted after this promotion.
+  - *Workflows:* unchanged.
+  - *Branches:* only `main`, `development` and this release branch.
 
 - 2026-10-19: **v1.51.0 → v1.51.1 promoted to `main`** (release/2026-10-19b; the owner
   asked for item 66 to go out as soon as it was ready).
