@@ -1861,7 +1861,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.51.1'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.51.2'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -2118,7 +2118,7 @@ function scrubNames(mapFn,apply){
     const h=healArr(parts);return h?h.join(', '):null;};
   const projects=ST.projects.map(p=>{
     let q=p;
-    for(const f of ['projectManager','drafter','leadFab','fabricators','metalFab']){
+    for(const f of ['projectManager','drafter','leadFab','fabricators']){
       const h=healStr(p[f]);
       if(h!=null){if(q===p)q={...p};q[f]=h;
         report.push({kind:'project',record:p.name,field:f,before:p[f],after:h});}
@@ -2406,7 +2406,7 @@ const STATUS_MIGRATE={'approved':'in-fabrication','in-production':'in-fabricatio
 
 /* ===================== DATA LAYER ===================== */
 function seed(){
-  PEOPLE=rostersToPeople({projectManagers:['Theo','Cordelia'],drafters:['Oscar','Felix'],leadFabs:['Milo','Ines'],metalFabs:[]});
+  PEOPLE=rostersToPeople({projectManagers:['Theo','Cordelia'],drafters:['Oscar','Felix'],leadFabs:['Milo','Ines']});
   rebuildStaff();
   const t=today();
   let d1=addDays(t,35);while(!isWorking(d1))d1=addDays(d1,1);
@@ -2618,7 +2618,7 @@ const isoDay=v=>v?String(v).slice(0,10):'';
 function todoToFields(t){return{Title:t.title||'Task',appId:t.id,projectId:t.projectId||'',
   department:t.dept||'',assignees:JSON.stringify(t.who||[]),dueDate:t.due||null,
   startDate:t.start||null,progress:t.progress||'notstarted',priority:t.priority||'medium',
-  notes:t.notes||'',labels:'[]',checklist:'[]',createdBy:t.createdBy||'',
+  notes:t.notes||'',createdBy:t.createdBy||'', /* v1.51.2 (item 29): the dead labels/checklist columns are no longer written */
   completedOn:t.completedOn||null,completedBy:t.completedBy||'',sortIndex:t.sortIndex||0};}
 function fieldsToTodo(f){return{id:f.appId,projectId:f.projectId||'',dept:f.department||'',
   title:f.Title||'',who:safeArr(f.assignees),due:isoDay(f.dueDate),start:isoDay(f.startDate),
@@ -2657,8 +2657,8 @@ function schedParse(v){
   M=Math.round(M/30)*30;if(M===60){M=0;H=(H+1)%24;}
   return String(H).padStart(2,'0')+':'+String(M).padStart(2,'0');}
 
-function projToFields(p){const f={Title:p.name||'',client:p.client||'',jobCode:p.jobCode||'',deadline:p.deadline||null,status:p.status||'auto',projectManager:p.projectManager||'',drafter:p.drafter||'',leadFab:p.leadFab||'',fabricators:p.fabricators||'',metalFab:p.metalFab||'',activeDepartments:JSON.stringify(p.activeDepartments||[]),appId:p.id,createdAt:p.createdAt||null};if(p.sortIndex!=null)f.sortIndex=p.sortIndex;return f;}
-function fieldsToProj(f){return{id:f.appId,name:f.Title||'',client:f.client||'',jobCode:f.jobCode||'',deadline:isoDay(f.deadline),status:f.status||'auto',projectManager:f.projectManager||'',drafter:f.drafter||'',leadFab:f.leadFab||'',fabricators:f.fabricators||'',metalFab:f.metalFab||'',activeDepartments:safeArr(f.activeDepartments),sortIndex:f.sortIndex==null?null:Number(f.sortIndex),createdAt:isoDay(f.createdAt),
+function projToFields(p){const f={Title:p.name||'',client:p.client||'',jobCode:p.jobCode||'',deadline:p.deadline||null,status:p.status||'auto',projectManager:p.projectManager||'',drafter:p.drafter||'',leadFab:p.leadFab||'',fabricators:p.fabricators||'',activeDepartments:JSON.stringify(p.activeDepartments||[]),appId:p.id,createdAt:p.createdAt||null};if(p.sortIndex!=null)f.sortIndex=p.sortIndex;return f;} /* v1.51.2 (item 29): the dead metalFab column is no longer read or written */
+function fieldsToProj(f){return{id:f.appId,name:f.Title||'',client:f.client||'',jobCode:f.jobCode||'',deadline:isoDay(f.deadline),status:f.status||'auto',projectManager:f.projectManager||'',drafter:f.drafter||'',leadFab:f.leadFab||'',fabricators:f.fabricators||'',activeDepartments:safeArr(f.activeDepartments),sortIndex:f.sortIndex==null?null:Number(f.sortIndex),createdAt:isoDay(f.createdAt),
   ...(f.confirmedAt?{confirmedAt:String(f.confirmedAt),confirmedBy:String(f.confirmedBy||'')}:{})};} /* v1.48.0 (item 6): "Schedule still accurate", read only when set; projToFields never writes it — only ppConfirmSchedule does */
 function taskToFields(t){const d=deptById(t.department);return{Title:(d?d.name:t.department)||'Task',projectId:t.projectId,department:t.department,assignee:Array.isArray(t.assignee)?JSON.stringify(t.assignee):(t.assignee||''),startDate:t.startDate||null,endDate:t.endDate||null,estimatedDays:t.estimatedDays||1,ticketNodes:JSON.stringify(t.ticketNodes||[]),notes:t.notes||'',pinned:!!t.pinned,label:t.label||'',...(t.range?{range:true}:{}),appId:t.id};} /* v1.32.0 (#16): `range` is written only when set (tristate — a site without the column never sees it on ordinary saves) */
 function fieldsToTask(f){const a=(isEndDept(f.department)&&typeof f.assignee==='string'&&f.assignee.trim().startsWith('['))?safeArr(f.assignee):(f.assignee||'');return{id:f.appId,projectId:f.projectId,department:f.department,assignee:a,startDate:isoDay(f.startDate),endDate:isoDay(f.endDate),estimatedDays:Number(f.estimatedDays)||1,ticketNodes:safeArr(f.ticketNodes),notes:f.notes||'',pinned:!!f.pinned,label:f.label||'',...(f.range?{range:true}:{})};} /* v1.32.0 (#16): tristate on the read side too — a loaded non-range row keeps its pre-v1.32.0 shape, so stripStamps() still matches a row created in this session and the poll never wipes the undo stack over it */
@@ -3500,7 +3500,7 @@ function applyPerms(){
 }
 function projMatch(p){
   if(!FILTER)return true;
-  return (p.name+' '+(p.client||'')+' '+(p.jobCode||'')+' '+(p.projectManager||'')+' '+(p.drafter||'')+' '+(p.leadFab||'')+' '+(p.fabricators||'')+' '+(p.metalFab||'')).toLowerCase().includes(FILTER);
+  return (p.name+' '+(p.client||'')+' '+(p.jobCode||'')+' '+(p.projectManager||'')+' '+(p.drafter||'')+' '+(p.leadFab||'')+' '+(p.fabricators||'')).toLowerCase().includes(FILTER);
 }
 function taskMatch(t){
   if(!FILTER)return true;
@@ -12151,7 +12151,7 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
- {v:"v1.51.1",d:"Oct 19, 2026",n:["Ticking names in a crew list (the bar's popover or the panel below the chart) no longer jumps the list back to the top, and every tick counts, even several in a row on an install's full staff list."]},
+ {v:"v1.51.1–v1.51.2",d:"Oct 19, 2026",n:["Ticking names in a crew list (the bar's popover or the panel below the chart) no longer jumps the list back to the top, and every tick counts, even several in a row on an install's full staff list."]},
  {v:"v1.51.0",d:"Oct 19, 2026",n:["The project page has a **Today** button beside the zoom buttons. On the Gantt it scrolls back so this week starts at the left edge; on the Calendar it jumps to the current week."]},
  {v:"v1.50.0",d:"Oct 16, 2026",n:["On a project's Gantt, a milestone with a phase now sits on that phase's bar, so \"ALL CNC DONE\" shows on the CNC bar. Milestones with no phase or a Project Management phase, or whose phase isn't scheduled on the job, stay in the Milestones row.",
    "Drag a milestone up or down onto another phase's row to change its phase; drop it on the Milestones row to make it Project Management's. Dragging sideways still changes its date, and one drag can do both.",
