@@ -21,9 +21,14 @@ Once v1.51.2 is on `main`:
 
 1. Set `update.minVersion` to `1.51.2` (Help ▸ App settings ▸ "Ask everyone to reload"), so
    tabs still open on an older build reload.
-2. On `ShopTimeline_Projects`, sort by `metalFab`. A row with a value holds old crew text:
+2. Wait a working day. A tab on a laptop that was asleep reloads when it wakes. A tab still
+   on v1.51.1 when the columns go can't save: SharePoint rejects the save, the app won't
+   reload over the failed save, and the change is lost when the person reloads.
+3. Export `ShopTimeline_Projects` and `ShopTimeline_Tasks2` to CSV. A deleted column can't be
+   restored, and nothing backs the lists up yet (item 15).
+4. On `ShopTimeline_Projects`, sort by `metalFab`. A row with a value holds old crew text:
    copy it into that project's Fabricators first, or tell Claude.
-3. Delete `metalFab` from `ShopTimeline_Projects`, and `labels` and `checklist` from
+5. Delete `metalFab` from `ShopTimeline_Projects`, and `labels` and `checklist` from
    `ShopTimeline_Tasks2`.
 
 **What it breaks:** nothing in Timeline. The colleague app, unused, would lose those fields

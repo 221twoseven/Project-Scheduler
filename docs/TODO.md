@@ -1310,11 +1310,14 @@ record is each ticket's "Fix shipped" note and `CHANGELOG.md`):
         (PR #176, 2026-10-19). Suite `tests/test-v1512.js`.
       - [ ] *Step 2, the owner (once v1.51.2 is on `main`):* set the Config key
         `update.minVersion` to `1.51.2` (Help ▸ App settings ▸ "Ask everyone to reload") so
-        open tabs on an older build reload. Then
-        delete `metalFab` from `ShopTimeline_Projects` and `labels` and `checklist` from
-        `ShopTimeline_Tasks2`. Before deleting `metalFab`, sort the list by it: any row
-        that holds a value is legacy crew text, so copy it into that project's
-        Fabricators first, or tell Claude.
+        open tabs on an older build reload. **Wait a working day**, so laptops that were
+        asleep wake, check and reload: a tab still on v1.51.1 can't save once the columns
+        are gone, and its unsaved change is lost when it reloads. Then export
+        `ShopTimeline_Projects` and `ShopTimeline_Tasks2` to CSV (a deleted column can't be
+        restored, and there are no backups yet, item 15). Sort by `metalFab`: any value is
+        legacy crew text, so copy it into that project's Fabricators first, or tell Claude.
+        Then delete `metalFab` from `ShopTimeline_Projects` and `labels` and `checklist`
+        from `ShopTimeline_Tasks2`.
 - [ ] **49. The Systems portal and the Timeline move (D4's reshape PR).** Timeline moves
       from `/` to `/timeline/`, and a static portal page of product tiles takes `/`. One
       release, one `CHANGELOG.md` line, no behaviour change.
