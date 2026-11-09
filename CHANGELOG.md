@@ -9,6 +9,9 @@ Format: `## <label> — <date>` then one `- ` line per change. Keep lines concre
 what changed *for the team*, not how. Developer-only tooling doesn't need a line.
 Collect lines for the next version under `## Unreleased` and rename it when you ship.
 
+## v1.51.3 — Nov 9, 2026
+- No more stacked Microsoft login windows. When your sign-in expires in an open tab (overnight, usually), the app first signs you back in silently; only if that fails does it show one "Your sign-in expired" message on the page itself, and the only login window is the one its button opens. Anything you changed before signing back in saves right after, and a signed-out tab sits quietly instead of retrying in the background.
+
 ## v1.51.1–v1.51.2 — Oct 19, 2026
 - Ticking names in a crew list (the bar's popover or the panel below the chart) no longer jumps the list back to the top, and every tick counts, even several in a row on an install's full staff list.
 
