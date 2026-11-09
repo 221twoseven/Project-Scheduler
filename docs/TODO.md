@@ -64,9 +64,10 @@ is the log in §8.
 
 ## 0. Where we stand
 
-As of 2026-10-19: production (`main`) runs **v1.51.1**, promoted 2026-10-19
-(release/2026-10-19b). `development` runs **v1.51.2**: the app stops using the dead
-columns (item 29's first step).
+As of 2026-11-09: production (`main`) runs **v1.51.1**, promoted 2026-10-19
+(release/2026-10-19b). `development` runs **v1.51.3**: the app stops using the dead
+columns (v1.51.2, item 29's first step), and an expired Microsoft sign-in now shows one
+in-page prompt instead of stacking login windows (item 76).
 
 The newest work on production:
 - v1.51.1: ticking crew names keeps your place, and no tick is lost (item 66);
@@ -826,6 +827,16 @@ release. Where the app has a part, it's listed.
       - *Applies to:* both the draft and the saved page.
       - *No shortcut:* T already means New note on the project page.
       - *Order:* build after item 32 (PR #165), which changes the same header row.
+- [x] **76. Stop the stacked login windows** (owner, 2026-11-09: a tab left open overnight
+      greeted him with up to fifteen Microsoft login prompts). Shipped v1.51.3 (PR #171,
+      2026-11-09). Root cause: `spToken()` fell back to an interactive token popup whenever
+      silent renewal failed, and the 90-second poll calls it with no concurrency guard —
+      one window per tick. Now: token renewal is silent-only; an expiry first retries
+      `ssoSilent` (a still-alive Microsoft session heals invisibly), and only then shows
+      one in-page "Your sign-in expired" overlay. The one real login window opens only
+      from that overlay's button (single-flighted), a save parked by the expiry replays
+      after re-sign-in, and a signed-out tab stops polling entirely. Suite
+      `tests/test-v1513.js`.
 - [x] **48. The storage seam.** One `store` object owns every conversation with
       SharePoint, instead of 37 call sites in 16 functions. It is idea 1 of
       `docs/Architecture-Review-Storage.md`, needed whatever D15 decides, and the path to an

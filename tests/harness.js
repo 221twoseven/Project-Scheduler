@@ -41,6 +41,7 @@ function msalStub(){
     this.loginPopup=async()=>({account:{username:'user@example.com'}});
     this.acquireTokenSilent=async()=>({accessToken:'tok'});
     this.acquireTokenPopup=async()=>({accessToken:'tok'});
+    this.ssoSilent=async()=>({account:{username:'user@example.com'}}); /* v1.51.3: the silent heal */
   }};`;
 }
 
