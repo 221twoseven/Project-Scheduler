@@ -98,7 +98,10 @@ function makeFetch(data,opts){
 function suite(){
   const FILE=process.argv[2]||'index.html';
   let pass=0,fail=0;
-  return {FILE,src:fs.readFileSync(FILE,'utf8'),
+  /* item 78: normalize line endings — a Windows checkout (core.autocrlf) puts \r\n on disk,
+     and the suites' source regexes match \{\n, so three suites failed locally but not in CI.
+     Same trick test-todo.js already uses on TODO.md. */
+  return {FILE,src:fs.readFileSync(FILE,'utf8').replace(/\r\n/g,'\n'),
     ok(n,c,x){if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}},
     done(){console.log('\n'+'-'.repeat(46));console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');process.exit(fail?1:0);}};
 }
