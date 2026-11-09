@@ -837,6 +837,15 @@ release. Where the app has a part, it's listed.
       from that overlay's button (single-flighted), a save parked by the expiry replays
       after re-sign-in, and a signed-out tab stops polling entirely. Suite
       `tests/test-v1513.js`.
+- [x] **77. Fix the date rot failing CI on every PR** (2026-11-09). Test-only, no release.
+      `tests/test-v1400.js` seeds demo projects with fixed dates (Jul 2026 – Jan 2027) but
+      opens the print preview on its real-clock prefill (today + one paper width), so from
+      early Nov 2026 the prefilled window held no bars and the suite crashed on a null
+      `pvBar` — on unmodified `development` too, failing the `CI / test` check on every PR.
+      It last passed in CI on Oct 19. Fixed on `development` (PR #181, 2026-11-09): a new harness
+      option (`opts.now`) pins the jsdom window's clock, and the suite uses it to sit at
+      2026-10-01, inside its data; the demo dates and per-page row-count assertions are
+      untouched.
 - [x] **48. The storage seam.** One `store` object owns every conversation with
       SharePoint, instead of 37 call sites in 16 functions. It is idea 1 of
       `docs/Architecture-Review-Storage.md`, needed whatever D15 decides, and the path to an
