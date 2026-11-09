@@ -842,7 +842,7 @@ release. Where the app has a part, it's listed.
       opens the print preview on its real-clock prefill (today + one paper width), so from
       early Nov 2026 the prefilled window held no bars and the suite crashed on a null
       `pvBar` — on unmodified `development` too, failing the `CI / test` check on every PR.
-      It last passed in CI on Oct 19. Fixed on `development` (2026-11-09): a new harness
+      It last passed in CI on Oct 19. Fixed on `development` (PR #181, 2026-11-09): a new harness
       option (`opts.now`) pins the jsdom window's clock, and the suite uses it to sit at
       2026-10-01, inside its data; the demo dates and per-page row-count assertions are
       untouched.
