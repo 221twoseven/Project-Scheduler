@@ -1,6 +1,6 @@
 # Silent-only sign-in renewal — one prompt, never a stack of windows
 
-**Date:** 2026-11-09 · **Version:** v1.51.3 · **Item:** §3 item 76 · **PR:** #171
+**Date:** 2026-11-09 · **Version:** v1.51.3 · **Item:** §3 item 76 · **PR:** #180
 
 ## What happened
 

@@ -828,7 +828,7 @@ release. Where the app has a part, it's listed.
       - *No shortcut:* T already means New note on the project page.
       - *Order:* build after item 32 (PR #165), which changes the same header row.
 - [x] **76. Stop the stacked login windows** (owner, 2026-11-09: a tab left open overnight
-      greeted him with up to fifteen Microsoft login prompts). Shipped v1.51.3 (PR #171,
+      greeted him with up to fifteen Microsoft login prompts). Shipped v1.51.3 (PR #180,
       2026-11-09). Root cause: `spToken()` fell back to an interactive token popup whenever
       silent renewal failed, and the 90-second poll calls it with no concurrency guard —
       one window per tick. Now: token renewal is silent-only; an expiry first retries
