@@ -851,7 +851,7 @@ release. Where the app has a part, it's listed.
       writes `index.html` to disk with Windows line endings, and three suites' source-regex
       assertions match `\{\n` — so `test-v1100` (visible-first coachEl) and
       `test-v1180`/`test-v1181` (applyPerms at the door) failed locally while CI (Linux, LF)
-      stayed green. Fixed on `development` (2026-11-09): `suite()` in `tests/harness.js`
+      stayed green. Fixed on `development` (PR #182, 2026-11-09): `suite()` in `tests/harness.js`
       normalizes the source's line endings before any assertion sees it, the same trick
       `tests/test-todo.js` already uses on TODO.md. Local `npm test` now matches CI.
 - [x] **48. The storage seam.** One `store` object owns every conversation with
