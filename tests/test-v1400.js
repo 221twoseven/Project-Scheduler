@@ -45,7 +45,11 @@ const staff=[{appId:'s1',Title:'Sam',email:'user@example.com',depts:JSON.stringi
   {appId:'s3',Title:'Milo',email:'',depts:JSON.stringify(['fab']),ooo:'[]',role:''},
   {appId:'s4',Title:'Kim',email:'',depts:JSON.stringify(['pm']),ooo:'[]',role:''}];
 
-const dom=boot(FILE,{data:{projects,tasks,staff,todos:[]}});
+/* item 77: the demo's dates are fixed (Jul 2026 – Jan 2027) but the preview's From/To
+   prefill is today + one paper width, so once real time passed Nov 2026 the prefilled
+   window held no bars and pvBar came up null. Pin the clock inside the data. */
+const NOW='2026-10-01';
+const dom=boot(FILE,{data:{projects,tasks,staff,todos:[]},now:NOW});
 const win=dom.window,doc=win.document,E=s=>win.eval(s);
 const q=s=>doc.querySelector(s),qa=s=>[...doc.querySelectorAll(s)];
 const click=el=>el&&el.dispatchEvent(new win.MouseEvent('click',{bubbles:true,cancelable:true}));
@@ -285,7 +289,7 @@ function draft(){
   ok('R4 draft: the print leaves the draft untouched', E('ROUTE.creating')===true&&q('#pp-name').value==='Soho Holiday');
 
   sec('R2 — a reload remembers the paper (a second boot with the stored choice)');
-  const dom2=boot(FILE,{data:{projects,tasks,staff,todos:[]},localStorage:{shopTimelinePaper:'tabloid',shopTimelineSheetPortrait:'1'}});
+  const dom2=boot(FILE,{data:{projects,tasks,staff,todos:[]},now:NOW,localStorage:{shopTimelinePaper:'tabloid',shopTimelineSheetPortrait:'1'}});
   const w2=dom2.window;
   setTimeout(()=>{
     const s2=w2.document.getElementById('print-page-size');
