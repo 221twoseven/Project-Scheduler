@@ -846,6 +846,14 @@ release. Where the app has a part, it's listed.
       option (`opts.now`) pins the jsdom window's clock, and the suite uses it to sit at
       2026-10-01, inside its data; the demo dates and per-page row-count assertions are
       untouched.
+- [x] **78. Make the suites CRLF-proof for Windows checkouts** (2026-11-09, the follow-up
+      named on PR #181). Test-only, no release. On a Windows clone, git's `core.autocrlf`
+      writes `index.html` to disk with Windows line endings, and three suites' source-regex
+      assertions match `\{\n` — so `test-v1100` (visible-first coachEl) and
+      `test-v1180`/`test-v1181` (applyPerms at the door) failed locally while CI (Linux, LF)
+      stayed green. Fixed on `development` (PR #182, 2026-11-09): `suite()` in `tests/harness.js`
+      normalizes the source's line endings before any assertion sees it, the same trick
+      `tests/test-todo.js` already uses on TODO.md. Local `npm test` now matches CI.
 - [x] **48. The storage seam.** One `store` object owns every conversation with
       SharePoint, instead of 37 call sites in 16 functions. It is idea 1 of
       `docs/Architecture-Review-Storage.md`, needed whatever D15 decides, and the path to an
