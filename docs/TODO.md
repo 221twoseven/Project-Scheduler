@@ -857,6 +857,13 @@ release. Where the app has a part, it's listed.
       stayed green. Fixed on `development` (PR #182, 2026-11-09): `suite()` in `tests/harness.js`
       normalizes the source's line endings before any assertion sees it, the same trick
       `tests/test-todo.js` already uses on TODO.md. Local `npm test` now matches CI.
+- [x] **79. Pin `test-v1360`'s clock** (2026-11-10, CI red on the promotion PR). Test-only,
+      no release. The dashboard chart starts on the 1st of the month 40 days back, and the
+      suite's demo bar starts exactly 40 days back. On a day where that is a 1st (Nov 10:
+      Oct 1), the bar sat at x=0, couldn't scroll into view, and "label back at its natural
+      inset" read 14px vs 8. The app behaves correctly. Fixed in the promotion branch
+      (PR #183, 2026-11-10): the suite pins its clock to 2026-10-20 with the harness's
+      `opts.now` (item 77).
 - [x] **48. The storage seam.** One `store` object owns every conversation with
       SharePoint, instead of 37 call sites in 16 functions. It is idea 1 of
       `docs/Architecture-Review-Storage.md`, needed whatever D15 decides, and the path to an
@@ -2407,7 +2414,9 @@ How to read the tags at the end of an entry:
   - *Docs and tests with no release:*
     - items 73 and 74 deferred by the owner (PR #175, §7.4);
     - item 28's stable-IDs plan (PR #177). The owner merged it as the go;
-    - items 77 (PR #181) and 78 (PR #182), test-only, ticked.
+    - items 77 (PR #181) and 78 (PR #182), test-only, ticked;
+    - item 79, test-only, done in this release branch: CI went red on the promotion PR
+      the day `test-v1360`'s demo dates hit a month boundary.
   - *Tracker:* no change. #41 (item 67) and #12 (item 40) stay on hold.
   - *Schema:* neither release needs a column. ⚠ Item 28's three `refs` columns are listed
     in §6 as not yet created. Item 29's three columns are deleted after this promotion.

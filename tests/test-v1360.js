@@ -13,7 +13,10 @@ const {FILE,src,ok,done}=suite();
 
 const sec=t=>console.log('\n'+t);
 
-const D=n=>{const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()+n);
+/* item 79: the clock is pinned. The chart starts on the 1st of the month 40 days back, so on
+   a real day whose D(-40) is a 1st the bar sat at x=0 and couldn't scroll into view. */
+const NOW='2026-10-20';
+const D=n=>{const d=new Date(NOW+'T12:00:00');d.setHours(0,0,0,0);d.setDate(d.getDate()+n);
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
 /* one long job that started well before today — the reporter's scenario */
 const projects=[{appId:'p1',Title:'Gwendolyn Seafood Madison',client:'Gwendolyn',jobCode:'TB1',deadline:D(40),
@@ -25,7 +28,7 @@ const tasks=[
   {appId:'a2',projectId:'p1',department:'fab',assignee:'Milo',startDate:D(-30),endDate:D(30),estimatedDays:45,ticketNodes:'[]',notes:'',pinned:false,label:''},
   {appId:'a3',projectId:'p1',department:'install',assignee:'[]',startDate:D(38),endDate:D(40),estimatedDays:3,ticketNodes:'[]',notes:'',pinned:false,label:''}];
 
-const dom=boot(FILE,{data:{projects,tasks,staff:[],todos:[]}});
+const dom=boot(FILE,{data:{projects,tasks,staff:[],todos:[]},now:NOW});
 const win=dom.window,doc=win.document;
 const E=s=>win.eval(s);
 const px=v=>parseFloat(v)||0;
