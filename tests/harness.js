@@ -3,6 +3,18 @@
 const fs=require('fs'),path=require('path');
 const {JSDOM}=require('jsdom');
 
+/* item 80: every suite runs on one virtual "today", in this process and in the app's
+   window, so no suite rots as real time moves on (items 77, 79). The clock still ticks;
+   it just starts there. Noon local, the app's own DST-safe convention. A suite whose
+   demo data needs another day passes opts.now. To hunt date bugs, run the whole set on
+   another day: TEST_TODAY=2027-02-15 npm test */
+const TODAY=process.env.TEST_TODAY||'2026-11-10';
+function shiftDate(D,ymd){
+  const off=new D(ymd+'T12:00:00').getTime()-D.now();
+  return class extends D{constructor(...a){a.length?super(...a):super(D.now()+off);}static now(){return D.now()+off;}};
+}
+global.Date=shiftDate(Date,TODAY);
+
 function boot(file,opts){
   opts=opts||{};
   let html=fs.readFileSync(file,'utf8');
@@ -28,11 +40,9 @@ function boot(file,opts){
       if(!opts.coachFirstRun)win.localStorage.setItem('shopTimelineCoachSeen','1');
       /* V4: suites can pre-seed localStorage to test what a reload picks up */
       if(opts.localStorage)for(const k in opts.localStorage)win.localStorage.setItem(k,opts.localStorage[k]);
-      /* item 77: suites that seed demo data with fixed dates pin the app's clock inside
-         that range (opts.now, 'YYYY-MM-DD'), so the suite doesn't rot as real time moves
-         past the data. Noon local, matching the app's own DST-safe date convention. */
-      if(opts.now){const t=new Date(opts.now+'T12:00:00').getTime(),D=win.Date;
-        win.Date=class extends D{constructor(...a){a.length?super(...a):super(t);}static now(){return t;}};}
+      /* items 77, 80: the app's clock starts on the suite's day (opts.now) or the shared
+         one, 'YYYY-MM-DD'. */
+      win.Date=shiftDate(win.Date,opts.now||TODAY);
     }
   });
   return dom;
