@@ -73,6 +73,10 @@ function makeFetch(data,opts){
     const ok=(body)=>({ok:true,status:200,json:async()=>body,text:async()=>JSON.stringify(body)});
     const fail=(code)=>({ok:false,status:code,json:async()=>({}),text:async()=>'not found'});
     if(/\/sites\/[^/]+:\//.test(u)&&!/\/lists\//.test(u))return ok({id:'SITE1'});
+    /* v1.52.0 (item 28): opts.columns names a list's columns ({ShopTimeline_Projects:['refs']})
+       for the app's column probes; any list not named falls through as before */
+    if(opts.columns)for(const l in opts.columns)
+      if(u.includes('/lists/'+encodeURIComponent(l)+'/columns'))return ok({value:opts.columns[l].map(name=>({name}))});
     if(u.includes(listNames.todos)){
       if(opts.todosList)return ok({value:(data.todos||[]).map(toItem)});
       return fail(404);
