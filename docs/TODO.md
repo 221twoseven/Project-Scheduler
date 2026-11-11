@@ -50,8 +50,9 @@ as the phase runs.
 - Every milestone gets a record in `docs/Milestones/Phase-7-Pilot-Readiness/`; every
   deliberate skip gets a §7 line with its gate.
 
-Last reviewed: 2026-10-19 — the promotion audits for v1.48.5 → v1.51.0 and v1.51.0 → v1.51.1
-reaching `main` (log in §8). Before that, 2026-10-15 — the promotion audit for v1.48.1 → v1.48.5, after a full audit the
+Last reviewed: 2026-11-10 — the promotion audit for v1.51.1 → v1.51.3 reaching `main` (log
+in §8). Before that, 2026-10-19 — the promotion audits for v1.48.5 → v1.51.0 and
+v1.51.0 → v1.51.1. Before that, 2026-10-15 — the promotion audit for v1.48.1 → v1.48.5, after a full audit the
 same day. Before that, 2026-10-13 — the promotion audit for v1.45.1 → v1.48.1 reaching `main`. Before that, 2026-10-09 — the promotion audits for v1.43.0 → v1.44.3 and v1.44.3 →
 v1.45.1. Before that, 2026-10-08 — D15 (data platform) reassessed: Dataverse and Azure SQL + API
 are now co-equal candidates (`docs/Architecture-Review-Backend.md`); D1, D3, D10–D13 and
@@ -64,10 +65,14 @@ is the log in §8.
 
 ## 0. Where we stand
 
-As of 2026-10-19: production (`main`) and `development` both run **v1.51.1**, promoted
-2026-10-19 (release/2026-10-19b).
+As of 2026-11-10: production (`main`) and `development` both run **v1.51.3**, promoted
+2026-11-10 (release/2026-11-10).
 
 The newest work on production:
+- v1.51.3: an expired Microsoft sign-in shows one in-page prompt instead of stacking login
+  windows (item 76);
+- v1.51.2: the app stops using the dead columns, so the owner can delete them (item 29's
+  first step);
 - v1.51.1: ticking crew names keeps your place, and no tick is lost (item 66);
 - v1.51.0: a Today button on the project page (item 75);
 - v1.50.0: milestones sit on their phase, chosen in the new Help ▸ My settings, and can be
@@ -87,7 +92,7 @@ Before that:
 Earlier: reporter answers show in Open Issues (item 58); Protect dates (item 2: drags
 never change dates).
 
-Phase 7 has shipped v1.24.0 → v1.51.1 so far.
+Phase 7 has shipped v1.24.0 → v1.51.3 so far.
 `CHANGELOG.md` is the release-by-release record.
 
 ## 1. North star — Systems
@@ -798,6 +803,8 @@ release. Where the app has a part, it's listed.
         (`tour.off.<account>`), because it must work for people with no Staff row. Decide
         whether it moves into the Staff row with the rest.
       - *No new on-screen copy.*
+      - *Deferred 2026-10-19* (owner: quality-of-life work waits while the north star moves).
+        The draft My settings wording is on PR #175. §7.4 has the entry.
 - [ ] **74. Row height on the project page** (owner, 2026-10-16: the edit page "gets
       more direct use"). View ▸ Row height (Comfortable / Snug / Compact) sets the
       timeline only; the project page's rows are fixed at 34 px (`NPV_ROWH`).
@@ -809,6 +816,7 @@ release. Where the app has a part, it's listed.
       - *Collision:* item 32's placement maths reads `NPV_ROWH`, so build this after
         item 32's default is settled (PR #165).
       - *Personal:* once item 73 lands, it joins that value.
+      - *Deferred 2026-10-19* (owner: "For now we won't be doing this"). §7.4 has the entry.
 - [x] **75. A Today button on the project page** (owner, 2026-10-16). Shipped v1.51.0
       (PR #169, 2026-10-19): Gantt puts this week's Monday at the left edge (the timeline's
       rule, item 33); Calendar puts the current week's row at the top, or the job's first or
@@ -822,6 +830,40 @@ release. Where the app has a part, it's listed.
       - *Applies to:* both the draft and the saved page.
       - *No shortcut:* T already means New note on the project page.
       - *Order:* build after item 32 (PR #165), which changes the same header row.
+- [x] **76. Stop the stacked login windows** (owner, 2026-11-09: a tab left open overnight
+      greeted him with up to fifteen Microsoft login prompts). Shipped v1.51.3 (PR #180,
+      2026-11-09). Root cause: `spToken()` fell back to an interactive token popup whenever
+      silent renewal failed, and the 90-second poll calls it with no concurrency guard —
+      one window per tick. Now: token renewal is silent-only; an expiry first retries
+      `ssoSilent` (a still-alive Microsoft session heals invisibly), and only then shows
+      one in-page "Your sign-in expired" overlay. The one real login window opens only
+      from that overlay's button (single-flighted), a save parked by the expiry replays
+      after re-sign-in, and a signed-out tab stops polling entirely. Suite
+      `tests/test-v1513.js`.
+- [x] **77. Fix the date rot failing CI on every PR** (2026-11-09). Test-only, no release.
+      `tests/test-v1400.js` seeds demo projects with fixed dates (Jul 2026 – Jan 2027) but
+      opens the print preview on its real-clock prefill (today + one paper width), so from
+      early Nov 2026 the prefilled window held no bars and the suite crashed on a null
+      `pvBar` — on unmodified `development` too, failing the `CI / test` check on every PR.
+      It last passed in CI on Oct 19. Fixed on `development` (PR #181, 2026-11-09): a new harness
+      option (`opts.now`) pins the jsdom window's clock, and the suite uses it to sit at
+      2026-10-01, inside its data; the demo dates and per-page row-count assertions are
+      untouched.
+- [x] **78. Make the suites CRLF-proof for Windows checkouts** (2026-11-09, the follow-up
+      named on PR #181). Test-only, no release. On a Windows clone, git's `core.autocrlf`
+      writes `index.html` to disk with Windows line endings, and three suites' source-regex
+      assertions match `\{\n` — so `test-v1100` (visible-first coachEl) and
+      `test-v1180`/`test-v1181` (applyPerms at the door) failed locally while CI (Linux, LF)
+      stayed green. Fixed on `development` (PR #182, 2026-11-09): `suite()` in `tests/harness.js`
+      normalizes the source's line endings before any assertion sees it, the same trick
+      `tests/test-todo.js` already uses on TODO.md. Local `npm test` now matches CI.
+- [x] **79. Pin `test-v1360`'s clock** (2026-11-10, CI red on the promotion PR). Test-only,
+      no release. The dashboard chart starts on the 1st of the month 40 days back, and the
+      suite's demo bar starts exactly 40 days back. On a day where that is a 1st (Nov 10:
+      Oct 1), the bar sat at x=0, couldn't scroll into view, and "label back at its natural
+      inset" read 14px vs 8. The app behaves correctly. Fixed in the promotion branch
+      (PR #183, 2026-11-10): the suite pins its clock to 2026-10-20 with the harness's
+      `opts.now` (item 77).
 - [x] **48. The storage seam.** One `store` object owns every conversation with
       SharePoint, instead of 37 call sites in 16 functions. It is idea 1 of
       `docs/Architecture-Review-Storage.md`, needed whatever D15 decides, and the path to an
@@ -1276,10 +1318,43 @@ record is each ticket's "Fix shipped" note and `CHANGELOG.md`):
       - `personId` on assignments (Tasks and the project role fields), so the
         name-matching helpers (`canonName` and the legacy-name scrub) can retire.
       - D2 is lifted, so Tasks can change. ⚠
+      - *Plan, 2026-10-19 (PR #177; the owner merged it as the go, 2026-10-19):* the names stay. Each record
+        also stores which person or client every name means.
+        - ⚠ *Columns:* `refs`, multiple lines of text (plain), on `ShopTimeline_Projects`,
+          `ShopTimeline_Tasks` and `ShopTimeline_Tasks2`. It holds JSON mapping each stored
+          name to its ID: `{"people":{"<name>":"<Staff appId>"},"client":{"<name>":"<Clients spId>"}}`.
+        - *Read:* after people and clients load, and on every poll, a name with a ref
+          reads as that person's or client's current name; one without works as today.
+        - *Write:* every save writes the names as now, plus `refs`. The column is probed
+          once per session (`store.columns`), so a list without it never 400s.
+        - *Match:* only unambiguous matches get an ID: the `canonName` rule for people, the
+          exact name (ignoring case) for clients. Free-text departments are skipped.
+        - *Backfill:* `backfillRefs()` in the console runs a dry run that lists every name
+          it can't match; `backfillRefs(true)` writes the refs.
+        - *(a) v1.52.0:* refs read, written and backfilled. A rename on People or Clients
+          then carries its projects, phases and notes with it; today it doesn't.
+        - *(b) Once the dry run shows nothing unmatched:* `canonName`'s matching and
+          `scrubLegacyNames` retire, and the People merge repoints IDs.
+        - *Not in it:* the stamps (`createdBy`, `completedBy`, `updatedBy`, `confirmedBy`,
+          Changelog `who`) stay names, as a record of who it was at the time.
+        - *Ceiling:* `refs` is JSON, so SharePoint can't filter by it. At the D15 cutover it
+          becomes the migration key (D10's target identity).
       [brief §8]
 - [ ] **29. Drop the dead columns** `metalFab`, `labels` and `checklist` (§7.2, L1040). A
       deliberate cleanup now that D2 is lifted. The app stops writing them one release
       before the columns are deleted; milestone record. ⚠
+      - [x] *Step 1:* the app no longer reads, writes or searches them. Shipped v1.51.2
+        (PR #176, 2026-10-19). Suite `tests/test-v1512.js`.
+      - [ ] *Step 2, the owner (once v1.51.2 is on `main`):* set the Config key
+        `update.minVersion` to `1.51.2` (Help ▸ App settings ▸ "Ask everyone to reload") so
+        open tabs on an older build reload. **Wait a working day**, so laptops that were
+        asleep wake, check and reload: a tab still on v1.51.1 can't save once the columns
+        are gone, and its unsaved change is lost when it reloads. Then export
+        `ShopTimeline_Projects` and `ShopTimeline_Tasks2` to CSV (a deleted column can't be
+        restored, and there are no backups yet, item 15). Sort by `metalFab`: any value is
+        legacy crew text, so copy it into that project's Fabricators first, or tell Claude.
+        Then delete `metalFab` from `ShopTimeline_Projects` and `labels` and `checklist`
+        from `ShopTimeline_Tasks2`.
 - [ ] **49. The Systems portal and the Timeline move (D4's reshape PR).** Timeline moves
       from `/` to `/timeline/`, and a static portal page of product tiles takes `/`. One
       release, one `CHANGELOG.md` line, no behaviour change.
@@ -1442,7 +1517,7 @@ then the recommendation or the dated ruling.
 | D7 | What v2.0.0 means | Open — recommendation stands |
 | D8 | The Company Data pages' future | **Ruled** 2026-09-29 |
 | D9 | Worker type vocabulary | Open |
-| D10 | Stable IDs | Open |
+| D10 | Stable IDs | **Ruled** for the SharePoint phase 2026-10-19 (item 28) |
 | D11 | Departments and shop closures as data | Open |
 | D12 | Polling budget | Open |
 | D13 | Integrations: ADP, TimeClock+, QuickBooks | Open |
@@ -1612,7 +1687,7 @@ then the recommendation or the dated ruling.
   taken from Employee Contacts if HR agrees, mapped onto the flag until Phase 8. A related
   limit: the weekly schedule is one time range per person (no split shifts, no per-day
   hours), the first ceiling a TimeClock+ hours integration will hit (§7.4). [brief §8.1]
-- **D10 — Stable IDs.** *Open.* Assignments store people's *names*, matched up through
+- **D10 — Stable IDs.** *Ruled for the SharePoint phase 2026-10-19 (item 28's plan); the target identity below stays the Phase 8 goal.* Assignments store people's *names*, matched up through
   `canonName`; projects store the client as a *name*. Clients have no `appId` but do have
   a stable `spId` (the SharePoint item ID). *Recommend:* in Phase 8, add `clientId` on
   Projects (additive, with a one-time backfill from name to ID in the same milestone) and
@@ -1625,6 +1700,8 @@ then the recommendation or the dated ruling.
   legacy columns for the migration, then rewritten into references once. Names stay
   display values and never join. On SQL this becomes foreign keys; on any platform it is
   the step that makes moving rows a script. [brief §8]
+  *For the SharePoint phase (2026-10-19):* item 28's plan (PR #177) stores the IDs beside
+  the names. The owner merged it as the go on 2026-10-19, ruling D10 for this phase.
 - **D11 — Departments and shop closures as data.** *Open.* Departments and the six
   holidays are fixed in code; the brief wants configurable departments and a Shop Closure
   list. *Recommend:* Phase 8, after D1. The department list just changed (Logistics and
@@ -1858,6 +1935,8 @@ constraint (D2, lifted 2026-09-24).
 
 **Candidates this phase** (the spec is delivered with the item's batch):
 
+- `refs` (multiple lines of text, plain) on `ShopTimeline_Projects`, `ShopTimeline_Tasks`
+  and `ShopTimeline_Tasks2` — item 28, spec in the item. Not yet created (2026-10-19).
 - `dateCertainty` on `ShopTimeline_Projects` — item 5.
 - `closeoutStatus` and `billingStatus` (plus `closeoutBy` and `closeoutAt` if needed) on
   `ShopTimeline_Projects` — item 11.
@@ -2265,6 +2344,14 @@ How to read the tags at the end of an entry:
       from seam PR 8 with the owner's OK). It renames flags, changes nothing on screen, and
       would need four test files edited. Gate: D15 picks a non-SharePoint store (an
       `apiStore` would need it). [item 48]
+- [ ] **The project page keeps its fixed 34 px rows** (item 74, deferred by the owner
+      2026-10-19: "For now we won't be doing this"). View ▸ Row height still sets the
+      timeline only. Gate: the owner picks item 74 back up; the spec in §3 stands as written.
+      [item 74]
+- [ ] **View settings stay per browser** (item 73, deferred by the owner 2026-10-19:
+      quality-of-life work waits while the north star moves). Vivid months, Link subtasks,
+      Group by, the lens and print paper/bars are still remembered by the browser only.
+      Gate: the owner picks item 73 back up; the draft wording is on PR #175. [item 73]
 
 ### 7.5 Deliberate design limits — no action planned; revisit only on real complaints
 
@@ -2317,6 +2404,24 @@ How to read the tags at the end of an entry:
   number.
 
 **Log, newest first:**
+
+- 2026-11-10: **v1.51.1 → v1.51.3 promoted to `main`** (release/2026-11-10), so the owner
+  can delete the dead columns (item 29, step 2) and the login fix reaches everyone.
+  - It replaces the unmerged v1.51.2 promotion (PRs #178 and #179, release/2026-10-19c,
+    closed): `development` had moved on, and its audit commits are carried here.
+  - v1.51.2 is item 29's step 1 (PR #176), ticked. Step 2 is the owner's and listed.
+  - v1.51.3 is item 76 (PR #180), ticked.
+  - *Docs and tests with no release:*
+    - items 73 and 74 deferred by the owner (PR #175, §7.4);
+    - item 28's stable-IDs plan (PR #177). The owner merged it as the go;
+    - items 77 (PR #181) and 78 (PR #182), test-only, ticked;
+    - item 79, test-only, done in this release branch: CI went red on the promotion PR
+      the day `test-v1360`'s demo dates hit a month boundary.
+  - *Tracker:* no change. #41 (item 67) and #12 (item 40) stay on hold.
+  - *Schema:* neither release needs a column. ⚠ Item 28's three `refs` columns are listed
+    in §6 as not yet created. Item 29's three columns are deleted after this promotion.
+  - *Workflows:* unchanged.
+  - *Branches:* only `main`, `development` and this release branch.
 
 - 2026-10-19: **v1.51.0 → v1.51.1 promoted to `main`** (release/2026-10-19b; the owner
   asked for item 66 to go out as soon as it was ready).

@@ -28,6 +28,11 @@ function boot(file,opts){
       if(!opts.coachFirstRun)win.localStorage.setItem('shopTimelineCoachSeen','1');
       /* V4: suites can pre-seed localStorage to test what a reload picks up */
       if(opts.localStorage)for(const k in opts.localStorage)win.localStorage.setItem(k,opts.localStorage[k]);
+      /* item 77: suites that seed demo data with fixed dates pin the app's clock inside
+         that range (opts.now, 'YYYY-MM-DD'), so the suite doesn't rot as real time moves
+         past the data. Noon local, matching the app's own DST-safe date convention. */
+      if(opts.now){const t=new Date(opts.now+'T12:00:00').getTime(),D=win.Date;
+        win.Date=class extends D{constructor(...a){a.length?super(...a):super(t);}static now(){return t;}};}
     }
   });
   return dom;
@@ -41,6 +46,7 @@ function msalStub(){
     this.loginPopup=async()=>({account:{username:'user@example.com'}});
     this.acquireTokenSilent=async()=>({accessToken:'tok'});
     this.acquireTokenPopup=async()=>({accessToken:'tok'});
+    this.ssoSilent=async()=>({account:{username:'user@example.com'}}); /* v1.51.3: the silent heal */
   }};`;
 }
 
@@ -92,7 +98,10 @@ function makeFetch(data,opts){
 function suite(){
   const FILE=process.argv[2]||'index.html';
   let pass=0,fail=0;
-  return {FILE,src:fs.readFileSync(FILE,'utf8'),
+  /* item 78: normalize line endings — a Windows checkout (core.autocrlf) puts \r\n on disk,
+     and the suites' source regexes match \{\n, so three suites failed locally but not in CI.
+     Same trick test-todo.js already uses on TODO.md. */
+  return {FILE,src:fs.readFileSync(FILE,'utf8').replace(/\r\n/g,'\n'),
     ok(n,c,x){if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}},
     done(){console.log('\n'+'-'.repeat(46));console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');process.exit(fail?1:0);}};
 }

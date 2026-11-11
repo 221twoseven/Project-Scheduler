@@ -1777,6 +1777,24 @@ body.cd-route #dash-bar{display:none!important}
   </div>
 </div>
 
+<!-- SIGN-IN EXPIRED MODAL (v1.51.3) — raised by reauthSilently() when a token can't be
+     renewed without help. Microsoft's login page refuses to be framed, so it can't render
+     inside this modal; the one real login window opens only from this button's click. -->
+<div id="auth-overlay" class="overlay hidden">
+  <div class="modal">
+    <h3>Your sign-in expired</h3>
+    <div class="modal-body">
+      <div class="hint">The schedule paused while you were away. Sign in to pick up where you left off — anything you changed is still on screen and saves once you're back.</div>
+    </div>
+    <div class="m-actions">
+      <span></span>
+      <div class="m-right">
+        <button id="auth-signin" class="btn btn-primary">Sign in with Microsoft</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- PRINT PREVIEW MODAL -->
 <div id="print-overlay" class="overlay hidden">
   <div class="modal">
@@ -1861,7 +1879,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.51.1'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.51.3'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -2118,7 +2136,7 @@ function scrubNames(mapFn,apply){
     const h=healArr(parts);return h?h.join(', '):null;};
   const projects=ST.projects.map(p=>{
     let q=p;
-    for(const f of ['projectManager','drafter','leadFab','fabricators','metalFab']){
+    for(const f of ['projectManager','drafter','leadFab','fabricators']){
       const h=healStr(p[f]);
       if(h!=null){if(q===p)q={...p};q[f]=h;
         report.push({kind:'project',record:p.name,field:f,before:p[f],after:h});}
@@ -2406,7 +2424,7 @@ const STATUS_MIGRATE={'approved':'in-fabrication','in-production':'in-fabricatio
 
 /* ===================== DATA LAYER ===================== */
 function seed(){
-  PEOPLE=rostersToPeople({projectManagers:['Theo','Cordelia'],drafters:['Oscar','Felix'],leadFabs:['Milo','Ines'],metalFabs:[]});
+  PEOPLE=rostersToPeople({projectManagers:['Theo','Cordelia'],drafters:['Oscar','Felix'],leadFabs:['Milo','Ines']});
   rebuildStaff();
   const t=today();
   let d1=addDays(t,35);while(!isWorking(d1))d1=addDays(d1,1);
@@ -2506,20 +2524,54 @@ async function spInit(){
     cache:{cacheLocation:'sessionStorage'}
   });
   const accts=PCA.getAllAccounts();
-  if(accts.length){ACCOUNT=accts[0];}
-  else{const r=await PCA.loginPopup({scopes:SCOPES});ACCOUNT=r.account;}
-  PCA.setActiveAccount(ACCOUNT);
+  if(accts.length){ACCOUNT=accts[0];PCA.setActiveAccount(ACCOUNT);}
+  else{await spLogin();}
+}
+/* v1.51.3: THE one interactive sign-in — a popup Microsoft requires (its login page
+   refuses to be framed). Single-flight: concurrent callers share one window instead of
+   stacking them. Nothing calls this on its own timer; only boot and the expired-session
+   overlay's button (a user gesture, so popup blockers allow it) reach it. */
+let LOGIN_FLIGHT=null;
+function spLogin(){
+  LOGIN_FLIGHT=LOGIN_FLIGHT||PCA.loginPopup({scopes:SCOPES})
+    .then(r=>{ACCOUNT=r.account;PCA.setActiveAccount(ACCOUNT);return ACCOUNT;})
+    .finally(()=>{LOGIN_FLIGHT=null;});
+  return LOGIN_FLIGHT;
 }
 /* Item 48, PR 7: `scopes` asks for an extra permission on its own SILENT token (Team members,
    Mail.Send): no consent or no token throws, and the caller's degrade path runs — never a popup. */
+/* v1.51.3: the default path is silent-only too. It used to fall back to an interactive
+   token popup, and the 90s poll runs through here — a tab left open overnight with an expired session
+   opened a fresh login window every tick (fifteen stacked prompts by morning). A silent
+   failure now throws tagged authRequired; gfetch heals it or raises the sign-in overlay. */
 async function spToken(scopes){
   if(scopes)return (await PCA.acquireTokenSilent({scopes,account:ACCOUNT})).accessToken;
   try{return (await PCA.acquireTokenSilent({scopes:SCOPES,account:ACCOUNT})).accessToken;}
-  catch(e){return (await PCA.acquireTokenPopup({scopes:SCOPES})).accessToken;}
+  catch(e){throw Object.assign(new Error('Your sign-in expired.'),{authRequired:true,cause:e});}
+}
+/* v1.51.3: an expired token over a still-alive Microsoft session heals invisibly
+   (ssoSilent runs a fresh auth in a hidden iframe off the AAD session cookie, where
+   acquireTokenSilent's refresh token had expired). Only when that also fails does the
+   in-page overlay appear — never a window the person didn't ask for. Single-flight,
+   like spLogin: a poll tick and a save failing together share one attempt. */
+let REAUTH=null;
+function reauthSilently(){
+  REAUTH=REAUTH||PCA.ssoSilent({scopes:SCOPES,account:ACCOUNT})
+    .then(r=>{if(r.account)ACCOUNT=r.account;PCA.setActiveAccount(ACCOUNT);return true;})
+    .catch(()=>{authShow();return false;})
+    .finally(()=>{REAUTH=null;});
+  return REAUTH;
 }
 async function gfetch(url,opts,scopes){
   opts=opts||{};
-  const t=await spToken(scopes);
+  let t;
+  try{t=await spToken(scopes);}
+  catch(e){
+    /* Default-scope expiry only — a scoped (Team members, Mail.Send) failure isn't
+       tagged and falls straight to its caller's degrade path, as before. */
+    if(e&&e.authRequired&&await reauthSilently())t=await spToken(scopes);
+    else throw e;
+  }
   opts.headers=Object.assign({'Content-Type':'application/json'},opts.headers,{Authorization:'Bearer '+t});
   let r=await fetch(url,opts);
   if(r.status===429||r.status===503){
@@ -2583,6 +2635,7 @@ const store={
   explain(e,panel){
     /* unanchored: the staff sync wraps the Graph error ("2 staff rows didn't save — Sam: SharePoint 400: …") */
     const m=String((e&&e.message)||e||''),st=+((m.match(/SharePoint (\d{3})/)||[])[1]||0);
+    if(e&&e.authRequired)return 'Your Microsoft sign-in expired. Sign in again to continue.';
     if(!st&&/failed to fetch|networkerror|load failed|network request failed|endpoints_resolution_error|no_network/i.test(m))return 'This computer looks offline. Check your internet connection.';
     if(st===401||st===403)return 'Your Microsoft account doesn’t have access to that list.';
     if(st===404&&!/itemNotFound/i.test(m))return 'The list isn’t on the TWOSEVENINC site.'; /* a row someone else deleted is a 404 too */
@@ -2618,7 +2671,7 @@ const isoDay=v=>v?String(v).slice(0,10):'';
 function todoToFields(t){return{Title:t.title||'Task',appId:t.id,projectId:t.projectId||'',
   department:t.dept||'',assignees:JSON.stringify(t.who||[]),dueDate:t.due||null,
   startDate:t.start||null,progress:t.progress||'notstarted',priority:t.priority||'medium',
-  notes:t.notes||'',labels:'[]',checklist:'[]',createdBy:t.createdBy||'',
+  notes:t.notes||'',createdBy:t.createdBy||'', /* v1.51.2 (item 29): the dead labels/checklist columns are no longer written */
   completedOn:t.completedOn||null,completedBy:t.completedBy||'',sortIndex:t.sortIndex||0};}
 function fieldsToTodo(f){return{id:f.appId,projectId:f.projectId||'',dept:f.department||'',
   title:f.Title||'',who:safeArr(f.assignees),due:isoDay(f.dueDate),start:isoDay(f.startDate),
@@ -2657,8 +2710,8 @@ function schedParse(v){
   M=Math.round(M/30)*30;if(M===60){M=0;H=(H+1)%24;}
   return String(H).padStart(2,'0')+':'+String(M).padStart(2,'0');}
 
-function projToFields(p){const f={Title:p.name||'',client:p.client||'',jobCode:p.jobCode||'',deadline:p.deadline||null,status:p.status||'auto',projectManager:p.projectManager||'',drafter:p.drafter||'',leadFab:p.leadFab||'',fabricators:p.fabricators||'',metalFab:p.metalFab||'',activeDepartments:JSON.stringify(p.activeDepartments||[]),appId:p.id,createdAt:p.createdAt||null};if(p.sortIndex!=null)f.sortIndex=p.sortIndex;return f;}
-function fieldsToProj(f){return{id:f.appId,name:f.Title||'',client:f.client||'',jobCode:f.jobCode||'',deadline:isoDay(f.deadline),status:f.status||'auto',projectManager:f.projectManager||'',drafter:f.drafter||'',leadFab:f.leadFab||'',fabricators:f.fabricators||'',metalFab:f.metalFab||'',activeDepartments:safeArr(f.activeDepartments),sortIndex:f.sortIndex==null?null:Number(f.sortIndex),createdAt:isoDay(f.createdAt),
+function projToFields(p){const f={Title:p.name||'',client:p.client||'',jobCode:p.jobCode||'',deadline:p.deadline||null,status:p.status||'auto',projectManager:p.projectManager||'',drafter:p.drafter||'',leadFab:p.leadFab||'',fabricators:p.fabricators||'',activeDepartments:JSON.stringify(p.activeDepartments||[]),appId:p.id,createdAt:p.createdAt||null};if(p.sortIndex!=null)f.sortIndex=p.sortIndex;return f;} /* v1.51.2 (item 29): the dead metalFab column is no longer read or written */
+function fieldsToProj(f){return{id:f.appId,name:f.Title||'',client:f.client||'',jobCode:f.jobCode||'',deadline:isoDay(f.deadline),status:f.status||'auto',projectManager:f.projectManager||'',drafter:f.drafter||'',leadFab:f.leadFab||'',fabricators:f.fabricators||'',activeDepartments:safeArr(f.activeDepartments),sortIndex:f.sortIndex==null?null:Number(f.sortIndex),createdAt:isoDay(f.createdAt),
   ...(f.confirmedAt?{confirmedAt:String(f.confirmedAt),confirmedBy:String(f.confirmedBy||'')}:{})};} /* v1.48.0 (item 6): "Schedule still accurate", read only when set; projToFields never writes it — only ppConfirmSchedule does */
 function taskToFields(t){const d=deptById(t.department);return{Title:(d?d.name:t.department)||'Task',projectId:t.projectId,department:t.department,assignee:Array.isArray(t.assignee)?JSON.stringify(t.assignee):(t.assignee||''),startDate:t.startDate||null,endDate:t.endDate||null,estimatedDays:t.estimatedDays||1,ticketNodes:JSON.stringify(t.ticketNodes||[]),notes:t.notes||'',pinned:!!t.pinned,label:t.label||'',...(t.range?{range:true}:{}),appId:t.id};} /* v1.32.0 (#16): `range` is written only when set (tristate — a site without the column never sees it on ordinary saves) */
 function fieldsToTask(f){const a=(isEndDept(f.department)&&typeof f.assignee==='string'&&f.assignee.trim().startsWith('['))?safeArr(f.assignee):(f.assignee||'');return{id:f.appId,projectId:f.projectId,department:f.department,assignee:a,startDate:isoDay(f.startDate),endDate:isoDay(f.endDate),estimatedDays:Number(f.estimatedDays)||1,ticketNodes:safeArr(f.ticketNodes),notes:f.notes||'',pinned:!!f.pinned,label:f.label||'',...(f.range?{range:true}:{})};} /* v1.32.0 (#16): tristate on the read side too — a loaded non-range row keeps its pre-v1.32.0 shape, so stripStamps() still matches a row created in this session and the poll never wipes the undo stack over it */
@@ -3141,19 +3194,50 @@ function syncNow(oldST,newST){
     .catch(e=>{
       SYNCING--;
       console.error(e);
-      setSync('err','not saved — click to retry');
-      toast('Couldn\'t save to SharePoint: '+store.explain(e)+' Your change is still on screen — click "not saved" at the top right to retry.','err',null,e.message);
       /* REV90: merge consecutive failures instead of clobbering — retry replays the
          span from the FIRST failed snapshot to the latest state, so no edit is lost. */
       PENDING_SYNC=PENDING_SYNC?{oldST:PENDING_SYNC.oldST,newST}:{oldST,newST};
+      if(e&&e.authRequired){
+        /* v1.51.3: gfetch already tried the silent heal and raised the overlay; its
+           button replays this parked diff, so the generic retry toast would mislead. */
+        setSync('err','not saved — sign-in expired');
+        return;
+      }
+      setSync('err','not saved — click to retry');
+      toast('Couldn\'t save to SharePoint: '+store.explain(e)+' Your change is still on screen — click "not saved" at the top right to retry.','err',null,e.message);
     });
 }
 let PENDING_SYNC=null;
-document.getElementById('sync-pill').addEventListener('click',()=>{
+/* One replay for everything parked — the sync pill and the expired-session overlay's
+   button (v1.51.3) both land here, so a save caught by an overnight expiry goes out
+   the moment the person is signed back in. */
+function retryPending(){
   if(PENDING_SYNC){const p=PENDING_SYNC;PENDING_SYNC=null;syncNow(p.oldST,p.newST);}
   if(PENDING_STAFF)retryStaffSync(); /* v1.15.2: parked staff rows replay too */
   if(PENDING_CLIENTS)retryClientSync();
   if(PENDING_CFG)retryConfigSync();
+}
+document.getElementById('sync-pill').addEventListener('click',retryPending);
+/* v1.51.3: the expired-session overlay. Shown (never auto-signing) when silent renewal
+   AND the ssoSilent heal both fail; the poll and update check already pause on any
+   visible .overlay (updBusy), so an expired tab just sits quietly until the click. */
+function authShow(){
+  document.getElementById('auth-overlay').classList.remove('hidden');
+  document.getElementById('auth-signin').focus(); /* keyboard users land on the one action */
+  setSync('err','signed out');
+}
+document.getElementById('auth-signin').addEventListener('click',async()=>{
+  const b=document.getElementById('auth-signin');
+  b.disabled=true;
+  try{
+    await spLogin();
+    document.getElementById('auth-overlay').classList.add('hidden');
+    setSync('ok','synced '+stamp());
+    retryPending();   /* push anything that failed while the session was expired */
+  }catch(e){
+    console.error(e);
+    toast('Couldn\'t sign in: '+store.explain(e),'err',null,String(e&&e.message)); /* overlay stays up for another try */
+  }finally{b.disabled=false;}
 });
 
 /* Optimistic save: update screen instantly, sync to SharePoint in background */
@@ -3500,7 +3584,7 @@ function applyPerms(){
 }
 function projMatch(p){
   if(!FILTER)return true;
-  return (p.name+' '+(p.client||'')+' '+(p.jobCode||'')+' '+(p.projectManager||'')+' '+(p.drafter||'')+' '+(p.leadFab||'')+' '+(p.fabricators||'')+' '+(p.metalFab||'')).toLowerCase().includes(FILTER);
+  return (p.name+' '+(p.client||'')+' '+(p.jobCode||'')+' '+(p.projectManager||'')+' '+(p.drafter||'')+' '+(p.leadFab||'')+' '+(p.fabricators||'')).toLowerCase().includes(FILTER);
 }
 function taskMatch(t){
   if(!FILTER)return true;
@@ -12151,7 +12235,8 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
- {v:"v1.51.1",d:"Oct 19, 2026",n:["Ticking names in a crew list (the bar's popover or the panel below the chart) no longer jumps the list back to the top, and every tick counts, even several in a row on an install's full staff list."]},
+ {v:"v1.51.3",d:"Nov 9, 2026",n:["No more stacked Microsoft login windows. When your sign-in expires in an open tab (overnight, usually), the app first signs you back in silently; only if that fails does it show one \"Your sign-in expired\" message on the page itself, and the only login window is the one its button opens. Anything you changed before signing back in saves right after, and a signed-out tab sits quietly instead of retrying in the background."]},
+ {v:"v1.51.1–v1.51.2",d:"Oct 19, 2026",n:["Ticking names in a crew list (the bar's popover or the panel below the chart) no longer jumps the list back to the top, and every tick counts, even several in a row on an install's full staff list."]},
  {v:"v1.51.0",d:"Oct 19, 2026",n:["The project page has a **Today** button beside the zoom buttons. On the Gantt it scrolls back so this week starts at the left edge; on the Calendar it jumps to the current week."]},
  {v:"v1.50.0",d:"Oct 16, 2026",n:["On a project's Gantt, a milestone with a phase now sits on that phase's bar, so \"ALL CNC DONE\" shows on the CNC bar. Milestones with no phase or a Project Management phase, or whose phase isn't scheduled on the job, stay in the Milestones row.",
    "Drag a milestone up or down onto another phase's row to change its phase; drop it on the Milestones row to make it Project Management's. Dragging sideways still changes its date, and one drag can do both.",
@@ -12552,6 +12637,8 @@ async function boot(){
   let POLL_N=0;
   setInterval(async()=>{
     if(document.hidden)return;   /* a backgrounded tab shouldn't poll all day — biggest idle-traffic cut */
+    if(!store.who())return;      /* v1.51.3: signed out (boot failed or dismissed) = no polling — the
+                                    empty-state card's button is the way back in, not a background tick */
     /* item 61 (owner OK 2026-10-14): one "don't disturb" rule with the update check — a drag, a
        save in flight or parked, the tour, an overlay, editor or menu, a record mid-edit, a cursor
        in a field (page, User Notes, toolbar), New Project, a typed bug report */
