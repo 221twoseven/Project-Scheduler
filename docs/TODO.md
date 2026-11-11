@@ -864,6 +864,17 @@ release. Where the app has a part, it's listed.
       inset" read 14px vs 8. The app behaves correctly. Fixed in the promotion branch
       (PR #183, 2026-11-10): the suite pins its clock to 2026-10-20 with the harness's
       `opts.now` (item 77).
+- [x] **80. One test date for every suite, and the edge day on purpose** (owner,
+      2026-11-10: pinning one suite "feels hacky"; items 77 and 79 were two date failures
+      in two days). Test-only, no release. Most suites built their data from the real
+      date or checked fixed dates against it, so any of them could break on some day.
+      Now `tests/harness.js` starts every suite's clock, in the test process and in the
+      app's window, on one shared day (2026-11-10). The clock still ticks from there. A
+      suite whose demo data needs another day passes `opts.now`. `TEST_TODAY=YYYY-MM-DD npm test`
+      runs the whole set on another day, to look for date bugs; suites with fixed demo
+      dates fail far from their data, which is the test's limit, not the app's.
+      `test-v1360` also checks the day that failed by accident (2026-11-10, a bar on the
+      chart's first day keeps its label 14px in). Done in PR #185 (2026-11-10).
 - [x] **48. The storage seam.** One `store` object owns every conversation with
       SharePoint, instead of 37 call sites in 16 functions. It is idea 1 of
       `docs/Architecture-Review-Storage.md`, needed whatever D15 decides, and the path to an

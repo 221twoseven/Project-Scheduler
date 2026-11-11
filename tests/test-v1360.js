@@ -13,22 +13,24 @@ const {FILE,src,ok,done}=suite();
 
 const sec=t=>console.log('\n'+t);
 
-/* item 79: the clock is pinned. The chart starts on the 1st of the month 40 days back, so on
-   a real day whose D(-40) is a 1st the bar sat at x=0 and couldn't scroll into view. */
-const NOW='2026-10-20';
-const D=n=>{const d=new Date(NOW+'T12:00:00');d.setHours(0,0,0,0);d.setDate(d.getDate()+n);
+/* item 79: a mid-month day. The chart starts on the 1st of the month 40 days back, so a day
+   whose D(-40) is a 1st puts the bar at x=0 — that day is checked on purpose at the end
+   (edgeDay, item 80). */
+const NOW='2026-10-20',EDGE='2026-11-10';
+const D=(n,base=NOW)=>{const d=new Date(base+'T12:00:00');d.setHours(0,0,0,0);d.setDate(d.getDate()+n);
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
 /* one long job that started well before today — the reporter's scenario */
-const projects=[{appId:'p1',Title:'Gwendolyn Seafood Madison',client:'Gwendolyn',jobCode:'TB1',deadline:D(40),
-  status:'in-fabrication',projectManager:'Rupert',drafter:'Oscar',leadFab:'Milo',
-  activeDepartments:JSON.stringify(['pm','td','fab','install']),createdAt:'2026-07-01',sortIndex:0}];
-const tasks=[
-  {appId:'a0',projectId:'p1',department:'pm',assignee:'Rupert',startDate:D(-40),endDate:D(40),estimatedDays:60,ticketNodes:'[]',notes:'',pinned:false,label:''},
-  {appId:'a1',projectId:'p1',department:'td',assignee:'Oscar',startDate:D(-40),endDate:D(20),estimatedDays:45,ticketNodes:'[]',notes:'',pinned:false,label:''},
-  {appId:'a2',projectId:'p1',department:'fab',assignee:'Milo',startDate:D(-30),endDate:D(30),estimatedDays:45,ticketNodes:'[]',notes:'',pinned:false,label:''},
-  {appId:'a3',projectId:'p1',department:'install',assignee:'[]',startDate:D(38),endDate:D(40),estimatedDays:3,ticketNodes:'[]',notes:'',pinned:false,label:''}];
+const demo=base=>{const d=n=>D(n,base);return {staff:[],todos:[],
+  projects:[{appId:'p1',Title:'Gwendolyn Seafood Madison',client:'Gwendolyn',jobCode:'TB1',deadline:d(40),
+    status:'in-fabrication',projectManager:'Rupert',drafter:'Oscar',leadFab:'Milo',
+    activeDepartments:JSON.stringify(['pm','td','fab','install']),createdAt:'2026-07-01',sortIndex:0}],
+  tasks:[
+    {appId:'a0',projectId:'p1',department:'pm',assignee:'Rupert',startDate:d(-40),endDate:d(40),estimatedDays:60,ticketNodes:'[]',notes:'',pinned:false,label:''},
+    {appId:'a1',projectId:'p1',department:'td',assignee:'Oscar',startDate:d(-40),endDate:d(20),estimatedDays:45,ticketNodes:'[]',notes:'',pinned:false,label:''},
+    {appId:'a2',projectId:'p1',department:'fab',assignee:'Milo',startDate:d(-30),endDate:d(30),estimatedDays:45,ticketNodes:'[]',notes:'',pinned:false,label:''},
+    {appId:'a3',projectId:'p1',department:'install',assignee:'[]',startDate:d(38),endDate:d(40),estimatedDays:3,ticketNodes:'[]',notes:'',pinned:false,label:''}]};};
 
-const dom=boot(FILE,{data:{projects,tasks,staff:[],todos:[]},now:NOW});
+const dom=boot(FILE,{data:demo(NOW),now:NOW});
 const win=dom.window,doc=win.document;
 const E=s=>win.eval(s);
 const px=v=>parseFloat(v)||0;
@@ -120,7 +122,7 @@ function stage2(){
         /* a draft only draws once it has a deadline and departments (test-v1320 recipe) */
         const dl=doc.getElementById('pp-deadline');dl.value=D(40);change(dl);
         for(const d of ['td','fab']){const ck=doc.querySelector('#pp-depts input[data-dept="'+d+'"]');if(ck&&!ck.checked){ck.checked=true;change(ck);}}
-        setTimeout(()=>checkNpv('draft',done),900);
+        setTimeout(()=>checkNpv('draft',edgeDay),900);
       },700);
     });
   },800);
@@ -158,6 +160,27 @@ function checkNpv(tag,next){
       },120);
     },120);
   },120);
+}
+
+/* item 80: the day that failed CI by accident (item 79), now on purpose. On 2026-11-10 the
+   bar starts on the chart's first day (Oct 1), so it can't scroll further left: its label
+   keeps the 14px parking inset instead of its 8px base, and never sits under the edge. */
+function edgeDay(){
+  sec('Edge day — a bar on the chart\'s first day ('+EDGE+')');
+  const w=boot(FILE,{data:demo(EDGE),now:EDGE}).window;
+  setTimeout(()=>{
+    const sc=w.document.getElementById('gantt-scroll');
+    Object.defineProperty(sc,'clientWidth',{get:()=>800,configurable:true});
+    w.eval("EXPANDED.add('p1');render()");
+    const bar=w.document.querySelector('#gantt-canvas .job-bar[data-tid="a1"]');
+    const lbl=bar&&bar.querySelector('.bar-lbl');
+    ok('the bar starts on the chart\'s first day (x=0)',!!bar&&px(bar.style.left)===0,bar&&bar.style.left);
+    sc.scrollLeft=0;sc.dispatchEvent(new w.Event('scroll'));
+    setTimeout(()=>{
+      ok('its label sits 14px in from the chart\'s edge, not at its 8px base',!!lbl&&px(lbl.style.left)===14,lbl&&lbl.style.left);
+      done();
+    },120);
+  },1500);
 }
 
 setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},40000);
