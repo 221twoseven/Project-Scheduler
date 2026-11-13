@@ -65,8 +65,9 @@ is the log in §8.
 
 ## 0. Where we stand
 
-As of 2026-11-10: production (`main`) and `development` both run **v1.51.3**, promoted
-2026-11-10 (release/2026-11-10).
+As of 2026-11-11: production (`main`) runs **v1.51.3**, promoted 2026-11-10
+(release/2026-11-10). `development` runs **v1.52.0**: stable IDs, so a rename on People or
+Clients carries its projects, phases and to-dos (item 28 (a)).
 
 The newest work on production:
 - v1.51.3: an expired Microsoft sign-in shows one in-page prompt instead of stacking login
@@ -1342,8 +1343,15 @@ record is each ticket's "Fix shipped" note and `CHANGELOG.md`):
           exact name (ignoring case) for clients. Free-text departments are skipped.
         - *Backfill:* `backfillRefs()` in the console runs a dry run that lists every name
           it can't match; `backfillRefs(true)` writes the refs.
-        - *(a) v1.52.0:* refs read, written and backfilled. A rename on People or Clients
+        - [x] *(a) v1.52.0:* refs read, written and backfilled. A rename on People or Clients
           then carries its projects, phases and notes with it; today it doesn't.
+          Shipped v1.52.0 (PR #186, 2026-11-11); the owner created the three columns
+          2026-11-11. Suite `tests/test-v1520.js`; record
+          `docs/Milestones/Phase-7-Pilot-Readiness/2026-11-11-stable-ids.md`. A rename
+          carries only records that have refs, so the backfill comes next.
+        - [ ] *(a), the owner, once v1.52.0 is on `/preview/`:* run `backfillRefs()` in the
+          browser console, signed in, and send Claude the unmatched list; fix those names on
+          People or Clients; then `backfillRefs(true)`, after hours.
         - *(b) Once the dry run shows nothing unmatched:* `canonName`'s matching and
           `scrubLegacyNames` retire, and the People merge repoints IDs.
         - *Not in it:* the stamps (`createdBy`, `completedBy`, `updatedBy`, `confirmedBy`,
@@ -1941,13 +1949,15 @@ constraint (D2, lifted 2026-09-24).
   People page (v1.43.0, item 9; the HR list has none). Tristate: a row without the column
   never sends it, and a save that sets one fails with the named-field message until it
   exists. **Confirmed created by the owner, 2026-10-08.**
+- `refs` (multiple lines of text, plain) on `ShopTimeline_Projects`, `ShopTimeline_Tasks`
+  and `ShopTimeline_Tasks2` — item 28's stable IDs (v1.52.0). The app probes each list
+  once per session and writes the column only where it exists. **Confirmed created by
+  the owner, 2026-11-11.**
 - Entra: `Mail.Send` delegated, consented.
 - Employee Contacts: read only. The app never writes to it or touches its schema.
 
 **Candidates this phase** (the spec is delivered with the item's batch):
 
-- `refs` (multiple lines of text, plain) on `ShopTimeline_Projects`, `ShopTimeline_Tasks`
-  and `ShopTimeline_Tasks2` — item 28, spec in the item. Not yet created (2026-10-19).
 - `dateCertainty` on `ShopTimeline_Projects` — item 5.
 - `closeoutStatus` and `billingStatus` (plus `closeoutBy` and `closeoutAt` if needed) on
   `ShopTimeline_Projects` — item 11.

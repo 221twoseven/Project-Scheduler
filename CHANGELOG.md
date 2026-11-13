@@ -9,6 +9,9 @@ Format: `## <label> — <date>` then one `- ` line per change. Keep lines concre
 what changed *for the team*, not how. Developer-only tooling doesn't need a line.
 Collect lines for the next version under `## Unreleased` and rename it when you ship.
 
+## v1.52.0 — Nov 11, 2026
+- Renaming someone on the People page, or a client on the Clients page, now updates that name on every project, phase and to-do that already lists them, instead of leaving the old name behind. Every project, phase and to-do now remembers which person and which client each of its names means.
+
 ## v1.51.3 — Nov 9, 2026
 - No more stacked Microsoft login windows. When your sign-in expires in an open tab (overnight, usually), the app first signs you back in silently; only if that fails does it show one "Your sign-in expired" message on the page itself, and the only login window is the one its button opens. Anything you changed before signing back in saves right after, and a signed-out tab sits quietly instead of retrying in the background.
 

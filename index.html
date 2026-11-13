@@ -1879,7 +1879,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.51.3'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.52.0'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -2128,40 +2128,45 @@ function oooOverlaps(name,sIso,eIso){return oooFor(name).filter(o=>o.start&&o.en
 /* v1.15.0: the scrub's walkers, generalized — mapFn decides what a stored person
    string becomes. scrubLegacyNames feeds it canonName; the People-page merge feeds
    it an exact old-name → new-name pair. */
-function scrubNames(mapFn,apply){
-  const report=[];
+/* Item 28: the walkers, one record at a time, so refs read the same names the scrub does —
+   kind 'proj' (the role fields), 'task' (a phase's crew) or 'todo' (a note's assignees).
+   Returns the record, a copy when mapFn changed a name; `rep` (optional) collects the
+   scrub's report rows. */
+function mapRecNames(kind,r,mapFn,rep){
   const healArr=a=>{const h=a.map(x=>x==='Installation'?x:mapFn(x));
     return h.join('|')===a.join('|')?null:h;};
   const healStr=s=>{const parts=String(s||'').split(',').map(x=>x.trim()).filter(Boolean);
     const h=healArr(parts);return h?h.join(', '):null;};
-  const projects=ST.projects.map(p=>{
-    let q=p;
+  const note=(k,record,field,before,after)=>{if(rep)rep.push({kind:k,record,field,before,after});};
+  if(kind==='proj'){
+    let q=r;
     for(const f of ['projectManager','drafter','leadFab','fabricators']){
-      const h=healStr(p[f]);
-      if(h!=null){if(q===p)q={...p};q[f]=h;
-        report.push({kind:'project',record:p.name,field:f,before:p[f],after:h});}
+      const h=healStr(r[f]);
+      if(h!=null){if(q===r)q={...r};q[f]=h;note('project',r.name,f,r[f],h);}
     }
     return q;
-  });
-  const tasks=ST.tasks.map(t=>{
-    const d=deptById(t.department);
-    if(d&&d.freeText)return t; /* assignee is the bar's label there, not a person */
-    const a=t.assignee,lbl=phaseLabel(t)+' · '+((projById(t.projectId)||{}).name||'—');
+  }
+  if(kind==='task'){
+    const d=deptById(r.department);
+    if(d&&d.freeText)return r; /* assignee is the bar's label there, not a person */
+    const a=r.assignee,lbl=()=>rep&&phaseLabel(r)+' · '+((projById(r.projectId)||{}).name||'—');
     if(Array.isArray(a)){
       const h=healArr(a);
-      if(h){report.push({kind:'phase',record:lbl,field:'crew',before:a.join(', '),after:h.join(', ')});return{...t,assignee:h};}
+      if(h){note('phase',lbl(),'crew',a.join(', '),h.join(', '));return{...r,assignee:h};}
     }else if(typeof a==='string'&&a.trim()){
       const h=a.trim().startsWith('[')?(x=>x&&JSON.stringify(x))(healArr(safeArr(a))):healStr(a);
-      if(h!=null){report.push({kind:'phase',record:lbl,field:'crew',before:a,after:h});return{...t,assignee:h};}
+      if(h!=null){note('phase',lbl(),'crew',a,h);return{...r,assignee:h};}
     }
-    return t;
-  });
-  const todos=(ST.todos||[]).map(t=>{
-    const w=Array.isArray(t.who)?t.who:[];
-    const h=healArr(w);
-    if(h){report.push({kind:'note',record:t.title,field:'who',before:w.join(', '),after:h.join(', ')});return{...t,who:h};}
-    return t;
-  });
+    return r;
+  }
+  const w=Array.isArray(r.who)?r.who:[];
+  const h=healArr(w);
+  if(h){note('note',r.title,'who',w.join(', '),h.join(', '));return{...r,who:h};}
+  return r;
+}
+function scrubNames(mapFn,apply){
+  const report=[],walk=(kind,list)=>list.map(r=>mapRecNames(kind,r,mapFn,report));
+  const projects=walk('proj',ST.projects),tasks=walk('task',ST.tasks),todos=walk('todo',ST.todos||[]);
   if(console.table&&report.length)console.table(report);
   if(apply&&report.length)saveState({projects,tasks,todos});
   return report;
@@ -2171,6 +2176,117 @@ function scrubLegacyNames(apply){
   console.log('scrubLegacyNames: '+report.length+' field'+(report.length===1?'':'s')+' to heal'
     +(report.length&&!apply?' — dry run, nothing written. scrubLegacyNames(true) applies.':apply?' — applied.':'.'));
   return report;
+}
+/* ===== Item 28 (a): stable IDs, v1.52.0 =====
+   The names stay. Each project, phase and note also stores which person or client every
+   name means, in a `refs` column (plain multi-line text):
+     {"people":{"<name>":"<Staff appId>"},"client":{"<name>":"<Clients spId>"}}
+   REFS keeps them per record id, beside SP_IDS and out of ST, so a ref is never an edit and
+   a poll never wipes undo over one. On every load a name with a ref reads as that person's
+   or client's CURRENT name, so a rename on People or Clients carries its projects, phases
+   and notes with it. Every save writes the names as before, plus refs, on lists that have
+   the column (REFS_OK, probed once per session — a list without it never sees the field).
+   Only an unambiguous match gets an ID: canonName's rule for people, the exact name
+   (ignoring case) for clients. The stamps (createdBy, completedBy, updatedBy, confirmedBy)
+   stay plain names, a record of who it was at the time.
+   ponytail: refs is JSON, so SharePoint can't filter by it; at the D15 cutover it is the
+   migration key (D10). */
+let REFS_OK=null;
+const REFS={proj:{},task:{},todo:{}};
+const refsParse=s=>{try{const o=JSON.parse(s);return o&&typeof o==='object'?o:null;}catch(e){return null;}};
+/* A ref already made holds while the roster isn't loaded; once it is, a ref to someone (or a
+   client) no longer on it gives way to a fresh match. */
+function personIdFor(n,R){
+  const id=R&&R.people&&R.people[n];
+  if(id&&(!STAFF_OK||PEOPLE.some(p=>p.id===id)))return id;
+  const c=canonName(n),hit=PEOPLE.filter(p=>p.name===c);
+  return hit.length===1?hit[0].id:'';
+}
+function clientIdFor(n,R){
+  const id=R&&R.client&&R.client[n];
+  if(id&&(!CLIENTS_OK||CLIENTS.some(c=>c.spId===id)))return id;
+  const low=String(n||'').trim().toLowerCase(),hit=low?CLIENTS.filter(c=>c.name.trim().toLowerCase()===low):[];
+  return hit.length===1?hit[0].spId:'';
+}
+/* The refs a record's names give it now; `miss` (optional) collects the names with no match. */
+function refsOf(kind,r,miss){
+  const R=REFS[kind][r.id],people={},o={people};
+  mapRecNames(kind,r,n=>{const id=personIdFor(n,R);if(id)people[n]=id;else if(miss)miss.push({name:n,is:'person'});return n;});
+  if(kind==='proj'&&String(r.client||'').trim()){
+    const id=clientIdFor(r.client,R);
+    if(id)o.client={[r.client]:id};else if(miss)miss.push({name:r.client,is:'client'});
+  }
+  return o;
+}
+/* the *ToFields hook: the refs this save writes, remembered as the record's own */
+function refsField(kind,r){const o=refsOf(kind,r);REFS[kind][r.id]=o;return JSON.stringify(o);}
+/* Read every ref'd name as its person's or client's current name. Returns st itself when
+   nothing changed. A ref whose person or client is gone keeps its name. The record's refs
+   gain the names on screen and keep the stored ones: the backfill writes refs alone, and
+   SharePoint still holds the stored names until the record is next saved. */
+function resolveRefs(st){
+  let changed=false;
+  const byP=new Map(PEOPLE.map(p=>[p.id,p])),byC=new Map(CLIENTS.map(c=>[c.spId,c]));
+  const pass=(kind,list)=>list.map(r=>{
+    const R=REFS[kind][r.id];if(!R)return r;
+    const people={...(R.people||{})},o={people};
+    let q=mapRecNames(kind,r,n=>{const id=R.people&&R.people[n];if(!id)return n;
+      const p=byP.get(id),m=p?p.name:n;people[m]=id;return m;});
+    if(R.client)o.client={...R.client};
+    if(kind==='proj'&&R.client&&R.client[r.client]){
+      const id=R.client[r.client],c=byC.get(id),m=c?c.name:r.client;
+      o.client[m]=id;if(m!==r.client)q={...q,client:m};
+    }
+    REFS[kind][r.id]=o;
+    if(q!==r)changed=true;
+    return q;
+  });
+  const projects=pass('proj',st.projects),tasks=pass('task',st.tasks),todos=pass('todo',st.todos||[]);
+  return changed?{...st,projects,tasks,todos}:st;
+}
+/* People or Clients changed under the records: read their names again. A change underneath
+   clears undo (the REV90 rule) — an undo would write the old names back without their IDs. */
+function relink(){
+  const n=resolveRefs(ST);if(n===ST)return false;
+  ST_GEN++; /* a poll fetched before this must not put the old names back */
+  ST=n;UNDO_STACK.length=0;REDO_STACK.length=0;return true;
+}
+/* Link every existing record once. From the browser console, signed in, after hours:
+     backfillRefs()      → dry run: lists every name it can't match, writes nothing
+     backfillRefs(true)  → writes the refs — only that column, so it can't overwrite an edit
+   Fix an unmatched name on People or Clients (add or merge), then run it again. */
+async function backfillRefs(apply){
+  if(!REFS_OK||!STAFF_OK||!PEOPLE.length){console.warn('backfillRefs: sign in and let the people list load first.');return null;}
+  const link=[],unmatched=[];
+  const lists=[['proj',ST.projects,r=>r.name],
+    ['task',ST.tasks,r=>phaseLabel(r)+' · '+((projById(r.projectId)||{}).name||'—')],
+    ['todo',ST.todos||[],r=>r.title]];
+  for(const[kind,list,label]of lists){
+    if(!REFS_OK[kind]){console.warn('backfillRefs: '+STORE_LISTS[kind]+' has no refs column — skipped.');continue;}
+    for(const r of list){
+      if(!SP_IDS[kind][r.id])continue; /* the sample, or a row not saved yet */
+      const m=[],o=refsOf(kind,r,m);
+      for(const x of m)unmatched.push({list:STORE_LISTS[kind],record:label(r),name:x.name,is:x.is});
+      const had=REFS[kind][r.id]||null;
+      if(!had&&!Object.keys(o.people).length&&!o.client)continue; /* nothing to link */
+      /* refs alone go up, so keep the refs the stored names already have (resolveRefs) */
+      if(had){o.people={...(had.people||{}),...o.people};if(had.client)o.client={...had.client,...(o.client||{})};}
+      if(JSON.stringify(o)!==JSON.stringify(had))link.push([kind,r,o]);
+    }
+  }
+  if(console.table&&unmatched.length)console.table(unmatched);
+  console.log('backfillRefs: '+link.length+' record'+(link.length===1?'':'s')+' to link, '
+    +unmatched.length+' name'+(unmatched.length===1?'':'s')+' with no match'
+    +(apply?'.':link.length?' — dry run, nothing written. backfillRefs(true) writes the refs.':'.'));
+  const out={link:link.length,unmatched};
+  if(!apply)return out;
+  out.written=0;out.failed=0;
+  for(const[kind,r,o]of link){
+    try{await store.update(kind,SP_IDS[kind][r.id],{refs:JSON.stringify(o)});REFS[kind][r.id]=o;out.written++;}
+    catch(e){out.failed++;console.warn('backfillRefs: '+STORE_LISTS[kind]+' · '+r.id+': '+store.explain(e,true));}
+  }
+  console.log('backfillRefs: wrote '+out.written+(out.failed?', '+out.failed+' failed — run it again to retry':'')+'.');
+  return out;
 }
 /* Convert legacy roster-shaped staff (v22 and earlier) into people records */
 function rostersToPeople(st){
@@ -2672,7 +2788,8 @@ function todoToFields(t){return{Title:t.title||'Task',appId:t.id,projectId:t.pro
   department:t.dept||'',assignees:JSON.stringify(t.who||[]),dueDate:t.due||null,
   startDate:t.start||null,progress:t.progress||'notstarted',priority:t.priority||'medium',
   notes:t.notes||'',createdBy:t.createdBy||'', /* v1.51.2 (item 29): the dead labels/checklist columns are no longer written */
-  completedOn:t.completedOn||null,completedBy:t.completedBy||'',sortIndex:t.sortIndex||0};}
+  completedOn:t.completedOn||null,completedBy:t.completedBy||'',sortIndex:t.sortIndex||0,
+  ...(REFS_OK&&REFS_OK.todo?{refs:refsField('todo',t)}:{})};} /* v1.52.0 (item 28) */
 function fieldsToTodo(f){return{id:f.appId,projectId:f.projectId||'',dept:f.department||'',
   title:f.Title||'',who:safeArr(f.assignees),due:isoDay(f.dueDate),start:isoDay(f.startDate),
   progress:f.progress||'notstarted',priority:f.priority||'medium',notes:f.notes||'',
@@ -2710,10 +2827,10 @@ function schedParse(v){
   M=Math.round(M/30)*30;if(M===60){M=0;H=(H+1)%24;}
   return String(H).padStart(2,'0')+':'+String(M).padStart(2,'0');}
 
-function projToFields(p){const f={Title:p.name||'',client:p.client||'',jobCode:p.jobCode||'',deadline:p.deadline||null,status:p.status||'auto',projectManager:p.projectManager||'',drafter:p.drafter||'',leadFab:p.leadFab||'',fabricators:p.fabricators||'',activeDepartments:JSON.stringify(p.activeDepartments||[]),appId:p.id,createdAt:p.createdAt||null};if(p.sortIndex!=null)f.sortIndex=p.sortIndex;return f;} /* v1.51.2 (item 29): the dead metalFab column is no longer read or written */
+function projToFields(p){const f={Title:p.name||'',client:p.client||'',jobCode:p.jobCode||'',deadline:p.deadline||null,status:p.status||'auto',projectManager:p.projectManager||'',drafter:p.drafter||'',leadFab:p.leadFab||'',fabricators:p.fabricators||'',activeDepartments:JSON.stringify(p.activeDepartments||[]),appId:p.id,createdAt:p.createdAt||null};if(p.sortIndex!=null)f.sortIndex=p.sortIndex;if(REFS_OK&&REFS_OK.proj)f.refs=refsField('proj',p);return f;} /* v1.51.2 (item 29): the dead metalFab column is no longer read or written. v1.52.0 (item 28): refs */
 function fieldsToProj(f){return{id:f.appId,name:f.Title||'',client:f.client||'',jobCode:f.jobCode||'',deadline:isoDay(f.deadline),status:f.status||'auto',projectManager:f.projectManager||'',drafter:f.drafter||'',leadFab:f.leadFab||'',fabricators:f.fabricators||'',activeDepartments:safeArr(f.activeDepartments),sortIndex:f.sortIndex==null?null:Number(f.sortIndex),createdAt:isoDay(f.createdAt),
   ...(f.confirmedAt?{confirmedAt:String(f.confirmedAt),confirmedBy:String(f.confirmedBy||'')}:{})};} /* v1.48.0 (item 6): "Schedule still accurate", read only when set; projToFields never writes it — only ppConfirmSchedule does */
-function taskToFields(t){const d=deptById(t.department);return{Title:(d?d.name:t.department)||'Task',projectId:t.projectId,department:t.department,assignee:Array.isArray(t.assignee)?JSON.stringify(t.assignee):(t.assignee||''),startDate:t.startDate||null,endDate:t.endDate||null,estimatedDays:t.estimatedDays||1,ticketNodes:JSON.stringify(t.ticketNodes||[]),notes:t.notes||'',pinned:!!t.pinned,label:t.label||'',...(t.range?{range:true}:{}),appId:t.id};} /* v1.32.0 (#16): `range` is written only when set (tristate — a site without the column never sees it on ordinary saves) */
+function taskToFields(t){const d=deptById(t.department);return{Title:(d?d.name:t.department)||'Task',projectId:t.projectId,department:t.department,assignee:Array.isArray(t.assignee)?JSON.stringify(t.assignee):(t.assignee||''),startDate:t.startDate||null,endDate:t.endDate||null,estimatedDays:t.estimatedDays||1,ticketNodes:JSON.stringify(t.ticketNodes||[]),notes:t.notes||'',pinned:!!t.pinned,label:t.label||'',...(t.range?{range:true}:{}),...(REFS_OK&&REFS_OK.task?{refs:refsField('task',t)}:{}),appId:t.id};} /* v1.52.0 (item 28): refs. v1.32.0 (#16): `range` is written only when set (tristate — a site without the column never sees it on ordinary saves) */
 function fieldsToTask(f){const a=(isEndDept(f.department)&&typeof f.assignee==='string'&&f.assignee.trim().startsWith('['))?safeArr(f.assignee):(f.assignee||'');return{id:f.appId,projectId:f.projectId,department:f.department,assignee:a,startDate:isoDay(f.startDate),endDate:isoDay(f.endDate),estimatedDays:Number(f.estimatedDays)||1,ticketNodes:safeArr(f.ticketNodes),notes:f.notes||'',pinned:!!f.pinned,label:f.label||'',...(f.range?{range:true}:{})};} /* v1.32.0 (#16): tristate on the read side too — a loaded non-range row keeps its pre-v1.32.0 shape, so stripStamps() still matches a row created in this session and the poll never wipes the undo stack over it */
 /* v1.7.1: phone rides the person record (column created by the owner 2026-09-01). */
 /* v1.8.0 (§3 item 12): the admin / feedbackRecipient flags. A flag is TRISTATE on the
@@ -2818,11 +2935,15 @@ async function spSyncStaff(olds,news){
 
 async function spLoad(){
   await spSite();
+  /* v1.52.0 (item 28): which lists carry `refs`, asked once per session; a failed ask reads as no */
+  const probe=REFS_OK?null:Promise.all(['proj','task','todo'].map(k=>store.columns(k)
+    .then(c=>c.some(x=>x.name==='refs'),()=>false))).then(a=>{REFS_OK={proj:a[0],task:a[1],todo:a[2]};});
   const[pr,tr]=await Promise.all([
     store.list('proj'),
-    store.list('task')
+    store.list('task'),
+    probe
   ]);
-  SP_IDS.proj={};SP_IDS.task={};
+  SP_IDS.proj={};SP_IDS.task={}; /* REFS isn't cleared: a save mid-poll still finds its record's refs */
   const projects=[],tasks=[];
   /* SharePoint/Graph tracks this on every item automatically — no custom column required */
   const graphWho=it=>it.lastModifiedBy&&it.lastModifiedBy.user?(it.lastModifiedBy.user.displayName||it.lastModifiedBy.user.email||''):'';
@@ -2830,6 +2951,7 @@ async function spLoad(){
   /* item 61: one loop for the four lists — rows without an appId are skipped, ids are kept, and
      `stamp` adds Graph's last-modified who/when */
   const rows=(items,kind,map,stamp,out)=>{for(const it of items){if(!it.fields.appId)continue;SP_IDS[kind][it.fields.appId]=it.id;
+    if(REFS[kind]&&it.fields.refs){const o=refsParse(it.fields.refs);if(o)REFS[kind][it.fields.appId]=o;} /* item 28 */
     const r=map(it.fields);if(stamp){r.updatedBy=graphWho(it);r.updatedAt=graphWhen(it);}out.push(r);}};
   rows(pr,'proj',fieldsToProj,true,projects);
   rows(tr,'task',fieldsToTask,true,tasks);
@@ -2847,7 +2969,7 @@ async function spLoad(){
     rows(er,'event',fieldsToEvent,false,events);
     EVENTS_OK=true;
   }catch(e){EVENTS_OK=false;console.warn('ShopTimeline_Events not reachable — events save on host phases (legacy).');}
-  return migrate({projects,tasks,todos,events});
+  return resolveRefs(migrate({projects,tasks,todos,events})); /* item 28: names read as their people's and clients' current names */
 }
 
 /* Phase 4 (A5): the sample projects — seeded so a new user can safely poke at a
@@ -3280,6 +3402,7 @@ async function loadClients(){
 function saveClients(nc){
   if(isViewer()){toast('View-only access — ask an admin to make changes.','err');return;} /* v1.8.0 */
   const old=CLIENTS;CLIENTS=nc;
+  relink(); /* v1.52.0 (item 28): a renamed client carries its projects */
   try{localStorage.setItem(CLIENTS_KEY,JSON.stringify(CLIENTS));}catch(e){}
   if(!CLIENTS_OK){toast('Clients saved in this browser only — they won\'t sync to your teammates until the ShopTimeline_Clients list is reachable.','err');return;}
   runClientSync(old,false);
@@ -3323,6 +3446,7 @@ function savePeople(np,self){
   if(isViewer()&&!self){toast('View-only access — ask an admin to make changes.','err');return Promise.resolve(false);}
   PEOPLE_GEN++; /* the staff poll aborts if this moved during its fetch (the ST_GEN pattern) */
   const old=PEOPLE;PEOPLE=np;rebuildStaff();
+  relink(); /* v1.52.0 (item 28): a rename reaches every project, phase and note that refs the person */
   /* REV90: guarded — a quota/private-mode throw here used to abort before spSyncStaff */
   try{localStorage.setItem(PEOPLE_KEY,JSON.stringify(PEOPLE));}catch(e){}
   render();
@@ -12235,6 +12359,7 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.52.0",d:"Nov 11, 2026",n:["Renaming someone on the People page, or a client on the Clients page, now updates that name on every project, phase and to-do that already lists them, instead of leaving the old name behind. Every project, phase and to-do now remembers which person and which client each of its names means."]},
  {v:"v1.51.3",d:"Nov 9, 2026",n:["No more stacked Microsoft login windows. When your sign-in expires in an open tab (overnight, usually), the app first signs you back in silently; only if that fails does it show one \"Your sign-in expired\" message on the page itself, and the only login window is the one its button opens. Anything you changed before signing back in saves right after, and a signed-out tab sits quietly instead of retrying in the background."]},
  {v:"v1.51.1–v1.51.2",d:"Oct 19, 2026",n:["Ticking names in a crew list (the bar's popover or the panel below the chart) no longer jumps the list back to the top, and every tick counts, even several in a row on an install's full staff list."]},
  {v:"v1.51.0",d:"Oct 19, 2026",n:["The project page has a **Today** button beside the zoom buttons. On the Gantt it scrolls back so this week starts at the left edge; on the Calendar it jumps to the current week."]},
@@ -12608,6 +12733,7 @@ async function boot(){
   ppPaintNeeds(); /* v1.47.3: a draft opened before the roster arrived now counts the PM rule */
   /* N3: the client roster, same graceful-degrade idea (quiet at load, warn on save). */
   if(store.who())await loadClients();
+  relink(); /* v1.52.0 (item 28): spLoad read the names against the cached roster; now the live one */
   if(store.who())await loadConfig(); /* v1.11.0: app-wide settings — grants apply from first render */
 }
 (async()=>{
@@ -12679,7 +12805,7 @@ async function boot(){
            savePeople that started — or finished — during this round-trip must not be
            clobbered by the pre-save snapshot ("my merges reverted"). */
         if(pg===PEOPLE_GEN&&!SYNCING&&!PENDING_STAFF
-           &&JSON.stringify(fp)!==JSON.stringify(PEOPLE)){PEOPLE=fp;rebuildStaff();localStorage.setItem(PEOPLE_KEY,JSON.stringify(PEOPLE));dirty=true;ppPaintNeeds();}
+           &&JSON.stringify(fp)!==JSON.stringify(PEOPLE)){PEOPLE=fp;rebuildStaff();relink();localStorage.setItem(PEOPLE_KEY,JSON.stringify(PEOPLE));dirty=true;ppPaintNeeds();}
         viewsFromRow(); /* item 25: views saved on another computer reach this one */
       }
       if(dirty){if(ROUTE.view==='project'){PP_KEEP=true;renderProjectPage();}else render();}
