@@ -36,7 +36,8 @@ for(const m of live.matchAll(/(v1\.x |v1 )?\bitems? ((?:\d+[a-z]?(?:[–-]\d+)?(
 }
 ok('every "item N" outside the §8 log names a §3 item', !bad.size, [...bad].join(', '));
 
-const rel=new Set([...log.matchAll(/^## v([0-9.]+)/gm)].map(m=>m[1]));
+/* a folded entry ("## v1.51.1–v1.51.2") names both ends as releases */
+const rel=new Set([...log.matchAll(/^## v([0-9.]+)(?:\s*[–-]\s*v?([0-9.]+))?/gm)].flatMap(m=>m[2]?[m[1],m[2]]:[m[1]]));
 const ticked=[...s3.matchAll(/^- \[x\] \*\*[^\n]*\n(?:(?!^- \[)[^\n]*\n)*/gm)].map(b=>b[0]);
 const wrong=[];
 for(const b of ticked)for(const m of b.matchAll(/Shipped (?:in )?v([0-9]+\.[0-9]+\.[0-9]+)/g))if(!rel.has(m[1]))wrong.push(m[1]);
