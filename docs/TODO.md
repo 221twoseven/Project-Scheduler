@@ -50,8 +50,8 @@ as the phase runs.
 - Every milestone gets a record in `docs/Milestones/Phase-7-Pilot-Readiness/`; every
   deliberate skip gets a §7 line with its gate.
 
-Last reviewed: 2026-11-10 — the promotion audit for v1.51.1 → v1.51.3 reaching `main` (log
-in §8). Before that, 2026-10-19 — the promotion audits for v1.48.5 → v1.51.0 and
+Last reviewed: 2026-11-17 — the promotion audit for v1.51.3 → v1.53.0 reaching `main` (log
+in §8). Before that, 2026-11-10 — the promotion audit for v1.51.1 → v1.51.3. Before that, 2026-10-19 — the promotion audits for v1.48.5 → v1.51.0 and
 v1.51.0 → v1.51.1. Before that, 2026-10-15 — the promotion audit for v1.48.1 → v1.48.5, after a full audit the
 same day. Before that, 2026-10-13 — the promotion audit for v1.45.1 → v1.48.1 reaching `main`. Before that, 2026-10-09 — the promotion audits for v1.43.0 → v1.44.3 and v1.44.3 →
 v1.45.1. Before that, 2026-10-08 — D15 (data platform) reassessed: Dataverse and Azure SQL + API
@@ -65,12 +65,13 @@ is the log in §8.
 
 ## 0. Where we stand
 
-As of 2026-11-17: production (`main`) runs **v1.51.3**, promoted 2026-11-10
-(release/2026-11-10). `development` runs **v1.53.0**: stable IDs, so a rename on People or
-Clients carries its projects, phases and to-dos (v1.52.0, item 28 (a)), and a project's
-client is picked from the Clients list (v1.53.0, item 81).
+As of 2026-11-17: production (`main`) and `development` both run **v1.53.0**, promoted
+2026-11-17 (release/2026-11-17).
 
 The newest work on production:
+- v1.53.0: a project's client is picked from a dropdown of the Clients list (item 81);
+- v1.52.0: stable IDs, so a rename on People or Clients carries its projects, phases and
+  to-dos (item 28 (a));
 - v1.51.3: an expired Microsoft sign-in shows one in-page prompt instead of stacking login
   windows (item 76);
 - v1.51.2: the app stops using the dead columns, so the owner can delete them (item 29's
@@ -94,7 +95,7 @@ Before that:
 Earlier: reporter answers show in Open Issues (item 58); Protect dates (item 2: drags
 never change dates).
 
-Phase 7 has shipped v1.24.0 → v1.51.3 so far.
+Phase 7 has shipped v1.24.0 → v1.53.0 so far.
 `CHANGELOG.md` is the release-by-release record.
 
 ## 1. North star — Systems
@@ -2474,6 +2475,21 @@ How to read the tags at the end of an entry:
   number.
 
 **Log, newest first:**
+
+- 2026-11-17: **v1.51.3 → v1.53.0 promoted to `main`** (release/2026-11-17), so production
+  saves keep the new stable IDs (the owner asked, right after the backfill linked 99 records).
+  - v1.52.0 is item 28 (a), stable IDs (PR #186). Its sub-item is ticked, and so is the
+    owner's backfill (99 records, 2026-11-17). Part (b) stays open.
+  - v1.53.0 is item 81, the client dropdown (PR #189), ticked.
+  - *Docs and tests with no release:*
+    - item 80, one test date for every suite (PR #185), ticked;
+    - the backfill skips department names in crew slots (PR #187, item 28);
+    - items 81 and 82 added (PR #188).
+  - *Tracker:* no change. #41 (item 67) and #12 (item 40) stay on hold.
+  - *Schema:* the three `refs` columns were created by the owner 2026-11-11 and are listed in
+    §6. Item 29's three dead columns still wait on the owner's delete.
+  - *Workflows:* unchanged.
+  - *Branches:* only `main`, `development` and this release branch. No other PR is open.
 
 - 2026-11-10: **v1.51.1 → v1.51.3 promoted to `main`** (release/2026-11-10), so the owner
   can delete the dead columns (item 29, step 2) and the login fix reaches everyone.
