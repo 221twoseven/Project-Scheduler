@@ -1378,6 +1378,32 @@ record is each ticket's "Fix shipped" note and `CHANGELOG.md`):
         legacy crew text, so copy it into that project's Fabricators first, or tell Claude.
         Then delete `metalFab` from `ShopTimeline_Projects` and `labels` and `checklist`
         from `ShopTimeline_Tasks2`.
+- [ ] **81. A project's client must come from the Clients list** (owner, 2026-11-17). The
+      Client field on the project page and the New Project draft is a text box with
+      suggestions, so anything typed is saved. That's how client names with no Clients entry
+      reached projects (item 28's first backfill dry run, 2026-11-17).
+      - The field accepts only a name on `ShopTimeline_Clients`, matched ignoring case and
+        saved in the list's spelling. Anything else shows an error and doesn't save.
+      - New clients are added on the Clients page: the product that owns the data creates
+        it (§1, D4).
+      - The error wording, and any "add it on Clients" link, go to the owner before building.
+      - A project whose client isn't on the list keeps showing it until someone picks one;
+        `backfillRefs()` lists them.
+      - *Waits on:* nothing. Goes with item 28.
+- [ ] **82. Department phases stop storing the department's name as their crew** (owner,
+      2026-11-17). Shop departments with no people roster (CNC, Painting, Printing and the
+      rest) are scheduled as the department. When the app creates their phases it writes the
+      department's name into the crew field (`assigneeFor`), so one field holds either people
+      or a label. The stored name also goes stale when a department is renamed ("Finishing",
+      Painting's old name), and some old rows hold a "—".
+      - New phases for those departments leave the crew empty, and screens show the
+        department's name wherever they showed the stored one.
+      - The build first lists everything that reads those crews (the Departments lens, the
+        person filter, print, search) so nothing loses its label.
+      - A one-time console tidy clears the department names and dashes from existing rows,
+        dry run first, like `scrubLegacyNames`.
+      - Until then the backfill skips them (PR #187).
+      - *Waits on:* nothing. Goes with item 28.
 - [ ] **49. The Systems portal and the Timeline move (D4's reshape PR).** Timeline moves
       from `/` to `/timeline/`, and a static portal page of product tiles takes `/`. One
       release, one `CHANGELOG.md` line, no behaviour change.
