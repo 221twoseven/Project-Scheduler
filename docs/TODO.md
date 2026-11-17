@@ -1352,6 +1352,10 @@ record is each ticket's "Fix shipped" note and `CHANGELOG.md`):
         - [ ] *(a), the owner, once v1.52.0 is on `/preview/`:* run `backfillRefs()` in the
           browser console, signed in, and send Claude the unmatched list; fix those names on
           People or Clients; then `backfillRefs(true)`, after hours.
+          2026-11-17: the first dry run listed 96 names. Most were a department's own name
+          in a crew slot ("CNC", "Painting", the old "Finishing") or a "—", which mean the
+          department or nobody. The matcher now skips those (PR #187, no release: only the
+          dry run's list changes). The rest go to the owner by name.
         - *(b) Once the dry run shows nothing unmatched:* `canonName`'s matching and
           `scrubLegacyNames` retire, and the People merge repoints IDs.
         - *Not in it:* the stamps (`createdBy`, `completedBy`, `updatedBy`, `confirmedBy`,

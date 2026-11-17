@@ -40,7 +40,11 @@ const tasks=[
   task('t1','p1','pm','Sam Smith','2026-11-02','2026-12-04',{people:{'Sam Smith':'st1'}}),
   task('t2','p1','td','Alex','2026-11-09','2026-11-13'),
   task('t3','p1','install','["Sam Smith","Rita Moreno"]','2026-12-01','2026-12-03',{people:{'Sam Smith':'st1'}}),
-  task('t4','p2','other','Sam Smith','2026-11-16','2026-11-18')]; /* free text: a label, not a person */
+  task('t4','p2','other','Sam Smith','2026-11-16','2026-11-18'), /* free text: a label, not a person */
+  /* a department's own name (or a dash) in the crew slot means the department, or nobody */
+  task('t5','p2','cnc','CNC','2026-11-16','2026-11-18'),
+  task('t6','p2','finish','Finishing','2026-11-19','2026-11-20'),
+  task('t7','p2','fab','—','2026-11-19','2026-11-20')];
 const todos=[{appId:'d1',projectId:'p1',Title:'Order glass',assignees:'["Sam Smith"]',department:'',
   refs:J({people:{'Sam Smith':'st1'}})}];
 
@@ -132,6 +136,8 @@ function stageBackfill(){
     ok('it links the two records that need it (Window Bay; the crew with Rita)',r.link===2,r.link);
     ok('it lists the names it can\'t match: both bare Alexes, Nobody Known, and Ghost (off the roster)',J(names)===J(['Alex','Alex','Ghost','Nobody Known']),J(names));
     ok('the free-text label is neither linked nor listed',!r.unmatched.some(u=>u.name==='Sam Smith'));
+    ok('nor are department names (CNC, the old "Finishing") or a dash in a crew slot',
+      !r.unmatched.some(u=>['CNC','Finishing','—'].includes(u.name)));
     const w0=calls().length;
     E('backfillRefs(true)').then(r2=>{
       const ws=calls().slice(w0).filter(c=>c.method==='PATCH');
