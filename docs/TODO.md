@@ -50,8 +50,8 @@ as the phase runs.
 - Every milestone gets a record in `docs/Milestones/Phase-7-Pilot-Readiness/`; every
   deliberate skip gets a §7 line with its gate.
 
-Last reviewed: 2026-11-17 — the promotion audits for v1.51.3 → v1.53.0 and v1.53.0 → v1.54.1
-reaching `main` (log in §8). Before that, 2026-11-10 — the promotion audit for v1.51.1 → v1.51.3. Before that, 2026-10-19 — the promotion audits for v1.48.5 → v1.51.0 and
+Last reviewed: 2026-11-17 — the promotion audits for v1.51.3 → v1.53.0, v1.53.0 → v1.54.1 and
+v1.54.1 → v1.55.1 reaching `main` (log in §8). Before that, 2026-11-10 — the promotion audit for v1.51.1 → v1.51.3. Before that, 2026-10-19 — the promotion audits for v1.48.5 → v1.51.0 and
 v1.51.0 → v1.51.1. Before that, 2026-10-15 — the promotion audit for v1.48.1 → v1.48.5, after a full audit the
 same day. Before that, 2026-10-13 — the promotion audit for v1.45.1 → v1.48.1 reaching `main`. Before that, 2026-10-09 — the promotion audits for v1.43.0 → v1.44.3 and v1.44.3 →
 v1.45.1. Before that, 2026-10-08 — D15 (data platform) reassessed: Dataverse and Azure SQL + API
@@ -65,12 +65,13 @@ is the log in §8.
 
 ## 0. Where we stand
 
-As of 2026-11-17: production (`main`) runs **v1.54.1**, promoted 2026-11-17
-(release/2026-11-17b). `development` runs **v1.55.1**: the name-matching helpers retire and
-the People merge moves records by ID (v1.55.0, item 28 (b)), and a long Changelog entry
-folds after its first four lines (v1.55.1, item 84).
+As of 2026-11-17: production (`main`) runs **v1.55.1**, promoted 2026-11-17
+(release/2026-11-17c).
 
 The newest work on production:
+- v1.55.1: a long Changelog entry folds after its first four lines (item 84);
+- v1.55.0: the name-matching helpers retire, and the People merge moves records by ID
+  (item 28 (b));
 - v1.54.1: a selected bar, milestones and holiday pills no longer slide over the project
   page's name column (item 83);
 - v1.54.0: department phases stop storing the department's name as their crew (item 82);
@@ -100,7 +101,7 @@ Before that:
 Earlier: reporter answers show in Open Issues (item 58); Protect dates (item 2: drags
 never change dates).
 
-Phase 7 has shipped v1.24.0 → v1.54.1 so far.
+Phase 7 has shipped v1.24.0 → v1.55.1 so far.
 `CHANGELOG.md` is the release-by-release record.
 
 ## 1. North star — Systems
@@ -1385,7 +1386,8 @@ record is each ticket's "Fix shipped" note and `CHANGELOG.md`):
           `docs/Milestones/Phase-7-Pilot-Readiness/2026-11-17-name-matching-retired.md`.
           *Ceiling:* a name with no ref and no exact match (the four "Daniel" fields) stays its
           own name, its own lane in the Departments view. Naming him on People and running
-          `backfillRefs(true)` fixes it.
+          `backfillRefs(true)` fixes it. *Checked 2026-11-17 after the merge:* the owner's
+          `backfillRefs()` dry run on `/preview/` lists only those four.
         - *Not in it:* the stamps (`createdBy`, `completedBy`, `updatedBy`, `confirmedBy`,
           Changelog `who`) stay names, as a record of who it was at the time.
         - *Ceiling:* `refs` is JSON, so SharePoint can't filter by it. At the D15 cutover it
@@ -2534,6 +2536,21 @@ How to read the tags at the end of an entry:
   number.
 
 **Log, newest first:**
+
+- 2026-11-17: **v1.54.1 → v1.55.1 promoted to `main`** (release/2026-11-17c), cut from
+  `development` just before PR #201 (item 49, the Systems page). The owner holds item 49
+  back from production until a larger, more complete update, so this promotion takes the
+  two releases ahead of it.
+  - v1.55.0 is item 28 (b), name matching retired (PR #198), ticked. The owner's
+    `backfillRefs()` dry run after it lists only the four "Daniel" fields.
+  - v1.55.1 is item 84, the folding Changelog entry (PR #199), ticked.
+  - *Workflows:* `deploy-pages.yml` on `main` changed by PR #200 (no release): it publishes
+    both the current layout and item 49's. The same file reaches `development` with #201.
+  - *Tracker:* no change. #41 (item 67) and #12 (item 40) stay on hold.
+  - *Schema:* no change. The owner added the `/timeline/` and `/preview/timeline/` redirect
+    URIs for item 49 (Entra, not schema).
+  - *Branches:* `main`, `development`, this release branch, and `feat/49-systems-portal`
+    (PR #201, open into `development`).
 
 - 2026-11-17: **v1.53.0 → v1.54.1 promoted to `main`** (release/2026-11-17b). This is the
   day's second promotion, held until v1.54.1 was in so that production moved once more
