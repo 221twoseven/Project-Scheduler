@@ -263,7 +263,7 @@ function stage15(){
      &&JSON.parse(E("JSON.stringify(personToFields({id:'y',name:'B',email:'',phone:'',role:'',depts:[],ooo:[],admin:null,nickname:null}))")).nickname===undefined);
   E("PEOPLE.find(p=>p.name==='Sam').nickname='Sammy'");
   ok('dispName reads the nickname; canonical name stays the identity',
-     E("dispName('Sam')")==='Sammy'&&E("canonName('Sam')")==='Sam');
+     E("dispName('Sam')")==='Sammy'&&E("personByName('Sam').name")==='Sam');
   ok('bar crew chips show the nickname',
      E("assigneeText(ST.tasks[0])")==='Sammy');
   E("PEOPLE.find(p=>p.name==='Sam').nickname=null");

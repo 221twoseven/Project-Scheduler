@@ -1,8 +1,8 @@
-/* v1.54.2 — item 84: a long changelog detail (a bulk change lists every record it touched)
+/* v1.55.1 — item 84: a long changelog detail (a bulk change lists every record it touched)
    shows its first four lines and folds the rest under a native <details> ("N more"), the
    way a feedback report's comments fold. Checked on the Changelog page and the project
    page's Changelog dock (the draft page has no dock).
-   Run: node tests/test-v1542.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1551.js index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

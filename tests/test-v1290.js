@@ -24,7 +24,8 @@ const staff=[
   P('s14','Dario Park','fab'),P('s15','Ambrose Pryce','fab'),P('s16','Ezra Bowen','fab')];
 const projects=[{appId:'p1',Title:'Saved Job',client:'C',jobCode:'J1',deadline:D(40),status:'in-fabrication',
   projectManager:'Halden Li',drafter:'Oscar B.',leadFab:'Ezra Bowen',fabricators:'',
-  activeDepartments:JSON.stringify(['pm','td']),createdAt:D(-30),sortIndex:0}];
+  activeDepartments:JSON.stringify(['pm','td']),createdAt:D(-30),sortIndex:0,
+  refs:JSON.stringify({people:{'Oscar B.':'s11'}})}]; /* v1.55.0: the legacy "Oscar B." resolves through its ref (item 28 b) */
 const tasks=[{appId:'t1',projectId:'p1',department:'td',assignee:'Oscar Brandow',startDate:D(0),endDate:D(4),
   estimatedDays:5,ticketNodes:'[]',notes:'',pinned:false,label:''}];
 

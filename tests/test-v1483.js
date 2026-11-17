@@ -1,5 +1,5 @@
 /* v1.48.3 — item 61, small simplifications from the 2026-10-12 audit:
-   canonName remembers its answers until the roster changes; one PERSON_COLS table drives the Staff
+   canonName remembered its answers until the roster changed (retired with it, v1.55.0); one PERSON_COLS table drives the Staff
    mappers (every optional column round-trips, tristate kept); the background poll pauses on the
    update check's updBusy() (owner OK 2026-10-14), so it also waits on New Project, a cursor in a
    toolbar field, or a parked client/settings save.
@@ -15,14 +15,7 @@ const win=dom.window;
 const E=s=>win.eval(s);
 
 setTimeout(()=>{
-  sec('canonName remembers, and forgets when the roster changes');
-  ok('a short name resolves', E("canonName('sam')")==='Sam Smith');
-  ok('a pushed person invalidates the memo (the answer becomes ambiguous)',
-     E("PEOPLE.push({id:'s2',name:'Sam Jones',depts:[],ooo:[]});canonName('sam')")==='sam');
-  ok('a new roster array invalidates it too',
-     E("PEOPLE=[{id:'s3',name:'Sam Lee',depts:[],ooo:[]}];canonName('sam')")==='Sam Lee');
-  ok('an empty roster returns the input', E("(()=>{const k=PEOPLE;PEOPLE=[];const r=canonName('sam');PEOPLE=k;return r;})()")==='sam');
-
+  /* canonName's memo (item 61) retired with canonName itself in v1.55.0 (item 28 b). */
   sec('PERSON_COLS: every optional Staff column round-trips, tristate kept');
   const cols=JSON.parse(E("JSON.stringify(PERSON_COLS)"));
   ok('the table lists the 14 optional columns', cols.length===14, cols.length);

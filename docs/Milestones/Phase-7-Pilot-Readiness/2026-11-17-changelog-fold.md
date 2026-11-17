@@ -1,4 +1,4 @@
-# A long Changelog entry folds — v1.54.2 (2026-11-17)
+# A long Changelog entry folds — v1.55.1 (2026-11-17)
 
 **TODO item 84** (owner's screenshot, 2026-11-17). PR #199.
 
@@ -27,7 +27,7 @@ page's Changelog panel. The filter still searches the folded lines.
 
 ## Checks
 
-`tests/test-v1542.js` makes 25 phase edits in one step, checks the one "Bulk change" row it
+`tests/test-v1551.js` makes 25 phase edits in one step, checks the one "Bulk change" row it
 writes, and draws it on the Changelog page: four lines, a closed fold reading "21 more", and
 every line still there. A seven-line edit folds the same way on the page and in the project
 page's panel; a six-line edit doesn't fold. The filter still finds a folded line.
