@@ -50,8 +50,8 @@ as the phase runs.
 - Every milestone gets a record in `docs/Milestones/Phase-7-Pilot-Readiness/`; every
   deliberate skip gets a §7 line with its gate.
 
-Last reviewed: 2026-11-17 — the promotion audit for v1.51.3 → v1.53.0 reaching `main` (log
-in §8). Before that, 2026-11-10 — the promotion audit for v1.51.1 → v1.51.3. Before that, 2026-10-19 — the promotion audits for v1.48.5 → v1.51.0 and
+Last reviewed: 2026-11-17 — the promotion audits for v1.51.3 → v1.53.0 and v1.53.0 → v1.54.1
+reaching `main` (log in §8). Before that, 2026-11-10 — the promotion audit for v1.51.1 → v1.51.3. Before that, 2026-10-19 — the promotion audits for v1.48.5 → v1.51.0 and
 v1.51.0 → v1.51.1. Before that, 2026-10-15 — the promotion audit for v1.48.1 → v1.48.5, after a full audit the
 same day. Before that, 2026-10-13 — the promotion audit for v1.45.1 → v1.48.1 reaching `main`. Before that, 2026-10-09 — the promotion audits for v1.43.0 → v1.44.3 and v1.44.3 →
 v1.45.1. Before that, 2026-10-08 — D15 (data platform) reassessed: Dataverse and Azure SQL + API
@@ -65,12 +65,13 @@ is the log in §8.
 
 ## 0. Where we stand
 
-As of 2026-11-17: production (`main`) runs **v1.53.0**, promoted 2026-11-17
-(release/2026-11-17). `development` runs **v1.54.1**: department phases stop storing the
-department's name as their crew (v1.54.0, item 82), and a selected bar, milestones and
-holiday pills no longer slide over the project page's name column (v1.54.1, item 83).
+As of 2026-11-17: production (`main`) and `development` both run **v1.54.1**, promoted
+2026-11-17 (release/2026-11-17b).
 
 The newest work on production:
+- v1.54.1: a selected bar, milestones and holiday pills no longer slide over the project
+  page's name column (item 83);
+- v1.54.0: department phases stop storing the department's name as their crew (item 82);
 - v1.53.0: a project's client is picked from a dropdown of the Clients list (item 81);
 - v1.52.0: stable IDs, so a rename on People or Clients carries its projects, phases and
   to-dos (item 28 (a));
@@ -97,7 +98,7 @@ Before that:
 Earlier: reporter answers show in Open Issues (item 58); Protect dates (item 2: drags
 never change dates).
 
-Phase 7 has shipped v1.24.0 → v1.53.0 so far.
+Phase 7 has shipped v1.24.0 → v1.54.1 so far.
 `CHANGELOG.md` is the release-by-release record.
 
 ## 1. North star — Systems
@@ -1418,8 +1419,9 @@ record is each ticket's "Fix shipped" note and `CHANGELOG.md`):
       - A project whose client isn't on the list keeps showing it until someone picks one;
         `backfillRefs()` lists them.
       - *Waits on:* nothing. Goes with item 28.
-- [ ] **82. Department phases stop storing the department's name as their crew** (owner,
-      2026-11-17). Shop departments with no people roster (CNC, Painting, Printing and the
+- [x] **82. Department phases stop storing the department's name as their crew** (owner,
+      2026-11-17). Done 2026-11-17: shipped v1.54.0, and the owner's tidy cleared 73 phases.
+      Shop departments with no people roster (CNC, Painting, Printing and the
       rest) are scheduled as the department. When the app creates their phases it writes the
       department's name into the crew field (`assigneeFor`), so one field holds either people
       or a label. The stored name also goes stale when a department is renamed ("Finishing",
@@ -1438,11 +1440,16 @@ record is each ticket's "Fix shipped" note and `CHANGELOG.md`):
         person filter, the People counts and the overbooking check skip non-people. The hover
         card drops its empty crew line. Suite `tests/test-v1540.js`; record
         `docs/Milestones/Phase-7-Pilot-Readiness/2026-11-17-dept-crews.md`.
-      - [ ] *The owner, once v1.54.0 is on `/preview/`:* run `tidyDeptCrews()` in the
+      - [x] *The owner, once v1.54.0 is on `/preview/`:* run `tidyDeptCrews()` in the
         console (a dry run that lists every phase it would change), then
         `tidyDeptCrews(true)`. A dash on a Project Management or Main Shop Fab phase means
         "nobody"; cleared, that phase follows the project's team like any other unowned
-        phase.
+        phase. Done 2026-11-17. The dry run listed 73 phases: department names, the old
+        "Finishing", and three dashes (Art Lab's PM and Main Shop Fab, Timeline
+        Development's PM). One crew kept its person ("Jed Marshall, Electrical" became
+        "Jed Marshall"). All 73 saved as one step. The owner confirmed that shop
+        departments are assigned as a department and the team divides the queue, so an
+        empty crew is the intended state.
 - [x] **83. The project page's name column stays on top** (P1 bug, owner's screenshot,
       2026-11-17). Shipped v1.54.1 (PR #194, 2026-11-17). Scrolled sideways, a selected
       phase bar ran over the names on the left of the project-page Gantt, and so did
@@ -2503,6 +2510,20 @@ How to read the tags at the end of an entry:
   number.
 
 **Log, newest first:**
+
+- 2026-11-17: **v1.53.0 → v1.54.1 promoted to `main`** (release/2026-11-17b). This is the
+  day's second promotion, held until v1.54.1 was in so that production moved once more
+  (owner).
+  - v1.54.0 is item 82 (PR #193), ticked with the owner's tidy (73 phases). Its docs PR
+    #195 was closed, because it clashed with #194 in this file; its text rides here.
+  - v1.54.1 is item 83, the project page's name column (PR #194), ticked.
+  - *Docs with no release:* item 29 done, with the TODO check reading folded changelog
+    headings (PR #192).
+  - *Tracker:* no change. #41 (item 67) and #12 (item 40) stay on hold.
+  - *Schema:* no change. The dead columns are deleted (item 29). The `refs` columns are in
+    use.
+  - *Workflows:* unchanged.
+  - *Branches:* only `main`, `development` and this release branch. No other PR is open.
 
 - 2026-11-17: **v1.51.3 → v1.53.0 promoted to `main`** (release/2026-11-17), so production
   saves keep the new stable IDs (the owner asked, right after the backfill linked 99 records).
