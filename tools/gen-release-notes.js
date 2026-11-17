@@ -65,11 +65,18 @@ function main(){
     process.exit(1);
   }
   const block=emit(entries,eol);
-  const next=src.slice(0,a)+block+src.slice(b+END.length);
+  /* Item 85: the common/ tags carry ?v=APP_VER, so a new Timeline page never runs against a
+     cached old shared core (Pages caches each file for 10 minutes). Stamped here, the one
+     command every release already runs. */
+  const next=stampCommon(src.slice(0,a)+block+src.slice(b+END.length),ver);
   if(next===src){console.log('gen-release-notes: timeline/index.html already up to date ('+entries.length+' entries).');return;}
   fs.writeFileSync(INDEX,next);
   console.log('gen-release-notes: wrote '+entries.length+' entries into timeline/index.html (newest '+entries[0].v+').');
 }
 
-module.exports={parse,emit,appVer,BEGIN,END,CHANGELOG,INDEX};
+function stampCommon(html,ver){
+  return ver?html.replace(/(\.\.\/common\/common\.(?:js|css)\?v=)[^"]*/g,(m,p)=>p+ver):html;
+}
+
+module.exports={parse,emit,appVer,stampCommon,BEGIN,END,CHANGELOG,INDEX};
 if(require.main===module)main();

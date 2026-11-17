@@ -12,7 +12,7 @@
 const fs=require('fs'),path=require('path'),os=require('os');
 const {JSDOM}=require('jsdom');
 const {boot,suite}=require('./harness');
-const {FILE,src,ok,done}=suite();
+const {FILE,src,raw,ok,done}=suite();
 const ROOT=path.join(__dirname,'..');
 const portal=fs.readFileSync(path.join(ROOT,'index.html'),'utf8').replace(/\r\n/g,'\n');
 const sec=t=>console.log('\n'+t);
@@ -99,8 +99,11 @@ async function run(){
   ok('"Ask everyone to reload" (update.minVersion 1.56.0) still retires it', !!r&&/retired/.test(r.textContent), r&&r.textContent);
 
   sec('R5: Timeline runs from timeline/');
-  ok('its MSAL file sits beside it', src.includes('<script src="msal-browser.min.js"></script>')&&fs.existsSync(path.join(ROOT,'timeline','msal-browser.min.js')));
-  ok('the root no longer holds the app or MSAL', !fs.existsSync(path.join(ROOT,'msal-browser.min.js'))&&!/const APP_VER=/.test(portal));
+  /* v1.56.1 (item 85): MSAL moved on from timeline/ into common/, shared by every product */
+  ok('its MSAL file loads from common/, and is there', raw.includes('<script src="../common/msal-browser.min.js"></script>')&&fs.existsSync(path.join(ROOT,'common','msal-browser.min.js')));
+  /* v1.56.1: the root keeps an MSAL copy for one release, for a page cached from before the move
+     (test-v1561 checks it's identical); the Systems page itself never loads it. */
+  ok('the root no longer holds the app, and the Systems page loads no MSAL', !/const APP_VER=/.test(portal)&&!/msal-browser/.test(portal));
   const font=(/url\('([^']*BrNStdBd\.otf)'\)/.exec(src)||[])[1];
   ok('the wordmark font is one folder up, and there', font==='../design/fonts/BrNStdBd.otf'&&fs.existsSync(path.join(ROOT,'timeline',font)), font);
   const pfont=(/url\('([^']*BrNStdBd\.otf)'\)/.exec(portal)||[])[1];

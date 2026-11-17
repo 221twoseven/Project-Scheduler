@@ -52,7 +52,10 @@ Six checks a reviewer can run on any diff, in Timeline or another product:
 
 ## 1. Tokens — the `:root` block, verbatim
 
-This is the whole token layer as it ships. Copy it unchanged into any Systems product.
+This is the whole token layer as it ships. Since v1.56.1 (item 85) it is split: `--sans`,
+`--mono`, `color-scheme` and the `--ts-*` tokens live in `common/common.css`, which every
+product loads; Timeline's own `:root` keeps the rest. A new product loads `common.css`
+rather than copying them.
 
 ```css
 :root{
@@ -931,7 +934,11 @@ extracted when the second product starts. This section is the extraction brief f
 outcome; the layout and the Timeline reshape PR are in `TODO.md` §4 D4 — nothing here
 changes Timeline today.
 
-### 10.1 Shared, verbatim (the future `common.css`)
+### 10.1 Shared, verbatim (`common/common.css`, started v1.56.1)
+
+`common/common.css` holds so far the tokens, the toast strip and the sync pill (item 85);
+the rest of this list moves into it as the shell (style §13 step 4) and the second product
+need it.
 
 1. The `:root` block, reset, reduced-motion and `:focus-visible` rules (§1).
 2. The toolbar: fill, edges, wordmark, eyebrow, version pill, `.t-btn` family, segmented

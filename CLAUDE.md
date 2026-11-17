@@ -15,6 +15,12 @@ Project rules and context for working in this repository. Read this before makin
   byte-for-byte copy of the colleague's REV50 build. That copy was deleted from the repository
   on 2026-10-15 (item 70: it held real staff names); git history still has it. It lived at
   the root as `index.html` until v1.56.0 (item 49).
+- **`common/` — what every Systems product shares** (item 85, v1.56.1): `common.js` (the
+  Systems constants, sign-in, the SharePoint data layer and `store`, toasts, the sync pill,
+  the expired-sign-in prompt), `common.css` (the `--ts-*` tokens, toasts, the sync pill) and
+  the vendored `msal-browser.min.js`. Timeline loads them as `../common/`; their tags carry
+  `?v=APP_VER`, which `npm run notes` stamps. Change them as carefully as Timeline itself:
+  every product breaks with them.
 - **`index.html` at the root — the Systems page**: a static page of product tiles, no
   sign-in. It forwards old `#/…` and `#view=` links to `timeline/`. A new product gets a tile
   here and a folder of its own (`people/`, `clients/`, `office/`, §4 D4).
@@ -225,13 +231,13 @@ hand its People and Clients pages to their own products. The portal exists since
 yet. The definition is `docs/TODO.md` §1 and the rulings are §4 D4/D8. Until they are,
 Timeline is the whole of the app that ships.
 
-A **single-file, client-only SPA**. `timeline/index.html` (one large file —
-`wc -l` has the count) contains all HTML, CSS,
-and vanilla JavaScript — no framework and no build step. It is a shop-timeline / Gantt
+A **client-only SPA**: `timeline/index.html` (one large file — `wc -l` has the count)
+holds Timeline's HTML, CSS and vanilla JavaScript, and loads the shared core from
+`common/` (item 85) — no framework and no build step. It is a shop-timeline / Gantt
 dashboard for projects, tasks, staff, and to-dos.
 
-- **Frontend:** hand-rolled vanilla JS in one HTML file, plus a locally vendored
-  `timeline/msal-browser.min.js` (not loaded from a CDN).
+- **Frontend:** hand-rolled vanilla JS in one HTML file per product, plus `common/` (the
+  shared core and a locally vendored `msal-browser.min.js`, not loaded from a CDN).
 - **Auth:** MSAL.js browser library, delegated PKCE flow against a single-tenant Entra
   app registration. Sign-in via `loginPopup`, tokens via `acquireTokenSilent`
   (fallback `acquireTokenPopup`), cached in `sessionStorage`.

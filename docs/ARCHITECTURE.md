@@ -14,16 +14,18 @@
 > an API) is open as D15, analysed in `docs/Architecture-Review-Backend.md`. This page
 > describes what runs today and changes only when something else is built.
 
-Timeline is a **single-file, client-only single-page app**. `timeline/index.html` contains all
-HTML, CSS, and vanilla JavaScript (thousands of lines, one file) — no framework, no
-build step. The only
-runtime dependency is `timeline/msal-browser.min.js`, vendored beside it. The site's root
+Timeline is a **client-only single-page app**. `timeline/index.html` contains its HTML, CSS
+and vanilla JavaScript (thousands of lines, one file) — no framework, no build step. Since
+v1.56.1 (item 85) it loads the core every Systems product shares from `common/`:
+`common.js` (the constants, sign-in, the Graph data layer and `store`, toasts, the sync pill,
+the expired-sign-in prompt), `common.css` (the `--ts-*` tokens, toasts, the sync pill) and
+`msal-browser.min.js`, the only runtime dependency, vendored there. The site's root
 `index.html` is the Systems page (v1.56.0, item 49): static product tiles, no sign-in, and a
 forward that sends an old `#/…` or `#view=` link on to `timeline/`. There is no server we
 own; the backend is SharePoint, reached through Microsoft Graph.
 
 ```
-Browser (timeline/index.html + msal-browser.min.js on GitHub Pages)
+Browser (timeline/index.html + common/ on GitHub Pages)
    │  MSAL sign-in (Entra, delegated PKCE)
    │  Bearer token
    ▼

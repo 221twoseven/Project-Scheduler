@@ -66,8 +66,9 @@ is the log in §8.
 ## 0. Where we stand
 
 As of 2026-11-17: production (`main`) runs **v1.55.1**, promoted 2026-11-17
-(release/2026-11-17c). `development` runs **v1.56.0**: the Systems page takes the site's
-root and Timeline moves to `/timeline/` (item 49). **Held from production** (owner,
+(release/2026-11-17c). `development` runs **v1.56.1**: the Systems page takes the site's
+root and Timeline moves to `/timeline/` (v1.56.0, item 49), and the core every product
+shares moves into `common/` (v1.56.1, item 85 (a)). **Held from production** (owner,
 2026-11-17) until launch 1 (§2: the Systems page with the shell and the Clients app), so
 promotions wait for it; a fix production needs meanwhile is built from `main` and merged
 back into `development`.
@@ -1514,8 +1515,10 @@ record is each ticket's "Fix shipped" note and `CHANGELOG.md`):
         points at a page Timeline already has. Launch 2 is the People app (item 87). §2's
         batches table has both.
       - [ ] *Clean-up, a working day after v1.56.0 reaches production:* the owner removes the
-        old `/` and `/preview/` redirect URIs; Claude drops the root `msal-browser.min.js`
-        and `fonts/BrNStdBd.otf` lines from the deploy workflow's lists (on both branches).
+        old `/` and `/preview/` redirect URIs; Claude deletes the two MSAL copies kept at the
+        old paths for cached pages (`msal-browser.min.js` and `timeline/msal-browser.min.js`,
+        v1.56.1) and drops their lines and `fonts/BrNStdBd.otf` from the deploy workflow's
+        lists (on both branches).
       - *Not in it:* the wordmark still goes to Timeline's home; pointing it at the
         Systems page is style §13 step 4, the shell.
       The original spec: Timeline moves
@@ -1583,6 +1586,21 @@ to 87 are architecture, so each needs the owner's go before code.
       - *Rollback:* revert the PR. No list or Entra setting changes.
       - *Not chosen:* a copy of the code inside each app. Two copies of sign-in and saving
         would drift apart.
+      - [x] *(a) The core* (owner's go, 2026-11-17). Shipped v1.56.1 (PR #205, 2026-11-17);
+        the workflow went to `main` first (PR #204). Moved word for word into
+        `common/common.js`: the constants, sign-in, the Graph calls, `store`, toasts, the sync
+        pill and the expired-sign-in prompt. Into `common/common.css`: `--sans`, `--mono`, the
+        `--ts-*` tokens, toasts and the sync pill. MSAL moved to `common/`. Timeline keeps its
+        hooks: where the toast stack sits, the sign-in button (it replays Timeline's saves),
+        the save queue. The tags carry `?v=APP_VER`, stamped by `npm run notes`. The harness
+        inlines `common/`, so every suite runs through it. Nothing changes for users: the
+        project page looks the same pixel for pixel, bar the version. Suite
+        `tests/test-v1561.js`; record
+        `docs/Milestones/Phase-7-Pilot-Readiness/2026-11-17-common-module.md`.
+      - [ ] *(b) With the Clients app (item 86):* the admin and viewer-grant checks and the
+        update check. They lean on Timeline's staff roster and on its editing state (drags,
+        drafts, open editors), so they move once a second product loads the roster, with
+        hooks for each product's own "busy" rules.
 - [ ] **86. The Clients app** (launch 1). ⚠ Architecture, on item 85. Timeline's Clients
       page becomes its own product at `clients/`, built to the Clients wireframe
       (`design/wireframes/`), and leaves Timeline.

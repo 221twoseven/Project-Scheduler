@@ -26,13 +26,13 @@ client ID, or tenant ID; only add/adjust redirect URIs with care (see `CLAUDE.md
 - **Application (client) ID:** `5ba3aabe-81f7-41c9-92a4-83a45d5407ab`
 - **Directory (tenant) ID:** `70aa5330-416f-48cb-a64f-1a89f0196577`
 - **Supported account types:** single tenant (this organization only).
-- **Authentication library:** MSAL browser (`timeline/msal-browser.min.js`), auth-code flow with
+- **Authentication library:** MSAL browser (`common/msal-browser.min.js`), auth-code flow with
   PKCE. No client secret.
 
 ### Redirect URI — the part that breaks most often
 
 The app sends Entra, as its redirect URI, **the exact URL of the page it loaded from**
-(minus any `#`/`?`). See `spInit()` in `timeline/index.html`:
+(minus any `#`/`?`). See `spInit()` in `common/common.js` (shared by every product since v1.56.1):
 `redirectUri: window.location.href.split('#')[0].split('?')[0]`.
 
 So Entra must hold that exact string, registered under the **Single-page application

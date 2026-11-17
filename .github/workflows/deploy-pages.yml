@@ -12,6 +12,8 @@ name: Deploy Pages
 # and Timeline lives in timeline/. The lists below name both layouts, so this one
 # workflow publishes a branch from before the move and one from after it: a path a
 # branch doesn't have is simply skipped.
+# Item 85 (v1.56.1): common/ holds what every product shares (MSAL, the shared core
+# and styles); Timeline loads it as ../common/.
 on:
   push:
     branches: [main, development]
@@ -51,6 +53,9 @@ jobs:
             msal-browser.min.js
             timeline/index.html
             timeline/msal-browser.min.js
+            common/common.js
+            common/common.css
+            common/msal-browser.min.js
             design/fonts/BrNStdBd.otf
             fonts/BrNStdBd.otf
           sparse-checkout-cone-mode: false
@@ -65,6 +70,9 @@ jobs:
             msal-browser.min.js
             timeline/index.html
             timeline/msal-browser.min.js
+            common/common.js
+            common/common.css
+            common/msal-browser.min.js
             design/fonts/BrNStdBd.otf
             fonts/BrNStdBd.otf
           sparse-checkout-cone-mode: false

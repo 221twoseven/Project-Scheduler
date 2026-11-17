@@ -57,6 +57,10 @@ non-zero on failure.
 - `harness.js` also exports `suite()`: `const {FILE,src,ok,done}=suite();` gives the build
   under test, its source text, the `ok(name, cond, detail)` PASS/FAIL line and `done()`,
   which prints the summary and exits non-zero on any FAIL.
+- Since v1.56.1 (item 85) Timeline loads `../common/` by tag (MSAL, `common.js`,
+  `common.css`). jsdom loads no files, so `boot()` and `suite()` inline them where the tags
+  sit: suites boot, and `src` reads, as the one file did before. `raw` is the page as served,
+  tags and all (the deploy-guard suite reads it).
 - `run.js` — runs every `test*.js` against one build and aggregates pass/fail.
 - `test57.js` — 35 assertions. The project-page refinement batch (REV57, field notes
   N1–N16): status labels lose the "In", the orphan row reads "Events", the toolbar

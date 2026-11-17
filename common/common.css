@@ -1,0 +1,46 @@
+/* common/common.css — the styles every Systems product shares (item 85 (a), v1.56.1).
+   The suite tokens, the toast strip and the sync pill, moved verbatim from Timeline.
+   Loaded before the product's own <style>. */
+:root{
+  /* v1.7.1 (obj 11): Bahnschrift leads via local() only — Windows 10+ ships it, no
+     committed file; non-Windows machines fall through to the old stack unchanged. */
+  --sans:Bahnschrift,'Segoe UI',-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;
+  --mono:ui-monospace,'Cascadia Mono','Segoe UI Mono',Consolas,'Roboto Mono',monospace;
+  /* v1.24.0: the TwoSeven suite tokens (design/TwoSeven-Application-Style-Guide.md §10),
+     §13 step 2. Timeline is light-only, so no dark block. Legacy tokens below alias the
+     equivalent --ts-* value; --ink/--ink-2/--warn/--late/--row-h/--r-* stay independent. */
+  color-scheme:light;
+  --ts-paper:#F5F7FA; --ts-panel:#FFFFFF; --ts-sidebar:#EDF1F7; --ts-soft:#F8FAFD;
+  --ts-text:#1B2537; --ts-muted:#596B81; --ts-line:#C9D4E3; --ts-control-line:#7C8BA0;
+  --ts-link:#245FC9; --ts-selected:#EAF2FF;
+  --ts-action:#2F6FE4; --ts-action-hover:#1D5AC9; --ts-on-action:#FFFFFF;
+  --ts-success-text:#236847; --ts-success-bg:#EAF4EE;
+  --ts-warning-text:#895B11; --ts-warning-bg:#FFF4DB;
+  --ts-danger-text:#B42318; --ts-danger-bg:#FFF0EE;
+  --ts-header-start:#2A3850; --ts-header-end:#202C41; --ts-header-text:#EDF3FC; --ts-header-line:#576882;
+  --ts-font:var(--sans); --ts-mono:var(--mono);
+  --ts-space-1:4px; --ts-space-2:8px; --ts-space-3:12px; --ts-space-4:16px; --ts-space-5:20px;
+  --ts-space-6:24px; --ts-space-8:32px; --ts-space-10:40px; --ts-space-12:48px;
+  --ts-radius-chip:4px; --ts-radius-control:6px; --ts-radius-panel:8px; --ts-radius-dialog:10px;
+  --ts-shadow-floating:0 4px 18px rgba(13,19,29,.18);
+}
+/* ============ TOASTS ============ */
+/* D3: toasts dock bottom-right, capped at 3 visible with a "+N more" counter, and a
+   width cap so long errors wrap instead of spanning the canvas. */
+#toasts{position:fixed;bottom:18px;right:18px;z-index:1000;display:flex;flex-direction:column;gap:8px;align-items:flex-end;pointer-events:none}
+.toast{background:#101A29;color:rgba(255,255,255,.92);font-size:12.5px;padding:9px 16px;border-radius:9px;box-shadow:0 8px 28px rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.1);animation:toast-in .22s ease-out;max-width:min(380px,calc(100vw - 36px));pointer-events:none}
+/* v1.26.2 (tracker #23): the toast's body lets a drag or resize start on whatever is
+   under it; only its controls take the pointer. */
+.toast .undo,.toast .toast-x,.toast details{pointer-events:auto}
+.toast-n{display:inline-block;margin-left:8px;padding:0 6px;border-radius:8px;background:rgba(255,255,255,.18);font-size:11px;font-weight:700}
+#toast-more{font-size:11px;font-weight:600;color:rgba(255,255,255,.75);background:#101A29;border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:3px 9px}
+.toast.err{border-color:rgba(255,110,110,.5);color:#FFC9C9}
+.toast details{margin-top:6px}
+.toast summary{cursor:pointer;font-size:11px;opacity:.65;user-select:none}
+.toast .toast-tech{font-family:var(--mono);font-size:var(--fs-fine,11px);line-height:1.5;text-align:left;white-space:pre-wrap;word-break:break-word;max-height:110px;overflow:auto;margin-top:4px;opacity:.8}
+.toast.out{opacity:0;transform:translateY(6px);transition:opacity .3s,transform .3s}
+@keyframes toast-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+#sync-pill{display:inline-flex;align-items:center;height:24px;font-family:var(--mono);font-size:var(--fs-fine);letter-spacing:.04em;padding:0 8px;border-radius:20px;white-space:nowrap;border:1px solid transparent;user-select:none}
+#sync-pill.ok{color:#7BD8A0;border-color:rgba(123,216,160,.3);background:rgba(50,160,95,.12)}
+#sync-pill.busy{color:#F7CE68;border-color:rgba(247,206,104,.3);background:rgba(240,168,20,.1)}
+#sync-pill.err{color:#FF9E9E;border-color:rgba(255,120,120,.35);background:rgba(220,60,60,.14);cursor:pointer}

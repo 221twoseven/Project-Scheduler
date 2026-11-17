@@ -9,7 +9,7 @@ Format: `## <label> — <date>` then one `- ` line per change. Keep lines concre
 what changed *for the team*, not how. Developer-only tooling doesn't need a line.
 Collect lines for the next version under `## Unreleased` and rename it when you ship.
 
-## v1.56.0 — Nov 17, 2026
+## v1.56.0–v1.56.1 — Nov 17, 2026
 - The app's address now opens the new Systems page, with a tile for each product: Timeline, People, Clients and Office (not built yet).
 - Timeline has its own address, ending in /timeline/. Bookmark it to skip the Systems page; links to a project or page still open in Timeline.
 
