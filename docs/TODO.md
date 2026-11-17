@@ -66,8 +66,9 @@ is the log in §8.
 ## 0. Where we stand
 
 As of 2026-11-17: production (`main`) runs **v1.54.1**, promoted 2026-11-17
-(release/2026-11-17b). `development` runs **v1.55.0**: the name-matching helpers retire and
-the People merge moves records by ID (item 28 (b)).
+(release/2026-11-17b). `development` runs **v1.55.1**: the name-matching helpers retire and
+the People merge moves records by ID (v1.55.0, item 28 (b)), and a long Changelog entry
+folds after its first four lines (v1.55.1, item 84).
 
 The newest work on production:
 - v1.54.1: a selected bar, milestones and holiday pills no longer slide over the project
@@ -1469,6 +1470,14 @@ record is each ticket's "Fix shipped" note and `CHANGELOG.md`):
       layer and the name column sits on top of everything in it. CSS only. Suite
       `tests/test-v1541.js`; record
       `docs/Milestones/Phase-7-Pilot-Readiness/2026-11-17-name-column-on-top.md`.
+- [x] **84. A long Changelog entry folds** (P1, owner's screenshot, 2026-11-17). Shipped
+      v1.55.1 (PR #199, 2026-11-17). The owner's 73-phase tidy wrote one "Bulk change" row
+      that listed all 73 records and filled the page. Any entry longer than six lines now
+      shows its first four and folds the rest under "N more" (a native disclosure, the same
+      fold as a feedback report's comments), on the Changelog page and the project page's
+      Changelog panel. The filter still searches the folded lines. Suite
+      `tests/test-v1551.js`; record
+      `docs/Milestones/Phase-7-Pilot-Readiness/2026-11-17-changelog-fold.md`.
 - [ ] **49. The Systems portal and the Timeline move (D4's reshape PR).** Timeline moves
       from `/` to `/timeline/`, and a static portal page of product tiles takes `/`. One
       release, one `CHANGELOG.md` line, no behaviour change.
