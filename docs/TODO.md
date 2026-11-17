@@ -1384,6 +1384,9 @@ record is each ticket's "Fix shipped" note and `CHANGELOG.md`):
       reached projects (item 28's first backfill dry run, 2026-11-17).
       - The field accepts only a name on `ShopTimeline_Clients`, matched ignoring case and
         saved in the list's spelling. Anything else shows an error and doesn't save.
+      - It opens as a real list of every client. Today's suggestions only show names that
+        contain what's already typed, so on a project whose client isn't on the list the
+        arrow shows nothing (owner, 2026-11-17, reassigning VCA Spring 2027).
       - New clients are added on the Clients page: the product that owns the data creates
         it (§1, D4).
       - The error wording, and any "add it on Clients" link, go to the owner before building.
