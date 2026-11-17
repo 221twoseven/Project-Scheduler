@@ -1350,7 +1350,7 @@ record is each ticket's "Fix shipped" note and `CHANGELOG.md`):
           2026-11-11. Suite `tests/test-v1520.js`; record
           `docs/Milestones/Phase-7-Pilot-Readiness/2026-11-11-stable-ids.md`. A rename
           carries only records that have refs, so the backfill comes next.
-        - [ ] *(a), the owner, once v1.52.0 is on `/preview/`:* run `backfillRefs()` in the
+        - [x] *(a), the owner, once v1.52.0 is on `/preview/`:* run `backfillRefs()` in the
           browser console, signed in, and send Claude the unmatched list; fix those names on
           People or Clients; then `backfillRefs(true)`, after hours.
           2026-11-17: the first dry run listed 96 names. Most were a department's own name
@@ -1362,6 +1362,11 @@ record is each ticket's "Fix shipped" note and `CHANGELOG.md`):
           Design – Ralph Lauren and Demo Booths projects) stays unlinked for now, because
           the person who knows is away. It keeps working by name, and (b) treats it as a
           known leftover until someone names him.
+          Done 2026-11-17: the owner added the missing clients (Van Cleef & Arpels, Amplify,
+          Whitney Museum; Timeline Development's client is now TWOSEVEN), and
+          `backfillRefs(true)` wrote 99 records. Only the four "Daniel" fields remain.
+          Production (v1.51.3) doesn't write refs, so records created there stay unlinked
+          until v1.52.0+ is promoted; a later dry run picks them up.
         - *(b) Once the dry run shows nothing unmatched:* `canonName`'s matching and
           `scrubLegacyNames` retire, and the People merge repoints IDs.
         - *Not in it:* the stamps (`createdBy`, `completedBy`, `updatedBy`, `confirmedBy`,
