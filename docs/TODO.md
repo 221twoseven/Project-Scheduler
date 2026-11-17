@@ -296,7 +296,8 @@ What the pilot can't start without.
         v1.15.1).
       - *Not in this item:* "flexible roles instead of fixed buckets" changes the data
         model. Today there are four fixed role columns (PM, Drafter, Project lead — Lead
-        fabricator until v1.30.0, tracker #18 — and Fabricators) plus a legacy `metalFab`.
+        fabricator until v1.30.0, tracker #18 — and Fabricators). The legacy `metalFab` was
+        deleted 2026-11-17 (item 29).
         That's Phase 8, §4 D10.
       [brief §7 Terminology]
 - [x] **2. Lock dates: give it one meaning, then explain it.** Confirmed P0 by user
@@ -1375,12 +1376,17 @@ record is each ticket's "Fix shipped" note and `CHANGELOG.md`):
         - *Ceiling:* `refs` is JSON, so SharePoint can't filter by it. At the D15 cutover it
           becomes the migration key (D10's target identity).
       [brief §8]
-- [ ] **29. Drop the dead columns** `metalFab`, `labels` and `checklist` (§7.2, L1040). A
+- [x] **29. Drop the dead columns** `metalFab`, `labels` and `checklist` (§7.2, L1040). Done
+      2026-11-17: the owner deleted all three columns. A
       deliberate cleanup now that D2 is lifted. The app stops writing them one release
       before the columns are deleted; milestone record. ⚠
       - [x] *Step 1:* the app no longer reads, writes or searches them. Shipped v1.51.2
         (PR #176, 2026-10-19). Suite `tests/test-v1512.js`.
-      - [ ] *Step 2, the owner (once v1.51.2 is on `main`):* set the Config key
+      - [x] *Step 2, the owner (once v1.51.2 is on `main`):* done 2026-11-17. "Ask everyone
+        to reload" was pressed 2026-11-11 (v1.51.3) and again 2026-11-17 (v1.53.0). Both
+        lists were exported to CSV and kept by the owner. No project held a `metalFab`
+        value (checked from the console), and `labels` / `checklist` held only `[]`. The
+        steps as written: set the Config key
         `update.minVersion` to `1.51.2` (Help ▸ App settings ▸ "Ask everyone to reload") so
         open tabs on an older build reload. **Wait a working day**, so laptops that were
         asleep wake, check and reload: a tab still on v1.51.1 can't save once the columns
@@ -2154,10 +2160,11 @@ How to read the tags at the end of an entry:
       either one merges them. (The v1.x "fires with item 8" wording was stale: v1.1.0
       didn't touch it, and the v1.8.0 / v1.11.0 permission checks touched both without
       merging.) [L1026]
-- [ ] **Dead columns kept alive.** `metalFab` and the to-do fields `labels` / `checklist`
+- [x] **Dead columns kept alive.** `metalFab` and the to-do fields `labels` / `checklist`
       (`todoToFields`) are unused schema, kept for the colleague app (`metalFab` still
       round-trips and is searchable). D2 lifted 2026-09-24, so dropping them is item 29, a
-      deliberate Phase 8 cleanup. [L1040]
+      deliberate Phase 8 cleanup. [L1040] Closed 2026-11-17: item 29 is done, and the
+      columns are deleted.
 - [ ] **The quick-edit popover lacks Duplicate and Pin.** It has the data fields and
       Delete; Duplicate and Pin are only in the inspector. Gate: shop use asking —
       **fired by brief §1 / §7** (make Duplicate visible); handled as item 7. [L1044]
