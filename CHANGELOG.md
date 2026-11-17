@@ -9,6 +9,9 @@ Format: `## <label> — <date>` then one `- ` line per change. Keep lines concre
 what changed *for the team*, not how. Developer-only tooling doesn't need a line.
 Collect lines for the next version under `## Unreleased` and rename it when you ship.
 
+## v1.53.0 — Nov 17, 2026
+- A project's Client is now picked from a dropdown of every client on the Clients page, so a client can't be misspelled or typed in twice under different names. A new client is added on the Clients page first. A project whose client isn't on the list yet keeps it and says so under the field until you pick one.
+
 ## v1.52.0 — Nov 11, 2026
 - Renaming someone on the People page, or a client on the Clients page, now updates that name on every project, phase and to-do that already lists them, instead of leaving the old name behind. Every project, phase and to-do now remembers which person and which client each of its names means.
 
