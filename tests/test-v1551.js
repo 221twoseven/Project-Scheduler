@@ -2,7 +2,7 @@
    shows its first four lines and folds the rest under a native <details> ("N more"), the
    way a feedback report's comments fold. Checked on the Changelog page and the project
    page's Changelog dock (the draft page has no dock).
-   Run: node tests/test-v1551.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1551.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

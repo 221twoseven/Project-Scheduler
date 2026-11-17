@@ -2,7 +2,7 @@
    Main timeline: a plain click (<3px travel) opens the task modal; any drag — engaged,
    attempted, or a resize — suppresses it. Pinned bars behave identically.
    Project page: a plain click selects (drives the inspector); a drag never selects.
-   Run: node tests/test-e2-click.js index.html  (or via tests/run.js) */
+   Run: node tests/test-e2-click.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

@@ -5,7 +5,7 @@
       presets of the existing status filter, remembered per person · R3 a completed row that
       is shown is muted and carries a grey "Completed" tag under the name (not red, no
       strike-through). Reopening a job (changing its status) moves it back to Active.
-   Run: node tests/test-v1370.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1370.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

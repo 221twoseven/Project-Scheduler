@@ -1,7 +1,7 @@
 /* v1.44.2 — tracker #36 (TODO item 54), approved 2026-10-09: a project's bar and the header's
    Shop starts begin at its first real phase, not at the hidden Project Management bar (which keeps
    the start it was generated with). A new project's PM bar starts with its first phase.
-   Run: node tests/test-v1442.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1442.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

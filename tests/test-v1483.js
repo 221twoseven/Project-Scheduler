@@ -3,7 +3,7 @@
    mappers (every optional column round-trips, tristate kept); the background poll pauses on the
    update check's updBusy() (owner OK 2026-10-14), so it also waits on New Project, a cursor in a
    toolbar field, or a parked client/settings save.
-   Run: node tests/test-v1483.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1483.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

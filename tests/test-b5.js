@@ -4,7 +4,7 @@
    - 30 projects fit one screen at Compact (the acceptance bar).
    - Clicking a grp-head collapses its group; collapsed sets persist in UI_KEY keyed
      by group mode and survive a reload.
-   Run: node tests/test-b5.js index.html */
+   Run: node tests/test-b5.js timeline/index.html */
 const {boot,suite}=require('./harness');
 const {FILE,ok,done}=suite();
 

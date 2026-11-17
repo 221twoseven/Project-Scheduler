@@ -1,6 +1,6 @@
 /* B1 / Design-Language §6: a main-timeline row whose bars all sit outside the
    horizontal viewport gets an edge chip naming the bar's near edge; clicking it
-   scrolls the bar into view (centred). Run: node tests/test-b1.js index.html */
+   scrolls the bar into view (centred). Run: node tests/test-b1.js timeline/index.html */
 const {boot,suite}=require('./harness');
 const {FILE,ok,done}=suite();
 

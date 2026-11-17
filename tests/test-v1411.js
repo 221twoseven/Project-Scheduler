@@ -3,7 +3,7 @@
    R1 under about 240px of sidebar the halves read "Proj" / "Dept" (a container query on the sidebar header)
    R2 the full words stay in the button text, the tooltip and the accessible name.
    jsdom cannot evaluate container queries; the widths 180–300px were measured in Chrome (all fit).
-   Run: node tests/test-v1411.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1411.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

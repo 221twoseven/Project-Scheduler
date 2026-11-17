@@ -8,7 +8,7 @@
    weekends and holidays included · R3 start never after end · R4 a restricted date is
    explained, not silently moved · R5 the report's exact case (Setup Jan 2 2027,
    Installation Jan 1 → Jan 2).
-   Run: node tests/test-v1252.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1252.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

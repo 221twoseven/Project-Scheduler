@@ -1,7 +1,7 @@
 /* Bottom-dock collapse — a footer toggle hides the edit form (chart takes the window);
    the state is persisted in localStorage, so it survives a reload / new login session.
    Skips on builds that predate the toggle (the frozen REV50 reference).
-   Run: node test92.js index.html */
+   Run: node test92.js timeline/index.html */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

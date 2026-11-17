@@ -6,7 +6,7 @@
    who holds the role now · R4 the Gantt keeps the old holder on the days up to the change.
    Q1 the change takes effect today · Q2 a bar crewed by a third person is left alone and a
    note offers the hand-over · Q3 a bar that already ended is history.
-   Run: node tests/test-v1420.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1420.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

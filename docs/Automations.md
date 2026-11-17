@@ -1,7 +1,8 @@
 # Automations
 
 Everything that runs **outside the app** and touches its data: Power Automate flows,
-GitHub Actions jobs, and service accounts. The app itself is `index.html`; this page covers
+GitHub Actions jobs, and service accounts. The app itself is `timeline/index.html` (with the
+Systems page at the root); this page covers
 the rest, so none of it becomes a black box. Everything the app itself does is in
 `ARCHITECTURE.md`.
 

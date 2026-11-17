@@ -3,7 +3,7 @@
    - the editor gets seven day boxes + from/to time inputs (half-hour datalist, typing
      allowed, typed values snap to the half hour)
    - stored as JSON in the new `schedule` staff column, tristate like the other flags
-   Run: node tests/test-v1220.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1220.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

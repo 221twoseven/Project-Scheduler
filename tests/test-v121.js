@@ -6,7 +6,7 @@
    3) (08-31 obj 10) The conflict tooltip counts jobs: "… is on 2 other jobs …".
    4) (08-31 obj 11) Forecast projects render uncolored (FORECAST_GREY) everywhere.
    5) (08-31 obj 1)  The main tour teaches the date-bar drag (#gantt-hdr step).
-   Run: node tests/test-v121.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v121.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

@@ -7,7 +7,7 @@
    wash over every day before today.
    Timeline page only (the Today button, T and the canvas live there); a guard checks the
    project page leaves the timeline's scroll alone.
-   Run: node tests/test-v1270.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1270.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

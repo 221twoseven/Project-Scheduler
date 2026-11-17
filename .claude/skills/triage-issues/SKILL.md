@@ -75,7 +75,7 @@ Understand the issue fully before writing anything.
    `gh api -H "Accept: application/vnd.github.raw" repos/221twoseven/Project-Scheduler-issues/contents/screenshots/<file>`
    into the scratchpad, then open it with Read. Arrows, circles and crosses in them are
    requirements.
-3. Check the relevant code in `index.html` for what it really does today. Delegate to an
+3. Check the relevant code in `timeline/index.html` for what it really does today. Delegate to an
    Explore agent when several issues need it.
 4. Check `docs/TODO.md` for an existing item and cite it.
 
@@ -168,4 +168,4 @@ last run:
 
 Make the TODO changes in the build PR when there is one. Otherwise make them in one small
 `docs/` PR for the run. `tests/test-todo.js` fails CI on duplicate item numbers and broken
-item references, so run it (`node tests/test-todo.js index.html`) before committing.
+item references, so run it (`node tests/test-todo.js timeline/index.html`) before committing.

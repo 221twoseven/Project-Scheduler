@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /* Run every Timeline regression suite against one HTML build and aggregate the result.
  *
- *   node tests/run.js                # runs against ../index.html (the company app)
+ *   node tests/run.js                # runs against timeline/index.html (the company app)
  *   node tests/run.js <other build>.html           # path relative to repo root
  *
  * Every tests/test*.js file is a suite (item 60: found here, not kept in a hand list — the
@@ -16,7 +16,7 @@ const path = require('path');
 const SUITES = fs.readdirSync(__dirname).filter(f => /^test.*\.js$/.test(f)).sort();
 
 const repoRoot = path.resolve(__dirname, '..');
-const target = process.argv[2] || 'index.html';
+const target = process.argv[2] || 'timeline/index.html';
 const targetAbs = path.resolve(repoRoot, target);
 
 let failed = 0;

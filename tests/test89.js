@@ -5,7 +5,7 @@
      3. a faint ⋯ hover cue on bars advertises the right-click menu;
      4. drive-by data-loss fix: undo() no longer drops ST.events (it used to diff
         events → undefined, deleting every ShopTimeline_Events row).
-   Run: node tests/test89.js index.html */
+   Run: node tests/test89.js timeline/index.html */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

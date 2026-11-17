@@ -7,7 +7,7 @@
    the id a split bar already carries (baseId::lineId), and moves a bar's manual
    placement with it when it's renamed.
    Skips on builds that predate the convergence (the frozen REV50 reference).
-   Run: node test55.js index.html */
+   Run: node test55.js timeline/index.html */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

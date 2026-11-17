@@ -7,7 +7,7 @@
    row stay visible, a department header folds when all its names are hidden.
    Both pages: the New Project draft and a saved project. Seed has no tasks on purpose — the
    summary bar then spans wide enough for its chips.
-   Run: node tests/test-v1300.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1300.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

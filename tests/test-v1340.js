@@ -4,7 +4,7 @@
       date it was sent, and lists the most recently resolved first · R2 the BUG / IDEA chips
       share one width so every subject starts on the same line · R3 a `/comment` from the
       ticket (kind:'comment' in the comments JSON) shows as a developer comment like a reply.
-   Run: node tests/test-v1340.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1340.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

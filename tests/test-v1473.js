@@ -4,7 +4,7 @@
        for the session); only a drag in flight waits;
    (2) a New Project draft opened before the roster arrived repaints its footer when the staff list loads,
        so the Project Manager rule is counted and listed.
-   Run: node tests/test-v1473.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1473.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

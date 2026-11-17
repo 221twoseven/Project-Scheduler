@@ -10,7 +10,7 @@
    R6 backfillRefs(): the dry run lists unmatched names and writes nothing; (true) writes the
       refs column only ·
    R7 the saved project page and the New Project draft (the REV49 lesson).
-   Run: node tests/test-v1520.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1520.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,ok,done}=suite();
 

@@ -1,6 +1,6 @@
 /* B4 / Design-Language §7: Today = full-day wash + 2px --late line + TODAY pill;
    deadline = per-project ▸ pennant + dotted neutral-ink drop-line, never red.
-   Run: node tests/test-b4.js index.html */
+   Run: node tests/test-b4.js timeline/index.html */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

@@ -370,6 +370,7 @@ functions; do not hand-pick a text colour for a fill.
 | **Brauer Neue Std Bold** | `design/fonts/BrNStdBd.otf`, weight 800, `font-display:swap` — the one committed font file | **The wordmark only** (`TWOSEVEN INC.`) |
 
 ```css
+/* the URL is relative to the page: the Systems page reads design/fonts/…, Timeline (in timeline/ since v1.56.0) ../design/fonts/… */
 @font-face{font-family:'Brauer Neue';src:url('design/fonts/BrNStdBd.otf') format('opentype');font-weight:800;font-style:normal;font-display:swap}
 .tb-co{font-family:'Brauer Neue',var(--sans);font-size:13px;font-weight:800;letter-spacing:.24em;color:#fff}
 ```
@@ -817,6 +818,33 @@ scrollbar-width:thin;scrollbar-color:#B9C7D9 transparent
 ::-webkit-scrollbar{width:10px;height:10px}   ::-webkit-scrollbar-thumb{background:#B9C7D9;border-radius:6px;border:2px solid var(--paper)}
 ```
 
+### 7.14 Header and app cards (the Systems page, v1.56.0)
+
+The root `index.html`, built to the owner's Portal Option 1 wireframe
+(`design/wireframes/`) in the target guide's values, not this file's: it is the first
+surface on the new chrome. A 56px header (wordmark, divider, the page's name), a page title
+with one line under it, and a three-up grid of app cards, two-up under 760px and one-up under
+500px. A built product's card is a link with an icon tile, a → and an "Open …" line; one not
+built yet is greyed (no fill, a dashed edge, muted text) and has no link and no arrow. The
+wireframe's Apps menu, avatar, recent work and signed-in footer wait for a page that signs in.
+
+```css
+.top{display:flex;align-items:center;gap:16px;min-height:56px;padding:0 20px;background:linear-gradient(var(--ts-header-start),var(--ts-header-end));color:var(--ts-header-text)}
+.brand{font-family:'Brauer Neue',var(--sans);font-size:13px;font-weight:800;letter-spacing:.24em;color:#fff;padding:10px 18px 10px 0;border-right:1px solid var(--ts-header-line)}
+.top-name{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#B7C7DF}
+main{max-width:1100px;margin:0 auto;padding:28px 32px 32px}   h1{font-size:22px;line-height:1.25;font-weight:600}
+.app-grid{list-style:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.app-link{display:flex;flex-direction:column;gap:9px;min-height:150px;padding:20px;background:var(--ts-panel);border:1px solid var(--ts-line);border-radius:8px}
+a.app-link:hover{border-color:var(--ts-action);background:var(--ts-selected)}
+.app-head{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:600}   .go{margin-left:auto;color:var(--ts-muted);font-weight:400}
+.icon{width:30px;height:30px;border-radius:6px;background:var(--ts-sidebar)}   /* 16px line icon, stroke 1.5 */
+.app-description{min-height:35px;font-size:12px;color:var(--ts-muted)}   .app-foot{margin-top:auto;font-size:11px;color:var(--ts-link)}
+.app-link.off{background:transparent;border-style:dashed}   /* head, icon and foot in --ts-muted */
+```
+
+New literal: `#B7C7DF`, the header's page name, from the wireframe (6.9:1 or better across the header gradient). The
+"Open …" line uses `--ts-link`, not `--ts-action`, so it keeps 4.5:1 on the hover tint.
+
 ---
 
 ## 8. Print
@@ -939,10 +967,12 @@ everything else is the same shop drawing.
 
 Each product is one file at its own subpath (`/timeline/`, `/people/`, `/clients/`,
 `/office/`), each with its own Entra redirect URI (D4 consequence); the Systems portal is
-at `/`. The wordmark button goes to the **portal** in every product, not to that product's
+at `/` (built v1.56.0, item 49; Timeline moved to `/timeline/` then). The wordmark button
+goes to the **portal** in every product, not to that product's
 home; the product's own home is the first breadcrumb (`All Projects`, `All People`,
 `All Clients`; Office's is to be named). The trail bar, × exit and Esc behave as in
-Design-Language §7.5–7.6.
+Design-Language §7.5–7.6. *As of v1.56.0 Timeline's wordmark still goes to its own home;
+the switch is style §13 step 4, the shell (item 52).*
 
 ### 10.5 Where the seeds already are
 

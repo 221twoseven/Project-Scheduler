@@ -3,7 +3,7 @@
    explains all five encodings. Forecast: identity color through v1.2.0; from
    v1.2.1 (08-31 obj 11) forecast is the one exception — uncolored (FORECAST_GREY).
    The bar checks compare against projColor, which carries the rule either way.
-   Run: node tests/test-c3-status.js index.html */
+   Run: node tests/test-c3-status.js timeline/index.html */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

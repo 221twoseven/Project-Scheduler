@@ -7,7 +7,7 @@
    - Drag-zoom max extends 91 → 365 days (buttons still stop at 3-Mo).
    - (scrubLegacyNames(), the one-time legacy-name scrub, retired in v1.55.0, item 28 b:
      refs resolve those names now; tests/test-v165.js.)
-   Run: node tests/test-v172.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v172.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

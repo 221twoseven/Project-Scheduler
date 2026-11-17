@@ -6,7 +6,7 @@
    is a visible, labelled "Close ×" with Esc in its tooltip. Asserted on a saved project
    AND the New Project draft; the Calendar's own rule (blank space never deselects) is
    locked as before.
-   Run: node tests/test-v1261.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1261.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

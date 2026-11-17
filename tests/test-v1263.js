@@ -8,7 +8,7 @@
    People page only (the project-page rule does not apply). jsdom has no layout, so
    widths are proven on the stylesheet, the inline --cdcN variables and the DOM; the
    fit is driven by stubbing scrollWidth.
-   Run: node tests/test-v1263.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1263.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

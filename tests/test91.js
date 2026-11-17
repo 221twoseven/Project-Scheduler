@@ -2,7 +2,7 @@
    then edit, double-click a title to rename it in place. Parity with the bottom inspector
    is asserted both directions. Covers the Gantt and the calendar.
    Skips on builds that predate the popover (the frozen REV50 reference).
-   Run: node test91.js index.html */
+   Run: node test91.js timeline/index.html */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 /* v1.38.0 (tracker #3): the bar menu leads with Rename (in place) — the one edit on it */

@@ -3,7 +3,7 @@
    with NO Project Manager; Create refuses until one is checked under Team, marking the
    box the way a missing name or install date is marked. Also: My Dashboard lists every
    row (no "+N more" cap) and an untouched draft does not read dirty.
-   Run: node tests/test-v1208.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1208.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

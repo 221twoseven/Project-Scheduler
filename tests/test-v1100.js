@@ -9,7 +9,7 @@
      own-dashboard thought-cloud editor, behind exp.listening.
    - v1.13.0: People page mirrors Employee Contacts (read-only HR list): adds active
      employees, HR wins on title/phone/status, curated departments kept.
-   Run: node tests/test-v1100.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1100.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

@@ -1,7 +1,7 @@
 /* v1.23.0 — the Freelance flag (owner, 2026-09-15): a checkbox in the People editor's
    Schedule block greys the day/hour controls out; the Schedule column and record read
    "Freelance". Stored as `freelance` ('1'/empty) on the staff row, tristate.
-   Run: node tests/test-v1230.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1230.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

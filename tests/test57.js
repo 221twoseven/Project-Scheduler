@@ -7,7 +7,7 @@
    N15 — the main-timeline toolbar controls hide on the project page.
    N16 — calendar collapses roster fan-out; "Selected only" filters the bands.
    Skips entirely on builds that predate the edit popover (the frozen REV50 reference).
-   Run: node test57.js index.html */
+   Run: node test57.js timeline/index.html */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 /* v1.38.0 (tracker #3): the bar menu leads with Rename (in place) — the one edit on it */

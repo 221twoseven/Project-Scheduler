@@ -5,7 +5,7 @@
    empty cells, the bar menu and selection on phase bands, and both draft and saved
    behaviour on band clicks.
    Skips entirely on builds that predate it (the frozen REV50 reference).
-   Run: node test53.js index.html */
+   Run: node test53.js timeline/index.html */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 /* v1.38.0 (tracker #3): the band menu leads with Rename (in place) — the one edit on it */

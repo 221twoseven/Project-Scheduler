@@ -6,7 +6,7 @@
    B) The PM late-project prompt: on load, projects whose install date has
    passed, not complete, with the signed-in user as PM, prompt once a day —
    Mark complete files right there, Later dismisses, the key stops a same-day
-   re-ask. Run: node tests/test87.js index.html */
+   re-ask. Run: node tests/test87.js timeline/index.html */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

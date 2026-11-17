@@ -3,7 +3,7 @@
    to 1200px); W/M jump, +/− walk; a vertical date-bar drag sets FIT continuously
    (45° split vs the pan); FIT persists and old step names migrate.
    Project page: a Fit/Week/Month/3-Mo control drives NPV_GEO.dw the same way.
-   Run: node tests/test-v150.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v150.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

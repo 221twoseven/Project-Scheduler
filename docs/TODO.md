@@ -66,9 +66,10 @@ is the log in §8.
 ## 0. Where we stand
 
 As of 2026-11-17: production (`main`) runs **v1.54.1**, promoted 2026-11-17
-(release/2026-11-17b). `development` runs **v1.55.1**: the name-matching helpers retire and
-the People merge moves records by ID (v1.55.0, item 28 (b)), and a long Changelog entry
-folds after its first four lines (v1.55.1, item 84).
+(release/2026-11-17b). `development` runs **v1.56.0**: the Systems page takes the site's
+root and Timeline moves to `/timeline/` (item 49). Before it, the name-matching helpers
+retired and the People merge moves records by ID (v1.55.0, item 28 (b)), and a long
+Changelog entry folds after its first four lines (v1.55.1, item 84).
 
 The newest work on production:
 - v1.54.1: a selected bar, milestones and holiday pills no longer slide over the project
@@ -116,7 +117,7 @@ them.
 | **People** | Staff names, contact information, status (FTE vs Freelance), logged hours, and whatever else the HR / ADP administrator manages. The place to connect to ADP — CSV first; the ADP API only through Power Automate with a named owner, never from the browser (D13) | The HR / ADP administrator; everyone reads the public roster | HR-only fields restricted (D3, items 26–27) | Timeline's People page today (`#/people`); its own product in Phase 9 (D8) |
 | **Clients** | Client names, past projects, billing and revenue, current and past teams, client contacts and their details — whatever management needs to track | Management, project management, accounting | Yes | Timeline's Clients page today (`#/clients`); its own product in Phase 9 (D8) |
 | **Office** | Where projects are set up and closed out: estimating, cost-code generation, budget views, project closeout | Management, project management, purchasing, accounting | Yes | Does not exist. **The next new product, built in Phase 8** (owner, 2026-09-29), in project-cycle order: job lead / forecast (45), estimate (44), job creation with cost codes and the QuickBooks / TCP hand-off (42, 43); closeout (11) is the last step of the cycle and comes last |
-| **Timeline** | Project production: the schedule, phases, assignments, milestones, notes — the app that exists today | Everyone; existing permissions mostly stay | Mostly no (admin / viewer as today) | In production (§0); moves from `/` to `/timeline/` when the portal lands (D4); New Project stays here until Office takes setup (item 43) |
+| **Timeline** | Project production: the schedule, phases, assignments, milestones, notes — the app that exists today | Everyone; existing permissions mostly stay | Mostly no (admin / viewer as today) | In production (§0); moves to `/timeline/`, behind the Systems page at `/`, with v1.56.0 (item 49); New Project stays here until Office takes setup (item 43) |
 
 **The ownership rule.** Each product has sole ownership of the data it holds: records are
 **created and deleted only inside their own product**. Every product **reads** the shared
@@ -192,7 +193,7 @@ Three phases. Phase 7 is the one running now.
 |---|---|---|---|
 | **7 — Pilot readiness** (now) | v1.24 → v1.3x | Get Timeline ready for the pilot: the brief's P0 app fixes, checks of what already exists, the outside-the-app controls handed to their owners, and the §4 design decisions taken. Closeout moved to Office in Phase 9 (owner, 2026-09-29) | Pilot users create and update jobs without missing workers, lost edits or misleading dates, and at least one duplicate-entry step is named for removal [brief §9, §10.1] |
 | **8 — Shared registries and Office** | v2.0.0, then a minor version per registry (Office and People have versions of their own) | Move the data onto shared registries (lists or tables, D15) with stable IDs: Clients, Projects, Cost Codes. Point Timeline at them, store assignments by person ID, and turn departments and shop closures into lists instead of code. Build **Office**, the next new product (owner, 2026-09-29), in project-cycle order (§1): job lead / forecast, estimate, job creation with cost codes and the QuickBooks / TCP hand-off (items 45, 44, 42, 43). Then **People** (cycle step 4: items 26, 27) | A `ShopTimeline_*` list is retired in favour of a shared registry with no data lost; two people asking for a cost code at the same moment can't get the same one; the cost-code workbook is frozen read-only; a job exists in Office before Timeline schedules it [brief §6, §8, §9 P1] |
-| **9 — Systems: the portal and the products** | v2.x → v3 | The Systems portal at `/`; Clients as its own product (Office and People arrived in Phase 8); Office's closeout screen (item 11), the last step of the cycle; Timeline moved to `/timeline/`; one shared code module and design language, with each product keeping its own identity; permission sets per audience | Each audience (PM, HR, Accounting, Purchasing, Operations, Management) has its own product over the same records; records are created and deleted only in the product that owns them; nothing is typed in twice; a finished job can't slip through without its balance invoice [vision; brief §8.4–8.5, §9 P2–P3] |
+| **9 — Systems: the portal and the products** | v2.x → v3 | The Systems portal at `/` (shipped early: v1.56.0, item 49); Clients as its own product (Office and People arrived in Phase 8); Office's closeout screen (item 11), the last step of the cycle; Timeline moved to `/timeline/` (also v1.56.0); one shared code module and design language, with each product keeping its own identity; permission sets per audience | Each audience (PM, HR, Accounting, Purchasing, Operations, Management) has its own product over the same records; records are created and deleted only in the product that owns them; nothing is typed in twice; a finished job can't slip through without its balance invoice [vision; brief §8.4–8.5, §9 P2–P3] |
 
 **Batches.** A batch is a group of §3 items that ship together as one release; its version
 number is given when it ships. Proposed:
@@ -206,7 +207,7 @@ number is given when it ships. Proposed:
 | Office (Phase 8) | Office's own releases, in project-cycle order: 45 (job lead / forecast), 44 (estimate), 42 (cost-code generation), 43 (job creation with the QuickBooks / TCP hand-off) |
 | Office (Phase 9) | 11 (closeout and billing states ⚠), the last step of the cycle; moved out of the pilot 2026-09-29 |
 | As they resolve | 3 (tour loop: reproduce, then fix), 10 (automatic Complete vs closeout), 19–24 |
-| Style track | 52 (style guide §13 steps), slotted between the batches above. Step 2 shipped as v1.24.0. Step 3 is next, one chrome surface per PR, project inspector first. The D4 reshape (item 49) comes after the pilot P0 batches, and step 4 after the reshape |
+| Style track | 52 (style guide §13 steps), slotted between the batches above. Step 2 shipped as v1.24.0. Step 3 is next, one chrome surface per PR, project inspector first. The D4 reshape (item 49) shipped v1.56.0, so step 4 (the shell) can follow step 3 |
 | v2.0.0 | The Phase 8 cutover (§1 point 5) |
 
 **What waits on what.** "Waits on" means the work can't start until the named item is done
@@ -222,8 +223,8 @@ or the named decision is taken.
   2026-09-29: the Company Data pages graduate into products of their own.** Together they
   unblock the shared module (the storage seam, item 48; `docs/Architecture-Review-Storage.md`,
   PR #56), the portal, and the People and Clients products. Still waiting on:
-  - the reshape PR (item 49), which comes after the pilot P0 batches (⚠ the owner adds
-    the new redirect URIs first, then `SETUP.md` is updated);
+  - the reshape PR (item 49): shipped v1.56.0, 2026-11-17 (⚠ the owner adds the new
+    redirect URIs before it merges; `SETUP.md` lists them);
   - item 40's custom domain, before any repository rename (D4).
 - **D3, the permission model, ruled in principle 2026-09-24** (tiered lists, one fact in
   one place; §4). The work by phase:
@@ -1018,7 +1019,7 @@ release. Where the app has a part, it's listed.
         hierarchy, spacing, radii, fields, focus, buttons, and modal focus trapping where
         it's missing. Next.
       - *Step 4:* the shell as one change: the global header and a real app switcher.
-        Waits on item 49 (the portal must exist to switch to).
+        Item 49 shipped v1.56.0 (2026-11-17), so the portal exists to switch to.
       - *Step 5:* business pages and routing: read-first records, sorting, empty states,
         per-record routes.
       - *Done when, per PR:* before/after `/preview/` screenshots, the Design-Language §9
@@ -1385,7 +1386,8 @@ record is each ticket's "Fix shipped" note and `CHANGELOG.md`):
           `docs/Milestones/Phase-7-Pilot-Readiness/2026-11-17-name-matching-retired.md`.
           *Ceiling:* a name with no ref and no exact match (the four "Daniel" fields) stays its
           own name, its own lane in the Departments view. Naming him on People and running
-          `backfillRefs(true)` fixes it.
+          `backfillRefs(true)` fixes it. *Checked 2026-11-17 after the merge:* the owner's
+          `backfillRefs()` dry run on `/preview/` lists only those four.
         - *Not in it:* the stamps (`createdBy`, `completedBy`, `updatedBy`, `confirmedBy`,
           Changelog `who`) stay names, as a record of who it was at the time.
         - *Ceiling:* `refs` is JSON, so SharePoint can't filter by it. At the D15 cutover it
@@ -1478,7 +1480,31 @@ record is each ticket's "Fix shipped" note and `CHANGELOG.md`):
       Changelog panel. The filter still searches the folded lines. Suite
       `tests/test-v1551.js`; record
       `docs/Milestones/Phase-7-Pilot-Readiness/2026-11-17-changelog-fold.md`.
-- [ ] **49. The Systems portal and the Timeline move (D4's reshape PR).** Timeline moves
+- [x] **49. The Systems portal and the Timeline move (D4's reshape PR).** Shipped v1.56.0
+      (PR #201, 2026-11-17); the owner's go came the same day, with item 5 (the last pilot
+      P0 batch) still waiting on the Project Director. The root is the Systems page, built to
+      the owner's Portal Option 1 wireframe (the wireframes now live in `design/wireframes/`):
+      "Your workspace" and four app cards in the owner's wording (all four, Office greyed).
+      Timeline, People and Clients link to Timeline's pages; Office reads "Not built yet"
+      and isn't a link. The wireframe's Apps menu, avatar and recent work wait for a page
+      that signs in. Timeline moved to `timeline/` with its MSAL file, and reads the
+      font one folder up. Old `#/…` and `#view=` links forward to `timeline/`; a sign-in
+      reply stays put. A tab opened before the move still checks the root for updates, so
+      the Systems page names v1.56.0 in a comment: those tabs are offered the reload, and
+      `update.minVersion` still retires them. The deploy workflow publishes either layout,
+      and its guard checks every page from its own folder; PR #200 put that workflow on
+      `main` first, so the two branches stay identical. Suite `tests/test-v1560.js`;
+      `test-deploy-guard` reads both pages. Record
+      `docs/Milestones/Phase-7-Pilot-Readiness/2026-11-17-systems-portal.md`.
+      - *The owner:* add the `/timeline/` and `/preview/timeline/` redirect URIs *before*
+        merging (`SETUP.md`). Keep the old `/` and `/preview/` ones until v1.56.0 has been
+        on production for a working day, then they can go.
+      - [ ] *Clean-up, a working day after v1.56.0 reaches production:* the owner removes the
+        old `/` and `/preview/` redirect URIs; Claude drops the root `msal-browser.min.js`
+        and `fonts/BrNStdBd.otf` lines from the deploy workflow's lists (on both branches).
+      - *Not in it:* the wordmark still goes to Timeline's home; pointing it at the
+        Systems page is style §13 step 4, the shell.
+      The original spec: Timeline moves
       from `/` to `/timeline/`, and a static portal page of product tiles takes `/`. One
       release, one `CHANGELOG.md` line, no behaviour change.
       - The PR touches:
@@ -1745,7 +1771,7 @@ then the recommendation or the dated ruling.
 
     Phase folders under `docs/Milestones/` stay as they are: phases belong to Systems,
     and a record names its product in its file name.
-  - *The reshape PR* (item 49). Moving Timeline is its own PR that changes no behaviour: one
+  - *The reshape PR* (item 49, shipped v1.56.0 2026-11-17). Moving Timeline is its own PR that changes no behaviour: one
     release, one CHANGELOG line (the front page is now the portal; Timeline lives at
     `/timeline/`). It touches:
     - the Pages workflow (sparse-checkout paths; the markup guard loops over every

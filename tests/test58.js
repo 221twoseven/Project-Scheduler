@@ -4,7 +4,7 @@
    tab-hide/pagehide, restores when the draft route arrives fresh, and the stash is
    dropped on any accepted exit (Create or confirmed discard).
    Skips entirely on builds that predate REV58 (the frozen REV50 reference).
-   Run: node test58.js index.html */
+   Run: node test58.js timeline/index.html */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

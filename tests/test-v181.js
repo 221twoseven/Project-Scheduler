@@ -7,7 +7,7 @@
      longer flips the button's direction (the old inconsistency).
    - Style parity: the Projects-lens sort-group headers take the Departments-lens
      section-header look (same bar color, hover, typography, count chip).
-   Run: node tests/test-v181.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v181.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

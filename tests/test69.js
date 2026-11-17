@@ -7,7 +7,7 @@
      imported list has no appId column.
    - Absent list degrades to browser-local with a warning on save, quiet at load.
    Skips on builds that predate the client list.
-   Run: node test69.js index.html */
+   Run: node test69.js timeline/index.html */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

@@ -3,7 +3,7 @@
       page; the Projects lens keeps its edit-details modal (§6 exception).
    2) (obj 9) Lane rows read name-over-department on the left (.sb-2l), and the
       right side lists that lane's assignments with dates, current work first.
-   Run: node tests/test-v130.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v130.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

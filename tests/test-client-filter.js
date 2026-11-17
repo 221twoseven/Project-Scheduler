@@ -4,7 +4,7 @@
    - Selecting clients removes non-matching projects' rows (like status/person).
    - A removable "Client: X" chip shows, Filters counts it, Clear wipes it.
    - The pick persists in UI prefs and restores on load.
-   Run: node tests/test-client-filter.js index.html */
+   Run: node tests/test-client-filter.js timeline/index.html */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

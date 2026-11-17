@@ -5,7 +5,7 @@
    to the durable stores (lines + manual placements); ⌘Z walks a draft undo
    stack; Link carries subtasks on drafts; saved-page row reorder persists.
    Also guards the notes fix (commitPhase used to drop the field silently).
-   Run: node tests/test82.js index.html */
+   Run: node tests/test82.js timeline/index.html */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

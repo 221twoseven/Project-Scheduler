@@ -4,7 +4,7 @@
    cell (z3), and every marker drawn beside the rows (z4-6) beat all of them. jsdom has no
    layout, so this checks the stylesheet: the name column outranks every chart layer, and
    no rule makes a row its own layer again.
-   Run: node tests/test-v1541.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1541.js timeline/index.html  (or via tests/run.js) */
 const {suite}=require('./harness');
 const {src,ok,done}=suite();
 

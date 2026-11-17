@@ -10,7 +10,7 @@
    right-click day lands in · the primary is the first bar that is NOT a range, so a range that
    sorts first never takes the row's day count, a subtask's nesting or the draft's selection.
    Both pages: a saved project and the New Project draft. Fixed 2026 dates (Aug 3 is a Monday).
-   Run: node tests/test-v1320.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1320.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

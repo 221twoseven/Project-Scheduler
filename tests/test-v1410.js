@@ -7,7 +7,7 @@
    R4 project Gantt: milestone labels never overlap — they stack in lanes and the row grows
    R5 project Calendar: weeks grow to fit their content; a month that outgrows its page continues on the next;
       a milestone named after its block is not prefixed twice ("SHIPPING : AVE", not "Shipping: SHIPPING : AVE")
-   Run: node tests/test-v1410.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1410.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

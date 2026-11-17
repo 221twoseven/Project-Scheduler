@@ -4,11 +4,11 @@
    was filed on 2026-10-05 and lived three days), every "item N" points at a real item, and
    every ticked item's "Shipped vX" is a real release. Whether an item's *words* are still
    true is the human half: the ship-release and triage-issues skills.
-   Run: node tests/test-todo.js index.html  (or via tests/run.js) */
+   Run: node tests/test-todo.js timeline/index.html  (or via tests/run.js) */
 const fs=require('fs'),path=require('path');
 const {suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
-const root=path.dirname(path.resolve(FILE));
+const root=path.join(__dirname,'..'); /* the repo, not the app's folder: Timeline lives in timeline/ since v1.56.0 */
 const todo=fs.readFileSync(path.join(root,'docs','TODO.md'),'utf8').replace(/\r\n/g,'\n');
 const log=fs.readFileSync(path.join(root,'CHANGELOG.md'),'utf8');
 

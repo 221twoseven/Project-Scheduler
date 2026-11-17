@@ -1,7 +1,7 @@
 /* v1.45.0 — TODO item 2, owner ruling 2026-10-09 (option 1): "Protect dates" (was "Lock dates")
    means drags never change dates, on the timeline AND the project page (Gantt and calendar).
    Moving a bar to another lane stays allowed; typed dates still change.
-   Run: node tests/test-v1450.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1450.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

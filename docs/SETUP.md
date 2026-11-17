@@ -11,10 +11,13 @@ client ID, or tenant ID; only add/adjust redirect URIs with care (see `CLAUDE.md
 
 ## Live app
 
-- **URL:** https://221twoseven.github.io/Project-Scheduler/
+- **URL:** https://221twoseven.github.io/Project-Scheduler/ is the Systems page (product
+  tiles, no sign-in); Timeline is https://221twoseven.github.io/Project-Scheduler/timeline/
+  (since v1.56.0, item 49).
 - **Hosting:** GitHub Pages, published by `.github/workflows/deploy-pages.yml`: `main`
-  at the root, `development` at `/preview/` (same sign-in, same lists). Each subpath is
-  its own Entra SPA redirect URI.
+  at the root, `development` at `/preview/` (same sign-in, same lists), each with the
+  Systems page at its top and Timeline in `timeline/`. Each page that signs in is its own
+  Entra SPA redirect URI.
 - The path is **case-sensitive** (`Project-Scheduler`, capital P and S) and resolves with
   a **trailing slash**. The lowercase form (`/project-scheduler`) is a 404.
 
@@ -23,25 +26,30 @@ client ID, or tenant ID; only add/adjust redirect URIs with care (see `CLAUDE.md
 - **Application (client) ID:** `5ba3aabe-81f7-41c9-92a4-83a45d5407ab`
 - **Directory (tenant) ID:** `70aa5330-416f-48cb-a64f-1a89f0196577`
 - **Supported account types:** single tenant (this organization only).
-- **Authentication library:** MSAL browser (`msal-browser.min.js`), auth-code flow with
+- **Authentication library:** MSAL browser (`timeline/msal-browser.min.js`), auth-code flow with
   PKCE. No client secret.
 
 ### Redirect URI — the part that breaks most often
 
 The app sends Entra, as its redirect URI, **the exact URL of the page it loaded from**
-(minus any `#`/`?`). See `spInit()` in `index.html`:
+(minus any `#`/`?`). See `spInit()` in `timeline/index.html`:
 `redirectUri: window.location.href.split('#')[0].split('?')[0]`.
 
 So Entra must hold that exact string, registered under the **Single-page application
 (SPA)** platform:
 
 ```
+https://221twoseven.github.io/Project-Scheduler/timeline/
+https://221twoseven.github.io/Project-Scheduler/preview/timeline/
 https://221twoseven.github.io/Project-Scheduler/
 https://221twoseven.github.io/Project-Scheduler/preview/
 ```
 
-One line per subpath: production and `/preview/`. (`/test/` was registered for item 72 on
-2026-10-16 and retired 2026-10-19; its URI can be removed.)
+One line per Timeline: production and `/preview/`. The Systems page never signs in. The last
+two are where Timeline lived before v1.56.0: a tab opened before the move still signs in
+from there, so keep them until v1.56.0 has been on production for a working day, then they
+can go. (`/test/` was registered for item 72 on 2026-10-16 and retired 2026-10-19; its URI
+can be removed.)
 
 Rules:
 
@@ -49,7 +57,7 @@ Rules:
   `AADSTS9002326` (cross-origin token redemption is only allowed for SPA) even if the
   string matches.
 - **Exact match, case-sensitive, trailing slash included.**
-- Optionally also register `https://221twoseven.github.io/Project-Scheduler/index.html`
+- Optionally also register `https://221twoseven.github.io/Project-Scheduler/timeline/index.html`
   to cover anyone who lands on the explicit file.
 - Implicit grant (access/ID token checkboxes) is **not** needed — MSAL uses the code flow.
 

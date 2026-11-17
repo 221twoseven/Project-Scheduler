@@ -6,7 +6,7 @@
    - Keyboard: Enter/→ next, ← back, Escape ends; the tour owns the keyboard while up.
    - Skip / Back / Next buttons; Next reads "Done" on the last step.
    Skips on builds that predate the tour.
-   Run: node test74.js index.html */
+   Run: node test74.js timeline/index.html */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

@@ -2,7 +2,7 @@
    in the signed-in user's own `savedViews` value beside the views ({views:[…],protectDates:bool}), with a
    browser cache (shopTimelineProtect) and the same shared-computer owner rule as item 25. Viewers stay
    forced on.
-   Run: node tests/test-v1461.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1461.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

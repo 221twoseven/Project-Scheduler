@@ -5,7 +5,7 @@
    parent's window, and a plain click still only selects (N11). The create menu's
    "Add a department" is now "Add a phase" — same action, honest name.
    Skips entirely on builds that predate it (the frozen REV50 reference).
-   Run: node test71.js index.html */
+   Run: node test71.js timeline/index.html */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

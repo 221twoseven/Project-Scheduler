@@ -1,6 +1,6 @@
 ---
 name: ship-release
-description: The release checklist for any change that ships to users in Shop Timeline (index.html). Covers branching from development, APP_VER + package.json, CHANGELOG + npm run notes, per-release tests, preview screenshots, /code-review, the full suite run and its traps, the PR, and the milestone record. Use whenever a change bumps APP_VER, when triage-issues step 2a builds a fix, or when the owner says "ship it", "release", "cut a version" or "/ship-release".
+description: The release checklist for any change that ships to users in Shop Timeline (timeline/index.html). Covers branching from development, APP_VER + package.json, CHANGELOG + npm run notes, per-release tests, preview screenshots, /code-review, the full suite run and its traps, the PR, and the milestone record. Use whenever a change bumps APP_VER, when triage-issues step 2a builds a fix, or when the owner says "ship it", "release", "cut a version" or "/ship-release".
 ---
 
 # Ship a release
@@ -40,11 +40,11 @@ git switch -c fix/<slug> origin/development          # or feat/ style/ docs/
 - Source edits containing backslashes, `#` or regexes go through Edit/Write, never a Bash
   heredoc (see the `bash-heredoc-backslash-trap` memory). Confirm with `grep -F`.
 - Quick checks while you work run one suite at a time (about 30 seconds):
-  `node tests/test-vNNNN.js index.html`.
+  `node tests/test-vNNNN.js timeline/index.html`.
 
 ## 3. Version and release notes
 
-1. Bump `const APP_VER='x.y.z'` in `index.html`.
+1. Bump `const APP_VER='x.y.z'` in `timeline/index.html`.
    - Patch number: fixes and small changes.
    - Middle number: features.
    - First number: breaking changes.
@@ -73,7 +73,7 @@ git switch -c fix/<slug> origin/development          # or feat/ style/ docs/
 
 1. Build the stubbed preview and screenshot **before** and **after** with headless Chrome,
    per the `visual-preview-stub` memory. Get the "before" build from
-   `git show origin/development:index.html`, using the same seed data.
+   `git show origin/development:timeline/index.html`, using the same seed data.
 2. Save the PNGs to `docs/Milestones/Phase-7-Pilot-Readiness/screenshots/` as
    `before-<slug>.png` / `after-<slug>.png`. Use the folder of the phase that's running.
 3. If you touched a screen, check the accessibility checklist in
@@ -109,7 +109,7 @@ The traps are in the `slow-test-runs` and `git-checkout-crlf-trap` memories.
    sed -i 's/\r$//' <file>    # for any file that reported > 0
    ```
 3. **Run it bare in the background**, with no pipe, so the log keeps every suite:
-   `node tests/run.js index.html` with `run_in_background: true`. It takes 10–15 minutes.
+   `node tests/run.js timeline/index.html` with `run_in_background: true`. It takes 10–15 minutes.
 4. **The exit code is always 0, even when tests fail.** When the run finishes, check the
    log:
    ```bash
@@ -161,7 +161,7 @@ Don't poll CI yourself.
 
 - SharePoint list or column changes: deliver a column spec for the owner to apply.
 - Entra/auth changes: client IDs, scopes, redirect URIs.
-- Edits to `msal-browser.min.js`.
+- Edits to `timeline/msal-browser.min.js`.
 - Changes to `.github/workflows/deploy-pages.yml`: it must stay identical on `main` and
   `development`.
 - `--no-verify`, force-push, or anything that bypasses the `main` ruleset.

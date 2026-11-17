@@ -35,11 +35,11 @@ Recovered from the 2026-08-20 handoff (since retired); still true unless struck 
 
 ```bash
 npm install                 # installs jsdom (from the repo root)
-npm test                    # runs every suite against ../index.html
+npm test                    # runs every suite against timeline/index.html
 
 # a single suite against any build (path relative to repo root):
-node tests/run.js index.html
-node tests/test50.js index.html
+node tests/run.js timeline/index.html
+node tests/test50.js timeline/index.html
 ```
 
 `tests/run.js` runs all suites and exits non-zero if any fail. Each `testNN.js` is also

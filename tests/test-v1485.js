@@ -2,7 +2,7 @@
    ranges as one absence. A range that starts by the next workday after the current one ends extends
    it, so a weekend or holiday in between still counts; a real working day in between stops it.
    Fixture dates are relative to today.
-   Run: node tests/test-v1485.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1485.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

@@ -7,7 +7,7 @@
    - "Don't show again" ends the tour and writes a per-person ShopTimeline_Config row
      (tour.off.<account>) so the first-visit auto-run never starts again on any machine;
      Help still runs it. No Config list: quiet, this browser's seen flag only.
-   Run: node tests/test-v1490.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1490.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

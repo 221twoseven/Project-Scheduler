@@ -4,7 +4,7 @@
    segment holding the phase's true start/end (a week-clipped edge is not grabbable),
    with the Gantt's rules: workday snap, Protect-dates/pin lock, nesting clamp, roster
    twins resize together. Skips on builds that predate it.
-   Run: node test72.js index.html */
+   Run: node test72.js timeline/index.html */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

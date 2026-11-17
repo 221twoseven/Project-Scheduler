@@ -1,7 +1,7 @@
 /* Phase 3.5 (REV85) — the fourth exit (owner decision 2026-08-27): an × at the
    right edge of the project pages' breadcrumb bar, same action as Done/Esc.
    Asserted on BOTH the saved page and the New Project draft (the REV49 lesson).
-   Run: node tests/test85.js index.html */
+   Run: node tests/test85.js timeline/index.html */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

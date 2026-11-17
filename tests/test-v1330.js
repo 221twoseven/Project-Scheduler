@@ -10,7 +10,7 @@
    menu, tour, cursor in a field, save in flight or parked) holds the check and the
    countdown, and a Reload that would lose a save or a mid-edit record is refused · D1 a
    minVersion the served build cannot satisfy never starts a reload loop.
-   Run: node tests/test-v1330.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1330.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

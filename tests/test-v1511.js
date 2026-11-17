@@ -5,7 +5,7 @@
    drops. Now a repaint gives the same phase's list its scroll and focus back (crewHold), and
    a page repaint waits until a crew click is over. Draft and saved pages, the popover and the
    bottom panel, an install subtask whose pool is the whole staff.
-   Run: node tests/test-v1511.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1511.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

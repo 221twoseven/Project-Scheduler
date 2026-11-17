@@ -2,7 +2,7 @@
    work done, not the time passed — each block's workdays before today over all blocks' workdays —
    so a gap between blocks never fills it. "Lead time" on the project page is unchanged.
    Fixture dates are relative to today, so the expected numbers are computed the same way.
-   Run: node tests/test-v1484.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1484.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

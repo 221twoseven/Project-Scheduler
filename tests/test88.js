@@ -4,7 +4,7 @@
    row: density and Vivid months live in a View ▾ menu, and the Project/Team color
    toggle became a Color by ▾ dropdown; the scale stays a visible segmented control.
    This suite asserts that end state.
-   Run: node tests/test88.js index.html */
+   Run: node tests/test88.js timeline/index.html */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

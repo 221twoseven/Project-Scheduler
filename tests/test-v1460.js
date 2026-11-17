@@ -2,7 +2,7 @@
    The signed-in user's own ShopTimeline_Staff row holds them in `savedViews` (plain-text JSON
    {views:[…]}); this browser's shopTimelineViews_v1 copy is the cache. Writes are one-column PATCHes on
    that row only; a missing column (400) leaves views browser-local, as before.
-   Run: node tests/test-v1460.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1460.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

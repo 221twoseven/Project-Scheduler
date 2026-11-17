@@ -3,7 +3,7 @@
    Checkpoints (future events on their projects), Tasks (their open to-dos), Time off.
    Hidden in the project lens and once the person clears; its ✕ clears the filter.
    Skips on builds that predate the panel.
-   Run: node test67.js index.html */
+   Run: node test67.js timeline/index.html */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

@@ -5,7 +5,7 @@
    4. Resizable index columns + list/detail split (persisted per browser)
    5. Poll repaints keep the index/detail scroll positions
    6. ↑↓ walk the index selection
-   Run: node tests/test-v1170.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1170.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

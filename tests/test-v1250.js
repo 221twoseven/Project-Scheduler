@@ -2,7 +2,7 @@
    each GitHub comment that starts with /reply into the Feedback row's `comments` column
    (JSON [{at,text}]); Open Issues folds them open under the report, #/issues/<spId>
    (the reply email's link) opens that one, and a new report stamps `reporterUpn`.
-   Run: node tests/test-v1250.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1250.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

@@ -7,6 +7,11 @@ name: Deploy Pages
 # artifact fully replaces the live site each run. Triggered by pushes to any of
 # them, so this workflow must exist on BOTH branches, identical — otherwise
 # a push to a branch whose workflow omits a subpath would wipe that subpath.
+#
+# Item 49 (v1.56.0): Systems. The root index.html is the Systems page (product tiles)
+# and Timeline lives in timeline/. The lists below name both layouts, so this one
+# workflow publishes a branch from before the move and one from after it: a path a
+# branch doesn't have is simply skipped.
 on:
   push:
     branches: [main, development]
@@ -29,12 +34,13 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       # ONLY the files listed below are published. The rest of the repo (docs/,
-      # tests/, reference/, ...) stays off the public site on purpose. If the app
+      # tests/, reference/, ...) stays off the public site on purpose. If a page
       # ever gains a new local asset (image, CSS file, favicon, script), add it to
-      # BOTH sparse-checkout lists — the guard step below fails the deploy if
+      # BOTH sparse-checkout lists — the guard step below fails the deploy if a
+      # page references a file that would be missing from the site.
       # (2026-09-27: the font moved to design/fonts/. The old fonts/ line stays until
-      # main carries the move — a missing sparse path is harmless.)
-      # index.html references a file that would be missing from the site.
+      # main carries the move — a missing sparse path is harmless. The same goes for
+      # the root msal-browser.min.js once both branches have timeline/.)
       - name: Checkout main into site root (production)
         uses: actions/checkout@v4
         with:
@@ -43,6 +49,8 @@ jobs:
           sparse-checkout: |
             index.html
             msal-browser.min.js
+            timeline/index.html
+            timeline/msal-browser.min.js
             design/fonts/BrNStdBd.otf
             fonts/BrNStdBd.otf
           sparse-checkout-cone-mode: false
@@ -55,6 +63,8 @@ jobs:
           sparse-checkout: |
             index.html
             msal-browser.min.js
+            timeline/index.html
+            timeline/msal-browser.min.js
             design/fonts/BrNStdBd.otf
             fonts/BrNStdBd.otf
           sparse-checkout-cone-mode: false
@@ -62,18 +72,24 @@ jobs:
       - name: Drop nested .git so it isn't published
         run: rm -rf site/.git site/preview/.git
 
-      - name: Guard — every local file the app references must be in the deploy
+      # Every published page, each read from its own folder. A link's #… or ?… part is
+      # dropped, and a link to a folder (timeline/) needs that folder's index.html.
+      - name: Guard — every local file a page references must be in the deploy
         run: |
-          for d in site site/preview; do
-            grep -oE '(src|href)="[^"]+"' "$d/index.html" \
+          for page in $(find site -name index.html); do
+            d=$(dirname "$page")
+            refs=$(grep -oE '(src|href)="[^"]+"' "$page" \
               | sed -E 's/^(src|href)="//; s/"$//' \
-              | grep -vE '^(https?:|//|#|data:|mailto:|javascript:)' \
-              | while read -r f; do
-                  if [ ! -f "$d/$f" ]; then
-                    echo "::error::$d/index.html references '$f' but it is not deployed — add it to the sparse-checkout lists in deploy-pages.yml"
-                    exit 1
-                  fi
-                done
+              | grep -vE '^(https?:|//|#|data:|mailto:|javascript:)' || true)
+            for f in $refs; do
+              f=${f%%#*}; f=${f%%\?*}
+              [ -z "$f" ] && continue
+              case "$f" in */) t="$d/${f}index.html" ;; *) t="$d/$f" ;; esac
+              if [ ! -f "$t" ]; then
+                echo "::error::$page references '$f' but it is not deployed — add it to the sparse-checkout lists in deploy-pages.yml"
+                exit 1
+              fi
+            done
           done
           echo "All referenced local assets are present."
 

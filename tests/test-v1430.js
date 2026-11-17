@@ -4,7 +4,7 @@
    9b deferred — the Mobile Phone fallback stays (personal numbers are posted in the breakroom);
    9c one phone format, 555-555-5555, whatever way it was typed or stored;
    Ext — a desk extension typed by hand on the People page (the HR list has none).
-   Run: node tests/test-v1430.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1430.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

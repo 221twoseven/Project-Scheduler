@@ -12,7 +12,7 @@
    - Feedback reports also mail everyone flagged feedbackRecipient — Graph
      /me/sendMail as the signed-in submitter, on its own Mail.Send token
      (consent missing → mail skipped, the report is already on the list).
-   Run: node tests/test-v180.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v180.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 
