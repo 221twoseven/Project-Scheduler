@@ -6,7 +6,7 @@
      3. the premise holds — pill hues DO collapse for deutan viewers — so
      4. every status stays distinguishable without hue: a distinct
         opacity/pattern signature on the bar, plus a distinct pill word.
-   Run: node tests/test-cb.js index.html */
+   Run: node tests/test-cb.js timeline/index.html */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

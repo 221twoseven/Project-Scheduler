@@ -8,7 +8,7 @@
       `lastComment` + the Reply email flow; the poller selftest proves a status change never
       touches it) · R4 the flip to `review` is automatic (poller selftest); the app never sets
       a status by hand — there is no Pending / In review control.
-   Run: node tests/test-v1390.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1390.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

@@ -1,7 +1,7 @@
 /* E3 — both-edge resize on project-page bars (Design-Language §6).
    Saved page: right edge writes endDate to ST, snaps to workdays, Undo reverses.
    Draft page: resize lands in NPV_MANUAL (never ST), Undo reverses.
-   Run: node tests/test-e3-resize.js index.html  (or via tests/run.js) */
+   Run: node tests/test-e3-resize.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

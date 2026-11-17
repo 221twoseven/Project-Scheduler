@@ -5,7 +5,7 @@
    phase is deleted, and removed with their project. Without the list the app falls back
    to the legacy hosting untouched.
    Skips entirely on builds that predate it (the frozen REV50 reference).
-   Run: node test54.js index.html */
+   Run: node test54.js timeline/index.html */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

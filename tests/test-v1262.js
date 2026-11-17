@@ -8,7 +8,7 @@
    Undo" which undoes the latest · P5 a drag that starts under a toast passes through.
    jsdom has no layout, so geometry comes from a stub of getBoundingClientRect and the
    pass-through is asserted on the stylesheet. Saved project, New Project draft, dashboard.
-   Run: node tests/test-v1262.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1262.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

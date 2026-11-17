@@ -2,7 +2,7 @@
    emailed answer (a **Reply from the reporter** comment on the ticket, copied to the row by the poller as
    kind:'reporter') shows in the Open Issues thread beside the team's /reply and /comment notes, each
    labelled Team or Reporter; the summary counts comments, not "developer comments".
-   Run: node tests/test-v1451.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1451.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

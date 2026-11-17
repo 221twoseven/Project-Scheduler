@@ -1,7 +1,7 @@
 /* v1.44.0 — TODO item 4: time-off notes are private. An admin sees the note typed on an
    out-of-office range; everyone else sees only the dates, in all four places it showed:
    the People record, the dashboard's people lanes, a phase's hover tip and the person panel.
-   Run: node tests/test-v1440.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1440.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

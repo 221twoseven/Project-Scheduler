@@ -6,7 +6,7 @@
       from the note editors.
    3) (obj 4) Project-Gantt marker labels retired — the name lives in the hover
       title; click still opens the edit popover.
-   Run: node tests/test-v140.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v140.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

@@ -9,7 +9,7 @@
    A Help page, not a project-page feature: the open and resolved columns stand in for the
    two-pages rule. Part A sends a report on an unseeded list (a successful send refetches
    the list, which the harness answers empty); Part B seeds the list afterwards.
-   Run: node tests/test-v1280.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1280.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

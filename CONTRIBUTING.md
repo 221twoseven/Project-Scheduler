@@ -21,7 +21,8 @@ This is the simplest path and works entirely on github.com.
 1. Go to the repo: **https://github.com/221twoseven/Project-Scheduler**
 2. **Switch to the `development` branch** using the branch dropdown (top-left, usually
    says `main`). Never edit `main` directly — it's the live production site.
-3. Click the file you want to change (for the app itself, that's **`index.html`**).
+3. Click the file you want to change (for Timeline itself, that's **`timeline/index.html`**;
+   the root `index.html` is only the Systems page of product tiles).
 4. Click the **pencil icon** (✏️ "Edit this file") in the top-right of the file view.
 5. Make your change in the editor.
 6. Scroll down to **Commit changes**. Write a short summary of what you did, make sure
@@ -60,10 +61,11 @@ git clone https://github.com/221twoseven/Project-Scheduler.git
 cd Project-Scheduler
 git checkout development
 npm install        # installs jsdom
-npm test           # every regression suite against index.html — should be all green
+npm test           # every regression suite against timeline/index.html — should be all green
 ```
 
-To view the app: open `index.html` in a browser, or `npx serve .` and browse to it.
+To view the app: `npx serve .` and browse to it (`/` is the Systems page, `/timeline/` is
+Timeline), or open `timeline/index.html` in a browser.
 Sign-in uses your Twoseven Microsoft account. (Requires access to the Twoseven Entra
 tenant and the `TWOSEVENINC` SharePoint site to load real data.) The hosting and
 Entra/auth configuration — live URL, redirect URI, scopes, admin consent — is documented
@@ -76,7 +78,7 @@ Request.
 ## Making a change
 
 1. **Keep it small and reviewable.** Don't refactor unrelated working code unless asked.
-2. **Edit `index.html`** — the company app. Never touch `msal-browser.min.js`.
+2. **Edit `timeline/index.html`** — the company app. Never touch `timeline/msal-browser.min.js`.
 3. **`APP_VER`** is bumped in one place and shows everywhere the version appears — bump it
    when you ship a build. It follows semantic versioning: raise the last number for fixes
    and small releases (1.0.1 → 1.0.2), the middle number for feature drops (1.0.x → 1.1.0),

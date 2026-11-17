@@ -16,7 +16,7 @@
    v1.6.4 (third review round):
    7) The Summary/Dashboard place follows the person into the Projects lens too —
       the lens toggle hides whenever a person is on; only the dept reading is flat.
-   Run: node tests/test-v162.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v162.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

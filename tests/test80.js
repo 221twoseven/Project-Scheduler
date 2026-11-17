@@ -4,7 +4,7 @@
      2. the scroll wheel works with the mouse over the project sidebar;
      3. the date header drags to pan the timeline (month-name clicks survive);
      4. the Today button no longer sits against the screen edge.
-   Run: node tests/test80.js index.html */
+   Run: node tests/test80.js timeline/index.html */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

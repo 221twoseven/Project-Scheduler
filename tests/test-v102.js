@@ -7,7 +7,7 @@
       the month tint inline when TINT is on, and the overlay CSS hides in vivid.
    4) (obj 12) The toolbar is the mellowed slate bar, not the ink-black gradient.
    5) Stale "Settings" strings are gone (the menu retired in REV95 — it's Resources).
-   Run: node tests/test-v102.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v102.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

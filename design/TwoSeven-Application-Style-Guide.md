@@ -21,9 +21,9 @@ The portal, People, and Clients wireframes establish the shared visual language.
 
 | Reference | Contribution |
 |---|---|
-| Portal wireframes, including the three launcher alternatives | Shared header, app cards, recent work, navigation between applications |
-| Expanded People wireframe | Directory, person records, availability, administration, settings |
-| Expanded Clients wireframe | Client index, contacts, project history, financial access |
+| Portal wireframes, including the three launcher alternatives (option 1 kept: [`wireframes/TwoSeven-Portal-Option-1-Wireframe.html`](wireframes/TwoSeven-Portal-Option-1-Wireframe.html); built as the Systems page, v1.56.0) | Shared header, app cards, recent work, navigation between applications |
+| Expanded People wireframe ([`wireframes/TwoSeven-People-Wireframe.html`](wireframes/TwoSeven-People-Wireframe.html)) | Directory, person records, availability, administration, settings |
+| Expanded Clients wireframe ([`wireframes/TwoSeven-Clients-Wireframe.html`](wireframes/TwoSeven-Clients-Wireframe.html)) | Client index, contacts, project history, financial access |
 | Timeline repository, `docs/Design-Language.md` | Shop-drawing character, established typography, scheduling semantics, continuity with existing work |
 
 This revision reconciles the supplied `Design-Language.md` and `Style-Transition-Review.md`. The latter is a review of differences, not an overriding specification. Its references to the separate as-built `Style-Guide.md` have not been independently verified against that file or the running application in this revision.

@@ -10,7 +10,7 @@
    - the overbooking check no longer skips unresolvable legacy crews;
    - assigneeText displays the roster name.
    An unlinked name ("Daxon S." with Daxon Smith AND Daxon Stone on staff, which the
-   backfill couldn't match) keeps its own lane. Nothing is written back. Run: node tests/test-v165.js index.html  (or via tests/run.js) */
+   backfill couldn't match) keeps its own lane. Nothing is written back. Run: node tests/test-v165.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

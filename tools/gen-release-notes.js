@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* Generates the RELEASE_NOTES const in index.html from CHANGELOG.md.
+/* Generates the RELEASE_NOTES const in timeline/index.html from CHANGELOG.md.
    Run: npm run notes   (nothing else writes that block — never edit it by hand)
 
    CHANGELOG.md convention, newest first:
@@ -17,7 +17,7 @@
 const fs=require('fs'),path=require('path');
 const ROOT=path.join(__dirname,'..');
 const CHANGELOG=path.join(ROOT,'CHANGELOG.md');
-const INDEX=path.join(ROOT,'index.html');
+const INDEX=path.join(ROOT,'timeline','index.html');
 const BEGIN='/* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */';
 const END='/* RELEASE_NOTES:END */';
 
@@ -55,20 +55,20 @@ function main(){
   const src=fs.readFileSync(INDEX,'utf8');
   const eol=/\r\n/.test(src)?'\r\n':'\n';
   const a=src.indexOf(BEGIN),b=src.indexOf(END);
-  if(a<0||b<0||b<a){console.error('gen-release-notes: RELEASE_NOTES markers not found in index.html — refusing to write.');process.exit(1);}
+  if(a<0||b<0||b<a){console.error('gen-release-notes: RELEASE_NOTES markers not found in timeline/index.html — refusing to write.');process.exit(1);}
   const entries=parse(md);
   if(!entries.length){console.error('gen-release-notes: CHANGELOG.md has no entries.');process.exit(1);}
   const ver=appVer(src);
   if(ver&&!entries[0].v.includes(ver)){
-    console.error('gen-release-notes: index.html is v'+ver+' but the newest CHANGELOG.md entry is "'+entries[0].v+'".'
+    console.error('gen-release-notes: timeline/index.html is v'+ver+' but the newest CHANGELOG.md entry is "'+entries[0].v+'".'
       +'\n  Add a section "## v'+ver+' — <Mon D, YYYY>" with one shop-facing line per change (or rename "## Unreleased").');
     process.exit(1);
   }
   const block=emit(entries,eol);
   const next=src.slice(0,a)+block+src.slice(b+END.length);
-  if(next===src){console.log('gen-release-notes: index.html already up to date ('+entries.length+' entries).');return;}
+  if(next===src){console.log('gen-release-notes: timeline/index.html already up to date ('+entries.length+' entries).');return;}
   fs.writeFileSync(INDEX,next);
-  console.log('gen-release-notes: wrote '+entries.length+' entries into index.html (newest '+entries[0].v+').');
+  console.log('gen-release-notes: wrote '+entries.length+' entries into timeline/index.html (newest '+entries[0].v+').');
 }
 
 module.exports={parse,emit,appVer,BEGIN,END,CHANGELOG,INDEX};

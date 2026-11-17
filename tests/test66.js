@@ -6,7 +6,7 @@
    - The Person menu floats "me" to the top, right after Everyone.
    - The lens (Projects/Departments) persists in UI prefs and restores on load.
    Skips on builds that predate the identity chain.
-   Run: node test66.js index.html */
+   Run: node test66.js timeline/index.html */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

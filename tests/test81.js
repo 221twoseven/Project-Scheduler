@@ -8,7 +8,7 @@
      D8  the Status dropdown shows the stored truth, with "Automatic
          (currently: …)" carrying the derived status;
      keep-pile: the bar hover tooltip carries the crew name.
-   Run: node tests/test81.js index.html */
+   Run: node tests/test81.js timeline/index.html */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

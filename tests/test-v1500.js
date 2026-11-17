@@ -5,7 +5,7 @@
    A milestone with no phase, or whose phase has no row on this job, stays in row 0 in every mode.
    Notes keep row 1. The choice rides the Staff row's savedViews ({…,milestones}) like Protect dates;
    no Staff row = this browser only. Asserted on the New Project draft and a saved project.
-   Run: node tests/test-v1500.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1500.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

@@ -9,7 +9,7 @@
    Q7 Laser shares install's red and the Team legend names it. Step 15: the preview's Close button
    is no longer a second `pp-cancel`. jsdom cannot lay out, so the page cuts run on fixed row heights
    (PR_FIXED_H) and the checks are structural; the sample PDFs on the PR prove the paper.
-   Run: node tests/test-v1400.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1400.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

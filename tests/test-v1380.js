@@ -5,7 +5,7 @@
    on the dashboard Edit Phase opens with a new Name field focused (its backdrop ignores the
    second click of a double-click). Right-click Rename on the bar menu; New subtask stays a
    plain quick-add; the custom name reaches calendar milestone bands and the Meeting Sheet.
-   Run: node tests/test-v1380.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1380.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

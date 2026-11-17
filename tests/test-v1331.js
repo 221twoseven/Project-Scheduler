@@ -3,7 +3,7 @@
    carries its .rdays; the header row keeps the checkbox, the name and the +. The readers
    (ppCommitDepts / readPageDraft / the change delegate) query .ddays under the row, so moving
    it changes nothing they see. Both pages: a saved project and the New Project draft.
-   Run: node tests/test-v1331.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1331.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

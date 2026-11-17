@@ -3,7 +3,7 @@
    a created/deleted project logs one row, not one per child; the global page lives at
    #/changelog (admin-only) and the project page grows a second dock behind the footer
    Changelog button — only one dock viewable at a time.
-   Run: node tests/test-v1190.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1190.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

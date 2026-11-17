@@ -5,7 +5,7 @@
       (Resolved) · R2 the column subtitles say which date the list shows and how it is sorted ·
    R3 every date's hover tip names it in full — submitted, resolved (or, unstamped, "not recorded"
       plus the last change it stands in for) and the latest developer comment.
-   Run: node tests/test-v1401.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1401.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

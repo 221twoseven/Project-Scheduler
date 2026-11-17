@@ -7,7 +7,7 @@
      member; ambiguous names stay untouched.
    - Membership is a menu, not a sync: only explicitly saved people join the roster.
    Skips on builds that predate the Teams picker.
-   Run: node test70.js index.html */
+   Run: node test70.js timeline/index.html */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

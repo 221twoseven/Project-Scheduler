@@ -1,7 +1,7 @@
 /* v1.44.1 — tracker #21 (TODO item 1, Cost Code half), revised spec 2026-10-08, approved 2026-10-09:
    every on-screen label of the project identifier reads "Cost code"; values, the stored field
    and the plain word "job" stay; Changelog rows show stored keys in plain words.
-   Run: node tests/test-v1441.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1441.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

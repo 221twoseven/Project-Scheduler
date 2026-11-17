@@ -2,7 +2,7 @@
    - Help ▸ Take a tour on a developer login opens four modal slides first; the
      last button ("Start the tour") runs the normal tour. Skip/Esc close without it.
    - Non-developers go straight to the coach tour, unchanged.
-   Run: node tests/test-v1160.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1160.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

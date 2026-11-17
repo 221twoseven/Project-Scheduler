@@ -7,7 +7,7 @@
    days count and the date range agree · Q1 default: an untouched draft bar still follows the
    scheduler (no manual placement) · Q2 default: the panel's and the popover's Days field on a
    saved project move the end too.
-   Run: node tests/test-v1341.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1341.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

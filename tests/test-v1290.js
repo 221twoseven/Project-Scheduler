@@ -6,7 +6,7 @@
    filtering · plan 4 the lists show about nine names before scrolling.
    Both pages: the New Project draft and a saved project render the Team section through
    the same fillRoleChecks().
-   Run: node tests/test-v1290.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1290.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

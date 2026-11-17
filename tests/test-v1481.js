@@ -3,7 +3,7 @@
        which clears undo/redo when true) and the change log's CLOG_SKIP both ignore confirmedAt/confirmedBy;
    (2) the button never hides a parked failed save: the sync pill keeps its "not saved — click to retry"
        text when a save is still waiting, and only reads "synced" when nothing is.
-   Run: node tests/test-v1481.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1481.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

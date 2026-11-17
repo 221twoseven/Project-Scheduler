@@ -18,7 +18,7 @@
    - dashboard Notes resolve legacy who-names (through canonName then; refs since v1.55.0);
    - unnamed calendar milestone bands read "Untitled milestone", never "Fab: ";
    - the People-page pane split reseats the column grips while dragging.
-   Run: node tests/test-v1181.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1181.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

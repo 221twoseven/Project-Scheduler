@@ -2,7 +2,7 @@
    to-dos) held nothing the app used; they were kept only for the colleague app (D2 lifted
    2026-09-24). The app stops reading and writing them one release before the owner deletes
    the columns, so no build still sending them can 400 on a save afterwards.
-   Run: node tests/test-v1512.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1512.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

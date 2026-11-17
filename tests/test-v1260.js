@@ -7,7 +7,7 @@
    date becomes the Installation block) · R4 header, Days out and LATE follow the
    department dates · R5 Shipping scheduled and Installation unticked reads "Ships", never
    "Installs" · R6 neither scheduled: no date shown, never late.
-   Run: node tests/test-v1260.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1260.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

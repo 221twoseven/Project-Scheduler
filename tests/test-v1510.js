@@ -3,7 +3,7 @@
    Monday at the left edge, right of the name column (the timeline's rule, item 33). Calendar: this
    week's row at the top; a job wholly before or after today lands on its last or first week. Draft
    and saved pages, viewers too. No shortcut: T stays New note.
-   Run: node tests/test-v1510.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1510.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

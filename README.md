@@ -7,10 +7,12 @@ Microsoft Entra (MSAL) sign-in — there is no server of our own.
 
 Timeline is one product of **Systems**, Twoseven's data-management ecosystem: peer
 products (People, Clients, Office, Timeline) over one shared SharePoint dataset, behind
-one portal. Only Timeline exists today; the definition is in `docs/TODO.md` §1.
+one portal: the Systems page at the site's root. Only Timeline is built today; the
+definition is in `docs/TODO.md` §1.
 
-- **Live app:** `index.html`, served via GitHub Pages from the `main` branch.
-- **Current build:** v1.0.1 (one HTML file — the `APP_VER` constant in `index.html` is
+- **Live app:** the Systems page (`index.html`) and Timeline (`timeline/index.html`), served
+  via GitHub Pages from the `main` branch.
+- **Current build:** v1.0.1 (one HTML file — the `APP_VER` constant in `timeline/index.html` is
   the source of truth; this line goes stale, that number doesn't). Versions before
   v1.0.1 were numbered REV1–101: REV1–50 alpha, REV50–100 beta.
 
@@ -27,8 +29,9 @@ treat it as optional background, not a prerequisite.
 
 | Path | What it is |
 |---|---|
-| `index.html` | **The company application — the primary implementation file.** |
-| `msal-browser.min.js` | MSAL auth library, vendored locally (not a CDN). Loaded by `index.html` as a sibling — must stay at repo root. |
+| `timeline/index.html` | **Timeline, the company application — the primary implementation file.** |
+| `timeline/msal-browser.min.js` | MSAL auth library, vendored locally (not a CDN). Loaded by `timeline/index.html` as a sibling — must stay beside it. |
+| `index.html` | The Systems page: a static page of product tiles at the site's root. It forwards old Timeline links to `timeline/`. |
 | `tests/` | jsdom regression suites (every `tests/test*.js`, run by `tests/run.js`) and the `harness.js` that boots a build with MSAL and `fetch` stubbed. See `tests/README.md`. |
 | `docs/` | Architecture reference, hosting/auth setup (`SETUP.md`), design language, and the backlog (`TODO.md`). Retired planning docs and the completed v1 backlog live in `docs/Archive/`; milestone records, one folder per development phase, in `docs/Milestones/`. |
 | `reference/` | Frozen, not-actively-maintained material: the REV50 baseline, the original developer's handoff notes, and the project history. |
@@ -46,12 +49,12 @@ npm install
 npm test
 ```
 
-To view the app locally, open `index.html` in a browser, or serve the folder
-(`npx serve .`) and browse to it. Sign-in requires the Twoseven Entra tenant.
+To view the app locally, serve the folder (`npx serve .`) and browse to `/timeline/`, or
+open `timeline/index.html` in a browser. Sign-in requires the Twoseven Entra tenant.
 
 ## How it fits together (one paragraph)
 
-`index.html` is a vanilla-JS single-page app. On load it signs the user in with MSAL,
+`timeline/index.html` is a vanilla-JS single-page app. On load it signs the user in with MSAL,
 resolves the SharePoint site, and reads six Lists via Microsoft Graph into in-memory
 state. A 90-second poll picks up other people's edits; local edits are written back as
 optimistic, serialized, diffed Graph `POST`/`PATCH`/`DELETE` calls with a sync-status
@@ -67,4 +70,4 @@ handoff (setup rationale, conventions, traps, version history).
   app). Schema changes are owner-applied and deliberate — see `CLAUDE.md`; never change
   the auth configuration without explicit instruction.
 - Never commit secrets, tokens, or credentials. This is a public repo.
-- Run `npm test` after any change to `index.html`.
+- Run `npm test` after any change to `timeline/index.html` or the Systems page.

@@ -10,7 +10,7 @@
      8. Escape closes the Clients modal; beforeunload guards unsynced saves;
      9. gpageAll follows @odata.nextLink; parseHash survives malformed hashes;
     10. saved views restore an explicitly-empty status set.
-   Run: node tests/test90.js index.html */
+   Run: node tests/test90.js timeline/index.html */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

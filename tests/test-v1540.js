@@ -6,7 +6,7 @@
    R4 tidyDeptCrews(): the dry run lists every crew slot holding a department's name ("CNC",
       the old "Finishing") or a dash, keeps people, skips "Other" labels, writes nothing ·
    R5 tidyDeptCrews(true) saves them through the normal path, with undo.
-   Run: node tests/test-v1540.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1540.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,ok,done}=suite();
 

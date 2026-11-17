@@ -6,7 +6,7 @@
    - The panel header is an N1-style trail — Timeline › name — and Timeline (or ✕)
      unwinds to the home view, restoring the lens you came from.
    Skips on builds that predate the dashboard button.
-   Run: node test68.js index.html */
+   Run: node test68.js timeline/index.html */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 /* v1.2.0 (obj 1): the trail and the × moved off the dock header onto the #dash-bar. */

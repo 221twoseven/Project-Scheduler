@@ -3,7 +3,7 @@
    edit popover, on the saved page and the draft; (2) the timeline's ⋯ hover cue on project-page bars;
    (3) the New Project divider: a grip that shows before hover, and a footer that counts the required
    fields and links each missing one to its field.
-   Run: node tests/test-v1470.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1470.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

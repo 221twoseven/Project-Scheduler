@@ -7,7 +7,7 @@
    parent's start/end as min/max while dragging or resizing. Subtasks outside the
    parent window (parallel subtasks, legacy layouts) stay free.
    Skips on builds that predate REV56 (the frozen REV50 reference).
-   Run: node test56.js index.html */
+   Run: node test56.js timeline/index.html */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

@@ -9,7 +9,7 @@
    - The pick persists in the UI prefs and restores on load.
    - A person with nothing scheduled gets an explanatory empty-state card.
    Skips on builds that predate the person filter.
-   Run: node test65.js index.html */
+   Run: node test65.js timeline/index.html */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 const V164=src.indexOf('dash-flat')>=0; /* v1.6.4: any person filter IS the summary place */

@@ -7,7 +7,7 @@
    edit lands on one bar, renames and deletes touch only their bar, and a new subtask
    arrives as its own line.
    Skips entirely on builds that predate the work-priority change.
-   Run: node test62.js index.html */
+   Run: node test62.js timeline/index.html */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

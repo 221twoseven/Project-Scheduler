@@ -6,7 +6,7 @@
    R5 the merge: a record linked to the duplicate moves even under an older spelling, the save
       links it to the kept person, and an unlinked name that isn't the duplicate's stays ·
    R6 the saved project page shows the kept name.
-   Run: node tests/test-v1550.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1550.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,ok,done}=suite();
 

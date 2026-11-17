@@ -3,7 +3,7 @@
    (.cal-col.rz), so the resize visibly follows the mouse; the tint clears on
    release. The full-day snap itself is unchanged (test72 owns those rules).
    Asserted on BOTH the saved page and the New Project draft (the REV49 lesson).
-   Run: node tests/test83.js index.html */
+   Run: node tests/test83.js timeline/index.html */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

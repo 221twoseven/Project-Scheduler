@@ -14,14 +14,16 @@
 > an API) is open as D15, analysed in `docs/Architecture-Review-Backend.md`. This page
 > describes what runs today and changes only when something else is built.
 
-Timeline is a **single-file, client-only single-page app**. `index.html` contains all
+Timeline is a **single-file, client-only single-page app**. `timeline/index.html` contains all
 HTML, CSS, and vanilla JavaScript (thousands of lines, one file) — no framework, no
 build step. The only
-runtime dependency is `msal-browser.min.js`, vendored beside it. There is no server we
+runtime dependency is `timeline/msal-browser.min.js`, vendored beside it. The site's root
+`index.html` is the Systems page (v1.56.0, item 49): static product tiles, no sign-in, and a
+forward that sends an old `#/…` or `#view=` link on to `timeline/`. There is no server we
 own; the backend is SharePoint, reached through Microsoft Graph.
 
 ```
-Browser (index.html + msal-browser.min.js on GitHub Pages)
+Browser (timeline/index.html + msal-browser.min.js on GitHub Pages)
    │  MSAL sign-in (Entra, delegated PKCE)
    │  Bearer token
    ▼
@@ -38,7 +40,7 @@ Microsoft Graph  v1.0  ──►  SharePoint site  /sites/TWOSEVENINC
                               └─ Employee Contacts       (HR's list; read-only, import only)
 ```
 
-## Authentication (index.html, "SHAREPOINT DATA LAYER" section)
+## Authentication (timeline/index.html, "SHAREPOINT DATA LAYER" section)
 
 - **MSAL browser**, delegated **PKCE**, single-tenant. No client secret (correct for a
   browser SPA).
@@ -201,12 +203,14 @@ conventions, traps, and version history (REV34–REV50).
 ## Hosting
 
 A GitHub Actions workflow (`.github/workflows/deploy-pages.yml`) publishes `main` at `/`
-and `development` at `/preview/` on every push to either. GitHub Pages serves the static
-`index.html` with `Cache-Control: max-age=600`
+and `development` at `/preview/` on every push to either, each as the Systems page at its
+top and Timeline in `timeline/`. GitHub Pages serves the static pages with
+`Cache-Control: max-age=600`
 (the page's `no-cache` meta tags don't override that header), so a fresh visit picks up a
 new build within ten minutes and a plain reload at once. An open tab finds out by itself
 (v1.33.0): every 12 h and when the tab comes back into view it re-fetches its own
-`index.html` with `cache:'no-store'`, compares the `APP_VER` inside and offers Reload; the
+page with `cache:'no-store'`, compares the `APP_VER` inside and offers Reload (a tab opened
+before the move checks the Systems page, which names v1.56.0 for it); the
 `ShopTimeline_Config` key `update.minVersion` (Help ▸ App settings ▸ "Ask everyone to
 reload") retires older builds, which reload on their own once nothing is mid-edit. There is **no Teams-specific code** in the app — it is a standalone web app (it can
 be linked from Teams, but nothing in the code depends on Teams).

@@ -110,7 +110,7 @@ function makeFetch(data,opts){
 /* Item 60: what every suite shares — the build under test and its source text, the PASS/FAIL
    lines, and the summary + exit code (non-zero on any FAIL) that run.js and CI read. */
 function suite(){
-  const FILE=process.argv[2]||'index.html';
+  const FILE=process.argv[2]||'timeline/index.html';
   let pass=0,fail=0;
   /* item 78: normalize line endings — a Windows checkout (core.autocrlf) puts \r\n on disk,
      and the suites' source regexes match \{\n, so three suites failed locally but not in CI.

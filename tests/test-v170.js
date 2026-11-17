@@ -5,7 +5,7 @@
    read-first detail pane, and an explicit Edit state. Persistence is unchanged —
    saves clone the shared list, swap one record, and ride savePeople()/saveClients(),
    so the assertions here land on the same outgoing Graph calls as the modals made.
-   Run: node tests/test-v170.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v170.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

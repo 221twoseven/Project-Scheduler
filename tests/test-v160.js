@@ -2,7 +2,7 @@
    v1.20.0: the modal became the left pane of the Open Issues page (#/issues) — same
    fb-* ids, same sendFeedback path; "Report a bug or idea" navigates there. This suite
    asserts the page flow (the pre-v1.20 modal flow is history; pre-v1.6 builds skip).
-   Run: node tests/test-v160.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v160.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const fs=require('fs');
 const {FILE,src,ok,done}=suite();

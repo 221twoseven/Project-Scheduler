@@ -5,7 +5,7 @@
    - Overbooking is per person across crews: the same name on two overlapping bars from
      different projects flags both — whether the name is explicit or implicit.
    Skips on builds that predate the work-priority change.
-   Run: node test63.js index.html */
+   Run: node test63.js timeline/index.html */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

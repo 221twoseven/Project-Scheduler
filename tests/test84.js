@@ -4,7 +4,7 @@
    which opens the bottom phase editor AND repaints with the subtasks in view.
    Deselecting collapses again. Asserted on BOTH the saved page and the New
    Project draft (the REV49 lesson).
-   Run: node tests/test84.js index.html */
+   Run: node tests/test84.js timeline/index.html */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

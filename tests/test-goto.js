@@ -1,7 +1,7 @@
 /* B3 (navigation half) / Design-Language §6–7: Go to date. G, a month-name click in the
    header, or the ? legend open one popover (native date input + quick picks); choosing a
    date centers it in the viewport; the Today button centers instead of parking left.
-   Run: node tests/test-goto.js index.html */
+   Run: node tests/test-goto.js timeline/index.html */
 const {boot,suite}=require('./harness');
 const fs=require('fs');
 const {FILE,ok,done}=suite();

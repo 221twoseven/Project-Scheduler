@@ -6,7 +6,7 @@
    - First menu open seeds "Everything" + "My work" (REV66 identity chain).
    - Deleting a view never touches live state.
    - The launch-flagged view is honored on reload; a #view= link applies read-on-load.
-   Run: node tests/test-v4-views.js index.html */
+   Run: node tests/test-v4-views.js timeline/index.html */
 const {boot,suite}=require('./harness');
 const fs=require('fs');
 const {FILE,ok,done}=suite();

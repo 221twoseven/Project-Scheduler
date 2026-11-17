@@ -7,7 +7,7 @@
    Both pages for R4: a saved project's Setup and the New Project draft.
    v1.35.0 (#33, Q2 default): a coded Departments line reads the cost code and the client
    moves into its hover tip; the muted prefix stays on lines with no code (p5 here).
-   Run: node tests/test-v1310.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1310.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

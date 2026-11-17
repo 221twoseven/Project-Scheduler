@@ -7,7 +7,7 @@
    left edge; the label never passes its bar's end (ellipsis zone LBL_TAIL); screenshot.
    jsdom has no layout, so these assert the mechanism: the offset computed from a simulated
    scrollLeft, the scroll handlers, and the ellipsis CSS.
-   Run: node tests/test-v1360.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1360.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

@@ -5,7 +5,7 @@
      three sparse-checkout lists or the guard step kills the deploy.
    - phone joins the person record (owner-created column, 2026-09-01): field
      mappers, People page read mode, edit state, and the outgoing PATCH body.
-   Run: node tests/test-v171.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v171.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const fs=require('fs');
 const {FILE,src,ok,done}=suite();
@@ -16,11 +16,12 @@ const {FILE,src,ok,done}=suite();
 const sec=t=>console.log('\n'+t);
 
 sec('fonts (src + deploy allowlist)');
+/* v1.56.0 (item 49): Timeline lives in timeline/, so the committed file is one folder up */
 ok('Brauer Neue @font-face points at the committed bold file',
-   /@font-face\{font-family:'Brauer Neue';src:url\('design\/fonts\/BrNStdBd\.otf'\)/.test(src));
+   /@font-face\{font-family:'Brauer Neue';src:url\('\.\.\/design\/fonts\/BrNStdBd\.otf'\)/.test(src));
 ok('the TWOSEVEN title asks for Brauer Neue first', /\.tb-co\{font-family:'Brauer Neue',var\(--sans\)/.test(src));
 ok('Bahnschrift leads the app-wide stack via local()', /--sans:Bahnschrift,'Segoe UI'/.test(src));
-const yml=fs.readFileSync('.github/workflows/deploy-pages.yml','utf8');
+const yml=fs.readFileSync(require('path').join(__dirname,'..','.github/workflows/deploy-pages.yml'),'utf8');
 /* one list per published branch, so count lists, don't hard-code (a third ran 2026-10-16 → 19, item 72) */
 const nLists=(yml.match(/sparse-checkout: \|/g)||[]).length;
 ok('the font is on every deploy sparse-checkout list',

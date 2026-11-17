@@ -7,7 +7,7 @@
       someone picks one ·
    R5 the New Project draft has the same dropdown and Create sends the pick (the REV49 lesson) ·
    R6 with no client list at all, the field stays typed (nothing to pick from).
-   Run: node tests/test-v1530.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1530.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,ok,done}=suite();
 

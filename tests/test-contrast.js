@@ -1,7 +1,7 @@
 /* C4 / Design-Language §2.5: every colored fill that carries a label must pair
    with labelColor(fill) at ≥4.5:1, and every hand-authored status-pill palette
    entry in the CSS must itself hit ≥4.5:1. Fails when a palette edit regresses.
-   Run: node tests/test-contrast.js index.html */
+   Run: node tests/test-contrast.js timeline/index.html */
 const fs=require('fs'),path=require('path');
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();

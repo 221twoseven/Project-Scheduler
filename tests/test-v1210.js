@@ -3,7 +3,7 @@
    phase starts as a slim colour strip and markers as bare glyphs; the legend chips are
    buttons that step a phase 0 → 1 (titled) → 2 (subtasks) → 0, Milestone/Note toggle the
    marker text, and markers pack into shared rows. Collapse all resets everything.
-   Run: node tests/test-v1210.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1210.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

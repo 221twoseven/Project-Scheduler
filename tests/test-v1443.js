@@ -1,7 +1,7 @@
 /* v1.44.3 — tracker #37 (TODO item 55), approved 2026-10-09: Project Schedule no longer lists the
    automatic Project Management row. The group stays in the page, hidden (saves read its checkbox),
    the visible groups number from 1, and it shows only when its "Hand over from today" note applies.
-   Run: node tests/test-v1443.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1443.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

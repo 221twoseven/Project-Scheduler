@@ -1,7 +1,7 @@
 /* v1.48.2 — item 48, PR 8: the one error rule. store.explain(err) turns a failed call into one
    sentence (wording: owner, 2026-10-14); error messages read "<what failed>: <why> <next step>",
    the raw error under the toast's Details. Panels (no Details link) drop the "Click Details" part.
-   Run: node tests/test-v1482.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1482.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

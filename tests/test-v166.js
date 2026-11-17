@@ -7,7 +7,7 @@
       clear-the-filters but hid every project). One menu-wide reset at the top —
       #fm-showall "Show everything" — restores every status, clears client picks,
       and clears the person (leaving a summary like the ×).
-   Run: node tests/test-v166.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v166.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

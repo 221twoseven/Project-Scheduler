@@ -5,7 +5,7 @@
    moves into the line's hover tip, "Client · Project name · Cost code" · custom label: a
    phase with a label reads "HE276 · label" · Q3 default: the Projects lens still shows the
    name on line 1 and the code on line 2 · Q4 default: print follows the screen.
-   Run: node tests/test-v1350.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1350.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

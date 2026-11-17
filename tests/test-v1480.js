@@ -3,7 +3,7 @@
    on the project page header and under each project on the Meeting Sheet; a project with no edit in N days
    (App settings, Config key stale.days, default 14) gets a grey "Stale" chip in the sidebar, tooltip
    "No edits in 14 days". A completed project is never stale.
-   Run: node tests/test-v1480.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1480.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

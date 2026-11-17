@@ -1,7 +1,7 @@
 /* C1 / Design-Language §2.2: project colors come from a stable hash of the id.
    Adding, deleting, or re-sorting projects must never change any other project's
    color; visible-collision shifts go to the nearest free slot; nothing nears
-   INSTALL_RED. Run: node tests/test-c1-color.js index.html */
+   INSTALL_RED. Run: node tests/test-c1-color.js timeline/index.html */
 const {boot,suite}=require('./harness');
 const {FILE,ok,done}=suite();
 

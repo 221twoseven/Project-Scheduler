@@ -5,7 +5,7 @@
    missing-target filter supplying the branch: the draft sees the Create step
    (#pp-save), the saved page sees the autosave step (.pg-auto). The timeline's
    own tour is untouched.
-   Run: node tests/test86.js index.html */
+   Run: node tests/test86.js timeline/index.html */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

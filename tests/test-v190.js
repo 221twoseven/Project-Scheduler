@@ -10,7 +10,7 @@
      gains a Viewer toggle next to the version number to preview the non-admin app.
    - My Dashboard is a navigation: entered from a Company Data or project page it walks
      the hash back to the timeline instead of arming the dock behind the open page.
-   Run: node tests/test-v190.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v190.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

@@ -5,7 +5,7 @@
    Departments lens keeps its name · #22 plan: Help and tour text follow; the hint under the
    renamed heading names the two doors that exist (tick a department, double-click the
    calendar). Both pages: a saved project and the New Project draft.
-   Run: node tests/test-v1311.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1311.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

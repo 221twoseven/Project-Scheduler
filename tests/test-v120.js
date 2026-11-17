@@ -7,7 +7,7 @@
    - every assigned phase paints flat: collapsed department sections still show lanes
    - the summary dock keeps its info but gains the REV99 collapse control, persisted
      under its own key
-   Run: node tests/test-v120.js index.html */
+   Run: node tests/test-v120.js timeline/index.html */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

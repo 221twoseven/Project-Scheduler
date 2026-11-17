@@ -7,7 +7,7 @@
      "Non-admin" while previewing — and the preview hides Help ▸ App settings.
    - renderCompanyPage runs applyPerms at the door (direct #/people loads left the
      dev cluster and Help entries stale).
-   Run: node tests/test-v1180.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1180.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

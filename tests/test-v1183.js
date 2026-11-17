@@ -4,7 +4,7 @@
    phantom crew lane in the Departments lens, label "?"). Now every DELETE runs after
    every upsert, children before the project — a mid-queue death leaves a visibly
    incomplete project instead of invisible orphans.
-   Run: node tests/test-v1183.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1183.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

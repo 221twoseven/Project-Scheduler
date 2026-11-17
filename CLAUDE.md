@@ -10,13 +10,21 @@ Project rules and context for working in this repository. Read this before makin
 
 ## Core files
 
-- **`index.html` — the company-developed application. This is the primary
-  implementation file.** All company feature work happens here. It began as a
+- **`timeline/index.html` — Timeline, the company-developed application. This is the
+  primary implementation file.** All Timeline feature work happens here. It began as a
   byte-for-byte copy of the colleague's REV50 build. That copy was deleted from the repository
-  on 2026-10-15 (item 70: it held real staff names); git history still has it.
+  on 2026-10-15 (item 70: it held real staff names); git history still has it. It lived at
+  the root as `index.html` until v1.56.0 (item 49).
+- **`index.html` at the root — the Systems page**: a static page of product tiles, no
+  sign-in. It forwards old `#/…` and `#view=` links to `timeline/`. A new product gets a tile
+  here and a folder of its own (`people/`, `clients/`, `office/`, §4 D4).
 - **`design/Design-Language.md` — the design system. Read it before any change that
   touches appearance or interaction.** If a change contradicts it, either follow the
   doc or update the doc in the same PR — never silently diverge.
+- **`design/wireframes/` — the owner's portal, People and Clients wireframes: the aesthetic
+  target.** `design/TwoSeven-Application-Style-Guide.md` distils them. New or migrated
+  chrome (the Systems page, the shell, People, Clients) is built to them, not to the
+  as-built style guide below.
 - **`design/Style-Guide.md` — the tokens, values and component recipes as shipped** (the
   *what* to Design-Language's *why*), and the spec another Systems product or the future
   shared `common.css` copies from. A PR that adds a token, a recurring colour, or a component
@@ -108,7 +116,8 @@ The current infrastructure values (for reference — do not change without instr
 - **Run the tests after implementation changes.** `tests/run.js` runs every
   `tests/test*.js` suite (behaviour suites `test46`–`test92`, the Phase 1–4 UX/design suites,
   and per-release suites like `test-v102`);
-  see `tests/README.md`. Validate changes against `index.html`:
+  see `tests/README.md`. Validate changes against `timeline/index.html` (`npm test`
+  does; `test-v1560` and `test-deploy-guard` also read the Systems page):
 
   ```bash
   npm install && npm test
@@ -122,7 +131,7 @@ The current infrastructure values (for reference — do not change without instr
 **Help ▸ Release notes is generated, never hand-edited.** The single source is
 `CHANGELOG.md` (plain language, shop-facing, newest first; format `## <label> — <date>`
 then one `- ` line per change). `npm run notes` splices it into the `RELEASE_NOTES`
-block in `index.html` between the `RELEASE_NOTES:BEGIN/END` markers.
+block in `timeline/index.html` between the `RELEASE_NOTES:BEGIN/END` markers.
 
 - **Every change that bumps `APP_VER` adds its lines to `CHANGELOG.md` and runs
   `npm run notes` in the same commit.** Collect lines under `## Unreleased` while
@@ -197,7 +206,7 @@ integration, schema or auth changes, a notable refactor. Skip it only for trivia
 
 ## Automations
 
-**Anything that runs outside `index.html` and touches the app's data** — a Power Automate
+**Anything that runs outside the app's pages and touches the app's data** — a Power Automate
 flow, a GitHub Actions job, a service account, an integration (ADP, QuickBooks, …) —
 **gets an entry in `docs/Automations.md` in the same change that introduces it**: trigger,
 what it reads and writes, the account it runs as, where its definition lives, who hears
@@ -211,17 +220,18 @@ repo's `flows/` folder, never to this public repo, and never hold secrets in an 
 Timeline — over one shared SharePoint dataset, reached from a portal at `/`. Each product
 creates and deletes only the data it owns; every product reads the shared dataset. Timeline
 manages production data only (schedule, phases, assignments, milestones, notes) and will
-hand its People and Clients pages to their own products. None of this is built yet; the
-definition is `docs/TODO.md` §1 and the rulings are §4 D4/D8. Until then, Timeline is the
-whole of what ships.
+hand its People and Clients pages to their own products. The portal exists since v1.56.0
+(item 49: the Systems page at `/`, Timeline at `/timeline/`); the other products aren't built
+yet. The definition is `docs/TODO.md` §1 and the rulings are §4 D4/D8. Until they are,
+Timeline is the whole of the app that ships.
 
-A **single-file, client-only SPA**. `index.html` (one large file —
+A **single-file, client-only SPA**. `timeline/index.html` (one large file —
 `wc -l` has the count) contains all HTML, CSS,
 and vanilla JavaScript — no framework and no build step. It is a shop-timeline / Gantt
 dashboard for projects, tasks, staff, and to-dos.
 
 - **Frontend:** hand-rolled vanilla JS in one HTML file, plus a locally vendored
-  `msal-browser.min.js` (not loaded from a CDN).
+  `timeline/msal-browser.min.js` (not loaded from a CDN).
 - **Auth:** MSAL.js browser library, delegated PKCE flow against a single-tenant Entra
   app registration. Sign-in via `loginPopup`, tokens via `acquireTokenSilent`
   (fallback `acquireTokenPopup`), cached in `sessionStorage`.
@@ -235,10 +245,11 @@ dashboard for projects, tasks, staff, and to-dos.
   toasts; consecutive failures merge into one retryable pending diff (REV90). Missing optional Lists (`ShopTimeline_Staff`,
   `ShopTimeline_Tasks2`) degrade gracefully to browser-local storage; a missing
   `ShopTimeline_Events` falls back to saving events on host phases (the pre-REV54 way).
-- **Hosting:** GitHub Pages serving the static `index.html` with `max-age=600` (the
-  `no-cache` meta tags don't override it); an in-app update check (v1.33.0: a 12 h timer
-  plus tab focus, a no-store GET of `index.html`) offers Reload, and the Config key
-  `update.minVersion` retires older builds.
+- **Hosting:** GitHub Pages serving the static pages with `max-age=600` (the
+  `no-cache` meta tags don't override it): the Systems page at `/`, Timeline at
+  `/timeline/`, and the same two under `/preview/`. An in-app update check (v1.33.0: a 12 h
+  timer plus tab focus, a no-store GET of Timeline's own page) offers Reload, and the
+  Config key `update.minVersion` retires older builds.
 - **Testing:** a jsdom harness that stubs MSAL and `fetch` and records every Graph call,
   so persistence is verified against the real outgoing request bodies.
 

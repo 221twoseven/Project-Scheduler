@@ -5,7 +5,7 @@
    5) Step zooms scale about Today (anchor held) instead of re-render + scroll-back.
    6) Dept-lens lane summaries drop wrapped (past) assignments.
    2/4/7/8/10 carry source-level or suite-external coverage (test89, test-goto).
-   Run: node tests/test-v161.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v161.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

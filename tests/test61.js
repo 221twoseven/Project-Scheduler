@@ -9,7 +9,7 @@
    - A scroll INSIDE the popover (an input scrolling its own overflowing text while
      typing or drag-selecting) no longer closes it; page scrolls still do.
    Skips entirely on builds that predate REV61.
-   Run: node test61.js index.html */
+   Run: node test61.js timeline/index.html */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 

@@ -1,4 +1,4 @@
-/* C2 quiet-canvas suite — run: node tests/test-quiet.js ./index.html
+/* C2 quiet-canvas suite — run: node tests/test-quiet.js timeline/index.html
    Design-Language §2.4: quiet is the default, the vivid MONTH_HSL look lives
    behind the "Vivid months" toggle, print never emits vivid tints. */
 const {boot,suite}=require('./harness');
