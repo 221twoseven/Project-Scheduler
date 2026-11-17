@@ -50,8 +50,8 @@ as the phase runs.
 - Every milestone gets a record in `docs/Milestones/Phase-7-Pilot-Readiness/`; every
   deliberate skip gets a §7 line with its gate.
 
-Last reviewed: 2026-11-10 — the promotion audit for v1.51.1 → v1.51.3 reaching `main` (log
-in §8). Before that, 2026-10-19 — the promotion audits for v1.48.5 → v1.51.0 and
+Last reviewed: 2026-11-17 — the promotion audit for v1.51.3 → v1.53.0 reaching `main` (log
+in §8). Before that, 2026-11-10 — the promotion audit for v1.51.1 → v1.51.3. Before that, 2026-10-19 — the promotion audits for v1.48.5 → v1.51.0 and
 v1.51.0 → v1.51.1. Before that, 2026-10-15 — the promotion audit for v1.48.1 → v1.48.5, after a full audit the
 same day. Before that, 2026-10-13 — the promotion audit for v1.45.1 → v1.48.1 reaching `main`. Before that, 2026-10-09 — the promotion audits for v1.43.0 → v1.44.3 and v1.44.3 →
 v1.45.1. Before that, 2026-10-08 — D15 (data platform) reassessed: Dataverse and Azure SQL + API
@@ -65,10 +65,13 @@ is the log in §8.
 
 ## 0. Where we stand
 
-As of 2026-11-10: production (`main`) and `development` both run **v1.51.3**, promoted
-2026-11-10 (release/2026-11-10).
+As of 2026-11-17: production (`main`) and `development` both run **v1.53.0**, promoted
+2026-11-17 (release/2026-11-17).
 
 The newest work on production:
+- v1.53.0: a project's client is picked from a dropdown of the Clients list (item 81);
+- v1.52.0: stable IDs, so a rename on People or Clients carries its projects, phases and
+  to-dos (item 28 (a));
 - v1.51.3: an expired Microsoft sign-in shows one in-page prompt instead of stacking login
   windows (item 76);
 - v1.51.2: the app stops using the dead columns, so the owner can delete them (item 29's
@@ -92,7 +95,7 @@ Before that:
 Earlier: reporter answers show in Open Issues (item 58); Protect dates (item 2: drags
 never change dates).
 
-Phase 7 has shipped v1.24.0 → v1.51.3 so far.
+Phase 7 has shipped v1.24.0 → v1.53.0 so far.
 `CHANGELOG.md` is the release-by-release record.
 
 ## 1. North star — Systems
@@ -864,6 +867,17 @@ release. Where the app has a part, it's listed.
       inset" read 14px vs 8. The app behaves correctly. Fixed in the promotion branch
       (PR #183, 2026-11-10): the suite pins its clock to 2026-10-20 with the harness's
       `opts.now` (item 77).
+- [x] **80. One test date for every suite, and the edge day on purpose** (owner,
+      2026-11-10: pinning one suite "feels hacky"; items 77 and 79 were two date failures
+      in two days). Test-only, no release. Most suites built their data from the real
+      date or checked fixed dates against it, so any of them could break on some day.
+      Now `tests/harness.js` starts every suite's clock, in the test process and in the
+      app's window, on one shared day (2026-11-10). The clock still ticks from there. A
+      suite whose demo data needs another day passes `opts.now`. `TEST_TODAY=YYYY-MM-DD npm test`
+      runs the whole set on another day, to look for date bugs; suites with fixed demo
+      dates fail far from their data, which is the test's limit, not the app's.
+      `test-v1360` also checks the day that failed by accident (2026-11-10, a bar on the
+      chart's first day keeps its label 14px in). Done in PR #185 (2026-11-10).
 - [x] **48. The storage seam.** One `store` object owns every conversation with
       SharePoint, instead of 37 call sites in 16 functions. It is idea 1 of
       `docs/Architecture-Review-Storage.md`, needed whatever D15 decides, and the path to an
@@ -1331,8 +1345,29 @@ record is each ticket's "Fix shipped" note and `CHANGELOG.md`):
           exact name (ignoring case) for clients. Free-text departments are skipped.
         - *Backfill:* `backfillRefs()` in the console runs a dry run that lists every name
           it can't match; `backfillRefs(true)` writes the refs.
-        - *(a) v1.52.0:* refs read, written and backfilled. A rename on People or Clients
+        - [x] *(a) v1.52.0:* refs read, written and backfilled. A rename on People or Clients
           then carries its projects, phases and notes with it; today it doesn't.
+          Shipped v1.52.0 (PR #186, 2026-11-11); the owner created the three columns
+          2026-11-11. Suite `tests/test-v1520.js`; record
+          `docs/Milestones/Phase-7-Pilot-Readiness/2026-11-11-stable-ids.md`. A rename
+          carries only records that have refs, so the backfill comes next.
+        - [x] *(a), the owner, once v1.52.0 is on `/preview/`:* run `backfillRefs()` in the
+          browser console, signed in, and send Claude the unmatched list; fix those names on
+          People or Clients; then `backfillRefs(true)`, after hours.
+          2026-11-17: the first dry run listed 96 names. Most were a department's own name
+          in a crew slot ("CNC", "Painting", the old "Finishing") or a "—", which mean the
+          department or nobody. The matcher now skips those (PR #187, no release: only the
+          dry run's list changes). The rest go to the owner by name.
+          2026-11-17: the owner identified four people names; a console `scrubNames` run
+          renames them. A bare "Daniel" (two Daniels on People; 4 fields on the Harlequin
+          Design – Ralph Lauren and Demo Booths projects) stays unlinked for now, because
+          the person who knows is away. It keeps working by name, and (b) treats it as a
+          known leftover until someone names him.
+          Done 2026-11-17: the owner added the missing clients (Van Cleef & Arpels, Amplify,
+          Whitney Museum; Timeline Development's client is now TWOSEVEN), and
+          `backfillRefs(true)` wrote 99 records. Only the four "Daniel" fields remain.
+          Production (v1.51.3) doesn't write refs, so records created there stay unlinked
+          until v1.52.0+ is promoted; a later dry run picks them up.
         - *(b) Once the dry run shows nothing unmatched:* `canonName`'s matching and
           `scrubLegacyNames` retire, and the People merge repoints IDs.
         - *Not in it:* the stamps (`createdBy`, `completedBy`, `updatedBy`, `confirmedBy`,
@@ -1355,6 +1390,40 @@ record is each ticket's "Fix shipped" note and `CHANGELOG.md`):
         legacy crew text, so copy it into that project's Fabricators first, or tell Claude.
         Then delete `metalFab` from `ShopTimeline_Projects` and `labels` and `checklist`
         from `ShopTimeline_Tasks2`.
+- [x] **81. A project's client must come from the Clients list** (owner, 2026-11-17).
+      Shipped v1.53.0 (PR #189, 2026-11-17): a native dropdown of every client, A–Z with its
+      alias, "Pick a client" first. A dropdown can't take typed text, so the error became the
+      note under the field for a stored client that isn't on the list (owner's wording,
+      2026-11-17). With no client list at all it stays a typed field. Suite
+      `tests/test-v1530.js`; record `docs/Milestones/Phase-7-Pilot-Readiness/2026-11-17-client-from-list.md`. The
+      Client field on the project page and the New Project draft is a text box with
+      suggestions, so anything typed is saved. That's how client names with no Clients entry
+      reached projects (item 28's first backfill dry run, 2026-11-17).
+      - The field accepts only a name on `ShopTimeline_Clients`, matched ignoring case and
+        saved in the list's spelling. Anything else shows an error and doesn't save.
+      - It opens as a real list of every client. Today's suggestions only show names that
+        contain what's already typed, so on a project whose client isn't on the list the
+        arrow shows nothing (owner, 2026-11-17, reassigning VCA Spring 2027).
+      - New clients are added on the Clients page: the product that owns the data creates
+        it (§1, D4).
+      - The error wording, and any "add it on Clients" link, go to the owner before building.
+      - A project whose client isn't on the list keeps showing it until someone picks one;
+        `backfillRefs()` lists them.
+      - *Waits on:* nothing. Goes with item 28.
+- [ ] **82. Department phases stop storing the department's name as their crew** (owner,
+      2026-11-17). Shop departments with no people roster (CNC, Painting, Printing and the
+      rest) are scheduled as the department. When the app creates their phases it writes the
+      department's name into the crew field (`assigneeFor`), so one field holds either people
+      or a label. The stored name also goes stale when a department is renamed ("Finishing",
+      Painting's old name), and some old rows hold a "—".
+      - New phases for those departments leave the crew empty, and screens show the
+        department's name wherever they showed the stored one.
+      - The build first lists everything that reads those crews (the Departments lens, the
+        person filter, print, search) so nothing loses its label.
+      - A one-time console tidy clears the department names and dashes from existing rows,
+        dry run first, like `scrubLegacyNames`.
+      - Until then the backfill skips them (PR #187).
+      - *Waits on:* nothing. Goes with item 28.
 - [ ] **49. The Systems portal and the Timeline move (D4's reshape PR).** Timeline moves
       from `/` to `/timeline/`, and a static portal page of product tiles takes `/`. One
       release, one `CHANGELOG.md` line, no behaviour change.
@@ -1930,13 +1999,15 @@ constraint (D2, lifted 2026-09-24).
   People page (v1.43.0, item 9; the HR list has none). Tristate: a row without the column
   never sends it, and a save that sets one fails with the named-field message until it
   exists. **Confirmed created by the owner, 2026-10-08.**
+- `refs` (multiple lines of text, plain) on `ShopTimeline_Projects`, `ShopTimeline_Tasks`
+  and `ShopTimeline_Tasks2` — item 28's stable IDs (v1.52.0). The app probes each list
+  once per session and writes the column only where it exists. **Confirmed created by
+  the owner, 2026-11-11.**
 - Entra: `Mail.Send` delegated, consented.
 - Employee Contacts: read only. The app never writes to it or touches its schema.
 
 **Candidates this phase** (the spec is delivered with the item's batch):
 
-- `refs` (multiple lines of text, plain) on `ShopTimeline_Projects`, `ShopTimeline_Tasks`
-  and `ShopTimeline_Tasks2` — item 28, spec in the item. Not yet created (2026-10-19).
 - `dateCertainty` on `ShopTimeline_Projects` — item 5.
 - `closeoutStatus` and `billingStatus` (plus `closeoutBy` and `closeoutAt` if needed) on
   `ShopTimeline_Projects` — item 11.
@@ -2404,6 +2475,21 @@ How to read the tags at the end of an entry:
   number.
 
 **Log, newest first:**
+
+- 2026-11-17: **v1.51.3 → v1.53.0 promoted to `main`** (release/2026-11-17), so production
+  saves keep the new stable IDs (the owner asked, right after the backfill linked 99 records).
+  - v1.52.0 is item 28 (a), stable IDs (PR #186). Its sub-item is ticked, and so is the
+    owner's backfill (99 records, 2026-11-17). Part (b) stays open.
+  - v1.53.0 is item 81, the client dropdown (PR #189), ticked.
+  - *Docs and tests with no release:*
+    - item 80, one test date for every suite (PR #185), ticked;
+    - the backfill skips department names in crew slots (PR #187, item 28);
+    - items 81 and 82 added (PR #188).
+  - *Tracker:* no change. #41 (item 67) and #12 (item 40) stay on hold.
+  - *Schema:* the three `refs` columns were created by the owner 2026-11-11 and are listed in
+    §6. Item 29's three dead columns still wait on the owner's delete.
+  - *Workflows:* unchanged.
+  - *Branches:* only `main`, `development` and this release branch. No other PR is open.
 
 - 2026-11-10: **v1.51.1 → v1.51.3 promoted to `main`** (release/2026-11-10), so the owner
   can delete the dead columns (item 29, step 2) and the login fix reaches everyone.

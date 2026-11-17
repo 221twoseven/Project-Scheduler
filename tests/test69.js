@@ -1,7 +1,7 @@
 /* REV69 (N3): the shared client list.
    - ShopTimeline_Clients loads as {spId, name: Title, alias: field_2}.
-   - The project Client field is a native type-ahead (datalist) fed by the list, on
-     BOTH the draft and saved project pages (the REV49 lesson); free text still works.
+   - The project Client field is fed by the list, on BOTH the draft and saved project
+     pages (the REV49 lesson). v1.53.0 (item 81): a dropdown, no free text.
    - Settings → Clients manages the list (add/edit/remove, alias uppercased, dupes
      rejected); saves sync by SharePoint item id (POST new / PATCH changed) since the
      imported list has no appId column.
@@ -33,18 +33,18 @@ setTimeout(()=>{
   ok('rows keep their SharePoint item id',E("CLIENTS.every(c=>!!c.spId)"));
   ok('list reachable → CLIENTS_OK',E('CLIENTS_OK')===true);
 
-  sec('Saved project page: the Client field suggests from the list');
+  sec('Saved project page: the Client field picks from the list');
   win.location.hash='#/project/p1';
   setTimeout(()=>{
-    ok('client input carries the datalist',E("document.getElementById('pp-client').getAttribute('list')")==='cl-dl');
-    ok('all clients offered',E("document.querySelectorAll('#cl-dl option').length")===3);
-    ok('free text survives (existing value intact)',E("document.getElementById('pp-client').value")==='Hermès');
+    ok('the Client field is a dropdown of the list (v1.53.0, item 81: was a type-ahead)',E("document.getElementById('pp-client').tagName")==='SELECT');
+    ok('all clients offered, after "Pick a client"',E("document.querySelectorAll('#pp-client option').length")===4);
+    ok('the stored client is selected (existing value intact)',E("document.getElementById('pp-client').value")==='Hermès');
 
     sec('Draft page: same field, same list (REV49 lesson)');
     win.location.hash='#/project/new';
     setTimeout(()=>{
-      ok('draft client input carries the datalist',E("document.getElementById('pp-client').getAttribute('list')")==='cl-dl');
-      ok('all clients offered on the draft too',E("document.querySelectorAll('#cl-dl option').length")===3);
+      ok('the draft Client field is the same dropdown',E("document.getElementById('pp-client').tagName")==='SELECT');
+      ok('all clients offered on the draft too',E("document.querySelectorAll('#pp-client option').length")===4);
 
       win.location.hash='#/';
       setTimeout(()=>{
