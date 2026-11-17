@@ -50,8 +50,8 @@ as the phase runs.
 - Every milestone gets a record in `docs/Milestones/Phase-7-Pilot-Readiness/`; every
   deliberate skip gets a §7 line with its gate.
 
-Last reviewed: 2026-11-17 — the promotion audits for v1.51.3 → v1.53.0 and v1.53.0 → v1.54.1
-reaching `main` (log in §8). Before that, 2026-11-10 — the promotion audit for v1.51.1 → v1.51.3. Before that, 2026-10-19 — the promotion audits for v1.48.5 → v1.51.0 and
+Last reviewed: 2026-11-17 — the promotion audits for v1.51.3 → v1.53.0, v1.53.0 → v1.54.1 and
+v1.54.1 → v1.55.1 reaching `main` (log in §8). Before that, 2026-11-10 — the promotion audit for v1.51.1 → v1.51.3. Before that, 2026-10-19 — the promotion audits for v1.48.5 → v1.51.0 and
 v1.51.0 → v1.51.1. Before that, 2026-10-15 — the promotion audit for v1.48.1 → v1.48.5, after a full audit the
 same day. Before that, 2026-10-13 — the promotion audit for v1.45.1 → v1.48.1 reaching `main`. Before that, 2026-10-09 — the promotion audits for v1.43.0 → v1.44.3 and v1.44.3 →
 v1.45.1. Before that, 2026-10-08 — D15 (data platform) reassessed: Dataverse and Azure SQL + API
@@ -65,10 +65,13 @@ is the log in §8.
 
 ## 0. Where we stand
 
-As of 2026-11-17: production (`main`) and `development` both run **v1.54.1**, promoted
-2026-11-17 (release/2026-11-17b).
+As of 2026-11-17: production (`main`) runs **v1.55.1**, promoted 2026-11-17
+(release/2026-11-17c).
 
 The newest work on production:
+- v1.55.1: a long Changelog entry folds after its first four lines (item 84);
+- v1.55.0: the name-matching helpers retire, and the People merge moves records by ID
+  (item 28 (b));
 - v1.54.1: a selected bar, milestones and holiday pills no longer slide over the project
   page's name column (item 83);
 - v1.54.0: department phases stop storing the department's name as their crew (item 82);
@@ -98,7 +101,7 @@ Before that:
 Earlier: reporter answers show in Open Issues (item 58); Protect dates (item 2: drags
 never change dates).
 
-Phase 7 has shipped v1.24.0 → v1.54.1 so far.
+Phase 7 has shipped v1.24.0 → v1.55.1 so far.
 `CHANGELOG.md` is the release-by-release record.
 
 ## 1. North star — Systems
@@ -1328,7 +1331,7 @@ record is each ticket's "Fix shipped" note and `CHANGELOG.md`):
         existing rows.
       - *Waits on:* item 26, D5, D3. (D2 is lifted.)
       [brief §8.1, §11.1; vision]
-- [ ] **28. Stable IDs.** Names are the join key today, which is why `canonName` and the
+- [x] **28. Stable IDs.** Names are the join key today, which is why `canonName` and the
       legacy-name scrub exist. Link records by ID instead (D10).
       - `clientId` on Projects: additive, with a one-time backfill from client name to ID
         in the same milestone. `spId` (the SharePoint item ID) is the key until Clients
@@ -1372,8 +1375,19 @@ record is each ticket's "Fix shipped" note and `CHANGELOG.md`):
           `backfillRefs(true)` wrote 99 records. Only the four "Daniel" fields remain.
           Production (v1.51.3) doesn't write refs, so records created there stay unlinked
           until v1.52.0+ is promoted; a later dry run picks them up.
-        - *(b) Once the dry run shows nothing unmatched:* `canonName`'s matching and
+        - [x] *(b) Once the dry run shows nothing unmatched:* `canonName`'s matching and
           `scrubLegacyNames` retire, and the People merge repoints IDs.
+          Shipped v1.55.0 (PR #198, 2026-11-17); the owner chose to start it with only the four
+          "Daniel" fields unmatched. Names now compare as stored, and refs resolve the old
+          abbreviations. New refs link only an exact name, ignoring case. The merge moves every
+          name linked to the duplicate, even an older spelling, and the save links it to the
+          kept person. Suite `tests/test-v1550.js`; `test-v165` now proves its legacy forms
+          through refs. Record
+          `docs/Milestones/Phase-7-Pilot-Readiness/2026-11-17-name-matching-retired.md`.
+          *Ceiling:* a name with no ref and no exact match (the four "Daniel" fields) stays its
+          own name, its own lane in the Departments view. Naming him on People and running
+          `backfillRefs(true)` fixes it. *Checked 2026-11-17 after the merge:* the owner's
+          `backfillRefs()` dry run on `/preview/` lists only those four.
         - *Not in it:* the stamps (`createdBy`, `completedBy`, `updatedBy`, `confirmedBy`,
           Changelog `who`) stay names, as a record of who it was at the time.
         - *Ceiling:* `refs` is JSON, so SharePoint can't filter by it. At the D15 cutover it
@@ -1458,6 +1472,14 @@ record is each ticket's "Fix shipped" note and `CHANGELOG.md`):
       layer and the name column sits on top of everything in it. CSS only. Suite
       `tests/test-v1541.js`; record
       `docs/Milestones/Phase-7-Pilot-Readiness/2026-11-17-name-column-on-top.md`.
+- [x] **84. A long Changelog entry folds** (P1, owner's screenshot, 2026-11-17). Shipped
+      v1.55.1 (PR #199, 2026-11-17). The owner's 73-phase tidy wrote one "Bulk change" row
+      that listed all 73 records and filled the page. Any entry longer than six lines now
+      shows its first four and folds the rest under "N more" (a native disclosure, the same
+      fold as a feedback report's comments), on the Changelog page and the project page's
+      Changelog panel. The filter still searches the folded lines. Suite
+      `tests/test-v1551.js`; record
+      `docs/Milestones/Phase-7-Pilot-Readiness/2026-11-17-changelog-fold.md`.
 - [ ] **49. The Systems portal and the Timeline move (D4's reshape PR).** Timeline moves
       from `/` to `/timeline/`, and a static portal page of product tiles takes `/`. One
       release, one `CHANGELOG.md` line, no behaviour change.
@@ -1791,7 +1813,8 @@ then the recommendation or the dated ruling.
   limit: the weekly schedule is one time range per person (no split shifts, no per-day
   hours), the first ceiling a TimeClock+ hours integration will hit (§7.4). [brief §8.1]
 - **D10 — Stable IDs.** *Ruled for the SharePoint phase 2026-10-19 (item 28's plan); the target identity below stays the Phase 8 goal.* Assignments store people's *names*, matched up through
-  `canonName`; projects store the client as a *name*. Clients have no `appId` but do have
+  `canonName`; projects store the client as a *name*. (Since 2026-11-17 each name also carries
+  its ID in `refs`, and `canonName` is retired: item 28.) Clients have no `appId` but do have
   a stable `spId` (the SharePoint item ID). *Recommend:* in Phase 8, add `clientId` on
   Projects (additive, with a one-time backfill from name to ID in the same milestone) and
   person IDs on assignments (Tasks can change now that D2 is lifted). The flexible-roles
@@ -2268,11 +2291,12 @@ How to read the tags at the end of an entry:
 - [ ] **The year view is drag-only.** The step buttons stop at 3 months. Gate: someone
       asking for a Year button (small: one more `FIT_STEPS` entry and a button) (v1.7.2).
       [L1146; v1.x item 28]
-- [ ] **The name clean-up needs re-runs.** `scrubLegacyNames` fixes only names the
+- [x] **The name clean-up needs re-runs.** `scrubLegacyNames` fixes only names the
       current roster can resolve, so roster *additions* need the owner to re-run it from
       the console on `/preview/`. (Merges don't, since v1.15.0 rewrites names at merge
       time.) Gate: each staffing reconciliation; closes for good with D10 (v1.7.2).
-      [L1148; v1.x item 29]
+      [L1148; v1.x item 29] Closed 2026-11-17: `scrubLegacyNames` retired in v1.55.0
+      (item 28 (b)). Refs resolve names, and `backfillRefs()` links new ones.
 - [ ] **"Name presentation on project-edit / subtask-edit pages."** Parked by the owner
       and never specified; probably covered by the v1.15.0 / v1.19.2 display-name sweep
       (`dispName`). Needs a yes or no from the owner, not code. [v1.x item 29]
@@ -2345,8 +2369,10 @@ How to read the tags at the end of an entry:
       (v1.14.0). [L1247]
 - [ ] **A merge can't be undone automatically.** Parked changes live only in memory, so a
       reload mid-park drops the clean-up. Gate: a real mistaken merge (v1.15.0). [L1260]
-- [ ] **Merge matches exact names.** Abbreviations `canonName` can't resolve stay behind;
+- [x] **Merge matches exact names.** Abbreviations `canonName` can't resolve stay behind;
       run `scrubLegacyNames(true)` after merging. The real fix is D10 (v1.15.0). [L1263]
+      Closed 2026-11-17: since v1.55.0 (item 28 (b)) the merge also moves every name linked
+      to the duplicate by its ref, whatever its spelling.
 - [ ] **A held staff save retries only from the pill** (`PENDING_STAFF`). Gate: the manual
       retry proving annoying (v1.15.2). [L1266]
 - [ ] **Orphan records from other writers.** Deleting children before parents closes the
@@ -2510,6 +2536,21 @@ How to read the tags at the end of an entry:
   number.
 
 **Log, newest first:**
+
+- 2026-11-17: **v1.54.1 → v1.55.1 promoted to `main`** (release/2026-11-17c), cut from
+  `development` just before PR #201 (item 49, the Systems page). The owner holds item 49
+  back from production until a larger, more complete update, so this promotion takes the
+  two releases ahead of it.
+  - v1.55.0 is item 28 (b), name matching retired (PR #198), ticked. The owner's
+    `backfillRefs()` dry run after it lists only the four "Daniel" fields.
+  - v1.55.1 is item 84, the folding Changelog entry (PR #199), ticked.
+  - *Workflows:* `deploy-pages.yml` on `main` changed by PR #200 (no release): it publishes
+    both the current layout and item 49's. The same file reaches `development` with #201.
+  - *Tracker:* no change. #41 (item 67) and #12 (item 40) stay on hold.
+  - *Schema:* no change. The owner added the `/timeline/` and `/preview/timeline/` redirect
+    URIs for item 49 (Entra, not schema).
+  - *Branches:* `main`, `development`, this release branch, and `feat/49-systems-portal`
+    (PR #201, open into `development`).
 
 - 2026-11-17: **v1.53.0 → v1.54.1 promoted to `main`** (release/2026-11-17b). This is the
   day's second promotion, held until v1.54.1 was in so that production moved once more

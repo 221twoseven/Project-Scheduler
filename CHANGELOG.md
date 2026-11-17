@@ -9,6 +9,12 @@ Format: `## <label> — <date>` then one `- ` line per change. Keep lines concre
 what changed *for the team*, not how. Developer-only tooling doesn't need a line.
 Collect lines for the next version under `## Unreleased` and rename it when you ship.
 
+## v1.55.1 — Nov 17, 2026
+- In the Changelog, a long entry (like a bulk change that lists every phase it touched) now shows its first four lines. Click "more" under them to see the rest.
+
+## v1.55.0 — Nov 17, 2026
+- Merging two people on the People page now also moves projects, phases and notes that were linked to the duplicate under an older spelling of their name.
+
 ## v1.54.1 — Nov 17, 2026
 - On a project's schedule, scrolling sideways no longer lets a selected phase bar, a milestone or a holiday slide over the names on the left. The names stay on top.
 

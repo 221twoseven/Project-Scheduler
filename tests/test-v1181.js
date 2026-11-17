@@ -15,7 +15,7 @@
    - the seeded "Everything" view resets the client filter;
    - search matches roster names again beside nicknames;
    - the wordmark goes home from ANY route, person summary included;
-   - dashboard Notes resolve legacy who-names through canonName;
+   - dashboard Notes resolve legacy who-names (through canonName then; refs since v1.55.0);
    - unnamed calendar milestone bands read "Untitled milestone", never "Fab: ";
    - the People-page pane split reseats the column grips while dragging.
    Run: node tests/test-v1181.js index.html  (or via tests/run.js) */
@@ -54,7 +54,7 @@ function main(){
   ok('Delete Phase rides the phases door in CSS', src.indexOf('body.viewer:not(.vg-phases) #tm-del')>=0);
   ok('Save opens under either grant', src.indexOf('body.viewer:not(.vg-subtasks):not(.vg-phases) #tm-save')>=0);
   ok('the Milestones block carries its own door', /data-vk="subtasks"/.test(src));
-  ok('dashboard Notes resolve who through canonName', /\(t\.who\|\|\[\]\)\.map\(canonName\)\.includes\(PERSON\)/.test(src));
+  ok('dashboard Notes match who to the person (refs resolve legacy names since v1.55.0)', /\(t\.who\|\|\[\]\)\.includes\(PERSON\)/.test(src));
   ok('unnamed calendar markers get the Gantt fallback', /mk\.nm\|\|\(mk\.k==='ev'\?'Untitled milestone'/.test(src));
   ok('the pane split reseats the grips', /cdGripSync\(\);\}; \/\* the pane resize reflows/.test(src)||/CD_LISTW\+'px';list\.style\.maxWidth='none';\s*cdGripSync\(\)/.test(src));
   ok('applyRoute runs applyPerms at the door', /function applyRoute\(\)\{\n[^]{0,200}applyPerms\(\);/.test(src));
