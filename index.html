@@ -371,14 +371,14 @@ body.compact .sb-chip{line-height:1.2;padding:.5px 6px}
 .fb-3col .cd-detail-hd+.cd-detail-hd{border-left:1px solid #E2E8F0}
 /* v1.25.0: a report's developer comments fold open under it (native <details>). */
 .fb-cm{margin-top:4px}
-.fb-cm summary{cursor:pointer;color:var(--ts-muted);font-size:11.5px}
+.fb-cm summary,.clog-more summary{cursor:pointer;color:var(--ts-muted);font-size:11.5px} /* v1.54.2: a long changelog detail folds the same way */
 .fb-cm-one{margin:4px 0 0 12px;padding-left:8px;border-left:2px solid #E2E8F0}
 .fb-cm-one .clog-when{width:auto;font-size:11px}
 .fb-cm-one.rep{border-left-color:var(--acc)} /* v1.45.1: the reporter's own answers stand apart from the team's */
 /* v1.28.0 (tracker #10): a report's full text folds under its subject (native <details>, like
    .fb-cm). The padding/negative-margin pair lifts the summary's hit box to 24px (§9) without
    changing the row height. */
-.fb-dd summary{cursor:pointer;padding:5px 0;margin:-5px 0}
+.fb-dd summary,.clog-more summary{cursor:pointer;padding:5px 0;margin:-5px 0}
 .clog-row.fb-hit{background:#EDF3FA;box-shadow:inset 2px 0 0 var(--acc)} /* the .cd-row.sel recipe */
 .rn-list{padding:6px 0}
 .rn-ver{padding:10px 22px;border-bottom:1px solid #EEF2F7}
@@ -1885,7 +1885,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.54.1'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.54.2'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -5680,8 +5680,17 @@ function clogRowsHtml(rows,showProject){
       +'<div class="clog-what"><b>'+esc(r.title)+'</b>'
       +(showProject&&r.projectId&&r.title.indexOf('Project ')!==0?' <span class="clog-proj">· '+esc(p?p.name:'(deleted project)')+'</span>':'')
       +' <span class="clog-field">'+esc(clogLbl(r.field))+'</span>'
-      +(r.detail?'<div class="clog-det">'+esc(clogLbl(clogDetail(r)))+'</div>':'')
+      +(r.detail?clogDetHtml(clogLbl(clogDetail(r))):'')
       +'</div></div>';}).join('');
+}
+/* v1.54.2 (item 84): a long detail — a bulk change lists every record — shows its first
+   lines and folds the rest under a native <details>, the .fb-cm "N comments" recipe. */
+function clogDetHtml(s){
+  const L=s.split('\n');
+  if(L.length<=6)return '<div class="clog-det">'+esc(s)+'</div>';
+  return '<div class="clog-det">'+esc(L.slice(0,4).join('\n'))+'</div>'
+    +'<details class="clog-more"><summary>'+(L.length-4)+' more</summary>'
+    +'<div class="clog-det">'+esc(L.slice(4).join('\n'))+'</div></details>';
 }
 /* The global changelog page — Resources ▸ Changelog, admin-only (menu entry hidden for
    viewers; this catches direct hashes and a roster that loads after the route). */
@@ -12410,6 +12419,7 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.54.2",d:"Nov 17, 2026",n:["In the Changelog, a long entry (like a bulk change that lists every phase it touched) now shows its first four lines. Click \"more\" under them to see the rest."]},
  {v:"v1.54.1",d:"Nov 17, 2026",n:["On a project's schedule, scrolling sideways no longer lets a selected phase bar, a milestone or a holiday slide over the names on the left. The names stay on top."]},
  {v:"v1.54.0",d:"Nov 17, 2026",n:["Shop departments that are scheduled as a department (CNC, Painting, Printing and the rest) no longer put the department's name in the crew, where it read like a person. A Painting phase no longer says \"Finishing\" under it, and its hover card skips the empty crew line. People you assign to those phases show as before."]},
  {v:"v1.53.0",d:"Nov 17, 2026",n:["A project's Client is now picked from a dropdown of every client on the Clients page, so a client can't be misspelled or typed in twice under different names. A new client is added on the Clients page first. A project whose client isn't on the list yet keeps it and says so under the field until you pick one."]},
