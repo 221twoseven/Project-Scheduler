@@ -1417,8 +1417,9 @@ record is each ticket's "Fix shipped" note and `CHANGELOG.md`):
       - A project whose client isn't on the list keeps showing it until someone picks one;
         `backfillRefs()` lists them.
       - *Waits on:* nothing. Goes with item 28.
-- [ ] **82. Department phases stop storing the department's name as their crew** (owner,
-      2026-11-17). Shop departments with no people roster (CNC, Painting, Printing and the
+- [x] **82. Department phases stop storing the department's name as their crew** (owner,
+      2026-11-17). Done 2026-11-17: shipped v1.54.0, and the owner's tidy cleared 73 phases.
+      Shop departments with no people roster (CNC, Painting, Printing and the
       rest) are scheduled as the department. When the app creates their phases it writes the
       department's name into the crew field (`assigneeFor`), so one field holds either people
       or a label. The stored name also goes stale when a department is renamed ("Finishing",
@@ -1437,11 +1438,16 @@ record is each ticket's "Fix shipped" note and `CHANGELOG.md`):
         person filter, the People counts and the overbooking check skip non-people. The hover
         card drops its empty crew line. Suite `tests/test-v1540.js`; record
         `docs/Milestones/Phase-7-Pilot-Readiness/2026-11-17-dept-crews.md`.
-      - [ ] *The owner, once v1.54.0 is on `/preview/`:* run `tidyDeptCrews()` in the
+      - [x] *The owner, once v1.54.0 is on `/preview/`:* run `tidyDeptCrews()` in the
         console (a dry run that lists every phase it would change), then
         `tidyDeptCrews(true)`. A dash on a Project Management or Main Shop Fab phase means
         "nobody"; cleared, that phase follows the project's team like any other unowned
-        phase.
+        phase. Done 2026-11-17. The dry run listed 73 phases: department names, the old
+        "Finishing", and three dashes (Art Lab's PM and Main Shop Fab, Timeline
+        Development's PM). One crew kept its person ("Jed Marshall, Electrical" became
+        "Jed Marshall"). All 73 saved as one step. The owner confirmed that shop
+        departments are assigned as a department and the team divides the queue, so an
+        empty crew is the intended state.
 - [ ] **49. The Systems portal and the Timeline move (D4's reshape PR).** Timeline moves
       from `/` to `/timeline/`, and a static portal page of product tiles takes `/`. One
       release, one `CHANGELOG.md` line, no behaviour change.
