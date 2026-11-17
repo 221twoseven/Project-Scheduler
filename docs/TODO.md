@@ -65,8 +65,9 @@ is the log in §8.
 
 ## 0. Where we stand
 
-As of 2026-11-17: production (`main`) and `development` both run **v1.54.1**, promoted
-2026-11-17 (release/2026-11-17b).
+As of 2026-11-17: production (`main`) runs **v1.54.1**, promoted 2026-11-17
+(release/2026-11-17b). `development` runs **v1.55.0**: the name-matching helpers retire and
+the People merge moves records by ID (item 28 (b)).
 
 The newest work on production:
 - v1.54.1: a selected bar, milestones and holiday pills no longer slide over the project
@@ -1328,7 +1329,7 @@ record is each ticket's "Fix shipped" note and `CHANGELOG.md`):
         existing rows.
       - *Waits on:* item 26, D5, D3. (D2 is lifted.)
       [brief §8.1, §11.1; vision]
-- [ ] **28. Stable IDs.** Names are the join key today, which is why `canonName` and the
+- [x] **28. Stable IDs.** Names are the join key today, which is why `canonName` and the
       legacy-name scrub exist. Link records by ID instead (D10).
       - `clientId` on Projects: additive, with a one-time backfill from client name to ID
         in the same milestone. `spId` (the SharePoint item ID) is the key until Clients
@@ -1372,8 +1373,18 @@ record is each ticket's "Fix shipped" note and `CHANGELOG.md`):
           `backfillRefs(true)` wrote 99 records. Only the four "Daniel" fields remain.
           Production (v1.51.3) doesn't write refs, so records created there stay unlinked
           until v1.52.0+ is promoted; a later dry run picks them up.
-        - *(b) Once the dry run shows nothing unmatched:* `canonName`'s matching and
+        - [x] *(b) Once the dry run shows nothing unmatched:* `canonName`'s matching and
           `scrubLegacyNames` retire, and the People merge repoints IDs.
+          Shipped v1.55.0 (PR #198, 2026-11-17); the owner chose to start it with only the four
+          "Daniel" fields unmatched. Names now compare as stored, and refs resolve the old
+          abbreviations. New refs link only an exact name, ignoring case. The merge moves every
+          name linked to the duplicate, even an older spelling, and the save links it to the
+          kept person. Suite `tests/test-v1550.js`; `test-v165` now proves its legacy forms
+          through refs. Record
+          `docs/Milestones/Phase-7-Pilot-Readiness/2026-11-17-name-matching-retired.md`.
+          *Ceiling:* a name with no ref and no exact match (the four "Daniel" fields) stays its
+          own name, its own lane in the Departments view. Naming him on People and running
+          `backfillRefs(true)` fixes it.
         - *Not in it:* the stamps (`createdBy`, `completedBy`, `updatedBy`, `confirmedBy`,
           Changelog `who`) stay names, as a record of who it was at the time.
         - *Ceiling:* `refs` is JSON, so SharePoint can't filter by it. At the D15 cutover it
@@ -1791,7 +1802,8 @@ then the recommendation or the dated ruling.
   limit: the weekly schedule is one time range per person (no split shifts, no per-day
   hours), the first ceiling a TimeClock+ hours integration will hit (§7.4). [brief §8.1]
 - **D10 — Stable IDs.** *Ruled for the SharePoint phase 2026-10-19 (item 28's plan); the target identity below stays the Phase 8 goal.* Assignments store people's *names*, matched up through
-  `canonName`; projects store the client as a *name*. Clients have no `appId` but do have
+  `canonName`; projects store the client as a *name*. (Since 2026-11-17 each name also carries
+  its ID in `refs`, and `canonName` is retired: item 28.) Clients have no `appId` but do have
   a stable `spId` (the SharePoint item ID). *Recommend:* in Phase 8, add `clientId` on
   Projects (additive, with a one-time backfill from name to ID in the same milestone) and
   person IDs on assignments (Tasks can change now that D2 is lifted). The flexible-roles
@@ -2268,11 +2280,12 @@ How to read the tags at the end of an entry:
 - [ ] **The year view is drag-only.** The step buttons stop at 3 months. Gate: someone
       asking for a Year button (small: one more `FIT_STEPS` entry and a button) (v1.7.2).
       [L1146; v1.x item 28]
-- [ ] **The name clean-up needs re-runs.** `scrubLegacyNames` fixes only names the
+- [x] **The name clean-up needs re-runs.** `scrubLegacyNames` fixes only names the
       current roster can resolve, so roster *additions* need the owner to re-run it from
       the console on `/preview/`. (Merges don't, since v1.15.0 rewrites names at merge
       time.) Gate: each staffing reconciliation; closes for good with D10 (v1.7.2).
-      [L1148; v1.x item 29]
+      [L1148; v1.x item 29] Closed 2026-11-17: `scrubLegacyNames` retired in v1.55.0
+      (item 28 (b)). Refs resolve names, and `backfillRefs()` links new ones.
 - [ ] **"Name presentation on project-edit / subtask-edit pages."** Parked by the owner
       and never specified; probably covered by the v1.15.0 / v1.19.2 display-name sweep
       (`dispName`). Needs a yes or no from the owner, not code. [v1.x item 29]
@@ -2345,8 +2358,10 @@ How to read the tags at the end of an entry:
       (v1.14.0). [L1247]
 - [ ] **A merge can't be undone automatically.** Parked changes live only in memory, so a
       reload mid-park drops the clean-up. Gate: a real mistaken merge (v1.15.0). [L1260]
-- [ ] **Merge matches exact names.** Abbreviations `canonName` can't resolve stay behind;
+- [x] **Merge matches exact names.** Abbreviations `canonName` can't resolve stay behind;
       run `scrubLegacyNames(true)` after merging. The real fix is D10 (v1.15.0). [L1263]
+      Closed 2026-11-17: since v1.55.0 (item 28 (b)) the merge also moves every name linked
+      to the duplicate by its ref, whatever its spelling.
 - [ ] **A held staff save retries only from the pill** (`PENDING_STAFF`). Gate: the manual
       retry proving annoying (v1.15.2). [L1266]
 - [ ] **Orphan records from other writers.** Deleting children before parents closes the

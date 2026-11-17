@@ -1,16 +1,16 @@
 /* v1.6.5 — legacy person strings resolve to roster people (owner report, 2026-09-01).
    Old project records store abbreviated names ("Cordelia V.", bare "Theo") in the
    projectManager/drafter/leadFab fields while the staff picker writes full display
-   names. canonName() resolves any crew/role string to its roster person when the
-   match is unambiguous; barCrew() routes through it, so:
+   names. v1.6.5's canonName() resolved them at every compare; since v1.55.0 (item 28 b) the
+   records carry refs instead, and resolveRefs reads each linked name as its roster person on
+   load, so:
    - dept-lens roster lanes merge (no empty full-name lane next to a working
      abbreviated lane);
    - the person filter / Summary / My Dashboard finds legacy-named work;
    - the overbooking check no longer skips unresolvable legacy crews;
    - assigneeText displays the roster name.
-   Ambiguous ("Daxon S." with Daxon Smith AND Daxon Stone on staff) or unknown
-   strings pass through untouched and keep their own lane. Stored values are never
-   rewritten. Run: node tests/test-v165.js index.html  (or via tests/run.js) */
+   An unlinked name ("Daxon S." with Daxon Smith AND Daxon Stone on staff, which the
+   backfill couldn't match) keeps its own lane. Nothing is written back. Run: node tests/test-v165.js index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 
@@ -18,26 +18,27 @@ const sec=t=>console.log('\n'+t);
 const D=n=>{const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()+n);
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
 
-const mkProj=(id,name,pm,i)=>({appId:id,Title:name,client:'C',jobCode:'J'+i,deadline:D(40+i),
+const ref=(n,id)=>({refs:JSON.stringify({people:{[n]:id}})}); /* what backfillRefs wrote */
+const mkProj=(id,name,pm,i,r)=>({appId:id,Title:name,client:'C',jobCode:'J'+i,deadline:D(40+i),
   status:'in-fabrication',projectManager:pm,drafter:'',leadFab:'',
-  activeDepartments:JSON.stringify(['pm','fab']),createdAt:D(-30),sortIndex:i});
+  activeDepartments:JSON.stringify(['pm','fab']),createdAt:D(-30),sortIndex:i,...r});
 const projects=[
-  mkProj('p1','Legacy Cordelia','Cordelia V.',0),   /* abbreviated → resolves */
-  mkProj('p2','Bare Theo','Theo',1),                /* bare first name → resolves */
-  mkProj('p3','Ambiguous Daxon','Daxon S.',2),      /* two Daxons → stays raw */
+  mkProj('p1','Legacy Cordelia','Cordelia V.',0,ref('Cordelia V.','s1')), /* abbreviated, linked → resolves */
+  mkProj('p2','Bare Theo','Theo',1,ref('Theo','s2')),                     /* bare first name, linked → resolves */
+  mkProj('p3','Ambiguous Daxon','Daxon S.',2),      /* two Daxons, no ref → stays raw */
   mkProj('p4','Canonical Cordelia','Cordelia Vance',3),
-  {...mkProj('p5','Late Legacy','Cordelia V.',4),deadline:D(-3)}]; /* past deadline, legacy PM */
+  {...mkProj('p5','Late Legacy','Cordelia V.',4,ref('Cordelia V.','s1')),deadline:D(-3)}]; /* past deadline, legacy PM */
 /* pm umbrella bars: no crew of their own, so barCrew falls back to the project team.
    p1 and p4 overlap → same resolved person on two projects → a conflict the raw
    compare used to miss entirely. */
-const mkTask=(id,pid,dept,who,s,e)=>({appId:id,projectId:pid,department:dept,assignee:who,
-  startDate:s,endDate:e,estimatedDays:5,ticketNodes:'[]',notes:'',pinned:false,label:''});
+const mkTask=(id,pid,dept,who,s,e,r)=>({appId:id,projectId:pid,department:dept,assignee:who,
+  startDate:s,endDate:e,estimatedDays:5,ticketNodes:'[]',notes:'',pinned:false,label:'',...r});
 const tasks=[
   mkTask('t1','p1','pm','',D(-2),D(6)),
   mkTask('t2','p2','pm','',D(-2),D(6)),
   mkTask('t3','p3','pm','',D(-2),D(6)),
   mkTask('t4','p4','pm','',D(2),D(9)),
-  mkTask('t5','p1','fab','Cordelia V.',D(0),D(4)), /* explicit legacy crew */
+  mkTask('t5','p1','fab','Cordelia V.',D(0),D(4),ref('Cordelia V.','s1')), /* explicit legacy crew */
   /* v1.26.0 (#15): lateness follows the Installation block's end, not the Setup date, so
      p5 carries the install that ended three days ago (older builds read the deadline). */
   mkTask('t6','p5','install','[]',D(-5),D(-3))];
@@ -56,13 +57,12 @@ const qa=s=>[...doc.querySelectorAll(s)];
 setTimeout(main,1300);
 
 function main(){
-  sec('canonName resolves the observed legacy forms');
-  ok('"Cordelia V." → Cordelia Vance', E("canonName('Cordelia V.')")==='Cordelia Vance');
-  ok('initial without the dot works too', E("canonName('Cordelia V')")==='Cordelia Vance');
-  ok('bare first name resolves when unique', E("canonName('Theo')")==='Theo Kim');
-  ok('case differences heal', E("canonName('CORDELIA VANCE')")==='Cordelia Vance');
-  ok('an ambiguous initial stays raw (two Daxons)', E("canonName('Daxon S.')")==='Daxon S.');
-  ok('an unknown name stays raw', E("canonName('Zed Q.')")==='Zed Q.');
+  sec('refs resolve the observed legacy forms (canonName retired, item 28 b)');
+  ok('canonName is gone', E("typeof canonName")==='undefined');
+  ok('a linked "Cordelia V." reads as Cordelia Vance', E("projById('p1').projectManager")==='Cordelia Vance');
+  ok('a linked bare first name reads as Theo Kim', E("projById('p2').projectManager")==='Theo Kim');
+  ok('a linked crew string too', E("taskById('t5').assignee")==='Cordelia Vance');
+  ok('an unlinked ambiguous initial stays raw (two Daxons)', E("projById('p3').projectManager")==='Daxon S.');
 
   sec('dept lens: one lane per human, legacy work merged in');
   E("LENS='dept';PERSON=null;render()");
@@ -92,8 +92,8 @@ function main(){
 
   sec('display follows the roster name, storage stays untouched');
   ok('assigneeText shows the resolved name', E("assigneeText(taskById('t5'))")==='Cordelia Vance');
-  ok('the stored assignee string is NOT rewritten', E("taskById('t5').assignee")==='Cordelia V.');
-  ok('the stored projectManager field is NOT rewritten', E("projById('p1').projectManager")==='Cordelia V.');
+  ok('nothing is written back to the projects or phases',
+     !(win.__spCalls||[]).some(c=>c.method!=='GET'&&/ShopTimeline_(Projects|Tasks)\//.test(c.url)));
 
   sec('grouping, sorting and the PM late prompt see one identity');
   ok('PM group keys match across legacy and canonical records',

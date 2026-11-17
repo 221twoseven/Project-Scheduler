@@ -5,10 +5,8 @@
    - Sort controls (Due date / Client / PM / Status) hide in the Departments lens —
      they order projects; dept rows are people lanes.
    - Drag-zoom max extends 91 → 365 days (buttons still stop at 3-Mo).
-   - scrubLegacyNames(): console-run one-time scrub that rewrites STORED legacy
-     person strings (project roles, phase crews, note assignees) to roster names
-     via canonName; dry-run by default, applies through saveState. Free-text
-     departments and ambiguous/unknown strings are never touched.
+   - (scrubLegacyNames(), the one-time legacy-name scrub, retired in v1.55.0, item 28 b:
+     refs resolve those names now; tests/test-v165.js.)
    Run: node tests/test-v172.js index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
@@ -57,8 +55,6 @@ const staff=[
 const dom=boot(FILE,{data:{projects,tasks,staff,todos},todosList:true});
 const win=dom.window,doc=win.document;
 const E=s=>win.eval(s);
-const calls=()=>win.__spCalls;
-const wait=ms=>new Promise(r=>setTimeout(r,ms));
 
 setTimeout(()=>{main().catch(e=>{console.error(e);process.exit(1);});},1300);
 
@@ -77,40 +73,7 @@ async function main(){
   ok('the year view has no step-button name', E('VIEW')==='custom');
   E('setFit(30,true)');
 
-  sec('scrubLegacyNames: dry run reports, writes nothing');
-  const before=calls().length;
-  const rep=JSON.parse(E('JSON.stringify(scrubLegacyNames())'));
-  ok('reports the two project role fields', rep.filter(r=>r.kind==='project').length===2,
-     JSON.stringify(rep.filter(r=>r.kind==='project')));
-  ok('reports the comma-string crew', rep.some(r=>r.kind==='phase'&&r.before==='Cordelia V.'&&r.after==='Cordelia Vance'));
-  ok('reports the install crew array, Installation kept',
-     rep.some(r=>r.kind==='phase'&&r.after==='Theo Kim, Installation'));
-  ok('reports the note assignee', rep.some(r=>r.kind==='note'&&r.after==='Cordelia Vance'));
-  ok('skips the ambiguous Daxon', !rep.some(r=>String(r.before).indexOf('Daxon')>=0));
-  ok('skips the free-text department label', !rep.some(r=>r.record&&String(r.record).indexOf('Other (Shop)')>=0));
-  ok('skips already-canonical values', !rep.some(r=>r.before==='Cordelia Vance'));
-  ok('dry run made no Graph calls', calls().length===before);
-  ok('stored value untouched on dry run', E("projById('p1').projectManager")==='Cordelia V.');
-
-  sec('scrubLegacyNames(true): applies through the normal save path');
-  E('scrubLegacyNames(true)');
-  await wait(150);
-  ok('project role healed in state', E("projById('p1').projectManager")==='Cordelia Vance'
-     && E("projById('p1').drafter")==='Theo Kim');
-  ok('ambiguous Daxon untouched in state', E("projById('p2').projectManager")==='Daxon S.');
-  ok('comma crew healed in state', E("taskById('t1').assignee")==='Cordelia Vance');
-  ok('free-text label untouched in state', E("taskById('t3').assignee")==='Theo');
-  ok('note assignee healed in state', E("ST.todos[0].who.join('|')")==='Cordelia Vance');
-  const pat=calls().filter(c=>c.method==='PATCH');
-  ok('the healed project PATCHes canonical names',
-     pat.some(c=>c.url.includes('ShopTimeline_Projects')&&c.body&&c.body.projectManager==='Cordelia Vance'&&c.body.drafter==='Theo Kim'));
-  ok('the healed crew PATCHes the roster name',
-     pat.some(c=>c.url.includes('ShopTimeline_Tasks')&&c.body&&c.body.assignee==='Cordelia Vance'));
-  ok('the install crew PATCHes as JSON with Installation kept',
-     pat.some(c=>c.body&&c.body.assignee==='["Theo Kim","Installation"]'));
-  ok('the untouched canonical task never syncs',
-     !pat.some(c=>c.body&&c.body.appId==='t4'));
-  ok('a second run finds nothing left', JSON.parse(E('JSON.stringify(scrubLegacyNames())')).length===0);
+  ok('scrubLegacyNames is retired (v1.55.0)', E('typeof scrubLegacyNames')==='undefined');
 
   done();
 }
