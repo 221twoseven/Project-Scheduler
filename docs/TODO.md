@@ -65,8 +65,9 @@ is the log in §8.
 
 ## 0. Where we stand
 
-As of 2026-11-17: production (`main`) and `development` both run **v1.53.0**, promoted
-2026-11-17 (release/2026-11-17).
+As of 2026-11-17: production (`main`) runs **v1.53.0**, promoted 2026-11-17
+(release/2026-11-17). `development` runs **v1.54.0**: department phases stop storing the
+department's name as their crew (item 82).
 
 The newest work on production:
 - v1.53.0: a project's client is picked from a dropdown of the Clients list (item 81);
@@ -1424,6 +1425,17 @@ record is each ticket's "Fix shipped" note and `CHANGELOG.md`):
         dry run first, like `scrubLegacyNames`.
       - Until then the backfill skips them (PR #187).
       - *Waits on:* nothing. Goes with item 28.
+      - [x] *The build:* Shipped v1.54.0 (PR #193, 2026-11-17). `assigneeFor` returns an
+        empty crew for those departments, as the edit dialog already saved. The readers were
+        already safe: Departments lanes, phase labels and search read the department; the
+        person filter, the People counts and the overbooking check skip non-people. The hover
+        card drops its empty crew line. Suite `tests/test-v1540.js`; record
+        `docs/Milestones/Phase-7-Pilot-Readiness/2026-11-17-dept-crews.md`.
+      - [ ] *The owner, once v1.54.0 is on `/preview/`:* run `tidyDeptCrews()` in the
+        console (a dry run that lists every phase it would change), then
+        `tidyDeptCrews(true)`. A dash on a Project Management or Main Shop Fab phase means
+        "nobody"; cleared, that phase follows the project's team like any other unowned
+        phase.
 - [ ] **49. The Systems portal and the Timeline move (D4's reshape PR).** Timeline moves
       from `/` to `/timeline/`, and a static portal page of product tiles takes `/`. One
       release, one `CHANGELOG.md` line, no behaviour change.

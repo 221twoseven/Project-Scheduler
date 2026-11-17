@@ -9,6 +9,9 @@ Format: `## <label> — <date>` then one `- ` line per change. Keep lines concre
 what changed *for the team*, not how. Developer-only tooling doesn't need a line.
 Collect lines for the next version under `## Unreleased` and rename it when you ship.
 
+## v1.54.0 — Nov 17, 2026
+- Shop departments that are scheduled as a department (CNC, Painting, Printing and the rest) no longer put the department's name in the crew, where it read like a person. A Painting phase no longer says "Finishing" under it, and its hover card skips the empty crew line. People you assign to those phases show as before.
+
 ## v1.53.0 — Nov 17, 2026
 - A project's Client is now picked from a dropdown of every client on the Clients page, so a client can't be misspelled or typed in twice under different names. A new client is added on the Clients page first. A project whose client isn't on the list yet keeps it and says so under the field until you pick one.
 
