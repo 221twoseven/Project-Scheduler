@@ -1885,7 +1885,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.54.1'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.55.0'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -2046,7 +2046,7 @@ function crewOf(t){const a=t.assignee;if(Array.isArray(a))return a;if(typeof a==
    picked in the project settings. */
 function barCrew(t){const c=crewOf(t);const p=c.length?null:projById(t.projectId);
   const raw=c.length?c:(p?roleListFor(p,t.department):[]);
-  return [...new Set(raw.map(canonName))];} /* v1.6.5: legacy strings resolve to roster people */
+  return [...new Set(raw)];}
 /* A phase can carry its own name. Blank falls back to the department, so every existing
    row behaves exactly as before. */
 function phaseLabel(t){
@@ -2055,7 +2055,7 @@ function phaseLabel(t){
   if(d&&d.freeText)return t.assignee||'Other';
   return d?d.name:t.department;
 }
-function assigneeText(t){return [...new Set(crewOf(t).map(canonName))].map(dispName).join(', ')||(isInstall(t)?'Crew TBD':'');}
+function assigneeText(t){return [...new Set(crewOf(t))].map(dispName).join(', ')||(isInstall(t)?'Crew TBD':'');}
 /* Stable identity colors per department for "Team" color mode */
 const DEPT_COLORS={pm:'#567693',vinyl:'#D92871',othunit7:'#647590',td:'#9050C3',othoffice:'#637590',print:'#C04485',cnc:'#BE531B',beamsaw:'#936E12','3dprint':'#268449',laser:'#CE4242',other:'#63758F',fab:'#2B73CF',metal:'#8B5E3C',softgoods:'#C0487B',electrical:'#876511',othshop:'#6A7866',prefinish:'#2F7E8C',finish:'#148079',othfinish:'#657589',install:'#5A5DEC',shipping:'#5A5DEC',logistics:'#4E7D5B'};
 /* v1.4.0: TN_TARGETS retired — milestone names are plain text now (08-31 obj 3) */
@@ -2070,39 +2070,15 @@ function rebuildStaff(){
   for(const[did,key]of ROSTER_DEPTS)STAFF[key]=PEOPLE.filter(p=>(p.depts||[]).includes(did)).map(p=>p.name);
 }
 function personByName(n){return PEOPLE.find(p=>p.name===n);}
-/* v1.6.5 (owner report): legacy project records store abbreviated people
-   ("Daxon S.", or bare first names) while the staff picker writes full display
-   names — raw string compares split one human into an empty roster lane plus a
-   working legacy lane, hid their work from the person filter/dashboards, and made
-   the overbooking check skip them. Resolve any crew/role string to its roster
-   person when the match is unambiguous (exact, "First L." initial form, or bare
-   first name); ambiguous or unknown strings pass through untouched. Comparisons
-   and grouping only — stored values are never rewritten. */
-/* Item 61: canonName runs inside sorts and every render, so it remembers its answers until the
-   roster changes (a new PEOPLE array, or one pushed onto). */
-let CANON_FOR=null,CANON_N=-1;const CANON=new Map();
-function canonName(s){
-  s=String(s||'').trim();if(!s||!PEOPLE.length)return s;
-  if(CANON_FOR!==PEOPLE||CANON_N!==PEOPLE.length){CANON_FOR=PEOPLE;CANON_N=PEOPLE.length;CANON.clear();}
-  let r=CANON.get(s);
-  if(r===undefined){r=canonCalc(s);CANON.set(s,r);}
-  return r;
-}
-function canonCalc(s){
-  const low=s.toLowerCase();
-  let hit=PEOPLE.filter(p=>p.name.trim().toLowerCase()===low);
-  if(!hit.length){
-    const m=low.match(/^(\S+)(?:\s+(\S)\.?)?$/); /* "first" or "first x." */
-    if(m)hit=PEOPLE.filter(p=>{const t=p.name.trim().toLowerCase().split(/\s+/);
-      return t[0]===m[1]&&(!m[2]||(t[1]||'').charAt(0)===m[2]);});
-  }
-  return hit.length===1?hit[0].name:s;
-}
+/* Item 28 (b), v1.55.0: names compare as stored. canonName (v1.6.5) used to resolve legacy
+   abbreviations ("Daxon S.", a bare first name) at every compare; their records now carry refs,
+   so resolveRefs reads them as the person's current name on load. A name with no ref and no
+   exact match stays its own name. */
 /* v1.15.0 (owner): an entered NICKNAME is how the person reads everywhere the app
-   DISPLAYS people; identity (stored names, canonName, joins, filters) stays the full
+   DISPLAYS people; identity (stored names, joins, filters) stays the full
    roster name. Display-time only — nothing stored changes shape. */
 function dispName(n){
-  const p=personByName(n)||personByName(canonName(n));
+  const p=personByName(n);
   return (p&&p.nickname&&String(p.nickname).trim())||n;
 }
 function oooFor(name){const p=personByName(name);return p?(p.ooo||[]):[];}
@@ -2120,26 +2096,16 @@ function projSpan(p,ts){
          e:new Date(Math.max(...ts.map(t=>parseDate(t.endDate).getTime())))};
 }
 function oooOverlaps(name,sIso,eIso){return oooFor(name).filter(o=>o.start&&o.end&&o.start<=eIso&&o.end>=sIso);}
-/* v1.7.2 (owner GO, 2026-09-01): the one-time data scrub the v1.6.5 ledger entry gated
-   on. canonName() has healed legacy person strings at compare/display time since v1.6.5;
-   the STORED values kept their old abbreviations until someone happened to re-save that
-   record. This rewrites the stored values themselves — projects' role fields, phase
-   crews, note assignees — through the normal optimistic save path (diff-synced to
-   SharePoint, undo toast, one retry). Run it from the browser console, signed in:
-     scrubLegacyNames()      → dry run: prints and returns the change report, writes nothing
-     scrubLegacyNames(true)  → applies the same changes via saveState
-   The v1.6.5 rule stands: ambiguous or unknown strings pass through untouched — never
-   guess identity. Free-text departments are skipped (their assignee is a label, not a
-   person). Expect to re-run this as the staff lists reconcile and new users land. */
-/* v1.15.0: the scrub's walkers, generalized — mapFn decides what a stored person
-   string becomes. scrubLegacyNames feeds it canonName; the People-page merge feeds
-   it an exact old-name → new-name pair. */
-/* Item 28: the walkers, one record at a time, so refs read the same names the scrub does —
-   kind 'proj' (the role fields), 'task' (a phase's crew) or 'todo' (a note's assignees).
+/* The name walkers (v1.15.0): mapFn decides what each stored person name becomes. The
+   People-page merge and the console's scrubNames use them; so do refs (item 28), so refs
+   read the same names a scrub does. One record at a time: kind 'proj' (the role fields),
+   'task' (a phase's crew) or 'todo' (a note's assignees). Free-text departments are skipped
+   (their assignee is a label, not a person). mapFn(name, refs) also gets the record's refs.
    Returns the record, a copy when mapFn changed a name; `rep` (optional) collects the
-   scrub's report rows. */
+   scrub's report rows. (v1.7.2's scrubLegacyNames, which fed it canonName, retired in v1.55.0.) */
 function mapRecNames(kind,r,mapFn,rep){
-  const healArr=a=>{const h=a.map(x=>x==='Installation'?x:mapFn(x));
+  const R=REFS[kind]&&REFS[kind][r.id];
+  const healArr=a=>{const h=a.map(x=>x==='Installation'?x:mapFn(x,R));
     return h.join('|')===a.join('|')?null:h;};
   const healStr=s=>{const parts=String(s||'').split(',').map(x=>x.trim()).filter(Boolean);
     const h=healArr(parts);return h?h.join(', '):null;};
@@ -2177,12 +2143,6 @@ function scrubNames(mapFn,apply){
   if(apply&&report.length)saveState({projects,tasks,todos});
   return report;
 }
-function scrubLegacyNames(apply){
-  const report=scrubNames(canonName,apply);
-  console.log('scrubLegacyNames: '+report.length+' field'+(report.length===1?'':'s')+' to heal'
-    +(report.length&&!apply?' — dry run, nothing written. scrubLegacyNames(true) applies.':apply?' — applied.':'.'));
-  return report;
-}
 /* ===== Item 28 (a): stable IDs, v1.52.0 =====
    The names stay. Each project, phase and note also stores which person or client every
    name means, in a `refs` column (plain multi-line text):
@@ -2192,8 +2152,8 @@ function scrubLegacyNames(apply){
    or client's CURRENT name, so a rename on People or Clients carries its projects, phases
    and notes with it. Every save writes the names as before, plus refs, on lists that have
    the column (REFS_OK, probed once per session — a list without it never sees the field).
-   Only an unambiguous match gets an ID: canonName's rule for people, the exact name
-   (ignoring case) for clients. The stamps (createdBy, completedBy, updatedBy, confirmedBy)
+   Only an unambiguous match gets an ID: the exact name, ignoring case (v1.55.0; v1.52.0 also
+   took canonName's abbreviations for people). The stamps (createdBy, completedBy, updatedBy, confirmedBy)
    stay plain names, a record of who it was at the time.
    ponytail: refs is JSON, so SharePoint can't filter by it; at the D15 cutover it is the
    migration key (D10). */
@@ -2201,18 +2161,18 @@ let REFS_OK=null;
 const REFS={proj:{},task:{},todo:{}};
 const refsParse=s=>{try{const o=JSON.parse(s);return o&&typeof o==='object'?o:null;}catch(e){return null;}};
 /* A ref already made holds while the roster isn't loaded; once it is, a ref to someone (or a
-   client) no longer on it gives way to a fresh match. */
+   client) no longer on it gives way to a fresh match: the one entry with that exact name. */
+const oneNamed=(list,n)=>{const low=String(n||'').trim().toLowerCase(),hit=low?list.filter(x=>x.name.trim().toLowerCase()===low):[];
+  return hit.length===1?hit[0]:null;};
 function personIdFor(n,R){
   const id=R&&R.people&&R.people[n];
   if(id&&(!STAFF_OK||PEOPLE.some(p=>p.id===id)))return id;
-  const c=canonName(n),hit=PEOPLE.filter(p=>p.name===c);
-  return hit.length===1?hit[0].id:'';
+  const p=oneNamed(PEOPLE,n);return p?p.id:'';
 }
 function clientIdFor(n,R){
   const id=R&&R.client&&R.client[n];
   if(id&&(!CLIENTS_OK||CLIENTS.some(c=>c.spId===id)))return id;
-  const low=String(n||'').trim().toLowerCase(),hit=low?CLIENTS.filter(c=>c.name.trim().toLowerCase()===low):[];
-  return hit.length===1?hit[0].spId:'';
+  const c=oneNamed(CLIENTS,n);return c?c.spId:'';
 }
 /* The refs a record's names give it now; `miss` (optional) collects the names with no match. */
 /* A crew slot holding a department's or group's name ("CNC", "Painting", the old "Finishing")
@@ -2389,7 +2349,7 @@ function roleListFor(p,deptId){const f=roleField(deptId);return f?roleList(p[f])
    in, tasks out, one save at the caller. umb=false is the legacy repair, which hands over
    named bars only (an umbrella already follows the role). */
 function roleHandover(tasks,pid,dept,from,to,todayIso,umb){
-  const key=l=>[...new Set(l.map(canonName))].sort().join('|');
+  const key=l=>[...new Set(l)].sort().join('|');
   const A=key(from);if(!A||A===key(to))return tasks;
   const aTxt=from.join(', '),bTxt=to.join(', '),y=fmtDate(addDays(parseDate(todayIso),-1));
   const prim=tasks.find(t=>t.projectId===pid&&t.department===dept&&!t.range);
@@ -3770,7 +3730,7 @@ function taskMatch(t){
   const dn=deptById(t.department)?.name||'';
   /* assigneeText renders nicknames (v1.15.0) — search the roster names too, or typing
      the full name the People page shows ("Donghyun Baek") stops matching his phases. */
-  return (assigneeText(t)+' '+crewOf(t).map(canonName).join(' ')+' '+dn).toLowerCase().includes(FILTER);
+  return (assigneeText(t)+' '+crewOf(t).join(' ')+' '+dn).toLowerCase().includes(FILTER);
 }
 /* Dim (don't remove) non-matching rows/bars so layout stays put */
 let SPOT=new Set(); /* spotlighted project ids — everything else dims */
@@ -3986,7 +3946,7 @@ function laneRowsForSection(sec){
     for(const k of ks){
       const mine=dtasks.filter(t=>{const c=crews.get(t.id);return c.length?c.includes(k):k==='—';})
         .map(t=>{const c=crews.get(t.id);return c.length&&c[0]!==k?{...t,__ghost:true}:t;});
-      const ghosts=k==='—'?[]:visTasks().filter(t2=>isInstall(t2)&&crewOf(t2).map(canonName).includes(k)).map(t2=>({...t2,__ghost:true}));
+      const ghosts=k==='—'?[]:visTasks().filter(t2=>isInstall(t2)&&crewOf(t2).includes(k)).map(t2=>({...t2,__ghost:true}));
       mkLane(did,k,k,[...mine,...ghosts]);
     }
   };
@@ -4037,7 +3997,7 @@ function sortProjectsBy(cmp,label,groupBy){
 /* What a project is filed under for the current grouping, and how that reads as a heading. */
 function groupKeyOf(p){
   if(GROUP_BY==='client')return (p.client||'').trim()||'\u0000';
-  if(GROUP_BY==='pm')return canonName(roleList(p.projectManager)[0]||'')||'\u0000';
+  if(GROUP_BY==='pm')return roleList(p.projectManager)[0]||'\u0000';
   if(GROUP_BY==='status')return projectStatus(p);
   return null;
 }
@@ -4050,7 +4010,7 @@ function groupLabelOf(k){
 function grpSet(){return GRP_COLLAPSED[GROUP_BY]||(GRP_COLLAPSED[GROUP_BY]=new Set());}
 document.getElementById('sort-deadline').addEventListener('click',()=>sortProjectsBy((a,b)=>byDue(a,b),'due date',null));
 document.getElementById('sort-client').addEventListener('click',()=>sortProjectsBy((a,b)=>String(a.client||'').localeCompare(String(b.client||''))||byDue(a,b),'client','client'));
-document.getElementById('sort-pm').addEventListener('click',()=>sortProjectsBy((a,b)=>canonName(roleList(a.projectManager)[0]||'').localeCompare(canonName(roleList(b.projectManager)[0]||''))||byDue(a,b),'project manager','pm'));
+document.getElementById('sort-pm').addEventListener('click',()=>sortProjectsBy((a,b)=>(roleList(a.projectManager)[0]||'').localeCompare(roleList(b.projectManager)[0]||'')||byDue(a,b),'project manager','pm'));
 document.getElementById('sort-status').addEventListener('click',()=>sortProjectsBy((a,b)=>{
   /* Rank by the live status list so a new status can never fall to an unsorted tail. */
   const o={};ALL_STATUSES.forEach((v,i)=>o[v]=i+1);
@@ -4218,11 +4178,11 @@ function renderMeDock(){
   const myProj=new Set(mine.map(t=>t.projectId));
   const checkpoints=(ST.events||[]).filter(e=>e.date&&e.date>=t0&&myProj.has(e.projectId))
     .sort((a,b)=>a.date.localeCompare(b.date));
-  const tasks=(ST.todos||[]).filter(t=>!t.completedOn&&(t.who||[]).map(canonName).includes(PERSON)) /* legacy who entries ("Sam S.") resolve like every other person join */
+  const tasks=(ST.todos||[]).filter(t=>!t.completedOn&&(t.who||[]).includes(PERSON))
     .sort((a,b)=>String(a.due||'9999').localeCompare(String(b.due||'9999')));
   const ooo=oooFor(PERSON).filter(o=>o.end&&o.end>=t0).sort((a,b)=>String(a.start).localeCompare(String(b.start)));
   const pn=id=>{const p=projById(id);return p?p.name:'—';};
-  const myStale=dashSelf()?ST.projects.filter(p=>roleList(p.projectManager).map(canonName).includes(PERSON)&&isStale(p)):[]; /* v1.48.0 (item 6) */
+  const myStale=dashSelf()?ST.projects.filter(p=>roleList(p.projectManager).includes(PERSON)&&isStale(p)):[]; /* v1.48.0 (item 6) */
   const cap=(arr,row)=>arr.map(row).join('') /* v1.20.8 (owner): every row — the column scrolls (.ins-sec .in) instead of stopping at +N more */
     ||'<div class="md-empty">Nothing here right now.</div>';
   const barRow=t=>'<div class="md-row"><span class="md-dot" style="background:'+projColor(t.projectId)+'"></span>'
@@ -4931,9 +4891,9 @@ function makeSummaryBar(p,s,e,row){
     let inner='<span class="sum-pill">'+esc(STATUS_LBL[st])+'</span>';
     if(w>=BAR_W_PILL)inner+=esc(p.name)+(w>=BAR_W_CODE&&p.jobCode?' · '+esc(p.jobCode):'');
     if(w>=BAR_W_CHIPS)inner+=[
-      p.projectManager&&('<span class="role-tag">PM</span>'+esc(roleList(p.projectManager).map(canonName).map(dispName).join(', '))),
-      p.drafter&&('<span class="role-tag">D</span>'+esc(roleList(p.drafter).map(canonName).map(dispName).join(', '))),
-      p.leadFab&&('<span class="role-tag">L</span>'+esc(roleList(p.leadFab).map(canonName).map(dispName).join(', '))) /* v1.30.0 (#18): L = project lead (was F) */
+      p.projectManager&&('<span class="role-tag">PM</span>'+esc(roleList(p.projectManager).map(dispName).join(', '))),
+      p.drafter&&('<span class="role-tag">D</span>'+esc(roleList(p.drafter).map(dispName).join(', '))),
+      p.leadFab&&('<span class="role-tag">L</span>'+esc(roleList(p.leadFab).map(dispName).join(', '))) /* v1.30.0 (#18): L = project lead (was F) */
     ].filter(Boolean).join('');
     lbl.innerHTML=inner;
     bar.appendChild(lbl);
@@ -5155,7 +5115,7 @@ function showTooltipProj(p,s,e,ev){
   el.innerHTML='<div class="tt-title">'+esc(p.name)+'</div>'
     +'<div class="tt-dim">'+esc(p.client||'')+(p.jobCode?' · '+esc(p.jobCode):'')+'</div>'
     +'<div class="tt-dim">'+fmtNice(fmtDate(s))+' → '+fmtNice(fmtDate(e))+dueText(p)+'</div>'
-    +'<div class="tt-dim">PM '+esc(roleList(p.projectManager).map(canonName).map(dispName).join(', ')||'—')+' · D '+esc(roleList(p.drafter).map(canonName).map(dispName).join(', ')||'—')+' · L '+esc(roleList(p.leadFab).map(canonName).map(dispName).join(', ')||'—')+(p.fabricators?' · Crew '+esc(roleList(p.fabricators).map(canonName).map(dispName).join(', ')):'')+'</div>'
+    +'<div class="tt-dim">PM '+esc(roleList(p.projectManager).map(dispName).join(', ')||'—')+' · D '+esc(roleList(p.drafter).map(dispName).join(', ')||'—')+' · L '+esc(roleList(p.leadFab).map(dispName).join(', ')||'—')+(p.fabricators?' · Crew '+esc(roleList(p.fabricators).map(dispName).join(', ')):'')+'</div>'
     +upd
     +'<div><span class="tt-badge">'+esc(STATUS_LBL[projectStatus(p)])+'</span></div>';
   el.classList.remove('hidden');posTooltip(ev);
@@ -5173,7 +5133,7 @@ function hideTooltip(){document.getElementById('tooltip').classList.add('hidden'
 /* Multi-select role checkboxes for the project page */
 function fillRoleChecks(elId,names,currentStr,single){
   const el=document.getElementById(elId);el.innerHTML='';
-  const sel=new Set(roleList(currentStr).map(canonName)); /* v1.6.5: legacy value checks its roster person, not a phantom box */
+  const sel=new Set(roleList(currentStr));
   const EMPTY='<div class="tn-empty">No names yet — add people under Company Data &rsaquo; People.</div>';
   const byShown=(a,b)=>dispName(a).localeCompare(dispName(b));
   const row=(v,txt,on)=>{const lb=document.createElement('label');
@@ -5232,10 +5192,10 @@ function tmAssigneeUI(deptId,current){
      team, the roster, then the whole staff). */
   sel.classList.add('hidden');txt.classList.add('hidden');crew.classList.remove('hidden');
   const p=projById(document.getElementById('tm-project').value);
-  let checked=crewOf({assignee:current}).map(canonName).filter(n=>personByName(n));
+  let checked=crewOf({assignee:current}).filter(n=>personByName(n));
   if(isEndDept(deptId)){
     lbl.textContent=endName(deptId)+' Crew — pick from full staff';
-    if(!checked.length&&p)checked=[...new Set([...roleList(p.projectManager),...roleList(p.leadFab)].map(canonName))];
+    if(!checked.length&&p)checked=[...new Set([...roleList(p.projectManager),...roleList(p.leadFab)])];
     buildCrewList(checked);
     return;
   }
@@ -5894,7 +5854,7 @@ function cdAvail(per){
 }
 const cdAvailCls=av=>av.off?' off':av.now?' away':'';
 /* Relationship context, derived from data already in memory (nothing fabricated):
-   phases whose crew resolves to this person (v1.6.5 canonName machinery). */
+   phases whose crew resolves to this person. */
 function cdAssignments(name){
   const t0=fmtDate(today());
   const mine=(ST.tasks||[]).filter(x=>barCrew(x).includes(name));
@@ -6350,11 +6310,13 @@ function cdSavePerson(){
    Keep the OPEN record, fold the picked duplicate in: every stored reference to the
    duplicate's name (project roles, phase crews, note assignees) is rewritten to the
    kept name through the scrub walkers, missing contact/flag fields backfill from
-   the duplicate, and its row leaves the roster. One confirm names the blast radius. */
+   the duplicate, and its row leaves the roster. One confirm names the blast radius.
+   Item 28 (b), v1.55.0: a name linked to the duplicate (its ref) moves whatever it reads
+   as, even an older spelling; the save then links it to the kept person. */
 function cdMergePerson(keepId,dupId){
   const keep=PEOPLE.find(p=>p.id===keepId),dup=PEOPLE.find(p=>p.id===dupId);
   if(!keep||!dup||keep.id===dup.id)return;
-  const map=x=>String(x).trim()===dup.name.trim()?keep.name:x;
+  const map=(x,R)=>(R&&R.people&&R.people[x]===dup.id)||String(x).trim()===dup.name.trim()?keep.name:x;
   const rep=scrubNames(map,false); /* dry run for the count */
   if(!confirm('Fold "'+dup.name+'" into "'+keep.name+'"?\n\n'
     +(rep.length?rep.length+' stored assignment field'+(rep.length===1?'':'s')+' will be rewritten to "'+keep.name+'".\n':'No stored assignments carry "'+dup.name+'".\n')
@@ -6506,7 +6468,7 @@ function prShopLine2(n){return 'v'+APP_VER+' · printed '+prPrintedOn()+' · '+n
 /* A project's page: cost code, client, PM and deadline; a draft says so and carries no cost code. */
 function prProjLine2(p){
   const draft=!!ROUTE.creating,d=draft?readPageDraft().base:p;
-  const pm=roleList(d.projectManager).map(canonName).map(dispName).join(', ');
+  const pm=roleList(d.projectManager).map(dispName).join(', ');
   const due=draft?d.deadline:(dueDate(p)||p.deadline);
   return [draft?'Draft, not yet created':(d.jobCode||''),(d.client||'').trim(),pm?'PM '+pm:'',due?'Due '+fmtNiceY(due):''].filter(Boolean).join(' · ');
 }
@@ -6761,7 +6723,7 @@ function prProjectGanttPages(pages){
               const lp=r.lanes.pos.get(m),cx=d2x(d)+DW_/2;
               h+='<div class="pr-mk '+m.k+(lp.flip?' flip':'')+'" style="'+(lp.flip?'right:'+(tw-cx-5):'left:'+(cx-5))+'px;top:'+(r.top+9+16*lp.l)+'px"><i></i>'+esc(m.nm||(m.k==='ev'?'Untitled milestone':'Untitled note'))+'</div>';}
             continue;}
-          const t=r.t,d=deptById(t.department),who=[...new Set(crewOf(t).map(canonName))].map(dispName).join(', ');
+          const t=r.t,d=deptById(t.department),who=[...new Set(crewOf(t))].map(dispName).join(', ');
           const nm=r.kind==='parent'?((d||{}).name||t.department):phaseLabel(t);
           g.innerHTML='<span class="c-dot" style="background:'+esc(DEPT_COLORS[t.department]||'#6B7484')+'"></span>'+esc((d&&d.roster&&who)?nm+' · '+who:nm);
           side.appendChild(g);
@@ -7046,7 +7008,7 @@ const PP_ROLES=[['pp-r-pm','Project manager','projectManagers','projectManager']
 /* The project's labor pool: everyone checked in any Team role, deduped. Crew pickers
    cull to this — the pool moves fluidly between subtasks, but it's picked once, in the
    project settings. */
-function projTeam(p){return [...new Set(PP_ROLES.flatMap(r=>roleList(p&&p[r[3]])).map(canonName))];}
+function projTeam(p){return [...new Set(PP_ROLES.flatMap(r=>roleList(p&&p[r[3]])))];}
 
 function ppColor(p){return p&&p.id?projColor(p.id):'#94A3B8';}
 
@@ -7607,13 +7569,13 @@ function insDeptList(p,boxId){
          one click to hand it over from today; nothing is rewritten silently. Saved page only. */
       const rf=p&&canR&&active?roleField(id):null,hold=rf?roleList(p[rf]):[];
       if(hold.length){
-        const hk=new Set(hold.map(canonName)),seen=new Set(),td0=fmtDate(today());
+        const hk=new Set(hold),seen=new Set(),td0=fmtDate(today());
         for(const t of [prim,...ranges]){if(!t)continue;const c=crewOf(t); /* the department's own line(s): a subtask's crew is chosen per subtask */
-          if(!c.length||t.endDate<td0||c.some(n=>hk.has(canonName(n))))continue;
+          if(!c.length||t.endDate<td0||c.some(n=>hk.has(n)))continue;
           const k=c.join(', ');if(seen.has(k))continue;seen.add(k);
-          h+='<span class="ins-note dhand">Bar is held by '+esc(c.map(canonName).map(dispName).join(', '))
+          h+='<span class="ins-note dhand">Bar is held by '+esc(c.map(dispName).join(', '))
            + ' · the '+esc(id==='pm'?'PM':id==='td'?'Technical Designer':'Project lead')+' is '
-           + esc(hold.map(canonName).map(dispName).join(', '))
+           + esc(hold.map(dispName).join(', '))
            + ' <button type="button" class="ins-btn hand" data-dept="'+esc(id)+'" data-from="'+esc(k)+'">Hand over from today</button></span>';}
       }
       h+='</div>';
@@ -9128,7 +9090,7 @@ function npvRender(){
     const col0=DEPT_COLORS[t.department]||'#6B7484';
     const col=cls==='kid'?kidShade(col0):col0;
     /* 3.5 keep-pile: the hover tooltip carries the crew too (same source the gutter shows). */
-    const who=[...new Set(crewOf(t).map(canonName))].join(', '); /* v1.6.5: show the roster name */
+    const who=[...new Set(crewOf(t))].join(', ');
     return '<div class="npv-bar'+(t.__manual?' manual':'')+(cls?' '+cls:'')+'" data-i="'+i+'" '
      + 'style="left:'+bx+'px;width:'+bw+'px;background:'+col+';color:'+labelColor(col)+'" '
      + 'title="'+esc(nm+(who?' · '+who:'')+' · '+fmtNice(t.startDate)+' → '+fmtNice(t.endDate)+' · '+(t.estimatedDays||1)+'d')+'">'
@@ -9158,7 +9120,7 @@ function npvRender(){
     }
     const t=row.t,i=row.i,d=deptById(t.department);
     const nm=phaseLabel(t);
-    const who=[...new Set(crewOf(t).map(canonName))].join(', '); /* v1.6.5: show the roster name */
+    const who=[...new Set(crewOf(t))].join(', ');
     const gut=(d&&d.roster&&who&&who!=='—')?nm+' · '+who:nm;
     const child=row.kind==='child';
     h+='<div class="npv-row'+(child?' child':'')+'" style="width:'+innerW+'px">'
@@ -11852,7 +11814,7 @@ function pmLateList(){
   /* REV90: PM is a comma list ("Theo, Cordelia") — match through roleList like every
      other reader, or multi-PM projects prompt nobody. */
   return ST.projects.filter(p=>{const d=dueDate(p); /* v1.26.0: the due date, never the Setup date */
-    return roleList(p.projectManager).map(canonName).includes(me)&&d&&d<td&&projectStatus(p)!=='complete';});
+    return roleList(p.projectManager).includes(me)&&d&&d<td&&projectStatus(p)!=='complete';});
 }
 function pmLatePaint(){
   const late=pmLateList();
@@ -12410,6 +12372,7 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.55.0",d:"Nov 17, 2026",n:["Merging two people on the People page now also moves projects, phases and notes that were linked to the duplicate under an older spelling of their name."]},
  {v:"v1.54.1",d:"Nov 17, 2026",n:["On a project's schedule, scrolling sideways no longer lets a selected phase bar, a milestone or a holiday slide over the names on the left. The names stay on top."]},
  {v:"v1.54.0",d:"Nov 17, 2026",n:["Shop departments that are scheduled as a department (CNC, Painting, Printing and the rest) no longer put the department's name in the crew, where it read like a person. A Painting phase no longer says \"Finishing\" under it, and its hover card skips the empty crew line. People you assign to those phases show as before."]},
  {v:"v1.53.0",d:"Nov 17, 2026",n:["A project's Client is now picked from a dropdown of every client on the Clients page, so a client can't be misspelled or typed in twice under different names. A new client is added on the Clients page first. A project whose client isn't on the list yet keeps it and says so under the field until you pick one."]},
@@ -12680,7 +12643,7 @@ function buildMeetingSheet(){
      on the sheet; search and spotlight only fade on screen, so their rows stay and print faded. */
   const projs=currentProjOrder().filter(p=>SHOW_STATUS.has(projectStatus(p))&&clientHit(p)&&projHasPerson(p));
   const groups={};
-  for(const p of projs){const k=canonName(roleList(p.projectManager)[0]||'')||'— No PM —';(groups[k]=groups[k]||[]).push(p);}
+  for(const p of projs){const k=roleList(p.projectManager)[0]||'— No PM —';(groups[k]=groups[k]||[]).push(p);}
   const keys=Object.keys(groups).sort((a,b)=>a.localeCompare(b));
   const tbl=document.createElement('table');tbl.className='meet-table';
   const printedOn=today().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
