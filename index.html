@@ -2209,9 +2209,14 @@ function clientIdFor(n,R){
   return hit.length===1?hit[0].spId:'';
 }
 /* The refs a record's names give it now; `miss` (optional) collects the names with no match. */
+/* A crew slot holding a department's or group's name ("CNC", "Painting", the old "Finishing")
+   means the department, and a dash means nobody: not people, so neither linked nor listed. */
+const NOT_PEOPLE=new Set([...DEPTS.map(d=>d.name),...GROUPS.map(g=>g.label)].map(s=>s.toLowerCase()));
+const notPerson=n=>!/\p{L}/u.test(n)||NOT_PEOPLE.has(String(n).trim().toLowerCase());
 function refsOf(kind,r,miss){
   const R=REFS[kind][r.id],people={},o={people};
-  mapRecNames(kind,r,n=>{const id=personIdFor(n,R);if(id)people[n]=id;else if(miss)miss.push({name:n,is:'person'});return n;});
+  mapRecNames(kind,r,n=>{if(notPerson(n))return n;
+    const id=personIdFor(n,R);if(id)people[n]=id;else if(miss)miss.push({name:n,is:'person'});return n;});
   if(kind==='proj'&&String(r.client||'').trim()){
     const id=clientIdFor(r.client,R);
     if(id)o.client={[r.client]:id};else if(miss)miss.push({name:r.client,is:'client'});
