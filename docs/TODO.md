@@ -1460,7 +1460,7 @@ record is each ticket's "Fix shipped" note and `CHANGELOG.md`):
       `tests/test-v1541.js`; record
       `docs/Milestones/Phase-7-Pilot-Readiness/2026-11-17-name-column-on-top.md`.
 - [x] **84. A long Changelog entry folds** (P1, owner's screenshot, 2026-11-17). Shipped
-      v1.54.2 (PR #TBD, 2026-11-17). The owner's 73-phase tidy wrote one "Bulk change" row
+      v1.54.2 (PR #199, 2026-11-17). The owner's 73-phase tidy wrote one "Bulk change" row
       that listed all 73 records and filled the page. Any entry longer than six lines now
       shows its first four and folds the rest under "N more" (a native disclosure, the same
       fold as a feedback report's comments), on the Changelog page and the project page's

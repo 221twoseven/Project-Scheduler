@@ -1,6 +1,6 @@
 # A long Changelog entry folds — v1.54.2 (2026-11-17)
 
-**TODO item 84** (owner's screenshot, 2026-11-17). PR #TBD.
+**TODO item 84** (owner's screenshot, 2026-11-17). PR #199.
 
 ## What changed and why
 
