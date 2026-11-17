@@ -65,8 +65,9 @@ is the log in §8.
 
 ## 0. Where we stand
 
-As of 2026-11-17: production (`main`) and `development` both run **v1.53.0**, promoted
-2026-11-17 (release/2026-11-17).
+As of 2026-11-17: production (`main`) runs **v1.53.0**, promoted 2026-11-17
+(release/2026-11-17). `development` runs **v1.53.1**: a selected bar, milestones and holiday
+pills no longer slide over the project page's name column (item 83).
 
 The newest work on production:
 - v1.53.0: a project's client is picked from a dropdown of the Clients list (item 81);
@@ -1424,6 +1425,14 @@ record is each ticket's "Fix shipped" note and `CHANGELOG.md`):
         dry run first, like `scrubLegacyNames`.
       - Until then the backfill skips them (PR #187).
       - *Waits on:* nothing. Goes with item 28.
+- [x] **83. The project page's name column stays on top** (P1 bug, owner's screenshot,
+      2026-11-17). Shipped v1.53.1 (PR #193, 2026-11-17). Scrolled sideways, a selected
+      phase bar ran over the names on the left of the project-page Gantt, and so did
+      milestones, notes, holiday pills and the Today and deadline lines. Each row was its own
+      layer, so the name cell lost to anything drawn above it. Now the chart body is one
+      layer and the name column sits on top of everything in it. CSS only. Suite
+      `tests/test-v1531.js`; record
+      `docs/Milestones/Phase-7-Pilot-Readiness/2026-11-17-name-column-on-top.md`.
 - [ ] **49. The Systems portal and the Timeline move (D4's reshape PR).** Timeline moves
       from `/` to `/timeline/`, and a static portal page of product tiles takes `/`. One
       release, one `CHANGELOG.md` line, no behaviour change.

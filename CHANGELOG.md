@@ -9,6 +9,9 @@ Format: `## <label> — <date>` then one `- ` line per change. Keep lines concre
 what changed *for the team*, not how. Developer-only tooling doesn't need a line.
 Collect lines for the next version under `## Unreleased` and rename it when you ship.
 
+## v1.53.1 — Nov 17, 2026
+- On a project's schedule, scrolling sideways no longer lets a selected phase bar, a milestone or a holiday slide over the names on the left. The names stay on top.
+
 ## v1.53.0 — Nov 17, 2026
 - A project's Client is now picked from a dropdown of every client on the Clients page, so a client can't be misspelled or typed in twice under different names. A new client is added on the Clients page first. A project whose client isn't on the list yet keeps it and says so under the field until you pick one.
 
