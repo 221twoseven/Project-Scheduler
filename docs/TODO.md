@@ -66,8 +66,9 @@ is the log in §8.
 ## 0. Where we stand
 
 As of 2026-11-17: production (`main`) runs **v1.53.0**, promoted 2026-11-17
-(release/2026-11-17). `development` runs **v1.53.1**: a selected bar, milestones and holiday
-pills no longer slide over the project page's name column (item 83).
+(release/2026-11-17). `development` runs **v1.54.1**: department phases stop storing the
+department's name as their crew (v1.54.0, item 82), and a selected bar, milestones and
+holiday pills no longer slide over the project page's name column (v1.54.1, item 83).
 
 The newest work on production:
 - v1.53.0: a project's client is picked from a dropdown of the Clients list (item 81);
@@ -297,7 +298,8 @@ What the pilot can't start without.
         v1.15.1).
       - *Not in this item:* "flexible roles instead of fixed buckets" changes the data
         model. Today there are four fixed role columns (PM, Drafter, Project lead — Lead
-        fabricator until v1.30.0, tracker #18 — and Fabricators) plus a legacy `metalFab`.
+        fabricator until v1.30.0, tracker #18 — and Fabricators). The legacy `metalFab` was
+        deleted 2026-11-17 (item 29).
         That's Phase 8, §4 D10.
       [brief §7 Terminology]
 - [x] **2. Lock dates: give it one meaning, then explain it.** Confirmed P0 by user
@@ -1376,12 +1378,17 @@ record is each ticket's "Fix shipped" note and `CHANGELOG.md`):
         - *Ceiling:* `refs` is JSON, so SharePoint can't filter by it. At the D15 cutover it
           becomes the migration key (D10's target identity).
       [brief §8]
-- [ ] **29. Drop the dead columns** `metalFab`, `labels` and `checklist` (§7.2, L1040). A
+- [x] **29. Drop the dead columns** `metalFab`, `labels` and `checklist` (§7.2, L1040). Done
+      2026-11-17: the owner deleted all three columns. A
       deliberate cleanup now that D2 is lifted. The app stops writing them one release
       before the columns are deleted; milestone record. ⚠
       - [x] *Step 1:* the app no longer reads, writes or searches them. Shipped v1.51.2
         (PR #176, 2026-10-19). Suite `tests/test-v1512.js`.
-      - [ ] *Step 2, the owner (once v1.51.2 is on `main`):* set the Config key
+      - [x] *Step 2, the owner (once v1.51.2 is on `main`):* done 2026-11-17. "Ask everyone
+        to reload" was pressed 2026-11-11 (v1.51.3) and again 2026-11-17 (v1.53.0). Both
+        lists were exported to CSV and kept by the owner. No project held a `metalFab`
+        value (checked from the console), and `labels` / `checklist` held only `[]`. The
+        steps as written: set the Config key
         `update.minVersion` to `1.51.2` (Help ▸ App settings ▸ "Ask everyone to reload") so
         open tabs on an older build reload. **Wait a working day**, so laptops that were
         asleep wake, check and reload: a tab still on v1.51.1 can't save once the columns
@@ -1425,13 +1432,24 @@ record is each ticket's "Fix shipped" note and `CHANGELOG.md`):
         dry run first, like `scrubLegacyNames`.
       - Until then the backfill skips them (PR #187).
       - *Waits on:* nothing. Goes with item 28.
+      - [x] *The build:* Shipped v1.54.0 (PR #193, 2026-11-17). `assigneeFor` returns an
+        empty crew for those departments, as the edit dialog already saved. The readers were
+        already safe: Departments lanes, phase labels and search read the department; the
+        person filter, the People counts and the overbooking check skip non-people. The hover
+        card drops its empty crew line. Suite `tests/test-v1540.js`; record
+        `docs/Milestones/Phase-7-Pilot-Readiness/2026-11-17-dept-crews.md`.
+      - [ ] *The owner, once v1.54.0 is on `/preview/`:* run `tidyDeptCrews()` in the
+        console (a dry run that lists every phase it would change), then
+        `tidyDeptCrews(true)`. A dash on a Project Management or Main Shop Fab phase means
+        "nobody"; cleared, that phase follows the project's team like any other unowned
+        phase.
 - [x] **83. The project page's name column stays on top** (P1 bug, owner's screenshot,
-      2026-11-17). Shipped v1.53.1 (PR #194, 2026-11-17). Scrolled sideways, a selected
+      2026-11-17). Shipped v1.54.1 (PR #194, 2026-11-17). Scrolled sideways, a selected
       phase bar ran over the names on the left of the project-page Gantt, and so did
       milestones, notes, holiday pills and the Today and deadline lines. Each row was its own
       layer, so the name cell lost to anything drawn above it. Now the chart body is one
       layer and the name column sits on top of everything in it. CSS only. Suite
-      `tests/test-v1531.js`; record
+      `tests/test-v1541.js`; record
       `docs/Milestones/Phase-7-Pilot-Readiness/2026-11-17-name-column-on-top.md`.
 - [ ] **49. The Systems portal and the Timeline move (D4's reshape PR).** Timeline moves
       from `/` to `/timeline/`, and a static portal page of product tiles takes `/`. One
@@ -2163,10 +2181,11 @@ How to read the tags at the end of an entry:
       either one merges them. (The v1.x "fires with item 8" wording was stale: v1.1.0
       didn't touch it, and the v1.8.0 / v1.11.0 permission checks touched both without
       merging.) [L1026]
-- [ ] **Dead columns kept alive.** `metalFab` and the to-do fields `labels` / `checklist`
+- [x] **Dead columns kept alive.** `metalFab` and the to-do fields `labels` / `checklist`
       (`todoToFields`) are unused schema, kept for the colleague app (`metalFab` still
       round-trips and is searchable). D2 lifted 2026-09-24, so dropping them is item 29, a
-      deliberate Phase 8 cleanup. [L1040]
+      deliberate Phase 8 cleanup. [L1040] Closed 2026-11-17: item 29 is done, and the
+      columns are deleted.
 - [ ] **The quick-edit popover lacks Duplicate and Pin.** It has the data fields and
       Delete; Duplicate and Pin are only in the inspector. Gate: shop use asking —
       **fired by brief §1 / §7** (make Duplicate visible); handled as item 7. [L1044]

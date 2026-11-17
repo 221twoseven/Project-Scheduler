@@ -501,7 +501,7 @@ The project-page Gantt (`#npv-body`) is its own stacking context (`isolation:iso
 its own ladder: tint −1 · rows auto (never their own layer) · envelope 1 · bars 2 ·
 selected and dragged bar 3, hover crosshair 3 (later in the page, so on top) · Today,
 deadline 4 · notes, holiday pills 5 · milestones 6 · **name column 8** · reorder drop line 9. Nothing the chart draws outranks the name
-column (item 83, `tests/test-v1531.js`).
+column (item 83, `tests/test-v1541.js`).
 
 ### 5.6 Breakpoints
 

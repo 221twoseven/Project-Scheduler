@@ -1,10 +1,10 @@
-/* v1.53.1 — item 83: on the project-page Gantt, a selected bar, milestones, notes, Today,
+/* v1.54.1 — item 83: on the project-page Gantt, a selected bar, milestones, notes, Today,
    the deadline and holiday pills slid OVER the sticky name column once the chart scrolled.
    Each row was its own z1 stacking layer, so inside it a selected bar (z4) beat the name
    cell (z3), and every marker drawn beside the rows (z4-6) beat all of them. jsdom has no
    layout, so this checks the stylesheet: the name column outranks every chart layer, and
    no rule makes a row its own layer again.
-   Run: node tests/test-v1531.js index.html  (or via tests/run.js) */
+   Run: node tests/test-v1541.js index.html  (or via tests/run.js) */
 const {suite}=require('./harness');
 const {src,ok,done}=suite();
 

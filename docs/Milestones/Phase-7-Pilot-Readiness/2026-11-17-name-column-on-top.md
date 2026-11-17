@@ -1,4 +1,4 @@
-# The project page's name column stays on top — v1.53.1 (2026-11-17)
+# The project page's name column stays on top — v1.54.1 (2026-11-17)
 
 **TODO item 83** (owner's screenshot, 2026-11-17). PR #194.
 
@@ -13,7 +13,7 @@ The cause: each row was drawn as its own layer. Inside a row the selected bar ou
 name cell, and everything drawn across the rows (markers, Today, holidays) outranked every
 row, names included.
 
-v1.53.1 draws the chart body as one layer and puts the name column at the top of it. Bars,
+v1.54.1 draws the chart body as one layer and puts the name column at the top of it. Bars,
 markers and lines now slide under the names. Nothing else moved: the Vivid months tint still
 sits under the rows, Today still washes over bars, and the reorder drop line still crosses the
 name column. CSS only, no data or behaviour change.
@@ -28,10 +28,10 @@ name column. CSS only, no data or behaviour change.
 
 ## Checks
 
-`tests/test-v1531.js` reads the stylesheet (the test browser has no layout): the name column
+`tests/test-v1541.js` reads the stylesheet (the test browser has no layout): the name column
 outranks every layer the chart draws, no rule makes a row its own layer again, the chart body
 is one layer, the tint stays under the rows, and bars stay under the markers as before. It
-fails 18 of its 21 checks on v1.53.0.
+fails 18 of its 21 checks on v1.54.0.
 Checked by hand in a browser: a selected bar, a milestone and a holiday pill scrolled under
 the names, with and without Vivid months.
 
