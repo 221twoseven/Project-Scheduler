@@ -50,8 +50,8 @@ as the phase runs.
 - Every milestone gets a record in `docs/Milestones/Phase-7-Pilot-Readiness/`; every
   deliberate skip gets a §7 line with its gate.
 
-Last reviewed: 2026-11-17 — the promotion audits for v1.51.3 → v1.53.0 and v1.53.0 → v1.54.1
-reaching `main` (log in §8). Before that, 2026-11-10 — the promotion audit for v1.51.1 → v1.51.3. Before that, 2026-10-19 — the promotion audits for v1.48.5 → v1.51.0 and
+Last reviewed: 2026-11-17 — the promotion audits for v1.51.3 → v1.53.0, v1.53.0 → v1.54.1 and
+v1.54.1 → v1.55.1 reaching `main` (log in §8). Before that, 2026-11-10 — the promotion audit for v1.51.1 → v1.51.3. Before that, 2026-10-19 — the promotion audits for v1.48.5 → v1.51.0 and
 v1.51.0 → v1.51.1. Before that, 2026-10-15 — the promotion audit for v1.48.1 → v1.48.5, after a full audit the
 same day. Before that, 2026-10-13 — the promotion audit for v1.45.1 → v1.48.1 reaching `main`. Before that, 2026-10-09 — the promotion audits for v1.43.0 → v1.44.3 and v1.44.3 →
 v1.45.1. Before that, 2026-10-08 — D15 (data platform) reassessed: Dataverse and Azure SQL + API
@@ -65,13 +65,17 @@ is the log in §8.
 
 ## 0. Where we stand
 
-As of 2026-11-17: production (`main`) runs **v1.54.1**, promoted 2026-11-17
-(release/2026-11-17b). `development` runs **v1.56.0**: the Systems page takes the site's
-root and Timeline moves to `/timeline/` (item 49). Before it, the name-matching helpers
-retired and the People merge moves records by ID (v1.55.0, item 28 (b)), and a long
-Changelog entry folds after its first four lines (v1.55.1, item 84).
+As of 2026-11-17: production (`main`) runs **v1.55.1**, promoted 2026-11-17
+(release/2026-11-17c). `development` runs **v1.56.0**: the Systems page takes the site's
+root and Timeline moves to `/timeline/` (item 49). **Held from production** (owner,
+2026-11-17) until launch 1 (§2: the Systems page with the shell and the Clients app), so
+promotions wait for it; a fix production needs meanwhile is built from `main` and merged
+back into `development`.
 
 The newest work on production:
+- v1.55.1: a long Changelog entry folds after its first four lines (item 84);
+- v1.55.0: the name-matching helpers retire, and the People merge moves records by ID
+  (item 28 (b));
 - v1.54.1: a selected bar, milestones and holiday pills no longer slide over the project
   page's name column (item 83);
 - v1.54.0: department phases stop storing the department's name as their crew (item 82);
@@ -101,7 +105,7 @@ Before that:
 Earlier: reporter answers show in Open Issues (item 58); Protect dates (item 2: drags
 never change dates).
 
-Phase 7 has shipped v1.24.0 → v1.54.1 so far.
+Phase 7 has shipped v1.24.0 → v1.55.1 so far.
 `CHANGELOG.md` is the release-by-release record.
 
 ## 1. North star — Systems
@@ -204,6 +208,8 @@ number is given when it ships. Proposed:
 | 2 | 25 (saved views follow the person ⚠ `savedViews`; Lock dates remembered per user), 7 (repeat work easier to find), 8 (label the department rollup band) |
 | Seam (no release) | 48 (the storage seam), eight behaviour-neutral PRs interleaved after batch 1; PRs 1–2 first, since item 51's Azure spike waits on them |
 | 3 | 5 (date certainty ⚠ `dateCertainty`), 6 (last update shown, stale flag) |
+| Launch 1 — Clients (owner, 2026-11-17) | 49 (the Systems page, on `development` as v1.56.0), 85 (the shared `common/` module), 52 step 4 (the shell), 86 (the Clients app). One promotion; the People card stays greyed |
+| Launch 2 — People | 87 (the People app) |
 | Office (Phase 8) | Office's own releases, in project-cycle order: 45 (job lead / forecast), 44 (estimate), 42 (cost-code generation), 43 (job creation with the QuickBooks / TCP hand-off) |
 | Office (Phase 9) | 11 (closeout and billing states ⚠), the last step of the cycle; moved out of the pilot 2026-09-29 |
 | As they resolve | 3 (tour loop: reproduce, then fix), 10 (automatic Complete vs closeout), 19–24 |
@@ -238,7 +244,8 @@ or the named decision is taken.
     Clients as products over the tiered lists; Office (items 11, 13). D6 Design Resources
     is tabled (owner, 2026-09-29).
 - **Office is the next new product, built in project-cycle order — ruled 2026-09-29**
-  (§1). Each step waits on the ones before it:
+  (§1). *Reordered 2026-11-17 (owner):* the Clients and People apps (items 86, 87) go
+  first, while Office waits on D1 and item 14. Each step waits on the ones before it:
   - Item 45 job lead waits on D1 (the registry) and the Clients registry.
   - Item 44 estimate waits on item 45 and the Master Project Tracker material (§5).
   - Item 42 cost codes waits on item 13's inventory, D1 and item 28.
@@ -1499,6 +1506,13 @@ record is each ticket's "Fix shipped" note and `CHANGELOG.md`):
       - *The owner:* add the `/timeline/` and `/preview/timeline/` redirect URIs *before*
         merging (`SETUP.md`). Keep the old `/` and `/preview/` ones until v1.56.0 has been
         on production for a working day, then they can go.
+      - *Held from production (owner, 2026-11-17):* "hold this back from production until
+        we're ready to push out a larger, more complete update, rather than a piece-meal
+        half-baked version." v1.55.1 was promoted just before it (release/2026-11-17c). It
+        goes out as launch 1 (owner, 2026-11-17): the Systems page with the shell (item 52
+        step 4), the shared module (item 85) and the Clients app (item 86), so no card
+        points at a page Timeline already has. Launch 2 is the People app (item 87). §2's
+        batches table has both.
       - [ ] *Clean-up, a working day after v1.56.0 reaches production:* the owner removes the
         old `/` and `/preview/` redirect URIs; Claude drops the root `msal-browser.min.js`
         and `fonts/BrNStdBd.otf` lines from the deploy workflow's lists (on both branches).
@@ -1531,6 +1545,85 @@ record is each ticket's "Fix shipped" note and `CHANGELOG.md`):
       - *Waits on:* item 48; the owner's answers to the review's questions 1–3; D15 (it
         decides how much of the provisioning work is needed).
       [`docs/Architecture-Review-Storage.md` §2–§4]
+
+### Queued — the Clients and People apps, before Office (owner, 2026-11-17)
+
+The owner's rulings of 2026-11-17: the Systems page goes to production only when its cards
+lead somewhere new, so it ships with the shell and a real Clients app (launch 1), then the
+People app (launch 2); each app takes its page out of Timeline. Both go ahead of Office,
+which waits on D1 and item 14 meanwhile. The People app keeps today's fields and who sees
+them. These items are the plan for the owner to review: nothing here is built, and items 85
+to 87 are architecture, so each needs the owner's go before code.
+
+- [ ] **85. The shared module, `common/`** (launch 1). ⚠ Architecture. A second product
+      needs the sign-in and data code Timeline has, so that code moves into one shared folder
+      that every product loads. D4 planned this for when product #2 starts.
+      - *What moves:*
+        - sign-in: MSAL, the token calls, the expired-sign-in prompt;
+        - the SharePoint data layer: `store`, paging, the site lookup, the one error rule;
+        - toasts and the sync pill;
+        - the admin and viewer-grant checks;
+        - the update check;
+        - the `--ts-*` tokens and the shell's CSS.
+
+        `msal-browser.min.js` moves to `common/`. Timeline loads `../common/common.js` and
+        `../common/common.css`, and so does each app.
+      - *Files:*
+        - new `common/common.js`, `common/common.css`, `common/msal-browser.min.js`;
+        - `timeline/index.html`: the moved code goes, two tags come in;
+        - `tests/harness.js`: loads the shared file into jsdom;
+        - `deploy-pages.yml`'s lists: to `main` first, the way PR #200 did.
+      - *Risks:*
+        - A bug in the shared file breaks every product at once.
+        - Timeline stops being a single file: it becomes one file plus `common/`.
+        - Pages caches each file for up to 10 minutes, so a new page could meet an old shared
+          file. The tags carry the version (`common.js?v=…`), so the two always load as a pair.
+        - SharePoint and Entra don't change.
+      - *Safety net:* all of Timeline's suites run through the shared file from the first PR.
+      - *Rollback:* revert the PR. No list or Entra setting changes.
+      - *Not chosen:* a copy of the code inside each app. Two copies of sign-in and saving
+        would drift apart.
+- [ ] **86. The Clients app** (launch 1). ⚠ Architecture, on item 85. Timeline's Clients
+      page becomes its own product at `clients/`, built to the Clients wireframe
+      (`design/wireframes/`), and leaves Timeline.
+      - *It keeps what the page does today:*
+        - the client list with aliases;
+        - add, edit and remove;
+        - how many projects carry each client, read from Projects (by stable ID where a
+          project has one);
+        - admin-only, as today.
+      - *From the wireframe, only what exists:* the header, a left rail listing Clients alone
+        (Contacts, Reports and Settings wait until they're built), the list and the record.
+        Its wording goes to the owner before building.
+      - *Timeline:* Company Data ▸ Clients and `#/clients` go; an old `#/clients` link
+        forwards to `../clients/`. The client dropdown (item 81) keeps reading the list, and
+        its "not on the list" note links to the app.
+      - *Systems page:* the Clients card points at `clients/`. The People card is greyed
+        until launch 2, so no card points into Timeline.
+      - *The owner:* add the `/clients/` and `/preview/clients/` SPA redirect URIs before the
+        merge.
+      - *Data:* no schema change. A rename already reaches projects through their stable IDs
+        (item 28).
+      - *Rollback:* revert. The Clients list is untouched.
+- [ ] **87. The People app** (launch 2). ⚠ Architecture, on item 85. Timeline's People page
+      becomes its own product at `people/`, built to the People wireframe, and leaves Timeline.
+      - *Today's fields, and who sees them, exactly* (owner, 2026-11-17). HR-only fields and
+        new tabs wait for item 26's tiers and item 27's split.
+      - *It keeps:* the directory, the record and its editor, time off, the Employee Contacts
+        import (only the mapped fields, item 9), the Team-membership suggestions, the phone
+        tidy, and the merge.
+      - *From the wireframe, only what exists:* the header, a left rail listing only built
+        sections, the directory and the record. Its wording goes to the owner first.
+      - *Timeline:* Company Data ▸ People and `#/people` go, forwarding to `../people/`.
+        Crew pickers, people lanes and availability keep reading Staff.
+      - *A decision before building:* the merge rewrites Timeline's projects, phases and
+        to-dos (their names and refs). Under §1's rule each product changes only its own
+        data. Either the People app keeps doing it (it repoints references; it creates and
+        deletes nothing), or the merge only retires the duplicate and Timeline repoints on
+        its next load.
+      - *The owner:* add the `/people/` and `/preview/people/` SPA redirect URIs before the
+        merge.
+      - *Rollback:* revert. The Staff list is untouched.
 
 ### Queued — Office, the next product, in project-cycle order (owner, 2026-09-29) [brief §6, §8.4–8.6; vision]
 
@@ -2560,6 +2653,21 @@ How to read the tags at the end of an entry:
   number.
 
 **Log, newest first:**
+
+- 2026-11-17: **v1.54.1 → v1.55.1 promoted to `main`** (release/2026-11-17c), cut from
+  `development` just before PR #201 (item 49, the Systems page). The owner holds item 49
+  back from production until a larger, more complete update, so this promotion takes the
+  two releases ahead of it.
+  - v1.55.0 is item 28 (b), name matching retired (PR #198), ticked. The owner's
+    `backfillRefs()` dry run after it lists only the four "Daniel" fields.
+  - v1.55.1 is item 84, the folding Changelog entry (PR #199), ticked.
+  - *Workflows:* `deploy-pages.yml` on `main` changed by PR #200 (no release): it publishes
+    both the current layout and item 49's. The same file reaches `development` with #201.
+  - *Tracker:* no change. #41 (item 67) and #12 (item 40) stay on hold.
+  - *Schema:* no change. The owner added the `/timeline/` and `/preview/timeline/` redirect
+    URIs for item 49 (Entra, not schema).
+  - *Branches:* `main`, `development`, this release branch, and `feat/49-systems-portal`
+    (PR #201, open into `development`).
 
 - 2026-11-17: **v1.53.0 → v1.54.1 promoted to `main`** (release/2026-11-17b). This is the
   day's second promotion, held until v1.54.1 was in so that production moved once more
