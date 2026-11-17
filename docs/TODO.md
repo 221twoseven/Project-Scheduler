@@ -1357,6 +1357,11 @@ record is each ticket's "Fix shipped" note and `CHANGELOG.md`):
           in a crew slot ("CNC", "Painting", the old "Finishing") or a "—", which mean the
           department or nobody. The matcher now skips those (PR #187, no release: only the
           dry run's list changes). The rest go to the owner by name.
+          2026-11-17: the owner identified four people names; a console `scrubNames` run
+          renames them. A bare "Daniel" (two Daniels on People; 4 fields on the Harlequin
+          Design – Ralph Lauren and Demo Booths projects) stays unlinked for now, because
+          the person who knows is away. It keeps working by name, and (b) treats it as a
+          known leftover until someone names him.
         - *(b) Once the dry run shows nothing unmatched:* `canonName`'s matching and
           `scrubLegacyNames` retire, and the People merge repoints IDs.
         - *Not in it:* the stamps (`createdBy`, `completedBy`, `updatedBy`, `confirmedBy`,
