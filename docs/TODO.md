@@ -1426,7 +1426,7 @@ record is each ticket's "Fix shipped" note and `CHANGELOG.md`):
       - Until then the backfill skips them (PR #187).
       - *Waits on:* nothing. Goes with item 28.
 - [x] **83. The project page's name column stays on top** (P1 bug, owner's screenshot,
-      2026-11-17). Shipped v1.53.1 (PR #193, 2026-11-17). Scrolled sideways, a selected
+      2026-11-17). Shipped v1.53.1 (PR #194, 2026-11-17). Scrolled sideways, a selected
       phase bar ran over the names on the left of the project-page Gantt, and so did
       milestones, notes, holiday pills and the Today and deadline lines. Each row was its own
       layer, so the name cell lost to anything drawn above it. Now the chart body is one
