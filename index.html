@@ -673,17 +673,24 @@ body.viewer .pg-rq:disabled{display:none} /* locked viewers lose the box with th
 .npv-we{position:absolute;top:0;bottom:0;background:#EEF1F5;pointer-events:none}
 body.vivid .npv-we{display:none} /* v1.0.2: no weekend strips over the vivid tint (obj 13) */
 /* v1.6.2: the axis's sticky gutter mask (see npvRender) — above the day columns and
-   labels (z2), below nothing that matters; the row gutters stay their own z3 cells. */
+   labels (z2), below nothing that matters. The row name cells are z8 in #npv-body's own
+   stacking context (item 83). */
 .npv-axgut{position:sticky;left:0;height:100%;background:#FBFDFF;z-index:3;
   border-right:1px solid #EDF2F7;pointer-events:none}
-.npv-body{position:relative}
+/* v1.54.1 (item 83): the body is one stacking context and the rows are not, so the
+   sticky name column (z8) sits above everything the chart draws. Rows used to be their
+   own z1 layers, which let a selected bar and every marker scroll over the names. The
+   old order is kept below the names: tint -1 (was 0, still under the rows) < envelope 1
+   < bars 2 < selected/dragged bar 3 = hover crosshair 3 (later in the DOM, so on top)
+   < Today, deadline 4 < notes, holiday pills 5 < milestones 6 < names 8 < drop line 9. */
+.npv-body{position:relative;isolation:isolate}
 .npv-row{position:relative;height:34px}  /* NPV_ROWH in the script must match */
-.npv-row:nth-child(odd){background:rgba(255,255,255,.35)} /* v1.6.2: translucent so the z0 weekend/tint layer reads through (same trick Vivid uses); was the visually identical #FCFDFE */
-.npv-gut{position:sticky;left:0;z-index:3;width:var(--npv-gut,150px);height:100%;display:flex;align-items:center;padding:0 8px;font-size:var(--fs-fine);font-weight:600;color:#475569;background:#fff;border-right:1px solid #EDF2F7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.npv-row:nth-child(odd){background:rgba(255,255,255,.35)} /* v1.6.2: translucent so the weekend/tint layer (z-1 since item 83) reads through (same trick Vivid uses); was the visually identical #FCFDFE */
+.npv-gut{position:sticky;left:0;z-index:8;width:var(--npv-gut,150px);height:100%;display:flex;align-items:center;padding:0 8px;font-size:var(--fs-fine);font-weight:600;color:#475569;background:#fff;border-right:1px solid #EDF2F7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .npv-row:nth-child(odd) .npv-gut{background:#FCFDFE}
 .npv-bar{position:absolute;height:24px;top:5px;border-radius:4px;cursor:grab;display:flex;align-items:center;padding:0 6px;font-size:var(--fs-fine);font-weight:600;white-space:nowrap;overflow:hidden;z-index:2;user-select:none}
 .npv-lbl{margin-left:5px;min-width:0;overflow:hidden;text-overflow:ellipsis} /* v1.36.0 (#4): shrinks and ellipsises when the label is parked near the bar's end */
-.npv-bar.dragging{cursor:grabbing;opacity:.85;z-index:6}
+.npv-bar.dragging{cursor:grabbing;opacity:.85;z-index:3} /* over other bars, under markers (item 83) */
 .npv-bar.manual{box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.85)}
 .npv-hdl{position:absolute;left:0;top:0;bottom:0;width:8px;cursor:ew-resize}
 .npv-hdl.r{left:auto;right:0}
@@ -713,7 +720,7 @@ body.vivid .npv-we{display:none} /* v1.0.2: no weekend strips over the vivid tin
 .npv-body.reordering .npv-bar{pointer-events:none}
 /* v1.47.0 (item 7): the timeline's ⋯ hint on project-page bars too — right-click holds Duplicate and the adds */
 .npv-bar:hover::after{content:'⋯';position:absolute;right:4px;top:50%;transform:translateY(-50%);font-weight:800;font-size:12px;opacity:.55;pointer-events:none}
-.npv-drop{position:absolute;left:0;right:0;height:2px;background:var(--acc);z-index:7;pointer-events:none}
+.npv-drop{position:absolute;left:0;right:0;height:2px;background:var(--acc);z-index:9;pointer-events:none} /* above the z8 name column: the drop line crosses it */
 .npv-gut .npv-grip{color:#C3CEDC;margin-right:5px;font-size:var(--fs-fine);letter-spacing:-1px;flex-shrink:0}
 .npv-gut:hover .npv-grip{color:var(--acc)}
 
@@ -1137,7 +1144,7 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 .ag-empty{padding:22px 15px;text-align:center;font-size:11.5px;color:var(--ts-muted);line-height:1.6}
 
 /* --- selection --- */
-.npv-bar.pick{box-shadow:0 0 0 2px #fff,0 0 0 4px var(--acc);z-index:4}
+.npv-bar.pick{box-shadow:0 0 0 2px #fff,0 0 0 4px var(--acc);z-index:3} /* over other bars, under markers (item 83) */
 .npv-row.pickrow .npv-gut{background:#EFF5FC;color:var(--acc)}
 /* The hover crosshair: a faint column under the cursor so it's obvious the canvas is live
    and right-clickable. Context menus are invisible until you try one. */
@@ -1244,8 +1251,7 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 /* Only calendar mode painted the month/week tint, so the Tint button looked dead
    while the Gantt was showing. */
 .npv-tintcol,.npv-qcol{position:absolute;top:0;bottom:0;pointer-events:none;z-index:0}
-.npv-tintl{position:absolute;left:0;top:0;right:0;bottom:0;pointer-events:none;z-index:0}
-.npv-body .npv-row{z-index:1}
+.npv-tintl{position:absolute;left:0;top:0;right:0;bottom:0;pointer-events:none;z-index:-1} /* under the rows; see .npv-body (item 83) */
 .npv-body.tinted .npv-row{background:transparent}
 .npv-body.tinted .npv-row:nth-child(odd){background:rgba(255,255,255,.30)}
 .npv-body.tinted .npv-row .npv-gut{background:#fff}
@@ -1879,7 +1885,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.53.0'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.54.1'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -2415,7 +2421,35 @@ function assigneeFor(p,deptId,otherLabels){
   if(d&&d.roster)return '';
   if(d&&d.freeText)return (otherLabels&&otherLabels[deptId])||'Other';
   if(d&&isEndDept(d.id))return []; /* crew array from day one (v1.20.6) — the legacy 'Installation' string crewOf() still tolerates */
-  return d.name;
+  /* v1.54.0 (item 82): a shop department with no roster (CNC, Painting…) starts with no crew,
+     the way the edit dialog already saves one. It used to store the department's own name
+     here, so the crew field held a label instead of people, and the label went stale when a
+     department was renamed ("Finishing"). Lanes, labels and search read the department. */
+  return '';
+}
+/* Item 82's one-time tidy for rows saved before v1.54.0: a crew slot that holds a department's
+   or group's name, or a dash, means the department or nobody, so it is cleared; people stay.
+   From the browser console, signed in:
+     tidyDeptCrews()      → dry run: prints and returns every phase it would change
+     tidyDeptCrews(true)  → saves them through the normal path (undo toast, one retry)
+   Free-text ("Other") departments keep their label: there it is the bar's name. */
+function tidyDeptCrews(apply){
+  const report=[];
+  const tasks=ST.tasks.map(t=>{
+    const d=deptById(t.department);
+    if(d&&d.freeText)return t;
+    const c=crewOf(t),keep=c.filter(n=>!notPerson(n)); /* a dash has no letters: notPerson */
+    if(keep.length===c.length)return t;
+    const assignee=isEndDept(t.department)?keep:keep.join(', ');
+    report.push({phase:phaseLabel(t)+' · '+((projById(t.projectId)||{}).name||'—'),
+      before:Array.isArray(t.assignee)?t.assignee.join(', '):String(t.assignee),after:Array.isArray(assignee)?assignee.join(', '):assignee});
+    return{...t,assignee};
+  });
+  if(console.table&&report.length)console.table(report);
+  console.log('tidyDeptCrews: '+report.length+' phase'+(report.length===1?'':'s')+' to tidy'
+    +(report.length&&!apply?' — dry run, nothing written. tidyDeptCrews(true) saves them.':apply&&report.length?' — saved.':'.'));
+  if(apply&&report.length)saveState({projects:ST.projects,tasks});
+  return report;
 }
 /* Phases chain backward from the deadline; departments inside a phase run in parallel.
    Shared by generateSchedule and scheduleNewDepts — one list, so they cannot drift. */
@@ -5104,7 +5138,7 @@ function showTooltipTask(t,ev,hiNode){
     }).join('')+'</div>';
   }
   el.innerHTML='<div class="tt-title">'+esc(p?p.name:'?')+' — '+esc(t.label&&String(t.label).trim()?phaseLabel(t)+' · '+deptName:deptName)+'</div>'
-    +'<div class="tt-dim">'+esc(assigneeText(t))+'</div>'
+    +((who=>who?'<div class="tt-dim">'+esc(who)+'</div>':'')(assigneeText(t))) /* v1.54.0 (item 82): no empty crew line */
     +'<div class="tt-dim">'+fmtNice(t.startDate)+' → '+fmtNice(t.endDate)+' · '+days+'d</div>'
     +(t.notes?'<div class="tt-notes">'+esc(t.notes)+'</div>':'')
     +(CONFLICTS.has(t.id)?(()=>{const n=Math.max(1,conflictCount(t));
@@ -12376,6 +12410,8 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.54.1",d:"Nov 17, 2026",n:["On a project's schedule, scrolling sideways no longer lets a selected phase bar, a milestone or a holiday slide over the names on the left. The names stay on top."]},
+ {v:"v1.54.0",d:"Nov 17, 2026",n:["Shop departments that are scheduled as a department (CNC, Painting, Printing and the rest) no longer put the department's name in the crew, where it read like a person. A Painting phase no longer says \"Finishing\" under it, and its hover card skips the empty crew line. People you assign to those phases show as before."]},
  {v:"v1.53.0",d:"Nov 17, 2026",n:["A project's Client is now picked from a dropdown of every client on the Clients page, so a client can't be misspelled or typed in twice under different names. A new client is added on the Clients page first. A project whose client isn't on the list yet keeps it and says so under the field until you pick one."]},
  {v:"v1.52.0",d:"Nov 11, 2026",n:["Renaming someone on the People page, or a client on the Clients page, now updates that name on every project, phase and to-do that already lists them, instead of leaving the old name behind. Every project, phase and to-do now remembers which person and which client each of its names means."]},
  {v:"v1.51.3",d:"Nov 9, 2026",n:["No more stacked Microsoft login windows. When your sign-in expires in an open tab (overnight, usually), the app first signs you back in silently; only if that fails does it show one \"Your sign-in expired\" message on the page itself, and the only login window is the one its button opens. Anything you changed before signing back in saves right after, and a signed-out tab sits quietly instead of retrying in the background."]},

@@ -35,6 +35,16 @@ Once v1.51.2 is on `main`:
 (accepted, D2). **Rollback:** before step 2, ship v1.51.1 again. After it, re-create the
 columns; their old values are gone, but nothing read them.
 
+## Step 2 done (2026-11-17)
+
+The owner deleted all three columns on 2026-11-17.
+
+- "Ask everyone to reload" was pressed on 2026-11-11 (v1.51.3) and again on 2026-11-17 (v1.53.0), so no tab still sent the columns.
+- Both lists were exported to CSV first, and the owner keeps them.
+- No project held a `metalFab` value (checked from the console), so there was nothing to copy into Fabricators.
+- `labels` and `checklist` held only `[]`.
+- No automation touches either list.
+
 ## Checks
 
 `tests/test-v1512.js`: a loaded project carries no `metalFab`; real project and to-do saves send
