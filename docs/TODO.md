@@ -65,9 +65,10 @@ is the log in §8.
 
 ## 0. Where we stand
 
-As of 2026-11-11: production (`main`) runs **v1.51.3**, promoted 2026-11-10
-(release/2026-11-10). `development` runs **v1.52.0**: stable IDs, so a rename on People or
-Clients carries its projects, phases and to-dos (item 28 (a)).
+As of 2026-11-17: production (`main`) runs **v1.51.3**, promoted 2026-11-10
+(release/2026-11-10). `development` runs **v1.53.0**: stable IDs, so a rename on People or
+Clients carries its projects, phases and to-dos (v1.52.0, item 28 (a)), and a project's
+client is picked from the Clients list (v1.53.0, item 81).
 
 The newest work on production:
 - v1.51.3: an expired Microsoft sign-in shows one in-page prompt instead of stacking login
@@ -1349,13 +1350,23 @@ record is each ticket's "Fix shipped" note and `CHANGELOG.md`):
           2026-11-11. Suite `tests/test-v1520.js`; record
           `docs/Milestones/Phase-7-Pilot-Readiness/2026-11-11-stable-ids.md`. A rename
           carries only records that have refs, so the backfill comes next.
-        - [ ] *(a), the owner, once v1.52.0 is on `/preview/`:* run `backfillRefs()` in the
+        - [x] *(a), the owner, once v1.52.0 is on `/preview/`:* run `backfillRefs()` in the
           browser console, signed in, and send Claude the unmatched list; fix those names on
           People or Clients; then `backfillRefs(true)`, after hours.
           2026-11-17: the first dry run listed 96 names. Most were a department's own name
           in a crew slot ("CNC", "Painting", the old "Finishing") or a "—", which mean the
           department or nobody. The matcher now skips those (PR #187, no release: only the
           dry run's list changes). The rest go to the owner by name.
+          2026-11-17: the owner identified four people names; a console `scrubNames` run
+          renames them. A bare "Daniel" (two Daniels on People; 4 fields on the Harlequin
+          Design – Ralph Lauren and Demo Booths projects) stays unlinked for now, because
+          the person who knows is away. It keeps working by name, and (b) treats it as a
+          known leftover until someone names him.
+          Done 2026-11-17: the owner added the missing clients (Van Cleef & Arpels, Amplify,
+          Whitney Museum; Timeline Development's client is now TWOSEVEN), and
+          `backfillRefs(true)` wrote 99 records. Only the four "Daniel" fields remain.
+          Production (v1.51.3) doesn't write refs, so records created there stay unlinked
+          until v1.52.0+ is promoted; a later dry run picks them up.
         - *(b) Once the dry run shows nothing unmatched:* `canonName`'s matching and
           `scrubLegacyNames` retire, and the People merge repoints IDs.
         - *Not in it:* the stamps (`createdBy`, `completedBy`, `updatedBy`, `confirmedBy`,
@@ -1378,7 +1389,12 @@ record is each ticket's "Fix shipped" note and `CHANGELOG.md`):
         legacy crew text, so copy it into that project's Fabricators first, or tell Claude.
         Then delete `metalFab` from `ShopTimeline_Projects` and `labels` and `checklist`
         from `ShopTimeline_Tasks2`.
-- [ ] **81. A project's client must come from the Clients list** (owner, 2026-11-17). The
+- [x] **81. A project's client must come from the Clients list** (owner, 2026-11-17).
+      Shipped v1.53.0 (PR #189, 2026-11-17): a native dropdown of every client, A–Z with its
+      alias, "Pick a client" first. A dropdown can't take typed text, so the error became the
+      note under the field for a stored client that isn't on the list (owner's wording,
+      2026-11-17). With no client list at all it stays a typed field. Suite
+      `tests/test-v1530.js`; record `docs/Milestones/Phase-7-Pilot-Readiness/2026-11-17-client-from-list.md`. The
       Client field on the project page and the New Project draft is a text box with
       suggestions, so anything typed is saved. That's how client names with no Clients entry
       reached projects (item 28's first backfill dry run, 2026-11-17).

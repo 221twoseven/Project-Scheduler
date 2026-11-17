@@ -1879,7 +1879,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.52.0'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.53.0'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -3391,7 +3391,21 @@ function saveState(s){
    the SharePoint item id. Excel stays master for cost codes until a deliberate cutover. */
 const CLIENTS_KEY='shopTimelineClients';
 let CLIENTS=[],CLIENTS_OK=false;
-function clientOptions(){return CLIENTS.map(c=>'<option value="'+esc(c.name)+'"'+(c.alias?' label="'+esc(c.alias)+'"':'')+'>').join('');}
+/* v1.53.0 (item 81): a project's client comes from the Clients list, so nothing typed reaches
+   a project: a dropdown of every client, A–Z, its cost-code alias beside the name (VCA). New
+   clients are added on the Clients page (the owning product creates its data, §1). A project
+   whose client isn't on the list keeps showing it, with a note, until someone picks one. With
+   no list at all (ShopTimeline_Clients unreachable and nothing cached) it stays a typed field. */
+function clientField(cur){
+  cur=String(cur||'');
+  if(!CLIENTS.length)return '<input id="pp-client" value="'+esc(cur)+'" placeholder="Who it\'s for">';
+  const low=cur.trim().toLowerCase(),hit=CLIENTS.find(c=>c.name.trim().toLowerCase()===low),off=!!cur.trim()&&!hit;
+  const opts=[...CLIENTS].sort((a,b)=>a.name.localeCompare(b.name)).map(c=>'<option value="'+esc(c.name)+'"'
+    +(c===hit?' selected':'')+'>'+esc(c.name)+(c.alias?' · '+esc(c.alias):'')+'</option>').join('');
+  return '<select id="pp-client"><option value=""'+(cur.trim()?'':' selected')+'>Pick a client</option>'
+    +(off?'<option value="'+esc(cur)+'" selected>'+esc(cur)+'</option>':'')+opts+'</select>'
+    +(off?'<div class="ins-note">“'+esc(cur)+'” isn’t on the Clients list. Pick one from the list, or add it on the Clients page first.</div>':'');
+}
 async function loadClients(){
   try{
     const r=await store.list('client');
@@ -7773,10 +7787,8 @@ function ppInspector(){
     h+=ppSec('setup','Setup',
         '<div class="ins-f"><label>Project name</label><input id="pp-name" value="'
       +   esc((ROUTE.creating?(PP_FORM&&PP_FORM.name):p.name)||'')+'" placeholder="What the shop calls it"></div>'
-      /* N3: type-ahead fed by ShopTimeline_Clients (native datalist keeps free text
-         working, so projects whose client predates the list never break). The list
-         itself is managed under Company Data → Clients. */
-      + '<div class="ins-f"><label>Client</label><input id="pp-client" list="cl-dl" value="'+esc(p.client||'')+'" placeholder="Who it\'s for"><datalist id="cl-dl">'+clientOptions()+'</datalist></div>'
+      /* v1.53.0 (item 81): picked from ShopTimeline_Clients, never typed — clientField */
+      + '<div class="ins-f"><label for="pp-client">Client</label>'+clientField(p.client)+'</div>'
       + '<div class="ins-row">'
       + '<div class="ins-f"><label>Cost code</label><input id="pp-code" value="'+esc(p.jobCode||'')+'" placeholder="AB123"></div>'
       /* v1.26.0 (#20): a new job asks for the one date the layout builds backward from; once
@@ -12364,6 +12376,7 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.53.0",d:"Nov 17, 2026",n:["A project's Client is now picked from a dropdown of every client on the Clients page, so a client can't be misspelled or typed in twice under different names. A new client is added on the Clients page first. A project whose client isn't on the list yet keeps it and says so under the field until you pick one."]},
  {v:"v1.52.0",d:"Nov 11, 2026",n:["Renaming someone on the People page, or a client on the Clients page, now updates that name on every project, phase and to-do that already lists them, instead of leaving the old name behind. Every project, phase and to-do now remembers which person and which client each of its names means."]},
  {v:"v1.51.3",d:"Nov 9, 2026",n:["No more stacked Microsoft login windows. When your sign-in expires in an open tab (overnight, usually), the app first signs you back in silently; only if that fails does it show one \"Your sign-in expired\" message on the page itself, and the only login window is the one its button opens. Anything you changed before signing back in saves right after, and a signed-out tab sits quietly instead of retrying in the background."]},
  {v:"v1.51.1–v1.51.2",d:"Oct 19, 2026",n:["Ticking names in a crew list (the bar's popover or the panel below the chart) no longer jumps the list back to the top, and every tick counts, even several in a row on an install's full staff list."]},
