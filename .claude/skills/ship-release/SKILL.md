@@ -58,7 +58,8 @@ git switch -c fix/<slug> origin/development          # or feat/ style/ docs/
    - No "bug fixes" filler, and no line for developer-only tooling.
    - A version with nothing team-facing folds into the next entry's range (`v1.14–1.15`).
    - Collect lines under `## Unreleased` while working; rename the heading at ship.
-4. Run `npm run notes`. It regenerates the in-app list; never edit `RELEASE_NOTES` by hand.
+4. Run `npm run notes`. It regenerates the in-app list (never edit `RELEASE_NOTES` by hand)
+   and stamps `?v=APP_VER` on the `../common/` tags, so a new page never meets a cached old core.
    `test-v160` fails CI if this drifts.
 5. **`docs/TODO.md`, in the same commit:**
    - tick the item, `[x]`, with `Shipped vX.Y.Z (PR #N, <date>)`, or note what's left if
@@ -161,7 +162,8 @@ Don't poll CI yourself.
 
 - SharePoint list or column changes: deliver a column spec for the owner to apply.
 - Entra/auth changes: client IDs, scopes, redirect URIs.
-- Edits to `timeline/msal-browser.min.js`.
+- Edits to `common/msal-browser.min.js`. (Edits to `common/common.js` and `common.css` are
+  allowed, but every product loads them: run every product's suites.)
 - Changes to `.github/workflows/deploy-pages.yml`: it must stay identical on `main` and
   `development`.
 - `--no-verify`, force-push, or anything that bypasses the `main` ruleset.

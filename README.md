@@ -30,7 +30,7 @@ treat it as optional background, not a prerequisite.
 | Path | What it is |
 |---|---|
 | `timeline/index.html` | **Timeline, the company application — the primary implementation file.** |
-| `timeline/msal-browser.min.js` | MSAL auth library, vendored locally (not a CDN). Loaded by `timeline/index.html` as a sibling — must stay beside it. |
+| `common/` | What every Systems product shares: `common.js` (sign-in, the SharePoint data layer, toasts, the sync pill), `common.css` (the colour tokens, toasts, the sync pill) and `msal-browser.min.js`, the MSAL auth library vendored locally (not a CDN). Timeline loads them as `../common/`. |
 | `index.html` | The Systems page: a static page of product tiles at the site's root. It forwards old Timeline links to `timeline/`. |
 | `tests/` | jsdom regression suites (every `tests/test*.js`, run by `tests/run.js`) and the `harness.js` that boots a build with MSAL and `fetch` stubbed. See `tests/README.md`. |
 | `docs/` | Architecture reference, hosting/auth setup (`SETUP.md`), design language, and the backlog (`TODO.md`). Retired planning docs and the completed v1 backlog live in `docs/Archive/`; milestone records, one folder per development phase, in `docs/Milestones/`. |

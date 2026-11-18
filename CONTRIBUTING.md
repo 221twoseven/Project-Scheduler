@@ -78,7 +78,8 @@ Request.
 ## Making a change
 
 1. **Keep it small and reviewable.** Don't refactor unrelated working code unless asked.
-2. **Edit `timeline/index.html`** — the company app. Never touch `timeline/msal-browser.min.js`.
+2. **Edit `timeline/index.html`** — the company app. `common/` is shared by every product, so
+   change it only on purpose; never touch `common/msal-browser.min.js`.
 3. **`APP_VER`** is bumped in one place and shows everywhere the version appears — bump it
    when you ship a build. It follows semantic versioning: raise the last number for fixes
    and small releases (1.0.1 → 1.0.2), the middle number for feature drops (1.0.x → 1.1.0),

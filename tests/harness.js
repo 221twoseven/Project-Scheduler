@@ -15,11 +15,25 @@ function shiftDate(D,ymd){
 }
 global.Date=shiftDate(Date,TODAY);
 
+/* Item 85: a Timeline page loads common/ (MSAL, the shared core, the shared styles) by tag.
+   jsdom loads no files, so the harness inlines them where their tags sit: the build boots,
+   and `src` reads, as the one file did before the split. They come from the repo's common/
+   whatever the page's path, so a suite's temp copy of a build still finds them. Function
+   replacers, so a `$` in the shared code is never read as a replacement pattern. */
+const COMMON=path.join(__dirname,'..','common');
+function inlineCommon(html){
+  return html
+    .replace(/<link rel="stylesheet" href="\.\.\/common\/common\.css(?:\?v=[^"]*)?">/,
+      ()=>'<style>'+fs.readFileSync(path.join(COMMON,'common.css'),'utf8')+'</style>')
+    .replace(/<script src="\.\.\/common\/common\.js(?:\?v=[^"]*)?"><\/script>/,
+      ()=>'<script>'+fs.readFileSync(path.join(COMMON,'common.js'),'utf8')+'</script>');
+}
+
 function boot(file,opts){
   opts=opts||{};
-  let html=fs.readFileSync(file,'utf8');
+  let html=inlineCommon(fs.readFileSync(file,'utf8'));
   // strip the external msal script tag; we inject a stub instead
-  html=html.replace(/<script src="msal-browser\.min\.js"><\/script>/,'<script>'+msalStub()+'</script>');
+  html=html.replace(/<script src="(?:\.\.\/common\/)?msal-browser\.min\.js"><\/script>/,()=>'<script>'+msalStub()+'</script>');
 
   const dom=new JSDOM(html,{
     runScripts:'dangerously',
@@ -115,7 +129,9 @@ function suite(){
   /* item 78: normalize line endings — a Windows checkout (core.autocrlf) puts \r\n on disk,
      and the suites' source regexes match \{\n, so three suites failed locally but not in CI.
      Same trick test-todo.js already uses on TODO.md. */
-  return {FILE,src:fs.readFileSync(FILE,'utf8').replace(/\r\n/g,'\n'),
+  /* item 85: `src` is the build with common/ inlined (what boots); `raw` is the file as served. */
+  const raw=fs.readFileSync(FILE,'utf8').replace(/\r\n/g,'\n');
+  return {FILE,raw,src:inlineCommon(raw).replace(/\r\n/g,'\n'),
     ok(n,c,x){if(c){pass++;console.log('  PASS  '+n);}else{fail++;console.log('  FAIL  '+n+(x?'   ('+x+')':''));}},
     done(){console.log('\n'+'-'.repeat(46));console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');process.exit(fail?1:0);}};
 }

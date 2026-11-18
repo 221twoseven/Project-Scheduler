@@ -10,7 +10,7 @@
    Run: node tests/test-deploy-guard.js timeline/index.html  (or via tests/run.js) */
 const fs=require('fs'),path=require('path');
 const {suite}=require('./harness');
-const {FILE,src,ok,done}=suite();
+const {FILE,raw,ok,done}=suite(); /* raw: the page as served, with its common/ tags (item 85) */
 const ROOT=path.join(__dirname,'..');
 const yml=fs.readFileSync(path.join(ROOT,'.github/workflows/deploy-pages.yml'),'utf8');
 
@@ -24,7 +24,7 @@ ok('the guard checks every published page, each from its own folder',
 ok('the guard drops a link\'s #… and ?… part and reads a folder link as its index.html',
   yml.includes('f=${f%%#*}; f=${f%%\\?*}')&&yml.includes('*/) t="$d/${f}index.html"'));
 
-const pages=[['index.html',fs.readFileSync(path.join(ROOT,'index.html'),'utf8')],['timeline/index.html',src]];
+const pages=[['index.html',fs.readFileSync(path.join(ROOT,'index.html'),'utf8')],['timeline/index.html',raw]];
 for(const [p] of pages)ok(p+' is on every deploy list', lists.every(l=>l.includes(p)));
 
 /* the guard's own extraction: grep -oE '(src|href)="[^"]+"', strip the attribute, skip the schemes */
