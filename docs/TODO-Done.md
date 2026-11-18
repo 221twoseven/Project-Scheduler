@@ -11,7 +11,7 @@ release-by-release record.
       at a glance and its project history** (the owner's design review of 2026-11-18, item 90: "This
       menu should scroll independently. Client info should have current projects with
       at-a-glance info for each, project history (with names, cost codes and dates, team
-      assignments)."). Shipped v1.59.0 (PR #PRNUM, 2026-11-18). Each current project shows its
+      assignments)."). Shipped v1.59.0 (PR #211, 2026-11-18). Each current project shows its
       cost code, start and due dates, the phases running now and the next one, its status and
       its PM, lead and designer. The history lists every finished project, newest first, with
       its cost code, dates and whole team (the crew read from its fabricators and phases).
