@@ -30,7 +30,7 @@ Project rules and context for working in this repository. Read this before makin
   `APP_VER`, stamped by `npm run notes`; `tests/test-v1580.js` boots it in the harness.
 - **`index.html` at the root — the Systems page**: a static page of product tiles, no
   sign-in. It forwards old `#/…` and `#view=` links to `timeline/`. A new product gets a tile
-  here and a folder of its own (`people/`, `clients/`, `office/`, §4 D4).
+  here and a folder of its own (`people/`, `clients/`, `office/`; see "One folder per product" in `docs/Decisions.md`).
 - **`design/Design-Language.md` — the design system. Read it before any change that
   touches appearance or interaction.** If a change contradicts it, either follow the
   doc or update the doc in the same PR — never silently diverge.
@@ -42,13 +42,18 @@ Project rules and context for working in this repository. Read this before makin
   *what* to Design-Language's *why*), and the spec another Systems product or the future
   shared `common.css` copies from. A PR that adds a token, a recurring colour, or a component
   style updates its tables in the same PR.
-- **`docs/TODO.md` — the working backlog (Phase 7: pilot readiness, toward v2.0.0).**
-  North star, roadmap, the proposed build list, the open design decisions (§4), the
-  material still to gather, and the deferred/skipped ledger (§7). **§3 is the work queue
-  in priority order, and that order is the owner's approval:** take the top unchecked
-  item, or the one the owner names, and don't ask "what's next". Only ⚠ schema items
-  and architectural changes still need an explicit go (see "Change discipline").
-  **Every piece of work is a numbered §3 item before it starts** (owner, 2026-10-08):
+- **`docs/TODO.md` — the work, as a one-screen summary** (item 89, 2026-11-18): where we
+  stand, the launch in order ("Now"), who each open item waits on, what's next, later and
+  on hold — then each open item's notes, in the same order. **Its order is the owner's
+  approval:** take the top item Claude can do ("Now", then "Next"), or the one the owner
+  names, and don't ask "what's next". Only ⚠ schema items and architectural changes still
+  need an explicit go (see "Change discipline"). **Plain names, not codes** (owner,
+  2026-11-18): every line leads with what the work is; "(item N)" comes last, as a label;
+  decisions are named in words, never D-codes. Beside it: **`docs/TODO-Done.md`**
+  (finished items, the "closed with no item" table, the promotion audit log) and
+  **`docs/Decisions.md`** (what Systems is, the phases, every decision — open first — and
+  the data schema).
+  **Every piece of work is a numbered item before it starts** (owner, 2026-10-08):
   a plan that lives only in a review, a decision's "prepare regardless" list, a PR
   sequence or `docs/Automations.md` isn't tracked until it has an item, and a change
   that proposes new work adds its item in the same PR. The
@@ -56,7 +61,7 @@ Project rules and context for working in this repository. Read this before makin
   GitHub Issues (the private tracker) is the user-feedback loop only, worked through the
   `triage-issues` skill (`.claude/skills/triage-issues/`: spec comment → owner reply →
   fix); reports are folded
-  into §3 by hand, and kept in step by "Keeping `docs/TODO.md` true" below. The retired v1 and v1.x
+  into `docs/TODO.md` by hand, and kept in step by "Keeping `docs/TODO.md` true" below. The retired v1 and v1.x
   backlogs and all retired planning docs (UX audit, task briefs, proposals) live in
   **`docs/Archive/`** —
   history and rationale, not current state. **`reference/`** holds frozen material
@@ -70,7 +75,7 @@ Project rules and context for working in this repository. Read this before makin
   otherwise, and is promoted to `main` deliberately. **One short-lived branch per change**
   (`style/…`, `fix/…`, `feat/…`, `docs/…`), cut from `development` and merged back into it
   by pull request in order of readiness. No long-lived track branches (no "aesthetics"
-  branch beside a "functionality" branch): the two tracks — the §3 queue and the style
+  branch beside a "functionality" branch): the two tracks — the `docs/TODO.md` queue and the style
   guide's §13 steps — interleave through the one queue in `docs/TODO.md`.
 - **Pushes auto-deploy to GitHub Pages** via `.github/workflows/deploy-pages.yml`:
   `main` → `/`, `development` → `/preview/`. The workflow rebuilds the whole site from
@@ -91,7 +96,7 @@ the schema.
   Deliver the owner the exact spec (list, column, internal name, type, values); additive
   columns are routine (the app probes them live — the tristate pattern). A destructive
   change (rename, delete, type change, moving a store) gets a milestone record naming
-  what it breaks and how existing rows migrate. See `docs/TODO.md` §6.
+  what it breaks and how existing rows migrate. See "Data and schema" in `docs/Decisions.md`.
 - **Do not change Entra client IDs, tenant IDs, Graph permissions/scopes, redirect URIs,
   or the authentication architecture without explicit instruction.** These are tied to an
   external Entra app registration and shared expectations.
@@ -163,29 +168,35 @@ to go stale."** Three layers, from cheapest to most thorough:
 
 1. **Same PR.** A PR that ships, re-scopes, holds, declines or closes work updates
    `docs/TODO.md` in that PR:
-   - a shipped item is ticked `[x]` with `Shipped v<x.y.z> (PR #N, <date>)`;
-   - a hold gets a dated line in its item;
-   - a decline gets a §7.5 line;
-   - a close with no build gets a row in §3's "Shipped or closed with no §3 item" table;
-   - new work becomes an item before it starts (above).
+   - a shipped item is ticked `[x]` with `Shipped v<x.y.z> (PR #N, <date>)` and moves to
+     the top of `docs/TODO-Done.md`; its summary line goes;
+   - a hold gets a dated line in its item, and its summary line moves to "On hold";
+   - a decline or a close with no build gets a row in `TODO-Done.md`'s "Shipped or closed
+     with no item" table;
+   - new work becomes an item before it starts (above): a summary line and its notes;
+   - a limit deliberately left in place is a dated line in the item that left it. There is
+     no separate deferred ledger any more (the old one is frozen in `docs/Archive/`); a
+     limit someone later asks about comes back as a new item.
 
    The `ship-release` and `triage-issues` skills carry the exact steps. Triage's Step 3
-   reconciles the tracker with §3 on every run.
+   reconciles the tracker with `docs/TODO.md` on every run.
 2. **CI.** `tests/test-todo.js` fails the build when:
-   - §0 doesn't name the running `APP_VER`;
-   - two §3 items share a number;
-   - an "item N" outside the §8 log names no item;
-   - a ticked item's `Shipped vX` isn't a `CHANGELOG.md` release.
-3. **An audit at every promotion to `main`.** The `development → main` PR updates §0's
-   production version and checks the whole file against reality:
+   - "Where we stand" doesn't name the running `APP_VER`;
+   - two items share a number (across `TODO.md` and `TODO-Done.md`);
+   - a finished item is left in `TODO.md`, or an open one in `TODO-Done.md`;
+   - an "item N" names no item;
+   - a finished item's `Shipped vX` isn't a `CHANGELOG.md` release;
+   - `TODO.md` uses a decision code (D1–D15).
+3. **An audit at every promotion to `main`.** The `development → main` PR updates the
+   production version in "Where we stand" and checks the files against reality:
    - every `CHANGELOG.md` release since the last promotion has its item ticked, or a row
      in the table;
    - every tracker ticket's state matches its item;
    - every ⚠ spec awaiting creation is still listed as unconfirmed;
    - every open PR and branch is accounted for.
 
-   Fixes go in the same PR, and the audit is recorded in §8's log and the "Last reviewed"
-   line.
+   Fixes go in the same PR, and the audit is recorded in `TODO-Done.md`'s promotion audit
+   log.
 
 Write so it can't silently rot: no counts or version numbers in prose unless CI checks
 them. Point to the source instead (`CHANGELOG.md`, `tests/run.js`), and date any status
@@ -236,7 +247,7 @@ manages production data only (schedule, phases, assignments, milestones, notes) 
 hand its People page to its own product (Clients went first: `clients/`, v1.58.0, item 86).
 The portal exists since v1.56.0
 (item 49: the Systems page at `/`, Timeline at `/timeline/`); the other products aren't built
-yet. The definition is `docs/TODO.md` §1 and the rulings are §4 D4/D8. Until they are,
+yet. The definition and the rulings are in `docs/Decisions.md` ("What we're building", and the decisions on one folder per product and on the Company Data pages). Until they are,
 Timeline is the whole of the app that ships.
 
 A **client-only SPA**: `timeline/index.html` (one large file — `wc -l` has the count)

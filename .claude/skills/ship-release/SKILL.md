@@ -62,13 +62,16 @@ git switch -c fix/<slug> origin/development          # or feat/ style/ docs/
    and stamps `?v=APP_VER` on the `../common/` tags, so a new page never meets a cached old core.
    `test-v160` fails CI if this drifts.
 5. **`docs/TODO.md`, in the same commit:**
-   - tick the item, `[x]`, with `Shipped vX.Y.Z (PR #N, <date>)`, or note what's left if
-     it's only part-done;
-   - set §0 to the new version on the branch it lands on;
-   - add any follow-up the work turned up as a new item, or a §7 ledger line.
+   - a finished item: tick it, `[x]`, with `Shipped vX.Y.Z (PR #N, <date>)`, move its notes
+     to the top of `docs/TODO-Done.md` ("Finished since …") and take its line out of the
+     summary; a part-done item: note what's left in its notes and its summary line;
+   - set "Where we stand" to the new version on the branch it lands on;
+   - add any follow-up the work turned up as a new item: a summary line in the right section
+     (plain name first, "(item N)" last) and its notes in the same place below.
 
-   Work with no item gets one first (`CLAUDE.md`). `test-todo` fails CI when §0 doesn't
-   name `APP_VER`, when item numbers collide, or when a `Shipped vX` isn't a release.
+   Work with no item gets one first (`CLAUDE.md`). `test-todo` fails CI when "Where we
+   stand" doesn't name `APP_VER`, when item numbers collide, when a finished item is left in
+   `TODO.md`, when a `Shipped vX` isn't a release, or when `TODO.md` uses a decision code.
 
 ## 4. Evidence in a real browser (any visible change)
 
@@ -155,7 +158,7 @@ Don't poll CI yourself.
 - When the work came from the tracker, post the `**Fix shipped**` comment on the issue
   (the `triage-issues` skill, step 2a).
 - The TODO tick went in with the release (step 3.5). A `development → main` promotion PR
-  also updates §0's production version and runs the TODO audit in `CLAUDE.md`
+  also updates the production version in "Where we stand" and runs the TODO audit in `CLAUDE.md`
   ("Keeping `docs/TODO.md` true").
 
 ## Never without explicit approval

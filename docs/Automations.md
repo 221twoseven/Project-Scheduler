@@ -18,8 +18,8 @@ its entry. If it's turned off, mark it *retired* and keep the entry.
 | [Reply email](#reply-email) | Power Automate | Emails a new `/reply` to the person who filed the report, and tells them they can answer; emails them when their report is resolved | the owner | live since 2026-09-30; resolved branch live since 2026-10-09 (tracker README step 11) |
 | [Email reply in](#email-reply-in) | Power Automate | Sends the reporter's email answer to the tracker, where it becomes a comment on the ticket and in the app | the owner | live since 2026-10-09 (rebuilt; tracker README step 10) |
 | [New report out](#new-report-out) | Power Automate | Tells the tracker the moment a report is saved, so its issue opens within minutes | the owner | live since 2026-10-13 (tracker README step 12) |
-| 27 Events → Outlook | Power Automate | Syncs the company calendar list to Outlook | unknown | **undocumented**: TODO §5, item 12 |
-| 27 Employees (PTO) | Power Automate | PTO / availability automation | operations manager | **undocumented**: TODO §5 |
+| 27 Events → Outlook | Power Automate | Syncs the company calendar list to Outlook | unknown | **undocumented**: TODO.md "Material to gather", item 12 |
+| 27 Employees (PTO) | Power Automate | PTO / availability automation | operations manager | **undocumented**: TODO.md "Material to gather" |
 
 The last two rows existed before this page. They stay marked undocumented until their
 owner fills in an entry.

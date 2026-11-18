@@ -95,7 +95,7 @@ Rules:
   `ShopTimeline_Tasks2`, `ShopTimeline_Events`, `ShopTimeline_Clients`,
   `ShopTimeline_Config`, `ShopTimeline_Changelog`, `ShopTimeline_Feedback`. HR's
   `Employee Contacts` is read for the People-page import and never written.
-  Column specs: `docs/TODO.md` §6.
+  Column specs: "Data and schema" in `docs/Decisions.md`.
 - **Creating `ShopTimeline_Events`** (standalone events, REV54 — the app runs fine
   without it, falling back to saving events on phases): a plain list with these columns,
   all single-line text unless noted — `appId`, `projectId`, `department`,
