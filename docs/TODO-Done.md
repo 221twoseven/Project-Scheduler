@@ -7,6 +7,16 @@ release-by-release record.
 
 ## Finished since 2026-11-18
 
+- [x] **92. Clients: the list scrolls on its own; a client's record shows its current projects
+      at a glance and its project history** (the owner's design review of 2026-11-18, item 90: "This
+      menu should scroll independently. Client info should have current projects with
+      at-a-glance info for each, project history (with names, cost codes and dates, team
+      assignments)."). Shipped v1.59.0 (PR #211, 2026-11-18). Each current project shows its
+      cost code, start and due dates, the phases running now and the next one, its status and
+      its PM, lead and designer. The history lists every finished project, newest first, with
+      its cost code, dates and whole team (the crew read from its fabricators and phases).
+      Projects from before Timeline: item 93.
+
 - [x] **89. Make the TODO readable** (owner, 2026-11-18: "a nightmare to look at, and I can't
       say with confidence what still needs to be done"). Done 2026-11-18 (PR #210), docs and
       the TODO check only. `TODO.md` became a one-screen summary — where we stand, the launch

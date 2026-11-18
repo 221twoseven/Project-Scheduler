@@ -104,9 +104,10 @@ async function run(){
   const pr=qa('#rec .proj');
   ok('its current projects, soonest due first — the renamed one found by its stable ID', pr.map(a=>txt(a.querySelector('.nm'))).join('|')==='Flagship display fixtures|Autumn window installation',
     pr.map(a=>txt(a.querySelector('.nm'))).join('|'));
-  ok('code · due date, then status · PM (the status worked out from the phases, as in Timeline)',
-    txt(pr[1].querySelector('.meta'))==='ALD-026 · due Dec 2, 2026'&&txt(pr[1].querySelector('.mut'))==='Fabrication · PM Jamie Park'
-    &&txt(pr[0].querySelector('.meta'))==='ALD-031 · due Nov 12, 2026'&&txt(pr[0].querySelector('.mut'))==='Design · PM Jamie Park', txt(pr[1])+' / '+txt(pr[0]));
+  /* v1.59.0 (item 92): the dates now run start to due, and the status moved to a pill */
+  ok('code · dates to the due date, the status (worked out from the phases, as in Timeline) and the PM',
+    txt(pr[1].querySelector('.meta'))==='ALD-026 · Nov 1 – Dec 2, 2026 (due)'&&txt(pr[1].querySelector('.st-pill'))==='Fabrication'&&txt(pr[1].querySelector('.team'))==='PM Jamie Park'
+    &&txt(pr[0].querySelector('.meta'))==='ALD-031 · Nov 12, 2026 (due)'&&txt(pr[0].querySelector('.st-pill'))==='Design'&&txt(pr[0].querySelector('.team'))==='PM Jamie Park', txt(pr[1])+' / '+txt(pr[0]));
   ok('each opens the project in Timeline', pr[1].getAttribute('href')==='../timeline/#/project/p1'&&/Open in Timeline →/.test(txt(pr[1])));
   ok('"3 in all" counts the finished one too', /3 in all/.test(txt(q('#rec'))));
   click(rows()[2]);

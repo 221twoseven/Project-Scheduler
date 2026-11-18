@@ -9,6 +9,11 @@ Format: `## <label> — <date>` then one `- ` line per change. Keep lines concre
 what changed *for the team*, not how. Developer-only tooling doesn't need a line.
 Collect lines for the next version under `## Unreleased` and rename it when you ship.
 
+## v1.59.0 — Nov 18, 2026
+- In Clients, the client list now scrolls on its own and stays beside the client you're reading.
+- Each current project on a client shows its cost code, its start and due dates, which phases are running now and which starts next, its status, and its PM, lead and designer.
+- A client's record now has a project history: every finished project, newest first, with its cost code, dates and everyone who worked on it.
+
 ## v1.58.0 — Nov 18, 2026
 - Clients has its own app. Open it from the Systems page or the Apps menu. It's the same client list, and each client shows its current projects with a link into Timeline.
 - Timeline's Company Data menu no longer lists Clients. When a project's client isn't on the list, its note links to the Clients app, and a client you add there shows up in the project's dropdown as soon as you come back to Timeline.

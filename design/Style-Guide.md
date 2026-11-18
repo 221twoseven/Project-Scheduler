@@ -327,7 +327,7 @@ colour mode.)
 | Draft (unsaved) | — | `#EEF2F7` on `#33415A`, `1.5px dashed #94A3B8` outline |
 | Default pill | — | `rgba(255,255,255,.9)` on `#33415A` |
 
-Pill anatomy: mono, `--fs-fine`, 700, uppercase, `.06em`, `2px 8px`, radius 9px.
+Pill anatomy: mono, `--fs-fine`, 700, uppercase, `.06em`, `2px 8px`, radius 9px. Clients' `.st-pill` (v1.59.0) uses the same pills on a client's current projects.
 
 ### 2.9 Canvas — the quiet calendar and Vivid
 
