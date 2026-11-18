@@ -50,7 +50,7 @@ What each release changed: [`CHANGELOG.md`](../CHANGELOG.md).
 | Who | What they need to do | What it holds up |
 |---|---|---|
 | You | The design review above (item 90) | The launch |
-| You | Projects from before Timeline: OK where they're entered, then create their list (item 93) | Older projects in a client's history |
+| You | Projects from before Timeline: OK the wording, then create their list (item 93) | Older projects in a client's history |
 | You | People app: wording picks, the merge question, the go (item 87) | The launch |
 | You (leadership, for an Organization) | Pick the GitHub plan (items 71, 24) | A private repository; the rename |
 | You | Create a test SharePoint site, or approve a list-name suffix on preview (item 17) | Testing without touching real data, before the pilot |
@@ -121,13 +121,20 @@ applies from an exact spec; **[brief §N]** = the Project Director's September 2
 
 - [ ] **93. Projects from before Timeline in a client's history** (owner, 2026-11-18:
       "Management will add pre-timeline projects if necessary", and not in Timeline). ⚠ Schema.
-      Claude's proposal, waiting on the owner's OK: management adds them in the Clients app,
-      from the client's record ("+ Add a past project"), and they show in its Project history
-      beside the finished Timeline projects, marked "Before Timeline". Clients owns them, in a
-      new list `ShopTimeline_PastProjects`: `Title` (the project's name, text), `clientId`
-      (number: the client's SharePoint item ID), `jobCode` (text), `startDate` and `endDate`
-      (date only), `team` (multiple lines of text: PM, lead, designer, crew). Steps: the owner
-      OKs where and the wording; the owner creates the list from this spec; then it's built.
+      *Where* (owner, 2026-11-18: "Yes, in Clients"): from the client's record in the Clients
+      app. They show in its Project history beside the finished Timeline projects, by finish
+      date, marked "Before Timeline". Clients owns them.
+      *The list* (the owner creates it): `ShopTimeline_PastProjects`. `Title` (the project's
+      name, text), `clientId` (number: the client's SharePoint item ID, so a rename keeps
+      them), `jobCode` (text), `startDate` and `endDate` (date only), `team` (multiple lines
+      of text). Until it exists, Clients shows no add button.
+      *The wording, waiting on the owner's OK:* in the Project history header,
+      "+ Add a past project". Its form: "Past project"; fields "Project name", "Cost code",
+      "Started", "Finished", "Team" (hint: "PM, project lead, designer, crew"); "Remove…",
+      "Cancel", "Save". Its row: the name (no link) with a "Before Timeline" tag; a click
+      opens the form. Messages: "Give the project a name first.", "<name> saved",
+      "Remove <name> from <client>'s history?", "<name> removed".
+      Steps: the owner OKs the wording and creates the list; then it's built.
 
 - [ ] **87. The People app** (the launch). ⚠ Architecture, on item 85. Timeline's People page
       becomes its own product at `people/`, built to the People wireframe, and leaves Timeline.
