@@ -117,7 +117,9 @@ function stageRename(){
   ok('the project manager reads Samuel Jones at once',P('p1').projectManager==='Samuel Jones',P('p1').projectManager);
   ok('so do the phase crews and the note',T('t1').assignee==='Samuel Jones'&&J(T('t3').assignee)===J(['Samuel Jones','Rita Moreno'])&&J(D('d1').who)===J(['Samuel Jones']));
   ok('the rename clears undo (an undo would write the old names back without IDs)',E('UNDO_STACK.length')===0);
-  E("saveClients(CLIENTS.map(c=>c.spId==='sp0'?{...c,name:'Acme Holdings'}:c))");
+  /* v1.58.0 (item 86): the rename happens in the Clients app; Timeline reads the list again
+     (on the poll or on coming back to the tab) and relinks */
+  E("CLIENTS=CLIENTS.map(c=>c.spId==='sp0'?{...c,name:'Acme Holdings'}:c);relink()");
   ok('a renamed client carries its project',P('p1').client==='Acme Holdings',P('p1').client);
   setTimeout(()=>{
     const n1=writes('ShopTimeline_Projects').length+writes('ShopTimeline_Tasks').length+writes('ShopTimeline_Tasks2').length;

@@ -992,9 +992,13 @@ goes to the portal, and its product name, "Timeline", is the button to its own h
 
 ### 10.5 Where the seeds already are
 
-`#/people` and `#/clients` inside Timeline are proto-products built on §7.10–7.11 (D8,
-ruled 2026-09-29: they graduate in Phase 9). A new product starts by copying one of those
-routes, its CSS block (`/* COMPANY DATA PAGES */`), and this file.
+`#/people` inside Timeline is a proto-product built on §7.10–7.11 (D8, ruled 2026-09-29).
+Clients graduated first: `clients/` (v1.58.0, item 86) is the first product after Timeline,
+built to the Clients wireframe — the shell, a page title with its line and one primary
+action, a search box, a list panel beside a record panel (Details, then the related records),
+no left rail while it has one section. A new product starts by copying `clients/index.html`:
+its page shape, its hooks for `common/` (the update check's `updWhyNot`/`updBusy`/`updGo`)
+and its optimistic save with a parked retry.
 
 ---
 

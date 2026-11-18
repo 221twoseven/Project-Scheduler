@@ -19,6 +19,7 @@ const ROOT=path.join(__dirname,'..');
 const CHANGELOG=path.join(ROOT,'CHANGELOG.md');
 const INDEX=path.join(ROOT,'timeline','index.html');
 const SYSTEMS=path.join(ROOT,'index.html');
+const PRODUCTS=[path.join(ROOT,'clients','index.html')]; /* item 86: the other product pages */
 const BEGIN='/* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */';
 const END='/* RELEASE_NOTES:END */';
 
@@ -70,9 +71,15 @@ function main(){
      cached old shared core (Pages caches each file for 10 minutes). Stamped here, the one
      command every release already runs. */
   const next=stampCommon(src.slice(0,a)+block+src.slice(b+END.length),ver);
-  /* Item 52 step 4: the Systems page loads common.css too, so it gets the same stamp. */
-  const sp=fs.readFileSync(SYSTEMS,'utf8'),spNext=stampCommon(sp,ver);
-  if(spNext!==sp){fs.writeFileSync(SYSTEMS,spNext);console.log('gen-release-notes: stamped v'+ver+' on the Systems page\'s common/ tag.');}
+  /* Item 52 step 4: the Systems page loads common.css too, so it gets the same stamp.
+     Item 86: every other product page carries Timeline's version as its own APP_VER (one
+     version, one CHANGELOG), so its update check and its common/ tags move with it. */
+  for(const f of [SYSTEMS,...PRODUCTS]){
+    if(!fs.existsSync(f))continue;
+    const s=fs.readFileSync(f,'utf8');
+    const n=stampCommon(s,ver).replace(/const APP_VER='[^']*'/,()=>"const APP_VER='"+ver+"'");
+    if(n!==s){fs.writeFileSync(f,n);console.log('gen-release-notes: stamped v'+ver+' on '+path.relative(ROOT,f)+'.');}
+  }
   if(next===src){console.log('gen-release-notes: timeline/index.html already up to date ('+entries.length+' entries).');return;}
   fs.writeFileSync(INDEX,next);
   console.log('gen-release-notes: wrote '+entries.length+' entries into timeline/index.html (newest '+entries[0].v+').');

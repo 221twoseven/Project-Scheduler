@@ -2,10 +2,10 @@
    - ShopTimeline_Clients loads as {spId, name: Title, alias: field_2}.
    - The project Client field is fed by the list, on BOTH the draft and saved project
      pages (the REV49 lesson). v1.53.0 (item 81): a dropdown, no free text.
-   - Settings → Clients manages the list (add/edit/remove, alias uppercased, dupes
-     rejected); saves sync by SharePoint item id (POST new / PATCH changed) since the
-     imported list has no appId column.
-   - Absent list degrades to browser-local with a warning on save, quiet at load.
+   - The Clients app (v1.58.0, item 86; was Settings → Clients, then the Clients page)
+     manages the list (add/edit/remove, alias uppercased, dupes rejected); saves sync by
+     SharePoint item id (POST new / PATCH changed) since the imported list has no appId column.
+   - Absent list: Timeline keeps its cached copy, quiet at load; the app edits nothing.
    Skips on builds that predate the client list.
    Run: node test69.js timeline/index.html */
 const {boot,suite}=require('./harness');
@@ -46,55 +46,41 @@ setTimeout(()=>{
       ok('the draft Client field is the same dropdown',E("document.getElementById('pp-client').tagName")==='SELECT');
       ok('all clients offered on the draft too',E("document.querySelectorAll('#pp-client option').length")===4);
 
-      win.location.hash='#/';
+      /* v1.58.0 (item 86): the manager is the Clients app (clients/), which owns the list. The
+         rules are the same: names trimmed, alias uppercased, duplicates refused, new rows POSTed
+         with Title + field_2 and kept by item id. */
+      sec('The Clients app manages the list');
+      const APP=require('path').join(__dirname,'..','clients','index.html');
+      const app=boot(APP,{url:'https://example.github.io/Project-Scheduler/clients/',data:{projects,tasks:[],staff:[],clients},clientsList:true}).window;
+      const A=s=>app.eval(s);
       setTimeout(()=>{
-        const v170=/renderCompanyPage/.test(src);
-        if(v170){
-          /* v1.7.0: the manager is the Clients page — same saveClients() path. */
-          sec('Company Data › Clients page');
-          E("location.hash='#/clients';applyRoute()");
-          ok('the page opens with the current list',E("ROUTE.view")==='clients'&&
-             E("document.querySelectorAll('.cd-row').length")===3);
-          ok('the source cue reads SharePoint while the list is reachable',
-             E("document.querySelector('.cd-src').textContent").includes('SharePoint'));
-          E("CD_EDIT={name:' Bergdorf ',alias:'ber',_new:true};cdSaveClient();");
-          ok('save trims, uppercases the alias and lands in CLIENTS',
-             E("JSON.stringify(CLIENTS.map(c=>c.name+':'+c.alias))").includes('Bergdorf:BER'));
-        }else{
-          sec('Settings → Clients manager');
-          E("document.getElementById('mi-clients').click();");
-          ok('modal opens with the current list',!E("document.getElementById('clients-overlay').classList.contains('hidden')")&&
-             E("document.querySelectorAll('#cl-list .st-person').length")===3);
-          ok('offline note hidden while the list is reachable',E("document.getElementById('cl-local-note').classList.contains('hidden')"));
-          E("CM_CLIENTS.push({name:' Bergdorf ',alias:'ber'});document.getElementById('cl-save').click();");
-          ok('save trims, uppercases the alias and lands in CLIENTS',
-             E("JSON.stringify(CLIENTS.map(c=>c.name+':'+c.alias))").includes('Bergdorf:BER'));
-        }
+        ok('the page opens with the current list',app.document.querySelectorAll('#list .row').length===3);
+        ok('the sync pill reads synced while the list is reachable',/synced/.test(app.document.getElementById('sync-pill').textContent));
+        A("EDIT={name:' Bergdorf ',alias:'ber',_new:true};saveEdit();");
+        ok('save trims, uppercases the alias and lands in CLIENTS',
+           A("JSON.stringify(CLIENTS.map(c=>c.name+':'+c.alias))").includes('Bergdorf:BER'));
         setTimeout(()=>{
-          const post=E("JSON.stringify((__spCalls||[]).filter(c=>c.url.includes('ShopTimeline_Clients')&&c.method==='POST').map(c=>c.body))");
+          const post=A("JSON.stringify((__spCalls||[]).filter(c=>c.url.includes('ShopTimeline_Clients')&&c.method==='POST').map(c=>c.body))");
           ok('the new client POSTs Title + field_2',post.includes('Bergdorf')&&post.includes('field_2'),post);
 
           sec('Duplicate names are rejected');
-          if(v170){
-            E("CD_EDIT={name:'cartier',alias:'CA2',_new:true};cdSaveClient();");
-            ok('save refuses and keeps the editor open',E("!!CD_EDIT")===true&&
-               E("CLIENTS.filter(c=>c.name.toLowerCase()==='cartier').length")===1);
-            E("CD_EDIT=null;cdPaintDetail();");
-          }else{
-            E("document.getElementById('mi-clients').click();CM_CLIENTS.push({name:'cartier',alias:'CA2'});document.getElementById('cl-save').click();");
-            ok('save refuses and keeps the modal open',!E("document.getElementById('clients-overlay').classList.contains('hidden')")&&
-               E("CLIENTS.filter(c=>c.name.toLowerCase()==='cartier').length")===1);
-            E("document.getElementById('cl-cancel').click();");
-          }
+          A("EDIT={name:'cartier',alias:'CA2',_new:true};saveEdit();");
+          ok('save refuses and keeps the editor open',A("!!EDIT")===true&&
+             A("CLIENTS.filter(c=>c.name.toLowerCase()==='cartier').length")===1);
 
           sec('Offline degrade');
-          E("CLIENTS_OK=false;saveClients([{name:'LocalOnly',alias:'LO'}]);");
-          ok('save still lands locally',E("CLIENTS[0].name")==='LocalOnly'&&
-             E("JSON.parse(localStorage.getItem(CLIENTS_KEY))[0].name")==='LocalOnly');
-
-          done();
+          /* v1.58.0: the app that owns the list edits nothing while it can't reach it (a browser-only
+             copy would never reach anyone) and says so. Timeline's dropdown still falls back to
+             the copy it cached, as before. */
+          const off=boot(APP,{url:'https://example.github.io/Project-Scheduler/clients/',data:{projects,tasks:[],staff:[],clients}}).window;
+          setTimeout(()=>{
+            ok('with the list unreachable, the app says so and offers no editing',
+               /Couldn.t reach SharePoint/.test(off.document.getElementById('main').textContent)&&!off.document.getElementById('add'));
+            ok('Timeline keeps its cached copy for the dropdown',E("JSON.parse(localStorage.getItem(CLIENTS_KEY)).length")===3);
+            done();
+          },1500);
         },400);
-      },300);
+      },1500);
     },300);
   },300);
 },1500);

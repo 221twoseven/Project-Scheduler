@@ -63,4 +63,7 @@ a.ts-apps-item:hover{background:var(--ts-selected)}
 .ts-apps-item.cur{font-weight:600}
 .ts-apps-item.off{color:var(--ts-muted)}
 .ts-apps-note{margin-left:auto;font-size:11px;font-weight:400;color:var(--ts-muted)}
+/* v1.10.0: the ADMIN / DEV chip beside who's signed in (moved from Timeline, item 86) */
+.tb-acc{font-family:var(--mono);font-size:var(--fs-fine,11px);font-weight:700;letter-spacing:.08em;padding:1px 5px;border-radius:5px;color:#9DC1F2;border:1px solid rgba(157,193,242,.4)}
+.tb-acc.dev{color:#D8B4F0;border-color:rgba(216,180,240,.45)}
 @media (max-width:500px){.ts-top{gap:8px;padding:0 12px}.ts-brand{padding-right:10px}}

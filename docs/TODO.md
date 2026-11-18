@@ -66,12 +66,12 @@ is the log in §8.
 ## 0. Where we stand
 
 As of 2026-11-18: production (`main`) runs **v1.55.1**, promoted 2026-11-17
-(release/2026-11-17c). `development` runs **v1.57.0**: the Systems page takes the site's
+(release/2026-11-17c). `development` runs **v1.58.0**: the Systems page takes the site's
 root and Timeline moves to `/timeline/` (v1.56.0, item 49), the core every product
-shares moves into `common/` (v1.56.1, item 85 (a)), and the shell gives Timeline the
-Systems header with an Apps menu (v1.57.0, item 52 step 4). **Held from production** (owner,
-2026-11-17) until launch 1 (§2: the Systems page with the shell and the Clients app), so
-promotions wait for it; a fix production needs meanwhile is built from `main` and merged
+shares moves into `common/` (v1.56.1, item 85 (a)), the shell gives Timeline the
+Systems header with an Apps menu (v1.57.0, item 52 step 4), and Clients becomes its own app
+at `/clients/` (v1.58.0, items 86 and 85 (b)). That is all of launch 1 (§2). **Held from
+production** (owner, 2026-11-17) until the owner promotes launch 1, so promotions wait for it; a fix production needs meanwhile is built from `main` and merged
 back into `development`.
 
 The newest work on production:
@@ -1569,7 +1569,8 @@ which waits on D1 and item 14 meanwhile. The People app keeps today's fields and
 them. These items are the plan for the owner to review: nothing here is built, and items 85
 to 87 are architecture, so each needs the owner's go before code.
 
-- [ ] **85. The shared module, `common/`** (launch 1). ⚠ Architecture. A second product
+- [x] **85. The shared module, `common/`** (launch 1). Shipped v1.58.0 (PR #208, 2026-11-18):
+      (a) in v1.56.1, (b) in v1.58.0. ⚠ Architecture. A second product
       needs the sign-in and data code Timeline has, so that code moves into one shared folder
       that every product loads. D4 planned this for when product #2 starts.
       - *What moves:*
@@ -1608,11 +1609,25 @@ to 87 are architecture, so each needs the owner's go before code.
         project page looks the same pixel for pixel, bar the version. Suite
         `tests/test-v1561.js`; record
         `docs/Milestones/Phase-7-Pilot-Readiness/2026-11-17-common-module.md`.
-      - [ ] *(b) With the Clients app (item 86):* the admin and viewer-grant checks and the
+      - [x] *(b) With the Clients app (item 86):* the admin and viewer-grant checks and the
         update check. They lean on Timeline's staff roster and on its editing state (drags,
         drafts, open editors), so they move once a second product loads the roster, with
-        hooks for each product's own "busy" rules.
-- [ ] **86. The Clients app** (launch 1). ⚠ Architecture, on item 85. Timeline's Clients
+        hooks for each product's own "busy" rules. Shipped v1.58.0 (PR #208, 2026-11-18).
+        Moved word for word into `common/common.js`: the update check (each product supplies
+        `updWhyNot`, `updBusy`, `updGo` and its `APP_VER`; `updWatch()` starts it), the
+        Config reader, the admin rule (`rosterAdmin`, `staffMe`, `adminFlag`), and the data
+        rules the Clients app reads by: dates, the departments, a project's status
+        (`statusOf`) and due date, the project and phase readers. The viewer grants stay in
+        Timeline: they open Timeline's own doors, and Clients is admin-only.
+- [x] **86. The Clients app** (launch 1). Shipped v1.58.0 (PR #208, 2026-11-18); the deploy
+      lists went to `main` first (PR #207). Owner's go and wording picks 2026-11-18: no left
+      rail while Clients is its only section; "The company's clients and their cost-code
+      aliases."; a client's record lists its current projects (code · due date, status · PM,
+      a link into Timeline, "N in all"); People greyed "In Timeline for now". Timeline
+      re-reads the list on the poll and when its tab comes back into view, so a client added
+      in the app is in a project's dropdown straight away. Suite `tests/test-v1580.js`;
+      record `docs/Milestones/Phase-7-Pilot-Readiness/2026-11-18-clients-app.md`.
+      ⚠ Architecture, on item 85. Timeline's Clients
       page becomes its own product at `clients/`, built to the Clients wireframe
       (`design/wireframes/`), and leaves Timeline.
       - *It keeps what the page does today:*
@@ -1621,9 +1636,9 @@ to 87 are architecture, so each needs the owner's go before code.
         - how many projects carry each client, read from Projects (by stable ID where a
           project has one);
         - admin-only, as today.
-      - *From the wireframe, only what exists:* the header, a left rail listing Clients alone
-        (Contacts, Reports and Settings wait until they're built), the list and the record.
-        Its wording goes to the owner before building.
+      - *From the wireframe, only what exists:* the header, the list and the record; no left
+        rail while Clients is its only section (owner, 2026-11-18; Contacts, Reports and
+        Settings wait until they're built). Its wording went to the owner before building.
       - *Timeline:* Company Data ▸ Clients and `#/clients` go; an old `#/clients` link
         forwards to `../clients/`. The client dropdown (item 81) keeps reading the list, and
         its "not on the list" note links to the app.
@@ -2632,6 +2647,10 @@ How to read the tags at the end of an entry:
       quality-of-life work waits while the north star moves). Vivid months, Link subtasks,
       Group by, the lens and print paper/bars are still remembered by the browser only.
       Gate: the owner picks item 73 back up; the draft wording is on PR #175. [item 73]
+- [ ] **The Clients app has no Help menu** (item 86, v1.58.0, 2026-11-18). Release notes,
+      "Report a bug or idea" and the tour live in Timeline's Help menu; the Clients app shows
+      none of them yet. Gate: the People app (item 87) makes a second app that needs them —
+      then they move into the shell, once, for both. [item 86]
 - [ ] **Toolbar menus don't announce open or closed, and focus rings are faint on the
       header** (code review of the shell, v1.57.0, 2026-11-18). Every toolbar menu button,
       Apps included, lacks `aria-expanded`, and the blue focus outline is 2.5:1 on the navy

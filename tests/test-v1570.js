@@ -98,15 +98,18 @@ async function run(){
   const it=items(W),names=it.map(x=>x.dataset.app);
   ok('four products, in order', names.join()==='Timeline,People,Clients,Office', names.join());
   ok('Timeline is ticked as the app you\'re in, not a link', it[0].tagName!=='A'&&it[0].getAttribute('aria-current')==='page'&&/✓/.test(it[0].textContent));
-  ok('People links to Timeline\'s People page for now', it[1].tagName==='A'&&it[1].getAttribute('href')==='../timeline/#/people');
-  ok('Clients links to Timeline\'s Clients page, "admins only"', it[2].tagName==='A'&&it[2].getAttribute('href')==='../timeline/#/clients'&&/admins only/.test(it[2].textContent));
+  /* v1.58.0 (item 86): Clients is its own app; People greyed until launch 2 */
+  ok('People is greyed, "In Timeline for now"', it[1].tagName!=='A'&&it[1].classList.contains('off')&&/In Timeline for now/.test(it[1].textContent));
+  ok('Clients links to the Clients app, "admins only"', it[2].tagName==='A'&&it[2].getAttribute('href')==='../clients/'&&/admins only/.test(it[2].textContent));
   ok('Office is greyed: no link, "Not built yet"', it[3].tagName!=='A'&&it[3].classList.contains('off')&&it[3].getAttribute('aria-disabled')==='true'&&/Not built yet/.test(it[3].textContent));
   click(W,btn);
   ok('the button closes it again', menu.classList.contains('hidden'));
-  click(W,btn);click(W,it[1]);
+  click(W,btn);click(W,it[2]);
   ok('picking a product closes the menu', menu.classList.contains('hidden'));
   await wait(400);
-  ok('…and People opens', E('ROUTE.view')==='people', E('ROUTE.view'));
+  click(W,btn);click(W,it[1]);
+  ok('…and a greyed one opens nothing', E('ROUTE.view')==='timeline'&&!menu.classList.contains('hidden'), E('ROUTE.view'));
+  click(W,btn);
 
   sec('R5: the header row and the page offsets');
   ok('the header row is 56px tall (guide §5)', /\.tb-global\{[^}]*min-height:56px/.test(src));
@@ -140,7 +143,8 @@ async function run(){
   ok('(Sam is a non-admin)', V.eval('isViewer()')===true&&V.document.body.classList.contains('viewer'));
   const vc=V.document.querySelector('#apps-menu [data-app="Clients"]');
   /* jsdom cascades by source order, not specificity, so read #mi-clients's rule from the source */
-  ok('the Clients row is hidden, by the same rule as Company Data ▸ Clients', !!vc&&V.getComputedStyle(vc).display==='none'
-    &&src.includes('body.viewer #mi-clients,body.viewer #mi-changelog,body.viewer #apps-menu [data-app="Clients"],'));
+  /* v1.58.0 (item 86): Company Data ▸ Clients is gone; the rule now sits beside New Project and Changelog */
+  ok('the Clients row is hidden, by the rule that hides the other admin doors', !!vc&&V.getComputedStyle(vc).display==='none'
+    &&src.includes('body.viewer #btn-new-proj,body.viewer #mi-changelog,body.viewer #apps-menu [data-app="Clients"],'));
   ok('…and the others still show', ['Timeline','People','Office'].every(n=>V.getComputedStyle(V.document.querySelector('#apps-menu [data-app="'+n+'"]')).display!=='none'));
 }

@@ -113,32 +113,39 @@ async function main(){
   E('applyRoute()');
   ok('…and the timeline is back', E('ROUTE.view')==='timeline'&&!doc.body.classList.contains('cd-route'));
 
-  sec('the Clients page — same grammar');
+  /* v1.58.0 (item 86): Clients left Timeline for its own app; the same grammar holds there. */
+  sec('the Clients app — same grammar');
   E("location.hash='#/clients';applyRoute()");
-  ok('#/clients routes to its own view', E('ROUTE.view')==='clients');
-  const crows=qa('.cd-row');
+  ok('#/clients sends you on to the Clients app (Timeline stays on the timeline)', E('ROUTE.view')==='timeline');
+  const cw=boot(require('path').join(__dirname,'..','clients','index.html'),{url:'https://example.github.io/Project-Scheduler/clients/',
+    data:{projects:[{appId:'p1',Title:'Window Job',client:'Hermes',jobCode:'WMU004',status:'in-fabrication',activeDepartments:'[]'}],tasks:[],staff:[],
+      clients:[{Title:'Nordstrom',field_2:'NRD'},{Title:'Hermes',field_2:'HRM'}]},clientsList:true}).window;
+  await wait(1500);
+  const cq=s=>cw.document.querySelector(s),cqa=s=>[...cw.document.querySelectorAll(s)];
+  const crows=cqa('#list .row');
   ok('every client is a row, sorted', crows.length===2&&/Hermes/.test(crows[0].textContent));
   crows[0].click();
   ok('client read mode: alias and derived counts, no inputs',
-     /HRM/.test(q('#cd-detail').textContent)&&/1 total/.test(q('#cd-detail').textContent)&&qa('#cd-detail input').length===0);
-  q('#cdd-edit').click();
-  input(q('#cde-alias'),'HER');
-  q('#cde-save').click();
+     /HRM/.test(cq('#rec').textContent)&&/1 in all/.test(cq('#rec').textContent)&&cqa('#rec input').length===0);
+  cq('#edit').click();
+  input(cq('#ce-alias'),'HER');
+  cq('#ce-save').click();
   await wait(120);
+  const ccalls=()=>cw.__spCalls;
   ok('the alias PATCHed the clients list',
-     calls().some(c=>c.method==='PATCH'&&c.url.includes('ShopTimeline_Clients')&&c.body&&c.body.field_2==='HER'));
-  q('#cd-add').click();
-  input(q('#cde-name'),'Nike');
-  q('#cde-save').click();
+     ccalls().some(c=>c.method==='PATCH'&&c.url.includes('ShopTimeline_Clients')&&c.body&&c.body.field_2==='HER'));
+  cq('#add').click();
+  input(cq('#ce-name'),'Nike');
+  cq('#ce-save').click();
   await wait(120);
   ok('a new client POSTed to the clients list',
-     calls().some(c=>c.method==='POST'&&c.url.includes('ShopTimeline_Clients')&&c.body&&c.body.fields&&c.body.fields.Title==='Nike'));
-  ok('the directory grew', E('CLIENTS.length')===3);
+     ccalls().some(c=>c.method==='POST'&&c.url.includes('ShopTimeline_Clients')&&c.body&&c.body.fields&&c.body.fields.Title==='Nike'));
+  ok('the directory grew', cw.eval('CLIENTS.length')===3);
 
   sec('navigation entries');
   ok('the toolbar menu reads Company Data', src.indexOf('Company Data <svg')>=0);
   ok('People & Availability became People', /id="mi-people"[^>]*>People</.test(src));
-  ok('the menu items navigate instead of opening modals', /goPeople\(\)/.test(src)&&/goClients\(\)/.test(src));
+  ok('the menu items navigate instead of opening modals; Clients left the menu for its own app (v1.58.0)', /goPeople\(\)/.test(src)&&!/id="mi-clients"/.test(src));
 
   done();
 }

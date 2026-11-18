@@ -9,6 +9,11 @@ Format: `## <label> — <date>` then one `- ` line per change. Keep lines concre
 what changed *for the team*, not how. Developer-only tooling doesn't need a line.
 Collect lines for the next version under `## Unreleased` and rename it when you ship.
 
+## v1.58.0 — Nov 18, 2026
+- Clients has its own app. Open it from the Systems page or the Apps menu. It's the same client list, and each client shows its current projects with a link into Timeline.
+- Timeline's Company Data menu no longer lists Clients. When a project's client isn't on the list, its note links to the Clients app, and a client you add there shows up in the project's dropdown as soon as you come back to Timeline.
+- People shows greyed on the Systems page and in the Apps menu, "In Timeline for now", until it gets its own app.
+
 ## v1.57.0 — Nov 18, 2026
 - Timeline's header has an Apps menu at the right listing the Systems apps: Timeline, People, Clients and Office (not built yet).
 - TWOSEVEN INC. in the header now opens the Systems page. To get back to the full timeline, click "Timeline" beside it.

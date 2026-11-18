@@ -36,7 +36,8 @@ setTimeout(()=>{
 
   sec('the poll pauses on the update check\'s rule');
   ok('New Project counts as busy', E("(()=>{const k=ROUTE.creating;ROUTE.creating=true;const b=updBusy();ROUTE.creating=k;return b;})()")===true);
-  ok('a parked client save counts as busy', E("(()=>{const k=PENDING_CLIENTS;PENDING_CLIENTS={old:[]};const b=updBusy();PENDING_CLIENTS=k;return b;})()")===true);
+  /* v1.58.0 (item 86): client saves (and their parks) live in the Clients app */
+  ok('a parked client save counts as busy', /function updWhyNot\(\)\{[^}]*if\(PENDING\)return/.test(require('fs').readFileSync(require('path').join(__dirname,'..','clients','index.html'),'utf8')));
   ok('a cursor in a toolbar field counts as busy', E("(()=>{const i=document.createElement('input');document.getElementById('toolbar').appendChild(i);i.focus();const b=updBusy();i.remove();return b;})()")===true);
   ok('idle is not busy', E("(document.activeElement&&document.activeElement.blur&&document.activeElement.blur(),updBusy())")===false);
 

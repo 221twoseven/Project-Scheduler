@@ -42,7 +42,7 @@ function stageOff(){
         ["Grillo's Pickles","Grillo's Pickles"],['Van Cleef & Arpels','Van Cleef & Arpels · VCA']]),J(opts()));
     ok('the stored name stays selected until someone picks one',el.value==='Van Cleef and Arpels',el.value);
     ok('the note names it, in the owner\'s wording',
-      note()==='“Van Cleef and Arpels” isn’t on the Clients list. Pick one from the list, or add it on the Clients page first.',note());
+      note()==='“Van Cleef and Arpels” isn’t on the Clients list. Pick one from the list, or add it in Clients ↗ first.',note()); /* v1.58.0 (item 86): the Clients app */
 
     sec('R2 — picking saves the list\'s spelling');
     const n0=projWrites().length;

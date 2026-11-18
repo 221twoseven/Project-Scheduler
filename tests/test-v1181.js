@@ -44,13 +44,15 @@ const win=dom.window,doc=win.document,E=s=>win.eval(s);
 setTimeout(main,1300);
 
 function main(){
+  const CLIENTS_SRC=require('fs').readFileSync(require('path').join(__dirname,'..','clients','index.html'),'utf8'); /* v1.58.0 (item 86): the Clients app */
   sec('source markers');
   ok('staff poll re-checks after its await', src.indexOf('pg===PEOPLE_GEN')>=0&&src.indexOf('PEOPLE_GEN++')>=0);
   ok('the merge scrub sequences on the roster save', /savePeople\([^]{0,120}\)\.then\(ok=>\{\s*if\(ok\)scrub\(\)/.test(src));
   ok('a parked staff retry runs the merge continuation', src.indexOf('if(p.after)p.after()')>=0);
-  ok('failed client writes park for the pill', src.indexOf('function retryClientSync')>=0&&src.indexOf('if(PENDING_CLIENTS)retryClientSync()')>=0);
+  /* v1.58.0 (item 86): client writes moved to the Clients app, with their park and retry */
+  ok('failed client writes park for the pill', CLIENTS_SRC.includes('function retryPending(){if(!PENDING)return;')&&CLIENTS_SRC.includes("getElementById('sync-pill').addEventListener('click',retryPending)"));
   ok('failed setting writes park for the pill', src.indexOf('function retryConfigSync')>=0&&src.indexOf('if(PENDING_CFG)retryConfigSync()')>=0);
-  ok('beforeunload counts the new parks', /PENDING_STAFF\|\|PENDING_CLIENTS\|\|PENDING_CFG/.test(src));
+  ok('beforeunload counts the new parks', /PENDING_STAFF\|\|PENDING_CFG/.test(src)&&/beforeunload',ev=>\{if\(SAVING\|\|PENDING\|\|/.test(CLIENTS_SRC));
   ok('Delete Phase rides the phases door in CSS', src.indexOf('body.viewer:not(.vg-phases) #tm-del')>=0);
   ok('Save opens under either grant', src.indexOf('body.viewer:not(.vg-subtasks):not(.vg-phases) #tm-save')>=0);
   ok('the Milestones block carries its own door', /data-vk="subtasks"/.test(src));

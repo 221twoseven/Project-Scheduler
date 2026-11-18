@@ -6,9 +6,9 @@
 <title>Systems — TWOSEVEN INC.</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MDAgMzIyLjg1NSI+CiAgPHBhdGggZD0iTTE2MS4yMDcsMjc0LjEzOGM2LjY0MywwLDEyLjQsNS43NTgsMTIuNCwxMi44NDR2MjMuMDI5YzAsNy4wODUtNS43NTcsMTIuODQzLTEyLjQsMTIuODQzSDE0LjYxNmMtNi42NDMsMC0xMi40MDEtNS43NTgtMTIuNDAxLTEyLjg0M3YtMzEuMDAyYzAtMTUuMDU4LDMuNTQzLTIxLjcwMSw3Ljk3MS0yNy45MDFMMTA1Ljg0OCwxMTguNjljMTIuNC0xNy4yNzMsMTcuMjczLTIzLjkxNiwxNy4yNzMtMzcuNjQ1LDAtMjMuOTE0LTE3LjcxNi0zNC45ODctMzcuMjAyLTM0Ljk4Ny0yMS43MDEsMC0zNi4zMTUsMTMuNzI5LTM2LjMxNSwzOS44NTl2NC44NzFjMCw2LjY0My01Ljc1OCwxMi40MDEtMTIuODQ0LDEyLjQwMUgxMi44NDRjLTcuMDg2LDAtMTIuODQ0LTUuNzU4LTEyLjg0NC0xMi40MDF2LTEwLjE4NUMwLDI5LjIyOSwzOS40MTcsMCw4NS45MTgsMGM0NS4xNzMsMCw4OC4xMzIsMjcuMDE2LDg4LjEzMiw4MC42MDQsMCwxOS45MjktMS43NzIsMzYuMzE1LTE3LjcxNCw1OC45MDFsLTk2Ljk5LDEzNC42MzNoMTAxLjg2MVpNMzE5Ljc1MiwxODIuNDYzYzYuNjQzLDAsMTIuNCw1Ljc1OCwxMi40LDEyLjg0NHYxNy43MTRjMCw3LjA4Ni01Ljc1NywxMi44NDMtMTIuNCwxMi44NDNoLTEyOC44NzdjLTYuNjQzLDAtMTIuNC01Ljc1Ny0xMi40LTEyLjg0M3YtMTcuNzE0YzAtNy4wODYsNS43NTctMTIuODQ0LDEyLjQtMTIuODQ0aDEyOC44NzdaTTM0MS4wMDgsNTcuNTczYy03LjA4NiwwLTEyLjg0My01Ljc1Ny0xMi44NDMtMTIuNHYtMjMuOTE2YzAtNi42NDMsNS43NTctMTIuNCwxMi44NDMtMTIuNGgxNDYuMTQ4YzcuMDg2LDAsMTIuODQ0LDUuNzU3LDEyLjg0NCwxMi40djI2LjU3MmMwLDkuMzAxLTMuNTQzLDIwLjgxNi01LjMxNSwyNS42ODdsLTg3LjI0NywyMzcuMzc5Yy0yLjIxMyw2LjItNS4zMTUsMTEuOTU4LTExLjk1OCwxMS45NThoLTMzLjIxNWMtNS4zMTMsMC0xMC4xODYtNC40MjgtMTAuMTg2LTExLjk1OCwwLTEuNzcyLjQ0My0zLjU0MywxLjMzLTUuNzU3bDkwLjc4OC0yNDcuNTY3aC0xMDMuMTg5WiIvPgo8L3N2Zz4=">
 <!-- The Systems page (item 49, D4): one card per product, laid out as the owner's Portal
-     Option 1 wireframe. Timeline lives in timeline/. People and Clients open Timeline's pages
-     until they become products of their own (D8); then their cards point at people/ and
-     clients/. Office shows greyed until it's built. The wireframe's Apps menu, avatar, recent
+     Option 1 wireframe. Timeline lives in timeline/, Clients in clients/ (item 86, v1.58.0).
+     People shows greyed, "In Timeline for now", until it becomes its own app at people/
+     (launch 2); Office shows greyed until it's built. The wireframe's Apps menu, avatar, recent
      work and signed-in footer wait for a page that signs in. -->
 <script>
 /* Old links and bookmarks: a #/… route or a #view= link belonged to Timeline when it lived
@@ -18,7 +18,7 @@ if(/^#(\/|view=)/.test(location.hash))location.replace('timeline/'+location.hash
 <!-- A Timeline tab opened before the move still checks this page for a newer build, so this
      page names the move's release for it: APP_VER='1.56.0' (fixed; only pre-move tabs read it). -->
 <!-- The suite tokens and the shell's header come from the shared stylesheet (item 52 step 4). -->
-<link rel="stylesheet" href="common/common.css?v=1.57.0">
+<link rel="stylesheet" href="common/common.css?v=1.58.0">
 <style>
 /* The look of the owner's Portal Option 1 wireframe (design/wireframes/), in the target
    guide's tokens and normalised values (design/TwoSeven-Application-Style-Guide.md §2–§5, §10). */
@@ -60,8 +60,8 @@ a.app-link:hover{border-color:var(--ts-action);background:var(--ts-selected)}
   <!-- Icons: the wireframe's line icons (Lucide shapes), inline. -->
   <ul class="app-grid">
     <li><a class="app-link" href="timeline/"><span class="app-head"><span class="icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18M8 16h8"/></svg></span><span class="app-name">Timeline</span><span class="go" aria-hidden="true">→</span></span><span class="app-description">Project schedules, phases and crews</span><span class="app-foot">Open Timeline</span></a></li>
-    <li><a class="app-link" href="timeline/#/people"><span class="app-head"><span class="icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2m20 0v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/><circle cx="9" cy="7" r="4"/></svg></span><span class="app-name">People</span><span class="go" aria-hidden="true">→</span></span><span class="app-description">Staff, contact details and time off</span><span class="app-foot">Open People</span></a></li>
-    <li><a class="app-link" href="timeline/#/clients"><span class="app-head"><span class="icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="2" width="12" height="20" rx="1"/><path d="M16 8h4v14H4M8 6h4M8 10h4M8 14h4M9 22v-4h2v4"/></svg></span><span class="app-name">Clients</span><span class="go" aria-hidden="true">→</span></span><span class="app-description">The client list</span><span class="app-foot">Open Clients · admins only</span></a></li>
+    <li><div class="app-link off"><span class="app-head"><span class="icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2m20 0v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/><circle cx="9" cy="7" r="4"/></svg></span><span class="app-name">People</span></span><span class="app-description">Staff, contact details and time off</span><span class="app-foot">In Timeline for now</span></div></li>
+    <li><a class="app-link" href="clients/"><span class="app-head"><span class="icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="2" width="12" height="20" rx="1"/><path d="M16 8h4v14H4M8 6h4M8 10h4M8 14h4M9 22v-4h2v4"/></svg></span><span class="app-name">Clients</span><span class="go" aria-hidden="true">→</span></span><span class="app-description">The client list</span><span class="app-foot">Open Clients · admins only</span></a></li>
     <li><div class="app-link off"><span class="app-head"><span class="icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="5" y="4" width="14" height="18" rx="2"/><rect x="9" y="2" width="6" height="4" rx="1"/><path d="M9 12h.01M12 12h3M9 16h.01M12 16h3"/></svg></span><span class="app-name">Office</span></span><span class="app-description">Leads, estimates and job setup.</span><span class="app-foot">Not built yet</span></div></li>
   </ul>
 </main>

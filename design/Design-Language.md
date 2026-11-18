@@ -290,7 +290,8 @@ The Setup / Project Team / Project Schedule / Agenda inspector (the two middle s
 
 ## 7.6 Company Data pages — the master-data pattern (v1.7.0)
 
-People and Clients are **first-class pages** (`#/people`, `#/clients`), not management
+People and Clients are **first-class pages** (`#/people`; Clients was `#/clients` until it
+became its own app, `clients/`, in v1.58.0, item 86), not management
 modals — the 2026-09-01 Master Data UX Refactor handoff
 (`docs/Archive/Master-Data-UX-Refactor-Handoff.md`). This is the reusable pattern
 for every future company master-data section (departments, project types, holidays…):
@@ -318,8 +319,8 @@ for every future company master-data section (departments, project types, holida
   edit — not visual weight. Persistence is untouched: edits clone the shared list,
   swap one record, and ride the existing save paths.
 - **Edit affordances are role-gated (v1.8.0).** For non-admins the pages keep their
-  read modes but render no + Add / Edit / Remove; the Clients page is admin-only
-  outright. App-wide, the viewer role follows the same read-first grammar: locked
+  read modes but render no + Add / Edit / Remove; Clients is admin-only outright (since
+  v1.58.0 its app shows a non-admin "Clients is for admins." and the way back to Timeline). App-wide, the viewer role follows the same read-first grammar: locked
   fields flatten to information (`body.viewer` + disabled controls), admin-only
   chrome disappears rather than disabling, and every refusal toast says who to ask.
 - **The developer's view-as picker (v1.9.0; unified 2026-09-04).** A staff row whose

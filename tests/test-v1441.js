@@ -54,11 +54,11 @@ async function main(){
   ok('step 9 says "cost code", not "job code"', /cost code/i.test(t9||'')&&!/job code/i.test(t9||''), t9);
 
   sec('Q2 — the Clients directory');
-  ok('the Clients menu tooltip says "cost-code aliases"', /cost-code aliases/.test(q('#mi-clients').title), q('#mi-clients').title);
-  win.location.hash='#/clients';await wait(400);
-  ok('the Clients subtitle says "cost-code aliases"', /cost-code aliases/.test((q('#page .cd-sub')||{}).textContent||''));
-  ok('the alias placeholder says "cost-code prefix"', src.includes('placeholder="2–3 letter cost-code prefix"'));
-  win.location.hash='#/';await wait(400);
+  /* v1.58.0 (item 86): the Clients directory is its own app; its wording keeps the term */
+  const CLS=require('fs').readFileSync(require('path').join(__dirname,'..','clients','index.html'),'utf8');
+  ok('the Clients app\'s line says "cost-code aliases" (was the Clients menu tooltip)', CLS.includes("The company\\'s clients and their cost-code aliases."));
+  ok('the Clients subtitle says "cost-code aliases"', /cost-code aliases/.test(CLS));
+  ok('the alias placeholder says "cost-code prefix"', CLS.includes('placeholder="2–3 letter cost-code prefix"'));
 
   sec('R3 — the value shows unchanged everywhere it did');
   ok('sidebar sub-line', /WMU004/.test(q('#sidebar').textContent));
