@@ -9,7 +9,7 @@ release-by-release record.
 
 - [x] **93. Projects from before Timeline in a client's history** (owner, 2026-11-18:
       "Management will add pre-timeline projects if necessary"; where: "Yes, in Clients"; the
-      wording: "Wording OK"; the list created the same day). Shipped v1.60.0 (PR #TBD, 2026-11-18).
+      wording: "Wording OK"; the list created the same day). Shipped v1.60.0 (PR #212, 2026-11-18).
       "+ Add a past project" on a client's Project history: name, cost code, started, finished,
       team. They sit in the history by finish date, tagged "Before Timeline"; a click changes or
       removes one. Clients owns `ShopTimeline_PastProjects` (`Title`, `clientId`, `jobCode`,
