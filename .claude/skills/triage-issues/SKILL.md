@@ -156,15 +156,15 @@ The tracker is where the owner talks; `docs/TODO.md` is the record of the work. 
 isn't finished until they agree. For every open ticket, and every ticket closed since the
 last run:
 
-| On the ticket | In `docs/TODO.md` §3 |
+| On the ticket | In `docs/TODO.md` |
 |---|---|
-| A spec, and no item cites `[tracker #N]` | Add the item now: next free number, in its band (a P0 bug goes in the P0 in-app band), ending `[tracker #N]` |
+| A spec, and no item cites `[tracker #N]` | Add the item now: next free number (check `TODO-Done.md` too), a summary line in the section where it belongs (plain name first, "(item N)" last) and its notes below, ending `[tracker #N]` |
 | A revised spec | The item's text follows the new scope |
-| An owner hold ("hold", "wait", "needs more info") | A dated `*On hold (owner, <date>):*` line in the item |
+| An owner hold ("hold", "wait", "needs more info") | A dated `*On hold (owner, <date>):*` line in the item, and its summary line moves to "On hold" |
 | `Proceed with fix` | The item says "Approved <date>. Not built yet" until the build PR ticks it |
-| `Fix shipped` | The build PR ticks it: `[x]` and `Shipped v<x.y.z> (PR #N, <date>)` |
-| Declined ("we're not doing this") | A §7.5 line with the date and the ticket |
-| Closed with no build (a duplicate, already exists, misread) | A row in §3's "Shipped or closed with no §3 item" table, or a note in the item it belongs to |
+| `Fix shipped` | The build PR ticks it — `[x]` and `Shipped v<x.y.z> (PR #N, <date>)` — and moves it to `TODO-Done.md` |
+| Declined ("we're not doing this") | A row in `TODO-Done.md`'s "Shipped or closed with no item" table, with the date and the ticket; the item, if any, moves there too |
+| Closed with no build (a duplicate, already exists, misread) | A row in the same table, or a note in the item it belongs to |
 
 Make the TODO changes in the build PR when there is one. Otherwise make them in one small
 `docs/` PR for the run. `tests/test-todo.js` fails CI on duplicate item numbers and broken

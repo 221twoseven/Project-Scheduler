@@ -8,7 +8,7 @@ Microsoft Entra (MSAL) sign-in — there is no server of our own.
 Timeline is one product of **Systems**, Twoseven's data-management ecosystem: peer
 products (People, Clients, Office, Timeline) over one shared SharePoint dataset, behind
 one portal: the Systems page at the site's root. Only Timeline is built today; the
-definition is in `docs/TODO.md` §1.
+definition is in `docs/Decisions.md` ("What we're building").
 
 - **Live app:** the Systems page (`index.html`) and Timeline (`timeline/index.html`), served
   via GitHub Pages from the `main` branch.
