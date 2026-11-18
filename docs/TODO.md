@@ -16,9 +16,10 @@ Kept elsewhere so this file stays short:
 
 As of 2026-11-18:
 - **Live** (`main`, what users run): **v1.55.1**, Timeline only.
-- **Preview** (`development`, at `/preview/`): **v1.58.0**. The Systems page sits at the
+- **Preview** (`development`, at `/preview/`): **v1.59.0**. The Systems page sits at the
   root; Timeline moves to `/timeline/` with the Systems header and Apps menu; Clients is its
-  own app at `/clients/`; the code every product shares lives in `common/`.
+  own app at `/clients/`, and a client's record shows its current projects at a glance and
+  its project history; the code every product shares lives in `common/`.
 - **The next release is the launch:** the People app, the Clients app and the Systems page
   go live together, complete and polished (owner, 2026-11-18). Nothing goes to `main` until
   then, however long the polish takes. The repository is renamed to `Systems` just before.
@@ -49,6 +50,7 @@ What each release changed: [`CHANGELOG.md`](../CHANGELOG.md).
 | Who | What they need to do | What it holds up |
 |---|---|---|
 | You | The design review above (item 90) | The launch |
+| You | Projects from before Timeline: OK where they're entered, then create their list (item 93) | Older projects in a client's history |
 | You | People app: wording picks, the merge question, the go (item 87) | The launch |
 | You (leadership, for an Organization) | Pick the GitHub plan (items 71, 24) | A private repository; the rename |
 | You | Create a test SharePoint site, or approve a list-name suffix on preview (item 17) | Testing without touching real data, before the pilot |
@@ -113,6 +115,19 @@ applies from an exact spec; **[brief §N]** = the Project Director's September 2
       2026-11-18: not ready for `main`; "needs a design/feature review by me before we push to
       main"). On `/preview/clients/` and `/preview/`. What the review asks for becomes items
       here before any of it is built. The launch waits on it.
+      - *First notes, on Clients (2026-11-18):* the list scrolls on its own, and a client's
+        record shows current projects at a glance and a project history: item 92, built in
+        v1.59.0. Projects from before Timeline: item 93.
+
+- [ ] **93. Projects from before Timeline in a client's history** (owner, 2026-11-18:
+      "Management will add pre-timeline projects if necessary", and not in Timeline). ⚠ Schema.
+      Claude's proposal, waiting on the owner's OK: management adds them in the Clients app,
+      from the client's record ("+ Add a past project"), and they show in its Project history
+      beside the finished Timeline projects, marked "Before Timeline". Clients owns them, in a
+      new list `ShopTimeline_PastProjects`: `Title` (the project's name, text), `clientId`
+      (number: the client's SharePoint item ID), `jobCode` (text), `startDate` and `endDate`
+      (date only), `team` (multiple lines of text: PM, lead, designer, crew). Steps: the owner
+      OKs where and the wording; the owner creates the list from this spec; then it's built.
 
 - [ ] **87. The People app** (the launch). ⚠ Architecture, on item 85. Timeline's People page
       becomes its own product at `people/`, built to the People wireframe, and leaves Timeline.

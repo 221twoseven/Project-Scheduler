@@ -11,8 +11,9 @@
      It reads Projects, phases (Tasks), Staff and Config, and never writes them. Built to the
      owner's Clients wireframe (design/wireframes/) with the owner's wording of 2026-11-18;
      the shared sign-in, data layer, toasts, sync pill, header and update check come from
-     ../common/. -->
-<link rel="stylesheet" href="../common/common.css?v=1.58.0">
+     ../common/. v1.59.0 (item 92, the owner's review): the list scrolls on its own, and a
+     record shows each current project at a glance and the client's project history. -->
+<link rel="stylesheet" href="../common/common.css?v=1.59.0">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html,body{min-height:100%}
@@ -46,7 +47,8 @@ h1{font-size:22px;line-height:1.25;font-weight:600}
 .link:hover{text-decoration:underline}
 #q{display:block;width:100%;height:36px;padding:0 10px;margin-bottom:16px;border:1px solid var(--ts-control-line);border-radius:6px;background:var(--ts-panel)}
 .body{display:grid;grid-template-columns:280px minmax(0,1fr);gap:16px;align-items:start}
-.list{list-style:none;background:var(--ts-panel);border:1px solid var(--ts-line);border-radius:8px;overflow:hidden}
+/* item 92: the list scrolls on its own and stays beside the record (sticky under the 56px header). */
+.list{list-style:none;background:var(--ts-panel);border:1px solid var(--ts-line);border-radius:8px;overflow:auto;overscroll-behavior:contain;position:sticky;top:72px;max-height:calc(100vh - 88px)}
 .list li+li{border-top:1px solid var(--ts-line)}
 .row{display:block;width:100%;text-align:left;padding:12px 14px;background:none;border:0;cursor:pointer}
 .row:hover{background:var(--ts-paper)}
@@ -65,11 +67,26 @@ h1{font-size:22px;line-height:1.25;font-weight:600}
 .kv{display:grid;grid-template-columns:120px 1fr;gap:6px 12px}
 .kv dt{color:var(--ts-muted)}
 .projs{list-style:none}
-.proj{display:flex;align-items:center;gap:12px;padding:10px 0;color:inherit;text-decoration:none}
+.proj{display:flex;align-items:flex-start;gap:12px;padding:12px 0;color:inherit;text-decoration:none}
 .projs li+li .proj{border-top:1px solid var(--ts-line)}
-.proj .nm{color:var(--ts-link)}
-.proj:hover .nm{text-decoration:underline}
+.proj .nm{color:var(--ts-link);font-weight:600}
+.proj:hover .nm,.hist a:hover{text-decoration:underline}
 .proj .meta{font-family:var(--mono);font-size:12px;color:var(--ts-muted)}
+.proj .now{font-size:12px;margin-top:2px}
+.proj .side{display:flex;flex-direction:column;align-items:flex-end;gap:8px;white-space:nowrap}
+/* Status pills: Timeline's recipe and colours (Style-Guide §2.8). */
+.st-pill{font-family:var(--mono);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:2px 8px;border-radius:9px;background:#EEF2F7;color:#33415A}
+.st-pill[data-st="estimating"]{background:#EEEDFE;color:#534AB7}
+.st-pill[data-st="in-design"]{background:#EDE9FE;color:#5B21B6}
+.st-pill[data-st="in-fabrication"]{background:#E1F5EE;color:#0F6E56}
+.st-pill[data-st="on-hold"]{background:#FFEDD5;color:#9A3412}
+.hist-wrap{overflow-x:auto}
+.hist{width:100%;border-collapse:collapse}
+.hist th{text-align:left;font-size:12px;font-weight:600;color:var(--ts-muted);padding:0 12px 6px 0;border-bottom:1px solid var(--ts-line)}
+.hist td{padding:8px 12px 8px 0;vertical-align:top;border-bottom:1px solid var(--ts-line)}
+.hist tr:last-child td{border-bottom:0}
+.hist a{color:var(--ts-link);text-decoration:none}
+.hist .code,.hist .dates{font-family:var(--mono);font-size:12px;white-space:nowrap}
 .field{display:block;margin-bottom:14px}
 .field span{display:block;font-size:12px;font-weight:600;margin-bottom:4px}
 .field input{width:100%;height:36px;padding:0 10px;border:1px solid var(--ts-control-line);border-radius:6px}
@@ -84,7 +101,7 @@ h1{font-size:22px;line-height:1.25;font-weight:600}
 .modal h3{font-size:15px;font-weight:600;margin-bottom:8px}
 .modal p{color:var(--ts-muted);margin-bottom:16px}
 .modal .foot{justify-content:flex-end}
-@media (max-width:760px){main{padding:24px 16px 40px}.body{grid-template-columns:1fr}.head{flex-wrap:wrap}#who{display:none}}
+@media (max-width:760px){main{padding:24px 16px 40px}.body{grid-template-columns:1fr}.head{flex-wrap:wrap}#who{display:none}.list{position:static;max-height:40vh}}
 </style>
 </head>
 <body>
@@ -111,9 +128,9 @@ h1{font-size:22px;line-height:1.25;font-weight:600}
   </div>
 </div>
 <script src="../common/msal-browser.min.js"></script>
-<script src="../common/common.js?v=1.58.0"></script>
+<script src="../common/common.js?v=1.59.0"></script>
 <script>
-const APP_VER='1.58.0'; // stamped from Timeline's by `npm run notes`: one version for every product
+const APP_VER='1.59.0'; // stamped from Timeline's by `npm run notes`: one version for every product
 const POLL_MS=90000;     // the same freshness knob as Timeline's
 let CLIENTS=[],PEOPLE=[],PROJECTS=[],TASKS=[];
 let LOADED=false,SEL=null,EDIT=null,Q='',SAVING=0,PENDING=null;
@@ -138,14 +155,48 @@ function reindex(){
   IDX=new Map();
   for(const p of PROJECTS){const c=clientOf(p);if(!c)continue;
     const ts=byProj.get(p.id)||[],due=dueOf(ts);
+    /* item 92: its dates run from the first phase's start to the due date (else the last phase's end) */
+    const start=ts.reduce((m,x)=>x.startDate&&(!m||x.startDate<m)?x.startDate:m,'');
+    const end=due?due.d:ts.reduce((m,x)=>x.endDate>m?x.endDate:m,'');
     if(!IDX.has(c))IDX.set(c,[]);
-    IDX.get(c).push({p,status:statusOf(p,ts,t),due:due?due.d:''});}
+    IDX.get(c).push({p,ts,status:statusOf(p,ts,t),due:due?due.d:'',start,end});}
 }
 const projectsOf=c=>IDX.get(c)||[];
 const plural=(n,one,many)=>n+' '+(n===1?one:many);
 function currentLine(c){if(!PROJ_OK)return '';const n=projectsOf(c).filter(x=>x.status!=='complete').length;
   return n?plural(n,'current project','current projects'):'No current projects';}
 const niceDay=s=>parseDate(s).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+const shortDay=s=>parseDate(s).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+/* "Oct 6 – Dec 12, 2026", or both years when they differ; one end alone reads as that day. */
+function span(a,b){
+  if(!a||!b||a===b)return a||b?niceDay(a||b):'';
+  return (a.slice(0,4)===b.slice(0,4)?shortDay(a):niceDay(a))+' – '+niceDay(b);
+}
+const names=v=>String(v||'').split(',').map(s=>s.trim()).filter(Boolean);
+/* A person reads as their nickname when they have one, as in Timeline (its dispName). */
+const disp=n=>{const p=PEOPLE.find(x=>x.name===n);return (p&&p.nickname&&String(p.nickname).trim())||n;};
+const dayIn=s=>s.slice(0,4)===String(today().getFullYear())?shortDay(s):niceDay(s);
+const phaseName=x=>{const d=deptById(x.department);return (d&&d.freeText&&x.label)||(d?d.name:x.department);};
+/* What a current project is doing: the phases running today, then the next one to start. */
+function nowNext(ts){
+  const t=fmtDate(today()),now=[...new Set(ts.filter(x=>x.startDate&&x.startDate<=t&&x.endDate>=t).map(phaseName))];
+  const nx=ts.filter(x=>x.startDate>t).sort((a,b)=>a.startDate.localeCompare(b.startDate))[0];
+  return [now.length?'Now: '+now.join(', '):'',nx?'Next: '+phaseName(nx)+', '+dayIn(nx.startDate):''].filter(Boolean).join(' · ');
+}
+/* The team, in Timeline's words: PM, project lead and technical designer; with crew, everyone
+   else on its phases and its fabricators too. ponytail: names() and the crew read mirror
+   Timeline's roleList()/crewOf(); move them to common/ if a third product needs them. */
+function teamOf(x,crew){
+  const p=x.p,roles=[['PM',p.projectManager],['Project lead',p.leadFab],['Technical Designer',p.drafter]];
+  const out=roles.filter(r=>names(r[1]).length).map(r=>r[0]+' '+names(r[1]).map(disp).join(', '));
+  if(crew){
+    const named=new Set(roles.flatMap(r=>names(r[1])));
+    const all=[...names(p.fabricators),...x.ts.flatMap(t=>Array.isArray(t.assignee)?t.assignee:names(t.assignee))];
+    const c=[...new Set(all)].filter(n=>n&&n!=='Installation'&&!named.has(n));
+    if(c.length)out.push('Crew: '+c.map(disp).join(', '));
+  }
+  return out.join(' · ');
+}
 const refsOf=s=>{try{const o=JSON.parse(s);return o&&typeof o==='object'?o:null;}catch(e){return null;}};
 
 const readClients=async()=>(await store.list('client')).map(clientFromItem).filter(c=>c.name);
@@ -157,7 +208,7 @@ async function loadProjects(){
 }
 async function loadAll(){
   const [c,s,p,g]=await Promise.allSettled([readClients(),store.list('staff'),loadProjects(),readConfig()]);
-  if(s.status==='fulfilled')PEOPLE=s.value.map(it=>({name:it.fields.Title||'',email:it.fields.email||'',admin:adminFlag(it.fields.admin)}));
+  if(s.status==='fulfilled')PEOPLE=s.value.map(it=>({name:it.fields.Title||'',email:it.fields.email||'',admin:adminFlag(it.fields.admin),nickname:it.fields.nickname||''}));
   /* The staff list unreachable: the roster Timeline keeps in this browser decides, as it does in
      Timeline — never "no roster, so everyone's an admin" on a blip. */
   else try{PEOPLE=JSON.parse(localStorage.getItem('shopTimelinePeople_v1'))||[];}catch(e){PEOPLE=[];}
@@ -251,19 +302,28 @@ function paintRecord(){
   if(!c){el.innerHTML='<div class="empty">Select a client to see its record.</div>';return;}
   const all=projectsOf(c),cur=all.filter(x=>x.status!=='complete')
     .sort((a,b)=>String(a.due||'9999').localeCompare(String(b.due||'9999'))||a.p.name.localeCompare(b.p.name));
-  const done=all.length-cur.length;
+  const fin=all.filter(x=>x.status==='complete').sort((a,b)=>String(b.end).localeCompare(String(a.end))||a.p.name.localeCompare(b.p.name));
+  const done=fin.length,pid=p=>encodeURIComponent(p.id);
   el.innerHTML='<div class="rec-top"><h2>'+esc(c.name)+'</h2>'+(c.alias?'<div class="alias">'+esc(c.alias)+'</div>':'')+'</div>'
     +'<div class="sec"><div class="sec-h"><h3>Details</h3><span class="grow"></span><button class="link" id="edit">Edit client</button></div>'
     +'<dl class="kv"><dt>Client alias</dt><dd'+(c.alias?' class="alias"':'')+'>'+(c.alias?esc(c.alias):'—')+'</dd></dl></div>'
     +'<div class="sec"><div class="sec-h"><h3>Current projects</h3><span class="grow"></span>'+(all.length?'<span class="mut">'+all.length+' in all</span>':'')+'</div>'
     +(cur.length?'<ul class="projs">'+cur.map(x=>{
-        const p=x.p,meta=[p.jobCode,x.due?'due '+niceDay(x.due):''].filter(Boolean).join(' · ');
-        const line=[STATUS_LBL[x.status]||x.status,p.projectManager?'PM '+p.projectManager:''].filter(Boolean).join(' · ');
-        return '<li><a class="proj" href="../timeline/#/project/'+encodeURIComponent(p.id)+'"><span class="grow"><span class="nm">'+esc(p.name)+'</span>'
-          +(meta?'<div class="meta">'+esc(meta)+'</div>':'')+'<div class="mut">'+esc(line)+'</div></span>'
-          +'<span class="mut">Open in Timeline →</span></a></li>';}).join('')+'</ul>'
+        const p=x.p,dates=x.due?span(x.start,x.due)+' (due)':x.start?'from '+niceDay(x.start):'';
+        const meta=[p.jobCode,dates].filter(Boolean).join(' · '),now=x.status==='on-hold'?'':nowNext(x.ts),team=teamOf(x,false);
+        return '<li><a class="proj" href="../timeline/#/project/'+pid(p)+'"><span class="grow"><span class="nm">'+esc(p.name)+'</span>'
+          +(meta?'<div class="meta">'+esc(meta)+'</div>':'')+(now?'<div class="now">'+esc(now)+'</div>':'')
+          +(team?'<div class="mut team">'+esc(team)+'</div>':'')+'</span>'
+          +'<span class="side"><span class="st-pill" data-st="'+esc(x.status)+'">'+esc(STATUS_LBL[x.status]||x.status)+'</span>'
+          +'<span class="mut">Open in Timeline →</span></span></a></li>';}).join('')+'</ul>'
       :'<p class="mut">'+(!PROJ_OK?'Couldn\'t read the projects from SharePoint.':all.length?'Not on any current project. '+done+' finished.':'Not on any project yet.')+'</p>')
-    +'</div>';
+    +'</div>'
+    /* item 92: every finished project, newest first, with its cost code, dates and team. */
+    +(PROJ_OK?'<div class="sec"><div class="sec-h"><h3>Project history</h3><span class="grow"></span>'+(done?'<span class="mut">'+done+' finished, newest first</span>':'')+'</div>'
+      +(done?'<div class="hist-wrap"><table class="hist"><thead><tr><th scope="col">Project</th><th scope="col">Cost code</th><th scope="col">Dates</th><th scope="col">Team</th></tr></thead><tbody>'
+        +fin.map(x=>'<tr><td><a href="../timeline/#/project/'+pid(x.p)+'">'+esc(x.p.name)+'</a></td><td class="code">'+esc(x.p.jobCode||'—')+'</td>'
+          +'<td class="dates">'+esc(span(x.start,x.end)||'—')+'</td><td>'+esc(teamOf(x,true)||'—')+'</td></tr>').join('')
+        +'</tbody></table></div>':'<p class="mut">No finished projects yet.</p>')+'</div>':'');
   document.getElementById('edit').addEventListener('click',()=>{EDIT={name:c.name,alias:c.alias,_orig:c.name};paintRecord();document.getElementById('ce-name').focus();});
 }
 function paintEditor(el){
