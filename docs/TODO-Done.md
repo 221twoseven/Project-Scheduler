@@ -7,6 +7,16 @@ release-by-release record.
 
 ## Finished since 2026-11-18
 
+- [x] **93. Projects from before Timeline in a client's history** (owner, 2026-11-18:
+      "Management will add pre-timeline projects if necessary"; where: "Yes, in Clients"; the
+      wording: "Wording OK"; the list created the same day). Shipped v1.60.0 (PR #TBD, 2026-11-18).
+      "+ Add a past project" on a client's Project history: name, cost code, started, finished,
+      team. They sit in the history by finish date, tagged "Before Timeline"; a click changes or
+      removes one. Clients owns `ShopTimeline_PastProjects` (`Title`, `clientId`, `jobCode`,
+      `startDate`, `endDate`, `team`). No list, no add button.
+      - *Left in place (2026-11-18):* removing a client leaves its past projects in the list,
+        unseen; adding the client again doesn't bring them back (a new client has a new ID).
+
 - [x] **92. Clients: the list scrolls on its own; a client's record shows its current projects
       at a glance and its project history** (the owner's design review of 2026-11-18, item 90: "This
       menu should scroll independently. Client info should have current projects with

@@ -9,6 +9,10 @@ Format: `## <label> — <date>` then one `- ` line per change. Keep lines concre
 what changed *for the team*, not how. Developer-only tooling doesn't need a line.
 Collect lines for the next version under `## Unreleased` and rename it when you ship.
 
+## v1.60.0 — Nov 18, 2026
+- In Clients, a client's project history can now include projects from before Timeline: "+ Add a past project" records its name, cost code, dates and team.
+- Past projects sit in the history by their finish date, tagged "Before Timeline"; click one to change or remove it.
+
 ## v1.59.0 — Nov 18, 2026
 - In Clients, the client list now scrolls on its own and stays beside the client you're reading.
 - Each current project on a client shows its cost code, its start and due dates, which phases are running now and which starts next, its status, and its PM, lead and designer.

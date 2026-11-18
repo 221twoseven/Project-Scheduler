@@ -32,6 +32,10 @@ const LIST_EVENTS='ShopTimeline_Events';
 /* N3: the client roster, imported from the Excel master. App-only — the colleague app
    never reads it. Columns: Title = client name, field_2 = cost-code alias. */
 const LIST_CLIENTS='ShopTimeline_Clients';
+/* Item 93 (v1.60.0): projects from before Timeline, in a client's history. Clients owns it;
+   owner-created 2026-11-18. Columns: Title (name), clientId (number: the client's item ID),
+   jobCode, startDate and endDate (date only), team (multi-line). */
+const LIST_PAST='ShopTimeline_PastProjects';
 /* v1.6.0 (v2 obj 2): bug reports / feature requests. App-only, owner-created
    2026-08-31. Columns (all text): Title, kind, name, email, description (multi-line),
    appVersion, appId. Screenshots go to the site's default document library (Graph
@@ -141,7 +145,7 @@ function listUrl(l){return 'https://graph.microsoft.com/v1.0/sites/'+SITE_ID+'/l
    where they are. */
 const STORE_LISTS={
   proj:LIST_PROJECTS, task:LIST_TASKS, todo:LIST_TODOS, event:LIST_EVENTS,
-  staff:LIST_STAFF, client:LIST_CLIENTS, config:LIST_CONFIG, changelog:LIST_CHANGELOG,
+  staff:LIST_STAFF, client:LIST_CLIENTS, past:LIST_PAST, config:LIST_CONFIG, changelog:LIST_CHANGELOG,
   feedback:LIST_FEEDBACK, employeeContacts:LIST_EC
 };
 /* Item 68: one page size for every list — gpageAll follows @odata.nextLink, so this is a

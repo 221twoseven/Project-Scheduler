@@ -85,7 +85,7 @@ Project rules and context for working in this repository. Read this before makin
 
 ## Shared infrastructure — SharePoint & Entra
 
-The SharePoint site and Lists are **shared infrastructure**: the app's nine
+The SharePoint site and Lists are **shared infrastructure**: the app's ten
 `ShopTimeline_*` lists are read and written from the browser, can be hand-edited on the
 site, and were built alongside a separately maintained colleague app. **Owner ruling
 2026-09-24: the colleague app still runs but is unused and will not return; breaking it
@@ -104,9 +104,10 @@ the schema.
 The current infrastructure values (for reference — do not change without instruction):
 
 - SharePoint site: `twosevennet.sharepoint.com/sites/TWOSEVENINC`
-- Lists (nine, plus one read-only): `ShopTimeline_Projects`, `ShopTimeline_Tasks`
+- Lists (ten, plus one read-only): `ShopTimeline_Projects`, `ShopTimeline_Tasks`
   (phases), `ShopTimeline_Staff`, `ShopTimeline_Tasks2` (to-dos), `ShopTimeline_Events`,
   `ShopTimeline_Clients` (imported from the Excel client master, REV69),
+  `ShopTimeline_PastProjects` (projects from before Timeline; Clients owns it, item 93),
   `ShopTimeline_Feedback`, `ShopTimeline_Changelog`, `ShopTimeline_Config` (app
   settings); HR's `Employee Contacts` is read for the People-page import and never
   written (Pay Type and PersonalEmail must not be fetched — `docs/TODO.md` item 9)

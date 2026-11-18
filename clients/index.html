@@ -13,7 +13,7 @@
      the shared sign-in, data layer, toasts, sync pill, header and update check come from
      ../common/. v1.59.0 (item 92, the owner's review): the list scrolls on its own, and a
      record shows each current project at a glance and the client's project history. -->
-<link rel="stylesheet" href="../common/common.css?v=1.59.0">
+<link rel="stylesheet" href="../common/common.css?v=1.60.0">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html,body{min-height:100%}
@@ -90,6 +90,9 @@ h1{font-size:22px;line-height:1.25;font-weight:600}
 .field{display:block;margin-bottom:14px}
 .field span{display:block;font-size:12px;font-weight:600;margin-bottom:4px}
 .field input{width:100%;height:36px;padding:0 10px;border:1px solid var(--ts-control-line);border-radius:6px}
+.field textarea{width:100%;min-height:64px;padding:8px 10px;border:1px solid var(--ts-control-line);border-radius:6px;font:inherit;resize:vertical}
+.hist .link{padding:0;text-align:left;font:inherit}
+.hist .st-pill{margin-left:6px;white-space:nowrap}
 .field small{display:block;margin-top:4px;font-size:11px;color:var(--ts-muted)}
 .foot{display:flex;align-items:center;gap:8px;margin-top:6px}
 .note{max-width:560px;padding:20px;background:var(--ts-panel);border:1px solid var(--ts-line);border-radius:8px}
@@ -128,14 +131,15 @@ h1{font-size:22px;line-height:1.25;font-weight:600}
   </div>
 </div>
 <script src="../common/msal-browser.min.js"></script>
-<script src="../common/common.js?v=1.59.0"></script>
+<script src="../common/common.js?v=1.60.0"></script>
 <script>
-const APP_VER='1.59.0'; // stamped from Timeline's by `npm run notes`: one version for every product
+const APP_VER='1.60.0'; // stamped from Timeline's by `npm run notes`: one version for every product
 const POLL_MS=90000;     // the same freshness knob as Timeline's
 let CLIENTS=[],PEOPLE=[],PROJECTS=[],TASKS=[];
 let LOADED=false,SEL=null,EDIT=null,Q='',SAVING=0,PENDING=null;
 let GEN=0; /* bumped by every save: a refresh fetched before it must not put the old list back */
 let PROJ_OK=false; /* the projects were read: until then no count is shown, so none reads as "no projects" */
+let PAST=[],PAST_OK=false,PAST_RETRY=[]; /* item 93: projects from before Timeline; no list, no add button */
 
 /* ===================== DATA ===================== */
 /* Which client a project carries: its stable ID when the project has one (item 28), else
@@ -206,8 +210,15 @@ async function loadProjects(){
   PROJECTS=ps.filter(it=>it.fields.appId).map(it=>({...fieldsToProj(it.fields),refs:refsOf(it.fields.refs)}));
   TASKS=ts.filter(it=>it.fields.appId).map(it=>fieldsToTask(it.fields));
 }
+/* Item 93: projects from before Timeline. Clients owns this list. */
+const readPast=async()=>(await store.list('past')).map(it=>({spId:it.id,name:it.fields.Title||'',clientId:String(it.fields.clientId??''),
+  code:it.fields.jobCode||'',start:isoDay(it.fields.startDate),end:isoDay(it.fields.endDate),team:it.fields.team||''}));
+/* Noon UTC: a date-only column keeps the same day in every US time zone. */
+const pastToFields=x=>({Title:x.name,clientId:Number(x.clientId),jobCode:x.code,team:x.team,
+  startDate:x.start?x.start+'T12:00:00Z':null,endDate:x.end?x.end+'T12:00:00Z':null});
+async function loadPast(){try{PAST=await readPast();PAST_OK=true;}catch(e){console.warn('past projects not read',e);}}
 async function loadAll(){
-  const [c,s,p,g]=await Promise.allSettled([readClients(),store.list('staff'),loadProjects(),readConfig()]);
+  const [c,s,p,g]=await Promise.allSettled([readClients(),store.list('staff'),loadProjects(),readConfig(),loadPast()]);
   if(s.status==='fulfilled')PEOPLE=s.value.map(it=>({name:it.fields.Title||'',email:it.fields.email||'',admin:adminFlag(it.fields.admin),nickname:it.fields.nickname||''}));
   /* The staff list unreachable: the roster Timeline keeps in this browser decides, as it does in
      Timeline — never "no roster, so everyone's an admin" on a blip. */
@@ -249,7 +260,7 @@ function runSync(old,again){
       toast(again?'Still couldn\'t save the client list: '+store.explain(e)+' Click "clients not saved" to retry again.'
         :'Couldn\'t save the client list to SharePoint: '+store.explain(e)+' Your change is still on screen — click "clients not saved" at the top right to retry.','err',null,e.message);});
 }
-function retryPending(){if(!PENDING)return;const p=PENDING;PENDING=null;runSync(p.old,true);}
+function retryPending(){const r=PAST_RETRY;PAST_RETRY=[];r.forEach(runPast);if(!PENDING)return;const p=PENDING;PENDING=null;runSync(p.old,true);}
 
 /* ===================== THE PAGE ===================== */
 const M=()=>document.getElementById('main');
@@ -303,7 +314,14 @@ function paintRecord(){
   const all=projectsOf(c),cur=all.filter(x=>x.status!=='complete')
     .sort((a,b)=>String(a.due||'9999').localeCompare(String(b.due||'9999'))||a.p.name.localeCompare(b.p.name));
   const fin=all.filter(x=>x.status==='complete').sort((a,b)=>String(b.end).localeCompare(String(a.end))||a.p.name.localeCompare(b.p.name));
-  const done=fin.length,pid=p=>encodeURIComponent(p.id);
+  /* item 93: its projects from before Timeline join the history, by finish date */
+  const hist=[...fin.map(x=>({end:x.end,name:x.p.name,x})),...PAST.filter(y=>c.spId&&y.clientId===String(c.spId)).map(y=>({end:y.end,name:y.name,y}))]
+    .sort((a,b)=>String(b.end).localeCompare(String(a.end))||a.name.localeCompare(b.name));
+  const done=hist.length,pid=p=>encodeURIComponent(p.id);
+  const histRow=({x,y})=>x?'<tr><td><a href="../timeline/#/project/'+pid(x.p)+'">'+esc(x.p.name)+'</a></td><td class="code">'+esc(x.p.jobCode||'—')+'</td>'
+      +'<td class="dates">'+esc(span(x.start,x.end)||'—')+'</td><td>'+esc(teamOf(x,true)||'—')+'</td></tr>'
+    :'<tr><td><button class="link" data-past="'+esc(y.spId)+'">'+esc(y.name)+'</button><span class="st-pill">Before Timeline</span></td><td class="code">'+esc(y.code||'—')+'</td>'
+      +'<td class="dates">'+esc(span(y.start,y.end)||'—')+'</td><td>'+esc(y.team.trim()||'—')+'</td></tr>';
   el.innerHTML='<div class="rec-top"><h2>'+esc(c.name)+'</h2>'+(c.alias?'<div class="alias">'+esc(c.alias)+'</div>':'')+'</div>'
     +'<div class="sec"><div class="sec-h"><h3>Details</h3><span class="grow"></span><button class="link" id="edit">Edit client</button></div>'
     +'<dl class="kv"><dt>Client alias</dt><dd'+(c.alias?' class="alias"':'')+'>'+(c.alias?esc(c.alias):'—')+'</dd></dl></div>'
@@ -319,15 +337,64 @@ function paintRecord(){
       :'<p class="mut">'+(!PROJ_OK?'Couldn\'t read the projects from SharePoint.':all.length?'Not on any current project. '+done+' finished.':'Not on any project yet.')+'</p>')
     +'</div>'
     /* item 92: every finished project, newest first, with its cost code, dates and team. */
-    +(PROJ_OK?'<div class="sec"><div class="sec-h"><h3>Project history</h3><span class="grow"></span>'+(done?'<span class="mut">'+done+' finished, newest first</span>':'')+'</div>'
+    +(PROJ_OK?'<div class="sec"><div class="sec-h"><h3>Project history</h3><span class="grow"></span>'+(done?'<span class="mut">'+done+' finished, newest first</span>':'')
+      +(PAST_OK&&c.spId?'<button class="link" id="add-past">+ Add a past project</button>':'')+'</div>'
       +(done?'<div class="hist-wrap"><table class="hist"><thead><tr><th scope="col">Project</th><th scope="col">Cost code</th><th scope="col">Dates</th><th scope="col">Team</th></tr></thead><tbody>'
-        +fin.map(x=>'<tr><td><a href="../timeline/#/project/'+pid(x.p)+'">'+esc(x.p.name)+'</a></td><td class="code">'+esc(x.p.jobCode||'—')+'</td>'
-          +'<td class="dates">'+esc(span(x.start,x.end)||'—')+'</td><td>'+esc(teamOf(x,true)||'—')+'</td></tr>').join('')
+        +hist.map(histRow).join('')
         +'</tbody></table></div>':'<p class="mut">No finished projects yet.</p>')+'</div>':'');
   document.getElementById('edit').addEventListener('click',()=>{EDIT={name:c.name,alias:c.alias,_orig:c.name};paintRecord();document.getElementById('ce-name').focus();});
+  const openPast=r=>{EDIT={kind:'past',client:c.name,clientId:String(c.spId),name:'',code:'',start:'',end:'',team:'',...r};paintRecord();document.getElementById('pe-name').focus();};
+  const ap=document.getElementById('add-past');if(ap)ap.addEventListener('click',()=>openPast({_new:true}));
+  el.querySelectorAll('[data-past]').forEach(b=>b.addEventListener('click',()=>{
+    const y=PAST.find(z=>z.spId&&z.spId===b.dataset.past);if(y)openPast({...y,_orig:y.name});})); /* no ID yet: its save is still going */
+}
+/* Item 93: a project from before Timeline. Saved like a client: the screen changes now, and
+   a failed save stays on screen, retried from the sync pill. */
+function paintPastEditor(el){
+  const r=EDIT,F={'pe-name':'name','pe-code':'code','pe-start':'start','pe-end':'end','pe-team':'team'};
+  const f=(id,label,type,ph)=>'<label class="field"><span>'+label+'</span>'+(type==='area'?'<textarea id="'+id+'" placeholder="'+ph+'"></textarea>'
+    :'<input id="'+id+'" type="'+type+'" autocomplete="off">')+'</label>';
+  el.innerHTML='<div class="rec-top"><h2>Past project</h2></div><div class="sec">'
+    +f('pe-name','Project name','text')+f('pe-code','Cost code','text')+f('pe-start','Started','date')+f('pe-end','Finished','date')
+    +f('pe-team','Team','area','PM, project lead, designer, crew')
+    +'<div class="foot">'+(r._new?'':'<button class="btn danger" id="pe-del">Remove…</button>')
+    +'<span class="grow"></span><button class="btn" id="pe-cancel">Cancel</button><button class="btn primary" id="pe-save">Save</button></div></div>';
+  for(const id in F){const i=document.getElementById(id);i.value=r[F[id]]||'';
+    i.addEventListener('input',()=>{r[F[id]]=i.value;r._dirty=true;});
+    if(i.tagName==='INPUT')i.addEventListener('keydown',ev=>{if(ev.key==='Enter')savePast();});}
+  document.getElementById('pe-cancel').addEventListener('click',()=>{EDIT=null;paintRecord();});
+  document.getElementById('pe-save').addEventListener('click',savePast);
+  const del=document.getElementById('pe-del');if(del)del.addEventListener('click',removePast);
+}
+function writePast(next,call){GEN++;PAST=next;paint();runPast(call);}
+/* ponytail: failed calls replay in order; safe because a row can't be changed until its create lands (it has no ID) */
+function runPast(call){
+  SAVING++;setSync('busy');
+  call().then(()=>{SAVING--;if(!PAST_RETRY.length&&!PENDING)setSync('ok','synced '+stamp());})
+    .catch(e=>{SAVING--;console.error(e);PAST_RETRY.push(call);setSync('err','past projects not saved — click to retry');
+      toast('Couldn\'t save the past project to SharePoint: '+store.explain(e)+' Your change is still on screen — click "past projects not saved" at the top right to retry.','err',null,String(e&&e.message));});
+}
+function savePast(){
+  const r=EDIT;if(!r)return;
+  const name=(r.name||'').trim();
+  if(!name){toast('Give the project a name first.','err');return;}
+  const row={spId:r.spId||'',clientId:r.clientId,name,code:(r.code||'').trim(),start:r.start||'',end:r.end||'',team:(r.team||'').trim()};
+  EDIT=null;
+  if(r._new)writePast([...PAST,row],()=>store.create('past',pastToFields(row)).then(res=>{if(res&&res.id){row.spId=String(res.id);paint();}}));
+  /* a retry sends the row as it is then (a later edit wins; a removed row is skipped) */
+  else writePast(PAST.map(y=>y.spId===row.spId?row:y),()=>{const cur=PAST.find(y=>y.spId===row.spId);return cur?store.update('past',cur.spId,pastToFields(cur)):Promise.resolve();});
+  toast(name+' saved');
+}
+function removePast(){
+  const r=EDIT;if(!r||r._new)return;
+  if(!confirm('Remove '+r._orig+' from '+r.client+'\'s history?'))return;
+  EDIT=null;
+  writePast(PAST.filter(y=>y.spId!==r.spId),()=>store.remove('past',r.spId));
+  toast(r._orig+' removed');
 }
 function paintEditor(el){
   const r=EDIT;
+  if(r.kind==='past'){paintPastEditor(el);return;}
   el.innerHTML='<div class="rec-top"><h2>'+(r._new?'New client':esc(r._orig))+'</h2></div><div class="sec">'
     +'<label class="field"><span>Client name</span><input id="ce-name" type="text" autocomplete="off"></label>'
     +'<label class="field"><span>Client alias</span><input id="ce-alias" type="text" maxlength="6" autocomplete="off" placeholder="2–3 letter cost-code prefix"></label>'
@@ -345,7 +412,7 @@ function paintEditor(el){
 /* Leaving a record mid-edit asks first (Timeline's rule for its record pages). */
 function leaveEdit(){
   if(!EDIT||!EDIT._dirty)return true;
-  if(!confirm('Discard the changes to this client?'))return false;
+  if(!confirm('Discard the changes to this '+(EDIT.kind==='past'?'past project':'client')+'?'))return false;
   EDIT=null;return true;
 }
 function saveEdit(){
@@ -375,8 +442,8 @@ function removeClient(){
 /* The update check's three (item 85 (b)): a reload never costs an edit or a save. */
 function updWhyNot(){
   if(SAVING)return 'a save is still going — try again in a moment';
-  if(PENDING)return 'a save hasn’t reached SharePoint yet — click the sync pill to retry, then reload';
-  if(EDIT&&EDIT._dirty)return 'finish or cancel the client you’re editing first';
+  if(PENDING||PAST_RETRY.length)return 'a save hasn’t reached SharePoint yet — click the sync pill to retry, then reload';
+  if(EDIT&&EDIT._dirty)return 'finish or cancel the '+(EDIT.kind==='past'?'past project':'client')+' you’re editing first';
   return '';
 }
 function updBusy(){return !!(updWhyNot()||EDIT);}
@@ -397,7 +464,7 @@ appsBtn.addEventListener('click',ev=>{ev.stopPropagation();appsOpen(appsMenu_.cl
 document.addEventListener('click',ev=>{if(!ev.target.closest('.apps-wrap'))appsOpen(false);});
 document.addEventListener('keydown',ev=>{if(ev.key==='Escape'&&!appsMenu_.classList.contains('hidden')){appsOpen(false);appsBtn.focus();}});
 /* An edit, a save in flight or a parked one: the browser's own "leave site?" warning. */
-window.addEventListener('beforeunload',ev=>{if(SAVING||PENDING||(EDIT&&EDIT._dirty)){ev.preventDefault();ev.returnValue='';}});
+window.addEventListener('beforeunload',ev=>{if(SAVING||PENDING||PAST_RETRY.length||(EDIT&&EDIT._dirty)){ev.preventDefault();ev.returnValue='';}});
 
 (async()=>{
   try{
@@ -426,8 +493,8 @@ window.addEventListener('beforeunload',ev=>{if(SAVING||PENDING||(EDIT&&EDIT._dir
   },POLL_MS);
   document.addEventListener('visibilitychange',async()=>{
     if(document.visibilityState!=='visible'||!LOADED||!store.who()||updBusy())return;
-    try{const g=GEN,[fresh]=await Promise.all([readClients(),loadProjects()]);PROJ_OK=true;
-      if(g===GEN&&!updBusy()){CLIENTS=fresh;paint();}}catch(e){}
+    try{const g=GEN,[fresh,,past]=await Promise.all([readClients(),loadProjects(),readPast().catch(()=>null)]);PROJ_OK=true;
+      if(g===GEN&&!updBusy()){CLIENTS=fresh;if(past){PAST=past;PAST_OK=true;}paint();}}catch(e){}
   });
 })();
 </script>

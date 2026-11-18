@@ -16,10 +16,10 @@ Kept elsewhere so this file stays short:
 
 As of 2026-11-18:
 - **Live** (`main`, what users run): **v1.55.1**, Timeline only.
-- **Preview** (`development`, at `/preview/`): **v1.59.0**. The Systems page sits at the
+- **Preview** (`development`, at `/preview/`): **v1.60.0**. The Systems page sits at the
   root; Timeline moves to `/timeline/` with the Systems header and Apps menu; Clients is its
   own app at `/clients/`, and a client's record shows its current projects at a glance and
-  its project history; the code every product shares lives in `common/`.
+  its project history, projects from before Timeline included; the code every product shares lives in `common/`.
 - **The next release is the launch:** the People app, the Clients app and the Systems page
   go live together, complete and polished (owner, 2026-11-18). Nothing goes to `main` until
   then, however long the polish takes. The repository is renamed to `Systems` just before.
@@ -50,11 +50,10 @@ What each release changed: [`CHANGELOG.md`](../CHANGELOG.md).
 | Who | What they need to do | What it holds up |
 |---|---|---|
 | You | The design review above (item 90) | The launch |
-| You | Projects from before Timeline: OK the wording, then create their list (item 93) | Older projects in a client's history |
 | You | People app: wording picks, the merge question, the go (item 87) | The launch |
 | You (leadership, for an Organization) | Pick the GitHub plan (items 71, 24) | A private repository; the rename |
 | You | Create a test SharePoint site, or approve a list-name suffix on preview (item 17) | Testing without touching real data, before the pilot |
-| You, the tenant admin | Check what retention covers and that version history is on for all nine lists; start a weekly export (item 15) | A safety net for the lists |
+| You, the tenant admin | Check what retention covers and that version history is on for every list; start a weekly export (item 15) | A safety net for the lists |
 | You, leadership | A licence quote, and who would own an Azure account (item 51) | Choosing the data platform: SharePoint lists, Dataverse or Azure |
 | Project Director | Rules for tentative, confirmed and TBD dates (item 5) | Showing how firm a date is |
 | Project Director, you | Enter the pilot projects; set the pilot's size and end date (item 18) | The pilot |
@@ -117,24 +116,7 @@ applies from an exact spec; **[brief §N]** = the Project Director's September 2
       here before any of it is built. The launch waits on it.
       - *First notes, on Clients (2026-11-18):* the list scrolls on its own, and a client's
         record shows current projects at a glance and a project history: item 92, built in
-        v1.59.0. Projects from before Timeline: item 93.
-
-- [ ] **93. Projects from before Timeline in a client's history** (owner, 2026-11-18:
-      "Management will add pre-timeline projects if necessary", and not in Timeline). ⚠ Schema.
-      *Where* (owner, 2026-11-18: "Yes, in Clients"): from the client's record in the Clients
-      app. They show in its Project history beside the finished Timeline projects, by finish
-      date, marked "Before Timeline". Clients owns them.
-      *The list* (the owner creates it): `ShopTimeline_PastProjects`. `Title` (the project's
-      name, text), `clientId` (number: the client's SharePoint item ID, so a rename keeps
-      them), `jobCode` (text), `startDate` and `endDate` (date only), `team` (multiple lines
-      of text). Until it exists, Clients shows no add button.
-      *The wording, waiting on the owner's OK:* in the Project history header,
-      "+ Add a past project". Its form: "Past project"; fields "Project name", "Cost code",
-      "Started", "Finished", "Team" (hint: "PM, project lead, designer, crew"); "Remove…",
-      "Cancel", "Save". Its row: the name (no link) with a "Before Timeline" tag; a click
-      opens the form. Messages: "Give the project a name first.", "<name> saved",
-      "Remove <name> from <client>'s history?", "<name> removed".
-      Steps: the owner OKs the wording and creates the list; then it's built.
+        v1.59.0. Projects from before Timeline, added in Clients: item 93, built in v1.60.0.
 
 - [ ] **87. The People app** (the launch). ⚠ Architecture, on item 85. Timeline's People page
       becomes its own product at `people/`, built to the People wireframe, and leaves Timeline.

@@ -103,6 +103,11 @@ function makeFetch(data,opts){
       if(opts.clientsList)return ok({value:(data.clients||[]).map(toItem)});
       return fail(404);
     }
+    /* item 93: the Clients app's past projects — read when opts.pastList, else the list is missing */
+    if(u.includes('ShopTimeline_PastProjects')){
+      if(!opts.pastList)return fail(404);
+      return init&&init.method==='POST'?ok({id:'91'}):ok({value:(data.past||[]).map(toItem)});
+    }
     if(u.includes('/teams/')){
       /* Team membership (5b). Raw Graph member objects, not list items. */
       if(opts.teamMembers)return ok({value:data.teamMembers||[]});
@@ -117,7 +122,7 @@ function makeFetch(data,opts){
   };
   fn.calls=calls;
   return fn;
-  function toItem(f,i){return {id:'sp'+i,fields:f,
+  function toItem(f,i){return {id:f.__id||'sp'+i,fields:f, /* __id: a suite's own item ID (item 93: numeric, like SharePoint's) */
     lastModifiedBy:{user:{displayName:'Sam'}},lastModifiedDateTime:'2026-07-30T12:00:00Z'};}
 }
 
