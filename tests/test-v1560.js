@@ -27,9 +27,10 @@ ok('the header: the wordmark, then "Systems"', txt(pd.querySelector('.ts-top .ts
 ok('the page title and its line', txt(pd.querySelector('h1'))==='Your workspace'&&txt(pd.querySelector('.intro p'))==='Open an app to get started.');
 ok('the title names Systems', /^Systems/.test(pd.title), pd.title);
 const tiles=[...pd.querySelectorAll('.app-grid > li > .app-link')];
+/* v1.58.0 (item 86): Clients opens its own app; People shows greyed until launch 2 */
 const want=[['Timeline','Project schedules, phases and crews','Open Timeline','timeline/'],
-  ['People','Staff, contact details and time off','Open People','timeline/#/people'],
-  ['Clients','The client list','Open Clients · admins only','timeline/#/clients'],
+  ['People','Staff, contact details and time off','In Timeline for now',null],
+  ['Clients','The client list','Open Clients · admins only','clients/'],
   ['Office','Leads, estimates and job setup.','Not built yet',null]];
 const part=(t,c)=>t?txt(t.querySelector(c)):'';
 ok('four cards, in order', tiles.length===4&&want.every((w,i)=>part(tiles[i],'.app-name')===w[0]), tiles.map(t=>part(t,'.app-name')).join(','));
@@ -38,8 +39,9 @@ want.forEach((w,i)=>ok(w[0]+' reads "'+w[1]+'" over "'+w[2]+'"',
 ok('each card has its icon', tiles.every(t=>t.querySelector('.icon svg')));
 
 sec('R2: the cards\' links');
-want.slice(0,3).forEach((w,i)=>ok(w[0]+' links to '+w[3]+', with the → arrow', tiles[i]&&tiles[i].tagName==='A'&&tiles[i].getAttribute('href')===w[3]&&part(tiles[i],'.go')==='→'));
-ok('Office is greyed, not a link, and has no arrow', !!tiles[3]&&tiles[3].tagName!=='A'&&tiles[3].classList.contains('off')&&!tiles[3].closest('a')&&!tiles[3].querySelector('.go'));
+want.forEach((w,i)=>w[3]
+  ?ok(w[0]+' links to '+w[3]+', with the → arrow', tiles[i]&&tiles[i].tagName==='A'&&tiles[i].getAttribute('href')===w[3]&&part(tiles[i],'.go')==='→')
+  :ok(w[0]+' is greyed, not a link, and has no arrow', !!tiles[i]&&tiles[i].tagName!=='A'&&tiles[i].classList.contains('off')&&!tiles[i].closest('a')&&!tiles[i].querySelector('.go')));
 ok('the page loads no script file and no MSAL: it never signs in', !/\ssrc=/.test(portal)&&!/msal/i.test(portal.replace(/<!--[\s\S]*?-->/g,'')));
 
 sec('R3: old links go on to timeline/');

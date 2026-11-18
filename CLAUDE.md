@@ -17,11 +17,17 @@ Project rules and context for working in this repository. Read this before makin
   the root as `index.html` until v1.56.0 (item 49).
 - **`common/` — what every Systems product shares** (item 85, v1.56.1): `common.js` (the
   Systems constants, sign-in, the SharePoint data layer and `store`, toasts, the sync pill,
-  the expired-sign-in prompt, the Apps menu), `common.css` (the `--ts-*` tokens, toasts, the
-  sync pill, the shell's header and the wordmark font) and
+  the expired-sign-in prompt, the Apps menu, and since item 86 the shared data rules — dates,
+  departments, a project's status and due date, the project and phase readers, the admin
+  rule — and the update check), `common.css` (the `--ts-*` tokens, toasts, the sync pill, the
+  shell's header and the wordmark font) and
   the vendored `msal-browser.min.js`. Timeline loads them as `../common/`; their tags carry
   `?v=APP_VER`, which `npm run notes` stamps. Change them as carefully as Timeline itself:
   every product breaks with them.
+- **`clients/index.html` — Clients, the second Systems product** (item 86, v1.58.0): the
+  client list, its own app. It owns `ShopTimeline_Clients` (the only place a client is added,
+  changed or removed) and reads Projects, phases, Staff and Config. It carries Timeline's
+  `APP_VER`, stamped by `npm run notes`; `tests/test-v1580.js` boots it in the harness.
 - **`index.html` at the root — the Systems page**: a static page of product tiles, no
   sign-in. It forwards old `#/…` and `#view=` links to `timeline/`. A new product gets a tile
   here and a folder of its own (`people/`, `clients/`, `office/`, §4 D4).
@@ -227,7 +233,8 @@ repo's `flows/` folder, never to this public repo, and never hold secrets in an 
 Timeline — over one shared SharePoint dataset, reached from a portal at `/`. Each product
 creates and deletes only the data it owns; every product reads the shared dataset. Timeline
 manages production data only (schedule, phases, assignments, milestones, notes) and will
-hand its People and Clients pages to their own products. The portal exists since v1.56.0
+hand its People page to its own product (Clients went first: `clients/`, v1.58.0, item 86).
+The portal exists since v1.56.0
 (item 49: the Systems page at `/`, Timeline at `/timeline/`); the other products aren't built
 yet. The definition is `docs/TODO.md` §1 and the rulings are §4 D4/D8. Until they are,
 Timeline is the whole of the app that ships.

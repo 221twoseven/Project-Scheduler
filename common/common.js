@@ -8,6 +8,9 @@
      the product's Apps menu      — appsMenu(el, current, up), item 52 step 4.
    Optional hooks a product may define: toastPlace() (where the toast stack sits) and
    undo() (what a toast's Undo runs when it isn't given a function).
+   The update check (item 86, from 85 (b)) needs the product's const APP_VER and three
+   hooks: updWhyNot() (why a reload would lose work, or ''), updBusy() (don't disturb right
+   now) and updGo() (reload, after stashing anything the product can restore).
    Moved verbatim from timeline/index.html; the history comments travel with the code. */
 
 /* ===================== SHAREPOINT DATA LAYER ===================== */
@@ -264,14 +267,230 @@ function authShow(){
   setSync('err','signed out');
 }
 
+/* ===================== SHARED DATA RULES ===================== */
+/* Item 86 (v1.58.0): the rules every product reads the shared lists by, moved word for word
+   out of timeline/index.html when the Clients app became the second product to read them:
+   dates, the departments, a project's status and due date, the project and phase readers,
+   the staff flags and the admin rule, and the client reader. The writers stay with the
+   product that owns the data (projects and phases: Timeline; clients: the Clients app). */
+function today(){const d=new Date();d.setHours(0,0,0,0);return d;}
+function parseDate(s){if(!s)return today();const[y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d);}
+function fmtDate(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function esc(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+const isoDay=v=>v?String(v).slice(0,10):'';
+function safeArr(s){if(Array.isArray(s))return s;try{const a=JSON.parse(s);return Array.isArray(a)?a:[];}catch(e){return[];}}
+const DEPTS=[
+  /* 1 · OFFICE */
+  {id:'pm',        name:'Project Management', roster:'projectManagers', grp:'pmg'},
+  {id:'td',        name:'Technical Design',   roster:'drafters', est:10, grp:'tdg'},
+  /* v1.20.1 (owner): Technical Design is standalone like PM — no Other bucket. The id
+     stays (retired) so any existing othoffice rows keep rendering; it just never
+     appears in a picker again. */
+  {id:'othoffice', name:'Other (Office)',     freeText:true, est:3, grp:'tdg', retired:true},
+  /* 2 · DIGITAL FABRICATION */
+  {id:'cnc',       name:'CNC',          est:5, grp:'dfab'},
+  {id:'beamsaw',   name:'Beamsaw',      est:3, grp:'dfab'},
+  {id:'3dprint',   name:'3D Printing',  est:7, grp:'dfab'},
+  {id:'laser',     name:'Lasercutting', est:3, grp:'dfab'},
+  {id:'print',     name:'Printing',     est:3, grp:'dfab'},
+  {id:'other',     name:'Other (Digital Fab)', freeText:true, est:3, grp:'dfab'},
+  /* 3 · MAIN SHOP FAB */
+  {id:'fab',       name:'Main Shop Fab', roster:'leadFabs', est:10, grp:'shop'},
+  {id:'othshop',   name:'Other (Shop)',  freeText:true, est:3, grp:'shop'},
+  /* 4 · METAL SHOP */
+  {id:'metal',     name:'Metal Shop',    est:5, grp:'metal'},
+  /* 5 · UNIT 7 — runs parallel to Main Shop Fab. softgoods and electrical keep their ids
+     so existing SharePoint rows carry over untouched; only their group changed. */
+  {id:'softgoods', name:'Soft Goods',    est:5, grp:'unit7'},
+  {id:'vinyl',     name:'Vinyl Application', est:3, grp:'unit7'},
+  {id:'electrical',name:'Electrical',    est:5, grp:'unit7'},
+  {id:'othunit7',  name:'Other (Unit 7)', freeText:true, est:3, grp:'unit7'},
+  /* 4 · FINISHING — legacy id 'finish' kept so existing SharePoint tasks migrate cleanly */
+  {id:'prefinish', name:'Pre-Finishing', est:3, grp:'finish'},
+  {id:'finish',    name:'Painting',      est:5, grp:'finish'},
+  {id:'othfinish', name:'Other (Finishing)', freeText:true, est:3, grp:'finish'},
+  /* 5 · INSTALLATION */
+  {id:'install',   name:'Installation',  est:2, grp:'install'},
+  {id:'shipping',  name:'Shipping',      est:2, grp:'install'}, /* v1.20.6: the other way a job ends — one or both */
+  /* 6 · LOGISTICS — its own department (owner ask 09-02, v1.10.0) */
+  {id:'logistics', name:'Logistics',     est:2, grp:'logi'},
+];
+const DEPT_IDX=Object.fromEntries(DEPTS.map((d,i)=>[d.id,i]));
+const deptById=id=>DEPTS[DEPT_IDX[id]];
+const isEndDept=id=>id==='install'||id==='shipping';
+/* v1.26.0 (tracker #15, #20): a project's due date is the end of its Installation block
+   (the latest end if there are several), else the end of its Shipping block, else none.
+   The Setup "install date" (p.deadline) only anchors the first layout of a new job; it is
+   no longer shown on a saved project or read for lateness, so a job with neither block has
+   no due date and is never late. One rule for the sidebar chip, the chart drop-line, the
+   header strip, the tooltip, the PM late prompt, the Meeting Sheet and the Due-date sort. */
+function dueOf(tasks){
+  for(const k of ['install','shipping']){
+    let d='';
+    for(const t of (tasks||[]))if(t.department===k&&t.endDate&&t.endDate>d)d=t.endDate;
+    if(d)return{d,k};
+  }
+  return null;
+}
+const FAB_GRPS=['dfab','shop','metal','unit7','finish','install'];
+/* A project's status: the one it was given, or, for "auto" (the default), the one its phases
+   say — complete once its last install or shipping block has ended, fabrication once a
+   fabrication-group phase has started, design once a design phase has, else estimating.
+   ts = the project's phases, t = today at midnight. Timeline's _projStatus() until item 86. */
+function statusOf(p,ts,t){
+  if(p.status&&p.status!=='auto')return STATUS_MIGRATE[p.status]||p.status;
+  const ends=ts.filter(x=>isEndDept(x.department)).map(x=>parseDate(x.endDate).getTime());
+  if(ends.length&&t.getTime()>Math.max(...ends))return 'complete';
+  const started=g=>{
+    const m=ts.filter(x=>{const d=deptById(x.department);return d&&g.includes(d.grp);});
+    return m.length&&t.getTime()>=Math.min(...m.map(x=>parseDate(x.startDate).getTime()));
+  };
+  if(started(FAB_GRPS))return 'in-fabrication';
+  if(started(['tdg']))return 'in-design';
+  return 'estimating';
+}
+const STATUS_LBL={'forecast':'Forecast','estimating':'Estimating','in-design':'Design','in-fabrication':'Fabrication','on-hold':'On Hold','complete':'Complete'};
+/* Retired statuses -> where they land. Applied once on load, in migrate(). */
+const STATUS_MIGRATE={'approved':'in-fabrication','in-production':'in-fabrication','installing':'in-fabrication','invoiced':'complete','called-off':'complete'};
+function fieldsToProj(f){return{id:f.appId,name:f.Title||'',client:f.client||'',jobCode:f.jobCode||'',deadline:isoDay(f.deadline),status:f.status||'auto',projectManager:f.projectManager||'',drafter:f.drafter||'',leadFab:f.leadFab||'',fabricators:f.fabricators||'',activeDepartments:safeArr(f.activeDepartments),sortIndex:f.sortIndex==null?null:Number(f.sortIndex),createdAt:isoDay(f.createdAt),
+  ...(f.confirmedAt?{confirmedAt:String(f.confirmedAt),confirmedBy:String(f.confirmedBy||'')}:{})};} /* v1.48.0 (item 6): "Schedule still accurate", read only when set; projToFields never writes it — only ppConfirmSchedule does */
+function fieldsToTask(f){const a=(isEndDept(f.department)&&typeof f.assignee==='string'&&f.assignee.trim().startsWith('['))?safeArr(f.assignee):(f.assignee||'');return{id:f.appId,projectId:f.projectId,department:f.department,assignee:a,startDate:isoDay(f.startDate),endDate:isoDay(f.endDate),estimatedDays:Number(f.estimatedDays)||1,ticketNodes:safeArr(f.ticketNodes),notes:f.notes||'',pinned:!!f.pinned,label:f.label||'',...(f.range?{range:true}:{})};} /* v1.32.0 (#16): tristate on the read side too — a loaded non-range row keeps its pre-v1.32.0 shape, so stripStamps() still matches a row created in this session and the poll never wipes the undo stack over it */
+function flagTruthy(v){return v===true||v===1||/^(1|yes|true)$/i.test(String(v||''));}
+/* v1.8.0: the admin column's three values — '1' admin, 'dev' admin and developer, empty no —
+   and null when the row never carried the column (tristate, see flagTruthy). */
+function adminFlag(v){return v==null?null:(flagTruthy(v)||/^dev/i.test(String(v)));}
+/* REV66: the identity chain — who is the signed-in user on a staff list? Login email against
+   the row's email first, display name second. Null when unresolved. (Timeline's meName().) */
+function staffMe(people){
+  const w=store.who();
+  if(!w)return null;
+  const em=w.email.trim().toLowerCase();
+  let p=em?people.find(x=>String(x.email||'').trim().toLowerCase()===em):null;
+  if(!p){const nm=w.name.trim().toLowerCase();
+    if(nm)p=people.find(x=>x.name.trim().toLowerCase()===nm);}
+  return p||null;
+}
+/* v1.8.0 (§3 item 12): admin vs regular users. The staff list's admin column is the switch:
+   while NO roster row carries a value (column absent / legacy data), everyone is admin.
+   Once any row carries a value, only truthy rows are admins; everyone else (unmatched
+   sign-ins included) is a viewer. UI gating is workflow protection, NOT security — every
+   signed-in token still carries Sites.ReadWrite.All. */
+function rosterAdmin(people){
+  if(!people.length||people.every(p=>p.admin==null))return true;
+  const p=staffMe(people);
+  return !!(p&&p.admin);
+}
+/* REV69 (N3): a Clients list row. Title is the client's name, field_2 its 2–3 letter
+   cost-code alias; rows carry no appId, so a client is keyed on its SharePoint item id. */
+function clientFromItem(it){return{spId:it.id,name:it.fields.Title||'',alias:it.fields.field_2||''};}
+async function readConfig(){
+  const raw={},ids={};
+  for(const it of await store.list('config')){raw[it.fields.Title]=String(it.fields.value||'');ids[it.fields.Title]=it.id;}
+  return{raw,ids};
+}
+
+/* ===================== UPDATE CHECK ===================== */
+/* GitHub Pages serves index.html with max-age=600, which the page's no-cache metas don't
+   override, so an open tab ran an old build until someone happened to reload it. Every
+   12 h, and when the tab comes back into view (at most once per 30 min), the app GETs
+   its own index.html with cache:'no-store', reads the APP_VER in it and re-reads
+   ShopTimeline_Config. Newer build → a toast with Reload that stays until acted on.
+   Config key update.minVersion (the owner's lever: App settings ▸ "Ask everyone to
+   reload", or the list item) newer than the running build → a "retired" notice that
+   reloads by itself after UPD_GRACE seconds, never mid-drag, mid-save or over an unsaved
+   draft. Never tied to the 90 s data poll: this is one document GET, not Graph.
+   ponytail: retire holds until the served build satisfies minVersion — a minVersion set
+   from /preview/ never loops production tabs through a reload that can't help.
+   v1.56.0 (item 49): a tab opened before Timeline moved into timeline/ still checks the
+   root, which is now the Systems page. That page names v1.56.0 in a comment, so those
+   tabs are offered the reload, and its forward sends their #/… route on to timeline/. */
+const UPD_MS=12*3600e3,UPD_FOCUS_MS=30*60e3;
+let UPD_GRACE=30,UPD_LAST=Date.now(),UPD_SHOWN='',UPD_RETIRE=null;
+/* Item 86 (85 b): the Config list's raw values and row ids, read with the rest at load by the
+   product and re-read here (update.minVersion). */
+let SP_CFG_IDS={};
+let CFG_RAW={}; /* v1.33.0: every key's value as text, for string keys (update.minVersion) */
+/* Tolerates a hand-typed "v1.34.0" on the list (a NaN part would otherwise read as equal). */
+function verCmp(a,b){const p=s=>String(s).trim().replace(/^v/i,'').split('.').map(Number);const x=p(a),y=p(b);for(let i=0;i<3;i++){const d=(x[i]||0)-(y[i]||0);if(d)return d;}return 0;}
+/* One toast per purpose (id) with its own button label; it stays until acted on unless
+   ttl is given. Same strip and controls as toast() — Design-Language §6. */
+function updToast(id,msg,label,fn,kind,ttl){
+  const box=document.getElementById('toasts');
+  let el=document.getElementById(id);
+  if(!el){el=document.createElement('div');el.id=id;box.appendChild(el);}
+  el.className='toast'+(kind==='err'?' err':'');el.textContent=msg;
+  const gone=()=>{el.remove();toastLayout();};
+  const b=document.createElement('button');b.className='undo';b.textContent=label;b.addEventListener('click',()=>{if(fn()!==false)gone();});el.appendChild(b); /* a refused reload keeps the toast */
+  const x=document.createElement('button');x.className='toast-x';x.textContent='×';x.title='Dismiss';x.setAttribute('aria-label','Dismiss');
+  x.addEventListener('click',gone);el.appendChild(x);
+  if(ttl)setTimeout(()=>{if(el.isConnected){el.classList.add('out');setTimeout(gone,350);}},ttl);
+  toastLayout();if(typeof toastPlace==='function')toastPlace();
+  return el;
+}
+function updReload(){
+  const why=updWhyNot();
+  if(why){toast('Not reloaded: '+why+'.','err');return false;}
+  updGo();
+}
+let UPD_RETRY=null;
+async function updCheck(force){
+  if(!force&&Date.now()-UPD_LAST<UPD_FOCUS_MS)return;
+  /* Busy: don't even look. One retry a minute later (a single timer, however many
+     focus events arrive), so a release lands once the person is done. */
+  if(updBusy()){if(!UPD_RETRY)UPD_RETRY=setTimeout(()=>{UPD_RETRY=null;updCheck(true);},60e3);return;}
+  UPD_LAST=Date.now();
+  let latest='';
+  try{
+    const r=await fetch(location.pathname+'?v='+Date.now(),{cache:'no-store'});
+    const m=/APP_VER\s*=\s*'(\d[^']*)'/.exec(await r.text());if(m)latest=m[1];
+  }catch(e){}
+  /* Refresh only the raw values (minVersion) — never loadConfig(): a blip here must not
+     flip CFG_OK or overwrite the grants, which stay read-at-load by design. */
+  if(store.who())try{
+    const c=await readConfig();Object.assign(SP_CFG_IDS,c.ids);CFG_RAW=c.raw;
+  }catch(e){}
+  updApply(latest);
+}
+function updApply(latest){
+  const min=CFG_RAW['update.minVersion']||'';
+  if(min&&verCmp(APP_VER,min)<0&&latest&&verCmp(latest,min)>=0)return updRetire();
+  if(latest&&verCmp(latest,APP_VER)>0&&UPD_SHOWN!==latest){UPD_SHOWN=latest;
+    const el=updToast('upd-toast','v'+latest+' is available','Reload',updReload);
+    /* × only snoozes it: the next check (30 min focus / 12 h) offers again. */
+    el.querySelector('.toast-x').addEventListener('click',()=>{UPD_SHOWN='';});}
+}
+function updRetire(){
+  if(UPD_RETIRE)return;
+  let left=UPD_GRACE;
+  const txt=()=>'This version has been retired — reloading in '+left+' s';
+  const el=updToast('upd-toast',txt(),'Reload now',updReload,'err');
+  el.querySelector('.toast-x').remove(); /* not dismissable: the reload is the way out */
+  UPD_RETIRE=setInterval(()=>{
+    if(updBusy())return; /* hold the countdown while someone is mid-edit */
+    if(el.nextElementSibling){el.parentNode.appendChild(el);toastLayout();} /* stay newest: never hidden behind later toasts */
+    left=Math.max(0,left-1);el.firstChild.nodeValue=left?txt():'This version has been retired — reloading now';
+    if(left<=0&&updReload()!==false)clearInterval(UPD_RETIRE); /* a refused reload keeps trying each second */
+  },1000);
+}
+/* Item 86: start watching. A build that boots already retired (served from the 10-minute
+   Pages cache after the lever was pulled) probes at once; then every 12 h, and on coming back
+   to the tab. A product calls it once, after its first load. */
+function updWatch(){
+  if(CFG_RAW['update.minVersion']&&verCmp(APP_VER,CFG_RAW['update.minVersion'])<0)updCheck(true);
+  setInterval(()=>updCheck(true),UPD_MS);
+  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')updCheck();});
+}
+
 /* ===================== THE SYSTEMS SHELL ===================== */
 /* Item 52 step 4 (v1.57.0): the Systems products, in the Systems page's order. href is from
    the site root; no href = not built yet, shown greyed (owner, 2026-11-18: all four listed).
-   Keep it in step with the Systems page's cards (test-v1570 checks). */
+   Keep it in step with the Systems page's cards (test-v1570 checks).
+   Item 86 (v1.58.0): Clients is its own app; People shows greyed until it is too (launch 2),
+   so nothing here points into Timeline's pages (owner, 2026-11-18: "In Timeline for now"). */
 const SYSTEMS_APPS=[
   {name:'Timeline',href:'timeline/'},
-  {name:'People',href:'timeline/#/people'},
-  {name:'Clients',href:'timeline/#/clients',note:'admins only'},
+  {name:'People',note:'In Timeline for now'},
+  {name:'Clients',href:'clients/',note:'admins only'},
   {name:'Office',note:'Not built yet'}];
 /* Fill a product's Apps menu: the product you're in ticked, the others as links, the unbuilt
    ones greyed. up = the way from this page to the site root ('../' for a product folder). */

@@ -41,11 +41,14 @@ So Entra must hold that exact string, registered under the **Single-page applica
 ```
 https://221twoseven.github.io/Project-Scheduler/timeline/
 https://221twoseven.github.io/Project-Scheduler/preview/timeline/
+https://221twoseven.github.io/Project-Scheduler/clients/
+https://221twoseven.github.io/Project-Scheduler/preview/clients/
 https://221twoseven.github.io/Project-Scheduler/
 https://221twoseven.github.io/Project-Scheduler/preview/
 ```
 
-One line per Timeline: production and `/preview/`. The Systems page never signs in. The last
+One line per product, production and `/preview/`: Timeline, and Clients since v1.58.0 (item
+86: added before that PR merged). The Systems page never signs in. The last
 two are where Timeline lived before v1.56.0: a tab opened before the move still signs in
 from there, so keep them until v1.56.0 has been on production for a working day, then they
 can go. (`/test/` was registered for item 72 on 2026-10-16 and retired 2026-10-19; its URI

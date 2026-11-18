@@ -14,6 +14,7 @@ name: Deploy Pages
 # branch doesn't have is simply skipped.
 # Item 85 (v1.56.1): common/ holds what every product shares (MSAL, the shared core
 # and styles); Timeline loads it as ../common/.
+# Item 86 (v1.58.0): the Clients app, the second product, lives in clients/.
 on:
   push:
     branches: [main, development]
@@ -53,6 +54,7 @@ jobs:
             msal-browser.min.js
             timeline/index.html
             timeline/msal-browser.min.js
+            clients/index.html
             common/common.js
             common/common.css
             common/msal-browser.min.js
@@ -70,6 +72,7 @@ jobs:
             msal-browser.min.js
             timeline/index.html
             timeline/msal-browser.min.js
+            clients/index.html
             common/common.js
             common/common.css
             common/msal-browser.min.js

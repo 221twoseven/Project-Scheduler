@@ -88,14 +88,14 @@ async function partB(){
   E("savePeople(PEOPLE.filter(p=>p.name!=='Milo'))");
   await wait(120);
   ok('savePeople refuses', E("PEOPLE.some(p=>p.name==='Milo')")===true);
-  E("saveClients([{name:'X',alias:''}])");
-  await wait(120);
-  ok('saveClients refuses', E('CLIENTS.length')===0);
+  /* v1.58.0 (item 86): Timeline has no client writer at all now; the Clients app owns the list
+     and shows a non-admin its "Clients is for admins." page instead */
+  ok('saveClients refuses: Timeline can\'t write clients at all', E('typeof saveClients')==='undefined');
 
   sec('B · admin-only doors are shut');
   E("location.hash='#/clients'");
   await wait(120);
-  ok('the clients page bounces to the timeline', E('ROUTE.view')==='timeline');
+  ok('the clients page bounces to the timeline (v1.58.0: on to the Clients app)', E('ROUTE.view')==='timeline');
   E("location.hash='#/project/new'");
   await wait(120);
   ok('the new-project draft bounces to the timeline', E('ROUTE.view')==='timeline');

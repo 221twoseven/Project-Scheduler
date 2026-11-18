@@ -151,9 +151,11 @@ init.
   tasks, touches no state — which is what makes the live create-page preview possible.
 - **Routing** is hash-based: `#/` timeline, `#/project/<id>` a project, `#/project/new` a
   new one. Each project has a paste-able URL. The Company Data pages share one chrome
-  (`cd-route`): `#/people`, `#/clients`, `#/changelog`, `#/releases`, `#/issues`
+  (`cd-route`): `#/people`, `#/changelog`, `#/releases`, `#/issues`
   (`#/issues/<spId>` deep-links one report); `#/settings` and `#/reports` are
-  developer-only. `#view=` opens a saved view.
+  developer-only. `#view=` opens a saved view. An old `#/clients` link goes on to the
+  Clients app (`clients/`, v1.58.0, item 86), which owns the client list; Timeline only reads
+  it, and re-reads it on the poll and when its tab comes back into view.
 - **Project page** is the dashboard: a meta strip of numbers, then chart and inspector
   side by side. Selection drives the inspector (nothing selected → project; a bar
   selected → that phase). No tabs, no bar popover. Saved projects autosave; only new ones

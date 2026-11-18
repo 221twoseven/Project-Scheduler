@@ -107,12 +107,14 @@ function main(){
   ok('R2: the list/detail divider is present and the split handle rides it', !!q('#cd-split')&&/\.cd-list\{[^}]*border-right:1px solid #E2E8F0/.test(src)&&/#cd-split\{flex:0 0 6px;margin-left:-3px/.test(src));
   ok('R2 plan 3: every column edge draws its thin line', qa('.cd-cols>i.cd-grip').length===N&&/\.cd-grip::after\{[^}]*width:1px;background:#D8E2EF\}/.test(src));
 
-  sec('the Clients page is untouched');
+  /* v1.58.0 (item 86): Clients left Timeline for its own app, so no client rows ever take the
+     People page's columns */
+  sec('the Clients page is untouched (v1.58.0: it is its own app)');
   win.location.hash='#/clients';
   win.dispatchEvent(new win.Event('hashchange'));
   setTimeout(()=>{
     const cl=qa('.cd-row.cl');
-    ok('client rows keep their three cells', cl.length>=0&&cl.every(r=>r.children.length===3), cl.map(r=>r.children.length).join());
+    ok('client rows keep their three cells — none render in Timeline now', cl.length===0, cl.map(r=>r.children.length).join());
     ok('no People column variable is applied on the Clients page', !q('.cd-list')||q('.cd-list').style.getPropertyValue('--cdc1')==='');
     done();
   },400);

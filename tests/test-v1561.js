@@ -49,9 +49,11 @@ ok('every moved name is declared in common.js', !notInCommon.length, notInCommon
 ok('…and none is declared in timeline/index.html any more', !stillInTimeline.length, stillInTimeline.join(','));
 
 sec('R4: Timeline keeps its own hooks');
-const kept=['toastPlace','updToast','retryPending','syncNow','SP_IDS','TODOS_OK'];
+/* v1.58.0 (item 86, 85 (b)): the update check, updToast() with it, moved into common/ too;
+   Timeline keeps its hooks for it (updWhyNot, updBusy, updGo) */
+const kept=['toastPlace','retryPending','syncNow','SP_IDS','TODOS_OK','updWhyNot','updBusy','updGo'];
 const lost=kept.filter(n=>!decl(raw,n));
-ok('toastPlace, the update toast, the save queue and its ids stay in Timeline', !lost.length, lost.join(','));
+ok('toastPlace, the save queue and its ids, and the update check\'s hooks stay in Timeline', !lost.length, lost.join(','));
 ok('the sign-in button stays in Timeline (it replays Timeline\'s parked saves)', /getElementById\('auth-signin'\)\.addEventListener\('click'/.test(raw));
 ok('the shared toast asks the product where its stack goes, if it says', js.includes("if(typeof toastPlace==='function')toastPlace();"));
 
