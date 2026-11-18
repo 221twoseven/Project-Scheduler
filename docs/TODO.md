@@ -70,11 +70,15 @@ As of 2026-11-18: production (`main`) runs **v1.55.1**, promoted 2026-11-17
 root and Timeline moves to `/timeline/` (v1.56.0, item 49), the core every product
 shares moves into `common/` (v1.56.1, item 85 (a)), the shell gives Timeline the
 Systems header with an Apps menu (v1.57.0, item 52 step 4), and Clients becomes its own app
-at `/clients/` (v1.58.0, items 86 and 85 (b)). That is all of launch 1 (§2). **Held from
-production** (owner, 2026-11-17) until the owner promotes launch 1, and not before the owner's
-design and feature review of the Clients app and the Systems page on `/preview/` (owner,
-2026-11-18: "not ready"); what the review asks for becomes items first. Promotions wait for it; a fix production needs meanwhile is built from `main` and merged
-back into `development`.
+at `/clients/` (v1.58.0, items 86 and 85 (b)). **Held from production** (owner, 2026-11-17).
+**The next promotion is one launch** (owner, 2026-11-18): a completed People app (item 87),
+a completed Clients app and a completed Systems page, polished after the owner's design and
+feature review on `/preview/` ("not ready"; what the review asks for becomes items first),
+with the repository renamed to `Systems` just before it (item 88). Nothing goes to `main`
+until then, however long the polish takes; PR #207 (the Clients deploy lines, sent to `main`
+ahead) was closed unmerged for that reason. A fix production needs meanwhile is built from
+`main`, adds `clients/index.html` to the deploy workflow's lists (or `/preview/clients/`
+drops out until the next push to `development`), and is merged back into `development`.
 
 The newest work on production:
 - v1.55.1: a long Changelog entry folds after its first four lines (item 84);
@@ -212,8 +216,7 @@ number is given when it ships. Proposed:
 | 2 | 25 (saved views follow the person ⚠ `savedViews`; Lock dates remembered per user), 7 (repeat work easier to find), 8 (label the department rollup band) |
 | Seam (no release) | 48 (the storage seam), eight behaviour-neutral PRs interleaved after batch 1; PRs 1–2 first, since item 51's Azure spike waits on them |
 | 3 | 5 (date certainty ⚠ `dateCertainty`), 6 (last update shown, stale flag) |
-| Launch 1 — Clients (owner, 2026-11-17) | 49 (the Systems page, on `development` as v1.56.0), 85 (the shared `common/` module), 52 step 4 (the shell), 86 (the Clients app). One promotion; the People card stays greyed |
-| Launch 2 — People | 87 (the People app) |
+| The launch (owner, 2026-11-18; launches 1 and 2 of 2026-11-17 made one) | 49 (the Systems page), 85 (the shared `common/` module), 52 step 4 (the shell), 86 (the Clients app), 87 (the People app), the items from the owner's design and feature review, then 88 (rename the repository) just before the promotion. One promotion, when all three are complete |
 | Office (Phase 8) | Office's own releases, in project-cycle order: 45 (job lead / forecast), 44 (estimate), 42 (cost-code generation), 43 (job creation with the QuickBooks / TCP hand-off) |
 | Office (Phase 9) | 11 (closeout and billing states ⚠), the last step of the cycle; moved out of the pilot 2026-09-29 |
 | As they resolve | 3 (tour loop: reproduce, then fix), 10 (automatic Complete vs closeout), 19–24 |
@@ -1209,6 +1212,8 @@ is item 32 (P0), #7 is part of item 3, and #11 and #14 were done by the bridge i
         DNS and Entra setup can be done ahead of them; the revised spec of the same day
         answers that.
       - *Hold continued 2026-10-19* (owner).
+      - *2026-11-18 (owner):* the repository rename (item 88) comes first and takes
+        `Project-Scheduler` out of the address; the custom domain can follow whenever.
       [tracker #12]
 - [x] **41. People page: column widths.** Shipped v1.26.3 (PR #81, 2026-10-02), with tracker
       #27's header spill-over in the same PR. The columns are hard to line up. Make each fit
@@ -1525,8 +1530,8 @@ record is each ticket's "Fix shipped" note and `CHANGELOG.md`):
         half-baked version." v1.55.1 was promoted just before it (release/2026-11-17c). It
         goes out as launch 1 (owner, 2026-11-17): the Systems page with the shell (item 52
         step 4), the shared module (item 85) and the Clients app (item 86), so no card
-        points at a page Timeline already has. Launch 2 is the People app (item 87). §2's
-        batches table has both.
+        points at a page Timeline already has. Launch 2 is the People app (item 87).
+        *2026-11-18 (owner):* the two launches are one, with the People app (§0, §2).
       - [ ] *Clean-up, a working day after v1.56.0 reaches production:* the owner removes the
         old `/` and `/preview/` redirect URIs; Claude deletes the two MSAL copies kept at the
         old paths for cached pages (`msal-browser.min.js` and `timeline/msal-browser.min.js`,
@@ -1568,10 +1573,12 @@ The owner's rulings of 2026-11-17: the Systems page goes to production only when
 lead somewhere new, so it ships with the shell and a real Clients app (launch 1), then the
 People app (launch 2); each app takes its page out of Timeline. Both go ahead of Office,
 which waits on D1 and item 14 meanwhile. The People app keeps today's fields and who sees
-them. These items are the plan for the owner to review: nothing here is built, and items 85
-to 87 are architecture, so each needs the owner's go before code.
+them. Items 85 to 87 are architecture, so each needs the owner's go before code.
+*2026-11-18 (owner):* launches 1 and 2 are one promotion — a completed People app, Clients
+app and Systems page — with the rename (item 88) just before it. Nothing goes to `main`
+until all three are complete.
 
-- [x] **85. The shared module, `common/`** (launch 1). Shipped v1.58.0 (PR #208, 2026-11-18):
+- [x] **85. The shared module, `common/`** (the launch). Shipped v1.58.0 (PR #208, 2026-11-18):
       (a) in v1.56.1, (b) in v1.58.0. ⚠ Architecture. A second product
       needs the sign-in and data code Timeline has, so that code moves into one shared folder
       that every product loads. D4 planned this for when product #2 starts.
@@ -1621,8 +1628,9 @@ to 87 are architecture, so each needs the owner's go before code.
         rules the Clients app reads by: dates, the departments, a project's status
         (`statusOf`) and due date, the project and phase readers. The viewer grants stay in
         Timeline: they open Timeline's own doors, and Clients is admin-only.
-- [x] **86. The Clients app** (launch 1). Shipped v1.58.0 (PR #208, 2026-11-18); the deploy
-      lists went to `main` first (PR #207). Owner's go and wording picks 2026-11-18: no left
+- [x] **86. The Clients app** (the launch). Shipped v1.58.0 (PR #208, 2026-11-18); its deploy
+      lines reach `main` with the launch (PR #207, which sent them ahead, was closed unmerged
+      2026-11-18, owner). Owner's go and wording picks 2026-11-18: no left
       rail while Clients is its only section; "The company's clients and their cost-code
       aliases."; a client's record lists its current projects (code · due date, status · PM,
       a link into Timeline, "N in all"); People greyed "In Timeline for now". Timeline
@@ -1648,7 +1656,7 @@ to 87 are architecture, so each needs the owner's go before code.
         forwards to `../clients/`. The client dropdown (item 81) keeps reading the list, and
         its "not on the list" note links to the app.
       - *Systems page and the Apps menu:* the Clients card points at `clients/`. The People
-        card is greyed until launch 2, so no card points into Timeline. The Apps menu's list
+        card is greyed until the People app (item 87), so no card points into Timeline. The Apps menu's list
         (`SYSTEMS_APPS` in `common/common.js`, v1.57.0) changes with it; `test-v1570` checks
         the two agree.
       - *The owner:* add the `/clients/` and `/preview/clients/` SPA redirect URIs before the
@@ -1656,7 +1664,7 @@ to 87 are architecture, so each needs the owner's go before code.
       - *Data:* no schema change. A rename already reaches projects through their stable IDs
         (item 28).
       - *Rollback:* revert. The Clients list is untouched.
-- [ ] **87. The People app** (launch 2). ⚠ Architecture, on item 85. Timeline's People page
+- [ ] **87. The People app** (the launch). ⚠ Architecture, on item 85. Timeline's People page
       becomes its own product at `people/`, built to the People wireframe, and leaves Timeline.
       - *Today's fields, and who sees them, exactly* (owner, 2026-11-17). HR-only fields and
         new tabs wait for item 26's tiers and item 27's split.
@@ -1675,6 +1683,34 @@ to 87 are architecture, so each needs the owner's go before code.
       - *The owner:* add the `/people/` and `/preview/people/` SPA redirect URIs before the
         merge.
       - *Rollback:* revert. The Staff list is untouched.
+- [ ] **88. Rename the repository to `Systems`** (owner, 2026-11-18). Done immediately
+      before the launch's promotion to `main`, so users get the new address with the new
+      apps, once. The Pages address carries the repository's name: today Timeline is at
+      `221twoseven.github.io/Project-Scheduler/timeline/`, after the rename
+      `221twoseven.github.io/Systems/timeline/`. The custom domain (item 40) may not come
+      soon; the rename doesn't wait for it. The app needs no change: it loads its shared
+      files by relative paths, and its sign-in return address is the page's own. Saved
+      browser settings survive (the site stays `221twoseven.github.io`).
+      - *The owner, before the rename:* add the SPA redirect URIs for the new paths:
+        `/Systems/`, `/Systems/timeline/`, `/Systems/clients/`, `/Systems/people/`, and the
+        same four under `/Systems/preview/`. Keep the `/Project-Scheduler/…` ones until the
+        new address has run on production for a working day.
+      - *The owner:* rename it (Settings ▸ General ▸ Repository name). The tracker
+        `Project-Scheduler-issues` keeps its name unless the owner says otherwise.
+      - *Old addresses:* GitHub forwards the repository's web and git links after a
+        rename, but not its Pages site, so every `…/Project-Scheduler/…` bookmark stops
+        working, and a tab left open there finds out only when it reloads. *Owner decides:*
+        a stub repository named `Project-Scheduler` holding only a `404.html` that sends
+        any old link to the same page under `/Systems/` (it ends GitHub's forwarding of the
+        old repository links, so the docs' links to old PRs are rewritten in the same
+        change), or a message to everyone with the new address.
+      - *Claude, one PR to `development` right after the rename, before the promotion:*
+        every reference to the repository — `docs/SETUP.md` (the address and the redirect
+        URI list), `CONTRIBUTING.md`, Help's repository link in `timeline/index.html`, the
+        `ship-release` and `triage-issues` skills, links in the docs — and each automation
+        in `docs/Automations.md` that links to the app's address. Local clones run
+        `git remote set-url origin https://github.com/221twoseven/Systems.git`.
+      - *Rollback:* rename it back; the old redirect URIs are still registered.
 
 ### Queued — Office, the next product, in project-cycle order (owner, 2026-09-29) [brief §6, §8.4–8.6; vision]
 
@@ -1931,7 +1967,9 @@ then the recommendation or the dated ruling.
   - *Repository name:* `Project-Scheduler` is part of the Pages address, so it appears in
     every user's URL, and GitHub doesn't promise to redirect Pages after a rename. Item
     40's custom domain hides the name from users, so: custom domain first, rename after,
-    never before.
+    never before. *Overruled 2026-11-18 (owner):* the custom domain may not come soon, so
+    the rename goes first, just before the launch's promotion (item 88); a custom domain
+    can still follow.
   - *Refinement for Systems (2026-09-29):* the products are peers — Timeline isn't the
     parent — each with its own owner, version, release notes and test suites. The portal
     shows tiles only for the products whose lists the signed-in user's token can read.
