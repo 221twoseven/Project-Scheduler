@@ -71,7 +71,9 @@ root and Timeline moves to `/timeline/` (v1.56.0, item 49), the core every produ
 shares moves into `common/` (v1.56.1, item 85 (a)), the shell gives Timeline the
 Systems header with an Apps menu (v1.57.0, item 52 step 4), and Clients becomes its own app
 at `/clients/` (v1.58.0, items 86 and 85 (b)). That is all of launch 1 (§2). **Held from
-production** (owner, 2026-11-17) until the owner promotes launch 1, so promotions wait for it; a fix production needs meanwhile is built from `main` and merged
+production** (owner, 2026-11-17) until the owner promotes launch 1, and not before the owner's
+design and feature review of the Clients app and the Systems page on `/preview/` (owner,
+2026-11-18: "not ready"); what the review asks for becomes items first. Promotions wait for it; a fix production needs meanwhile is built from `main` and merged
 back into `development`.
 
 The newest work on production:
@@ -1627,6 +1629,9 @@ to 87 are architecture, so each needs the owner's go before code.
       re-reads the list on the poll and when its tab comes back into view, so a client added
       in the app is in a project's dropdown straight away. Suite `tests/test-v1580.js`;
       record `docs/Milestones/Phase-7-Pilot-Readiness/2026-11-18-clients-app.md`.
+      *Held 2026-11-18 (owner):* the Clients app and the Systems page are not ready for `main`;
+      they wait for the owner's design and feature review on `/preview/`. The Entra redirect
+      URIs for `/clients/` and `/preview/clients/` are added (owner, 2026-11-18).
       ⚠ Architecture, on item 85. Timeline's Clients
       page becomes its own product at `clients/`, built to the Clients wireframe
       (`design/wireframes/`), and leaves Timeline.
