@@ -44,3 +44,23 @@
 #sync-pill.ok{color:#7BD8A0;border-color:rgba(123,216,160,.3);background:rgba(50,160,95,.12)}
 #sync-pill.busy{color:#F7CE68;border-color:rgba(247,206,104,.3);background:rgba(240,168,20,.1)}
 #sync-pill.err{color:#FF9E9E;border-color:rgba(255,120,120,.35);background:rgba(220,60,60,.14);cursor:pointer}
+
+/* ===================== THE SYSTEMS SHELL ===================== */
+/* Item 52 step 4 (v1.57.0; guide §2, §5): the header every product shows. The TWOSEVEN INC.
+   wordmark links to the Systems page, a divider, then the product's name; a signed-in
+   product adds the Apps menu (appsMenu() in common.js). The Systems page draws .ts-top as
+   its header; Timeline puts the same pieces at the ends of its first toolbar row.
+   v1.7.1 (obj 10): Brauer Neue Std Bold for the wordmark, the one committed font file
+   (licence confirmed 2026-09-01). The url is relative to this file. */
+@font-face{font-family:'Brauer Neue';src:url('../design/fonts/BrNStdBd.otf') format('opentype');font-weight:800;font-style:normal;font-display:swap}
+.ts-top{display:flex;align-items:center;gap:16px;min-height:56px;padding:0 20px;background:linear-gradient(var(--ts-header-start),var(--ts-header-end));color:var(--ts-header-text)}
+.ts-brand{font-family:'Brauer Neue',var(--sans);font-size:13px;font-weight:800;letter-spacing:.24em;color:#fff;text-decoration:none;padding:10px 18px 10px 0;border-right:1px solid var(--ts-header-line)}
+.ts-app{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#B7C7DF}
+button.ts-app{background:none;border:0;padding:0;min-height:24px;font-family:inherit;cursor:pointer} /* 24px hit target */
+button.ts-app:hover{color:#fff}
+.ts-apps-item{display:flex;align-items:center;gap:12px;padding:6px 8px;border-radius:6px;font-size:12px;color:var(--ts-text);text-decoration:none;white-space:nowrap}
+a.ts-apps-item:hover{background:var(--ts-selected)}
+.ts-apps-item.cur{font-weight:600}
+.ts-apps-item.off{color:var(--ts-muted)}
+.ts-apps-note{margin-left:auto;font-size:11px;font-weight:400;color:var(--ts-muted)}
+@media (max-width:500px){.ts-top{gap:8px;padding:0 12px}.ts-brand{padding-right:10px}}

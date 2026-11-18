@@ -11,7 +11,7 @@
      the single-file architecture stays intact and the deploy guard skips data: hrefs. -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MDAgMzIyLjg1NSI+CiAgPHBhdGggZD0iTTE2MS4yMDcsMjc0LjEzOGM2LjY0MywwLDEyLjQsNS43NTgsMTIuNCwxMi44NDR2MjMuMDI5YzAsNy4wODUtNS43NTcsMTIuODQzLTEyLjQsMTIuODQzSDE0LjYxNmMtNi42NDMsMC0xMi40MDEtNS43NTgtMTIuNDAxLTEyLjg0M3YtMzEuMDAyYzAtMTUuMDU4LDMuNTQzLTIxLjcwMSw3Ljk3MS0yNy45MDFMMTA1Ljg0OCwxMTguNjljMTIuNC0xNy4yNzMsMTcuMjczLTIzLjkxNiwxNy4yNzMtMzcuNjQ1LDAtMjMuOTE0LTE3LjcxNi0zNC45ODctMzcuMjAyLTM0Ljk4Ny0yMS43MDEsMC0zNi4zMTUsMTMuNzI5LTM2LjMxNSwzOS44NTl2NC44NzFjMCw2LjY0My01Ljc1OCwxMi40MDEtMTIuODQ0LDEyLjQwMUgxMi44NDRjLTcuMDg2LDAtMTIuODQ0LTUuNzU4LTEyLjg0NC0xMi40MDF2LTEwLjE4NUMwLDI5LjIyOSwzOS40MTcsMCw4NS45MTgsMGM0NS4xNzMsMCw4OC4xMzIsMjcuMDE2LDg4LjEzMiw4MC42MDQsMCwxOS45MjktMS43NzIsMzYuMzE1LTE3LjcxNCw1OC45MDFsLTk2Ljk5LDEzNC42MzNoMTAxLjg2MVpNMzE5Ljc1MiwxODIuNDYzYzYuNjQzLDAsMTIuNCw1Ljc1OCwxMi40LDEyLjg0NHYxNy43MTRjMCw3LjA4Ni01Ljc1NywxMi44NDMtMTIuNCwxMi44NDNoLTEyOC44NzdjLTYuNjQzLDAtMTIuNC01Ljc1Ny0xMi40LTEyLjg0M3YtMTcuNzE0YzAtNy4wODYsNS43NTctMTIuODQ0LDEyLjQtMTIuODQ0aDEyOC44NzdaTTM0MS4wMDgsNTcuNTczYy03LjA4NiwwLTEyLjg0My01Ljc1Ny0xMi44NDMtMTIuNHYtMjMuOTE2YzAtNi42NDMsNS43NTctMTIuNCwxMi44NDMtMTIuNGgxNDYuMTQ4YzcuMDg2LDAsMTIuODQ0LDUuNzU3LDEyLjg0NCwxMi40djI2LjU3MmMwLDkuMzAxLTMuNTQzLDIwLjgxNi01LjMxNSwyNS42ODdsLTg3LjI0NywyMzcuMzc5Yy0yLjIxMyw2LjItNS4zMTUsMTEuOTU4LTExLjk1OCwxMS45NThoLTMzLjIxNWMtNS4zMTMsMC0xMC4xODYtNC40MjgtMTAuMTg2LTExLjk1OCwwLTEuNzcyLjQ0My0zLjU0MywxLjMzLTUuNzU3bDkwLjc4OC0yNDcuNTY3aC0xMDMuMTg5WiIvPgo8L3N2Zz4=">
 
-<link rel="stylesheet" href="../common/common.css?v=1.56.1">
+<link rel="stylesheet" href="../common/common.css?v=1.57.0">
 <style>
 /* ============ TOKENS ============ */
 :root{
@@ -43,17 +43,14 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);font-size:var(--fs
 .tb-row{display:flex;align-items:center;flex-wrap:wrap;gap:8px;row-gap:4px;padding:4px 12px 4px 0;min-height:46px}
 .tb-row>*{flex-shrink:0}
 .tb-row.tb-timeline{padding-left:12px} /* 3.5: Today shouldn't sit against the screen edge */
-.tb-global{border-bottom:1px solid var(--chrome-line)}
+/* v1.57.0 (item 52 step 4): the first row is the Systems header, 56px (guide §5) */
+.tb-global{border-bottom:1px solid var(--chrome-line);min-height:56px}
 .tb-spacer{flex:1 1 auto;min-width:0}
-.t-brand{display:flex;align-items:center;gap:9px;align-self:stretch;padding:0 16px;border-right:1px solid var(--chrome-line);margin-right:4px;user-select:none;min-height:40px}
-/* v1.7.1 (obj 10): Brauer Neue Std Bold for the TWOSEVEN title — the one committed
-   font file (licence confirmed 2026-09-01); everything else stays on --sans.
-   v1.56.0 (item 49): Timeline lives in timeline/, so the font is one folder up. */
-@font-face{font-family:'Brauer Neue';src:url('../design/fonts/BrNStdBd.otf') format('opentype');font-weight:800;font-style:normal;font-display:swap}
-.tb-co{font-family:'Brauer Neue',var(--sans);font-size:13px;font-weight:800;letter-spacing:.24em;color:#fff}
-/* v1.10.0 (owner ask 09-02): the wordmark is a button — click goes home (Global Gantt) */
-button.tb-co{background:none;border:0;padding:0;cursor:pointer}
-.tb-app{font-size:var(--fs-fine);font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:#8CA0BF}
+/* v1.57.0: the shell's wordmark (.ts-brand, a link to the Systems page) and product name
+   (.ts-app, the button home to the full timeline, as the wordmark was from v1.10.0) come
+   from common/common.css, with the Brauer Neue font. */
+.t-brand{display:flex;align-items:center;gap:16px;align-self:stretch;padding:0 16px 0 20px;border-right:1px solid var(--chrome-line);margin-right:4px;user-select:none;min-height:40px}
+#apps-menu{left:auto;right:0}
 .t-btn{display:inline-flex;align-items:center;justify-content:center;gap:4px;height:28px;background:rgba(255,255,255,.06);color:rgba(255,255,255,.9);border:1px solid rgba(255,255,255,.13);border-radius:6px;padding:0 12px;font-size:var(--fs-label);font-weight:500;cursor:pointer;font-family:inherit;transition:background .12s,color .12s;white-space:nowrap}
 .ico{width:16px;height:16px;flex:none;vertical-align:-3px}
 .ico.arw{width:17.6px;height:8px;vertical-align:-1px} /* v1.20.2: the custom arrow is a wide mark — give it width instead of letterboxing in the 16px square. v1.20.3: 20% smaller (owner) */
@@ -88,7 +85,6 @@ body.pp-route .tb-timeline{display:none}
 @media (max-width:1400px){
   .t-btn{padding:0 8px;font-size:var(--fs-fine)}
   .tog-grp .t-btn{padding:0 8px}
-  .tb-app{display:none}
   .t-brand{padding:0 12px}
 }
 @media (max-width:1100px){
@@ -114,7 +110,9 @@ body.pp-route .tb-timeline{display:none}
 .lock-tog input:checked ~ .lock-txt{color:var(--warn)}
 
 /* ============ LAYOUT ============ */
-#main{position:fixed;top:92px;bottom:0;left:0;right:0;display:flex;overflow:hidden}
+/* v1.57.0: --tb-h is the toolbar's measured height (set where #main is fitted, below), so
+   the timeline and every page sit under it however its rows wrap; the fallback is two rows. */
+#main{position:fixed;top:var(--tb-h,104px);bottom:0;left:0;right:0;display:flex;overflow:hidden}
 /* REV67: person panel under the Departments lens. v1.8.1 (owner ask): height is
    drag-resizable like the project edit dock — one --medock-h variable drives the
    dock and #main's bottom together; the collapsed rules below still win. */
@@ -231,7 +229,7 @@ body.lens-dept #sb-foot{display:none}
 /* v1.8.0 (§3 item 12): the viewer role. Admin-only chrome disappears, and locked edit
    fields flatten so they read as plain text ("visible, locked") — checkbox groups show
    only their checked names. Workflow protection, not security (milestone record). */
-body.viewer #btn-new-proj,body.viewer #mi-clients,body.viewer #mi-changelog,
+body.viewer #btn-new-proj,body.viewer #mi-clients,body.viewer #mi-changelog,body.viewer #apps-menu [data-app="Clients"],
 body.viewer:not(.vg-phases) .lock-tog,
 body.viewer:not(.vg-subtasks):not(.vg-phases) #tm-save,body.viewer:not(.vg-phases) #tm-del,
 body.viewer:not(.vg-subtasks) #tm-tnadd,body.viewer:not(.vg-subtasks) #task-overlay .tn-x,
@@ -600,7 +598,7 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 
 
 /* ============ REV35: PROJECT PAGE ============ */
-#page{position:fixed;top:50px;bottom:0;left:0;right:0;overflow:auto;background:var(--paper);z-index:9}
+#page{position:fixed;top:var(--tb-h,58px);bottom:0;left:0;right:0;overflow:auto;background:var(--paper);z-index:9} /* v1.57.0: was a fixed 50px */
 .pg{max-width:1060px;margin:0 auto;padding:22px 26px 80px}
 .pg-roles{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
 .pg-roles>div{display:flex;flex-direction:column;gap:5px}
@@ -1513,8 +1511,10 @@ body.cd-route #dash-bar{display:none!important}
 <div id="toolbar">
   <div class="tb-row tb-global">
     <div class="t-brand">
-      <button id="tb-home" class="tb-co" title="Back to the full timeline">TWOSEVEN INC.</button>
-      <span class="tb-app">Shop Timeline</span>
+      <!-- v1.57.0 (item 52 step 4, owner 2026-11-18): the wordmark opens the Systems page;
+           the product's name beside it does the wordmark's old job, home to the full timeline. -->
+      <a id="tb-systems" class="ts-brand" href="../" aria-label="TwoSeven Inc. home, all apps" title="All apps — the Systems page">TWOSEVEN INC.</a>
+      <button id="tb-home" class="ts-app" title="Back to the full timeline">Timeline</button>
     </div>
     <button id="btn-new-proj" class="t-btn accent" title="Create a new project (N)">+ New Project</button>
     <div class="sf-wrap">
@@ -1552,7 +1552,7 @@ body.cd-route #dash-bar{display:none!important}
         <div class="sm-item" id="mi-repo" title="Open the source code on GitHub in a new tab">Repository ↗</div>
         <div class="sm-item hidden" id="mi-appset" title="Developer switches — viewer permission grants and experimental features">App settings</div>
         <div class="sm-item hidden" id="mi-reports" title="Developer view — every bug report and feature request in full, as mailed">Bug reports (dev)</div>
-        <div class="sm-note">Shop Timeline · v<span id="tb-rev-num"></span></div>
+        <div class="sm-note">Timeline · v<span id="tb-rev-num"></span></div>
       </div>
       <div id="legend-menu" class="tb-menu hidden"></div>
       <div id="kbd-menu" class="tb-menu hidden"></div>
@@ -1568,9 +1568,15 @@ body.cd-route #dash-bar{display:none!important}
       <option value="admin">View: Admin</option>
       <option value="viewer">View: Non-admin</option>
     </select>
-    <span id="tb-user" class="hidden" title="Who you're signed in as"></span>
     <span id="tb-rev" title="App version — the build this tab is running">v</span>
     <span id="sync-pill" class="busy" title="Shows whether your changes are saved to SharePoint — click to retry after an error">● connecting…</span>
+    <!-- v1.57.0 (item 52 step 4): the Apps menu, filled by appsMenu() from common/common.js;
+         who's signed in moves to the end of the header, where the wireframe's account sits. -->
+    <div class="sf-wrap">
+      <button id="btn-apps" class="t-btn" title="Switch to another Systems app">Apps <svg class="ico-s" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 6 8 9.5 11.5 6"/></svg></button>
+      <nav id="apps-menu" class="tb-menu hidden" aria-label="Systems apps"></nav>
+    </div>
+    <span id="tb-user" class="hidden" title="Who you're signed in as"></span>
   </div>
   <div class="tb-row tb-timeline">
     <div class="sf-wrap">
@@ -1850,10 +1856,10 @@ body.cd-route #dash-bar{display:none!important}
      from common/, the folder every Systems product shares. ?v= is APP_VER, stamped by
      `npm run notes`, so a new page never runs against a cached old core. -->
 <script src="../common/msal-browser.min.js"></script>
-<script src="../common/common.js?v=1.56.1"></script>
+<script src="../common/common.js?v=1.57.0"></script>
 <script>
 'use strict';
-const APP_VER='1.56.1'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.57.0'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -11053,6 +11059,7 @@ function setSideW(w){SIDE_W=Math.max(180,Math.min(480,Math.round(w)));document.g
     const on=db&&document.body.classList.contains('dash-on')&&!document.body.classList.contains('pp-route');
     if(db&&on)db.style.top=tb.offsetHeight+'px';
     mn.style.top=(tb.offsetHeight+(on?db.offsetHeight:0))+'px';
+    document.documentElement.style.setProperty('--tb-h',tb.offsetHeight+'px'); /* v1.57.0: #page sits under it too */
   };
   FIT_MAIN=fit; /* renderDashBar re-fits when the dashboard bar comes and goes */
   if(window.ResizeObserver)new ResizeObserver(fit).observe(tb);
@@ -11534,7 +11541,8 @@ document.getElementById('tb-viewas').addEventListener('change',e=>{
 document.getElementById('db-all').addEventListener('click',()=>exitDash());
 document.getElementById('db-x').addEventListener('click',()=>exitDash());
 /* v1.10.0 (owner ask 09-02): the wordmark goes home — the full timeline, dashboard
-   and person summary included. */
+   and person summary included. v1.57.0: the name "Timeline" beside it does this now;
+   the wordmark opens the Systems page. */
 document.getElementById('tb-home').addEventListener('click',()=>{
   /* Drop the person summary on ANY route — dashOn() is false off the timeline, so the
      old first branch never fired there and "home" landed back on the filtered dashboard. */
@@ -11543,6 +11551,11 @@ document.getElementById('tb-home').addEventListener('click',()=>{
 });
 wireMenu('btn-print','print-menu');
 wireMenu('btn-resources','resources-menu');
+/* v1.57.0 (item 52 step 4): the Apps menu. A pick closes it, since People and Clients are
+   still Timeline's own pages and open without leaving it. */
+appsMenu(document.getElementById('apps-menu'),'Timeline','../');
+wireMenu('btn-apps','apps-menu');
+document.getElementById('apps-menu').addEventListener('click',ev=>{if(ev.target.closest('a'))closeMenus();});
 buildLegend();
 
 /* ===================== REV87: PM LATE-PROJECT PROMPT ===================== */
@@ -12117,6 +12130,9 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.57.0",d:"Nov 18, 2026",n:["Timeline's header has an Apps menu at the right listing the Systems apps: Timeline, People, Clients and Office (not built yet).",
+   "TWOSEVEN INC. in the header now opens the Systems page. To get back to the full timeline, click \"Timeline\" beside it.",
+   "In a narrow window, the project page's top line (All Projects › the project's name) no longer hides under the toolbar."]},
  {v:"v1.56.0–v1.56.1",d:"Nov 17, 2026",n:["The app's address now opens the new Systems page, with a tile for each product: Timeline, People, Clients and Office (not built yet).",
    "Timeline has its own address, ending in /timeline/. Bookmark it to skip the Systems page; links to a project or page still open in Timeline."]},
  {v:"v1.55.1",d:"Nov 17, 2026",n:["In the Changelog, a long entry (like a bulk change that lists every phase it touched) now shows its first four lines. Click \"more\" under them to see the rest."]},

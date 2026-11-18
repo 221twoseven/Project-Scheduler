@@ -417,8 +417,8 @@ font-size:var(--fs-fine);font-weight:700;text-transform:uppercase;letter-spacing
 
 | Asset | Spec |
 |---|---|
-| **Wordmark** | `TWOSEVEN INC.` — Brauer Neue Std Bold 13px, `.24em`, white on the chrome. It is a `<button>`: click goes home. |
-| **App eyebrow** `.tb-app` | 11px, 600, uppercase, `.2em`, `#8CA0BF`, right of the wordmark inside `.t-brand` (padding `0 16px`, right hairline `--chrome-line`). Hidden ≤ 1400px. **This is where an app says its name.** |
+| **Wordmark** `.ts-brand` | `TWOSEVEN INC.` — Brauer Neue Std Bold 13px, `.24em`, white on the chrome, a hairline divider (`--ts-header-line`) after it. Since v1.57.0 a link to the Systems page (`common/common.css`). |
+| **Product name** `.ts-app` | 12px, uppercase, `.12em`, `#B7C7DF`, right of the wordmark. **This is where an app says its name** (`Timeline`). In Timeline it is the `<button>` home to the full timeline; shown at every width. Was the 11px `.tb-app` eyebrow, `Shop Timeline`, hidden ≤ 1400px, until v1.57.0. |
 | **Mark** | `icons/favicon.svg` — the "2-7" monogram, one filled path, 500×323 viewBox, currentColor-able. |
 | **Undo / redo marks** | `icons/undo-rm.svg`, `icons/redo-rm.svg` — the monogram with a curved arrow, used in the toolbar. |
 | **Version pill** `#tb-rev` | mono 11px, `.04em`, `#8CA0BF` — reads `v1.23.0`; every app shows its own `APP_VER` here. |
@@ -821,7 +821,7 @@ scrollbar-width:thin;scrollbar-color:#B9C7D9 transparent
 ::-webkit-scrollbar{width:10px;height:10px}   ::-webkit-scrollbar-thumb{background:#B9C7D9;border-radius:6px;border:2px solid var(--paper)}
 ```
 
-### 7.14 Header and app cards (the Systems page, v1.56.0)
+### 7.14 Header and app cards (the Systems page, v1.56.0; the shared shell, v1.57.0)
 
 The root `index.html`, built to the owner's Portal Option 1 wireframe
 (`design/wireframes/`) in the target guide's values, not this file's: it is the first
@@ -829,12 +829,21 @@ surface on the new chrome. A 56px header (wordmark, divider, the page's name), a
 with one line under it, and a three-up grid of app cards, two-up under 760px and one-up under
 500px. A built product's card is a link with an icon tile, a → and an "Open …" line; one not
 built yet is greyed (no fill, a dashed edge, muted text) and has no link and no arrow. The
-wireframe's Apps menu, avatar, recent work and signed-in footer wait for a page that signs in.
+wireframe's avatar, recent work and signed-in footer wait for a page that signs in.
+
+**The shell (v1.57.0, item 52 step 4).** The header pieces moved into `common/common.css`
+as `.ts-top`, `.ts-brand` and `.ts-app`, with the Brauer Neue `@font-face`; the Systems page
+loads that file and keeps no token copy. Timeline puts the same wordmark and name at the left
+of its first toolbar row (now 56px) and an **Apps ▾** menu at the right, filled by
+`appsMenu()` from `SYSTEMS_APPS` in `common/common.js`: rows `.ts-apps-item` (12px, 6px
+radius, `--ts-selected` on hover), the current product ticked (`.cur`, 600, `aria-current`),
+unbuilt ones greyed (`.off`, `aria-disabled`), a note (`.ts-apps-note`, 11px muted) at the
+right. The list and the Systems page's cards say the same (`test-v1570`).
 
 ```css
-.top{display:flex;align-items:center;gap:16px;min-height:56px;padding:0 20px;background:linear-gradient(var(--ts-header-start),var(--ts-header-end));color:var(--ts-header-text)}
-.brand{font-family:'Brauer Neue',var(--sans);font-size:13px;font-weight:800;letter-spacing:.24em;color:#fff;padding:10px 18px 10px 0;border-right:1px solid var(--ts-header-line)}
-.top-name{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#B7C7DF}
+.ts-top{display:flex;align-items:center;gap:16px;min-height:56px;padding:0 20px;background:linear-gradient(var(--ts-header-start),var(--ts-header-end));color:var(--ts-header-text)}
+.ts-brand{font-family:'Brauer Neue',var(--sans);font-size:13px;font-weight:800;letter-spacing:.24em;color:#fff;text-decoration:none;padding:10px 18px 10px 0;border-right:1px solid var(--ts-header-line)}
+.ts-app{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#B7C7DF}
 main{max-width:1100px;margin:0 auto;padding:28px 32px 32px}   h1{font-size:22px;line-height:1.25;font-weight:600}
 .app-grid{list-style:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
 .app-link{display:flex;flex-direction:column;gap:9px;min-height:150px;padding:20px;background:var(--ts-panel);border:1px solid var(--ts-line);border-radius:8px}
@@ -936,9 +945,9 @@ changes Timeline today.
 
 ### 10.1 Shared, verbatim (`common/common.css`, started v1.56.1)
 
-`common/common.css` holds so far the tokens, the toast strip and the sync pill (item 85);
-the rest of this list moves into it as the shell (style §13 step 4) and the second product
-need it.
+`common/common.css` holds so far the tokens, the toast strip and the sync pill (item 85),
+and the shell's header, wordmark font and Apps menu rows (v1.57.0, item 52 step 4); the
+rest of this list moves into it as the second product needs it.
 
 1. The `:root` block, reset, reduced-motion and `:focus-visible` rules (§1).
 2. The toolbar: fill, edges, wordmark, eyebrow, version pill, `.t-btn` family, segmented
@@ -960,7 +969,7 @@ three-path interaction rule, toast-with-Undo, one-menu-at-a-time, Escape-one-lay
 
 | Slot | Timeline today | Another product |
 |---|---|---|
-| **Eyebrow** `.tb-app` | `Shop Timeline` (markup; CSS uppercases it) | `People` · `Clients` · `Office` · `Systems` (the portal) |
+| **Product name** `.ts-app` | `Timeline` (markup; CSS uppercases it; v1.57.0, was `Shop Timeline`) | `People` · `Clients` · `Office` · `Systems` (the portal) |
 | **Mark** | `icons/favicon.svg` (2-7 monogram) | The same monogram; a product may add a small glyph after the eyebrow, 16-grid SVG, 1.5px stroke |
 | **App hue** `--app` (new token) | unset → falls back to `#8CA0BF` | One hue per product, used **only** on: the eyebrow text, the product glyph, the favicon tint, and the active-nav underline in the portal. Never on data, never on buttons, never replacing `--acc`. |
 
@@ -978,8 +987,8 @@ at `/` (built v1.56.0, item 49; Timeline moved to `/timeline/` then). The wordma
 goes to the **portal** in every product, not to that product's
 home; the product's own home is the first breadcrumb (`All Projects`, `All People`,
 `All Clients`; Office's is to be named). The trail bar, × exit and Esc behave as in
-Design-Language §7.5–7.6. *As of v1.56.0 Timeline's wordmark still goes to its own home;
-the switch is style §13 step 4, the shell (item 52).*
+Design-Language §7.5–7.6. *Since v1.57.0 (style §13 step 4, item 52) Timeline's wordmark
+goes to the portal, and its product name, "Timeline", is the button to its own home.*
 
 ### 10.5 Where the seeds already are
 

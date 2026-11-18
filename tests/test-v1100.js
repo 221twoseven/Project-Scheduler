@@ -58,8 +58,10 @@ function main(){
   const tu=doc.getElementById('tb-user');
   ok('the name shows', !tu.classList.contains('hidden')&&/Sam/.test(tu.textContent));
   ok('the developer wears a DEV chip', !!tu.querySelector('.tb-acc.dev'));
-  ok('it sits in the dev cluster ahead of the version number',
-     tu.nextElementSibling===doc.getElementById('tb-rev')
+  /* v1.57.0 (item 52 step 4): it moved to the end of the header, after the Apps menu, where
+     the wireframe's account control sits — still in the dev picker's row */
+  ok('it sits last in the header, after Apps, in the dev picker\'s row',
+     !tu.nextElementSibling&&tu.previousElementSibling.contains(doc.getElementById('btn-apps'))
      &&doc.getElementById('tb-viewas').parentElement===tu.parentElement);
 
   sec('v1.10.0 — dock re-layout: Time off under Working on, own columns back');
@@ -97,7 +99,9 @@ function main(){
   E('exitDash()');
 
   sec('v1.10.0 — the wordmark goes home');
-  ok('the wordmark is a button', doc.getElementById('tb-home').tagName==='BUTTON');
+  /* v1.57.0 (item 52 step 4): the home button is the product name "Timeline", beside the
+     wordmark, which now opens the Systems page */
+  ok('the home button is a button', doc.getElementById('tb-home').tagName==='BUTTON');
   win.location.hash='#/people';
   win.dispatchEvent(new win.Event('hashchange'));
   setTimeout(()=>{

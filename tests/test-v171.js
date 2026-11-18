@@ -16,10 +16,12 @@ const {FILE,src,ok,done}=suite();
 const sec=t=>console.log('\n'+t);
 
 sec('fonts (src + deploy allowlist)');
-/* v1.56.0 (item 49): Timeline lives in timeline/, so the committed file is one folder up */
+/* v1.56.0 (item 49): Timeline lives in timeline/, so the committed file is one folder up.
+   v1.57.0 (item 52 step 4): the face and the wordmark (.ts-brand) come from common/common.css,
+   whose url is relative to common/ — one folder up again. */
 ok('Brauer Neue @font-face points at the committed bold file',
    /@font-face\{font-family:'Brauer Neue';src:url\('\.\.\/design\/fonts\/BrNStdBd\.otf'\)/.test(src));
-ok('the TWOSEVEN title asks for Brauer Neue first', /\.tb-co\{font-family:'Brauer Neue',var\(--sans\)/.test(src));
+ok('the TWOSEVEN title asks for Brauer Neue first', /\.ts-brand\{font-family:'Brauer Neue',var\(--sans\)/.test(src));
 ok('Bahnschrift leads the app-wide stack via local()', /--sans:Bahnschrift,'Segoe UI'/.test(src));
 const yml=fs.readFileSync(require('path').join(__dirname,'..','.github/workflows/deploy-pages.yml'),'utf8');
 /* one list per published branch, so count lists, don't hard-code (a third ran 2026-10-16 → 19, item 72) */

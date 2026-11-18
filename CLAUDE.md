@@ -17,7 +17,8 @@ Project rules and context for working in this repository. Read this before makin
   the root as `index.html` until v1.56.0 (item 49).
 - **`common/` — what every Systems product shares** (item 85, v1.56.1): `common.js` (the
   Systems constants, sign-in, the SharePoint data layer and `store`, toasts, the sync pill,
-  the expired-sign-in prompt), `common.css` (the `--ts-*` tokens, toasts, the sync pill) and
+  the expired-sign-in prompt, the Apps menu), `common.css` (the `--ts-*` tokens, toasts, the
+  sync pill, the shell's header and the wordmark font) and
   the vendored `msal-browser.min.js`. Timeline loads them as `../common/`; their tags carry
   `?v=APP_VER`, which `npm run notes` stamps. Change them as carefully as Timeline itself:
   every product breaks with them.

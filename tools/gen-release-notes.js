@@ -18,6 +18,7 @@ const fs=require('fs'),path=require('path');
 const ROOT=path.join(__dirname,'..');
 const CHANGELOG=path.join(ROOT,'CHANGELOG.md');
 const INDEX=path.join(ROOT,'timeline','index.html');
+const SYSTEMS=path.join(ROOT,'index.html');
 const BEGIN='/* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */';
 const END='/* RELEASE_NOTES:END */';
 
@@ -69,13 +70,16 @@ function main(){
      cached old shared core (Pages caches each file for 10 minutes). Stamped here, the one
      command every release already runs. */
   const next=stampCommon(src.slice(0,a)+block+src.slice(b+END.length),ver);
+  /* Item 52 step 4: the Systems page loads common.css too, so it gets the same stamp. */
+  const sp=fs.readFileSync(SYSTEMS,'utf8'),spNext=stampCommon(sp,ver);
+  if(spNext!==sp){fs.writeFileSync(SYSTEMS,spNext);console.log('gen-release-notes: stamped v'+ver+' on the Systems page\'s common/ tag.');}
   if(next===src){console.log('gen-release-notes: timeline/index.html already up to date ('+entries.length+' entries).');return;}
   fs.writeFileSync(INDEX,next);
   console.log('gen-release-notes: wrote '+entries.length+' entries into timeline/index.html (newest '+entries[0].v+').');
 }
 
 function stampCommon(html,ver){
-  return ver?html.replace(/(\.\.\/common\/common\.(?:js|css)\?v=)[^"]*/g,(m,p)=>p+ver):html;
+  return ver?html.replace(/((?:\.\.\/)?common\/common\.(?:js|css)\?v=)[^"]*/g,(m,p)=>p+ver):html;
 }
 
 module.exports={parse,emit,appVer,stampCommon,BEGIN,END,CHANGELOG,INDEX};

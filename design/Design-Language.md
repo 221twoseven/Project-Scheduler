@@ -357,10 +357,17 @@ for every future company master-data section (departments, project types, holida
   to `viewerLock(box, kind)` — agenda rows grade themselves by row kind. Defaults all
   OFF (owner: non-admins stay mostly gated).
 - **Signed-in identity in the chrome (v1.10.0).** The top-right global row reads
-  `[Viewer] · name DEV|ADMIN · version · sync pill`. The chip shows the account's
+  `[Viewer] · version · sync pill · Apps · name DEV|ADMIN` (v1.57.0: the name moved last,
+  where the wireframes' account control sits). The chip shows the account's
   REAL access and does not flip while the Viewer preview is on (the lit Viewer button
-  already carries that state). The TWOSEVEN INC. wordmark is a button: one click goes
-  home from any route (draft pages keep their discard confirm).
+  already carries that state).
+- **The shell (v1.57.0, item 52 step 4; owner's picks 2026-11-18).** The TWOSEVEN INC.
+  wordmark is a link to the Systems page; the product's name beside it, "Timeline", is the
+  button home to the full timeline from any route (draft pages keep their discard confirm,
+  and leaving for the Systems page with unsaved work gets the browser's own warning).
+  Apps ▾ lists the four Systems products in the Systems page's order: the one you're in
+  ticked, the others as links, the unbuilt ones greyed; a non-admin doesn't see Clients.
+  Timeline's own buttons stay in the header row.
 - **One tour, chained (v1.10.0, owner ask).** The home tour's last step highlights
   **+ New Project** and asks for a real click — the overlay turns click-through for
   that one target (`#coach.chain`; a capture guard swallows everything else, Enter
