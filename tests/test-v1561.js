@@ -67,7 +67,7 @@ let threw='';try{BE("toast('Saved')");}catch(e){threw=e.message;}
 ok('toast() works with no toastPlace() on the page', !threw&&bq('#toasts .toast')&&bq('#toasts .toast').textContent.startsWith('Saved'), threw);
 BE("setSync('busy')");ok('setSync() drives the pill', bq('#sync-pill').className==='busy'&&/saving/.test(bq('#sync-pill').textContent));
 BE('authShow()');ok('authShow() opens the sign-in overlay', !bq('#auth-overlay').classList.contains('hidden')&&bq('#sync-pill').className==='err');
-ok('store reads every list by kind', BE("store.url.length===1&&Object.keys(STORE_LISTS).join()")==='proj,task,todo,event,staff,client,config,changelog,feedback,employeeContacts');
+ok('store reads every list by kind', BE("store.url.length===1&&Object.keys(STORE_LISTS).join()")==='proj,task,todo,event,staff,client,past,config,changelog,feedback,employeeContacts');
 
 sec('R7: the tokens');
 ok('common.css declares the --ts-* tokens, --sans and --mono', /--ts-action:#2F6FE4/.test(css)&&/--sans:Bahnschrift/.test(css)&&/--mono:ui-monospace/.test(css));

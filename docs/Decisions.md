@@ -507,6 +507,9 @@ constraint (the colleague-app ruling, lifted 2026-09-24).
 
 **Created and in use (v1.x):**
 
+- `ShopTimeline_PastProjects` (item 93, created by the owner 2026-11-18; the Clients app owns
+  it): `Title`, `clientId` (number: the client's item ID), `jobCode`, `startDate` and `endDate`
+  (date only), `team` (multiple lines). Projects from before Timeline, in a client's history.
 - Lists: `ShopTimeline_Feedback`, `ShopTimeline_Changelog`, `ShopTimeline_Clients`, and
   `ShopTimeline_Config` (Title + `value`; confirmed created by the owner 2026-09-24 — the
   developer App Settings switches are shared through it).
