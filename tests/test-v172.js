@@ -16,9 +16,9 @@ const D=n=>{const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()+n);
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
 
 sec('source: copy + wordmark');
-/* v1.10.0 made the wordmark a home-navigation button — accept either element */
-ok('toolbar wordmark reads TWOSEVEN INC.', src.indexOf('<span class="tb-co">TWOSEVEN INC.</span>')>=0
-   || /<button id="tb-home" class="tb-co"[^>]*>TWOSEVEN INC\.<\/button>/.test(src));
+/* v1.10.0 made the wordmark a home-navigation button; v1.57.0 (item 52 step 4) made it the
+   shell's link to the Systems page */
+ok('toolbar wordmark reads TWOSEVEN INC.', /<a id="tb-systems" class="ts-brand"[^>]*>TWOSEVEN INC\.<\/a>/.test(src));
 /* v1.40.0 (#8): the paper header sets the wordmark in its own span beside the title — accept either form */
 ok('print title carries the full wordmark', src.indexOf("'TWOSEVEN INC. — Shop Timeline · '")>=0
    || src.indexOf('<span class="pr-co">TWOSEVEN INC.</span>')>=0);

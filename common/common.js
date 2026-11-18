@@ -4,7 +4,8 @@
    plus this folder). It touches no page element while loading; its functions expect:
      #toasts                      — toast() and toastLayout();
      #sync-pill                   — setSync();
-     #auth-overlay, #auth-signin  — authShow().
+     #auth-overlay, #auth-signin  — authShow();
+     the product's Apps menu      — appsMenu(el, current, up), item 52 step 4.
    Optional hooks a product may define: toastPlace() (where the toast stack sits) and
    undo() (what a toast's Undo runs when it isn't given a function).
    Moved verbatim from timeline/index.html; the history comments travel with the code. */
@@ -261,4 +262,25 @@ function authShow(){
   document.getElementById('auth-overlay').classList.remove('hidden');
   document.getElementById('auth-signin').focus(); /* keyboard users land on the one action */
   setSync('err','signed out');
+}
+
+/* ===================== THE SYSTEMS SHELL ===================== */
+/* Item 52 step 4 (v1.57.0): the Systems products, in the Systems page's order. href is from
+   the site root; no href = not built yet, shown greyed (owner, 2026-11-18: all four listed).
+   Keep it in step with the Systems page's cards (test-v1570 checks). */
+const SYSTEMS_APPS=[
+  {name:'Timeline',href:'timeline/'},
+  {name:'People',href:'timeline/#/people'},
+  {name:'Clients',href:'timeline/#/clients',note:'admins only'},
+  {name:'Office',note:'Not built yet'}];
+/* Fill a product's Apps menu: the product you're in ticked, the others as links, the unbuilt
+   ones greyed. up = the way from this page to the site root ('../' for a product folder). */
+function appsMenu(el,current,up){
+  el.innerHTML=SYSTEMS_APPS.map(a=>{
+    const note=a.note?'<span class="ts-apps-note">'+a.note+'</span>':'';
+    return a.name===current
+      ?'<span class="ts-apps-item cur" data-app="'+a.name+'" aria-current="page">'+a.name+'<span class="ts-apps-note">✓</span></span>'
+      :a.href?'<a class="ts-apps-item" data-app="'+a.name+'" href="'+up+a.href+'">'+a.name+note+'</a>'
+      :'<span class="ts-apps-item off" data-app="'+a.name+'" aria-disabled="true">'+a.name+note+'</span>';
+  }).join('');
 }

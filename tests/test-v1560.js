@@ -22,7 +22,8 @@ sec('R1: the root page is the Systems page');
 const pd=new JSDOM(portal,{url:'https://example.github.io/Project-Scheduler/'}).window.document;
 const txt=el=>el?el.textContent.trim():'';
 /* Laid out as the owner's Portal Option 1 wireframe (design/wireframes/), wording approved 2026-11-17 */
-ok('the header: the wordmark, then "Systems"', txt(pd.querySelector('.top .brand'))==='TWOSEVEN INC.'&&txt(pd.querySelector('.top .top-name'))==='Systems');
+/* v1.57.0 (item 52 step 4): the header is the shell's, from common/common.css */
+ok('the header: the wordmark, then "Systems"', txt(pd.querySelector('.ts-top .ts-brand'))==='TWOSEVEN INC.'&&txt(pd.querySelector('.ts-top .ts-app'))==='Systems');
 ok('the page title and its line', txt(pd.querySelector('h1'))==='Your workspace'&&txt(pd.querySelector('.intro p'))==='Open an app to get started.');
 ok('the title names Systems', /^Systems/.test(pd.title), pd.title);
 const tiles=[...pd.querySelectorAll('.app-grid > li > .app-link')];
@@ -106,8 +107,11 @@ async function run(){
   ok('the root no longer holds the app, and the Systems page loads no MSAL', !/const APP_VER=/.test(portal)&&!/msal-browser/.test(portal));
   const font=(/url\('([^']*BrNStdBd\.otf)'\)/.exec(src)||[])[1];
   ok('the wordmark font is one folder up, and there', font==='../design/fonts/BrNStdBd.otf'&&fs.existsSync(path.join(ROOT,'timeline',font)), font);
-  const pfont=(/url\('([^']*BrNStdBd\.otf)'\)/.exec(portal)||[])[1];
-  ok('the Systems page reads the same font from the root', !!pfont&&fs.existsSync(path.join(ROOT,pfont)), pfont);
+  /* v1.57.0 (item 52 step 4): both pages read the font through common/common.css */
+  const ccss=fs.readFileSync(path.join(ROOT,'common','common.css'),'utf8');
+  const pfont=(/url\('([^']*BrNStdBd\.otf)'\)/.exec(ccss)||[])[1];
+  ok('the Systems page reads the same font, through common.css', /<link rel="stylesheet" href="common\/common\.css/.test(portal)
+    &&!!pfont&&fs.existsSync(path.join(ROOT,'common',pfont)), pfont);
   ok('sign-in returns to timeline/ (the redirect URI the owner registers)',
     NE('PCA.cfg.auth.redirectUri')==='https://example.github.io/Project-Scheduler/timeline/', NE('PCA.cfg.auth.redirectUri'));
   ok('"Ask everyone to reload" still knows /preview/timeline/ is the preview',

@@ -65,10 +65,11 @@ is the log in §8.
 
 ## 0. Where we stand
 
-As of 2026-11-17: production (`main`) runs **v1.55.1**, promoted 2026-11-17
-(release/2026-11-17c). `development` runs **v1.56.1**: the Systems page takes the site's
-root and Timeline moves to `/timeline/` (v1.56.0, item 49), and the core every product
-shares moves into `common/` (v1.56.1, item 85 (a)). **Held from production** (owner,
+As of 2026-11-18: production (`main`) runs **v1.55.1**, promoted 2026-11-17
+(release/2026-11-17c). `development` runs **v1.57.0**: the Systems page takes the site's
+root and Timeline moves to `/timeline/` (v1.56.0, item 49), the core every product
+shares moves into `common/` (v1.56.1, item 85 (a)), and the shell gives Timeline the
+Systems header with an Apps menu (v1.57.0, item 52 step 4). **Held from production** (owner,
 2026-11-17) until launch 1 (§2: the Systems page with the shell and the Clients app), so
 promotions wait for it; a fix production needs meanwhile is built from `main` and merged
 back into `development`.
@@ -1026,8 +1027,18 @@ release. Where the app has a part, it's listed.
       - *Step 3:* restyle one chrome surface per PR, project inspector first: type
         hierarchy, spacing, radii, fields, focus, buttons, and modal focus trapping where
         it's missing. Next.
-      - *Step 4:* the shell as one change: the global header and a real app switcher.
+      - [x] *Step 4:* the shell as one change: the global header and a real app switcher.
         Item 49 shipped v1.56.0 (2026-11-17), so the portal exists to switch to.
+        Shipped v1.57.0 (PR #206, 2026-11-18). Owner's picks (2026-11-18): TWOSEVEN INC.
+        opens the Systems page; the name beside it reads "Timeline" and goes home to the
+        full timeline; Timeline's own buttons stay in the header row (now 56px); Apps ▾
+        lists all four products, unbuilt ones greyed, Clients hidden from non-admins. The
+        header pieces, the font and the menu live in `common/` (`.ts-top`, `.ts-brand`,
+        `.ts-app`, `appsMenu()`); the Systems page loads `common.css` and drops its token
+        copy. The project page sits under the toolbar's measured height, not a fixed 50px.
+        Item 86 points the menu's Clients at `clients/` and greys People, with the Systems
+        page's cards. Suite `tests/test-v1570.js`; record
+        `docs/Milestones/Phase-7-Pilot-Readiness/2026-11-18-shell.md`.
       - *Step 5:* business pages and routing: read-first records, sorting, empty states,
         per-record routes.
       - *Done when, per PR:* before/after `/preview/` screenshots, the Design-Language §9
@@ -1616,8 +1627,10 @@ to 87 are architecture, so each needs the owner's go before code.
       - *Timeline:* Company Data ▸ Clients and `#/clients` go; an old `#/clients` link
         forwards to `../clients/`. The client dropdown (item 81) keeps reading the list, and
         its "not on the list" note links to the app.
-      - *Systems page:* the Clients card points at `clients/`. The People card is greyed
-        until launch 2, so no card points into Timeline.
+      - *Systems page and the Apps menu:* the Clients card points at `clients/`. The People
+        card is greyed until launch 2, so no card points into Timeline. The Apps menu's list
+        (`SYSTEMS_APPS` in `common/common.js`, v1.57.0) changes with it; `test-v1570` checks
+        the two agree.
       - *The owner:* add the `/clients/` and `/preview/clients/` SPA redirect URIs before the
         merge.
       - *Data:* no schema change. A rename already reaches projects through their stable IDs
@@ -2619,6 +2632,11 @@ How to read the tags at the end of an entry:
       quality-of-life work waits while the north star moves). Vivid months, Link subtasks,
       Group by, the lens and print paper/bars are still remembered by the browser only.
       Gate: the owner picks item 73 back up; the draft wording is on PR #175. [item 73]
+- [ ] **Toolbar menus don't announce open or closed, and focus rings are faint on the
+      header** (code review of the shell, v1.57.0, 2026-11-18). Every toolbar menu button,
+      Apps included, lacks `aria-expanded`, and the blue focus outline is 2.5:1 on the navy
+      header (3:1 is the minimum). Both predate the shell. Gate: style §13 step 3 restyles
+      the chrome's focus and menus (item 52). [item 52]
 
 ### 7.5 Deliberate design limits — no action planned; revisit only on real complaints
 
