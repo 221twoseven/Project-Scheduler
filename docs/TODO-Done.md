@@ -8,7 +8,7 @@ release-by-release record.
 ## Finished since 2026-11-18
 
 - [x] **89. Make the TODO readable** (owner, 2026-11-18: "a nightmare to look at, and I can't
-      say with confidence what still needs to be done"). Done 2026-11-18 (PR #NNN), docs and
+      say with confidence what still needs to be done"). Done 2026-11-18 (PR #210), docs and
       the TODO check only. `TODO.md` became a one-screen summary — where we stand, the launch
       in order, who each open item waits on, what's next, later and on hold — with each open
       item's notes below in the same order. Finished items and the audit log moved here; the
