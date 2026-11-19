@@ -65,10 +65,12 @@ is the log in §8.
 
 ## 0. Where we stand
 
-As of 2026-11-17: production (`main`) runs **v1.55.1**, promoted 2026-11-17
-(release/2026-11-17c).
+As of 2026-11-19: production (`main`) runs **v1.55.2**, a hotfix built from `main`
+(v1.55.1 was promoted 2026-11-17, release/2026-11-17c).
 
 The newest work on production:
+- v1.55.2: the Pin checkbox sits beside its words; a milestone's hover shows just that
+  milestone (item 96); a milestone can belong to a subtask (item 97);
 - v1.55.1: a long Changelog entry folds after its first four lines (item 84);
 - v1.55.0: the name-matching helpers retire, and the People merge moves records by ID
   (item 28 (b));
@@ -1472,6 +1474,27 @@ record is each ticket's "Fix shipped" note and `CHANGELOG.md`):
       layer and the name column sits on top of everything in it. CSS only. Suite
       `tests/test-v1541.js`; record
       `docs/Milestones/Phase-7-Pilot-Readiness/2026-11-17-name-column-on-top.md`.
+- [x] **96. Two Timeline fixes: the Pin checkbox and the milestone hover** (owner,
+      2026-11-19: the phase details' checkbox "should be connected to its text
+      description"; hovering a milestone "I want to just know what the milestone is, but
+      I'm given too much information", and why the cursor showed a "?"). Shipped v1.55.2
+      (PR #TBD, 2026-11-19), a hotfix built from `main` because `development` holds the
+      Office work. The Pin checkbox sits beside its label; a milestone diamond's hover shows
+      only its name, date, project and note, and the "?" help cursor is gone. The phase
+      bar's own hover still lists every milestone.
+
+- [x] **97. Milestones on subtasks** (owner, 2026-11-19: "milestones should be assignable
+      to subtasks"). Shipped v1.55.2 (PR #TBD, 2026-11-19), with item 96. On a saved project,
+      a milestone's phase list also names the bars of any department that has more than
+      one; picking a bar moves the milestone onto that bar's own row (`ticketNodes` on
+      `ShopTimeline_Tasks`, where the task editor already keeps a bar's milestones), so the
+      timeline draws it on that bar alone; picking the department moves it back to
+      `ShopTimeline_Events`. No new column. My Dashboard's Milestones list now reads a bar's
+      milestones too.
+      - *Left in place (2026-11-19):* a new-project draft still picks a department only;
+        subtasks are offered once the job is saved. Deleting a subtask moves its milestones
+        to the Events list on its department, as before.
+
 - [x] **84. A long Changelog entry folds** (P1, owner's screenshot, 2026-11-17). Shipped
       v1.55.1 (PR #199, 2026-11-17). The owner's 73-phase tidy wrote one "Bulk change" row
       that listed all 73 records and filled the page. Any entry longer than six lines now
