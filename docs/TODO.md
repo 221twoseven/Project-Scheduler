@@ -56,7 +56,7 @@ What each release changed: [`CHANGELOG.md`](../CHANGELOG.md).
 | You (leadership, for an Organization) | Pick the GitHub plan (items 71, 24) | A private repository; the rename |
 | You | Create a test SharePoint site, or approve a list-name suffix on preview (item 17) | Testing without touching real data, before the pilot |
 | You, the tenant admin | Check what retention covers and that version history is on for every list; start a weekly export (item 15) | A safety net for the lists |
-| You, leadership | A licence quote, and who would own an Azure account (item 51) | Choosing the data platform: SharePoint lists, Dataverse or Azure |
+| You, leadership | Who would own the Azure account and its billing; approve creating the Azure test (item 51) | The read-only Azure test that confirms the move to Azure |
 | Project Director | Rules for tentative, confirmed and TBD dates (item 5) | Showing how firm a date is |
 | Project Director, you | Enter the pilot projects; set the pilot's size and end date (item 18) | The pilot |
 | Project Director | The AMPM columns of the Master Project Tracker (item 22) | The Meeting Sheet as the AMPM handout |
@@ -245,11 +245,10 @@ applies from an exact spec; **[brief §N]** = the Project Director's September 2
         Bin, edits from version history.
       [brief §10.2, §12, §7.2]
 
-- [ ] **51. The data-platform decision's inputs: the platform spikes and the facts a ruling needs.** The data-platform decision is
+- [ ] **51. The Azure test and the facts the move to Azure needs.** The data-platform decision is
       ruled before the Phase 8 schema is provisioned, on these:
-      - *Dataverse:* a licence quote (headcount × $20, $22 from 2027-01-01, plus any
-        licences the tenant already holds; "Material to gather" in TODO.md) and a half-day spike: one read and one write
-        to the Dataverse Web API from a Pages-hosted page with an MSAL delegated token.
+      - *2026-11-19 (owner): Dataverse is out, it costs too much; Azure is the direction.*
+        Its licence quote and Web API spike are dropped.
       - *Azure (read-only, isolated staging):*
         - Bicep staging resources and a TypeScript API (App Service, Fastify);
         - Entra-authenticated access, and managed identity to a staging Azure SQL
@@ -389,8 +388,7 @@ What we still need from people: schemas, rules and examples, not screenshots. St
 | Who administers which view (the key users), and which permission set each needs | owner, the backup maintainer | in progress (the permissions decision) |
 | a colleague's estimator: a walkthrough of its model, pricing rules, catalog and rate data, and test estimates; where its database runs | the colleague, the owner | not requested (item 44) |
 | Estimate samples: two or three recent estimates per PM, of different shapes, to re-enter in the estimator's model | several PMs, the Project Director | not requested (item 44) |
-| Platform ownership: who would hold an Azure subscription and its billing, a second administrator, alert recipient, production-migration approver; or who administers a Power Platform environment | owner, the backup maintainer | not requested (the data-platform decision) |
-| Licence inventory and headcount: Power Apps / Power Automate premium licences already held, and how many people would use Systems (viewers included) | tenant admin, owner | not requested (the data-platform decision) |
+| Platform ownership: who would hold an Azure subscription and its billing, a second administrator, alert recipient, production-migration approver | owner, the backup maintainer | not requested (the data-platform decision) |
 | Colleague app: is it running, who maintains it, which lists it reads and writes | owner | answered 2026-09-24: running, unused, will not return; breakage accepted (the colleague-app ruling) |
 | The app itself: lists, registration, scopes, deployment, data model, formulas | the owner | mostly in the repository; item 21 closes the gaps (backups and rollup formulas undocumented) |
 
