@@ -9,6 +9,10 @@ Format: `## <label> — <date>` then one `- ` line per change. Keep lines concre
 what changed *for the team*, not how. Developer-only tooling doesn't need a line.
 Collect lines for the next version under `## Unreleased` and rename it when you ship.
 
+## v1.62.1 — Nov 19, 2026
+- The project editing panel under the chart has a cleaner look: headings in plain type instead of small capitals, taller fields, larger buttons, and a clear blue ring on whichever field or button you're on.
+- Pop-up windows keep the Tab key inside them, and closing one puts you back on the button you opened it from.
+
 ## v1.62.0 — Nov 19, 2026
 - People is its own app, opened from the Systems page or the Apps menu. The roster, each person's record, time off, the Employee Contacts import and merging duplicates work just as they did in Timeline.
 - Timeline's Company Data menu now lists only the Changelog, and an old link to Timeline's People page opens the People app.

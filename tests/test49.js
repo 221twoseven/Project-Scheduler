@@ -123,7 +123,7 @@ function stage2(){
        doc.getElementById('ins-name').placeholder.length>0,
        doc.getElementById('ins-name').placeholder);
     ok('start and end are editable', !!q('#pp-insp [data-f="startDate"]')&&!!q('#pp-insp [data-f="endDate"]'));
-    ok('the agenda narrows to this phase', /On this phase/.test(insp().textContent));
+    ok('the agenda narrows to this phase', /On This Phase/.test(insp().textContent));
 
     sec('editing in the inspector writes through');
     const nm=doc.getElementById('ins-name');

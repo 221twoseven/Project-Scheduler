@@ -16,11 +16,11 @@ Kept elsewhere so this file stays short:
 
 As of 2026-11-19:
 - **Live** (`main`, what users run): **v1.55.3**, Timeline only (hotfixes from `main`, items 96 to 98).
-- **Preview** (`development`, at `/preview/`): **v1.62.0**. The Systems page sits at the
+- **Preview** (`development`, at `/preview/`): **v1.62.1**. The Systems page sits at the
   root; Timeline moves to `/timeline/` with the Systems header and Apps menu; Office (the
   client list, formerly Clients) is its own app at `/office/`, and a client's record shows its current projects at a glance and
   its project history, projects from before Timeline included; People (the staff roster) is its own app at `/people/`;
-  the code every product shares lives in `common/`.
+  the code every product shares lives in `common/`; Timeline's project inspector is restyled to the wireframes.
 - **The next release is the launch:** the People app, the Office app (formerly Clients) and the Systems page
   go live together, complete and polished (owner, 2026-11-18). Nothing goes to `main` until
   then, however long the polish takes. The repository is renamed to `Systems` just before.
@@ -73,7 +73,8 @@ details. Open questions with no deadline are in [`Decisions.md`](Decisions.md).
 
 ## Next — Claude can do these without waiting
 
-- **Restyle the project inspector** to the wireframes, the next style step. (item 52)
+- **Restyle the next Timeline surface** to the wireframes: the project inspector is done; My
+  Dashboard's dock, the dialogs and the menus are left, then the business pages. (item 52)
 - **Write the one-paragraph rollback procedure**, and start tagging releases once you OK it.
   (item 16)
 
@@ -401,6 +402,15 @@ What we still need from people: schemas, rules and examples, not screenshots. St
       - *Step 3:* restyle one chrome surface per PR, project inspector first: type
         hierarchy, spacing, radii, fields, focus, buttons, and modal focus trapping where
         it's missing. Next.
+        - [x] *The project inspector* (the panel under a project's chart, saved and draft):
+          14px header, 13px/600 Title Case headings (owner, 2026-11-19: "No sentence case"),
+          12px labels, 36px fields (owner: OK), 32px buttons, 28px compact rows, 6px corners,
+          a 2px focus ring; every dialog keeps Tab inside it and gives focus back to its
+          opener. Shipped v1.62.1 (PR #220, 2026-11-19). Suite `tests/test-v1621.js`; record
+          `docs/Milestones/Phase-7-Pilot-Readiness/2026-11-19-inspector-restyle.md`.
+        - Left (dated 2026-11-19): My Dashboard's dock (it shares the inspector's section
+          markup and keeps its small-capital headings), the dialogs' own look (the focus
+          trap is in), and the menus and popovers.
       - [x] *Step 4:* the shell as one change: the global header and a real app switcher.
         Item 49 shipped v1.56.0 (2026-11-17), so the portal exists to switch to.
         Shipped v1.57.0 (PR #206, 2026-11-18). Owner's picks (2026-11-18): TWOSEVEN INC.

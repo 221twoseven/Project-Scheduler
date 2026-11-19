@@ -60,7 +60,7 @@ async function main(){
   ok('it sits inside its label',!!lbl&&/Pin dates/.test(lbl.textContent));
   ok('the label lays the box and the words out in a row',!!lbl&&win.getComputedStyle(lbl).display==='flex',
     lbl&&win.getComputedStyle(lbl).display);
-  ok('the checkbox is box-sized, not a full-width row',!!pin&&win.getComputedStyle(pin).width==='13px',
+  ok('the checkbox is box-sized, not a full-width row',!!pin&&win.getComputedStyle(pin).width==='16px', /* 13px until v1.62.1 (item 52) */
     pin&&win.getComputedStyle(pin).width);
 
   sec('97 milestones on subtasks (saved page)');

@@ -70,7 +70,7 @@ function stageA(){
   ok('the panel header has a Close control', !!x);
   ok('R3: it is labelled "Close ×"', !!x&&/^Close\s*×$/.test(x.textContent.trim()), x&&x.textContent.trim());
   ok('R3: its tooltip names Esc', !!x&&/Esc/.test(x.title), x&&x.title);
-  ok('R3: it is at least 24px tall (Design-Language §9 hit target)', /\.ins-hd \.x\{[^}]*min-height:24px/.test(src));
+  ok('R3: it is at least 24px tall (Design-Language §9 hit target)', /\.ins-hd \.x\{[^}]*min-height:(2[4-9]|[3-9]\d)px/.test(src)); /* 32px since v1.62.1 (item 52) */
   click(x);
   ok('clicking it deselects', sel()===null, sel());
   const pop=/data-pop-x title="Close \(Esc\)" aria-label="Close \(Esc\)">Close <span aria-hidden="true">&times;<\/span>/.test(src);
