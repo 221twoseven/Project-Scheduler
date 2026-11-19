@@ -15,7 +15,7 @@ Kept elsewhere so this file stays short:
 ## Where we stand
 
 As of 2026-11-18:
-- **Live** (`main`, what users run): **v1.55.1**, Timeline only.
+- **Live** (`main`, what users run): **v1.55.3**, Timeline only (hotfixes from `main`, items 96 to 98).
 - **Preview** (`development`, at `/preview/`): **v1.60.0**. The Systems page sits at the
   root; Timeline moves to `/timeline/` with the Systems header and Apps menu; Clients is its
   own app at `/clients/`, and a client's record shows its current projects at a glance and
