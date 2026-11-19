@@ -117,7 +117,7 @@ async function main(){
   sec('the Clients app — same grammar');
   E("location.hash='#/clients';applyRoute()");
   ok('#/clients sends you on to the Clients app (Timeline stays on the timeline)', E('ROUTE.view')==='timeline');
-  const cw=boot(require('path').join(__dirname,'..','clients','index.html'),{url:'https://example.github.io/Project-Scheduler/clients/',
+  const cw=boot(require('path').join(__dirname,'..','office','index.html'),{url:'https://example.github.io/Project-Scheduler/office/',
     data:{projects:[{appId:'p1',Title:'Window Job',client:'Hermes',jobCode:'WMU004',status:'in-fabrication',activeDepartments:'[]'}],tasks:[],staff:[],
       clients:[{Title:'Nordstrom',field_2:'NRD'},{Title:'Hermes',field_2:'HRM'}]},clientsList:true}).window;
   await wait(1500);

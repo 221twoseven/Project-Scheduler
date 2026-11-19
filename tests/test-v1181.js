@@ -44,7 +44,7 @@ const win=dom.window,doc=win.document,E=s=>win.eval(s);
 setTimeout(main,1300);
 
 function main(){
-  const CLIENTS_SRC=require('fs').readFileSync(require('path').join(__dirname,'..','clients','index.html'),'utf8'); /* v1.58.0 (item 86): the Clients app */
+  const CLIENTS_SRC=require('fs').readFileSync(require('path').join(__dirname,'..','office','index.html'),'utf8'); /* v1.58.0 (item 86): the Clients app */
   sec('source markers');
   ok('staff poll re-checks after its await', src.indexOf('pg===PEOPLE_GEN')>=0&&src.indexOf('PEOPLE_GEN++')>=0);
   ok('the merge scrub sequences on the roster save', /savePeople\([^]{0,120}\)\.then\(ok=>\{\s*if\(ok\)scrub\(\)/.test(src));

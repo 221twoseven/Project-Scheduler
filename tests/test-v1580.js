@@ -20,13 +20,13 @@
 const fs=require('fs'),path=require('path');
 const {boot,suite}=require('./harness');
 const {FILE,src,raw,ok,done}=suite();
-const ROOT=path.join(__dirname,'..'),APP=path.join(ROOT,'clients','index.html');
+const ROOT=path.join(__dirname,'..'),APP=path.join(ROOT,'office','index.html');
 const app=fs.readFileSync(APP,'utf8').replace(/\r\n/g,'\n');
 const js=fs.readFileSync(path.join(ROOT,'common','common.js'),'utf8').replace(/\r\n/g,'\n');
 const sec=t=>console.log('\n'+t);
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
 const ver=(/const APP_VER='([^']+)'/.exec(raw)||[])[1];
-const URL_C='https://example.github.io/Project-Scheduler/clients/';
+const URL_C='https://example.github.io/Project-Scheduler/office/';
 
 const clients=[{Title:'Alder Studio',field_2:'ALD'},{Title:'Common Ground',field_2:'CG'},
   {Title:'Fieldwork Museum',field_2:'FWM'},{Title:'Northline Retail',field_2:'NLR'}];
@@ -56,7 +56,7 @@ ok('Timeline\'s status and admin rules call the shared ones', /function _projSta
 ok('the app loads ../common/ with the running version, and carries it as its own', [...app.matchAll(/\.\.\/common\/common\.(?:js|css)\?v=([^"]+)"/g)].map(m=>m[1]).join()===ver+','+ver
   &&app.includes("const APP_VER='"+ver+"'"));
 const {stampCommon}=require('../tools/gen-release-notes.js');
-ok('npm run notes stamps the app (its tags and its APP_VER)', /PRODUCTS=\[path\.join\(ROOT,'clients','index\.html'\)\]/.test(fs.readFileSync(path.join(ROOT,'tools','gen-release-notes.js'),'utf8'))
+ok('npm run notes stamps the app (its tags and its APP_VER)', /PRODUCTS=\[path\.join\(ROOT,'office','index\.html'\)\]/.test(fs.readFileSync(path.join(ROOT,'tools','gen-release-notes.js'),'utf8'))
   &&stampCommon('<script src="../common/common.js?v=1"></script>','9.9.9').includes('?v=9.9.9'));
 
 (async()=>{try{await run();}catch(e){ok('suite threw: '+(e&&e.stack||e),false);}done();})();
@@ -68,13 +68,14 @@ async function run(){
   const type=(el,v)=>{el.value=v;el.dispatchEvent(new W.Event('input',{bubbles:true}));};
 
   sec('R1: the page');
-  ok('the tab reads "Clients — TWOSEVEN INC."', d.title==='Clients — TWOSEVEN INC.', d.title);
-  ok('the header: TWOSEVEN INC. (to the Systems page), then CLIENTS', q('.ts-top .ts-brand').getAttribute('href')==='../'&&txt(q('.ts-top .ts-app'))==='Clients');
+  /* v1.61.0 (item 94): the app is Office now; its page heading is still Clients */
+  ok('the tab reads "Office — TWOSEVEN INC."', d.title==='Office — TWOSEVEN INC.', d.title);
+  ok('the header: TWOSEVEN INC. (to the Systems page), then OFFICE', q('.ts-top .ts-brand').getAttribute('href')==='../'&&txt(q('.ts-top .ts-app'))==='Office');
   ok('the shell\'s sync pill reads synced', /synced/.test(txt(q('#sync-pill'))));
   click(q('#btn-apps'));
   const it=qa('#apps-menu .ts-apps-item');
-  ok('Apps lists the four products, Clients ticked, People greyed "In Timeline for now"',
-    it.map(x=>x.dataset.app).join()==='Timeline,People,Clients,Office'&&it[2].getAttribute('aria-current')==='page'
+  ok('Apps lists the three products, Office ticked, People greyed "In Timeline for now"',
+    it.map(x=>x.dataset.app).join()==='Timeline,People,Office'&&it[2].getAttribute('aria-current')==='page'
     &&it[1].classList.contains('off')&&/In Timeline for now/.test(txt(it[1]))&&it[0].getAttribute('href')==='../timeline/');
   ok('…and its button says it\'s open', q('#btn-apps').getAttribute('aria-expanded')==='true');
   d.dispatchEvent(new W.KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
@@ -160,8 +161,8 @@ async function run(){
   ok('an admin wears the ADMIN chip', /Sam\s*ADMIN/.test(txt(q('#who'))));
   const V=start({clients,projects,tasks,staff:[SAM_V,PAT]});await wait(1500);
   const vd=V.document;
-  ok('a non-admin gets "Clients is for admins." and the way back to Timeline',
-    /Clients is for admins\./.test(vd.getElementById('main').textContent)&&/Ask an admin to add or change a client\. You can still pick a project's client in Timeline\./.test(vd.getElementById('main').textContent)
+  ok('a non-admin gets "Office is for admins." and the way back to Timeline',
+    /Office is for admins\./.test(vd.getElementById('main').textContent)&&/Ask an admin to add or change a client\. You can still pick a project's client in Timeline\./.test(vd.getElementById('main').textContent)
     &&vd.querySelector('#main a.btn').getAttribute('href')==='../timeline/'&&!vd.getElementById('list'));
   ok('the staff list unreachable: Timeline\'s cached roster decides, not "everyone\'s an admin"',
     /else try\{PEOPLE=JSON\.parse\(localStorage\.getItem\('shopTimelinePeople_v1'\)\)\|\|\[\];\}/.test(app)&&raw.includes("const PEOPLE_KEY='shopTimelinePeople_v1'"));
@@ -169,7 +170,7 @@ async function run(){
   ok('the projects unreachable: no count reads as "none", and the record says why',
     rows().every(r=>txt(r.querySelector('.mut'))==='')&&/Couldn't read the projects from SharePoint\./.test(txt(q('#rec'))));
   E("PROJ_OK=true;paint()");
-  ok('the sign-in-expired box, in Timeline\'s words', /Your sign-in expired/.test(app)&&app.includes('Clients paused while you were away. Sign in to pick up where you left off.'));
+  ok('the sign-in-expired box, in Timeline\'s words', /Your sign-in expired/.test(app)&&app.includes('Office paused while you were away. Sign in to pick up where you left off.'));
 
   sec('R9: the update check runs here too');
   ok('updCheck, its watcher and the busy hooks are wired', E('typeof updCheck')==='function'&&/updWatch\(\);/.test(app));
@@ -179,7 +180,7 @@ async function run(){
 
   sec('R8: Timeline');
   ok('Company Data no longer lists Clients, and Timeline has no Clients page', !/id="mi-clients"/.test(raw)&&!/view==='clients'/.test(raw)&&!/function cdSaveClient/.test(raw));
-  ok('an old #/clients link goes on to the Clients app', /if\(h==='clients'\|\|h\.indexOf\('clients\/'\)===0\)\{location\.replace\('\.\.\/clients\/'\)/.test(raw));
+  ok('an old #/clients link goes on to the Office app (v1.61.0)', /if\(h==='clients'\|\|h\.indexOf\('clients\/'\)===0\)\{location\.replace\('\.\.\/office\/'\)/.test(raw));
   ok('the poll re-reads the client list every other tick', /if\(POLL_N%2===0&&await clientsRefresh\(\)&&relink\(\)\)dirty=true;/.test(raw));
   const tdata={projects:[{appId:'q1',Title:'Window Job',client:'Brand New Co',jobCode:'BNC-1',status:'auto',projectManager:'Sam',activeDepartments:JSON.stringify(['pm'])}],
     tasks:[],staff:[],todos:[],clients:[{Title:'Acme Corp',field_2:'ACM'}]};
@@ -187,7 +188,7 @@ async function run(){
   const tq=s=>TW.document.querySelector(s),opts=()=>[...TW.document.querySelectorAll('#pp-client option')].map(o=>o.value);
   const note=tq('#pp-client+.ins-note');
   ok('a saved project: the note links to the Clients app, in a new tab',
-    !!note&&/add it in Clients ↗ first\./.test(note.textContent)&&note.querySelector('a').getAttribute('href')==='../clients/'&&note.querySelector('a').target==='_blank');
+    !!note&&/add it in Office ↗ first\./.test(note.textContent)&&note.querySelector('a').getAttribute('href')==='../office/'&&note.querySelector('a').target==='_blank');
   const sel0=tq('#pp-client');
   tdata.clients.push({Title:'Brand New Co',field_2:'BNC'});
   TW.document.dispatchEvent(new TW.Event('visibilitychange'));await wait(300);

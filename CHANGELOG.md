@@ -9,6 +9,9 @@ Format: `## <label> — <date>` then one `- ` line per change. Keep lines concre
 what changed *for the team*, not how. Developer-only tooling doesn't need a line.
 Collect lines for the next version under `## Unreleased` and rename it when you ship.
 
+## v1.61.0 — Nov 19, 2026
+- Clients is now called Office: the same client list at a new address, and where job setup and closeout will come. Old Clients links and bookmarks still open it.
+
 ## v1.60.0 — Nov 18, 2026
 - In Clients, a client's project history can now include projects from before Timeline: "+ Add a past project" records its name, cost code, dates and team.
 - Past projects sit in the history by their finish date, tagged "Before Timeline"; click one to change or remove it.

@@ -55,7 +55,7 @@ async function main(){
 
   sec('Q2 — the Clients directory');
   /* v1.58.0 (item 86): the Clients directory is its own app; its wording keeps the term */
-  const CLS=require('fs').readFileSync(require('path').join(__dirname,'..','clients','index.html'),'utf8');
+  const CLS=require('fs').readFileSync(require('path').join(__dirname,'..','office','index.html'),'utf8');
   ok('the Clients app\'s line says "cost-code aliases" (was the Clients menu tooltip)', CLS.includes("The company\\'s clients and their cost-code aliases."));
   ok('the Clients subtitle says "cost-code aliases"', /cost-code aliases/.test(CLS));
   ok('the alias placeholder says "cost-code prefix"', CLS.includes('placeholder="2–3 letter cost-code prefix"'));

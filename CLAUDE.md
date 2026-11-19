@@ -24,14 +24,14 @@ Project rules and context for working in this repository. Read this before makin
   the vendored `msal-browser.min.js`. Timeline loads them as `../common/`; their tags carry
   `?v=APP_VER`, which `npm run notes` stamps. Change them as carefully as Timeline itself:
   every product breaks with them.
-- **`clients/index.html` — Clients, the second Systems product** (item 86, v1.58.0): the
-  client list, its own app. Since 2026-11-19 it is Office's first part and is renamed
-  Office, at `office/` (item 94). It owns `ShopTimeline_Clients` (the only place a client is added,
+- **`office/index.html` — Office, the second Systems product** (built as Clients, item 86, v1.58.0; renamed Office, item 94, v1.61.0): the
+  client list today; setup and closeout come to it (owner, 2026-11-19). `clients/index.html`
+  only forwards old links to `office/`. It owns `ShopTimeline_Clients` (the only place a client is added,
   changed or removed) and reads Projects, phases, Staff and Config. It carries Timeline's
   `APP_VER`, stamped by `npm run notes`; `tests/test-v1580.js` boots it in the harness.
 - **`index.html` at the root — the Systems page**: a static page of product tiles, no
   sign-in. It forwards old `#/…` and `#view=` links to `timeline/`. A new product gets a tile
-  here and a folder of its own (`people/`, `clients/`, `office/`; see "One folder per product" in `docs/Decisions.md`).
+  here and a folder of its own (`people/`, `office/`; see "One folder per product" in `docs/Decisions.md`).
 - **`design/Design-Language.md` — the design system. Read it before any change that
   touches appearance or interaction.** If a change contradicts it, either follow the
   doc or update the doc in the same PR — never silently diverge.
@@ -246,7 +246,7 @@ repo's `flows/` folder, never to this public repo, and never hold secrets in an 
 Clients, owner 2026-11-19), Timeline — over one shared SharePoint dataset, reached from a portal at `/`. Each product
 creates and deletes only the data it owns; every product reads the shared dataset. Timeline
 manages production data only (schedule, phases, assignments, milestones, notes) and will
-hand its People page to its own product (Clients went first: `clients/`, v1.58.0, item 86).
+hand its People page to its own product (Clients went first, v1.58.0, item 86, and is now Office at `office/`).
 The portal exists since v1.56.0
 (item 49: the Systems page at `/`, Timeline at `/timeline/`); the other products aren't built
 yet. The definition and the rulings are in `docs/Decisions.md` ("What we're building", and the decisions on one folder per product and on the Company Data pages). Until they are,

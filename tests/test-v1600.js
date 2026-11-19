@@ -9,7 +9,7 @@
 const path=require('path');
 const {boot,suite}=require('./harness');
 const {ok,done}=suite();
-const APP=path.join(__dirname,'..','clients','index.html');
+const APP=path.join(__dirname,'..','office','index.html');
 const sec=t=>console.log('\n'+t);
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
 
@@ -26,7 +26,7 @@ const SAM={appId:'s1',Title:'Sam',email:'user@example.com',depts:'[]',ooo:'[]',a
 (async()=>{try{await run();}catch(e){ok('suite threw: '+(e&&e.stack||e),false);}done();})();
 
 function page(pastList){
-  const W=boot(APP,{url:'https://example.github.io/Project-Scheduler/clients/',clientsList:true,pastList,now:'2026-11-18',
+  const W=boot(APP,{url:'https://example.github.io/Project-Scheduler/office/',clientsList:true,pastList,now:'2026-11-18',
     data:{clients,projects,tasks,staff:[SAM],past}}).window;
   const d=W.document,q=s=>d.querySelector(s),qa=s=>[...d.querySelectorAll(s)],txt=el=>el?el.textContent.trim():'';
   const click=el=>el.dispatchEvent(new W.MouseEvent('click',{bubbles:true}));

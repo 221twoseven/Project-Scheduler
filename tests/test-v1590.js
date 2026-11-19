@@ -11,7 +11,7 @@
 const fs=require('fs'),path=require('path');
 const {boot,suite}=require('./harness');
 const {ok,done}=suite();
-const APP=path.join(__dirname,'..','clients','index.html');
+const APP=path.join(__dirname,'..','office','index.html');
 const app=fs.readFileSync(APP,'utf8').replace(/\r\n/g,'\n');
 const sec=t=>console.log('\n'+t);
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
@@ -45,7 +45,7 @@ ok('on a phone it sits above the record in a short box of its own', /@media \(ma
 (async()=>{try{await run();}catch(e){ok('suite threw: '+(e&&e.stack||e),false);}done();})();
 
 async function run(){
-  const W=boot(APP,{url:'https://example.github.io/Project-Scheduler/clients/',clientsList:true,now:'2026-11-18',
+  const W=boot(APP,{url:'https://example.github.io/Project-Scheduler/office/',clientsList:true,now:'2026-11-18',
     data:{clients,projects,tasks,staff:[SAM,KIM]}}).window;
   await wait(1500);
   const d=W.document,q=s=>d.querySelector(s),qa=s=>[...d.querySelectorAll(s)],E=s=>W.eval(s),txt=el=>el?el.textContent.trim():'';
