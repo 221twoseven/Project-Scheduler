@@ -25,7 +25,8 @@ Project rules and context for working in this repository. Read this before makin
   `?v=APP_VER`, which `npm run notes` stamps. Change them as carefully as Timeline itself:
   every product breaks with them.
 - **`clients/index.html` — Clients, the second Systems product** (item 86, v1.58.0): the
-  client list, its own app. It owns `ShopTimeline_Clients` (the only place a client is added,
+  client list, its own app. Since 2026-11-19 it is Office's first part and is renamed
+  Office, at `office/` (item 94). It owns `ShopTimeline_Clients` (the only place a client is added,
   changed or removed) and reads Projects, phases, Staff and Config. It carries Timeline's
   `APP_VER`, stamped by `npm run notes`; `tests/test-v1580.js` boots it in the harness.
 - **`index.html` at the root — the Systems page**: a static page of product tiles, no
@@ -241,8 +242,8 @@ repo's `flows/` folder, never to this public repo, and never hold secrets in an 
 ## Architecture summary
 
 **Where Timeline sits — Systems (owner, 2026-09-29).** Timeline is one product of
-*Systems*, a data-management ecosystem of peer products — People, Clients, Office,
-Timeline — over one shared SharePoint dataset, reached from a portal at `/`. Each product
+*Systems*, a data-management ecosystem of peer products — People, Office (which took in
+Clients, owner 2026-11-19), Timeline — over one shared SharePoint dataset, reached from a portal at `/`. Each product
 creates and deletes only the data it owns; every product reads the shared dataset. Timeline
 manages production data only (schedule, phases, assignments, milestones, notes) and will
 hand its People page to its own product (Clients went first: `clients/`, v1.58.0, item 86).

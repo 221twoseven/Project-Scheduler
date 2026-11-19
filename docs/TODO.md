@@ -20,7 +20,8 @@ As of 2026-11-18:
   root; Timeline moves to `/timeline/` with the Systems header and Apps menu; Clients is its
   own app at `/clients/`, and a client's record shows its current projects at a glance and
   its project history, projects from before Timeline included; the code every product shares lives in `common/`.
-- **The next release is the launch:** the People app, the Clients app and the Systems page
+- **The next release is the launch:** the People app, the Office app (today's Clients,
+  renamed: item 94) and the Systems page
   go live together, complete and polished (owner, 2026-11-18). Nothing goes to `main` until
   then, however long the polish takes. The repository is renamed to `Systems` just before.
 - **A production fix meanwhile** is built from `main`, adds `clients/index.html` to the
@@ -33,16 +34,19 @@ What each release changed: [`CHANGELOG.md`](../CHANGELOG.md).
 
 1. **Your design and feature review of Clients and the Systems page** on `/preview/`. What
    it asks for becomes items here, then gets built. (item 90)
-2. **The People app.** Claude drafts its wording and a recommendation on the one open
+2. **Clients becomes Office.** Rename the app (item 94); show more about past projects and
+   drop the "Before Timeline" tag (item 95). Claude sends the plan and wording first; you
+   pick the past-project fields and add the `/office/` sign-in addresses.
+3. **The People app.** Claude drafts its wording and a recommendation on the one open
    question (whether merging two people should rewrite Timeline's records); you pick, give
    the go and add its two sign-in addresses; then it's built. (item 87)
-3. **Choose the GitHub plan before the rename.** Paying for GitHub Pro lets the repository
+4. **Choose the GitHub plan before the rename.** Paying for GitHub Pro lets the repository
    go private and keeps the address. Moving to a company Organization changes the address
    again, so it should happen at the same moment as the rename. (items 71, 24)
-4. **Rename the repository to `Systems`**, just before the release: you add the new
+5. **Rename the repository to `Systems`**, just before the release: you add the new
    sign-in addresses, then rename; Claude updates every reference. (item 88)
-5. **Release the launch** to `main`.
-6. **A working day later, tidy up:** remove the old sign-in addresses and leftover files.
+6. **Release the launch** to `main`.
+7. **A working day later, tidy up:** remove the old sign-in addresses and leftover files.
    (item 91)
 
 ## Waiting on someone
@@ -50,6 +54,7 @@ What each release changed: [`CHANGELOG.md`](../CHANGELOG.md).
 | Who | What they need to do | What it holds up |
 |---|---|---|
 | You | The design review above (item 90) | The launch |
+| You | Office: the go on the rename and the `/office/` sign-in addresses; the past-project fields (items 94, 95) | The launch |
 | You | People app: wording picks, the merge question, the go (item 87) | The launch |
 | You (leadership, for an Organization) | Pick the GitHub plan (items 71, 24) | A private repository; the rename |
 | You | Create a test SharePoint site, or approve a list-name suffix on preview (item 17) | Testing without touching real data, before the pilot |
@@ -77,7 +82,8 @@ details. Open questions with no deadline are in [`Decisions.md`](Decisions.md).
 
 ## Later — waits on other work
 
-- **Office, the product after the launch**, built in the order a job moves: job lead
+- **Office's next steps, after the launch**, on the client's record (Office absorbed
+  Clients, 2026-11-19), built in the order a job moves: job lead
   (item 45), estimate (item 44), cost-code generation (item 42), job creation with the
   QuickBooks / TCP hand-off (item 43), and closeout and billing last (item 11). Waits on
   the company's project list being chosen and the cost-code rules.
@@ -117,6 +123,42 @@ applies from an exact spec; **[brief §N]** = the Project Director's September 2
       - *First notes, on Clients (2026-11-18):* the list scrolls on its own, and a client's
         record shows current projects at a glance and a project history: item 92, built in
         v1.59.0. Projects from before Timeline, added in Clients: item 93, built in v1.60.0.
+      - *Second notes (2026-11-19):* the "Before Timeline" tag isn't needed, and past
+        projects could show more. Setting projects up and closing them out belong on the
+        client's record, so Clients becomes Office ("let's use what we have now as Office,
+        since it is a more comprehensive name"): items 94 and 95.
+
+- [ ] **94. Rename the Clients app to Office** (owner, 2026-11-19; the launch). ⚠
+      Architecture. Clients is Office's first part (Decisions.md, "What we're building"),
+      so the app ships under its lasting name rather than being renamed after people learn
+      it. Claude sends this plan and the new wording before building.
+      - *The change:* `clients/` becomes `office/` — the app's name in its header, page
+        title and sign-in screen, the Systems page tile, the Apps menu (`common/common.js`),
+        Timeline's links to a client's record, the deploy workflow's lists, and the tests
+        and docs that name the folder. `clients/index.html` stays as a page that forwards to
+        `../office/`, keeping old links and bookmarks working, until the tidy-up (item 91).
+      - *Data:* none changes. The lists keep their names (`ShopTimeline_Clients`,
+        `ShopTimeline_PastProjects`), and the app keeps no browser settings under its name.
+      - *The owner:* add the `/office/` and `/preview/office/` SPA sign-in (redirect)
+        addresses to the Entra app before the merge; without them sign-in fails on the new
+        address. The `/clients/` ones go with the tidy-up (item 91).
+      - *Risks:* a link left pointing at `clients/` lands on the forwarder, not a dead page;
+        a missing redirect address stops sign-in on `/office/` only, and the merge waits on it.
+      - *Rollback:* revert the pull request; the old address never stops working.
+
+- [ ] **95. A client's projects: more detail on past ones, no "Before Timeline" tag**
+      (owner, 2026-11-19; the launch). In Office, a client's project history shows every
+      finished project alike — the tag goes; a Timeline project's name still opens its
+      schedule. A click opens a past project's details. ⚠ new columns on
+      `ShopTimeline_PastProjects`, from an exact spec Claude sends once the fields are picked.
+      - *Fields offered (owner picks):* type of work, where (venue or address), the
+        client's contact for the job (from the client's contacts), a link to the project
+        folder (photos and drawings stay in SharePoint), notes or lessons learned.
+      - *Not in this item:* the final invoice amount, which needs the restricted
+        financial permission (items 26, 11). The Projects tab grouped by stage — leads and
+        estimates, in production, closing out, finished — grows with Office's next steps
+        (items 45, 44, 43, 11), each adding its group.
+      - *Waits on:* the owner's field picks and the wording, then the columns.
 
 - [ ] **87. The People app** (the launch). ⚠ Architecture, on item 85. Timeline's People page
       becomes its own product at `people/`, built to the People wireframe, and leaves Timeline.

@@ -13,18 +13,25 @@ a touchpoint for one kind of information, over **one shared dataset**, reached f
 the root `/`. The products are peers — none is the parent of another. Timeline is one of
 them.
 
+**Clients is part of Office** (owner, 2026-11-19): "let's use what we have now as Office,
+since it is a more comprehensive name. Clients is more narrow and fits inside office."
+Setting projects up and closing them out happens on the client's record, beside the
+client's project history, so the Clients app becomes Office rather than Office being built
+beside it. Three products now: People, Office, Timeline. This replaces the 2026-09-29
+table's separate Clients product; the client list (`ShopTimeline_Clients`) and past
+projects (`ShopTimeline_PastProjects`) are Office's data.
+
 | Product | What it holds and does | Who uses it | Gated? | Where it stands |
 |---|---|---|---|---|
 | **People** | Staff names, contact information, status (FTE vs Freelance), logged hours, and whatever else the HR / ADP administrator manages. The place to connect to ADP — CSV first; the ADP API only through Power Automate with a named owner, never from the browser (the integrations decision) | The HR / ADP administrator; everyone reads the public roster | HR-only fields restricted (the permissions decision, items 26–27) | Timeline's People page today (`#/people`); its own product in Phase 9 (the Company Data ruling) |
-| **Clients** | Client names, past projects, billing and revenue, current and past teams, client contacts and their details — whatever management needs to track | Management, project management, accounting | Yes | Timeline's Clients page today (`#/clients`); its own product in Phase 9 (the Company Data ruling) |
-| **Office** | Where projects are set up and closed out: estimating, cost-code generation, budget views, project closeout | Management, project management, purchasing, accounting | Yes | Does not exist. **The next new product, built in Phase 8** (owner, 2026-09-29), in project-cycle order: job lead / forecast (45), estimate (44), job creation with cost codes and the QuickBooks / TCP hand-off (42, 43); closeout (11) is the last step of the cycle and comes last |
+| **Office** | Clients and their projects, from lead to closeout: the client list and contacts, each client's projects (past ones included), billing and revenue, current and past teams; job lead, estimate, cost-code generation, job creation, budget views, closeout | Management, project management, purchasing, accounting | Yes | Today's Clients app (`clients/`, item 86) is Office's first part and is renamed Office (item 94). Then, in project-cycle order: job lead / forecast (45), estimate (44), job creation with cost codes and the QuickBooks / TCP hand-off (42, 43); closeout (11) last |
 | **Timeline** | Project production: the schedule, phases, assignments, milestones, notes — the app that exists today | Everyone; existing permissions mostly stay | Mostly no (admin / viewer as today) | In production ("Where we stand"); moves to `/timeline/`, behind the Systems page at `/`, with v1.56.0 (item 49); New Project stays here until Office takes setup (item 43) |
 
 **The ownership rule.** Each product has sole ownership of the data it holds: records are
 **created and deleted only inside their own product**. Every product **reads** the shared
-dataset, so information from People, Clients and Office is selectable, assignable and
+dataset, so information from People and Office is selectable, assignable and
 interactive wherever it is needed — a Timeline phase picks a person from People, a project
-references a client from Clients — but Timeline never creates or deletes a person, a client
+references a client from Office — but Timeline never creates or deletes a person, a client
 or a cost code, and once Office exists it no longer sets projects up either (item 43):
 Office creates the project, Timeline schedules it. Timeline manages production data only.
 
@@ -41,8 +48,8 @@ order a job moves through the shop, so each product exists before the step that 
 | 6. Design, production, finishing, packing / install / shipping | Timeline (exists) | the pilot items |
 | 7. Project closeout, final invoice | Office | item 11 — last, not planned further until the steps before it exist |
 
-Clients is not a step: a lead names a client at step 1, so the Clients registry is read
-from the start; the Clients product's place is Phase 9 ("The roadmap").
+The client list is not a step: a lead names a client at step 1, so it is read from the
+start. It already exists, as Office's first part (item 86, renamed by item 94).
 
 **What this means for the data** (the 2026-09-24 framing, unchanged; the what-v2.0.0-means decision):
 
@@ -72,10 +79,10 @@ from the start; the Clients product's place is Phase 9 ("The roadmap").
 **Where the open work lands** (product → items and this file decisions):
 
 - **People** — items 4, 9, 19, 26, 27; the employee-directory decision, the worker-types decision, the integrations decision (the ADP connection).
-- **Clients** — item 28 (client IDs; person IDs with People); the stable-IDs ruling; the billing states of
-  item 11 once Office exists.
-- **Office** — items 45, 44, 42, 43 in that order, with 13 and 14 as inputs, then 11 last;
-  the project-list decision, the departments-as-data decision, the integrations decision. The next new product, built in Phase 8 (owner, 2026-09-29).
+- **Office** (the client list included, 2026-11-19) — items 94 (the rename) and 95 (a
+  client's projects by stage); then 45, 44, 42, 43 in that order, with 13 and 14 as inputs,
+  then 11 last; item 28 (client IDs; person IDs with People); the stable-IDs ruling;
+  the project-list decision, the departments-as-data decision, the integrations decision.
 - **Timeline** — items 1–3, 5–8, 10, 12, 18, 20, 22, 23, 25, 29, 32–41; the polling-budget decision, the shop-terminal idea.
 - **Systems as a whole** (portal, shared module, sign-in, hosting) — items 15–17, 21, 24,
   30, 31, 48–52; the permissions decision, the one-folder-per-product ruling, the what-v2.0.0-means decision, the Company Data ruling, the integrations decision, the data-platform decision. The design-resources question is tabled.
@@ -460,7 +467,8 @@ one folder per product, and the Systems portal at the root.
 
 *Ruled 2026-09-29 (owner, with the Systems
 definition): they graduate.* Timeline's People and Clients pages become the **People**
-and **Clients** products in Phase 9. From then on Timeline keeps read-only pickers and
+and **Clients** products in Phase 9 (Clients went first, item 86, and became part of Office
+on 2026-11-19, "What we're building"). From then on Timeline keeps read-only pickers and
 never creates or deletes a person or a client ("What we're building" ownership rule). Until then the pages
 are where the shared-registry work lands (Phase 8). Clients' "project history (names,
 cost codes, job details, billings)" needs client IDs on projects (the stable-IDs ruling) and the closeout
