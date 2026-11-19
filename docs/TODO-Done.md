@@ -7,6 +7,24 @@ release-by-release record.
 
 ## Finished since 2026-11-18
 
+- [x] **94. Rename the Clients app to Office** (owner, 2026-11-19; the launch; the plan: "Go ahead"; the
+      wording: "Wording OK"). Shipped v1.61.0 (PR #214, 2026-11-19). ⚠ Architecture. Clients is Office's first part (Decisions.md, "What we're building"),
+      so the app ships under its lasting name rather than being renamed after people learn
+      it.
+      - *The change:* `clients/` becomes `office/` — the app's name in its header, page
+        title and sign-in screen, the Systems page tile, the Apps menu (`common/common.js`),
+        Timeline's links to a client's record, the deploy workflow's lists, and the tests
+        and docs that name the folder. `clients/index.html` stays as a page that forwards to
+        `../office/`, keeping old links and bookmarks working, until the tidy-up (item 91).
+      - *Data:* none changes. The lists keep their names (`ShopTimeline_Clients`,
+        `ShopTimeline_PastProjects`), and the app keeps no browser settings under its name.
+      - *The owner:* add the `/office/` and `/preview/office/` SPA sign-in (redirect)
+        addresses to the Entra app before the merge; without them sign-in fails on the new
+        address. The `/clients/` ones go with the tidy-up (item 91).
+      - *Risks:* a link left pointing at `clients/` lands on the forwarder, not a dead page;
+        a missing redirect address stops sign-in on `/office/` only, and the merge waits on it.
+      - *Rollback:* revert the pull request; the old address never stops working.
+
 - [x] **93. Projects from before Timeline in a client's history** (owner, 2026-11-18:
       "Management will add pre-timeline projects if necessary"; where: "Yes, in Clients"; the
       wording: "Wording OK"; the list created the same day). Shipped v1.60.0 (PR #212, 2026-11-18).

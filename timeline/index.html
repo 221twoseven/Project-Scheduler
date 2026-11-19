@@ -11,7 +11,7 @@
      the single-file architecture stays intact and the deploy guard skips data: hrefs. -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MDAgMzIyLjg1NSI+CiAgPHBhdGggZD0iTTE2MS4yMDcsMjc0LjEzOGM2LjY0MywwLDEyLjQsNS43NTgsMTIuNCwxMi44NDR2MjMuMDI5YzAsNy4wODUtNS43NTcsMTIuODQzLTEyLjQsMTIuODQzSDE0LjYxNmMtNi42NDMsMC0xMi40MDEtNS43NTgtMTIuNDAxLTEyLjg0M3YtMzEuMDAyYzAtMTUuMDU4LDMuNTQzLTIxLjcwMSw3Ljk3MS0yNy45MDFMMTA1Ljg0OCwxMTguNjljMTIuNC0xNy4yNzMsMTcuMjczLTIzLjkxNiwxNy4yNzMtMzcuNjQ1LDAtMjMuOTE0LTE3LjcxNi0zNC45ODctMzcuMjAyLTM0Ljk4Ny0yMS43MDEsMC0zNi4zMTUsMTMuNzI5LTM2LjMxNSwzOS44NTl2NC44NzFjMCw2LjY0My01Ljc1OCwxMi40MDEtMTIuODQ0LDEyLjQwMUgxMi44NDRjLTcuMDg2LDAtMTIuODQ0LTUuNzU4LTEyLjg0NC0xMi40MDF2LTEwLjE4NUMwLDI5LjIyOSwzOS40MTcsMCw4NS45MTgsMGM0NS4xNzMsMCw4OC4xMzIsMjcuMDE2LDg4LjEzMiw4MC42MDQsMCwxOS45MjktMS43NzIsMzYuMzE1LTE3LjcxNCw1OC45MDFsLTk2Ljk5LDEzNC42MzNoMTAxLjg2MVpNMzE5Ljc1MiwxODIuNDYzYzYuNjQzLDAsMTIuNCw1Ljc1OCwxMi40LDEyLjg0NHYxNy43MTRjMCw3LjA4Ni01Ljc1NywxMi44NDMtMTIuNCwxMi44NDNoLTEyOC44NzdjLTYuNjQzLDAtMTIuNC01Ljc1Ny0xMi40LTEyLjg0M3YtMTcuNzE0YzAtNy4wODYsNS43NTctMTIuODQ0LDEyLjQtMTIuODQ0aDEyOC44NzdaTTM0MS4wMDgsNTcuNTczYy03LjA4NiwwLTEyLjg0My01Ljc1Ny0xMi44NDMtMTIuNHYtMjMuOTE2YzAtNi42NDMsNS43NTctMTIuNCwxMi44NDMtMTIuNGgxNDYuMTQ4YzcuMDg2LDAsMTIuODQ0LDUuNzU3LDEyLjg0NCwxMi40djI2LjU3MmMwLDkuMzAxLTMuNTQzLDIwLjgxNi01LjMxNSwyNS42ODdsLTg3LjI0NywyMzcuMzc5Yy0yLjIxMyw2LjItNS4zMTUsMTEuOTU4LTExLjk1OCwxMS45NThoLTMzLjIxNWMtNS4zMTMsMC0xMC4xODYtNC40MjgtMTAuMTg2LTExLjk1OCwwLTEuNzcyLjQ0My0zLjU0MywxLjMzLTUuNzU3bDkwLjc4OC0yNDcuNTY3aC0xMDMuMTg5WiIvPgo8L3N2Zz4=">
 
-<link rel="stylesheet" href="../common/common.css?v=1.60.0">
+<link rel="stylesheet" href="../common/common.css?v=1.61.0">
 <style>
 /* ============ TOKENS ============ */
 :root{
@@ -228,7 +228,7 @@ body.lens-dept #sb-foot{display:none}
 /* v1.8.0 (§3 item 12): the viewer role. Admin-only chrome disappears, and locked edit
    fields flatten so they read as plain text ("visible, locked") — checkbox groups show
    only their checked names. Workflow protection, not security (milestone record). */
-body.viewer #btn-new-proj,body.viewer #mi-changelog,body.viewer #apps-menu [data-app="Clients"],
+body.viewer #btn-new-proj,body.viewer #mi-changelog,body.viewer #apps-menu [data-app="Office"],
 body.viewer:not(.vg-phases) .lock-tog,
 body.viewer:not(.vg-subtasks):not(.vg-phases) #tm-save,body.viewer:not(.vg-phases) #tm-del,
 body.viewer:not(.vg-subtasks) #tm-tnadd,body.viewer:not(.vg-subtasks) #task-overlay .tn-x,
@@ -1854,10 +1854,10 @@ body.cd-route #dash-bar{display:none!important}
      from common/, the folder every Systems product shares. ?v= is APP_VER, stamped by
      `npm run notes`, so a new page never runs against a cached old core. -->
 <script src="../common/msal-browser.min.js"></script>
-<script src="../common/common.js?v=1.60.0"></script>
+<script src="../common/common.js?v=1.61.0"></script>
 <script>
 'use strict';
-const APP_VER='1.60.0'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.61.0'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -2994,7 +2994,7 @@ function clientField(cur){
     +(c===hit?' selected':'')+'>'+esc(c.name)+(c.alias?' · '+esc(c.alias):'')+'</option>').join('');
   return '<select id="pp-client"><option value=""'+(cur.trim()?'':' selected')+'>Pick a client</option>'
     +(off?'<option value="'+esc(cur)+'" selected>'+esc(cur)+'</option>':'')+opts+'</select>'
-    +(off?'<div class="ins-note">“'+esc(cur)+'” isn’t on the Clients list. Pick one from the list, or add it in <a href="../clients/" target="_blank" rel="noopener">Clients ↗</a> first.</div>':'');
+    +(off?'<div class="ins-note">“'+esc(cur)+'” isn’t on the Clients list. Pick one from the list, or add it in <a href="../office/" target="_blank" rel="noopener">Office ↗</a> first.</div>':'');
 }
 async function loadClients(){
   try{
@@ -5883,7 +5883,7 @@ function cdRemovePerson(){
   savePeople(PEOPLE.filter(x=>x.id!==r.id));
   toast(live.name+' removed');
 }
-/* v1.58.0 (item 86): adding, changing and removing a client moved to the Clients app (clients/). */
+/* v1.58.0 (item 86): adding, changing and removing a client moved to the Clients app, now Office (office/, item 94). */
 /* 5b (carried from the staff modal): fold the loaded Team roster in — fill the
    datalist, and backfill the open editor's email where its name matches exactly
    ONE member (ambiguous names stay untouched; the pick is visible before Save). */
@@ -6398,7 +6398,7 @@ function parseHash(){
      on the page too — per-record URLs are a ledgered later, not a 404. */
   if(h==='people'||h.indexOf('people/')===0)return{view:'people',id:null,creating:false};
   /* v1.58.0 (item 86): Clients is its own app now; an old link goes on to it */
-  if(h==='clients'||h.indexOf('clients/')===0){location.replace('../clients/');return{view:'timeline',id:null,creating:false};}
+  if(h==='clients'||h.indexOf('clients/')===0){location.replace('../office/');return{view:'timeline',id:null,creating:false};}
   if(h==='settings')return{view:'settings',id:null,creating:false}; /* v1.11.0: dev App Settings */
   if(h==='mysettings')return{view:'mysettings',id:null,creating:false}; /* v1.50.0: Help ▸ My settings */
   if(h==='changelog')return{view:'changelog',id:null,creating:false}; /* v1.19.0 (§3 item 26) */
@@ -11873,6 +11873,7 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.61.0",d:"Nov 19, 2026",n:["Clients is now called Office: the same client list at a new address, and where job setup and closeout will come. Old Clients links and bookmarks still open it."]},
  {v:"v1.60.0",d:"Nov 18, 2026",n:["In Clients, a client's project history can now include projects from before Timeline: \"+ Add a past project\" records its name, cost code, dates and team.",
    "Past projects sit in the history by their finish date, tagged \"Before Timeline\"; click one to change or remove it."]},
  {v:"v1.59.0",d:"Nov 18, 2026",n:["In Clients, the client list now scrolls on its own and stays beside the client you're reading.",

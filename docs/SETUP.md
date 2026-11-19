@@ -41,8 +41,8 @@ So Entra must hold that exact string, registered under the **Single-page applica
 ```
 https://221twoseven.github.io/Project-Scheduler/timeline/
 https://221twoseven.github.io/Project-Scheduler/preview/timeline/
-https://221twoseven.github.io/Project-Scheduler/clients/
-https://221twoseven.github.io/Project-Scheduler/preview/clients/
+https://221twoseven.github.io/Project-Scheduler/office/
+https://221twoseven.github.io/Project-Scheduler/preview/office/
 https://221twoseven.github.io/Project-Scheduler/
 https://221twoseven.github.io/Project-Scheduler/preview/
 ```

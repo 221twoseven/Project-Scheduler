@@ -56,7 +56,7 @@ sec('R4: the menu and the Systems page say the same');
 const cards=[...pd.querySelectorAll('.app-grid .app-link')].map(c=>({name:c.querySelector('.app-name').textContent,href:c.getAttribute('href')}));
 const listed=new JSDOM('<script>'+fs.readFileSync(path.join(ROOT,'common','common.js'),'utf8')+';window.__A=SYSTEMS_APPS;</script>',
   {runScripts:'dangerously'}).window.__A;
-ok('the same four products, in the same order, with the same links (none = greyed)',
+ok('the same products, in the same order, with the same links (none = greyed)',
   listed.length===cards.length&&listed.every((a,i)=>a.name===cards[i].name&&(a.href||null)===cards[i].href),
   JSON.stringify(listed.map(a=>[a.name,a.href]))+' vs '+JSON.stringify(cards.map(c=>[c.name,c.href])));
 
@@ -96,12 +96,11 @@ async function run(){
   click(W,btn);
   ok('the button opens it', !menu.classList.contains('hidden'));
   const it=items(W),names=it.map(x=>x.dataset.app);
-  ok('four products, in order', names.join()==='Timeline,People,Clients,Office', names.join());
+  ok('three products, in order (v1.61.0: Clients became Office)', names.join()==='Timeline,People,Office', names.join());
   ok('Timeline is ticked as the app you\'re in, not a link', it[0].tagName!=='A'&&it[0].getAttribute('aria-current')==='page'&&/✓/.test(it[0].textContent));
   /* v1.58.0 (item 86): Clients is its own app; People greyed until launch 2 */
   ok('People is greyed, "In Timeline for now"', it[1].tagName!=='A'&&it[1].classList.contains('off')&&/In Timeline for now/.test(it[1].textContent));
-  ok('Clients links to the Clients app, "admins only"', it[2].tagName==='A'&&it[2].getAttribute('href')==='../clients/'&&/admins only/.test(it[2].textContent));
-  ok('Office is greyed: no link, "Not built yet"', it[3].tagName!=='A'&&it[3].classList.contains('off')&&it[3].getAttribute('aria-disabled')==='true'&&/Not built yet/.test(it[3].textContent));
+  ok('Office links to the Office app, "admins only"', it[2].tagName==='A'&&it[2].getAttribute('href')==='../office/'&&/admins only/.test(it[2].textContent));
   click(W,btn);
   ok('the button closes it again', menu.classList.contains('hidden'));
   click(W,btn);click(W,it[2]);
@@ -131,7 +130,7 @@ async function run(){
     ok('('+label+')', test());
     ok(label+': the header shows the wordmark link, Timeline and Apps', ['#tb-systems','#tb-home','#btn-apps'].every(s=>q(s)&&W.getComputedStyle(q(s)).display!=='none'));
     click(W,btn);
-    ok(label+': Apps opens with the four products', !menu.classList.contains('hidden')&&items(W).length===4);
+    ok(label+': Apps opens with the three products', !menu.classList.contains('hidden')&&items(W).length===3);
     click(W,btn);
     ok(label+': the page sits under the toolbar\'s measured height', W.getComputedStyle(q('#page')).top!=='50px');
   }
@@ -141,10 +140,10 @@ async function run(){
   sec('R3: a non-admin');
   const V=start('#/',[SAM,PAT]);await wait(1300);
   ok('(Sam is a non-admin)', V.eval('isViewer()')===true&&V.document.body.classList.contains('viewer'));
-  const vc=V.document.querySelector('#apps-menu [data-app="Clients"]');
+  const vc=V.document.querySelector('#apps-menu [data-app="Office"]'); /* v1.61.0: Clients became Office */
   /* jsdom cascades by source order, not specificity, so read #mi-clients's rule from the source */
   /* v1.58.0 (item 86): Company Data ▸ Clients is gone; the rule now sits beside New Project and Changelog */
-  ok('the Clients row is hidden, by the rule that hides the other admin doors', !!vc&&V.getComputedStyle(vc).display==='none'
-    &&src.includes('body.viewer #btn-new-proj,body.viewer #mi-changelog,body.viewer #apps-menu [data-app="Clients"],'));
-  ok('…and the others still show', ['Timeline','People','Office'].every(n=>V.getComputedStyle(V.document.querySelector('#apps-menu [data-app="'+n+'"]')).display!=='none'));
+  ok('the Office row is hidden, by the rule that hides the other admin doors', !!vc&&V.getComputedStyle(vc).display==='none'
+    &&src.includes('body.viewer #btn-new-proj,body.viewer #mi-changelog,body.viewer #apps-menu [data-app="Office"],'));
+  ok('…and the others still show', ['Timeline','People'].every(n=>V.getComputedStyle(V.document.querySelector('#apps-menu [data-app="'+n+'"]')).display!=='none'));
 }

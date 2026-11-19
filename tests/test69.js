@@ -50,8 +50,8 @@ setTimeout(()=>{
          rules are the same: names trimmed, alias uppercased, duplicates refused, new rows POSTed
          with Title + field_2 and kept by item id. */
       sec('The Clients app manages the list');
-      const APP=require('path').join(__dirname,'..','clients','index.html');
-      const app=boot(APP,{url:'https://example.github.io/Project-Scheduler/clients/',data:{projects,tasks:[],staff:[],clients},clientsList:true}).window;
+      const APP=require('path').join(__dirname,'..','office','index.html');
+      const app=boot(APP,{url:'https://example.github.io/Project-Scheduler/office/',data:{projects,tasks:[],staff:[],clients},clientsList:true}).window;
       const A=s=>app.eval(s);
       setTimeout(()=>{
         ok('the page opens with the current list',app.document.querySelectorAll('#list .row').length===3);
@@ -72,7 +72,7 @@ setTimeout(()=>{
           /* v1.58.0: the app that owns the list edits nothing while it can't reach it (a browser-only
              copy would never reach anyone) and says so. Timeline's dropdown still falls back to
              the copy it cached, as before. */
-          const off=boot(APP,{url:'https://example.github.io/Project-Scheduler/clients/',data:{projects,tasks:[],staff:[],clients}}).window;
+          const off=boot(APP,{url:'https://example.github.io/Project-Scheduler/office/',data:{projects,tasks:[],staff:[],clients}}).window;
           setTimeout(()=>{
             ok('with the list unreachable, the app says so and offers no editing',
                /Couldn.t reach SharePoint/.test(off.document.getElementById('main').textContent)&&!off.document.getElementById('add'));

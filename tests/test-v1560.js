@@ -27,13 +27,13 @@ ok('the header: the wordmark, then "Systems"', txt(pd.querySelector('.ts-top .ts
 ok('the page title and its line', txt(pd.querySelector('h1'))==='Your workspace'&&txt(pd.querySelector('.intro p'))==='Open an app to get started.');
 ok('the title names Systems', /^Systems/.test(pd.title), pd.title);
 const tiles=[...pd.querySelectorAll('.app-grid > li > .app-link')];
-/* v1.58.0 (item 86): Clients opens its own app; People shows greyed until launch 2 */
+/* v1.58.0 (item 86): Clients opens its own app; People shows greyed until launch 2.
+   v1.61.0 (item 94): Clients became Office (owner, 2026-11-19; wording "Wording OK"). */
 const want=[['Timeline','Project schedules, phases and crews','Open Timeline','timeline/'],
   ['People','Staff, contact details and time off','In Timeline for now',null],
-  ['Clients','The client list','Open Clients · admins only','clients/'],
-  ['Office','Leads, estimates and job setup.','Not built yet',null]];
+  ['Office','Clients and their projects','Open Office · admins only','office/']];
 const part=(t,c)=>t?txt(t.querySelector(c)):'';
-ok('four cards, in order', tiles.length===4&&want.every((w,i)=>part(tiles[i],'.app-name')===w[0]), tiles.map(t=>part(t,'.app-name')).join(','));
+ok('three cards, in order', tiles.length===3&&want.every((w,i)=>part(tiles[i],'.app-name')===w[0]), tiles.map(t=>part(t,'.app-name')).join(','));
 want.forEach((w,i)=>ok(w[0]+' reads "'+w[1]+'" over "'+w[2]+'"',
   part(tiles[i],'.app-description')===w[1]&&part(tiles[i],'.app-foot')===w[2], part(tiles[i],'.app-description')+' / '+part(tiles[i],'.app-foot')));
 ok('each card has its icon', tiles.every(t=>t.querySelector('.icon svg')));

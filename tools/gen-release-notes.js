@@ -19,7 +19,7 @@ const ROOT=path.join(__dirname,'..');
 const CHANGELOG=path.join(ROOT,'CHANGELOG.md');
 const INDEX=path.join(ROOT,'timeline','index.html');
 const SYSTEMS=path.join(ROOT,'index.html');
-const PRODUCTS=[path.join(ROOT,'clients','index.html')]; /* item 86: the other product pages */
+const PRODUCTS=[path.join(ROOT,'office','index.html')]; /* item 86: the other product pages */
 const BEGIN='/* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */';
 const END='/* RELEASE_NOTES:END */';
 

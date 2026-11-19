@@ -154,7 +154,7 @@ init.
   (`cd-route`): `#/people`, `#/changelog`, `#/releases`, `#/issues`
   (`#/issues/<spId>` deep-links one report); `#/settings` and `#/reports` are
   developer-only. `#view=` opens a saved view. An old `#/clients` link goes on to the
-  Clients app (`clients/`, v1.58.0, item 86), which owns the client list; Timeline only reads
+  Office app (`office/`; built as Clients, v1.58.0, item 86; renamed v1.61.0, item 94), which owns the client list; Timeline only reads
   it, and re-reads it on the poll and when its tab comes back into view.
 - **Project page** is the dashboard: a meta strip of numbers, then chart and inspector
   side by side. Selection drives the inspector (nothing selected → project; a bar

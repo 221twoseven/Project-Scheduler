@@ -981,7 +981,7 @@ everything else is the same shop drawing.
 
 ### 10.4 Routing and shell
 
-Each product is one file at its own subpath (`/timeline/`, `/people/`, `/clients/`,
+Each product is one file at its own subpath (`/timeline/`, `/people/`,
 `/office/`), each with its own Entra redirect URI (D4 consequence); the Systems portal is
 at `/` (built v1.56.0, item 49; Timeline moved to `/timeline/` then). The wordmark button
 goes to the **portal** in every product, not to that product's
@@ -993,10 +993,10 @@ goes to the portal, and its product name, "Timeline", is the button to its own h
 ### 10.5 Where the seeds already are
 
 `#/people` inside Timeline is a proto-product built on §7.10–7.11 (D8, ruled 2026-09-29).
-Clients graduated first: `clients/` (v1.58.0, item 86) is the first product after Timeline,
+Clients graduated first (v1.58.0, item 86; renamed Office at `office/`, v1.61.0, item 94), the first product after Timeline,
 built to the Clients wireframe — the shell, a page title with its line and one primary
 action, a search box, a list panel beside a record panel (Details, then the related records),
-no left rail while it has one section. A new product starts by copying `clients/index.html`:
+no left rail while it has one section. A new product starts by copying `office/index.html`:
 its page shape, its hooks for `common/` (the update check's `updWhyNot`/`updBusy`/`updGo`)
 and its optimistic save with a parked retry.
 
