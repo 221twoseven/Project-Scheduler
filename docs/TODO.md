@@ -1486,7 +1486,7 @@ record is each ticket's "Fix shipped" note and `CHANGELOG.md`):
 
 - [x] **98. A subtask's milestone on the project chart** (owner, 2026-11-19, testing item 97:
       "Dragging doesn't drag to subtasks, but it does drag to milestone row, and reassigning
-      in edit panel below works, but doesn't reflect on gaant"). Shipped v1.55.3 (PR #TBD,
+      in edit panel below works, but doesn't reflect on gaant"). Shipped v1.55.3 (PR #217,
       2026-11-19). The chart placed every diamond on the first row of its department whose
       bar covered the date, so a subtask's milestone sat on the department's row; now a
       milestone riding on a bar draws on that bar's row. Dragging a diamond onto a subtask's
