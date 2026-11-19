@@ -7,6 +7,17 @@ release-by-release record.
 
 ## Finished since 2026-11-18
 
+- [x] **98. A subtask's milestone on the project chart** (owner, 2026-11-19, testing item 97:
+      "Dragging doesn't drag to subtasks, but it does drag to milestone row, and reassigning
+      in edit panel below works, but doesn't reflect on gaant"). Shipped v1.55.3 (PR #217,
+      2026-11-19), a hotfix from `main` carried into `development`. The chart placed every
+      diamond on the first row of its department whose bar covered the date, so a subtask's
+      milestone sat on the department's row; now a milestone riding on a bar draws on that
+      bar's row. Dragging a diamond onto a subtask's row gives the milestone to that subtask;
+      onto the department's row, back to the department.
+      - *Left in place (2026-11-19):* with the department collapsed there is no subtask row,
+        so its milestones draw on the department's row; expand it to see or drag them.
+
 - [x] **97. Milestones on subtasks** (owner, 2026-11-19: "milestones should be assignable
       to subtasks"). Shipped v1.55.2 (PR #215, 2026-11-19), with item 96, as a hotfix from
       `main` carried into `development`. On a saved project, a milestone's phase list also
