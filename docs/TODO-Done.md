@@ -9,11 +9,11 @@ release-by-release record.
 
 - [x] **101. The version in Office's and People's headers** (owner, 2026-11-19: "Office and
       People also need the version number listed in the header the way Timeline does").
-      Shipped v1.62.0 (2026-11-19). Each shows "v1.62.0" (the running build) just before the
+      Shipped v1.62.0 (PR #219, 2026-11-19). Each shows "v1.62.0" (the running build) just before the
       sync pill, in Timeline's style; the rule (`#tb-rev`) moved into `common/common.css`.
 
 - [x] **87. The People app** (the launch; the owner, 2026-11-19: "Wording OK, go with option
-      (a)"). Shipped v1.62.0 (2026-11-19). ⚠ Architecture, on item 85. Timeline's People page
+      (a)"). Shipped v1.62.0 (PR #219, 2026-11-19). ⚠ Architecture, on item 85. Timeline's People page
       became its own product at `people/`, on the Office shell, and left Timeline.
       - *It keeps everything the page did:* the directory (its nine columns, search, filters,
         ↑↓, resizable columns and the Reset widths menu), the record and its editor, time off,
