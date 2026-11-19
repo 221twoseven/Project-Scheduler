@@ -52,7 +52,6 @@ What each release changed: [`CHANGELOG.md`](../CHANGELOG.md).
 | Who | What they need to do | What it holds up |
 |---|---|---|
 | You | The design review above (item 90) | The launch |
-| You | Add the `/office/` and `/preview/office/` sign-in addresses to the Entra app, before merging the rename (item 94) | Signing in to Office |
 | You | Pick the past-project fields (item 95) | The launch |
 | You | People app: wording picks, the merge question, the go (item 87) | The launch |
 | You (leadership, for an Organization) | Pick the GitHub plan (items 71, 24) | A private repository; the rename |
