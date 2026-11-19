@@ -29,10 +29,11 @@ ok('the title names Systems', /^Systems/.test(pd.title), pd.title);
 const tiles=[...pd.querySelectorAll('.app-grid > li > .app-link')];
 /* v1.58.0 (item 86): Clients opens its own app; People shows greyed until launch 2.
    v1.61.0 (item 94): Clients became Office (owner, 2026-11-19; wording "Wording OK").
-   v1.61.1 (item 99): Office before People (owner, 2026-11-19). */
+   v1.61.1 (item 99): Office before People (owner, 2026-11-19).
+   v1.62.0 (item 87): People is its own app, so its card opens people/ ("Open People"). */
 const want=[['Timeline','Project schedules, phases and teams','Open Timeline','timeline/'],
   ['Office','Clients and their projects','Open Office · admins only','office/'],
-  ['People','Staff, contact details and time off','In Timeline for now',null]];
+  ['People','Staff, contact details and time off','Open People','people/']];
 const part=(t,c)=>t?txt(t.querySelector(c)):'';
 ok('three cards, in order', tiles.length===3&&want.every((w,i)=>part(tiles[i],'.app-name')===w[0]), tiles.map(t=>part(t,'.app-name')).join(','));
 want.forEach((w,i)=>ok(w[0]+' reads "'+w[1]+'" over "'+w[2]+'"',
@@ -49,7 +50,7 @@ sec('R3: old links go on to timeline/');
 const fwd=(portal.match(/<script>([\s\S]*?)<\/script>/)||[])[1]||'';
 const go=hash=>{let to=null;new Function('location',fwd)({hash,replace:u=>{to=u;}});return to;};
 ok('#/project/p1 → timeline/#/project/p1', go('#/project/p1')==='timeline/#/project/p1', go('#/project/p1'));
-ok('#/people → timeline/#/people', go('#/people')==='timeline/#/people');
+ok('#/people → people/ (v1.62.0, item 87: People is its own app)', go('#/people')==='people/'&&go('#/people/x')==='people/');
 ok('#/ → timeline/#/', go('#/')==='timeline/#/');
 ok('a shared view (#view=…) → timeline/#view=…', go('#view=%7B%7D')==='timeline/#view=%7B%7D');
 ok('a bare visit stays on the Systems page', go('')===null);

@@ -23,7 +23,7 @@ projects (`ShopTimeline_PastProjects`) are Office's data.
 
 | Product | What it holds and does | Who uses it | Gated? | Where it stands |
 |---|---|---|---|---|
-| **People** | Staff names, contact information, status (FTE vs Freelance), logged hours, and whatever else the HR / ADP administrator manages. The place to connect to ADP — CSV first; the ADP API only through Power Automate with a named owner, never from the browser (the integrations decision) | The HR / ADP administrator; everyone reads the public roster | HR-only fields restricted (the permissions decision, items 26–27) | Timeline's People page today (`#/people`); its own product in Phase 9 (the Company Data ruling) |
+| **People** | Staff names, contact information, status (FTE vs Freelance), logged hours, and whatever else the HR / ADP administrator manages. The place to connect to ADP — CSV first; the ADP API only through Power Automate with a named owner, never from the browser (the integrations decision) | The HR / ADP administrator; everyone reads the public roster | HR-only fields restricted (the permissions decision, items 26–27) | Its own app at `people/` since v1.62.0 (item 87), built from Timeline's People page; HR-only fields and new sections wait for items 26–27 |
 | **Office** | Clients and their projects, from lead to closeout: the client list and contacts, each client's projects (past ones included), billing and revenue, current and past teams; job lead, estimate, cost-code generation, job creation, budget views, closeout | Management, project management, purchasing, accounting | Yes | Today's Clients app (`clients/`, item 86) is Office's first part and is renamed Office (item 94). Then, in project-cycle order: job lead / forecast (45), estimate (44), job creation with cost codes and the QuickBooks / TCP hand-off (42, 43); closeout (11) last |
 | **Timeline** | Project production: the schedule, phases, assignments, milestones, notes — the app that exists today | Everyone; existing permissions mostly stay | Mostly no (admin / viewer as today) | In production ("Where we stand"); moves to `/timeline/`, behind the Systems page at `/`, with v1.56.0 (item 49); New Project stays here until Office takes setup (item 43) |
 
@@ -34,6 +34,13 @@ interactive wherever it is needed — a Timeline phase picks a person from Peopl
 references a client from Office — but Timeline never creates or deletes a person, a client
 or a cost code, and once Office exists it no longer sets projects up either (item 43):
 Office creates the project, Timeline schedules it. Timeline manages production data only.
+- *Merging two people (owner, 2026-11-19, item 87: "go with option (a)").* The People app's
+  merge also rewrites the duplicate's name, and its stable ID, on Timeline's projects, phases
+  and to-dos. That changes names on existing records and creates or deletes nothing there, so
+  the rule holds. It writes only those name fields and `refs`, one record at a time, never a
+  whole record. The alternative (People only retires the duplicate, and Timeline repoints on
+  its next load) needed a "merged into" column on Staff and left records pointing at someone
+  who was gone until Timeline next opened.
 
 **The build order is the project cycle** (owner, 2026-09-29). Systems is developed in the
 order a job moves through the shop, so each product exists before the step that needs it:

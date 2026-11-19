@@ -3,12 +3,15 @@
    it, so a weekend or holiday in between still counts; a real working day in between stops it.
    Fixture dates are relative to today.
    Run: node tests/test-v1485.js timeline/index.html  (or via tests/run.js) */
-const {boot,suite}=require('./harness');
-const {FILE,src,ok,done}=suite();
+/* v1.62.0 (item 87): the People page is the People app (people/); this suite boots it and reads
+   its source. */
+const {bootPeople,suite}=require('./harness');
+const {ok,done}=suite();
+const src=require('fs').readFileSync(require('path').join(__dirname,'..','people','index.html'),'utf8').replace(/\r\n/g,'\n');
 
 const sec=t=>console.log('\n'+t);
 
-const dom=boot(FILE,{data:{projects:[],tasks:[],staff:[],todos:[]}});
+const dom=bootPeople({data:{projects:[],tasks:[],staff:[],todos:[]}});
 const win=dom.window,E=s=>win.eval(s);
 
 setTimeout(()=>{

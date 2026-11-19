@@ -7,7 +7,7 @@
    - The lens (Projects/Departments) persists in UI prefs and restores on load.
    Skips on builds that predate the identity chain.
    Run: node test66.js timeline/index.html */
-const {boot,suite}=require('./harness');
+const {boot,bootPeople,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 
 const sec=t=>console.log('\n'+t);
@@ -42,25 +42,22 @@ setTimeout(()=>{
   ok('me is not listed twice',arr.filter(x=>x.startsWith('Rupert')).length===1,items);
 
   sec('People & Availability editor carries email and role');
-  if(/renderCompanyPage/.test(src)){
-    /* v1.7.0: the editor is the People page's per-record edit state — same save path. */
-    E("location.hash='#/people';applyRoute()");
-    E("CD_SEL=PEOPLE[0].id;cdPaintDetail();document.getElementById('cdd-edit').click();");
-    ok('email + role inputs render in the edit state',
-       E("!!document.getElementById('cde-email')&&!!document.getElementById('cde-role')")===true);
-    E("CD_EDIT.email=' ana@example.com ';CD_EDIT.role=' Painter ';cdSavePerson();");
-    ok('save trims and persists to PEOPLE',E("PEOPLE[0].email")==='ana@example.com'&&E("PEOPLE[0].role")==='Painter',
-       E("JSON.stringify({e:PEOPLE[0].email,r:PEOPLE[0].role})"));
-    E("location.hash='#/';applyRoute()");
-  }else{
-    E("document.getElementById('mi-people').click();");
-    ok('email + role inputs render per person',E("document.querySelectorAll('#st-list .st-meta input').length")===6,
-       E("document.querySelectorAll('#st-list .st-meta input').length"));
-    E("SM_PEOPLE[0].email=' ana@example.com ';SM_PEOPLE[0].role=' Painter ';document.getElementById('st-save').click();");
-    ok('save trims and persists to PEOPLE',E("PEOPLE[0].email")==='ana@example.com'&&E("PEOPLE[0].role")==='Painter',
-       E("JSON.stringify({e:PEOPLE[0].email,r:PEOPLE[0].role})"));
+  /* v1.62.0 (item 87): the editor is the People app's per-record edit state — same save path. */
+  {
+    const pw=bootPeople({data:{projects:[],tasks:[],todos:[],staff:[{appId:'a',Title:'Ana',email:'',depts:'["fab"]',ooo:'[]'}]}}).window,PE=x=>pw.eval(x);
+    setTimeout(()=>{
+      PE("CD_SEL=PEOPLE[0].id;cdPaintDetail();document.getElementById('cdd-edit').click();");
+      ok('email + role inputs render in the edit state',
+         PE("!!document.getElementById('cde-email')&&!!document.getElementById('cde-role')")===true);
+      PE("CD_EDIT.email=' ana@example.com ';CD_EDIT.role=' Painter ';cdSavePerson();");
+      ok('save trims and persists to PEOPLE',PE("PEOPLE[0].email")==='ana@example.com'&&PE("PEOPLE[0].role")==='Painter',
+         PE("JSON.stringify({e:PEOPLE[0].email,r:PEOPLE[0].role})"));
+      lens();
+    },1300);
   }
+},1500);
 
+function lens(){
   sec('Sticky lens');
   E("LENS='dept';saveUI();");
   ok('lens saved in UI prefs',E("JSON.parse(localStorage.getItem(UI_KEY)).lens")==='dept');
@@ -70,5 +67,5 @@ setTimeout(()=>{
      E("document.getElementById('btn-lens-dept').classList.contains('active')&&!document.getElementById('btn-lens-proj').classList.contains('active')"));
 
   done();
-},1500);
+}
 setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},20000);

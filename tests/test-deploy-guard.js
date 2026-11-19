@@ -25,10 +25,12 @@ ok('the guard drops a link\'s #… and ?… part and reads a folder link as its 
   yml.includes('f=${f%%#*}; f=${f%%\\?*}')&&yml.includes('*/) t="$d/${f}index.html"'));
 
 /* v1.58.0 (item 86): the Clients app, clients/, is the third page. v1.61.0 (item 94): it is
-   Office now, in office/; clients/ is the page that forwards old links there. */
+   Office now, in office/; clients/ is the page that forwards old links there. v1.62.0 (item 87):
+   the People app, people/. */
 const pages=[['index.html',fs.readFileSync(path.join(ROOT,'index.html'),'utf8')],['timeline/index.html',raw],
   ['office/index.html',fs.readFileSync(path.join(ROOT,'office','index.html'),'utf8')],
-  ['clients/index.html',fs.readFileSync(path.join(ROOT,'clients','index.html'),'utf8')]];
+  ['clients/index.html',fs.readFileSync(path.join(ROOT,'clients','index.html'),'utf8')],
+  ['people/index.html',fs.readFileSync(path.join(ROOT,'people','index.html'),'utf8')]];
 for(const [p] of pages)ok(p+' is on every deploy list', lists.every(l=>l.includes(p)));
 
 /* the guard's own extraction: grep -oE '(src|href)="[^"]+"', strip the attribute, skip the schemes */

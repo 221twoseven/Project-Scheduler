@@ -13,7 +13,7 @@
      /me/sendMail as the signed-in submitter, on its own Mail.Send token
      (consent missing → mail skipped, the report is already on the list).
    Run: node tests/test-v180.js timeline/index.html  (or via tests/run.js) */
-const {boot,suite}=require('./harness');
+const {boot,bootPeople,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 
 const sec=t=>console.log('\n'+t);
@@ -45,6 +45,11 @@ const bootC=()=>boot(FILE,{data:{
   staff:[mkStaff('s1','Sam','user@example.com',{admin:'1'}),
          mkStaff('s2','Milo','milo@example.com')],todos:[]}});
 
+/* v1.62.0 (item 87): the People page is the People app; each part boots it on the same roster */
+const peopleOn=b=>{const staff=JSON.parse(JSON.stringify(b.__staff));return bootPeople({data:{projects:[],tasks:[],staff,todos:[]}}).window;};
+const STAFF_A=[mkStaff('s1','Sam','user@example.com'),mkStaff('s2','Milo','milo@example.com')];
+const STAFF_B=[mkStaff('s1','Sam','user@example.com'),mkStaff('s2','Milo','milo@example.com',{admin:'1',feedbackRecipient:'1'}),mkStaff('s3','Ana','ana@example.com',{feedbackRecipient:'1'})];
+const STAFF_C=[mkStaff('s1','Sam','user@example.com',{admin:'1'}),mkStaff('s2','Milo','milo@example.com')];
 let dom=bootA(),win=dom.window,doc=win.document,E=s=>win.eval(s),calls=()=>win.__spCalls;
 
 setTimeout(()=>{partA().catch(e=>{console.error(e);process.exit(1);});},1300);
@@ -61,11 +66,11 @@ async function partA(){
   await wait(150);
   ok('edits flow (saveState not blocked)', E("projById('p1').client")==='C2'
      && calls().slice(n0).some(c=>c.method==='PATCH'));
-  E("location.hash='#/people';applyRoute()");
-  E("CD_SEL=PEOPLE.find(p=>p.name==='Milo').id;cdPaintDetail()");
-  E("document.getElementById('cdd-edit').click()");
+  const pa=peopleOn({__staff:STAFF_A});await wait(1300);
+  pa.eval("CD_SEL=PEOPLE.find(p=>p.name==='Milo').id;cdPaintDetail()");
+  pa.eval("document.getElementById('cdd-edit').click()");
   ok('legacy mode: the editor offers NO permission checkboxes (columns may not exist)',
-     !doc.getElementById('cde-admin'));
+     !pa.document.getElementById('cde-admin'));
 
   dom=bootB();win=dom.window;doc=win.document;E=s=>win.eval(s);calls=()=>win.__spCalls;
   setTimeout(()=>{partB().catch(e=>{console.error(e);process.exit(1);});},1300);
@@ -101,10 +106,13 @@ async function partB(){
   ok('the new-project draft bounces to the timeline', E('ROUTE.view')==='timeline');
   ok('a bar mousedown never arms a drag',
      E("(startDrag({clientX:0,clientY:0},'t1',document.createElement('div'),{}),DRAG===null)"));
-  ok('the People page renders without + Add',
-     (E("location.hash='#/people';applyRoute()"),!doc.getElementById('cd-add')));
-  E("CD_SEL=PEOPLE.find(p=>p.name==='Milo').id;cdPaintDetail()");
-  ok('a person record renders without Edit', !doc.getElementById('cdd-edit'));
+  const pb=peopleOn({__staff:STAFF_B});await wait(1300);
+  ok('the People app renders without + Add', !!pb.document.getElementById('cd-rows')&&!pb.document.getElementById('cd-add'));
+  pb.eval("CD_SEL=PEOPLE.find(p=>p.name==='Milo').id;cdPaintDetail()");
+  ok('a person record renders without Edit', !pb.document.getElementById('cdd-edit'));
+  pb.eval("savePeople(PEOPLE.filter(p=>p.name!=='Milo'))");
+  await wait(120);
+  ok('…and its savePeople refuses too', pb.eval("PEOPLE.some(p=>p.name==='Milo')")===true&&!pb.__spCalls.some(c=>c.method!=='GET'));
 
   sec('B · the project page is visible, locked');
   E("location.hash='#/project/p1';applyRoute()");
@@ -149,30 +157,31 @@ async function partC(){
   ok('no viewer class', !doc.body.classList.contains('viewer'));
   ok('Lock Dates stays a free choice', E('DATE_LOCK')===false);
 
-  sec('C · the People page manages the two flags');
-  E("location.hash='#/people';applyRoute()");
-  E("CD_SEL=PEOPLE.find(p=>p.name==='Milo').id;cdPaintDetail()");
-  ok('read mode shows a Permissions row', /Permissions/.test(doc.getElementById('cd-detail').textContent));
-  E("document.getElementById('cdd-edit').click()");
-  ok('the editor carries both checkboxes', !!doc.getElementById('cde-admin')&&!!doc.getElementById('cde-fbr'));
-  E("document.getElementById('cde-admin').click();document.getElementById('cde-fbr').click()");
-  const n0=calls().length;
-  E('cdSavePerson()');
+  sec('C · the People app manages the two flags');
+  const pc=peopleOn({__staff:STAFF_C});await wait(1300);
+  const PE=x=>pc.eval(x),pdoc=pc.document,pcalls=()=>pc.__spCalls;
+  PE("CD_SEL=PEOPLE.find(p=>p.name==='Milo').id;cdPaintDetail()");
+  ok('read mode shows a Permissions row', /Permissions/.test(pdoc.getElementById('cd-detail').textContent));
+  PE("document.getElementById('cdd-edit').click()");
+  ok('the editor carries both checkboxes', !!pdoc.getElementById('cde-admin')&&!!pdoc.getElementById('cde-fbr'));
+  PE("document.getElementById('cde-admin').click();document.getElementById('cde-fbr').click()");
+  const n0=pcalls().length;
+  PE('cdSavePerson()');
   await wait(150);
-  ok('Milo is now an admin in state', E("PEOPLE.find(p=>p.name==='Milo').admin")===true);
-  const pat=calls().slice(n0).find(c=>c.method==='PATCH'&&c.url.includes('ShopTimeline_Staff')&&c.body&&c.body.appId==='s2');
+  ok('Milo is now an admin in state', PE("PEOPLE.find(p=>p.name==='Milo').admin")===true);
+  const pat=pcalls().slice(n0).find(c=>c.method==='PATCH'&&c.url.includes('ShopTimeline_Staff')&&c.body&&c.body.appId==='s2');
   ok("the PATCH writes admin:'1' and feedbackRecipient:'1'",
      !!pat&&pat.body.admin==='1'&&pat.body.feedbackRecipient==='1');
 
   sec('C · the last admin cannot be demoted');
-  E("savePeople(PEOPLE.map(p=>p.name==='Milo'?{...p,admin:false}:p))"); /* Milo back to non-admin, Sam sole admin */
+  PE("savePeople(PEOPLE.map(p=>p.name==='Milo'?{...p,admin:false}:p))"); /* Milo back to non-admin, Sam sole admin */
   await wait(150);
-  E("CD_SEL=PEOPLE.find(p=>p.name==='Sam').id;cdPaintDetail()");
-  E("document.getElementById('cdd-edit').click()");
-  E("document.getElementById('cde-admin').click()"); /* uncheck self */
-  E('cdSavePerson()');
+  PE("CD_SEL=PEOPLE.find(p=>p.name==='Sam').id;cdPaintDetail()");
+  PE("document.getElementById('cdd-edit').click()");
+  PE("document.getElementById('cde-admin').click()"); /* uncheck self */
+  PE('cdSavePerson()');
   await wait(120);
-  ok('the save refuses and Sam stays admin', E("PEOPLE.find(p=>p.name==='Sam').admin")===true);
+  ok('the save refuses and Sam stays admin', PE("PEOPLE.find(p=>p.name==='Sam').admin")===true);
 
   sec('C · no recipients → no mail');
   E("savePeople(PEOPLE.map(p=>({...p,feedbackRecipient:p.feedbackRecipient==null?null:false})))");

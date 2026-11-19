@@ -2,7 +2,7 @@
    out-of-office range; everyone else sees only the dates, in all four places it showed:
    the People record, the dashboard's people lanes, a phase's hover tip and the person panel.
    Run: node tests/test-v1440.js timeline/index.html  (or via tests/run.js) */
-const {boot,suite}=require('./harness');
+const {boot,bootPeople,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 
 const sec=t=>console.log('\n'+t);
@@ -21,14 +21,16 @@ const tasks=[
   {appId:'t2',projectId:'p1',department:'pm',assignee:'Sam',startDate:D(-5),endDate:D(40),estimatedDays:30,ticketNodes:'[]',notes:'',pinned:false,label:''}];
 const dom=boot(FILE,{data:{projects,tasks,staff,todos:[]}});
 const win=dom.window,doc=win.document,E=s=>win.eval(s),q=s=>doc.querySelector(s);
+/* v1.62.0 (item 87): the People record is in the People app, booted beside Timeline */
+const pwin=bootPeople({data:{projects,tasks,staff,todos:[]}}).window,PE=x=>pwin.eval(x);
 
 setTimeout(()=>{main().catch(e=>{console.error(e);process.exit(1);});},1300);
 
 /* Paint all four places and report what each shows. */
 function look(){
-  E("location.hash='#/people';applyRoute();CD_SEL=PEOPLE.find(p=>p.name==='Milo').id;cdPaintDetail()");
-  const rec=(q('#cd-detail .cdd-ooo')||{}).textContent||'';
-  E("location.hash='';applyRoute();LENS='dept';PERSON=null;render()");
+  PE("CD_SEL=PEOPLE.find(p=>p.name==='Milo').id;cdPaintDetail()");
+  const rec=(pwin.document.querySelector('#cd-detail .cdd-ooo')||{}).textContent||'';
+  E("LENS='dept';PERSON=null;render()");
   const bar=q('.ooo-bar');
   const lane={lbl:bar?bar.querySelector('.ooo-lbl').textContent:null,title:bar?bar.title:null};
   E("showTooltipTask(taskById('t1'),{clientX:40,clientY:40})");
@@ -50,7 +52,7 @@ async function main(){
   ok('person panel: Time off lists the note', a.dock.includes(NOTE), JSON.stringify(a.dock));
 
   sec('non-admin — dates only, no note anywhere');
-  E("PEOPLE.find(p=>p.name==='Sam').admin=false");
+  E("PEOPLE.find(p=>p.name==='Sam').admin=false");PE("PEOPLE.find(p=>p.name==='Sam').admin=false");
   ok('signed in as a non-admin', E('isAdmin()')===false);
   const v=look();
   ok('People record: dates show, the note does not', !v.rec.includes(NOTE)&&/–/.test(v.rec), v.rec);
@@ -58,7 +60,7 @@ async function main(){
   ok('dashboard lane: the hover title has the dates and no note', !!v.lane.title&&!v.lane.title.includes(NOTE)&&/out of office/.test(v.lane.title), v.lane.title);
   ok('phase hover tip: still warns Milo is out, without the note', /Milo is out/.test(v.tip)&&!v.tip.includes(NOTE), v.tip);
   ok('person panel: the range reads "Out of office"', v.dock.includes('Out of office')&&!v.dock.includes(NOTE), JSON.stringify(v.dock));
-  ok('the page text holds the note nowhere', !doc.body.textContent.includes(NOTE));
+  ok('the page text holds the note nowhere', !doc.body.textContent.includes(NOTE)&&!pwin.document.body.textContent.includes(NOTE));
 
   sec('a developer previewing as a viewer sees what a viewer sees');
   E("PEOPLE.find(p=>p.name==='Sam').admin=true;PEOPLE.find(p=>p.name==='Sam').developer=true;VIEW_AS='viewer'");

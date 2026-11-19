@@ -16,16 +16,18 @@ Kept elsewhere so this file stays short:
 
 As of 2026-11-19:
 - **Live** (`main`, what users run): **v1.55.3**, Timeline only (hotfixes from `main`, items 96 to 98).
-- **Preview** (`development`, at `/preview/`): **v1.61.1**. The Systems page sits at the
+- **Preview** (`development`, at `/preview/`): **v1.62.0**. The Systems page sits at the
   root; Timeline moves to `/timeline/` with the Systems header and Apps menu; Office (the
   client list, formerly Clients) is its own app at `/office/`, and a client's record shows its current projects at a glance and
-  its project history, projects from before Timeline included; the code every product shares lives in `common/`.
+  its project history, projects from before Timeline included; People (the staff roster) is its own app at `/people/`;
+  the code every product shares lives in `common/`.
 - **The next release is the launch:** the People app, the Office app (formerly Clients) and the Systems page
   go live together, complete and polished (owner, 2026-11-18). Nothing goes to `main` until
   then, however long the polish takes. The repository is renamed to `Systems` just before.
 - **A production fix meanwhile** is built from `main` and merged back into `development`.
-  `main`'s deploy workflow already lists `clients/` and `office/` (v1.55.2), so a push to
-  `main` keeps `/preview/office/` up.
+  `main`'s deploy workflow lists `clients/` but not `office/` or `people/` (found 2026-11-19),
+  so a push to `main` takes `/preview/office/` and `/preview/people/` offline until the next
+  push to `development` (item 100).
 
 What each release changed: [`CHANGELOG.md`](../CHANGELOG.md).
 
@@ -35,16 +37,13 @@ What each release changed: [`CHANGELOG.md`](../CHANGELOG.md).
    it asks for becomes items here, then gets built. (item 90)
 2. **Past projects in Office:** more detail, and no "Before Timeline" tag. You pick the
    fields; Claude sends the columns, then builds it. (item 95)
-3. **The People app.** Claude drafts its wording and a recommendation on the one open
-   question (whether merging two people should rewrite Timeline's records); you pick, give
-   the go and add its two sign-in addresses; then it's built. (item 87)
-4. **Choose the GitHub plan before the rename.** Paying for GitHub Pro lets the repository
+3. **Choose the GitHub plan before the rename.** Paying for GitHub Pro lets the repository
    go private and keeps the address. Moving to a company Organization changes the address
    again, so it should happen at the same moment as the rename. (items 71, 24)
-5. **Rename the repository to `Systems`**, just before the release: you add the new
+4. **Rename the repository to `Systems`**, just before the release: you add the new
    sign-in addresses, then rename; Claude updates every reference. (item 88)
-6. **Release the launch** to `main`.
-7. **A working day later, tidy up:** remove the old sign-in addresses and leftover files.
+5. **Release the launch** to `main`.
+6. **A working day later, tidy up:** remove the old sign-in addresses and leftover files.
    (item 91)
 
 ## Waiting on someone
@@ -53,7 +52,7 @@ What each release changed: [`CHANGELOG.md`](../CHANGELOG.md).
 |---|---|---|
 | You | The design review above (item 90) | The launch |
 | You | Pick the past-project fields (item 95) | The launch |
-| You | People app: wording picks, the merge question, the go (item 87) | The launch |
+| You | Approve adding `office/` and `people/` to `main`'s deploy workflow (item 100) | A hotfix to `main` keeping `/preview/office/` and `/preview/people/` up |
 | You (leadership, for an Organization) | Pick the GitHub plan (items 71, 24) | A private repository; the rename |
 | You | Create a test SharePoint site, or approve a list-name suffix on preview (item 17) | Testing without touching real data, before the pilot |
 | You, the tenant admin | Check what retention covers and that version history is on for every list; start a weekly export (item 15) | A safety net for the lists |
@@ -140,26 +139,6 @@ applies from an exact spec; **[brief §N]** = the Project Director's September 2
         (items 45, 44, 43, 11), each adding its group.
       - *Waits on:* the owner's field picks and the wording, then the columns.
 
-- [ ] **87. The People app** (the launch). ⚠ Architecture, on item 85. Timeline's People page
-      becomes its own product at `people/`, built to the People wireframe, and leaves Timeline.
-      - *Today's fields, and who sees them, exactly* (owner, 2026-11-17). HR-only fields and
-        new tabs wait for item 26's tiers and item 27's split.
-      - *It keeps:* the directory, the record and its editor, time off, the Employee Contacts
-        import (only the mapped fields, item 9), the Team-membership suggestions, the phone
-        tidy, and the merge.
-      - *From the wireframe, only what exists:* the header, a left rail listing only built
-        sections, the directory and the record. Its wording goes to the owner first.
-      - *Timeline:* Company Data ▸ People and `#/people` go, forwarding to `../people/`.
-        Crew pickers, people lanes and availability keep reading Staff.
-      - *A decision before building:* the merge rewrites Timeline's projects, phases and
-        to-dos (their names and refs). Under the ownership rule (Decisions.md, "What we're building") each product changes only its own
-        data. Either the People app keeps doing it (it repoints references; it creates and
-        deletes nothing), or the merge only retires the duplicate and Timeline repoints on
-        its next load.
-      - *The owner:* add the `/people/` and `/preview/people/` SPA redirect URIs before the
-        merge.
-      - *Rollback:* revert. The Staff list is untouched.
-
 - [ ] **88. Rename the repository to `Systems`** (owner, 2026-11-18). Done immediately
       before the launch's promotion to `main`, so users get the new address with the new
       apps, once. The Pages address carries the repository's name: today Timeline is at
@@ -202,6 +181,17 @@ applies from an exact spec; **[brief §N]** = the Project Director's September 2
         forwards old Clients links to Office, and its deploy-list lines.
 
 ## Waiting on someone
+
+- [ ] **100. Office and People on `main`'s deploy list** (found 2026-11-19, building item 87).
+      `.github/workflows/deploy-pages.yml` rebuilds the whole site from both branches on every
+      push, so it must list the same files on both. `development`'s lists `office/` and, since
+      v1.62.0, `people/`; `main`'s lists neither (the note that v1.55.2 added `office/` there was
+      wrong). Until they match, a push to `main` (a hotfix) publishes `/preview/` without Office
+      and People, until the next push to `development` puts them back.
+      - *Claude:* one PR to `main` adding the two lines to both lists, word for word as on
+        `development`.
+      - *Waits on:* the owner's go for a workflow change on `main` (2026-11-19: development
+        only, for now). The launch's promotion brings `development`'s copy to `main` anyway.
 
 - [ ] **71. Make the repository private** (owner, 2026-10-15, after scraper spam reached
       the team: "until the repo is private, we cannot have scrapable info"; item 70 is the

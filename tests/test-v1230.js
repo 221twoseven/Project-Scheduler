@@ -2,8 +2,11 @@
    Schedule block greys the day/hour controls out; the Schedule column and record read
    "Freelance". Stored as `freelance` ('1'/empty) on the staff row, tristate.
    Run: node tests/test-v1230.js timeline/index.html  (or via tests/run.js) */
-const {boot,suite}=require('./harness');
-const {FILE,src,ok,done}=suite();
+/* v1.62.0 (item 87): the People page is the People app (people/); this suite boots it and reads
+   its source. */
+const {bootPeople,suite}=require('./harness');
+const {ok,done}=suite();
+const src=require('fs').readFileSync(require('path').join(__dirname,'..','people','index.html'),'utf8').replace(/\r\n/g,'\n');
 
 const sec=t=>console.log('\n'+t);
 
@@ -13,7 +16,7 @@ const staff=[
  {appId:'s2',Title:'Dana West',depts:JSON.stringify(['fab']),ooo:'[]',email:'d@example.com',role:'',admin:'',freelance:'1',schedule:JSON.stringify({days:[2,3,4],start:'11:00',end:'16:00'})},
  {appId:'s3',Title:'Alex Reyes',depts:JSON.stringify(['fab']),ooo:'[]',email:'a@example.com',role:'',admin:'',freelance:''}];
 
-const dom=boot(FILE,{data:{projects:[],tasks:[],staff,todos:[]}});
+const dom=bootPeople({data:{projects:[],tasks:[],staff,todos:[]}});
 const win=dom.window,doc=win.document,E=s=>win.eval(s);
 
 setTimeout(main,1300);
@@ -27,8 +30,6 @@ function main(){
     return on.freelance==='1'&&off.freelance===''&&!('freelance' in none)&&back[0]===true&&back[1]===false&&back[2]===null;})());
   ok('merge folds the flag', /freelance:\(keep\.freelance\|\|dup\.freelance\)\?true/.test(src));
 
-  win.location.hash='#/people';
-  win.dispatchEvent(new win.Event('hashchange'));
   setTimeout(()=>{
     sec('the index + record');
     const rowOf=n=>[...doc.querySelectorAll('#cd-rows .cd-row')].find(r=>r.querySelector('b').textContent.startsWith(n));

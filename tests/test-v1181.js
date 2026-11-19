@@ -19,7 +19,7 @@
    - unnamed calendar milestone bands read "Untitled milestone", never "Fab: ";
    - the People-page pane split reseats the column grips while dragging.
    Run: node tests/test-v1181.js timeline/index.html  (or via tests/run.js) */
-const {boot,suite}=require('./harness');
+const {boot,bootPeople,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 
 const sec=t=>console.log('\n'+t);
@@ -40,6 +40,9 @@ const tasks=[
 
 const dom=boot(FILE,{data:{projects,tasks,staff,todos:[]}});
 const win=dom.window,doc=win.document,E=s=>win.eval(s);
+/* v1.62.0 (item 87): the People page is the People app; its merge, pane split and edit buffer are checked there */
+const psrc=require('fs').readFileSync(require('path').join(__dirname,'..','people','index.html'),'utf8').replace(/\r\n/g,'\n');
+const pwin=bootPeople({data:{projects,tasks,staff,todos:[]}}).window,PE=x=>pwin.eval(x);
 
 setTimeout(main,1300);
 
@@ -47,8 +50,8 @@ function main(){
   const CLIENTS_SRC=require('fs').readFileSync(require('path').join(__dirname,'..','office','index.html'),'utf8'); /* v1.58.0 (item 86): the Clients app */
   sec('source markers');
   ok('staff poll re-checks after its await', src.indexOf('pg===PEOPLE_GEN')>=0&&src.indexOf('PEOPLE_GEN++')>=0);
-  ok('the merge scrub sequences on the roster save', /savePeople\([^]{0,120}\)\.then\(ok=>\{\s*if\(ok\)scrub\(\)/.test(src));
-  ok('a parked staff retry runs the merge continuation', src.indexOf('if(p.after)p.after()')>=0);
+  ok('the merge\'s renames sequence on the roster save (the People app)', /runSync\(old,false,renames\)/.test(psrc)&&/\.then\(\(\)=>\{SAVING--;\s*if\(after\)after\(\);/.test(psrc));
+  ok('a parked staff retry runs the merge continuation (the People app, v1.62.0)', /runSync\(p\.old,true,p\.after\)/.test(psrc)&&src.indexOf('p.after')<0);
   /* v1.58.0 (item 86): client writes moved to the Clients app, with their park and retry */
   ok('failed client writes park for the pill', /function retryPending\(\)\{[^\n]*if\(!PENDING\)return;const p=PENDING;/.test(CLIENTS_SRC)&&CLIENTS_SRC.includes("getElementById('sync-pill').addEventListener('click',retryPending)"));
   ok('failed setting writes park for the pill', src.indexOf('function retryConfigSync')>=0&&src.indexOf('if(PENDING_CFG)retryConfigSync()')>=0);
@@ -58,7 +61,7 @@ function main(){
   ok('the Milestones block carries its own door', /data-vk="subtasks"/.test(src));
   ok('dashboard Notes match who to the person (refs resolve legacy names since v1.55.0)', /\(t\.who\|\|\[\]\)\.includes\(PERSON\)/.test(src));
   ok('unnamed calendar markers get the Gantt fallback', /mk\.nm\|\|\(mk\.k==='ev'\?'Untitled milestone'/.test(src));
-  ok('the pane split reseats the grips', /cdGripSync\(\);\}; \/\* the pane resize reflows/.test(src)||/CD_LISTW\+'px';list\.style\.maxWidth='none';\s*cdGripSync\(\)/.test(src));
+  ok('the pane split reseats the grips (the People app)', /CD_LISTW\+'px';list\.style\.maxWidth='none';\s*cdGripSync\(\)/.test(psrc));
   ok('applyRoute runs applyPerms at the door', /function applyRoute\(\)\{\n[^]{0,200}applyPerms\(\);/.test(src));
 
   sec('view-state migration and the seeded Everything view');
@@ -79,7 +82,7 @@ function main(){
 
   sec('the wordmark goes home from any route');
   E("PERSON='Donghyun Baek'");
-  win.location.hash='#/people';
+  win.location.hash='#/changelog';
   win.dispatchEvent(new win.Event('hashchange'));
   setTimeout(()=>{
     doc.getElementById('tb-home').click();
@@ -87,19 +90,15 @@ function main(){
       ok('one click lands on the timeline', E('ROUTE.view')==='timeline', E('ROUTE.view'));
       ok('…with the person summary dropped', E('PERSON')===null, String(E('PERSON')));
 
-      sec('Company Data exits clear the edit buffer');
-      win.location.hash='#/people';
-      win.dispatchEvent(new win.Event('hashchange'));
-      setTimeout(()=>{
-        E("CD_EDIT={id:'s3',name:'Donghyun Baek',depts:[],ooo:[],email:'',phone:'',role:'Typed'}");
-        win.confirm=()=>false;
-        doc.getElementById('cd-x').click();
-        ok('a declined confirm stays on the page mid-edit', E('ROUTE.view')==='people'&&!!E('CD_EDIT'));
-        win.confirm=()=>true;
-        doc.getElementById('cd-x').click();
-        setTimeout(()=>{
-          ok('an accepted exit lands on the timeline', E('ROUTE.view')==='timeline', E('ROUTE.view'));
-          ok('…and clears CD_EDIT so the poll runs again', E('CD_EDIT')===null);
+      sec('the People app: Escape mid-edit asks first, and clears the edit buffer');
+      PE("CD_EDIT={id:'s3',name:'Donghyun Baek',depts:[],ooo:[],email:'',phone:'',role:'Typed'}");
+      const esc=()=>pwin.document.dispatchEvent(new pwin.KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
+      pwin.confirm=()=>false;esc();
+      ok('a declined confirm keeps the edit', !!PE('CD_EDIT'));
+      pwin.confirm=()=>true;esc();
+      setTimeout(()=>{setTimeout(()=>{ /* two levels: the old page-exit's two waits */
+          ok('an accepted one drops it', PE('CD_EDIT')===null);
+          ok('…and the update check is free again', PE('updBusy()')===false);
 
           sec('the subtasks grant stops at the phase fields');
           E("CFG['viewer.subtasks']=true;applyPerms()");

@@ -8,8 +8,9 @@
    - Membership is a menu, not a sync: only explicitly saved people join the roster.
    Skips on builds that predate the Teams picker.
    Run: node test70.js timeline/index.html */
-const {boot,suite}=require('./harness');
-const {FILE,src,ok,done}=suite();
+/* v1.62.0 (item 87): the People page is the People app (people/); this suite boots it. */
+const {bootPeople,suite}=require('./harness');
+const {ok,done}=suite();
 
 const sec=t=>console.log('\n'+t);
 
@@ -20,7 +21,7 @@ const teamMembers=[
  {displayName:'Ana Diaz',email:'ana2@example.com',userId:'u4'},   /* ambiguous twin */
  {displayName:'Theo Fields',email:'theo@example.com',userId:'u5'}];
 
-const dom=boot(FILE,{data:{projects:[],tasks:[],staff:[],todos:[],teamMembers},teamMembers:true});
+const dom=bootPeople({data:{projects:[],tasks:[],staff:[],todos:[],teamMembers},teamMembers:true});
 const win=dom.window;
 const E=s=>win.eval(s);
 
@@ -31,11 +32,10 @@ const finish=()=>{
 setTimeout(()=>{
   /* Roster: Milo Barnes (no email — should backfill), Ana Diaz (ambiguous — should
      NOT), Ines Woo (has an email already — must not be overwritten). */
-  E("PEOPLE=[{id:'a',name:'Milo Barnes',email:'',role:'',depts:['fab'],ooo:[]},{id:'b',name:'Ana Diaz',email:'',role:'',depts:['td'],ooo:[]},{id:'c',name:'Ines Woo',email:'kw@old.example',role:'',depts:['fab'],ooo:[]}];rebuildStaff();");
-  if(/renderCompanyPage/.test(src)){
+  E("PEOPLE=[{id:'a',name:'Milo Barnes',email:'',role:'',depts:['fab'],ooo:[]},{id:'b',name:'Ana Diaz',email:'',role:'',depts:['td'],ooo:[]},{id:'c',name:'Ines Woo',email:'kw@old.example',role:'',depts:['fab'],ooo:[]}];");
+  {
     /* v1.7.0: the staff editor is the People page's per-record edit state. The Team
        datalist is global (#cd-dl); backfill applies to the record being edited. */
-    E("location.hash='#/people';applyRoute()");
     E("CD_SEL=PEOPLE.find(p=>p.name==='Milo Barnes').id;cdPaintDetail();document.getElementById('cdd-edit').click();");
     setTimeout(()=>{
       sec('Team members load and feed the name datalist');
@@ -71,33 +71,6 @@ setTimeout(()=>{
         },400);
       },400);
     },500);
-    return;
   }
-  E("document.getElementById('mi-people').click();");
-  setTimeout(()=>{
-    sec('Team members load and feed the name datalist');
-    ok('members mapped and sorted',E("TM_MEMBERS.length")===5&&E("TM_MEMBERS[0].name")==='Ana Diaz');
-    ok('emails normalized to lowercase',E("TM_MEMBERS.some(m=>m.email==='milo@example.com')"));
-    ok('datalist filled',E("document.querySelectorAll('#tm-dl option').length")===5);
-    ok('name inputs suggest from it',E("document.querySelector('#st-list .st-name').getAttribute('list')")==='tm-dl');
-
-    sec('Backfill on open: exact single match only');
-    ok('Milo got his email',E("SM_PEOPLE.find(p=>p.name==='Milo Barnes').email")==='milo@example.com');
-    ok('ambiguous Ana stays empty',E("SM_PEOPLE.find(p=>p.name==='Ana Diaz').email")==='');
-    ok('Ines’s existing email untouched',E("SM_PEOPLE.find(p=>p.name==='Ines Woo').email")==='kw@old.example');
-
-    sec('Typing an exact member name fills the email live');
-    E("document.getElementById('st-add').click();");
-    E("(function(){const cards=document.querySelectorAll('#st-list .st-person');const c=cards[cards.length-1];const nm=c.querySelector('.st-name');nm.value='Theo Fields';nm.dispatchEvent(new (window.Event)('input'));})();");
-    ok('new person picked from the Team gets the email',E("SM_PEOPLE[SM_PEOPLE.length-1].email")==='theo@example.com');
-    ok('and the email input shows it',E("(function(){const cards=document.querySelectorAll('#st-list .st-person');return cards[cards.length-1].querySelector('.st-meta input').value;})()")==='theo@example.com');
-
-    sec('Save keeps it all a normal roster save');
-    E("document.getElementById('st-save').click();");
-    ok('saved people carry the filled emails',E("PEOPLE.find(p=>p.name==='Milo Barnes').email")==='milo@example.com'&&
-       E("PEOPLE.find(p=>p.name==='Theo Fields').email")==='theo@example.com');
-    ok('only explicitly added people joined (no auto-import of the Team)',E("PEOPLE.length")===4);
-    finish();
-  },500);
 },1500);
 setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},20000);

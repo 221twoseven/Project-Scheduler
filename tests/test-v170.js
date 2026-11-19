@@ -5,8 +5,10 @@
    read-first detail pane, and an explicit Edit state. Persistence is unchanged —
    saves clone the shared list, swap one record, and ride savePeople()/saveClients(),
    so the assertions here land on the same outgoing Graph calls as the modals made.
+   v1.62.0 (item 87): People left Timeline for its own app (people/), as Clients did; the same
+   grammar holds there, and the People checks run on it.
    Run: node tests/test-v170.js timeline/index.html  (or via tests/run.js) */
-const {boot,suite}=require('./harness');
+const {boot,bootPeople,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 
 const sec=t=>console.log('\n'+t);
@@ -46,15 +48,18 @@ const input=(el,v)=>{el.value=v;el.dispatchEvent(new win.Event('input',{bubbles:
 setTimeout(()=>{main().catch(e=>{console.error(e);process.exit(1);});},1300);
 
 async function main(){
-  sec('the People page — a place, not a modal');
+  sec('the People app — a place, not a modal');
   E("location.hash='#/people';applyRoute()");
-  ok('#/people routes to its own view', E('ROUTE.view')==='people');
-  ok('the body carries cd-route', doc.body.classList.contains('cd-route'));
-  ok('#main hides, #page shows', q('#main').classList.contains('hidden')&&!q('#page').classList.contains('hidden'));
-  ok('the trail reads All Projects › People', /All Projects/.test(q('#page .pg-trail').textContent)&&/People/.test(q('#page .pg-trail').textContent));
-  ok('the timeline toolbar row is hidden by the route class', /body\.cd-route \.tb-timeline\{display:none\}/.test(src));
-  ok('the source cue names the record count and SharePoint', /3 people · SharePoint/.test(q('.cd-src').textContent));
+  ok('#/people sends you on to the People app (Timeline stays on the timeline)', E('ROUTE.view')==='timeline');
+  ok('the timeline toolbar row is hidden by the route class (the Company Data pages that stay)', /body\.cd-route \.tb-timeline\{display:none\}/.test(src));
   ok('the management modals are gone from the DOM', !q('#staff-overlay')&&!q('#clients-overlay'));
+  const pw=bootPeople({data:{projects,tasks,staff,todos:[]}}).window;
+  await wait(1500);
+  {
+  const q=s=>pw.document.querySelector(s),qa=s=>[...pw.document.querySelectorAll(s)],E=s=>pw.eval(s),calls=()=>pw.__spCalls;
+  const input=(el,v)=>{el.value=v;el.dispatchEvent(new pw.Event('input',{bubbles:true}));};
+  ok('the header names the app: People', q('.ts-top .ts-app').textContent==='People');
+  ok('the source cue names the record count and SharePoint', /3 people · SharePoint/.test(q('.cd-src').textContent));
 
   sec('read-first index and record');
   const rows=qa('.cd-row');
@@ -101,13 +106,16 @@ async function main(){
   ok('search narrows the index', qa('.cd-row').length===1&&/Ines/.test(qa('.cd-row')[0].textContent));
   input(q('#cd-q'),'');
   ok('clearing the search restores the index', qa('.cd-row').length===3);
+  }
 
   sec('the page is not a filter state');
+  E("location.hash='#/changelog';applyRoute()"); /* v1.62.0: a Company Data page that stays in Timeline */
   E("PERSON='Milo'");
   ok('a person filter never flips the summary chrome here', E('dashOn()')===false);
   E("PERSON=''");
 
-  sec('Esc walks out');
+  sec('Esc walks out (of a Company Data page that stays: the Changelog)');
+  E("location.hash='#/changelog';applyRoute()");
   doc.dispatchEvent(new win.KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
   ok('Esc points the hash home', win.location.hash==='#/'||win.location.hash==='');
   E('applyRoute()');
@@ -144,8 +152,7 @@ async function main(){
 
   sec('navigation entries');
   ok('the toolbar menu reads Company Data', src.indexOf('Company Data <svg')>=0);
-  ok('People & Availability became People', /id="mi-people"[^>]*>People</.test(src));
-  ok('the menu items navigate instead of opening modals; Clients left the menu for its own app (v1.58.0)', /goPeople\(\)/.test(src)&&!/id="mi-clients"/.test(src));
+  ok('People left the menu for its own app (v1.62.0), as Clients did (v1.58.0)', !/id="mi-people"/.test(src)&&!/goPeople/.test(src)&&!/id="mi-clients"/.test(src)&&/id="mi-changelog"/.test(src));
 
   done();
 }

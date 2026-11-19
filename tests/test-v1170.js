@@ -6,8 +6,11 @@
    5. Poll repaints keep the index/detail scroll positions
    6. ↑↓ walk the index selection
    Run: node tests/test-v1170.js timeline/index.html  (or via tests/run.js) */
-const {boot,suite}=require('./harness');
-const {FILE,src,ok,done}=suite();
+/* v1.62.0 (item 87): the People page is the People app now (people/); this suite boots it and
+   reads its source. Timeline's own keyboard popover no longer lists ↑↓ (nothing there to walk). */
+const {bootPeople,suite}=require('./harness');
+const {raw:tsrc,ok,done}=suite();
+const src=require('fs').readFileSync(require('path').join(__dirname,'..','people','index.html'),'utf8').replace(/\r\n/g,'\n');
 
 const sec=t=>console.log('\n'+t);
 
@@ -17,7 +20,7 @@ const staff=[
  {appId:'s3',Title:'Bea Chen',depts:JSON.stringify(['td']),ooo:'[]',email:'bea@example.com',role:'TD2 - Technical Designer',admin:'1',feedbackRecipient:'1',driver:'1'},
  {appId:'s4',Title:'Cody Hall',depts:JSON.stringify(['fin']),ooo:'[]',email:'cody@example.com',role:'Co-Director of Finishing',admin:''}];
 
-const dom=boot(FILE,{data:{projects:[],tasks:[],staff,todos:[]}});
+const dom=bootPeople({data:{projects:[],tasks:[],staff,todos:[]}});
 const win=dom.window,doc=win.document,E=s=>win.eval(s);
 const key=k=>doc.dispatchEvent(new win.KeyboardEvent('keydown',{key:k,bubbles:true,cancelable:true}));
 const selName=()=>{const b=doc.querySelector('#cd-rows .cd-row.sel b');return b?b.textContent:'';};
@@ -27,10 +30,9 @@ setTimeout(main,1300);
 function main(){
   sec('source markers');
   ok('grid columns read their widths from vars', /--cdc1,(minmax\(0,1\.05fr\)|\d+px)/.test(src)); /* v1.26.3 (#13): px fallbacks */
-  ok('renderCompanyPage carries scroll across the repaint',
-     /const sc0=document\.getElementById\('cd-rows'\),st0=sc0\?sc0\.scrollTop:0[;,]/.test(src) /* v1.26.3 (#27): scrollLeft rides on the same line */
-     &&src.indexOf("sc1.scrollTop=st0")>=0);
-  ok('KBD popover teaches the arrows', /\['↑ ↓','Move selection'\],\['⌘ Z','Undo'\],(\['⌘ Y','Redo'\],)?\['Esc','Back to the timeline'\]/.test(src)); /* v1.20.0 added Redo */
+  ok('a repaint keeps the frame (so its scroll), rebuilding only the rows and the record',
+     /if\(!document\.getElementById\('cd-rows'\)\)paintFrame\(\);/.test(src)); /* v1.62.0: was renderCompanyPage's scroll carry */
+  ok('Timeline\'s KBD popover no longer teaches the arrows (they walk the People app\'s list)', /const KBD_CD=\[\['N','New project'\],\['⌘ Z','Undo'\],\['⌘ Y','Redo'\],\['Esc','Back to the timeline'\]\];/.test(tsrc));
   ok('driver rides the tristate mappers',(()=>{ /* item 61: a round trip, not the mapper's source text */
     const w=E("JSON.stringify([personToFields({id:'x',name:'A',depts:[],ooo:[],driver:true}),personToFields({id:'x',name:'A',depts:[],ooo:[],driver:false}),personToFields({id:'x',name:'A',depts:[],ooo:[]})])");
     const [on,off,none]=JSON.parse(w);
@@ -38,11 +40,9 @@ function main(){
     return on.driver==='1'&&off.driver===''&&!('driver' in none)&&back[0]===true&&back[1]===false&&back[2]===null;})());
   ok('merge folds the driver flag', /driver:\(keep\.driver\|\|dup\.driver\)\?true/.test(src));
 
-  win.location.hash='#/people';
-  win.dispatchEvent(new win.Event('hashchange'));
   setTimeout(()=>{
     sec('the index: seven columns, stripped titles, driver checks');
-    ok('on the People page', E('ROUTE.view')==='people');
+    ok('on the People page', !!doc.getElementById('cd-rows'));
     const v22=src.indexOf('cde-sched')>=0; /* v1.22.0 added Schedule after Status */
     const v43=src.indexOf('<span>Office Extension</span>')>=0; /* v1.43.0 added Office Extension after Phone */
     ok('header names the seven columns',
@@ -114,8 +114,8 @@ function main(){
 
       sec('a data repaint keeps the panes where they were');
       const rows=doc.getElementById('cd-rows');rows.scrollTop=40;
-      E('render()');
-      ok('the index scroll survives render()', doc.getElementById('cd-rows').scrollTop===40,
+      E('paint()');
+      ok('the index scroll survives a repaint', doc.getElementById('cd-rows').scrollTop===40,
          String(doc.getElementById('cd-rows').scrollTop));
       ok('the remembered sizes re-apply after the repaint',
          doc.querySelector('.cd-list').style.width==='320px'

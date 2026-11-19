@@ -10,7 +10,7 @@
    - v1.13.0: People page mirrors Employee Contacts (read-only HR list): adds active
      employees, HR wins on title/phone/status, curated departments kept.
    Run: node tests/test-v1100.js timeline/index.html  (or via tests/run.js) */
-const {boot,suite}=require('./harness');
+const {boot,bootPeople,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
 
 const sec=t=>console.log('\n'+t);
@@ -34,6 +34,8 @@ const todos=[{appId:'k1',Title:'Order steel',projectId:'p1',department:'fab',ass
 
 const dom=boot(FILE,{data:{projects,tasks,staff,todos,events},todosList:true,eventsList:true});
 const win=dom.window,doc=win.document,E=s=>win.eval(s);
+/* v1.62.0 (item 87): the import and the merge live in the People app; it boots beside Timeline */
+const PW=bootPeople({data:{projects,tasks,staff,todos}}).window,PE=s=>PW.eval(s);
 
 setTimeout(main,1300);
 
@@ -102,19 +104,12 @@ function main(){
   /* v1.57.0 (item 52 step 4): the home button is the product name "Timeline", beside the
      wordmark, which now opens the Systems page */
   ok('the home button is a button', doc.getElementById('tb-home').tagName==='BUTTON');
-  win.location.hash='#/people';
+  /* v1.62.0 (item 87): People is its own app, so the Changelog page stands in as "away from the
+     timeline"; the People index's columns are asserted in test-v1620 (R2). */
+  win.location.hash='#/changelog';
   win.dispatchEvent(new win.Event('hashchange'));
   setTimeout(()=>{
-    ok('…from the People page', E('ROUTE.view')==='people');
-    /* v1.17.0 grew a Driver column (and header grips ride inside the spans — select
-       direct children only); branch on its marker so both builds assert their shape. */
-    const v17=src.indexOf('cd-drv')>=0,v22=src.indexOf('cde-sched')>=0; /* v1.22.0 added Schedule after Status */
-    const v43=src.indexOf('<span>Office Extension</span>')>=0; /* v1.43.0 added Office Extension after Phone */
-    const PH=v43?'Phone,Office Extension':'Phone';
-    ok('the people index carries the at-a-glance columns (v1.14.0'+(v17?' + v1.17.0)':')'),
-       [...doc.querySelectorAll('.cd-cols>span')].map(s=>s.textContent).join(',')
-         ===(v17?'Name,Title,'+PH+',Email,Perms,Driver,Status'+(v22?',Schedule':''):'Name,Title,Phone,Email,Perms,Status')
-       &&doc.querySelector('.cd-row.'+(v17?'pp7':'pp6')).children.length===(v43?9:v22?8:v17?7:6));
+    ok('…from the Changelog page', E('ROUTE.view')==='changelog');
     doc.getElementById('tb-home').click();
     win.dispatchEvent(new win.Event('hashchange'));
     setTimeout(()=>{
@@ -223,15 +218,16 @@ function stageListening(){
 function stageImport(){
   sec('v1.13.0 — Employee Contacts import: unit pieces');
   ok('ecDept maps names, groups and aliases',
-     E("ecDept('Fabrication')")==='fab'&&E("ecDept('Logistics')")==='logistics'
-     &&E("ecDept('Technical Design')")==='td'&&E("ecDept('Installation')")==='install'
-     &&E("ecDept('Warehouse')")===null&&E("ecDept('')")===null);
+     PE("ecDept('Fabrication')")==='fab'&&PE("ecDept('Logistics')")==='logistics'
+     &&PE("ecDept('Technical Design')")==='td'&&PE("ecDept('Installation')")==='install'
+     &&PE("ecDept('Warehouse')")===null&&PE("ecDept('')")===null);
   ok('ecField reads _x0020_/case/space-insensitively', (()=>{
-     E("var m={};for(const k in {Primary_x0020_Phone:'555-9',Title:'X'})m[ecNorm(k)]=({Primary_x0020_Phone:'555-9',Title:'X'})[k];");
-     return E("ecField(m,['primaryphone','phone'])")==='555-9';})());
+     PE("var m={};for(const k in {Primary_x0020_Phone:'555-9',Title:'X'})m[ecNorm(k)]=({Primary_x0020_Phone:'555-9',Title:'X'})[k];");
+     return PE("ecField(m,['primaryphone','phone'])")==='555-9';})());
 
   sec('v1.13.0 — the mirror pass (HR list stubbed, read-only)');
-  E("gpageAll=async u=>{u=String(u);"
+  PE("var gpageAll0=gpageAll");
+  PE("gpageAll=async u=>{u=String(u);"
    /* v1.43.0 (9a): the import reads the HR list's column definitions first and selects by them */
    +"if(u.indexOf('Employee')>=0&&u.indexOf('/columns')>=0)return [{name:'Title',displayName:'Title'},{name:'Status',displayName:'Status'},"
    +"{name:'Email',displayName:'Email'},{name:'Primary_x0020_Phone',displayName:'Primary Phone'},{name:'Current_x0020_Title',displayName:'Current Title'},"
@@ -242,20 +238,20 @@ function stageImport(){
    +"{id:'e3',fields:{Title:'Gone Guy',Status:'Terminated',Email:'gone@example.com'}}];"
    +"if(u.indexOf('/columns')>=0)return [{name:'Title'},{name:'status'}];"
    +"return [];};");
-  E("cdImportEC({disabled:false})");
+  PE("cdImportEC({disabled:false})");
   setTimeout(()=>{
     ok('the active newcomer is added with a mapped department',
-       (()=>{const m=E("JSON.stringify(PEOPLE.find(p=>p.name==='Marcus Webb')||null)");
+       (()=>{const m=PE("JSON.stringify(PEOPLE.find(p=>p.name==='Marcus Webb')||null)");
          const p=JSON.parse(m);return p&&p.role==='Logistics Coordinator'&&p.depts[0]==='logistics'&&p.status==='Active';})());
     ok('the matched person takes HR title/phone/status but keeps curated depts',
-       (()=>{const p=JSON.parse(E("JSON.stringify(PEOPLE.find(p=>p.name==='Pat'))"));
+       (()=>{const p=JSON.parse(PE("JSON.stringify(PEOPLE.find(p=>p.name==='Pat'))"));
          return p.role==='Shop Lead'&&p.phone==='555-1'&&p.status==='Active'
            &&p.depts.length===1&&p.depts[0]==='fab';})());
-    ok('a non-active HR row never creates a person', E("!PEOPLE.some(p=>p.name==='Gone Guy')"));
+    ok('a non-active HR row never creates a person', PE("!PEOPLE.some(p=>p.name==='Gone Guy')"));
     ok('the HR-sensitive field is nowhere on the roster',
-       E("JSON.stringify(PEOPLE)").indexOf('NOPE')<0);
+       PE("JSON.stringify(PEOPLE)").indexOf('NOPE')<0);
     ok('nothing ever writes to the Employee Contacts list',
-       (win.__spCalls||[]).every(c=>!(/Employee/.test(c.url)&&c.method!=='GET')));
+       (PW.__spCalls||[]).every(c=>!(/Employee/.test(c.url)&&c.method!=='GET')));
     stage15();
   },500);
 }
@@ -272,14 +268,11 @@ function stage15(){
      E("assigneeText(ST.tasks[0])")==='Sammy');
   E("PEOPLE.find(p=>p.name==='Sam').nickname=null");
 
-  sec('v1.15.0 — merge duplicate: assignments rewritten, fields backfilled, row gone');
-  E("PEOPLE.push({id:'dupX',name:'Samuel (Sam) Q',depts:['fab'],ooo:[],email:'samq@example.com',phone:'555-9',role:'Fabricator',admin:null})");
-  E("ST.tasks.push({id:'tmX',projectId:'p1',department:'fab',assignee:'Samuel (Sam) Q',startDate:'"+D(2)+"',endDate:'"+D(4)+"',estimatedDays:2,ticketNodes:[],notes:'',pinned:false,label:''})");
-  E("cdMergePerson(PEOPLE.find(p=>p.name==='Kim').id,'dupX')"); /* harness confirm = yes */
-  ok('the duplicate row is gone and fields backfilled',
-     E("!PEOPLE.some(p=>p.id==='dupX')")
-     &&E("PEOPLE.find(p=>p.name==='Kim').phone")==='555-9'
-     &&E("PEOPLE.find(p=>p.name==='Kim').role")==='Fabricator');
+  sec('v1.15.0 — merge duplicate: assignments rewritten, fields backfilled, row gone (the People app, v1.62.0)');
+  PE("gpageAll=gpageAll0"); /* the import's HR stub is done */
+  PE("PEOPLE.push({id:'dupX',name:'Samuel (Sam) Q',depts:['fab'],ooo:[],email:'samq@example.com',phone:'555-9',role:'Fabricator',admin:null})");
+  tasks.push({appId:'tmX',projectId:'p1',department:'fab',assignee:'Samuel (Sam) Q',startDate:D(2),endDate:D(4),estimatedDays:2,ticketNodes:'[]',notes:'',pinned:false,label:''});
+  const mergeDone=PE("cdMergePerson(PEOPLE.find(p=>p.name==='Kim').id,'dupX')"); /* harness confirm = yes */
 
   sec('v1.15.2 — a bad staff row can\'t strand the rest or lose edits to the poll');
   const f0=win.fetch;let tripped=false;
@@ -290,12 +283,17 @@ function stage15(){
     }
     return f0(u,i);};
   E("savePeople(PEOPLE.map(p=>({...p,role:(p.role||'')+'!'})))"); /* touch every row; sp0 (Sam) fails once */
-  setTimeout(()=>{
+  setTimeout(async()=>{
+    await mergeDone;
+    ok('the duplicate row is gone and fields backfilled',
+       PE("!PEOPLE.some(p=>p.id==='dupX')")
+       &&PE("PEOPLE.find(p=>p.name==='Kim').phone")==='555-9'
+       &&PE("PEOPLE.find(p=>p.name==='Kim').role")==='Fabricator');
     /* v1.18.1: the merge scrub waits for the roster sync to land (a failed staff PATCH
        used to leave assignments renamed while both rows persisted on SharePoint), so
        the assignment assertion moved behind the sync tick. */
     ok('the stored assignment carries the kept name once the roster sync lands',
-       E("ST.tasks.find(t=>t.id==='tmX').assignee")==='Kim');
+       (PW.__spCalls||[]).some(c=>c.method==='PATCH'&&/ShopTimeline_Tasks\//.test(c.url)&&c.body&&c.body.assignee==='Kim'));
     ok('rows behind the failure still saved',
        (win.__spCalls||[]).some(c=>c.method==='PATCH'&&/ShopTimeline_Staff\/items\/sp1\/fields/.test(c.url)));
     ok('the failed row parks for retry and the pill says so',

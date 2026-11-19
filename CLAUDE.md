@@ -29,6 +29,12 @@ Project rules and context for working in this repository. Read this before makin
   only forwards old links to `office/`. It owns `ShopTimeline_Clients` (the only place a client is added,
   changed or removed) and reads Projects, phases, Staff and Config. It carries Timeline's
   `APP_VER`, stamped by `npm run notes`; `tests/test-v1580.js` boots it in the harness.
+- **`people/index.html` — People, the third Systems product** (item 87, v1.62.0): the staff
+  roster, moved out of Timeline. It owns `ShopTimeline_Staff` (Timeline still writes a person's
+  own row: notes, saved views), reads Projects, phases, to-dos and Config, and its merge
+  rewrites the duplicate's names on Timeline's records (owner, 2026-11-19). It carries
+  Timeline's `APP_VER`; `tests/test-v1620.js` boots it, and `bootPeople` in `tests/harness.js`
+  boots it beside Timeline for the older suites.
 - **`index.html` at the root — the Systems page**: a static page of product tiles, no
   sign-in. It forwards old `#/…` and `#view=` links to `timeline/`. A new product gets a tile
   here and a folder of its own (`people/`, `office/`; see "One folder per product" in `docs/Decisions.md`).

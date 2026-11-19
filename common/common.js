@@ -393,6 +393,105 @@ async function readConfig(){
   return{raw,ids};
 }
 
+/* ===================== PEOPLE RULES (item 87) ===================== */
+/* Moved word for word out of timeline/index.html when the People app became the second
+   product to read and write ShopTimeline_Staff: the dates and holidays time off is read by,
+   the department groups, a phase's crew and the project roles, the people-department ids,
+   and the Staff record's reader and writer. */
+function addDays(d,n){const r=new Date(d);r.setDate(r.getDate()+n);return r;}
+function fmtNice(s){return parseDate(s).toLocaleDateString('en-US',{month:'short',day:'numeric'});}
+function genId(){return Date.now().toString(36)+Math.random().toString(36).slice(2,8);}
+const HOL_CACHE={},HOL_NAMES={};
+function observed(d){const w=d.getDay();if(w===6)return addDays(d,-1);if(w===0)return addDays(d,1);return d;}
+function nthDow(y,m,dow,n){const d=new Date(y,m,1);let c=0;while(true){if(d.getDay()===dow){c++;if(c===n)return new Date(d);}d.setDate(d.getDate()+1);}}
+function lastDow(y,m,dow){const d=new Date(y,m+1,0);while(d.getDay()!==dow)d.setDate(d.getDate()-1);return new Date(d);}
+function holidaysFor(y){
+  if(HOL_CACHE[y])return HOL_CACHE[y];
+  const s=new Set(),names=HOL_NAMES[y]={};
+  const add=(d,nm)=>{s.add(fmtDate(d));names[fmtDate(d)]=nm;};
+  /* REV90: observed New Year can land in the neighbouring year (Jan 1 on a Saturday
+     observes Fri Dec 31 of y-1; on a Sunday, Mon Jan 2). isWorking(d) looks up
+     d's OWN year, so each year's set must carry only dates inside that year —
+     including next year's New Year when it observes back into this December. */
+  const d1=observed(new Date(y,0,1));if(d1.getFullYear()===y)add(d1,"New Year's Day");
+  const d2=observed(new Date(y+1,0,1));if(d2.getFullYear()===y)add(d2,"New Year's Day");
+  add(lastDow(y,4,1),'Memorial Day');
+  add(observed(new Date(y,6,4)),'Independence Day');
+  add(nthDow(y,8,1,1),'Labor Day');
+  add(nthDow(y,10,4,4),'Thanksgiving');
+  add(observed(new Date(y,11,25)),'Christmas');
+  HOL_CACHE[y]=s;return s;
+}
+function holidayName(d){const y=d.getFullYear();holidaysFor(y);return (HOL_NAMES[y]||{})[fmtDate(d)]||'';}
+function isWorking(d){const w=d.getDay();if(w===0||w===6)return false;return !holidaysFor(d.getFullYear()).has(fmtDate(d));}
+const GROUPS=[
+  {id:'pmg',       label:'Project Management'},
+  {id:'tdg',       label:'Technical Design'},
+  {id:'dfab',      label:'Digital Fabrication'},
+  {id:'shop',      label:'Main Shop Fab'},
+  {id:'metal',     label:'Metal Shop'},
+  {id:'unit7',     label:'Unit 7'},
+  {id:'finish',    label:'Finishing'},
+  {id:'install',   label:'Installation / Shipping'},
+  {id:'logi',      label:'Logistics'},
+];
+const grpDepts=g=>DEPTS.filter(d=>d.grp===g).map(d=>d.id);
+/* Roles are stored as comma-joined names ("Milo, Ines") so SharePoint columns stay plain text */
+function roleList(v){return String(v||'').split(',').map(s=>s.trim()).filter(Boolean);}
+function roleField(deptId){return deptId==='pm'?'projectManager':deptId==='td'?'drafter':deptId==='fab'?'leadFab':null;}
+function roleListFor(p,deptId){const f=roleField(deptId);return f?roleList(p[f]):[];}
+/* A bar's crew. Stored as an array (install), a JSON string (legacy install rows) or a
+   comma-joined name list — the same convention roles use, so the shared SharePoint
+   column stays readable in the colleague app. */
+function crewOf(t){const a=t.assignee;if(Array.isArray(a))return a;if(typeof a==='string'&&a.trim().startsWith('['))return safeArr(a);return String(a||'').split(',').map(x=>x.trim()).filter(x=>x&&x!=='Installation');}
+/* v1.10.0 (owner ask 09-02): a person's departments are the COMPREHENSIVE department list —
+   derived from the same DEPTS the phase picker uses, so the two can never drift. Free-text
+   "Other" buckets aren't departments a person can belong to.
+   v1.14.0 (owner 09-02 PM): a PERSON's department is coarser than a phase's — the
+   machine-level Digital Fab depts read as ONE "DFAB", Pre-Finishing + Painting as
+   ONE "Finishing". pdCanon folds legacy stored ids into the canonical people ids;
+   PHASE departments (DEPTS) are untouched — shared task rows keep their ids. */
+const PD_ALIAS={shipping:'install',cnc:'dfab',beamsaw:'dfab','3dprint':'dfab',laser:'dfab',print:'dfab',prefinish:'finish'};
+const pdCanon=id=>PD_ALIAS[id]||id;
+const PD_LBL={dfab:'DFAB',finish:'Finishing'};
+const SM_DEPTS=(()=>{const seen=new Set(),out=[];
+  for(const d of DEPTS){if(d.freeText)continue;const id=pdCanon(d.id);
+    if(seen.has(id))continue;seen.add(id);out.push([id,PD_LBL[id]||d.name]);}
+  return out;})();
+/* v1.22.0: a person's weekly schedule, {days:[getDay ints], start:'HH:MM', end:'HH:MM'}, stored as
+   JSON in the `schedule` staff column; showing and editing it is the People app's. */
+function schedSafe(s){if(s&&typeof s==='object')return s;try{const o=JSON.parse(s);return o&&typeof o==='object'?{days:safeArr(o.days),start:o.start||'',end:o.end||''}:{days:[],start:'',end:''};}catch(e){return{days:[],start:'',end:''};}}
+/* v1.43.0 (item 9c, owner 2026-10-08): one phone format everywhere, 555-555-5555. Ten digits
+   (or eleven with a leading 1), written with any mix of spaces, dots, dashes or brackets,
+   become the hyphenated form; anything else (a foreign number, text) stays exactly as typed. */
+function fmtPhone(v){const s=String(v||'').trim(),d=s.replace(/\D/g,''),n=d.length===11&&d[0]==='1'?d.slice(1):d;
+  return n.length===10&&/^[\d\s().+-]+$/.test(s)?n.slice(0,3)+'-'+n.slice(3,6)+'-'+n.slice(6):s;}
+/* Item 61: the optional Staff columns, in write order. Each is tristate: omitted until the row
+   carries it (null), so a site without the column never 400s. text = as typed; flag = '1'/'';
+   json = JSON text. admin also carries developer ('dev'). */
+const PERSON_COLS=[
+  ['ext','text'],              /* v1.43.0 (item 9): Office Extension — its own field, never part of the phone number; typed by hand, Employee Contacts has none */
+  ['admin','admin'],           /* v1.8.0: '1' admin, 'dev' admin + developer */
+  ['feedbackRecipient','flag'],
+  ['personalNotes','text'],    /* v1.9.0 (item 30) */
+  ['status','text'],           /* v1.13.0: lifecycle, vocabulary = Employee Contacts' Status (Active/Off Payroll/Terminated/Archived) */
+  ['nickname','text'],         /* v1.15.0: how the name reads everywhere (display only) */
+  ['driver','flag'],           /* v1.17.0: drives for the company */
+  ['availability','text'],     /* v1.18.0: manual available/unavailable (freelancers); OOO ranges override */
+  ['schedule','json'],         /* v1.22.0: weekly hours {days:[getDay ints],start:'HH:MM',end:'HH:MM'} */
+  ['freelance','flag'],        /* v1.23.0: freelancer — no set weekly schedule */
+  ['listeningTo','text'],['listeningLink','text'],['listeningVerb','text'],['listeningShow','flag'] /* v1.12.0 (item 30): the "Listening to" quartet */
+];
+function personToFields(p){const f={Title:p.name||'',depts:JSON.stringify(p.depts||[]),ooo:JSON.stringify(p.ooo||[]),email:p.email||'',phone:p.phone||'',role:p.role||'',appId:p.id};
+  for(const[k,t]of PERSON_COLS){const v=p[k];if(v==null)continue;
+    f[k]=t==='flag'?(v?'1':''):t==='json'?JSON.stringify(v):t==='admin'?((p.developer&&v)?'dev':(v?'1':'')):v;}
+  return f;}
+function fieldsToPerson(f){const p={id:f.appId,name:f.Title||'',depts:safeArr(f.depts),ooo:safeArr(f.ooo),email:f.email||'',phone:fmtPhone(f.phone),role:f.role||''}; /* v1.43.0 (9c): stored numbers read in the one format; the row is rewritten the next time it's saved */
+  for(const[k,t]of PERSON_COLS){const v=f[k];
+    if(t==='admin'){p.admin=adminFlag(v);p.developer=v!=null&&/^dev/i.test(String(v));continue;}
+    p[k]=v==null?null:t==='flag'?flagTruthy(v):t==='json'?schedSafe(v):String(v);}
+  return p;}
+
 /* ===================== UPDATE CHECK ===================== */
 /* GitHub Pages serves index.html with max-age=600, which the page's no-cache metas don't
    override, so an open tab ran an old build until someone happened to reload it. Every
@@ -492,11 +591,12 @@ function updWatch(){
    Item 86 (v1.58.0): Clients is its own app; People shows greyed until it is too (launch 2),
    so nothing here points into Timeline's pages (owner, 2026-11-18: "In Timeline for now").
    Item 94 (v1.61.0): Clients became Office (owner, 2026-11-19), at office/.
-   Item 99 (v1.61.1): Office before People (owner, 2026-11-19: "swap the order of these"). */
+   Item 99 (v1.61.1): Office before People (owner, 2026-11-19: "swap the order of these").
+   Item 87 (v1.62.0): People is its own app, at people/. */
 const SYSTEMS_APPS=[
   {name:'Timeline',href:'timeline/'},
   {name:'Office',href:'office/',note:'admins only'},
-  {name:'People',note:'In Timeline for now'}];
+  {name:'People',href:'people/'}];
 /* Fill a product's Apps menu: the product you're in ticked, the others as links, the unbuilt
    ones greyed. up = the way from this page to the site root ('../' for a product folder). */
 function appsMenu(el,current,up){

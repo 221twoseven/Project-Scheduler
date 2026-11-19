@@ -56,7 +56,7 @@ ok('Timeline\'s status and admin rules call the shared ones', /function _projSta
 ok('the app loads ../common/ with the running version, and carries it as its own', [...app.matchAll(/\.\.\/common\/common\.(?:js|css)\?v=([^"]+)"/g)].map(m=>m[1]).join()===ver+','+ver
   &&app.includes("const APP_VER='"+ver+"'"));
 const {stampCommon}=require('../tools/gen-release-notes.js');
-ok('npm run notes stamps the app (its tags and its APP_VER)', /PRODUCTS=\[path\.join\(ROOT,'office','index\.html'\)\]/.test(fs.readFileSync(path.join(ROOT,'tools','gen-release-notes.js'),'utf8'))
+ok('npm run notes stamps the app (its tags and its APP_VER)', /PRODUCTS=\[path\.join\(ROOT,'office','index\.html'\)[,\]]/.test(fs.readFileSync(path.join(ROOT,'tools','gen-release-notes.js'),'utf8'))
   &&stampCommon('<script src="../common/common.js?v=1"></script>','9.9.9').includes('?v=9.9.9'));
 
 (async()=>{try{await run();}catch(e){ok('suite threw: '+(e&&e.stack||e),false);}done();})();
@@ -72,11 +72,13 @@ async function run(){
   ok('the tab reads "Office — TWOSEVEN INC."', d.title==='Office — TWOSEVEN INC.', d.title);
   ok('the header: TWOSEVEN INC. (to the Systems page), then OFFICE', q('.ts-top .ts-brand').getAttribute('href')==='../'&&txt(q('.ts-top .ts-app'))==='Office');
   ok('the shell\'s sync pill reads synced', /synced/.test(txt(q('#sync-pill'))));
+  ok('item 101 (v1.62.0): the version sits before the sync pill, as in Timeline\'s header', txt(q('#tb-rev'))==='v'+ver&&q('#tb-rev').nextElementSibling===q('#sync-pill'), txt(q('#tb-rev')));
   click(q('#btn-apps'));
   const it=qa('#apps-menu .ts-apps-item');
-  ok('Apps lists the three products, Office ticked, People greyed "In Timeline for now"',
+  /* v1.62.0 (item 87): People is its own app, so the menu links it */
+  ok('Apps lists the three products, Office ticked, People a link to the People app',
     it.map(x=>x.dataset.app).join()==='Timeline,Office,People'&&it[1].getAttribute('aria-current')==='page'
-    &&it[2].classList.contains('off')&&/In Timeline for now/.test(txt(it[2]))&&it[0].getAttribute('href')==='../timeline/');
+    &&it[2].getAttribute('href')==='../people/'&&it[0].getAttribute('href')==='../timeline/');
   ok('…and its button says it\'s open', q('#btn-apps').getAttribute('aria-expanded')==='true');
   d.dispatchEvent(new W.KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
   ok('Escape closes it', q('#apps-menu').classList.contains('hidden')&&q('#btn-apps').getAttribute('aria-expanded')==='false');
