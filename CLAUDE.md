@@ -210,6 +210,25 @@ Write so it can't silently rot: no counts or version numbers in prose unless CI 
 them. Point to the source instead (`CHANGELOG.md`, `tests/run.js`), and date any status
 ("as of 2026-10-08").
 
+## Backend (Azure) — guardrails in force from 2026-11-19
+
+The read-only Azure test (item 51) was approved 2026-11-19; these hold for every line of
+`api/` and `infra/` (the full table and reasoning: `docs/Architecture-Review-Backend.md` §E15).
+
+- Browsers never reach the database; every non-public API request is authenticated, and
+  authorization is enforced on the server (hiding in the UI is workflow only).
+- No credentials in browser code, Git, prompts or logs. Services use managed identity or
+  federated credentials; a stored secret needs a written reason and an expiry date.
+- Input is validated at the API boundary (JSON Schema); queries are parameterized; responses
+  carry only the fields the caller may see.
+- Money is `DECIMAL` in SQL and strings in JSON; IDs are stable, never reused, never names.
+- Schema changes are migrations in Git; multi-record operations run in one transaction;
+  every authorization rule has an allowed and a denied test.
+- Staging and production are separate; production data reaches staging only sanitized.
+  Production deploys, production migrations and destructive migrations wait for the owner.
+- Entra permissions are never broadened to make an error go away. Azure resources and
+  Entra registrations beyond what the owner approved still need explicit instruction.
+
 ## Change discipline
 
 - **Prefer small, reviewable changes.** Do not refactor unrelated working code unless

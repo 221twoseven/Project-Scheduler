@@ -270,7 +270,7 @@ C:* the spike passes and the roles are named. Local SQL Server is ranked below A
 (the review, §E13).
 
 *Gate (unchanged):* rule before the Phase 8 schema is provisioned, so rows move at most
-once. Backend guardrails enter `CLAUDE.md` only when backend work is authorized (the archived ledger).
+once. Backend guardrails entered `CLAUDE.md` on 2026-11-19, when the Azure test was approved.
 [owner and the backup maintainer 2026-10-08; `docs/Architecture-Review-Backend.md`]
 
 ### What v2.0.0 means (was D7)

@@ -56,7 +56,7 @@ What each release changed: [`CHANGELOG.md`](../CHANGELOG.md).
 | You (leadership, for an Organization) | Pick the GitHub plan (items 71, 24) | A private repository; the rename |
 | You | Create a test SharePoint site, or approve a list-name suffix on preview (item 17) | Testing without touching real data, before the pilot |
 | You, the tenant admin | Check what retention covers and that version history is on for every list; start a weekly export (item 15) | A safety net for the lists |
-| You, leadership | Who would own the Azure account and its billing; approve creating the Azure test (item 51) | The read-only Azure test that confirms the move to Azure |
+| You, leadership | An Azure subscription and who owns its billing; apply the Entra registrations from Claude's spec (item 51) | Deploying the read-only Azure test (building it doesn't wait) |
 | Project Director | Rules for tentative, confirmed and TBD dates (item 5) | Showing how firm a date is |
 | Project Director, you | Enter the pilot projects; set the pilot's size and end date (item 18) | The pilot |
 | Project Director | The AMPM columns of the Master Project Tracker (item 22) | The Meeting Sheet as the AMPM handout |
@@ -259,9 +259,26 @@ applies from an exact spec; **[brief §N]** = the Project Director's September 2
         The plan, the questions it must answer and the rollback are in
         `docs/Architecture-Review-Backend.md` §E16.
       - *People:* item 44's scope answer, and the named platform owners ("Material to gather" in TODO.md).
-      - ⚠ The Azure spike needs explicit approval to create Azure resources and Entra
-        registrations before any of it starts (`CLAUDE.md`).
-      - *Waits on:* item 48 PRs 1–2 (the Azure spike only); the approvals above.
+      - ⚠ *Approved 2026-11-19 (owner):* creating the staging Azure resources and Entra
+        registrations for this test. Production stays untouched. The backend guardrails are in
+        force from the same day (`CLAUDE.md`, "Backend").
+      - *Build, one PR each, from `development`:*
+        1. `infra/`: Bicep for one staging resource group (App Service + Fastify app,
+           Entra-only Azure SQL, managed identity, Application Insights); `what-if` only.
+        2. `api/`: the Fastify scaffold, Entra token validation, `GET /api/me`, in-process
+           allow and deny tests with signed test tokens.
+        3. A minimal Project table as a migration, synthetic rows, `GET /api/projects` and
+           `GET /api/projects/{id}`, SQL integration tests on a CI container.
+        4. Deploy to staging from Actions with a federated credential; its
+           `docs/Automations.md` entry in the same PR.
+        5. Timeline's read-only `apiStore` in preview behind a developer switch, with the
+           record-by-record comparison against SharePoint.
+        6. The answers to §E16's questions, the real monthly cost, and a milestone record.
+      - *Waits on (steps 4–6 only):* an Azure subscription and its billing owner; ⚠ the
+        owner applies the Entra registrations from Claude's spec (a staging API
+        registration exposing its scope, a delegated permission on the SPA registration,
+        the deploy identity's federated credential); the Azure CLI on the deploying machine.
+        Steps 1–3 need none of it. Item 48 (the storage seam) has shipped.
       [the data-platform decision; `docs/Architecture-Review-Backend.md`]
 
 - [ ] **5. Date certainty: Tentative / Confirmed / TBD.** Show whether a date is a
