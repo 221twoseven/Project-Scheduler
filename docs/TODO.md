@@ -406,7 +406,7 @@ What we still need from people: schemas, rules and examples, not screenshots. St
           14px header, 13px/600 Title Case headings (owner, 2026-11-19: "No sentence case"),
           12px labels, 36px fields (owner: OK), 32px buttons, 28px compact rows, 6px corners,
           a 2px focus ring; every dialog keeps Tab inside it and gives focus back to its
-          opener. Shipped v1.62.1 (2026-11-19). Suite `tests/test-v1621.js`; record
+          opener. Shipped v1.62.1 (PR #220, 2026-11-19). Suite `tests/test-v1621.js`; record
           `docs/Milestones/Phase-7-Pilot-Readiness/2026-11-19-inspector-restyle.md`.
         - Left (dated 2026-11-19): My Dashboard's dock (it shares the inspector's section
           markup and keeps its small-capital headings), the dialogs' own look (the focus
