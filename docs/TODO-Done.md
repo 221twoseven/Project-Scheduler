@@ -25,6 +25,38 @@ release-by-release record.
         a missing redirect address stops sign-in on `/office/` only, and the merge waits on it.
       - *Rollback:* revert the pull request; the old address never stops working.
 
+- [x] **98. A subtask's milestone on the project chart** (owner, 2026-11-19, testing item 97:
+      "Dragging doesn't drag to subtasks, but it does drag to milestone row, and reassigning
+      in edit panel below works, but doesn't reflect on gaant"). Shipped v1.55.3 (PR #217,
+      2026-11-19), a hotfix from `main` carried into `development`. The chart placed every
+      diamond on the first row of its department whose bar covered the date, so a subtask's
+      milestone sat on the department's row; now a milestone riding on a bar draws on that
+      bar's row. Dragging a diamond onto a subtask's row gives the milestone to that subtask;
+      onto the department's row, back to the department.
+      - *Left in place (2026-11-19):* with the department collapsed there is no subtask row,
+        so its milestones draw on the department's row; expand it to see or drag them.
+
+- [x] **97. Milestones on subtasks** (owner, 2026-11-19: "milestones should be assignable
+      to subtasks"). Shipped v1.55.2 (PR #215, 2026-11-19), with item 96, as a hotfix from
+      `main` carried into `development`. On a saved project, a milestone's phase list also
+      names the bars of any department that has more than one; picking a bar moves the
+      milestone onto that bar's own row (`ticketNodes` on `ShopTimeline_Tasks`, where the
+      task editor already keeps a bar's milestones), so the timeline draws it on that bar
+      alone; picking the department moves it back to `ShopTimeline_Events`. No new column.
+      My Dashboard's Milestones list now reads a bar's milestones too.
+      - *Left in place (2026-11-19):* a new-project draft still picks a department only;
+        subtasks are offered once the job is saved. Deleting a subtask moves its milestones
+        to the Events list on its department, as before.
+
+- [x] **96. Two Timeline fixes: the Pin checkbox and the milestone hover** (owner,
+      2026-11-19: the phase details' checkbox "should be connected to its text description";
+      on the timeline, hovering a milestone "I want to just know what the milestone is, but
+      I'm given too much information", and asked why the cursor showed a "?"). Shipped
+      v1.55.2 (PR #215, 2026-11-19), a hotfix built from `main` and carried into
+      `development` without a version of its own, because `development` holds the Office work. The Pin checkbox sits beside its label; a milestone
+      diamond's hover shows only its name, date, project and note, and the "?" help cursor
+      is gone. The phase bar's own hover still lists every milestone.
+
 - [x] **93. Projects from before Timeline in a client's history** (owner, 2026-11-18:
       "Management will add pre-timeline projects if necessary"; where: "Yes, in Clients"; the
       wording: "Wording OK"; the list created the same day). Shipped v1.60.0 (PR #212, 2026-11-18).

@@ -15,7 +15,7 @@ Kept elsewhere so this file stays short:
 ## Where we stand
 
 As of 2026-11-19:
-- **Live** (`main`, what users run): **v1.55.1**, Timeline only.
+- **Live** (`main`, what users run): **v1.55.3**, Timeline only (hotfixes from `main`, items 96 to 98).
 - **Preview** (`development`, at `/preview/`): **v1.61.0**. The Systems page sits at the
   root; Timeline moves to `/timeline/` with the Systems header and Apps menu; Office (the
   client list, formerly Clients) is its own app at `/office/`, and a client's record shows its current projects at a glance and
@@ -23,9 +23,9 @@ As of 2026-11-19:
 - **The next release is the launch:** the People app, the Office app (formerly Clients) and the Systems page
   go live together, complete and polished (owner, 2026-11-18). Nothing goes to `main` until
   then, however long the polish takes. The repository is renamed to `Systems` just before.
-- **A production fix meanwhile** is built from `main`, adds `office/index.html` and
-  `clients/index.html` to the deploy workflow's lists (or `/preview/office/` drops out until the next push to
-  `development`), and is merged back into `development`.
+- **A production fix meanwhile** is built from `main` and merged back into `development`.
+  `main`'s deploy workflow already lists `clients/` and `office/` (v1.55.2), so a push to
+  `main` keeps `/preview/office/` up.
 
 What each release changed: [`CHANGELOG.md`](../CHANGELOG.md).
 
