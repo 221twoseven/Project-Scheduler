@@ -1887,7 +1887,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.55.2'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.55.3'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -9161,6 +9161,8 @@ function npvRender(){
      unphased milestone always draws there, never on a PM bar. */
   const msRow=mk=>{
     if(!mk.dept||mk.dept==='pm')return -1;
+    /* item 98: a milestone riding on a bar draws on that bar's row (a subtask's own row) */
+    if(mk.host){const hr=NPV_PLAN.findIndex(row=>row.bars.some(b=>b.t.id===mk.host));if(hr>=0)return hr;}
     let first=-1;
     for(let r=0;r<NPV_PLAN.length;r++){
       const row=NPV_PLAN[r];
@@ -9917,7 +9919,8 @@ function npvMarkers(){
       for(const n of (t.ticketNodes||[]))
         if(n.date)out.push({k:'ev',id:n.id,date:n.date,dept:(n.dept!==undefined?n.dept:t.department),
           nm:n.target||'',pr:'',
-          ph:(n.dept===undefined||n.dept===t.department)?phaseLabel(t):''}); /* v1.38.0 (tracker #3): a milestone on a block leads with the block's name (one that moved to another department keeps that department's) */
+          ph:(n.dept===undefined||n.dept===t.department)?phaseLabel(t):'',
+          host:(n.dept===undefined||n.dept===t.department)?t.id:''}); /* item 98: the bar it rides on. v1.38.0 (tracker #3): a milestone on a block leads with the block's name (one that moved to another department keeps that department's) */
     for(const e of (ST.events||[]))
       if(e.projectId===pj.id&&e.date)
         out.push({k:'ev',id:e.id,date:e.date,dept:e.dept||'',nm:e.name||'',pr:''});
@@ -10581,7 +10584,9 @@ function npvBindDrag(){
         if(!vert)return;
         dy=e2.clientY-y0;mk.style.top=(top0+dy)+'px';
         const ri=Math.round((top0+dy-9.5)/NPV_ROWH);
-        dept=ri===row0?undefined:ri===0?'pm':(ri>=NPV_TOP&&ri-NPV_TOP<NPV_PLAN.length)?NPV_PLAN[ri-NPV_TOP].dept:undefined;
+        const pr=(ri>=NPV_TOP&&ri-NPV_TOP<NPV_PLAN.length)?NPV_PLAN[ri-NPV_TOP]:null;
+        /* item 98: a subtask's own row hands the milestone to that subtask (saved jobs only) */
+        dept=ri===row0?undefined:ri===0?'pm':pr?(NPV_LIVE&&pr.kind==='child'?'sub:'+pr.t.id:pr.dept):undefined;
         if(hot)hot.classList.remove('pickrow');
         hot=dept!==undefined?rows[ri]:null; /* the target row lights up, the way a selected bar's row does */
         if(hot&&hot.classList.contains('pickrow'))hot=null; /* already lit (the selected bar's row): leave it be */
@@ -10593,7 +10598,8 @@ function npvBindDrag(){
         mk.classList.remove('dragging');
         if(hot)hot.classList.remove('pickrow');
         const m0=k==='ev'&&dept!==undefined?npvMarkers().find(m=>m.k==='ev'&&m.id===id):null;
-        if(m0&&(m0.dept===dept||(dept==='pm'&&!m0.dept)))dept=undefined; /* landed on its own phase */
+        if(m0&&(String(dept).startsWith('sub:')?m0.host===dept.slice(4)
+          :(m0.dept===dept&&!m0.host)||(dept==='pm'&&!m0.dept)))dept=undefined; /* landed on its own phase (item 98: or its own subtask) */
         if(!days&&dept===undefined){
           mk.style.top=top0+'px';
           if(Math.abs(dy)>3)return; /* dropped where it started: snap back */
@@ -12424,6 +12430,8 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.55.3",d:"Nov 19, 2026",n:["On a project page, a milestone that belongs to a subtask now shows on that subtask's own row in the chart, not on its department's row.",
+   "Dragging a milestone onto a subtask's row now gives it to that subtask; dragging it back onto the department's row puts it back."]},
  {v:"v1.55.2",d:"Nov 19, 2026",n:["In a phase's details, the \"Pin dates\" checkbox now sits beside its words instead of floating on its own under the End date.",
    "Hovering a milestone diamond on the timeline now shows just that milestone — its name, date and project — instead of the whole phase's details.",
    "A milestone can now belong to a subtask: on a project page, its phase list also names each subtask, and the milestone then shows on that subtask's bar alone. Pick the department again to put it back."]},

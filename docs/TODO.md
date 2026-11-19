@@ -65,10 +65,11 @@ is the log in §8.
 
 ## 0. Where we stand
 
-As of 2026-11-19: production (`main`) runs **v1.55.2**, a hotfix built from `main`
+As of 2026-11-19: production (`main`) runs **v1.55.3**, a hotfix built from `main`
 (v1.55.1 was promoted 2026-11-17, release/2026-11-17c).
 
 The newest work on production:
+- v1.55.3: a subtask's milestone shows on, and drags onto, the subtask's own row (item 98);
 - v1.55.2: the Pin checkbox sits beside its words; a milestone's hover shows just that
   milestone (item 96); a milestone can belong to a subtask (item 97);
 - v1.55.1: a long Changelog entry folds after its first four lines (item 84);
@@ -1482,6 +1483,17 @@ record is each ticket's "Fix shipped" note and `CHANGELOG.md`):
       Office work. The Pin checkbox sits beside its label; a milestone diamond's hover shows
       only its name, date, project and note, and the "?" help cursor is gone. The phase
       bar's own hover still lists every milestone.
+
+- [x] **98. A subtask's milestone on the project chart** (owner, 2026-11-19, testing item 97:
+      "Dragging doesn't drag to subtasks, but it does drag to milestone row, and reassigning
+      in edit panel below works, but doesn't reflect on gaant"). Shipped v1.55.3 (PR #TBD,
+      2026-11-19). The chart placed every diamond on the first row of its department whose
+      bar covered the date, so a subtask's milestone sat on the department's row; now a
+      milestone riding on a bar draws on that bar's row. Dragging a diamond onto a subtask's
+      row gives the milestone to that subtask; onto the department's row, back to the
+      department.
+      - *Left in place (2026-11-19):* with the department collapsed there is no subtask row,
+        so its milestones draw on the department's row; expand it to see or drag them.
 
 - [x] **97. Milestones on subtasks** (owner, 2026-11-19: "milestones should be assignable
       to subtasks"). Shipped v1.55.2 (PR #215, 2026-11-19), with item 96. On a saved project,

@@ -9,6 +9,10 @@ Format: `## <label> — <date>` then one `- ` line per change. Keep lines concre
 what changed *for the team*, not how. Developer-only tooling doesn't need a line.
 Collect lines for the next version under `## Unreleased` and rename it when you ship.
 
+## v1.55.3 — Nov 19, 2026
+- On a project page, a milestone that belongs to a subtask now shows on that subtask's own row in the chart, not on its department's row.
+- Dragging a milestone onto a subtask's row now gives it to that subtask; dragging it back onto the department's row puts it back.
+
 ## v1.55.2 — Nov 19, 2026
 - In a phase's details, the "Pin dates" checkbox now sits beside its words instead of floating on its own under the End date.
 - Hovering a milestone diamond on the timeline now shows just that milestone — its name, date and project — instead of the whole phase's details.
