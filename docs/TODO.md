@@ -1478,13 +1478,13 @@ record is each ticket's "Fix shipped" note and `CHANGELOG.md`):
       2026-11-19: the phase details' checkbox "should be connected to its text
       description"; hovering a milestone "I want to just know what the milestone is, but
       I'm given too much information", and why the cursor showed a "?"). Shipped v1.55.2
-      (PR #TBD, 2026-11-19), a hotfix built from `main` because `development` holds the
+      (PR #215, 2026-11-19), a hotfix built from `main` because `development` holds the
       Office work. The Pin checkbox sits beside its label; a milestone diamond's hover shows
       only its name, date, project and note, and the "?" help cursor is gone. The phase
       bar's own hover still lists every milestone.
 
 - [x] **97. Milestones on subtasks** (owner, 2026-11-19: "milestones should be assignable
-      to subtasks"). Shipped v1.55.2 (PR #TBD, 2026-11-19), with item 96. On a saved project,
+      to subtasks"). Shipped v1.55.2 (PR #215, 2026-11-19), with item 96. On a saved project,
       a milestone's phase list also names the bars of any department that has more than
       one; picking a bar moves the milestone onto that bar's own row (`ticketNodes` on
       `ShopTimeline_Tasks`, where the task editor already keeps a bar's milestones), so the
