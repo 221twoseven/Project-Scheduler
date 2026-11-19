@@ -16,7 +16,7 @@ Kept elsewhere so this file stays short:
 
 As of 2026-11-19:
 - **Live** (`main`, what users run): **v1.55.3**, Timeline only (hotfixes from `main`, items 96 to 98).
-- **Preview** (`development`, at `/preview/`): **v1.61.0**. The Systems page sits at the
+- **Preview** (`development`, at `/preview/`): **v1.61.1**. The Systems page sits at the
   root; Timeline moves to `/timeline/` with the Systems header and Apps menu; Office (the
   client list, formerly Clients) is its own app at `/office/`, and a client's record shows its current projects at a glance and
   its project history, projects from before Timeline included; the code every product shares lives in `common/`.
@@ -52,7 +52,6 @@ What each release changed: [`CHANGELOG.md`](../CHANGELOG.md).
 | Who | What they need to do | What it holds up |
 |---|---|---|
 | You | The design review above (item 90) | The launch |
-| You | Add the `/office/` and `/preview/office/` sign-in addresses to the Entra app, before merging the rename (item 94) | Signing in to Office |
 | You | Pick the past-project fields (item 95) | The launch |
 | You | People app: wording picks, the merge question, the go (item 87) | The launch |
 | You (leadership, for an Organization) | Pick the GitHub plan (items 71, 24) | A private repository; the rename |

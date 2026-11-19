@@ -28,10 +28,11 @@ ok('the page title and its line', txt(pd.querySelector('h1'))==='Your workspace'
 ok('the title names Systems', /^Systems/.test(pd.title), pd.title);
 const tiles=[...pd.querySelectorAll('.app-grid > li > .app-link')];
 /* v1.58.0 (item 86): Clients opens its own app; People shows greyed until launch 2.
-   v1.61.0 (item 94): Clients became Office (owner, 2026-11-19; wording "Wording OK"). */
-const want=[['Timeline','Project schedules, phases and crews','Open Timeline','timeline/'],
-  ['People','Staff, contact details and time off','In Timeline for now',null],
-  ['Office','Clients and their projects','Open Office · admins only','office/']];
+   v1.61.0 (item 94): Clients became Office (owner, 2026-11-19; wording "Wording OK").
+   v1.61.1 (item 99): Office before People (owner, 2026-11-19). */
+const want=[['Timeline','Project schedules, phases and teams','Open Timeline','timeline/'],
+  ['Office','Clients and their projects','Open Office · admins only','office/'],
+  ['People','Staff, contact details and time off','In Timeline for now',null]];
 const part=(t,c)=>t?txt(t.querySelector(c)):'';
 ok('three cards, in order', tiles.length===3&&want.every((w,i)=>part(tiles[i],'.app-name')===w[0]), tiles.map(t=>part(t,'.app-name')).join(','));
 want.forEach((w,i)=>ok(w[0]+' reads "'+w[1]+'" over "'+w[2]+'"',

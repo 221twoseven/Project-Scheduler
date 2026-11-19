@@ -491,11 +491,12 @@ function updWatch(){
    Keep it in step with the Systems page's cards (test-v1570 checks).
    Item 86 (v1.58.0): Clients is its own app; People shows greyed until it is too (launch 2),
    so nothing here points into Timeline's pages (owner, 2026-11-18: "In Timeline for now").
-   Item 94 (v1.61.0): Clients became Office (owner, 2026-11-19), at office/. */
+   Item 94 (v1.61.0): Clients became Office (owner, 2026-11-19), at office/.
+   Item 99 (v1.61.1): Office before People (owner, 2026-11-19: "swap the order of these"). */
 const SYSTEMS_APPS=[
   {name:'Timeline',href:'timeline/'},
-  {name:'People',note:'In Timeline for now'},
-  {name:'Office',href:'office/',note:'admins only'}];
+  {name:'Office',href:'office/',note:'admins only'},
+  {name:'People',note:'In Timeline for now'}];
 /* Fill a product's Apps menu: the product you're in ticked, the others as links, the unbuilt
    ones greyed. up = the way from this page to the site root ('../' for a product folder). */
 function appsMenu(el,current,up){

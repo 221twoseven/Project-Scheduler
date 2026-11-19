@@ -9,6 +9,9 @@ Format: `## <label> — <date>` then one `- ` line per change. Keep lines concre
 what changed *for the team*, not how. Developer-only tooling doesn't need a line.
 Collect lines for the next version under `## Unreleased` and rename it when you ship.
 
+## v1.61.1 — Nov 19, 2026
+- On the Systems page and in the Apps menu, Office now comes before People, and the Timeline card reads "Project schedules, phases and teams".
+
 ## v1.61.0 — Nov 19, 2026
 - Clients is now called Office: the same client list at a new address, and where job setup and closeout will come. Old Clients links and bookmarks still open it.
 

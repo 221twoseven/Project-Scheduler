@@ -7,6 +7,11 @@ release-by-release record.
 
 ## Finished since 2026-11-18
 
+- [x] **99. Office before People on the Systems page** (owner, 2026-11-19, on the Systems
+      page: "Let's swap the order of these", and: change the word "crews" to "teams"). Shipped v1.61.1 (PR #218, 2026-11-19). The cards
+      read Timeline, Office, People, and the Apps menu follows them (`SYSTEMS_APPS` in
+      `common/common.js`). The Timeline card reads "Project schedules, phases and teams".
+
 - [x] **94. Rename the Clients app to Office** (owner, 2026-11-19; the launch; the plan: "Go ahead"; the
       wording: "Wording OK"). Shipped v1.61.0 (PR #214, 2026-11-19). ⚠ Architecture. Clients is Office's first part (Decisions.md, "What we're building"),
       so the app ships under its lasting name rather than being renamed after people learn
