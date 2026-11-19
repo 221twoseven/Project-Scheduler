@@ -32,7 +32,7 @@ release-by-release record.
         Staff, and a person's own row (notes, saved views) is still written from Timeline.
       - *Shared:* the Staff record's reader and writer, the phone format, the holidays, the
         department groups and the people departments moved into `common/common.js`.
-      - *The owner* adds the `/people/` and `/preview/people/` SPA redirect URIs before the
+      - *The owner* added the `/people/` and `/preview/people/` SPA redirect URIs (2026-11-19) before the
         merge. `main`'s deploy list is item 100.
       - Record: `docs/Milestones/Phase-7-Pilot-Readiness/2026-11-19-people-app.md`. Suite
         `tests/test-v1620.js`; the People-page checks in older suites now boot the app.

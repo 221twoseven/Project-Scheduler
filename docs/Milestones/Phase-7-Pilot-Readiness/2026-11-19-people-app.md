@@ -33,8 +33,8 @@ merge option on 2026-11-19: "Wording OK, go with option (a)".
 - **Shared code:** the Staff record's reader and writer, the phone format, holidays, the
   department groups and the people departments moved into `common/common.js`.
 
-No SharePoint list or column changed. The owner adds the `/people/` and `/preview/people/`
-sign-in addresses in Entra before the merge (`docs/SETUP.md`). The development deploy
+No SharePoint list or column changed. The owner added the `/people/` and `/preview/people/`
+sign-in addresses in Entra on 2026-11-19, before the merge (`docs/SETUP.md`). The development deploy
 workflow lists `people/`; `main`'s copy waits on the owner's go (item 100).
 
 ## Screenshots

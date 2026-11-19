@@ -51,7 +51,7 @@ https://221twoseven.github.io/Project-Scheduler/preview/
 
 One line per product, production and `/preview/`: Timeline, Clients since v1.58.0 (item
 86: added before that PR merged; Office since v1.61.0, item 94), and People since v1.62.0
-(item 87: added before that PR merges). The Systems page never signs in. The last
+(item 87: added 2026-11-19, before that PR merged). The Systems page never signs in. The last
 two are where Timeline lived before v1.56.0: a tab opened before the move still signs in
 from there, so keep them until v1.56.0 has been on production for a working day, then they
 can go. (`/test/` was registered for item 72 on 2026-10-16 and retired 2026-10-19; its URI
