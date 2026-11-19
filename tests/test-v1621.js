@@ -9,7 +9,8 @@
    R5 focus is a 2px ring offset 2px, never the faint glow; no inspector field turns the outline
    off · R6 the milestone row's × is readable (muted text, not #CBD6E4) · R7 every modal keeps
    Tab inside it and gives focus back to its opener when it closes · R8 My Dashboard's dock,
-   which shares .ins-sec, keeps its headings until its own step.
+   which shares .ins-sec, kept its headings until its own step (v1.62.2 gave it this look:
+   its assertions moved to test-v1622).
    Run: node tests/test-v1621.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,raw,ok,done}=suite();
@@ -37,13 +38,12 @@ ok('R4 buttons: 32px, 12px padding, 6px corners', /min-height:32px/.test(rule('.
 ok('R4 …Delete in the danger text colour', /color:var\(--ts-danger-text\)/.test(rule('.ins-btn.dngr')));
 ok('R4 …Close is the same 32px secondary button', /min-height:32px/.test(rule('.ins-hd .x')));
 ok('R5 focus: a 2px ring offset 2px on the inspector and its popover',
-  /#pp-insp :focus-visible,\.npv-pop :focus-visible\{outline:2px solid var\(--ts-action\);outline-offset:2px\}/.test(raw));
+  /#pp-insp :focus-visible,\.npv-pop :focus-visible[^{]*\{outline:2px solid var\(--ts-action\);outline-offset:2px\}/.test(raw));
 const insCss=raw.slice(raw.indexOf('/* --- inspector --- */'),raw.indexOf('/* --- selection --- */'));
 ok('R5 …no inspector field turns the outline off or draws the faint glow',
   insCss.length>1000&&!/outline:none/.test(insCss)&&!/rgba\(59,127,214,\.12\)/.test(insCss));
 ok('R6 the milestone row × is muted text in a 28px box', /color:var\(--ts-muted\)/.test(rule('.ag-i .del'))&&/width:28px;height:28px/.test(rule('.ag-i .del')));
-ok('R1 headings: 13px/600, as written', /font-size:13px/.test(rule('#pp-insp .ins-sec>h4'))&&/text-transform:none/.test(rule('#pp-insp .ins-sec>h4')));
-ok('R8 the shared .ins-sec>h4 rule (My Dashboard) is untouched', /text-transform:uppercase/.test(rule('.ins-sec>h4')));
+ok('R1 headings: 13px/600, as written (the shared rule since v1.62.2)', /font-size:13px;line-height:1.4;font-weight:600/.test(rule('.ins-sec>h4'))&&!/uppercase/.test(rule('.ins-sec>h4')));
 
 (async()=>{
   sec('R1: a saved project');
@@ -52,7 +52,7 @@ ok('R8 the shared .ins-sec>h4 rule (My Dashboard) is untouched', /text-transform
   ok('the columns read Setup, Project Team, Project Schedule, Milestones & Notes',
     ['Setup','Project Team','Project Schedule','Milestones & Notes'].every(t=>h.includes(t)),h.join(' | '));
   const h4=w.document.querySelector('#pp-insp .ins-sec>h4');
-  ok('…and render without capitals', h4&&w.getComputedStyle(h4).textTransform==='none');
+  ok('…and render without capitals', h4&&w.getComputedStyle(h4).textTransform!=='uppercase'); /* jsdom reports an unset property as '' */
 
   sec('R2: a selected phase');
   w.ppSelect('t1');await wait(200);
@@ -96,10 +96,6 @@ ok('R8 the shared .ins-sec>h4 rule (My Dashboard) is untouched', /text-transform
   w.closeTaskModal(true);await wait(20);
   ok('a modal closing under another leaves focus in the one still open', ov.contains(doc.activeElement),doc.activeElement.id||doc.activeElement.tagName);
   ov.classList.add('hidden');await wait(20);
-
-  sec('R8: My Dashboard keeps its User Notes look');
-  ok('#me-dock .ins-notes keeps its padding, size and halo', rule('#me-dock .ins-notes').includes('padding:7px 9px;font-size:12.5px')
-    &&rule('#me-dock .ins-notes:focus').includes('rgba(59,127,214,.12)'));
 
   done();
 })();

@@ -90,11 +90,11 @@ function main(){
      and Notes went back to their own columns. */
   const V1100=src.indexOf('md-listen')>=0;
   /* v1.48.0: "Your stale projects" may lead the stack when there are some (test-v1480) */
-  const sh=stack?[...stack.querySelectorAll('h4')].filter(h=>!/Your stale projects/.test(h.textContent)):[];
+  const sh=stack?[...stack.querySelectorAll('h4')].filter(h=>!/Your stale projects/i.test(h.textContent)):[];
   ok(V1100?'Working on + Time off stack in ONE column':'Milestones + Notes stack in ONE column',
      !!stack&&sh.length===2
      &&(V1100
-       ?/Working on/.test(sh[0].textContent)&&/Time off/.test(sh[1].textContent)
+       ?/Working on/i.test(sh[0].textContent)&&/Time off/i.test(sh[1].textContent)
        :/Milestones/.test(sh[0].textContent)&&/Notes/.test(sh[1].textContent)));
   /* Owner ruling 2026-09-18 (reversing the v1.14.0 hide): the preview simulates a
      non-admin, and a non-admin sees their OWN dashboard — User Notes visible and
