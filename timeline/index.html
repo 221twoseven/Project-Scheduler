@@ -11,7 +11,7 @@
      the single-file architecture stays intact and the deploy guard skips data: hrefs. -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MDAgMzIyLjg1NSI+CiAgPHBhdGggZD0iTTE2MS4yMDcsMjc0LjEzOGM2LjY0MywwLDEyLjQsNS43NTgsMTIuNCwxMi44NDR2MjMuMDI5YzAsNy4wODUtNS43NTcsMTIuODQzLTEyLjQsMTIuODQzSDE0LjYxNmMtNi42NDMsMC0xMi40MDEtNS43NTgtMTIuNDAxLTEyLjg0M3YtMzEuMDAyYzAtMTUuMDU4LDMuNTQzLTIxLjcwMSw3Ljk3MS0yNy45MDFMMTA1Ljg0OCwxMTguNjljMTIuNC0xNy4yNzMsMTcuMjczLTIzLjkxNiwxNy4yNzMtMzcuNjQ1LDAtMjMuOTE0LTE3LjcxNi0zNC45ODctMzcuMjAyLTM0Ljk4Ny0yMS43MDEsMC0zNi4zMTUsMTMuNzI5LTM2LjMxNSwzOS44NTl2NC44NzFjMCw2LjY0My01Ljc1OCwxMi40MDEtMTIuODQ0LDEyLjQwMUgxMi44NDRjLTcuMDg2LDAtMTIuODQ0LTUuNzU4LTEyLjg0NC0xMi40MDF2LTEwLjE4NUMwLDI5LjIyOSwzOS40MTcsMCw4NS45MTgsMGM0NS4xNzMsMCw4OC4xMzIsMjcuMDE2LDg4LjEzMiw4MC42MDQsMCwxOS45MjktMS43NzIsMzYuMzE1LTE3LjcxNCw1OC45MDFsLTk2Ljk5LDEzNC42MzNoMTAxLjg2MVpNMzE5Ljc1MiwxODIuNDYzYzYuNjQzLDAsMTIuNCw1Ljc1OCwxMi40LDEyLjg0NHYxNy43MTRjMCw3LjA4Ni01Ljc1NywxMi44NDMtMTIuNCwxMi44NDNoLTEyOC44NzdjLTYuNjQzLDAtMTIuNC01Ljc1Ny0xMi40LTEyLjg0M3YtMTcuNzE0YzAtNy4wODYsNS43NTctMTIuODQ0LDEyLjQtMTIuODQ0aDEyOC44NzdaTTM0MS4wMDgsNTcuNTczYy03LjA4NiwwLTEyLjg0My01Ljc1Ny0xMi44NDMtMTIuNHYtMjMuOTE2YzAtNi42NDMsNS43NTctMTIuNCwxMi44NDMtMTIuNGgxNDYuMTQ4YzcuMDg2LDAsMTIuODQ0LDUuNzU3LDEyLjg0NCwxMi40djI2LjU3MmMwLDkuMzAxLTMuNTQzLDIwLjgxNi01LjMxNSwyNS42ODdsLTg3LjI0NywyMzcuMzc5Yy0yLjIxMyw2LjItNS4zMTUsMTEuOTU4LTExLjk1OCwxMS45NThoLTMzLjIxNWMtNS4zMTMsMC0xMC4xODYtNC40MjgtMTAuMTg2LTExLjk1OCwwLTEuNzcyLjQ0My0zLjU0MywxLjMzLTUuNzU3bDkwLjc4OC0yNDcuNTY3aC0xMDMuMTg5WiIvPgo8L3N2Zz4=">
 
-<link rel="stylesheet" href="../common/common.css?v=1.62.0">
+<link rel="stylesheet" href="../common/common.css?v=1.62.1">
 <style>
 /* ============ TOKENS ============ */
 :root{
@@ -141,7 +141,7 @@ body.dash-on #sb-head .sb-dash-lbl{display:block;flex:1;font-size:var(--fs-fine)
 body.me-dock-on.me-dock-col #main{bottom:45px}
 body.me-dock-on.me-dock-col #me-dock{height:45px}
 body.me-dock-col #me-dock .ins-body{display:none}
-#md-collapse{margin-left:auto;padding:5px 7px;line-height:0}
+#md-collapse{margin-left:auto;padding:5px 7px;line-height:0;min-height:0}
 #md-collapse svg{width:15px;height:15px;display:block;color:var(--ts-muted);transition:transform .12s}
 #md-collapse:hover{border-color:var(--acc)}
 #md-collapse:hover svg{color:var(--acc)}
@@ -153,6 +153,9 @@ body.me-dock-col #md-collapse svg{transform:rotate(180deg)}
 .md-hd .x{margin-left:auto;background:none;border:none;color:var(--ts-muted);font-size:17px;line-height:1;cursor:pointer;padding:0 2px;font-family:inherit}
 .md-hd .x:hover{color:var(--acc)}
 #me-dock .ins-body{background:var(--paper)}
+/* v1.62.1: the User Notes box keeps its look while the inspector's .ins-notes moves to the wireframes */
+#me-dock .ins-notes{padding:7px 9px;font-size:12.5px;color:#1E293B;outline:none}
+#me-dock .ins-notes:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(59,127,214,.12)}
 .md-row{display:flex;align-items:center;gap:7px;padding:4px 0;font-size:12px;color:#1E293B;min-width:0}
 .md-dot{width:9px;height:9px;border-radius:3px;flex-shrink:0}
 .md-main{flex:1;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
@@ -934,7 +937,7 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 .dash-insp.collapsed .dash-foot{border-top:none}
 /* The dock toggle is application chrome, not a project action: it lives in its own fixed
    corner of the dock, outside the footer's button row, in both states. */
-#pp-dock-toggle,#pp-clog-toggle{position:absolute;right:12px;bottom:8px;z-index:31;padding:5px 7px;line-height:0;
+#pp-dock-toggle,#pp-clog-toggle{position:absolute;right:12px;bottom:8px;z-index:31;padding:5px 7px;line-height:0;min-height:0;
   border:1px solid #E2E8F0;border-radius:6px;background:#fff}
 #pp-dock-toggle svg,#pp-clog-toggle svg{width:15px;height:15px;display:block;color:var(--ts-muted);transition:transform .12s}
 #pp-dock-toggle:hover,#pp-clog-toggle:hover{border-color:var(--acc)}
@@ -972,15 +975,20 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 .clog-tools input{width:300px}
 
 /* --- inspector --- */
-.ins-hd{display:flex;align-items:center;gap:8px;padding:12px 15px;border-bottom:1px solid #E2E8F0;
+/* v1.62.1 (item 52, step 3): the inspector restyled to the wireframes — 14px/600 header,
+   13px/600 Title Case column headings (owner, 2026-11-19: no sentence case), 12px labels,
+   36px fields, 32px buttons, 6px control radius, and a 2px focus ring offset 2px. */
+.ins-hd{display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid #E2E8F0;
   background:#fff;flex-shrink:0}
 .ins-hd .dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
-.ins-hd .t{flex:1;font-size:12.5px;font-weight:700;color:#1E293B;overflow:hidden;
+.ins-hd .t{flex:1;font-size:14px;line-height:1.4;font-weight:600;color:var(--ts-text);overflow:hidden;
   white-space:nowrap;text-overflow:ellipsis}
-/* v1.26.1 (tracker #25): a labelled Close, not a bare ×, 24px tall for the hit target (§9) */
-.ins-hd .x{background:#fff;border:1px solid var(--ts-control-line);border-radius:5px;color:var(--ts-muted);
-  font-size:11.5px;font-weight:600;line-height:1;cursor:pointer;padding:0 8px;min-height:24px;
-  font-family:inherit;display:inline-flex;align-items:center;gap:5px;margin-left:auto}
+/* v1.26.1 (tracker #25): a labelled Close, not a bare × — the secondary button recipe, 32px (§9) */
+.ins-hd .x{background:#fff;border:1px solid var(--ts-line);border-radius:var(--ts-radius-control);color:var(--ts-text);
+  font-size:12px;font-weight:600;line-height:1;cursor:pointer;padding:0 12px;min-height:32px;
+  font-family:inherit;display:inline-flex;align-items:center;gap:6px;margin-left:auto}
+/* the inspector, its phase popover and their fields: one clear ring, never the faint glow */
+#pp-insp :focus-visible,.npv-pop :focus-visible{outline:2px solid var(--ts-action);outline-offset:2px}
 .ins-hd .x span{font-size:15px;line-height:1}
 .ins-hd .x:hover{color:var(--acc);border-color:var(--acc)}
 /* E1: sections run side by side as columns — Setup | Project Team | Project Schedule | Agenda — all
@@ -998,112 +1006,120 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 .ins-sec[data-sec="phase"]{flex:2 1 0}
 .ins-sec[data-sec="phase"]~.ins-sec[data-sec="agenda"]{min-width:240px}
 .ins-sec[data-sec="notes"] .in{display:flex}
-.ins-notes{flex:1;width:100%;min-height:90px;resize:none;border:1px solid var(--ts-control-line);border-radius:6px;
-  padding:7px 9px;font-size:12.5px;font-family:inherit;background:#fff;color:#1E293B;outline:none;
+.ins-notes{flex:1;width:100%;min-height:90px;resize:none;border:1px solid var(--ts-control-line);border-radius:var(--ts-radius-control);
+  padding:8px 10px;font-size:13px;font-family:inherit;background:#fff;color:var(--ts-text);
   box-sizing:border-box}
-.ins-notes:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(59,127,214,.12)}
 .ins-sec>h4{display:flex;align-items:center;gap:7px;margin:0;padding:10px 15px;flex-shrink:0;
   font-size:var(--fs-fine);font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ts-muted);
   user-select:none;border-bottom:1px solid #EDF2F7}
 .ins-sec>h4 .n{margin-left:auto;font-size:var(--fs-fine);font-weight:700;color:var(--ts-muted);background:#EDF2F8;
   border-radius:8px;padding:1px 6px}
 .ins-sec .in{padding:8px 15px 14px;flex:1;min-height:0;overflow-y:auto}
-.dash-insp .pg-roles{grid-template-columns:repeat(2,1fr);gap:10px}
+/* The project inspector's columns (My Dashboard's dock shares .ins-sec and keeps its look
+   until its own step): Title Case headings as written, not small capitals. */
+#pp-insp .ins-sec>h4{padding:12px 16px;font-size:13px;line-height:1.4;font-weight:600;letter-spacing:0;
+  text-transform:none;color:var(--ts-text)}
+#pp-insp .ins-sec>h4 .n{font-family:var(--mono);font-weight:500;border-radius:var(--ts-radius-chip)}
+#pp-insp .ins-sec .in{padding:12px 16px 16px}
+#pp-insp .pg-roles .rl{font-size:12px;line-height:1.45;font-weight:500;letter-spacing:0;text-transform:none}
+#pp-insp .pg-rbox .rl-grp{font-size:12px;font-weight:600;letter-spacing:0;text-transform:none}
+#pp-insp .pg-rq{min-height:32px;padding:6px 10px}
+#pp-insp .pg-rbox,#pp-insp .pg-depts,#pp-insp .crew-list{border-radius:var(--ts-radius-control)}
+#pp-insp .pg-rbox input,#pp-insp .crew-list input[type=checkbox]{width:16px;height:16px}
+.dash-insp .pg-roles{grid-template-columns:repeat(2,1fr);gap:12px}
 .dash-insp .pg-depts{column-count:1}
-.ins-f{margin-bottom:10px}
-.ins-f>label{display:block;font-size:var(--fs-fine);font-weight:700;letter-spacing:.07em;
-  text-transform:uppercase;color:var(--ts-muted);margin-bottom:4px}
+.ins-f{margin-bottom:12px}
+.ins-f>label{display:block;font-size:12px;line-height:1.45;font-weight:500;color:var(--ts-muted);margin-bottom:4px}
 /* item 96: the pin checkbox sits beside its words, not stretched to a full-width row */
-.ins-f>label.ins-pin{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:400;
-  letter-spacing:0;text-transform:none;color:#33415A;cursor:pointer;margin:0}
-.ins-f input,.ins-f select,.ins-f textarea{width:100%;border:1px solid var(--ts-control-line);border-radius:6px;
-  padding:7px 9px;font-size:12.5px;font-family:inherit;background:#fff;color:#1E293B;outline:none;
+.ins-f>label.ins-pin{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:400;
+  color:var(--ts-text);cursor:pointer;margin:0}
+.ins-f input,.ins-f select,.ins-f textarea{width:100%;min-height:36px;border:1px solid var(--ts-control-line);border-radius:var(--ts-radius-control);
+  padding:8px 10px;font-size:13px;font-family:inherit;background:#fff;color:var(--ts-text);
   box-sizing:border-box}
-.ins-f input:focus,.ins-f select:focus,.ins-f textarea:focus{border-color:var(--acc);
-  box-shadow:0 0 0 3px rgba(59,127,214,.12)}
+.ins-f input[type=checkbox],.ins-f input[type=radio]{min-height:0} /* a tick box keeps its own size */
 .ins-f input.err{border-color:#CE4242}
-.ins-f .ins-pin input[type=checkbox]{width:13px;height:13px;padding:0;margin:0;accent-color:#3B7FD6;flex-shrink:0}
+.ins-f .ins-pin input[type=checkbox]{width:16px;height:16px;min-height:0;padding:0;margin:0;accent-color:#3B7FD6;flex-shrink:0}
 .pg-rbox.err{border-color:#CE4242}
-.ins-row{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-.ins-row3{display:grid;grid-template-columns:1fr 1fr 64px;gap:9px}
-.ins-note{font-size:var(--fs-fine);color:var(--ts-muted);line-height:1.45;margin:-3px 0 10px}
-.ins-acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:2px}
-.ins-btn{background:#fff;border:1px solid #CBD6E4;border-radius:6px;padding:6px 10px;font-size:11px;
-  font-weight:600;color:#33415A;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px}
+.ins-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.ins-row3{display:grid;grid-template-columns:1fr 1fr 64px;gap:12px}
+.ins-note{font-size:12px;color:var(--ts-muted);line-height:1.45;margin:-4px 0 12px}
+.ins-f>.ins-note{margin:4px 0 0} /* under the crew list, inside its field */
+.ins-acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.ins-btn{background:#fff;border:1px solid var(--ts-line);border-radius:var(--ts-radius-control);padding:0 12px;min-height:32px;font-size:12px;
+  font-weight:600;color:var(--ts-text);cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px}
 .ins-btn:hover{border-color:var(--acc);color:var(--acc)}
-.ins-btn kbd{font-family:inherit;font-size:var(--fs-fine);font-weight:700;color:var(--ts-muted);
-  border:1px solid #E2E8F0;border-radius:3px;padding:0 3px}
-.ins-btn.dngr{color:#CE4242;border-color:#EBC4C4}
-.ins-btn.dngr:hover{background:#FCEBEB;border-color:#CE4242}
+.ins-btn kbd{font-family:var(--mono);font-size:var(--fs-fine);font-weight:600;color:var(--ts-muted);
+  border:1px solid #E2E8F0;border-radius:var(--ts-radius-chip);padding:0 4px}
+.ins-btn.dngr{color:var(--ts-danger-text);border-color:var(--ts-line)}
+.ins-btn.dngr:hover{background:var(--ts-danger-bg);border-color:var(--ts-danger-text)}
 
 /* --- departments, sized for a 330px pane --- */
 /* The garble in the screenshot was the wide-grid checklist (built for the old full-width
    tab and the staff modal) collapsing inside the inspector. This one is a plain vertical
    list: group heading, then one row per department. */
-.ins-depts .idg{padding:9px 0 4px;font-size:var(--fs-fine);font-weight:700;letter-spacing:.1em;
-  text-transform:uppercase;color:var(--ts-muted)}
+.ins-depts .idg{padding:12px 0 4px;font-size:12px;line-height:1.45;font-weight:600;color:var(--ts-muted)}
 .ins-depts .idg:first-child,.ins-depts .idg-pm.hidden+.idg{padding-top:0}
-.ins-depts .idr{display:flex;align-items:center;gap:8px;padding:3px 0;min-height:24px}
-.ins-depts .idr input[type=checkbox]{flex-shrink:0;margin:0;width:14px;height:14px;accent-color:var(--acc)}
-.ins-depts .idr .dname{flex:1;font-size:12px;color:#1E293B;overflow:hidden;
+.ins-depts .idr{display:flex;align-items:center;gap:8px;padding:3px 0;min-height:28px}
+.ins-depts .idr input[type=checkbox]{flex-shrink:0;margin:0;width:16px;height:16px;accent-color:var(--acc)}
+.ins-depts .idr .dname{flex:1;font-size:13px;color:var(--ts-text);overflow:hidden;
   white-space:nowrap;text-overflow:ellipsis;min-width:0}
 .ins-depts .idr.off .dname{color:var(--ts-muted)}
-.ins-depts .idr .ddays{width:46px;flex-shrink:0;border:1px solid var(--ts-control-line);border-radius:5px;
-  padding:3px 5px;font-size:11.5px;font-family:inherit;text-align:right;box-sizing:border-box}
+.ins-depts .idr .ddays{width:46px;flex-shrink:0;min-height:28px;border:1px solid var(--ts-control-line);border-radius:var(--ts-radius-control);
+  padding:4px 6px;font-size:12px;font-family:inherit;text-align:right;box-sizing:border-box}
 .ins-depts .idr .ddays:disabled{background:#F7FAFD;color:#C3CEDC;border-color:#EDF2F7}
 .ins-depts .idr .dlbl{flex-shrink:0;font-size:var(--fs-fine);color:var(--ts-muted);width:14px}
 /* N13: the row wraps — process name and the date pair each take their own line,
    indented under the checkbox. An unticked row hides its date line entirely
    (nothing greyed pretends to be a control). */
 .ins-depts .idr{flex-wrap:wrap}
-.ins-depts .idr .dother{flex-basis:100%;min-width:0;margin-left:22px;border:1px solid var(--ts-control-line);
-  border-radius:5px;padding:3px 6px;font-size:11.5px;font-family:inherit;box-sizing:border-box}
+.ins-depts .idr .dother{flex-basis:100%;min-width:0;min-height:28px;margin-left:24px;border:1px solid var(--ts-control-line);
+  border-radius:var(--ts-radius-control);padding:4px 6px;font-size:12px;font-family:inherit;box-sizing:border-box}
 .ins-depts .idr .dother:disabled{background:#F7FAFD;border-color:#EDF2F7}
-.ins-depts .idr .ddates{flex-basis:100%;display:flex;align-items:center;gap:5px;
-  margin-left:22px;min-width:0}
+.ins-depts .idr .ddates{flex-basis:100%;display:flex;align-items:center;gap:6px;
+  margin:2px 0 4px 24px;min-width:0}
 .ins-depts .idr.off .ddates{display:none}
 .ins-depts .idr.off .dother{display:none}
 /* v1.32.0 (#16): another work period — + beside the department name, each extra range on its own
-   date line (.rng) with its day count and a ×. Icon-size .ins-btn recipe, 24px hit box (§9). */
-.ins-depts .idr .radd,.ins-depts .idr .rx{flex-shrink:0;width:24px;height:24px;padding:0;display:inline-flex;align-items:center;justify-content:center;
+   date line (.rng) with its day count and a ×. Icon-size .ins-btn recipe, 28px hit box (§9; v1.62.1). */
+.ins-depts .idr .radd,.ins-depts .idr .rx{flex-shrink:0;width:28px;height:28px;padding:0;display:inline-flex;align-items:center;justify-content:center;
   background:#fff;border:1px solid var(--ts-control-line);border-radius:6px;color:#33415A;font-family:inherit;font-size:14px;line-height:1;font-weight:600;cursor:pointer}
 .ins-depts .idr .radd:hover,.ins-depts .idr .rx:hover{background:var(--side)}
 .ins-depts .idr.off .radd{display:none}
-.ins-depts .idr .ddates{flex-wrap:wrap;row-gap:3px}                         /* the count and × wrap under the dates when the column is narrow (v1.33.1: every line, the primary's count lives here too) */
+.ins-depts .idr .ddates{flex-wrap:wrap;row-gap:4px}                         /* the count and × wrap under the dates when the column is narrow (v1.33.1: every line, the primary's count lives here too) */
 .ins-depts .idr .ddates input[type=date]{flex:1 1 90px}                     /* a natural basis, so the dates keep their width and the extras wrap */
-.ins-depts .idr .ddates .rdays,.ins-depts .idr .ddates .ddays{flex:0 0 46px;margin-left:auto;text-align:right;font-family:inherit;font-size:11.5px;padding:3px 5px}
+.ins-depts .idr .ddates .rdays,.ins-depts .idr .ddates .ddays{flex:0 0 46px;margin-left:auto;text-align:right;font-family:inherit;font-size:12px;padding:4px 6px}
 .ins-depts .idr .ddates .dlbl{width:auto}
-.ins-depts .idr:has(.rx) .ddates:not(.rng){padding-right:29px}        /* v1.33.1: the primary's count lines up with the ranges' (24px × + 5px gap) */
+.ins-depts .idr:has(.rx) .ddates:not(.rng){padding-right:34px}        /* v1.33.1: the primary's count lines up with the ranges' (28px × + 6px gap) */
 /* v1.25.2 (#26): why a typed date moved, on its own line under the date pair */
-.ins-depts .idr .dnote{flex-basis:100%;margin:0 0 3px 22px}
+.ins-depts .idr .dnote{flex-basis:100%;margin:0 0 4px 24px}
 .ins-depts .idr.off .dnote{display:none}
 /* v1.42.0 (tracker #34): a role-owned bar the role change never reached — the note and its one action */
-.ins-depts .idr .dhand{flex-basis:100%;margin:2px 0 4px 22px;display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px}
+.ins-depts .idr .dhand{flex-basis:100%;margin:2px 0 4px 24px;display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px}
 .ins-depts .idr .dhand .ins-btn{padding:4px 8px;min-height:24px}
 /* v1.26.0 (#20): the read-only "Created on" reads as a fact, not a control to edit */
 #pp-created[readonly]{background:#F7FAFD;border-color:#EDF2F7;color:#33415A}
-.ins-depts .idr .ddates input{flex:1;min-width:0;border:1px solid var(--ts-control-line);border-radius:5px;
-  padding:2px 4px;font-size:11px;font-family:var(--mono);color:#33415A;box-sizing:border-box}
+.ins-depts .idr .ddates input{flex:1;min-width:0;min-height:28px;border:1px solid var(--ts-control-line);border-radius:var(--ts-radius-control);
+  padding:4px 6px;font-size:12px;font-family:var(--mono);color:var(--ts-text);box-sizing:border-box}
 .ins-depts .idr .ddates .da{flex-shrink:0;font-size:11px;color:var(--ts-muted)}
 
 /* --- agenda: the one list of everything dated on this job. Each row is the Home
    modal's checkpoint editor — date | name | notes — so editing matches everywhere. --- */
-.ag-add{display:flex;gap:6px;padding:0 15px 12px}
-.ag{padding:0 15px 8px}
-.ag-i{display:grid;grid-template-columns:9px 96px 1fr 18px;gap:4px 5px;align-items:center;
+.ag-add{display:flex;gap:8px;padding:0 0 12px}
+.ag{padding:0 0 8px}
+.ag-i{display:grid;grid-template-columns:9px 112px 1fr 28px;gap:6px 8px;align-items:center;
   padding:3px 0;margin-bottom:5px}
 .ag-i .ic{width:9px;height:9px;flex-shrink:0}
 .ag-i .ic.ev{background:#F7C948;border:2px solid #16202E;box-sizing:border-box;transform:rotate(45deg)}
 .ag-i .ic.tk{border-radius:50%;border:2px solid #3B7FD6;box-sizing:border-box}
-.ag-i input,.ag-i select{border:1px solid var(--ts-control-line);border-radius:5px;padding:4px 6px;font-size:11.5px;
-  font-family:inherit;width:100%;min-width:0;box-sizing:border-box;color:#1E293B;outline:none;background:#fff}
+.ag-i input,.ag-i select{min-height:28px;border:1px solid var(--ts-control-line);border-radius:var(--ts-radius-control);padding:4px 6px;font-size:12px;
+  font-family:inherit;width:100%;min-width:0;box-sizing:border-box;color:var(--ts-text);background:#fff}
 .ag-i select{grid-column:2/5} /* v1.4.0: the phase picker owns the milestone row's second line */
-.ag-i input[type=date]{font-family:var(--mono);font-size:var(--fs-fine)}
-.ag-i input:focus,.ag-i select:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(59,127,214,.12)}
-.ag-i .del{background:none;border:none;color:#CBD6E4;font-size:14px;line-height:1;cursor:pointer;
-  padding:0 2px;font-family:inherit}
-.ag-i .del:hover{color:#CE4242}
-.ag-empty{padding:22px 15px;text-align:center;font-size:11.5px;color:var(--ts-muted);line-height:1.6}
+.ag-i input[type=date]{font-family:var(--mono);font-size:12px}
+/* v1.62.1: the × was #CBD6E4 (1.5:1); now muted text in a 28px hit box */
+.ag-i .del{background:none;border:none;color:var(--ts-muted);font-size:16px;line-height:1;cursor:pointer;
+  width:28px;height:28px;padding:0;border-radius:var(--ts-radius-control);font-family:inherit}
+.ag-i .del:hover{color:var(--ts-danger-text);background:var(--ts-danger-bg)}
+.ag-empty{padding:22px 0;text-align:center;font-size:12px;color:var(--ts-muted);line-height:1.6}
 
 /* --- selection --- */
 .npv-bar.pick{box-shadow:0 0 0 2px #fff,0 0 0 4px var(--acc);z-index:3} /* over other bars, under markers (item 83) */
@@ -1770,10 +1786,10 @@ body.cd-route #dash-bar{display:none!important}
      from common/, the folder every Systems product shares. ?v= is APP_VER, stamped by
      `npm run notes`, so a new page never runs against a cached old core. -->
 <script src="../common/msal-browser.min.js"></script>
-<script src="../common/common.js?v=1.62.0"></script>
+<script src="../common/common.js?v=1.62.1"></script>
 <script>
 'use strict';
-const APP_VER='1.62.0'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.62.1'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -4644,6 +4660,38 @@ function closeTaskModal(force){
      &&!confirm('Discard the changes to this phase?'))return;
   ov.classList.add('hidden');EDIT_TASK_ID=null;
 }
+/* v1.62.1 (item 52, step 3; style guide §6): a modal keeps the keyboard inside it and hands
+   focus back to whatever opened it. One watcher for every .overlay: opening moves focus in
+   (unless the opener already placed it), Tab and Shift+Tab wrap at the ends, closing the
+   last open one restores the opener. */
+const MODAL_FOC='a[href],button:not([disabled]),input:not([disabled]):not([type=hidden]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
+/* checkVisibility also drops controls a CSS rule hides (print's .no-range, a viewer's hidden
+   buttons); the harness has no layout, so there the .hidden check stands alone */
+function modalFocusables(ov){return [...ov.querySelectorAll(MODAL_FOC)].filter(e=>!e.closest('.hidden,[hidden]')
+  &&(typeof e.checkVisibility!=='function'||e.checkVisibility()));}
+const MODAL_BACK=new Map();
+/* the last focus outside any modal: an opener that focuses its own field (the phase editor)
+   does so before the watcher runs, so the watcher can't read the opener off activeElement */
+let MODAL_LAST=null;
+document.addEventListener('focusin',ev=>{if(ev.target.closest&&!ev.target.closest('.overlay'))MODAL_LAST=ev.target;});
+const modalWatch=new MutationObserver(ms=>{for(const m of ms){const ov=m.target,open=!ov.classList.contains('hidden');
+  if(open&&!MODAL_BACK.has(ov)){MODAL_BACK.set(ov,ov.contains(document.activeElement)?MODAL_LAST:document.activeElement);
+    if(!ov.contains(document.activeElement)){const f=modalFocusables(ov)[0];if(f)f.focus();}}
+  else if(!open&&MODAL_BACK.has(ov)){const el=MODAL_BACK.get(ov);MODAL_BACK.delete(ov);
+    const still=document.querySelector('.overlay:not(.hidden)'); /* another modal is still up: focus stays in it */
+    if(still){if(ov.contains(document.activeElement)){const f=modalFocusables(still)[0];if(f)f.focus();}}
+    else if(el&&el.isConnected&&el.focus)el.focus({preventScroll:true});}}});
+document.querySelectorAll('.overlay').forEach(ov=>modalWatch.observe(ov,{attributes:true,attributeFilter:['class']}));
+document.addEventListener('keydown',ev=>{
+  if(ev.key!=='Tab')return;
+  const ov=[...document.querySelectorAll('.overlay:not(.hidden)')].pop();
+  if(!ov)return;
+  const f=modalFocusables(ov);if(!f.length)return;
+  const a=document.activeElement,first=f[0],last=f[f.length-1];
+  if(!ov.contains(a)){ev.preventDefault();first.focus();}
+  else if(ev.shiftKey&&a===first){ev.preventDefault();last.focus();}
+  else if(!ev.shiftKey&&a===last){ev.preventDefault();first.focus();}
+});
 
 document.getElementById('tm-cancel').addEventListener('click',()=>closeTaskModal());
 document.getElementById('task-overlay').addEventListener('click',ev=>{if(ev.target.id==='task-overlay')closeTaskModal();});
@@ -6344,7 +6392,7 @@ function ppInspector(){
     if(vcan('phases'))f+='<div class="ins-acts">'
      + '<button class="ins-btn" id="ins-dup" title="Copy this phase as a new bar">Duplicate</button>'
      + '<button class="ins-btn dngr" id="ins-del" title="Delete this phase">Delete</button></div>';
-    h+=ppSec('phase','This phase',f,null,true);
+    h+=ppSec('phase','This Phase',f,null,true); /* v1.62.1: Title Case headings (owner, 2026-11-19) */
     h+=ppAgendaHTML(p,sel.department);
     /* v1.6.2: a third dock column — the agenda's width split in half, the right half
        all notes. Same data-f commit path as before, just more room to write. */
@@ -6443,7 +6491,7 @@ function ppAgendaHTML(p,onlyDept){
     }
     body+='</div>';
   }
-  return ppSec('agenda',onlyDept?'On this phase':'Milestones & Notes',body,shown.length,true);
+  return ppSec('agenda',onlyDept?'On This Phase':'Milestones & Notes',body,shown.length,true);
 }
 
 function ppBindInspector(p,sel){
@@ -10981,6 +11029,8 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.62.1",d:"Nov 19, 2026",n:["The project editing panel under the chart has a cleaner look: headings in plain type instead of small capitals, taller fields, larger buttons, and a clear blue ring on whichever field or button you're on.",
+   "Pop-up windows keep the Tab key inside them, and closing one puts you back on the button you opened it from."]},
  {v:"v1.62.0",d:"Nov 19, 2026",n:["People is its own app, opened from the Systems page or the Apps menu. The roster, each person's record, time off, the Employee Contacts import and merging duplicates work just as they did in Timeline.",
    "Timeline's Company Data menu now lists only the Changelog, and an old link to Timeline's People page opens the People app.",
    "Office and People show their version number in the header, beside the sync status, as Timeline does."]},
