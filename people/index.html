@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>People — TWOSEVEN INC.</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MDAgMzIyLjg1NSI+CiAgPHBhdGggZD0iTTE2MS4yMDcsMjc0LjEzOGM2LjY0MywwLDEyLjQsNS43NTgsMTIuNCwxMi44NDR2MjMuMDI5YzAsNy4wODUtNS43NTcsMTIuODQzLTEyLjQsMTIuODQzSDE0LjYxNmMtNi42NDMsMC0xMi40MDEtNS43NTgtMTIuNDAxLTEyLjg0M3YtMzEuMDAyYzAtMTUuMDU4LDMuNTQzLTIxLjcwMSw3Ljk3MS0yNy45MDFMMTA1Ljg0OCwxMTguNjljMTIuNC0xNy4yNzMsMTcuMjczLTIzLjkxNiwxNy4yNzMtMzcuNjQ1LDAtMjMuOTE0LTE3LjcxNi0zNC45ODctMzcuMjAyLTM0Ljk4Ny0yMS43MDEsMC0zNi4zMTUsMTMuNzI5LTM2LjMxNSwzOS44NTl2NC44NzFjMCw2LjY0My01Ljc1OCwxMi40MDEtMTIuODQ0LDEyLjQwMUgxMi44NDRjLTcuMDg2LDAtMTIuODQ0LTUuNzU4LTEyLjg0NC0xMi40MDF2LTEwLjE4NUMwLDI5LjIyOSwzOS40MTcsMCw4NS45MTgsMGM0NS4xNzMsMCw4OC4xMzIsMjcuMDE2LDg4LjEzMiw4MC42MDQsMCwxOS45MjktMS43NzIsMzYuMzE1LTE3LjcxNCw1OC45MDFsLTk2Ljk5LDEzNC42MzNoMTAxLjg2MVpNMzE5Ljc1MiwxODIuNDYzYzYuNjQzLDAsMTIuNCw1Ljc1OCwxMi40LDEyLjg0NHYxNy43MTRjMCw3LjA4Ni01Ljc1NywxMi44NDMtMTIuNCwxMi44NDNoLTEyOC44NzdjLTYuNjQzLDAtMTIuNC01Ljc1Ny0xMi40LTEyLjg0M3YtMTcuNzE0YzAtNy4wODYsNS43NTctMTIuODQ0LDEyLjQtMTIuODQ0aDEyOC44NzdaTTM0MS4wMDgsNTcuNTczYy03LjA4NiwwLTEyLjg0My01Ljc1Ny0xMi44NDMtMTIuNHYtMjMuOTE2YzAtNi42NDMsNS43NTctMTIuNCwxMi44NDMtMTIuNGgxNDYuMTQ4YzcuMDg2LDAsMTIuODQ0LDUuNzU3LDEyLjg0NCwxMi40djI2LjU3MmMwLDkuMzAxLTMuNTQzLDIwLjgxNi01LjMxNSwyNS42ODdsLTg3LjI0NywyMzcuMzc5Yy0yLjIxMyw2LjItNS4zMTUsMTEuOTU4LTExLjk1OCwxMS45NThoLTMzLjIxNWMtNS4zMTMsMC0xMC4xODYtNC40MjgtMTAuMTg2LTExLjk1OCwwLTEuNzcyLjQ0My0zLjU0MywxLjMzLTUuNzU3bDkwLjc4OC0yNDcuNTY3aC0xMDMuMTg5WiIvPgo8L3N2Zz4=">
+<!-- People (item 87, v1.62.0): the company roster, the third Systems product. Timeline's People
+     page (v1.7.0 on) moved here unchanged, under the shared header, with the owner's wording of
+     2026-11-19. It owns the ShopTimeline_Staff list: the one place a person is added, changed,
+     merged or removed (Timeline still writes a person's own row: notes, saved views). It reads
+     Projects, phases (Tasks), to-dos (Tasks2) and Config, and reads Employee Contacts for the
+     import. Merging two people moves the duplicate's names on projects, phases and to-dos to the
+     kept person (the owner's pick, 2026-11-19): it changes names and refs only, and creates and
+     deletes nothing there. Everyone signed in reads the roster; admins edit it. -->
+<link rel="stylesheet" href="../common/common.css?v=1.62.0">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:var(--sans);font-size:13px;line-height:1.45;color:var(--ts-text);background:var(--ts-paper);display:flex;flex-direction:column;--fs-fine:11px;--fs-micro:9px;--acc:var(--ts-action)}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
+:focus-visible{outline:2px solid var(--ts-action);outline-offset:2px}
+.hidden{display:none!important}
+button,input,select{font:inherit;color:inherit}
+.grow{flex:1}
+/* The shell (common.css): wordmark, name, then the sync pill, Apps and who's signed in. */
+.ts-top{position:sticky;top:0;z-index:50;flex-shrink:0}
+.top-r{display:flex;align-items:center;gap:14px}
+.apps-wrap{position:relative}
+.apps-btn{display:inline-flex;align-items:center;gap:4px;height:28px;padding:0 10px;border:1px solid transparent;border-radius:6px;background:none;color:var(--ts-header-text);font-weight:600;font-size:12px;cursor:pointer}
+.apps-btn:hover{background:rgba(255,255,255,.12)}
+.apps-btn svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+#apps-menu{position:absolute;top:34px;right:0;z-index:60;min-width:200px;padding:8px;background:var(--ts-panel);border:1px solid var(--ts-line);border-radius:var(--ts-radius-dialog);box-shadow:var(--ts-shadow-floating);display:flex;flex-direction:column;gap:2px}
+#who{font-size:11px;color:rgba(255,255,255,.75);white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
+/* The page: Timeline's People page (v1.7.0–v1.43.0) as it was, filling the window under the header. */
+main{flex:1;min-height:0;display:flex;flex-direction:column;background:var(--ts-panel)}
+.btn{display:inline-flex;align-items:center;justify-content:center;height:32px;padding:0 14px;border-radius:var(--ts-radius-control);border:1px solid var(--ts-line);background:var(--ts-panel);font-weight:600;cursor:pointer;white-space:nowrap}
+.btn:hover{background:var(--ts-selected)}
+.btn:disabled{opacity:.5;cursor:default}
+.btn.primary,.btn-primary{background:var(--ts-action);border-color:var(--ts-action);color:var(--ts-on-action)}
+.btn.primary:hover,.btn-primary:hover{background:var(--ts-action-hover)}
+.btn-ghost{background:#F1F5F9;border-color:#F1F5F9;color:#475569}
+.btn-ghost:hover{background:#E2E8F0}
+.cd-src{font-size:12px;color:var(--ts-muted);flex-shrink:0}
+.cd-head{display:flex;align-items:center;gap:10px;padding:16px 22px 12px;border-bottom:1px solid #E2E8F0;flex-wrap:wrap}
+.cd-head h1{font-size:22px;line-height:1.25;font-weight:600;color:#16202E}
+.cd-sub{font-size:12px;color:var(--ts-muted)}
+.cd-head .cd-src{margin-left:auto}
+.cd-body{flex:1;display:flex;min-height:0;position:relative}
+.tb-menu{position:absolute;z-index:40;min-width:150px;padding:6px;background:var(--ts-panel);border:1px solid var(--ts-line);border-radius:var(--ts-radius-dialog);box-shadow:var(--ts-shadow-floating)}
+.sm-item{display:block;width:100%;text-align:left;padding:6px 10px;border:0;border-radius:5px;background:none;font-size:12.5px;cursor:pointer}
+.sm-item:hover{background:var(--ts-selected)}
+.cd-list{width:56%;min-width:320px;max-width:820px;border-right:1px solid #E2E8F0;display:flex;flex-direction:column;min-height:0;overflow:hidden}
+.cd-cols{display:grid;gap:4px 12px;align-items:center;padding:6px 14px 4px;
+  font-size:var(--fs-fine);font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ts-muted);border-bottom:1px solid #EDF1F7}
+/* Each column reads its width from a var so the header grips can resize it (v1.17.0, v1.26.3);
+   nine tracks, column 4 is Office Extension (v1.43.0). */
+.cd-cols,.cd-row.pp7{grid-template-columns:
+  var(--cdc1,170px) var(--cdc2,150px) var(--cdc3,110px) var(--cdc4,120px) var(--cdc5,190px)
+  var(--cdc6,64px) var(--cdc7,48px) var(--cdc8,92px) var(--cdc9,96px);
+  width:max-content;min-width:100%;box-sizing:border-box}
+.cd-sched{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center}
+.cd-sched label{display:flex;align-items:center;gap:4px;font-size:12.5px;color:#33415A;text-transform:none;letter-spacing:0;font-weight:400;margin-bottom:0}
+.cd-sched label input[type=checkbox]{width:14px;height:14px;padding:0;margin:0;accent-color:#3B7FD6}
+.cd-sched input[type=text]{width:96px}
+.cd-sched.off{opacity:.45}
+.cd-sched .n{color:var(--ts-muted);font-size:11.5px}
+.cd-cols{position:sticky;top:0;z-index:1;background:var(--ts-panel)}
+.cd-cols span,.cd-row.pp7>*{min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.cd-grip{position:absolute;top:0;bottom:0;width:11px;cursor:col-resize;z-index:2}
+.cd-grip::after{content:'';position:absolute;left:5px;top:3px;bottom:3px;width:1px;background:#D8E2EF}
+.cd-grip:hover::after{left:4px;width:3px;background:#94A3B8}
+.cd-drv{text-align:center}
+.cd-row .cd-drv{font-size:12px;color:#1AA59C;font-weight:700}
+#cd-split{flex:0 0 6px;margin-left:-3px;cursor:col-resize}
+#cd-split:hover{background:#E2E8F0}
+.cd-perm{font-family:var(--mono);font-size:var(--fs-fine);font-weight:700;letter-spacing:.06em;color:#3B6FB5;background:#EAF1FB;border-radius:5px;padding:0 4px;margin-right:3px}
+.cd-perm.dev{color:#7C4FB0;background:#F2EBFA}
+.cdd-nick{font-weight:500;color:var(--ts-muted);font-size:.92em}
+#cde-merge-ui{display:inline-flex;gap:6px;align-items:center}
+#cde-merge-ui.hidden{display:none}
+#cde-merge-sel{font-size:12px;padding:4px 6px;border:1px solid #CBD6E4;border-radius:6px;color:#33415A;max-width:230px}
+.cd-tools{display:flex;gap:8px;padding:10px 14px;border-bottom:1px solid #EDF2F7}
+.cd-tools input,.cd-tools select{font-size:12px;padding:5px 8px;border:1px solid #CBD6E4;border-radius:6px;color:#33415A;min-width:0}
+.cd-tools input{flex:1}
+.cd-rows{overflow:auto;flex:1;scroll-padding-top:28px}
+.cd-row{display:grid;gap:4px 12px;align-items:center;padding:7px 14px;border-bottom:1px solid #F1F5F9;cursor:pointer}
+.cd-row:hover{background:#F6F9FC}
+.cd-row.sel{background:#EDF3FA;box-shadow:inset 2px 0 0 var(--acc)}
+.cd-row b{font-size:12.5px;color:#16202E;font-weight:700}
+.cd-row .cd-mut{font-size:11.5px;color:var(--ts-muted)}
+.cd-avail{font-size:var(--fs-fine);font-weight:600;color:#1AA59C;white-space:nowrap}
+.cd-avail.away{color:#B7791F}
+.cd-avail.off{color:var(--ts-muted)}
+.cd-avset{grid-template-columns:1fr;gap:5px}
+.cd-avset .n{color:var(--ts-muted);font-size:11.5px}
+.cd-detail{flex:1;overflow-y:auto;padding:18px 26px;min-width:0}
+.cd-empty{color:var(--ts-muted);font-size:12.5px;padding:26px 14px;text-align:center}
+.cdd-hd h3{font-size:16px;color:#16202E}
+.cdd-role{font-size:12px;color:var(--ts-muted);margin-top:2px}
+.cdd-f{margin-top:14px}
+.cdd-f dt{font-size:var(--fs-micro);font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ts-muted);margin-bottom:3px}
+.cdd-f dd{font-size:12.5px;color:#33415A}
+.cdd-ooo{display:flex;gap:8px;font-size:12px;color:#33415A;padding:2px 0}
+.cdd-ooo .n{color:var(--ts-muted)}
+.cdd-foot{display:flex;gap:8px;align-items:center;margin-top:20px;padding-top:12px;border-top:1px solid #EDF2F7}
+.cd-fg{margin-top:12px}
+.cd-fg>label{display:block;font-size:var(--fs-micro);font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ts-muted);margin-bottom:3px}
+.cd-fg input{width:100%;max-width:420px;font-size:12.5px;padding:6px 9px;border:1px solid #CBD6E4;border-radius:6px;color:#16202E}
+.cd-depts{display:grid;grid-template-columns:repeat(auto-fill,minmax(176px,1fr));gap:8px 18px}
+.cd-depts label{display:flex;align-items:center;gap:7px;font-size:12.5px;color:#33415A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.cd-depts label input[type=checkbox],.cd-depts label input[type=radio]{width:14px;height:14px;padding:0;margin:0;accent-color:#3B7FD6;flex-shrink:0}
+.cd-ooo-row{display:flex;gap:6px;align-items:center;margin-top:5px}
+.cd-ooo-row input[type=date]{width:130px;font-size:12px;padding:4px 6px;border:1px solid #CBD6E4;border-radius:6px;color:#33415A}
+.cd-ooo-row input[type=text]{flex:1;width:auto;max-width:220px;font-size:12px;padding:4px 6px;border:1px solid #CBD6E4;border-radius:6px;color:#33415A}
+.cd-del{color:var(--ts-muted);margin-right:auto}
+.cd-del:hover{color:#CE4242;border-color:#CE4242}
+.tn-x{background:none;border:none;color:#94A3B8;font-size:15px;cursor:pointer;min-width:24px;min-height:24px}
+.tn-x:hover{color:#EF4444}
+.tn-add{background:#F1F5F9;border:none;border-radius:6px;padding:5px 10px;margin-top:6px;font-size:11.5px;color:#475569;cursor:pointer}
+.tn-add:hover{background:#E2E8F0}
+.note{max-width:560px;margin:28px 32px;padding:20px;background:var(--ts-panel);border:1px solid var(--ts-line);border-radius:8px}
+.note h2{font-size:17px;font-weight:600;margin-bottom:6px}
+.note p{color:var(--ts-muted);margin-bottom:14px}
+/* The sign-in-expired box (the same words as Timeline's). */
+.overlay{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;background:rgba(8,15,26,.5)}
+.modal{width:440px;max-width:94vw;padding:22px 24px;background:var(--ts-panel);border-radius:10px;box-shadow:0 28px 90px rgba(5,15,30,.3)}
+.modal h3{font-size:15px;font-weight:600;margin-bottom:8px}
+.modal p{color:var(--ts-muted);margin-bottom:16px}
+.modal .foot{display:flex;justify-content:flex-end}
+@media(max-width:900px){.cd-body{flex-direction:column;overflow:auto}.cd-list{width:auto!important;max-width:none;border-right:none;border-bottom:1px solid #E2E8F0;max-height:45vh}#cd-split{display:none}#who{display:none}}
+</style>
+</head>
+<body>
+<header class="ts-top">
+  <a class="ts-brand" href="../" aria-label="TwoSeven Inc. home, all apps" title="All apps — the Systems page">TWOSEVEN INC.</a>
+  <span class="ts-app">People</span>
+  <span class="grow"></span>
+  <span class="top-r">
+    <span id="tb-rev" title="App version — the build this tab is running">v</span>
+    <span id="sync-pill" class="busy" title="Shows whether your changes are saved to SharePoint — click to retry after an error">● connecting…</span>
+    <span class="apps-wrap">
+      <button id="btn-apps" class="apps-btn" title="Switch to another Systems app" aria-expanded="false" aria-controls="apps-menu">Apps <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 6 8 9.5 11.5 6"/></svg></button>
+      <nav id="apps-menu" class="hidden" aria-label="Systems apps"></nav>
+    </span>
+    <span id="who" title="Who you're signed in as"></span>
+  </span>
+</header>
+<main id="main"></main>
+<datalist id="cd-dl"></datalist>
+<div id="toasts" aria-live="polite"></div>
+<div id="auth-overlay" class="overlay hidden">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="auth-h">
+    <h3 id="auth-h">Your sign-in expired</h3>
+    <p>People paused while you were away. Sign in to pick up where you left off. Anything you changed is still on screen and saves once you're back.</p>
+    <div class="foot"><button id="auth-signin" class="btn primary">Sign in</button></div>
+  </div>
+</div>
+<script src="../common/msal-browser.min.js"></script>
+<script src="../common/common.js?v=1.62.0"></script>
+<script>
+const APP_VER='1.62.0'; // stamped from Timeline's by `npm run notes`: one version for every product
+const POLL_MS=90000;     // the same freshness knob as Timeline's
+let PEOPLE=[],PROJECTS=[],TASKS=[];
+let LOADED=false,SAVING=0,PENDING=null,RETRY=[];
+let GEN=0; /* bumped by every save: a refresh fetched before it must not put the old roster back */
+let PROJ_OK=false; /* the projects and phases were read: until then no phase count is shown, so none reads as "none" */
+let IMPORTING=false; /* an import is running: a repaint mid-import keeps its button disabled */
+let SPIDS={},RAW_PHONE={}; /* a person's SharePoint item id, and the phone their row holds on the list */
+let CD_Q='',CD_DEPT='all',CD_PF='all',CD_SEL=null,CD_EDIT=null;
+
+/* ===================== RULES ===================== */
+/* Timeline's, unchanged: the roster's admin rule (common/), the permission columns, a private
+   time-off note, HR's title codes and the coarse people departments. */
+function isAdmin(){return rosterAdmin(PEOPLE);}
+function permsLive(){return PEOPLE.some(p=>p.admin!=null||p.feedbackRecipient!=null);}
+/* v1.44.0 (item 4): a time-off note is private — only admins see it; everyone else sees the dates. */
+function oooNote(o){return o&&o.note&&isAdmin()?String(o.note):'';}
+/* v1.17.0 (owner): HR titles arrive as "SFAB1 - Seasonal Fabricator" — hide the code prefix
+   wherever a title is DISPLAYED; the stored value keeps it. */
+const cdTitle=t=>String(t||'').replace(/^[A-Z0-9]{2,}(\s+-\s*|\s*-\s+)/,'');
+function cdDeptLbl(id){const m=SM_DEPTS.find(x=>x[0]===pdCanon(id));return m?m[1]:id;}
+/* v1.22.0: a weekly schedule reads as "M-F 9-6" or "T-W-Th 11-4": the full weekday week
+   collapses to M-F, anything else lists days; hours drop the :00 and the am/pm. */
+const SCH_DAYS=[[1,'M'],[2,'T'],[3,'W'],[4,'Th'],[5,'F'],[6,'Sa'],[0,'Su']];
+function sch12(t,ampm){if(!t)return '';const[H,M]=t.split(':').map(Number);
+  return (H%12||12)+(M||ampm?':'+String(M).padStart(2,'0'):'')+(ampm?(H<12?' AM':' PM'):'');}
+function schedFmt(s){
+  if(!s)return '';
+  const on=SCH_DAYS.filter(d=>(s.days||[]).includes(d[0]));
+  const days=on.length===5&&on.every(d=>d[0]>=1&&d[0]<=5)?'M-F':on.map(d=>d[1]).join('-');
+  const hrs=s.start&&s.end?sch12(s.start)+'-'+sch12(s.end):sch12(s.start||s.end);
+  return [days,hrs].filter(Boolean).join(' ');}
+/* v1.23.0: a freelancer has no set week */
+function schedTxt(p){return p.freelance?'Freelance':schedFmt(p.schedule);}
+/* Typed time → 'HH:MM' snapped to the half hour ('' if unreadable). Accepts 9, 9:30, 5pm,
+   5:30 PM, 17:00.
+   ponytail: a bare 1–6 reads as afternoon — no shift here starts at 3 AM; type "am" to override. */
+function schedParse(v){
+  const m=String(v||'').trim().toLowerCase().match(/^(\d{1,2})(?:[:.](\d{1,2}))?\s*(a|p)?\.?m?\.?$/);
+  if(!m)return '';
+  let H=+m[1],M=+(m[2]||0);if(H>23||M>59)return '';
+  if(m[3]==='p'&&H<12)H+=12;else if(m[3]==='a'&&H===12)H=0;else if(!m[3]&&H>=1&&H<=6)H+=12;
+  M=Math.round(M/30)*30;if(M===60){M=0;H=(H+1)%24;}
+  return String(H).padStart(2,'0')+':'+String(M).padStart(2,'0');}
+/* Current-vs-upcoming availability, from the person's OOO ranges. */
+function cdAvail(per){
+  const t=fmtDate(today());
+  const cur=(per.ooo||[]).find(o=>o.start&&o.end&&o.start<=t&&t<=o.end);
+  if(cur){
+    /* item 19: back-to-back or overlapping ranges read as one absence — keep extending while another
+       range starts by the next workday after this end (a weekend or holiday in between still counts) */
+    let end=cur.end,grew=true;
+    while(grew){grew=false;
+      let d=addDays(parseDate(end),1);while(!isWorking(d))d=addDays(d,1);const lim=fmtDate(d);
+      for(const o of per.ooo)if(o.start&&o.end&&o.start<=lim&&o.end>end){end=o.end;grew=true;}}
+    return{now:true,txt:'Away until '+fmtNice(end)};
+  }
+  /* v1.18.0 (owner): manual flag for freelancers — an active OOO range outranks it */
+  if(per.availability==='unavailable')return{now:true,off:true,txt:'Not available'};
+  const nx=(per.ooo||[]).filter(o=>o.start&&o.start>t).sort((a,b)=>a.start.localeCompare(b.start))[0];
+  if(nx)return{now:false,txt:'OOO '+fmtNice(nx.start)+' – '+fmtNice(nx.end)};
+  return{now:false,txt:'Available'};
+}
+const cdAvailCls=av=>av.off?' off':av.now?' away':'';
+/* Who works a phase: its own crew, else the project's team for that department's role
+   (Timeline's barCrew; ponytail: mirrored here, move it to common/ if a third product needs it). */
+function barCrew(t){const c=crewOf(t);if(c.length)return [...new Set(c)];
+  const p=PROJECTS.find(x=>x.id===t.projectId);return [...new Set(p?roleListFor(p,t.department):[])];}
+/* The phases a person is on — read from Timeline's data, never written. Null while the projects
+   couldn't be read. */
+function cdAssignments(name){
+  if(!PROJ_OK)return null;
+  const t0=fmtDate(today());
+  const mine=TASKS.filter(x=>barCrew(x).includes(name));
+  return{phases:mine.length,projects:new Set(mine.map(x=>x.projectId)).size,
+    active:mine.filter(x=>x.startDate<=t0&&t0<=x.endDate).length};
+}
+
+/* ===================== DATA ===================== */
+async function readStaff(){
+  const people=[],ids={},raw={};
+  for(const it of await store.list('staff')){if(!it.fields.appId)continue;
+    ids[it.fields.appId]=it.id;raw[it.fields.appId]=String(it.fields.phone||'');people.push(fieldsToPerson(it.fields));}
+  return{people,ids,raw};
+}
+/* Projects and phases are Timeline's: read here for "On the schedule", never written (the merge
+   writes names only, below). */
+async function loadProjects(){
+  const [ps,ts]=await Promise.all([store.list('proj'),store.list('task')]);
+  PROJECTS=ps.filter(it=>it.fields.appId).map(it=>fieldsToProj(it.fields));
+  TASKS=ts.filter(it=>it.fields.appId).map(it=>fieldsToTask(it.fields));
+}
+async function loadAll(){
+  const [s,p,g]=await Promise.allSettled([readStaff(),loadProjects(),readConfig()]);
+  if(g.status==='fulfilled'){SP_CFG_IDS=g.value.ids;CFG_RAW=g.value.raw;}
+  PROJ_OK=p.status==='fulfilled';
+  if(p.status==='rejected')toast('Couldn\'t read the projects from SharePoint: '+store.explain(p.reason),'err',null,String(p.reason&&p.reason.message));
+  if(s.status==='rejected')throw s.reason;
+  PEOPLE=s.value.people;SPIDS=s.value.ids;RAW_PHONE=s.value.raw;
+}
+
+/* ===================== SAVING ===================== */
+/* The diff behind a save, Timeline's spSyncStaff: create the new rows, update the changed ones,
+   remove the gone ones. v1.15.2: every row is attempted; failures aggregate into one error. */
+async function syncStaff(olds,news){
+  const om=new Map(olds.map(x=>[x.id,x])),nm=new Map(news.map(x=>[x.id,x]));
+  const errs=[];
+  for(const[id,n]of nm){
+    try{
+      const o=om.get(id);
+      if(!o&&!SPIDS[id]){const r=await store.create('staff',personToFields(n));SPIDS[id]=r.id;}
+      else if(!o||JSON.stringify(o)!==JSON.stringify(n)){await store.update('staff',SPIDS[id],personToFields(n));}
+      else continue;
+      RAW_PHONE[id]=String(n.phone||''); /* v1.43.0 (9c): what the row now holds */
+    }catch(e){errs.push((n.name||id)+': '+((e&&e.message)||e));}
+  }
+  for(const[id]of om)if(!nm.has(id)&&SPIDS[id]){ /* a row never created on the list has nothing to delete */
+    try{await store.remove('staff',SPIDS[id]);delete SPIDS[id];}
+    catch(e){errs.push('removing '+((om.get(id)||{}).name||id)+': '+((e&&e.message)||e));}
+  }
+  if(errs.length)throw new Error(errs.length+' staff row'+(errs.length===1?'':'s')+' didn\'t save — '+errs[0]+(errs.length>1?' (+'+(errs.length-1)+' more in the console)':''));
+}
+/* Optimistic, as in Timeline: the screen changes now, SharePoint follows. A failure parks the
+   diff base (and any continuation, the merge's renames), and the pill's "click to retry"
+   replays it. Resolves true when THIS save landed. */
+function savePeople(np){
+  if(!isAdmin()){toast('View-only access — ask an admin to make changes.','err');return Promise.resolve(false);}
+  GEN++;
+  const old=PEOPLE;PEOPLE=np;paint();
+  return runSync(old,false);
+}
+function runSync(old,again,after){
+  SAVING++;setSync('busy');
+  return syncStaff(old,PEOPLE)
+    .then(()=>{SAVING--;
+      if(after)after();
+      if(!PENDING&&!RETRY.length)setSync('ok','synced '+stamp());
+      return true;})
+    .catch(e=>{SAVING--;console.error(e);
+      PENDING={old:again?old:((PENDING&&PENDING.old)||old),after:after||(PENDING&&PENDING.after)};
+      setSync('err','staff not saved — click to retry');
+      toast(again?'Still couldn\'t save the staff list: '+store.explain(e)+' Click "staff not saved" to retry again.'
+        :'Couldn\'t save some of the staff list to SharePoint: '+store.explain(e)+' Your edits are still on screen — click "staff not saved" at the top right to retry.','err',null,e.message);
+      return false;});
+}
+/* One record at a time outside Staff (the phone tidy's rows, the merge's renames): a failed call
+   waits on the pill and replays in order. */
+function runCall(call,what){
+  SAVING++;setSync('busy');
+  return call().then(()=>{SAVING--;if(!PENDING&&!RETRY.length)setSync('ok','synced '+stamp());return true;})
+    .catch(e=>{SAVING--;console.error(e);RETRY.push([call,what]);setSync('err',what+' not saved — click to retry');
+      toast('Couldn\'t save the '+what+' to SharePoint: '+store.explain(e)+' Click "'+what+' not saved" at the top right to retry.','err',null,String(e&&e.message));
+      return false;});
+}
+function retryPending(){
+  const r=RETRY;RETRY=[];r.forEach(([c,w])=>runCall(c,w));
+  if(!PENDING)return;const p=PENDING;PENDING=null;runSync(p.old,true,p.after);
+}
+
+/* ===================== THE MERGE (item 87, the owner's pick: People rewrites the names) =====================
+   v1.15.0 (owner): two roster entries are the same human ("Dean Baek" and "Donghyun (Dean) Baek")
+   — usually an HR-import name meeting a hand-typed one. Keep the OPEN record and fold the picked
+   duplicate in: every name on Timeline's projects (the four role fields), phases (the crew) and
+   to-dos (the assignees) that means the duplicate — linked to it by ID (item 28), or spelled
+   exactly like it — becomes the kept person, linked to them. Missing details backfill from the
+   duplicate, and its row leaves the roster.
+   Only the name fields and refs are written, one record at a time, so an edit someone makes to
+   anything else on that record at the same moment is never overwritten. Free-text departments'
+   crews are labels, not people, and are skipped (Timeline's mapRecNames rule).
+   ponytail: the field list mirrors Timeline's mapRecNames; a new people field on those lists
+   has to be added in both. */
+const MERGE_LISTS=[
+  ['proj',it=>['projectManager','drafter','leadFab','fabricators'].map(k=>[k,'csv'])],
+  ['task',it=>{const d=deptById(it.fields.department);if(d&&d.freeText)return [];
+    return [['assignee',String(it.fields.assignee||'').trim().startsWith('[')?'json':'csv']];}],
+  ['todo',()=>[['assignees','json']]]];
+const refsOf=s=>{try{const o=JSON.parse(s);return o&&typeof o==='object'?o:null;}catch(e){return null;}};
+/* The renames for one list: [{id, fields, n}] where n counts the fields that change. */
+function mergePlan(items,fieldsOf,dup,keep,hasRefs){
+  const out=[];
+  for(const it of items){
+    const f=it.fields,R=refsOf(f.refs)||{},people=R.people||{};
+    const isDup=n=>people[n]===dup.id||String(n).trim()===dup.name.trim();
+    const ch={};let n=0;
+    for(const[k,kind]of fieldsOf(it)){
+      const v=f[k];if(v==null||v==='')continue;
+      const arr=kind==='json'?safeArr(v):roleList(v);
+      if(!arr.some(x=>x!=='Installation'&&isDup(x)))continue;
+      const next=[...new Set(arr.map(x=>x!=='Installation'&&isDup(x)?keep.name:x))];
+      ch[k]=kind==='json'?JSON.stringify(next):next.join(', ');n++;
+    }
+    if(!n)continue;
+    if(hasRefs){const p={};
+      for(const nm in people)if(people[nm]!==dup.id&&nm.trim()!==dup.name.trim())p[nm]=people[nm];
+      p[keep.name]=keep.id;
+      ch.refs=JSON.stringify({...R,people:p});}
+    out.push({id:it.id,fields:ch,n});
+  }
+  return out;
+}
+async function mergeReadAll(dup,keep){
+  const read=await Promise.all(MERGE_LISTS.map(([kind,fieldsOf])=>Promise.all([
+    store.list(kind).catch(e=>{if(kind==='todo')return [];throw e;}), /* the to-do list is optional */
+    store.columns(kind).then(c=>c.some(x=>x.name==='refs'),()=>false)])
+    .then(([items,hasRefs])=>mergePlan(items,fieldsOf,dup,keep,hasRefs).map(p=>({kind,...p})))));
+  return read.flat();
+}
+async function cdMergePerson(keepId,dupId){
+  const keep=PEOPLE.find(p=>p.id===keepId),dup=PEOPLE.find(p=>p.id===dupId);
+  if(!keep||!dup||keep.id===dup.id)return;
+  let plans;
+  try{plans=await mergeReadAll(dup,keep);} /* dry run for the count */
+  catch(e){toast('Couldn\'t read the projects to merge: '+store.explain(e)+' Nothing was changed.','err',null,String(e&&e.message));return;}
+  const n=plans.reduce((a,p)=>a+p.n,0);
+  if(!confirm('Fold "'+dup.name+'" into "'+keep.name+'"?\n\n'
+    +(n?n+' stored assignment field'+(n===1?'':'s')+' will be rewritten to "'+keep.name+'".\n':'No stored assignments carry "'+dup.name+'".\n')
+    +'Missing contact details on "'+keep.name+'" fill in from the duplicate, and its roster row is removed.\n\nThis can\'t be un-merged automatically.'))return;
+  const take=(a,b)=>String(a||'').trim()?a:(b==null?a:b);
+  const merged={...keep,
+    email:take(keep.email,dup.email),phone:take(keep.phone,dup.phone),ext:take(keep.ext,dup.ext),
+    role:take(keep.role,dup.role),nickname:take(keep.nickname,dup.nickname),
+    status:keep.status!=null?keep.status:dup.status,
+    personalNotes:take(keep.personalNotes,dup.personalNotes),
+    depts:[...new Set([...(keep.depts||[]),...(dup.depts||[])].map(pdCanon))],
+    ooo:[...(keep.ooo||[]),...(dup.ooo||[])],
+    admin:(keep.admin||dup.admin)?true:(keep.admin==null&&dup.admin==null?null:false),
+    developer:!!(keep.developer||dup.developer),
+    driver:(keep.driver||dup.driver)?true:(keep.driver==null&&dup.driver==null?null:false),
+    availability:keep.availability!=null?keep.availability:dup.availability,
+    schedule:keep.schedule!=null?keep.schedule:dup.schedule,
+    freelance:(keep.freelance||dup.freelance)?true:(keep.freelance==null&&dup.freelance==null?null:false),
+    feedbackRecipient:(keep.feedbackRecipient||dup.feedbackRecipient)?true
+      :(keep.feedbackRecipient==null&&dup.feedbackRecipient==null?null:false)};
+  CD_EDIT=null;CD_SEL=keep.id;
+  /* The renames run only once the roster change lands, or a failed staff save would leave the
+     records renamed while both roster rows persist (half-merged). A parked failure carries them
+     as its retry continuation. They re-read the records when they write (the count above came
+     from the dry run), so a delay or a retry never writes a stale value over someone's edit; a
+     record already renamed no longer names the duplicate and is skipped. One call: a failure
+     retries the whole pass from the pill. */
+  const renames=()=>{
+    runCall(async()=>{for(const p of await mergeReadAll(dup,keep))await store.update(p.kind,p.id,p.fields);},'renames');
+    /* this browser's phase counts follow at once; Timeline reads the new names on its next refresh */
+    TASKS=TASKS.map(t=>{const dd=deptById(t.department),c=crewOf(t);return !(dd&&dd.freeText)&&c.includes(dup.name)?{...t,assignee:[...new Set(c.map(x=>x===dup.name?keep.name:x))]}:t;});
+    paint();
+    toast('Merged "'+dup.name+'" into "'+keep.name+'"'+(n?' — '+n+' assignment field'+(n===1?'':'s')+' rewritten.':'.'));
+  };
+  const list=PEOPLE.filter(p=>p.id!==dup.id).map(p=>p.id===keep.id?merged:p);
+  GEN++;const old=PEOPLE;PEOPLE=list;paint();
+  runSync(old,false,renames);
+}
+
+/* ===================== IMPORT FROM EMPLOYEE CONTACTS (v1.13.0) =====================
+   The HR list is the identity master (item 13 ruling); this import is the app-side half of the
+   parallel-run: READ the HR list (never write it), join on work email (the app's identity chain)
+   with an exact-name fallback, then
+   - ADD active employees the roster doesn't have (title→role, phone, email, mapped dept)
+   - UPDATE matched people: EC wins on title/phone/status; email backfills only when blank;
+     departments fill only when the person has NONE set (curated depts win)
+   - non-active EC rows never create people; existing people get the status written, nothing is
+     removed (retiring someone stays a human call on this page)
+   HR-sensitive columns (Pay Type, PersonalEmail) are never read. Everything lands through one
+   confirm, so one Cancel aborts the lot. `status` rides only once the Staff column exists. */
+function ecNorm(k){return String(k).toLowerCase().replace(/_x0020_/g,'').replace(/[\s_]/g,'');}
+function ecField(map,names){for(const n of names){const v=map[n];if(v!=null&&String(v).trim()!=='')return String(v).trim();}return '';}
+function ecDept(s){
+  const n=String(s||'').trim().toLowerCase();if(!n)return null;
+  const d=DEPTS.find(x=>!x.freeText&&x.name.toLowerCase()===n);if(d)return pdCanon(d.id);
+  const g=GROUPS.find(x=>x.label.toLowerCase()===n);if(g)return pdCanon(grpDepts(g.id)[0]);
+  const alias={'installation':'install','installs':'install','installers':'install',
+    'fabrication':'fab','shop':'fab','main shop':'fab','wood shop':'fab','woodshop':'fab',
+    'office':'pm','project management':'pm','pm':'pm','administration':'pm','admin':'pm',
+    'design':'td','drafting':'td','engineering':'td',
+    'paint':'finish','painting':'finish',
+    'metal':'metal','welding':'metal',
+    'digital fabrication':'dfab','digital fab':'dfab','dfab':'dfab',
+    'soft goods':'softgoods','sewing':'softgoods'};
+  const hit=alias[n]||null;
+  return hit?pdCanon(hit):null;
+}
+/* v1.43.0 (item 9a): the only Employee Contacts fields the import reads, by normalized name. The
+   item request names just these columns, so Pay Type, PersonalEmail and the rest never reach the
+   browser. */
+const EC_MAP={name:['employeename','title','name'],status:['status','employmentstatus'],email:['email','workemail'],
+  phone:['primaryphone','phone','mobilephone'],title:['currenttitle','jobtitle','position'],dept:['department']};
+/* A column is known by its DISPLAY name when it has one: SharePoint keeps the internal name when a
+   column is renamed, so a column created as "Email" and renamed "Personal Email" still has the
+   internal name Email. Matching internals would select it and read it as the work email. */
+const ecKey=c=>ecNorm(c.displayName||c.name);
+function ecSelect(cols){
+  const want=new Set(Object.values(EC_MAP).flat());
+  return [...new Set(['Title',...(cols||[]).filter(c=>c&&c.name&&want.has(ecKey(c))).map(c=>c.name)])];
+}
+async function cdImportEC(btn){
+  if(btn.disabled||IMPORTING)return;btn.disabled=true;IMPORTING=true;
+  try{
+    /* v1.43.0 (9a): the column definitions come FIRST — they're what the item request selects by.
+       Without them nothing is fetched: never fall back to "every field". */
+    let ecCols=null;
+    try{ecCols=await store.columns('employeeContacts');}catch(e){}
+    if(!ecCols){toast('Couldn\'t read the Employee Contacts column list, so nothing was imported — the import asks only for the fields it uses, and needs that list to name them.','err');return;}
+    console.log('[import] Employee Contacts columns (internal → display):',
+      ecCols.map(c=>c.name+' → '+c.displayName));
+    const sel=ecSelect(ecCols);
+    if(sel.length<2){toast('None of the expected columns (Status, Email, Primary Phone, Current Title, Department) are on Employee Contacts, so nothing was imported — the column list is in the browser console (F12).','err');return;}
+    let rows;
+    try{rows=await store.list('employeeContacts','fields(select='+sel.map(encodeURIComponent).join(',')+')');}
+    catch(e){toast('Couldn\'t read the Employee Contacts list: '+store.explain(e),'err',null,e.message);return;}
+    /* status only syncs once the owner-created column exists — probe, don't 400 */
+    let hasStatus=false;
+    try{const cols=await store.columns('staff');hasStatus=cols.some(c=>c.name==='status');}catch(e){}
+    const disp={};for(const c of ecCols)if(c.name&&c.displayName)disp[ecNorm(c.name)]=ecNorm(c.displayName);
+    const recs=rows.map(it=>{
+      const m={};
+      for(const k in it.fields){const nk=ecNorm(k),key=disp[nk]||nk;if(m[key]==null)m[key]=it.fields[k];}
+      if(m.title==null&&it.fields.Title!=null)m.title=it.fields.Title; /* the built-in name column, whatever HR calls it */
+      return{name:ecField(m,EC_MAP.name),
+        status:ecField(m,EC_MAP.status),
+        email:ecField(m,EC_MAP.email).toLowerCase(),
+        phone:fmtPhone(ecField(m,EC_MAP.phone)), /* v1.43.0 (9c); the Mobile Phone fallback stays (9b deferred, owner 2026-10-08) */
+        title:ecField(m,EC_MAP.title),
+        dept:ecField(m,EC_MAP.dept)};
+    }).filter(r=>r.name);
+    if(!recs.length){toast('Employee Contacts returned no rows with a name — nothing to import.','err');return;}
+    if(recs.every(r=>!r.title&&!r.phone&&!r.status&&!r.dept&&!r.email)){
+      toast('Employee Contacts rows were found but none of the expected columns (Status, Email, Primary Phone, Current Title, Department) could be read — the column list is in the browser console (F12).','err');
+      return;
+    }
+    const adds=[],updates=[],skipped=[],unmapped=[];
+    for(const r of recs){
+      const match=(r.email&&PEOPLE.find(p=>String(p.email||'').trim().toLowerCase()===r.email))
+        ||PEOPLE.find(p=>p.name.trim().toLowerCase()===r.name.toLowerCase());
+      if(!match){
+        if(!/^active$/i.test(r.status)){skipped.push(r.name+' ('+(r.status||'no status')+')');continue;}
+        const d=ecDept(r.dept);
+        if(r.dept&&!d)unmapped.push(r.name+' — "'+r.dept+'"');
+        adds.push({id:genId(),name:r.name,email:r.email,phone:r.phone,role:r.title,
+          depts:d?[d]:[],ooo:[],...(hasStatus?{status:r.status}:{})});
+      }else{
+        const ch={};
+        if(r.title&&r.title!==(match.role||''))ch.role=r.title;
+        if(r.phone&&r.phone!==(match.phone||''))ch.phone=r.phone;
+        if(r.email&&!String(match.email||'').trim())ch.email=r.email;
+        if(hasStatus&&r.status&&r.status!==(match.status||''))ch.status=r.status;
+        if(!(match.depts||[]).length){const d=ecDept(r.dept);
+          if(d)ch.depts=[d];else if(r.dept)unmapped.push(r.name+' — "'+r.dept+'"');}
+        if(Object.keys(ch).length)updates.push({id:match.id,name:match.name,ch});
+      }
+    }
+    console.log('[import] Employee Contacts →',{adds,updates,skipped,unmapped});
+    if(!adds.length&&!updates.length){toast('The roster already mirrors Employee Contacts — nothing to change. (Row-by-row detail is in the browser console — F12.)');return;}
+    const cap=(a,n)=>a.slice(0,n).join('\n  ')+(a.length>n?'\n  …and '+(a.length-n)+' more':'');
+    const msg='Mirror Employee Contacts into the roster?\n\n'
+      +(adds.length?'ADD '+adds.length+' active employee'+(adds.length===1?'':'s')+':\n  '+cap(adds.map(a=>a.name+(a.role?' — '+a.role:'')),12)+'\n\n':'')
+      +(updates.length?'UPDATE '+updates.length+' (title / phone / status from HR):\n  '+cap(updates.map(u=>u.name+' ('+Object.keys(u.ch).join(', ')+')'),12)+'\n\n':'')
+      +(skipped.length?'Skipped (not Active on the HR list): '+skipped.length+'\n':'')
+      +(unmapped.length?'Department not recognized (left for you to set):\n  '+cap(unmapped,8)+'\n':'')
+      +(hasStatus?'':'\nNote: employment status will sync once the status column exists on ShopTimeline_Staff.\n')
+      +'\nThe Employee Contacts list itself is never changed. Full detail is in the console.';
+    if(!confirm(msg))return;
+    const upById=new Map(updates.map(u=>[u.id,u.ch]));
+    CD_SEL=null;
+    savePeople([...PEOPLE.map(p=>upById.has(p.id)?{...p,...upById.get(p.id)}:p),...adds]);
+    toast('Imported from Employee Contacts: '+adds.length+' added, '+updates.length+' updated.');
+  }finally{IMPORTING=false;btn.disabled=false;const b=document.getElementById('cd-import');if(b)b.disabled=false;}
+}
+
+/* ===================== THE PHONE TIDY (v1.43.0, item 9c, owner 2026-10-08) =====================
+   fieldsToPerson shows every number in the one format at once, but a row is only rewritten when
+   it's saved. The one-time tidy rewrites the phone column only, on the rows not yet in the one
+   format. One confirm; when it's done the button has nothing left to count and goes away. */
+function phoneUntidy(){return Object.keys(RAW_PHONE).filter(id=>SPIDS[id]&&RAW_PHONE[id]&&fmtPhone(RAW_PHONE[id])!==RAW_PHONE[id]);}
+async function cdTidyPhones(btn){
+  const ids=phoneUntidy();if(!ids.length||btn.disabled)return;
+  if(!confirm('Rewrite '+ids.length+' phone number'+(ids.length===1?'':'s')+' on the ShopTimeline_Staff list in the one format (555-555-5555)?\n\nOnly the phone column changes, and only on those rows. The numbers already show this way in the app.'))return;
+  btn.disabled=true;setSync('busy');
+  const errs=[];let n=0;
+  for(const id of ids){const f=fmtPhone(RAW_PHONE[id]);
+    try{await store.update('staff',SPIDS[id],{phone:f});RAW_PHONE[id]=f;n++;}
+    catch(e){errs.push(((PEOPLE.find(p=>p.id===id)||{}).name||id)+': '+((e&&e.message)||e));}}
+  setSync(errs.length?'err':'ok',errs.length?'phones not all tidied':'synced '+stamp());
+  if(errs.length)toast('Tidied '+n+' of '+ids.length+' phone numbers — '+errs.length+' didn\'t save. Press the button again to retry them.','err',null,errs.join('\n'));
+  else toast('Tidied '+n+' phone number'+(n===1?'':'s')+' on the list.');
+  paint();
+}
+
+/* ===================== TEAM MEMBERSHIP (5b) =====================
+   The editor suggests names from the members of the company Team; picking one fills the email
+   that drives the identity chain. The Team is the menu, the Staff list stays the roster —
+   membership is read, never synced. TeamMember.Read.All rides its OWN silent token request, so
+   missing consent degrades this feature alone (free-text entry) and can't break sign-in. */
+const TEAM_GROUP_ID='e434fc35-f2be-4dde-a258-2c23d94b5f9e';
+let TM_MEMBERS=null;   /* null = not loaded yet (retry on next open) */
+async function loadTeamMembers(){
+  if(TM_MEMBERS!==null)return TM_MEMBERS;
+  const out=[];
+  try{
+    const ms=await gpageAll('https://graph.microsoft.com/v1.0/teams/'+TEAM_GROUP_ID+'/members?$top=100',['TeamMember.Read.All']);
+    for(const m of ms)if(m.displayName)out.push({name:m.displayName,email:String(m.email||'').toLowerCase(),userId:m.userId||''});
+    out.sort((a,b)=>a.name.localeCompare(b.name));
+    TM_MEMBERS=out;
+  }catch(e){
+    console.log('Team membership not reachable — the name box stays free-text.',(e&&e.message)||'');
+    return [];
+  }
+  return TM_MEMBERS;
+}
+/* Fill the datalist, and backfill the open editor's email where its name matches exactly ONE
+   member (ambiguous names stay untouched; the pick is visible before Save). */
+function cdApplyTeam(ms){
+  if(!ms||!ms.length)return;
+  const dl=document.getElementById('cd-dl');
+  if(dl)dl.innerHTML=ms.map(m=>'<option value="'+esc(m.name)+'"'+(m.email?' label="'+esc(m.email)+'"':'')+'>').join('');
+  if(CD_EDIT&&!CD_EDIT.email){
+    const hits=ms.filter(m=>m.email&&m.name.toLowerCase()===String(CD_EDIT.name||'').trim().toLowerCase());
+    if(hits.length===1){CD_EDIT.email=hits[0].email;
+      const em=document.getElementById('cde-email');if(em)em.value=hits[0].email;}
+  }
+}
+
+/* ===================== PANE AND COLUMN SIZES (v1.17.0, v1.26.3) ===================== */
+/* Remembered per browser, under Timeline's keys, so the sizes people set there carry over. */
+let CD_LISTW=null,CD_COLW=null;
+try{CD_LISTW=parseInt(localStorage.getItem('shopTimelineCdListW'),10)||null;
+    CD_COLW=JSON.parse(localStorage.getItem('shopTimelineCdColW2')||'null');}catch(e){}
+function cdApplySizes(){
+  const list=document.querySelector('.cd-list');if(!list)return;
+  if(CD_LISTW){list.style.width=CD_LISTW+'px';list.style.maxWidth='none';}
+  if(CD_COLW)CD_COLW.forEach((w,i)=>{if(w)list.style.setProperty('--cdc'+(i+1),w+'px');});
+  /* a column nobody pinned fits its content on every paint; pinned ones never move */
+  for(let i=0;i<9;i++)if(!(CD_COLW&&CD_COLW[i]))cdFitCol(i,false);
+  cdGripSync();
+}
+/* Fit column i to its widest header or cell text, capped. Measures real layout — with no layout
+   (jsdom) it reads 0 and leaves the stylesheet default alone. */
+const CD_COLCAP=280;
+function cdFitCol(i,persist){
+  const list=document.querySelector('.cd-list');if(!list)return;
+  const cells=document.querySelectorAll('.cd-cols>span:nth-child('+(i+1)+'),.cd-row.pp7>:nth-child('+(i+1)+')');
+  const w=Math.max(0,...[...cells].map(c=>c.scrollWidth));if(!w)return;
+  const px=Math.min(CD_COLCAP,Math.max(36,w+2));
+  list.style.setProperty('--cdc'+(i+1),px+'px');
+  if(persist){CD_COLW=CD_COLW||[];CD_COLW[i]=px;try{localStorage.setItem('shopTimelineCdColW2',JSON.stringify(CD_COLW));}catch(e){}}
+  cdGripSync();
+}
+function cdGripSync(){
+  const hdr=document.querySelector('.cd-cols');if(!hdr)return;
+  const sps=[...hdr.children].filter(el=>el.tagName==='SPAN');
+  [...hdr.querySelectorAll('.cd-grip')].forEach((g,i)=>{
+    const sp=sps[i];if(sp)g.style.left=(sp.offsetLeft+sp.offsetWidth-4)+'px';});
+}
+function cdColDrag(e,sp,i){
+  e.preventDefault();
+  const list=document.querySelector('.cd-list');if(!list)return;
+  const w0=sp.offsetWidth,x0=e.clientX;
+  const mv=ev=>{const w=Math.max(36,w0+ev.clientX-x0);
+    CD_COLW=CD_COLW||[];CD_COLW[i]=w;list.style.setProperty('--cdc'+(i+1),w+'px');cdGripSync();};
+  const up=()=>{document.removeEventListener('mousemove',mv);document.removeEventListener('mouseup',up);
+    try{localStorage.setItem('shopTimelineCdColW2',JSON.stringify(CD_COLW));}catch(err){}};
+  document.addEventListener('mousemove',mv);document.addEventListener('mouseup',up);
+}
+function cdSplitDrag(e){
+  e.preventDefault();
+  const list=document.querySelector('.cd-list');if(!list)return;
+  const body=list.parentElement,x0=e.clientX,w0=list.getBoundingClientRect().width;
+  const mv=ev=>{CD_LISTW=Math.round(Math.max(320,Math.min(body.clientWidth-280,w0+ev.clientX-x0)));
+    list.style.width=CD_LISTW+'px';list.style.maxWidth='none';
+    cdGripSync();};
+  const up=()=>{document.removeEventListener('mousemove',mv);document.removeEventListener('mouseup',up);
+    try{localStorage.setItem('shopTimelineCdListW',String(CD_LISTW));}catch(err){}};
+  document.addEventListener('mousemove',mv);document.addEventListener('mouseup',up);
+}
+
+/* ===================== THE PAGE ===================== */
+const M=()=>document.getElementById('main');
+function paintShell(){
+  const me=staffMe(PEOPLE),w=store.who(),nm=(me&&me.name)||(w&&w.name)||'';
+  document.getElementById('who').innerHTML=nm?esc(nm)+(rosterAdmin(PEOPLE)&&PEOPLE.some(p=>p.admin!=null)?'<span class="tb-acc">ADMIN</span>':''):'';
+}
+function paint(){
+  paintShell();
+  if(!LOADED)return;
+  if(!document.getElementById('cd-rows'))paintFrame();
+  else paintHead();
+  cdPaintRows();cdPaintDetail();cdApplySizes();
+}
+/* The title line and the admin buttons (they come and go with the roster). */
+function paintHead(){
+  const n=PEOPLE.length,el=document.getElementById('cd-head');if(!el)return;
+  el.innerHTML='<h1>People</h1>'
+   +'<span class="cd-sub">The company roster — roles, departments and availability</span>'
+   +'<span class="cd-src" title="Where this list lives — the sync pill shows the last save">'+n+(n===1?' person':' people')+' · SharePoint</span>'
+   +(isAdmin()?'<button class="btn" id="cd-import"'+(IMPORTING?' disabled':'')+' title="Mirror the HR Employee Contacts list into this roster — adds active employees, refreshes titles and phone numbers. The HR list is never changed.">Import from Employee Contacts</button>':'')
+   /* v1.43.0 (9c): the one-time tidy — offered only while a row on the list still holds another format */
+   +(isAdmin()&&phoneUntidy().length?'<button class="btn" id="cd-tidy" title="Rewrite the phone column on the list in the one format, 555-555-5555 — the app already shows them that way">Tidy '+phoneUntidy().length+' phone number'+(phoneUntidy().length===1?'':'s')+'</button>':'')
+   +(isAdmin()?'<button class="btn btn-primary" id="cd-add">+ Add person</button>':'');
+  const impBtn=document.getElementById('cd-import');
+  if(impBtn)impBtn.addEventListener('click',()=>cdImportEC(impBtn));
+  const tdBtn=document.getElementById('cd-tidy');
+  if(tdBtn)tdBtn.addEventListener('click',()=>cdTidyPhones(tdBtn));
+  const addBtn=document.getElementById('cd-add');
+  if(addBtn)addBtn.addEventListener('click',()=>{
+    if(CD_EDIT&&!confirm('Discard the changes to this record?'))return;
+    CD_EDIT={id:genId(),name:'',depts:[],ooo:[],email:'',phone:'',role:'',_new:true};
+    cdPaintDetail();
+    loadTeamMembers().then(cdApplyTeam);
+    const f=document.querySelector('#cd-detail input');if(f)f.focus();
+  });
+}
+function paintFrame(){
+  M().innerHTML='<div class="cd-head" id="cd-head"></div>'
+   +'<div class="cd-body"><div class="cd-list"><div class="cd-tools">'
+   +'<input id="cd-q" type="search" placeholder="Search people…" aria-label="Search people">'
+   +('<select id="cd-dept" title="Show one department" aria-label="Show one department"><option value="all">All departments</option>'
+      +SM_DEPTS.map(d=>'<option value="'+d[0]+'"'+(CD_DEPT===d[0]?' selected':'')+'>'+esc(d[1])+'</option>').join('')+'</select>')
+   /* v1.17.0: slice by permission level (only once the flag columns are live) */
+   +(permsLive()?'<select id="cd-perm" title="Show one permission level" aria-label="Show one permission level">'
+      +'<option value="all">Everyone</option><option value="admin">Admins</option>'
+      +'<option value="dev">Developers</option><option value="fb">Feedback recipients</option>'
+      +'<option value="viewer">Viewers</option></select>':'')
+   +'</div>'
+   +'<div class="cd-rows" id="cd-rows">'
+   +'<div class="cd-cols"><span>Name</span><span>Title</span><span>Phone</span><span>Office Extension</span><span>Email</span><span>Perms</span><span class="cd-drv">Driver</span><span>Status</span><span>Schedule</span></div>'
+   +'<div id="cd-rows-in"></div></div></div>'
+   +'<div id="cd-split" title="Drag to resize the two panes"></div>'
+   +'<div class="cd-detail" id="cd-detail" aria-live="polite"></div>'
+   +'<div id="cd-colmenu" class="tb-menu hidden" role="menu"><button class="sm-item" id="cd-reset-w" role="menuitem">Reset widths</button></div>'
+   +'</div>';
+  paintHead();
+  const q=document.getElementById('cd-q');q.value=CD_Q;
+  q.addEventListener('input',()=>{CD_Q=q.value;cdPaintRows();});
+  document.getElementById('cd-dept').addEventListener('change',ev=>{CD_DEPT=ev.target.value;cdPaintRows();});
+  const pf=document.getElementById('cd-perm');
+  if(pf){pf.value=CD_PF;pf.addEventListener('change',()=>{CD_PF=pf.value;cdPaintRows();});}
+  document.getElementById('cd-split').addEventListener('mousedown',cdSplitDrag);
+  const hdr=document.querySelector('.cd-cols');
+  [...hdr.children].filter(el=>el.tagName==='SPAN').forEach((sp,i)=>{
+    const g=document.createElement('i');g.className='cd-grip';g.title='Drag to resize this column · double-click to fit it';
+    g.addEventListener('mousedown',e=>cdColDrag(e,sp,i));
+    g.addEventListener('dblclick',()=>cdFitCol(i,true));
+    hdr.appendChild(g);});
+  /* v1.26.3 (#13): the column menu — right-click on the header row; Reset widths clears every
+     pin and the memory. An outside click or Esc closes it. */
+  const cm=document.getElementById('cd-colmenu');
+  hdr.addEventListener('contextmenu',ev=>{ev.preventDefault();
+    const op=cm.offsetParent,r=op?op.getBoundingClientRect():{left:0,top:0};
+    cm.style.left=(ev.clientX-r.left)+'px';cm.style.top=(ev.clientY-r.top)+'px';cm.classList.remove('hidden');});
+  cm.addEventListener('click',ev=>ev.stopPropagation());
+  document.getElementById('cd-reset-w').addEventListener('click',()=>{
+    CD_COLW=null;try{localStorage.removeItem('shopTimelineCdColW2');}catch(e){}
+    const list=document.querySelector('.cd-list');for(let i=1;i<=9;i++)list.style.removeProperty('--cdc'+i);
+    cdApplySizes();cm.classList.add('hidden');});
+}
+const colMenuClose=()=>{const cm=document.getElementById('cd-colmenu');if(cm&&!cm.classList.contains('hidden')){cm.classList.add('hidden');return true;}return false;};
+
+function cdPaintRows(){
+  const box=document.getElementById('cd-rows-in');if(!box)return;
+  const qq=CD_Q.trim().toLowerCase();
+  /* v1.14.0 (owner): at-a-glance columns — title, phone, email, permissions. */
+  const rows=[...PEOPLE].sort((a,b)=>a.name.localeCompare(b.name))
+   .filter(p=>CD_DEPT==='all'||(p.depts||[]).map(pdCanon).includes(CD_DEPT))
+   /* v1.17.0: the permission slice — admins include developers; viewer = no admin flag */
+   .filter(p=>CD_PF==='all'||!permsLive()
+     ||(CD_PF==='admin'?p.admin:CD_PF==='dev'?p.developer:CD_PF==='fb'?p.feedbackRecipient:!p.admin))
+   .filter(p=>!qq||[p.name,p.role,p.email,p.phone,p.ext].some(v=>String(v||'').toLowerCase().includes(qq))
+     ||(qq.replace(/\D/g,'').length>=3&&String(p.phone||'').replace(/\D/g,'').includes(qq.replace(/\D/g,'')))) /* v1.43.0 (9c): a number finds its person however it's typed */
+   .map(p=>{const av=cdAvail(p);
+     const perm=permsLive()
+       ?(p.developer?'<span class="cd-perm dev" title="Developer — full admin + the preview toggles">DEV</span>'
+         :p.admin?'<span class="cd-perm" title="Admin — full edit access">ADMIN</span>':'')
+        +(p.feedbackRecipient?'<span class="cd-perm" title="Receives bug reports and ideas">FB</span>':'')
+       :'';
+     return '<div class="cd-row pp7'+(CD_SEL===p.id?' sel':'')+'" data-id="'+esc(p.id)+'" role="button" tabindex="0"'+(CD_SEL===p.id?' aria-current="true"':'')+'>'
+      +'<b>'+esc(p.name)+(p.nickname&&p.nickname.trim()?' <span class="cdd-nick">&ldquo;'+esc(p.nickname.trim())+'&rdquo;</span>':'')+'</b>'
+      +'<span class="cd-mut">'+esc(cdTitle(p.role))+'</span>'
+      +'<span class="cd-mut">'+esc(p.phone||'')+'</span>'
+      +'<span class="cd-mut">'+esc(p.ext||'')+'</span>'
+      +'<span class="cd-mut">'+esc(p.email||'')+'</span>'
+      +'<span>'+perm+'</span>'
+      +'<span class="cd-drv">'+(p.driver?'✓':'')+'</span>'
+      +'<span class="cd-avail'+cdAvailCls(av)+'">'+esc(av.txt)+'</span>'
+      +'<span class="cd-mut cd-sch">'+esc(schedTxt(p))+'</span></div>';});
+  box.innerHTML=rows.join('')||'<div class="cd-empty">'+(qq||CD_DEPT!=='all'||CD_PF!=='all'?'No matches.':'Nothing here yet — add the first one.')+'</div>';
+  /* v1.26.3 (#13): a cut-off value shows in full on hover (permission chips carry their own) */
+  box.querySelectorAll('.cd-row.pp7>b,.cd-row.pp7>.cd-mut,.cd-row.pp7>.cd-avail').forEach(c=>{c.title=c.textContent;});
+  box.querySelectorAll('.cd-row').forEach(r=>{
+    const pick=()=>{
+      if(CD_EDIT&&!confirm('Discard the changes to this record?'))return;
+      CD_EDIT=null;CD_SEL=r.dataset.id;
+      cdPaintRows();cdPaintDetail();};
+    r.addEventListener('click',pick);
+    r.addEventListener('keydown',ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();pick();}});
+  });
+}
+
+/* The detail pane: the record read-first, with Edit as the one intentional way into the form. */
+function cdPaintDetail(){
+  const el=document.getElementById('cd-detail');if(!el)return;
+  if(CD_EDIT){cdPaintEditor(el);return;}
+  const per=PEOPLE.find(p=>p.id===CD_SEL);
+  if(!per){el.innerHTML='<div class="cd-empty">Select a person to see their record.</div>';return;}
+  const av=cdAvail(per);
+  const asn=cdAssignments(per.name);
+  const t0=fmtDate(today());
+  const upcoming=(per.ooo||[]).filter(o=>o.start&&o.end&&o.end>=t0).sort((a,b)=>String(a.start).localeCompare(String(b.start)));
+  el.innerHTML='<div class="cdd"><div class="cdd-hd"><h3>'+esc(per.name)
+   +(per.nickname&&per.nickname.trim()?' <span class="cdd-nick">&ldquo;'+esc(per.nickname.trim())+'&rdquo;</span>':'')+'</h3>'
+   +(per.role?'<div class="cdd-role">'+esc(cdTitle(per.role))+'</div>':'')+'</div><dl>'
+   +'<div class="cdd-f"><dt>Work email</dt><dd>'+(per.email?esc(per.email):'—')+'</dd></div>'
+   +'<div class="cdd-f"><dt>Phone</dt><dd>'+(per.phone?esc(per.phone):'—')+'</dd></div>'
+   +(per.ext?'<div class="cdd-f"><dt>Office Extension</dt><dd>'+esc(per.ext)+'</dd></div>':'')
+   /* v1.13.0: employment status, mirrored from Employee Contacts (read as information) */
+   +(per.status?'<div class="cdd-f"><dt>Status</dt><dd>'+esc(per.status)+'</dd></div>':'')
+   +(schedTxt(per)?'<div class="cdd-f"><dt>Schedule</dt><dd>'+esc(schedTxt(per))+'</dd></div>':'')
+   +(per.driver!=null?'<div class="cdd-f"><dt>Driver</dt><dd>'+(per.driver?'Yes':'—')+'</dd></div>':'')
+   +'<div class="cdd-f"><dt>Departments</dt><dd>'+([...new Set((per.depts||[]).map(pdCanon))].map(d=>esc(cdDeptLbl(d))).join(' · ')||'—')+'</dd></div>'
+   +'<div class="cdd-f"><dt>Availability</dt><dd>'
+     +'<span class="cd-avail'+cdAvailCls(av)+'">'+esc(av.now?av.txt:'Available')+'</span>'
+     +(upcoming.length?upcoming.map(o=>'<div class="cdd-ooo"><span>'+fmtNice(o.start)+' – '+fmtNice(o.end)+'</span>'+(oooNote(o)?'<span class="n">'+esc(oooNote(o))+'</span>':'')+'</div>').join(''):'<div class="cdd-ooo"><span class="n">No upcoming time off</span></div>')
+   +'</dd></div>'
+   +'<div class="cdd-f"><dt>On the schedule</dt><dd>'
+     +(!asn?'Couldn\'t read the projects from SharePoint.':asn.phases?('On '+asn.phases+' phase'+(asn.phases===1?'':'s')+' across '+asn.projects+' project'+(asn.projects===1?'':'s')+(asn.active?' · '+asn.active+' running today':'')):'No phases assigned')
+   +'</dd></div>'
+   +(permsLive()?'<div class="cdd-f"><dt>Permissions</dt><dd>'
+     +([per.admin?'Admin':'',per.feedbackRecipient?'Receives feedback':''].filter(Boolean).join(' · ')||'—')
+   +'</dd></div>':'')
+   +'</dl>'
+   +'<div class="cdd-foot"><span style="flex:1"></span>'
+   +(isAdmin()?'<button class="btn btn-primary" id="cdd-edit">Edit</button>':'')+'</div></div>';
+  const ed=document.getElementById('cdd-edit');
+  if(ed)ed.addEventListener('click',()=>{
+    CD_EDIT=JSON.parse(JSON.stringify(per));cdPaintDetail();
+    loadTeamMembers().then(cdApplyTeam);
+  });
+}
+
+function cdPaintEditor(el){
+  const r=CD_EDIT;
+  el.innerHTML='<div class="cdd"><div class="cdd-hd"><h3>'+(r._new?'New person':esc(r.name))+'</h3></div>'
+   +'<div class="cd-fg"><label for="cde-name">Name</label><input id="cde-name" type="text" list="cd-dl" placeholder="Name — suggests from the company Team"></div>'
+   +'<div class="cd-fg"><label for="cde-nick">Nickname</label><input id="cde-nick" type="text" placeholder="Optional — how their name reads everywhere in the app"></div>'
+   +'<div class="cd-fg"><label for="cde-email">Work email</label><input id="cde-email" type="email" placeholder="Work email (for &quot;me&quot; features)"></div>'
+   +'<div class="cd-fg"><label for="cde-phone">Phone</label><input id="cde-phone" type="tel" placeholder="555-555-5555"></div>'
+   /* v1.43.0 (item 9, owner 2026-10-08): Office Extension — dialled office to office from office
+      phones, its own field and never part of the phone number; Employee Contacts doesn't carry one */
+   +'<div class="cd-fg"><label for="cde-ext">Office Extension</label><input id="cde-ext" type="text" inputmode="numeric" placeholder="Optional — for calls between office phones"></div>'
+   +'<div class="cd-fg"><label for="cde-role">Role / title</label><input id="cde-role" type="text"></div>'
+   +'<div class="cd-fg"><label>Driver</label><div class="cd-depts">'
+     +'<label><input type="checkbox" id="cde-driver"> Drives for the company</label></div></div>'
+   +'<div class="cd-fg"><label>Departments</label><div class="cd-depts" id="cde-depts"></div></div>'
+   /* v1.22.0 (owner): weekly schedule — day boxes + from/to times on the half hour. The time
+      boxes suggest every half hour but take typing too; a typed value snaps to the nearest half hour. */
+   +'<div class="cd-fg"><label>Schedule</label>'
+     /* v1.23.0 (owner): a third of the roster is freelance — the flag greys the week out */
+     +'<div class="cd-sched" style="margin-bottom:8px"><label><input type="checkbox" id="cde-free"> Freelance <span class="n">— no set weekly schedule</span></label></div>'
+     +'<div class="cd-sched" id="cde-sched">'
+     +SCH_DAYS.map(d=>'<label><input type="checkbox" data-day="'+d[0]+'"> '+d[1]+'</label>').join('')
+     +'</div><div class="cd-sched" id="cde-sched-hrs" style="margin-top:6px">'
+     +'<input type="text" id="cde-sch-s" list="cd-hrs" placeholder="from" autocomplete="off" aria-label="Starts at"> <span class="n">to</span> '
+     +'<input type="text" id="cde-sch-e" list="cd-hrs" placeholder="to" autocomplete="off" aria-label="Ends at">'
+     +'<datalist id="cd-hrs">'+Array.from({length:35},(_,i)=>{const H=5+(i>>1),Mi=i%2?30:0;return '<option value="'+sch12(String(H).padStart(2,'0')+':'+(Mi?'30':'00'),true)+'">';}).join('')+'</datalist>'
+   +'</div></div>'
+   /* v1.18.0 (owner): manual availability for freelancers; the OOO radio is display-only —
+      an active date range below selects it automatically. */
+   +'<div class="cd-fg"><label>Availability</label><div class="cd-depts cd-avset">'
+     +'<label><input type="radio" name="cde-av" id="cde-av-a" value="available"> Available</label>'
+     +'<label><input type="radio" name="cde-av" id="cde-av-u" value="unavailable"> Not available</label>'
+     +'<label><input type="radio" name="cde-av" id="cde-av-o" disabled> Out of office <span class="n">— automatic, from the date ranges below</span></label>'
+   +'</div></div>'
+   /* Owner ruling 2026-09-02: the label STAYS "Out of office". */
+   +'<div class="cd-fg"><label>Out of office</label><div id="cde-ooo"></div><button class="tn-add" id="cde-ooo-add">+ Out of office</button></div>'
+   /* v1.8.0: permission flags — shown only once the columns carry values (permsLive), so a site
+      without the columns can't produce a save the list would 400 on. */
+   +(permsLive()?'<div class="cd-fg"><label>Permissions</label><div class="cd-depts">'
+     +'<label><input type="checkbox" id="cde-admin"> Admin — full edit access</label>'
+     +'<label><input type="checkbox" id="cde-fbr"> Receives bug reports &amp; ideas</label>'
+     +'</div></div>':'')
+   +'<div class="cdd-foot">'
+   +(r._new?'':'<button class="btn btn-ghost cd-del" id="cde-del">Remove person…</button>')
+   /* v1.15.0 (owner): fold a duplicate roster entry into this one (cdMergePerson) */
+   +(r._new?'':'<button class="btn btn-ghost" id="cde-merge" title="Two roster entries are the same human — fold the other one into this record">Merge duplicate…</button>'
+     +'<span id="cde-merge-ui" class="hidden"><select id="cde-merge-sel" aria-label="The duplicate to fold in"></select>'
+     +'<button class="btn btn-primary" id="cde-merge-go">Merge</button></span>')
+   +'<span style="flex:1"></span>'
+   +'<button class="btn btn-ghost" id="cde-cancel">Cancel</button>'
+   +'<button class="btn btn-primary" id="cde-save">Save</button></div></div>';
+  const nm=document.getElementById('cde-name'),em=document.getElementById('cde-email'),ro=document.getElementById('cde-role'),ph=document.getElementById('cde-phone'),nk=document.getElementById('cde-nick');
+  nm.value=r.name||'';em.value=r.email||'';ro.value=r.role||'';ph.value=r.phone||'';nk.value=r.nickname||'';
+  ph.addEventListener('input',()=>{r.phone=ph.value;});
+  ph.addEventListener('blur',()=>{ph.value=fmtPhone(ph.value);r.phone=ph.value;}); /* v1.43.0 (9c): show the stored format as soon as the box is left */
+  const ex=document.getElementById('cde-ext');ex.value=r.ext||'';
+  ex.addEventListener('input',()=>{r.ext=ex.value;});
+  nk.addEventListener('input',()=>{r.nickname=nk.value;});
+  nm.addEventListener('input',()=>{r.name=nm.value;
+    /* picking (or typing) an exact Team member fills their email if it's empty */
+    const m=(TM_MEMBERS||[]).find(x=>x.email&&x.name.toLowerCase()===nm.value.trim().toLowerCase());
+    if(m&&!r.email){r.email=m.email;em.value=m.email;}});
+  em.addEventListener('input',()=>{r.email=em.value;});
+  ro.addEventListener('input',()=>{r.role=ro.value;});
+  const dp=document.getElementById('cde-depts');
+  for(const[did,lbl]of SM_DEPTS){
+    const lb=document.createElement('label');
+    /* v1.14.0: checkboxes speak canonical people-dept ids — legacy stored ids read as their canon */
+    const ck=document.createElement('input');ck.type='checkbox';ck.checked=(r.depts||[]).map(pdCanon).includes(did);
+    ck.addEventListener('change',()=>{r.depts=r.depts||[];
+      if(ck.checked){if(!r.depts.map(pdCanon).includes(did))r.depts.push(did);}
+      else r.depts=r.depts.filter(x=>pdCanon(x)!==did);});
+    lb.appendChild(ck);lb.appendChild(document.createTextNode(lbl));
+    dp.appendChild(lb);
+  }
+  /* v1.22.0: r.schedule stays null until a control is touched, so an untouched save never sends
+     the column (tristate rule). */
+  {const sch=()=>r.schedule=r.schedule||{days:[],start:'',end:''};
+   const cur=r.schedule||{days:[],start:'',end:''};
+   document.querySelectorAll('#cde-sched input[type=checkbox]').forEach(ck=>{
+     const d=+ck.dataset.day;ck.checked=(cur.days||[]).includes(d);
+     ck.addEventListener('change',()=>{const s=sch();
+       s.days=ck.checked?[...new Set([...s.days,d])]:s.days.filter(x=>x!==d);});});
+   for(const[id,k]of[['cde-sch-s','start'],['cde-sch-e','end']]){
+     const inp=document.getElementById(id);inp.value=sch12(cur[k],true);
+     inp.addEventListener('change',()=>{const t=schedParse(inp.value);
+       if(inp.value.trim()&&!t)toast('Couldn\'t read "'+inp.value+'" as a time — try 9, 5:30 or 5:30 PM.','err');
+       sch()[k]=t;inp.value=sch12(t,true);});}
+   /* v1.23.0: the freelance flag greys the week out (the stored days/hours stay put) */
+   const fr=document.getElementById('cde-free');
+   const frSync=()=>['cde-sched','cde-sched-hrs'].forEach(id=>{const b=document.getElementById(id);
+     b.classList.toggle('off',fr.checked);b.querySelectorAll('input').forEach(i=>i.disabled=fr.checked);});
+   fr.checked=!!r.freelance;frSync();
+   fr.addEventListener('change',()=>{r.freelance=fr.checked;frSync();});}
+  /* v1.18.0: keep the radios honest — an active OOO range selects the automatic option;
+     otherwise the manual choice (default Available) shows. */
+  const avSync=()=>{
+    const t=fmtDate(today());
+    const oooNow=(r.ooo||[]).some(o=>o.start&&o.end&&o.start<=t&&t<=o.end);
+    const a=document.getElementById('cde-av-a'),u=document.getElementById('cde-av-u'),o=document.getElementById('cde-av-o');
+    if(!a)return;
+    if(oooNow){o.checked=true;a.checked=false;u.checked=false;}
+    else{o.checked=false;(r.availability==='unavailable'?u:a).checked=true;}
+  };
+  const paintOoo=()=>{
+    const box=document.getElementById('cde-ooo');box.innerHTML='';
+    (r.ooo||[]).forEach((o,oi)=>{
+      const row=document.createElement('div');row.className='cd-ooo-row';
+      const s=document.createElement('input');s.type='date';s.value=o.start||'';s.setAttribute('aria-label','First day out');s.addEventListener('change',()=>{o.start=s.value;avSync();});
+      const e=document.createElement('input');e.type='date';e.value=o.end||'';e.setAttribute('aria-label','Last day out');e.addEventListener('change',()=>{o.end=e.value;avSync();});
+      const nt=document.createElement('input');nt.type='text';nt.placeholder='note (optional)';nt.setAttribute('aria-label','Note');nt.value=o.note||'';nt.addEventListener('input',()=>{o.note=nt.value;});
+      const x=document.createElement('button');x.className='tn-x';x.textContent='✕';x.title='Remove this range';x.setAttribute('aria-label','Remove this range');
+      x.addEventListener('click',()=>{r.ooo.splice(oi,1);paintOoo();avSync();});
+      row.appendChild(s);row.appendChild(e);row.appendChild(nt);row.appendChild(x);
+      box.appendChild(row);
+    });
+  };
+  paintOoo();
+  avSync();
+  for(const id of['cde-av-a','cde-av-u']){
+    const elx=document.getElementById(id);
+    elx.addEventListener('change',()=>{if(elx.checked)r.availability=elx.value;});
+  }
+  const ad=document.getElementById('cde-admin');
+  if(ad){ad.checked=!!r.admin;ad.addEventListener('change',()=>{r.admin=ad.checked;});}
+  const fb=document.getElementById('cde-fbr');
+  if(fb){fb.checked=!!r.feedbackRecipient;fb.addEventListener('change',()=>{r.feedbackRecipient=fb.checked;});}
+  const dv=document.getElementById('cde-driver');
+  if(dv){dv.checked=!!r.driver;dv.addEventListener('change',()=>{r.driver=dv.checked;});}
+  document.getElementById('cde-ooo-add').addEventListener('click',()=>{r.ooo=r.ooo||[];r.ooo.push({id:genId(),start:'',end:'',note:''});paintOoo();});
+  document.getElementById('cde-cancel').addEventListener('click',()=>{CD_EDIT=null;cdPaintDetail();});
+  document.getElementById('cde-save').addEventListener('click',cdSavePerson);
+  const del=document.getElementById('cde-del');
+  if(del)del.addEventListener('click',cdRemovePerson);
+  /* v1.15.0: the merge flow — the button reveals a picker of the other people */
+  const mg=document.getElementById('cde-merge');
+  if(mg)mg.addEventListener('click',()=>{
+    const ui=document.getElementById('cde-merge-ui'),sel=document.getElementById('cde-merge-sel');
+    if(!ui.classList.contains('hidden')){ui.classList.add('hidden');return;}
+    sel.innerHTML='<option value="">Fold in which duplicate?</option>'
+      +PEOPLE.filter(p=>p.id!==r.id).sort((a,b)=>a.name.localeCompare(b.name))
+        .map(p=>'<option value="'+esc(p.id)+'">'+esc(p.name)+'</option>').join('');
+    ui.classList.remove('hidden');
+  });
+  const mgo=document.getElementById('cde-merge-go');
+  if(mgo)mgo.addEventListener('click',()=>{
+    const id=document.getElementById('cde-merge-sel').value;
+    if(id)return cdMergePerson(r.id,id);
+  });
+}
+
+function cdSavePerson(){
+  const r=CD_EDIT;if(!r)return;
+  const per={id:r.id,name:(r.name||'').trim(),email:(r.email||'').trim(),phone:fmtPhone(r.phone),role:(r.role||'').trim(),
+    ext:r.ext==null?null:String(r.ext).trim(),
+    depts:[...new Set((r.depts||[]).map(pdCanon))], /* v1.14.0: saves heal legacy machine-level ids */
+    ooo:(r.ooo||[]).filter(o=>o.start&&o.end).map(o=>o.end>=o.start?o:{...o,start:o.end,end:o.start}),
+    /* v1.8.0: the flags ride through every save (tristate — null means the row never carried the
+       column and personToFields omits it). developer and personalNotes ride along too — the editor
+       never touches either, but a save here must not strip them off the row. */
+    admin:r.admin==null?null:!!r.admin,
+    developer:!!r.developer,
+    personalNotes:r.personalNotes==null?null:r.personalNotes,
+    status:r.status==null?null:r.status,
+    nickname:r.nickname==null?null:String(r.nickname).trim(),
+    driver:r.driver==null?null:!!r.driver,
+    availability:r.availability==null?null:r.availability,
+    schedule:r.schedule==null?null:{days:(r.schedule.days||[]).map(Number).sort(),start:r.schedule.start||'',end:r.schedule.end||''},
+    freelance:r.freelance==null?null:!!r.freelance,
+    listeningTo:r.listeningTo==null?null:r.listeningTo,
+    listeningLink:r.listeningLink==null?null:r.listeningLink,
+    listeningVerb:r.listeningVerb==null?null:r.listeningVerb,
+    listeningShow:r.listeningShow==null?null:!!r.listeningShow,
+    feedbackRecipient:r.feedbackRecipient==null?null:!!r.feedbackRecipient};
+  if(!per.name){toast('Give the person a name first.','err');return;}
+  if(PEOPLE.some(x=>x.id!==per.id&&x.name.trim().toLowerCase()===per.name.toLowerCase())){
+    toast('Two people share the name "'+per.name+'" — please make names unique.','err');return;}
+  /* v1.8.0: the last admin can't be demoted — that would lock the whole app read-only. */
+  {const live=PEOPLE.find(x=>x.id===per.id);
+   if(live&&live.admin&&!per.admin&&!PEOPLE.some(x=>x.id!==per.id&&x.admin)){
+     toast('You can\'t remove the last admin — make someone else an admin first.','err');return;}}
+  const list=PEOPLE.some(x=>x.id===per.id)?PEOPLE.map(x=>x.id===per.id?per:x):[...PEOPLE,per];
+  CD_EDIT=null;CD_SEL=per.id;
+  savePeople(list);
+  toast(per.name+' saved');
+}
+function cdRemovePerson(){
+  const r=CD_EDIT;if(!r||r._new)return;
+  const live=PEOPLE.find(x=>x.id===r.id);if(!live)return;
+  const asn=cdAssignments(live.name);
+  const warn=(!asn?'Couldn\'t read the projects, so '+live.name+'\'s phases weren\'t counted. Bars that name them keep the stored name.\n\n'
+    :asn.phases
+    ? live.name+' is on '+asn.phases+' phase'+(asn.phases===1?'':'s')+' across '+asn.projects+' project'+(asn.projects===1?'':'s')+'.\nThose bars keep the stored name but stop matching a roster person.\n\n'
+    : '')+'Remove '+live.name+' from the roster?';
+  if(!confirm(warn))return;
+  CD_EDIT=null;CD_SEL=null;
+  savePeople(PEOPLE.filter(x=>x.id!==r.id));
+  toast(live.name+' removed');
+}
+
+/* ===================== HOOKS FOR common/ ===================== */
+/* The update check's three (item 85 (b)): a reload never costs an edit or a save. */
+function updWhyNot(){
+  if(SAVING)return 'a save is still going — try again in a moment';
+  if(PENDING||RETRY.length)return 'a save hasn’t reached SharePoint yet — click the sync pill to retry, then reload';
+  if(CD_EDIT)return 'finish or cancel the record you’re editing first';
+  return '';
+}
+function updBusy(){return !!updWhyNot();}
+function updGo(){location.reload();}
+
+/* ===================== WIRING ===================== */
+document.getElementById('sync-pill').addEventListener('click',retryPending);
+document.getElementById('tb-rev').textContent='v'+APP_VER; /* item 101: the version, as in Timeline's header */
+document.getElementById('auth-signin').addEventListener('click',async()=>{
+  const b=document.getElementById('auth-signin');b.disabled=true;
+  try{await spLogin();document.getElementById('auth-overlay').classList.add('hidden');setSync('ok','synced '+stamp());retryPending();}
+  catch(e){console.error(e);toast('Couldn\'t sign in: '+store.explain(e),'err',null,String(e&&e.message));}
+  finally{b.disabled=false;}
+});
+const appsBtn=document.getElementById('btn-apps'),appsMenu_=document.getElementById('apps-menu');
+appsMenu(appsMenu_,'People','../');
+const appsOpen=on=>{appsMenu_.classList.toggle('hidden',!on);appsBtn.setAttribute('aria-expanded',String(on));};
+appsBtn.addEventListener('click',ev=>{ev.stopPropagation();appsOpen(appsMenu_.classList.contains('hidden'));});
+document.addEventListener('click',ev=>{if(!ev.target.closest||!ev.target.closest('.apps-wrap'))appsOpen(false);colMenuClose();});
+document.addEventListener('keydown',ev=>{
+  if(ev.key==='Escape'){
+    if(!appsMenu_.classList.contains('hidden')){appsOpen(false);appsBtn.focus();return;}
+    if(colMenuClose())return;
+    const typing=ev.target.matches&&ev.target.matches('input,select,textarea');
+    if(typing){ev.target.blur();return;}
+    if(CD_EDIT&&confirm('Discard the changes to this record?')){CD_EDIT=null;cdPaintDetail();}
+    return;
+  }
+  /* v1.17.0 (owner): ↑↓ walk the index selection */
+  if((ev.key==='ArrowDown'||ev.key==='ArrowUp')&&!CD_EDIT&&!(ev.target.matches&&ev.target.matches('input,select,textarea'))){
+    const rows=[...document.querySelectorAll('#cd-rows .cd-row')];
+    if(!rows.length)return;
+    const i=rows.findIndex(r=>r.dataset.id===String(CD_SEL));
+    rows[ev.key==='ArrowDown'?Math.min(rows.length-1,i+1):Math.max(0,i<0?0:i-1)].click();
+    const sel=document.querySelector('#cd-rows .cd-row.sel');
+    if(sel&&sel.scrollIntoView)sel.scrollIntoView({block:'nearest'});
+    ev.preventDefault();
+  }
+});
+/* An edit, a save in flight or a parked one: the browser's own "leave site?" warning. */
+window.addEventListener('beforeunload',ev=>{if(SAVING||PENDING||RETRY.length||CD_EDIT){ev.preventDefault();ev.returnValue='';}});
+
+(async()=>{
+  try{
+    setSync('busy','signing in…');
+    await store.signIn();
+    setSync('busy','loading…');
+    await loadAll();
+    LOADED=true;
+    setSync('ok','synced '+stamp());
+  }catch(e){
+    console.error(e);
+    setSync('err','offline');
+    toast('Couldn\'t sign in or reach SharePoint: '+store.explain(e),'err',null,String(e&&e.message));
+    M().innerHTML='<div class="note"><h2>Couldn\'t reach SharePoint.</h2><p>'+esc(store.explain(e))+'</p>'
+      +'<button class="btn primary" id="retry">Try again</button></div>';
+    document.getElementById('retry').addEventListener('click',()=>location.reload());
+  }
+  paint();
+  updWatch(); /* the update check (common/) */
+  /* Other people's changes: the roster every 90 s; projects too when the tab comes back into
+     view (the phase counts change in Timeline). Never mid-edit or mid-save. */
+  const refresh=async withProjects=>{
+    if(!LOADED||!store.who()||updBusy())return;
+    try{const g=GEN,[s]=await Promise.all([readStaff(),withProjects?loadProjects():null]);
+      if(g!==GEN||updBusy())return;
+      const changed=JSON.stringify(s.people)!==JSON.stringify(PEOPLE)||withProjects;
+      PEOPLE=s.people;SPIDS=s.ids;RAW_PHONE=s.raw;if(withProjects)PROJ_OK=true;
+      if(changed)paint();}catch(e){}
+  };
+  setInterval(()=>{if(!document.hidden)refresh(false);},POLL_MS);
+  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')refresh(true);});
+})();
+</script>
+</body>
+</html>

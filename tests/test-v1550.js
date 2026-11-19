@@ -6,8 +6,10 @@
    R5 the merge: a record linked to the duplicate moves even under an older spelling, the save
       links it to the kept person, and an unlinked name that isn't the duplicate's stays ·
    R6 the saved project page shows the kept name.
+   v1.62.0 (item 87): the merge is the People app's (the owner's option a); R5 runs it there and
+   reads what it sends SharePoint, and R6 boots Timeline afresh on the lists as they then stand.
    Run: node tests/test-v1550.js timeline/index.html  (or via tests/run.js) */
-const {boot,suite}=require('./harness');
+const {boot,bootPeople,suite}=require('./harness');
 const {FILE,ok,done}=suite();
 
 const sec=t=>console.log('\n'+t);
@@ -87,37 +89,46 @@ function stageDraft(){
 }
 
 function stageMerge(){
-  sec('R5 — the merge moves records by ID');
+  sec('R5 — the merge moves records by ID (the People app)');
   /* The state a poll leaves when it loads while the duplicate is already off the roster:
-     the project's lead reads as its stored spelling, still linked to the duplicate. */
-  E("ST={...ST,projects:ST.projects.map(p=>p.id==='p1'?{...p,leadFab:'D. Baek'}:p)}");
-  const m0=calls().length;
-  E("cdMergePerson('st1','st2')"); /* harness confirm = yes */
-  setTimeout(()=>{
-    ok('the duplicate leaves the roster',!E("PEOPLE.some(p=>p.id==='st2')"));
-    ok('the project linked to it under "D. Baek" moves to Dean Baek',P('p1').leadFab==='Dean Baek',P('p1').leadFab);
-    ok('the phase moves',T('t1').assignee==='Dean Baek',T('t1').assignee);
-    ok('the note moves',J(X("ST.todos.find(t=>t.id==='d1').who"))===J(['Dean Baek']));
-    ok('the unlinked "Dean B." stays as it is',T('t2').assignee==='Dean B.');
-    const sent=calls().slice(m0).filter(c=>c.method==='PATCH').map(body);
-    const pp=sent.find(b=>b.leadFab!==undefined),tp=sent.find(b=>b.assignee==='Dean Baek');
-    const refsOf=b=>b&&b.refs?JSON.parse(b.refs).people:{};
-    ok('the project saves the kept name, linked to the kept person',!!pp&&pp.leadFab==='Dean Baek'&&refsOf(pp)['Dean Baek']==='st1',pp&&J(pp.refs));
-    ok('the phase saves the same',!!tp&&refsOf(tp)['Dean Baek']==='st1',tp&&J(tp.refs));
-    ok('no saved ref points at the duplicate',!sent.some(b=>b.refs&&b.refs.includes('"st2"')),J(sent.map(b=>b.refs)));
-    stageSaved();
-  },900);
+     the project's lead is stored under its older spelling, still linked to the duplicate. */
+  projects[0].leadFab='D. Baek';
+  const pw=bootPeople({data:{projects,tasks,staff,todos},
+    columns:{ShopTimeline_Projects:['refs'],ShopTimeline_Tasks:['refs'],ShopTimeline_Tasks2:['refs']}}).window;
+  setTimeout(async()=>{
+    const m0=pw.__spCalls.length;
+    await pw.eval("cdMergePerson('st1','st2')"); /* harness confirm = yes */
+    setTimeout(()=>{
+      const all=pw.__spCalls.slice(m0),sent=all.filter(c=>c.method==='PATCH');
+      const at=(list,id)=>{const c=sent.find(x=>x.url.includes('/lists/'+list+'/items/'+id+'/'));return c?body(c):null;};
+      const pp=at('ShopTimeline_Projects','sp0'),t1=at('ShopTimeline_Tasks','sp0'),t2=at('ShopTimeline_Tasks','sp1'),d1=at('ShopTimeline_Tasks2','sp0');
+      const refsOf=b=>b&&b.refs?JSON.parse(b.refs).people:{};
+      ok('the duplicate leaves the roster',!pw.eval("PEOPLE.some(p=>p.id==='st2')")&&all.some(c=>c.method==='DELETE'&&c.url.includes('ShopTimeline_Staff')));
+      ok('the project linked to it under "D. Baek" moves to Dean Baek',!!pp&&pp.leadFab==='Dean Baek',J(pp));
+      ok('the phase moves',!!t1&&t1.assignee==='Dean Baek',J(t1));
+      ok('the note moves',!!d1&&d1.assignees===J(['Dean Baek']),J(d1));
+      ok('the unlinked "Dean B." stays as it is',!t2,J(t2));
+      ok('the project saves the kept name, linked to the kept person',!!pp&&refsOf(pp)['Dean Baek']==='st1'&&refsOf(pp)['Sam Jones']==='st3',pp&&J(pp.refs));
+      ok('the phase saves the same',!!t1&&refsOf(t1)['Dean Baek']==='st1',t1&&J(t1.refs));
+      ok('no saved ref points at the duplicate',!sent.some(c=>{const x=body(c);return x.refs&&x.refs.includes('"st2"');}),J(sent.map(c=>body(c).refs)));
+      /* what SharePoint now holds: the renames applied, the duplicate's row gone */
+      Object.assign(projects[0],pp);Object.assign(tasks[0],t1);Object.assign(todos[0],d1);
+      staff.splice(staff.findIndex(x=>x.appId==='st2'),1);
+      stageSaved();
+    },600);
+  },1500);
 }
 
 function stageSaved(){
   sec('R6 — the saved project page shows the kept name');
-  E("location.hash='#/project/p1';applyRoute()");
+  const w2=boot(FILE,{data:{projects,tasks,staff,todos},todosList:true,url:'https://example.github.io/shop-timeline/#/project/p1',
+    columns:{ShopTimeline_Projects:['refs'],ShopTimeline_Tasks:['refs'],ShopTimeline_Tasks2:['refs']}}).window;
   setTimeout(()=>{
-    const lead=[...doc.querySelectorAll('#pp-r-lf input')],on=lead.filter(i=>i.checked).map(i=>i.value);
+    const lead=[...w2.document.querySelectorAll('#pp-r-lf input')],on=lead.filter(i=>i.checked).map(i=>i.value);
     ok('[saved] Project lead has Dean Baek checked',J(on)===J(['Dean Baek']),J(on));
     ok('[saved] …and no box for the duplicate or its old spelling',!lead.some(i=>/Donghyun|D\. Baek/.test(i.value)),J(lead.map(i=>i.value)));
     done();
-  },800);
+  },1600);
 }
 
 setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},40000);

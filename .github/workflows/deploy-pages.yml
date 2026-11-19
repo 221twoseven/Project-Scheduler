@@ -16,6 +16,7 @@ name: Deploy Pages
 # and styles); Timeline loads it as ../common/.
 # Item 86 (v1.58.0): the Clients app, the second product, lives in clients/.
 # Item 94 (v1.61.0): Clients became Office, in office/; clients/ forwards old links there.
+# Item 87 (v1.62.0): the People app, in people/.
 on:
   push:
     branches: [main, development]
@@ -57,6 +58,7 @@ jobs:
             timeline/msal-browser.min.js
             clients/index.html
             office/index.html
+            people/index.html
             common/common.js
             common/common.css
             common/msal-browser.min.js
@@ -76,6 +78,7 @@ jobs:
             timeline/msal-browser.min.js
             clients/index.html
             office/index.html
+            people/index.html
             common/common.js
             common/common.css
             common/msal-browser.min.js

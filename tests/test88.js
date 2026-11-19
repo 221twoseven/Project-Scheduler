@@ -76,8 +76,8 @@ setTimeout(()=>{
 
   sec('6 · Phase 4 — application bar: Resources ▾ + Help ▾, Settings retired');
   ok('the Settings button is gone (People/Clients moved to Resources)',!doc.getElementById('btn-settings'));
-  ok('a Resources menu holds People & Clients (v1.58.0: Clients left it for its own app)',
-     !!doc.getElementById('btn-resources')&&!!doc.getElementById('mi-people')&&!doc.getElementById('mi-clients'));
+  ok('a Resources menu holds the Changelog (Clients left it for its own app in v1.58.0, People in v1.62.0)',
+     !!doc.getElementById('btn-resources')&&!!doc.getElementById('mi-changelog')&&!doc.getElementById('mi-people')&&!doc.getElementById('mi-clients'));
   ok('Help is a menu with a tour and keyboard shortcuts',
      !!doc.getElementById('btn-help')&&!!doc.getElementById('mi-tour')&&!!doc.getElementById('mi-shortcuts'));
 

@@ -173,7 +173,7 @@ async function run(){
   ok('idle timeline is not busy', E("updBusy()")===false);
   busy("DRAG={}","DRAG=null",'a timeline drag');
   busy("COACH={}","COACH=null",'the tour');
-  busy("CD_EDIT={}","CD_EDIT=null",'a Company Data record mid-edit');
+  /* v1.62.0 (item 87): a People record mid-edit holds the People app's own check (test-v1620 R9) */
   busy("SYNCING=1","SYNCING=0",'a save in flight');
   busy("PENDING_SYNC={}","PENDING_SYNC=null",'a parked project save');
   busy("PENDING_STAFF={}","PENDING_STAFF=null",'a parked staff save');
@@ -181,11 +181,11 @@ async function run(){
   busy("const d=document.createElement('div');d.id='bz';d.className='cal-dragging';document.body.appendChild(d)","document.getElementById('bz').remove()",'a calendar drag');
   busy("const i=document.createElement('input');i.id='bi';document.body.appendChild(i);i.focus()","document.getElementById('bi').blur();document.getElementById('bi').remove()",'a cursor in a field');
   busy("const m=document.createElement('div');m.id='npv-menu';document.body.appendChild(m)","document.getElementById('npv-menu').remove()",'an open context menu');
-  E("UPD_LAST=0;CD_EDIT={}");const n0=S.probes.length;
+  E("UPD_LAST=0;PENDING_CFG={}");const n0=S.probes.length;
   focus();await wait(80);
   ok('a busy tab does not probe on focus', S.probes.length===n0);
   ok('…and arms one retry', E("!!UPD_RETRY"));
-  E("clearTimeout(UPD_RETRY);UPD_RETRY=null;CD_EDIT=null;UPD_SHOWN='';window.__reloads=0");
+  E("clearTimeout(UPD_RETRY);UPD_RETRY=null;PENDING_CFG=null;UPD_SHOWN='';window.__reloads=0");
   S.served='9.9.9';S.min='';
   await E("updCheck(true)");
   ok('offer shown again', !!q('#upd-toast'));
@@ -194,10 +194,10 @@ async function run(){
   ok('Reload is refused while a save is in flight', reloads()===0);
   ok('…the offer stays', !!q('#upd-toast'));
   ok('…and says why', [...doc.querySelectorAll('.toast.err')].some(t=>/Not reloaded: a save is still going/.test(t.textContent)));
-  E("SYNCING=0;CD_EDIT={}");
+  E("SYNCING=0;PENDING_STAFF={}");
   click(q('#upd-toast button.undo'));
-  ok('Reload is refused while a record is mid-edit', reloads()===0&&!!q('#upd-toast'));
-  E("CD_EDIT=null");
+  ok('Reload is refused while a save is parked', reloads()===0&&!!q('#upd-toast'));
+  E("PENDING_STAFF=null");
   click(q('#upd-toast button.undo'));
   ok('free again → Reload reloads and the offer goes', reloads()===1&&!q('#upd-toast'));
 

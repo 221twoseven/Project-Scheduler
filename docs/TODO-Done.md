@@ -7,6 +7,37 @@ release-by-release record.
 
 ## Finished since 2026-11-18
 
+- [x] **101. The version in Office's and People's headers** (owner, 2026-11-19: "Office and
+      People also need the version number listed in the header the way Timeline does").
+      Shipped v1.62.0 (2026-11-19). Each shows "v1.62.0" (the running build) just before the
+      sync pill, in Timeline's style; the rule (`#tb-rev`) moved into `common/common.css`.
+
+- [x] **87. The People app** (the launch; the owner, 2026-11-19: "Wording OK, go with option
+      (a)"). Shipped v1.62.0 (2026-11-19). ⚠ Architecture, on item 85. Timeline's People page
+      became its own product at `people/`, on the Office shell, and left Timeline.
+      - *It keeps everything the page did:* the directory (its nine columns, search, filters,
+        ↑↓, resizable columns and the Reset widths menu), the record and its editor, time off,
+        the Employee Contacts import (only the mapped fields, item 9), the Team-membership
+        suggestions, the phone tidy and the merge. Everyone signed in reads it; admins edit.
+      - *Wording (owner-approved):* the tab "People — TWOSEVEN INC.", the header PEOPLE, the
+        heading and its line unchanged, the sign-in-expired words as Office's; no left rail
+        while the directory is the only section; the Systems card and the Apps menu open it.
+      - *The merge (option a):* People also rewrites the duplicate's names, and refs, on
+        Timeline's projects, phases and to-dos: name fields and `refs` only, one record at a
+        time, after the roster save lands (a failed one holds them for the retry). The ruling
+        is in Decisions.md under the ownership rule.
+      - *Timeline:* Company Data ▸ People and `#/people` went (an old link goes on to
+        `../people/`), with the page's code and styles; Company Data lists the Changelog. Its
+        empty name lists say "add them in People". Pickers, lanes and availability still read
+        Staff, and a person's own row (notes, saved views) is still written from Timeline.
+      - *Shared:* the Staff record's reader and writer, the phone format, the holidays, the
+        department groups and the people departments moved into `common/common.js`.
+      - *The owner* adds the `/people/` and `/preview/people/` SPA redirect URIs before the
+        merge. `main`'s deploy list is item 100.
+      - Record: `docs/Milestones/Phase-7-Pilot-Readiness/2026-11-19-people-app.md`. Suite
+        `tests/test-v1620.js`; the People-page checks in older suites now boot the app.
+      - *Rollback:* revert. The Staff list is untouched.
+
 - [x] **99. Office before People on the Systems page** (owner, 2026-11-19, on the Systems
       page: "Let's swap the order of these", and: change the word "crews" to "teams"). Shipped v1.61.1 (PR #218, 2026-11-19). The cards
       read Timeline, Office, People, and the Apps menu follows them (`SYSTEMS_APPS` in

@@ -4,8 +4,11 @@
      allowed, typed values snap to the half hour)
    - stored as JSON in the new `schedule` staff column, tristate like the other flags
    Run: node tests/test-v1220.js timeline/index.html  (or via tests/run.js) */
-const {boot,suite}=require('./harness');
-const {FILE,src,ok,done}=suite();
+/* v1.62.0 (item 87): the People page is the People app (people/); this suite boots it and reads
+   its source. */
+const {bootPeople,suite}=require('./harness');
+const {ok,done}=suite();
+const src=require('fs').readFileSync(require('path').join(__dirname,'..','people','index.html'),'utf8').replace(/\r\n/g,'\n');
 
 const sec=t=>console.log('\n'+t);
 
@@ -14,7 +17,7 @@ const staff=[
  {appId:'s2',Title:'Dana West',depts:JSON.stringify(['fab']),ooo:'[]',email:'d@example.com',role:'',admin:'',schedule:JSON.stringify({days:[2,3,4],start:'11:00',end:'16:00'})},
  {appId:'s3',Title:'Alex Reyes',depts:JSON.stringify(['fab']),ooo:'[]',email:'a@example.com',role:'',admin:''}];
 
-const dom=boot(FILE,{data:{projects:[],tasks:[],staff,todos:[]}});
+const dom=bootPeople({data:{projects:[],tasks:[],staff,todos:[]}});
 const win=dom.window,doc=win.document,E=s=>win.eval(s);
 
 setTimeout(main,1300);
@@ -38,8 +41,6 @@ function main(){
       &&E("fieldsToPerson({appId:'x',Title:'A'}).schedule")===null;})());
   ok('merge keeps the kept record\'s schedule first', src.indexOf('schedule:keep.schedule!=null?keep.schedule:dup.schedule')>=0);
 
-  win.location.hash='#/people';
-  win.dispatchEvent(new win.Event('hashchange'));
   setTimeout(()=>{
     sec('the index column');
     ok('Schedule follows Status in the header',

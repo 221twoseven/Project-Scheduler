@@ -5,8 +5,11 @@
    9c one phone format, 555-555-5555, whatever way it was typed or stored;
    Ext — a desk extension typed by hand on the People page (the HR list has none).
    Run: node tests/test-v1430.js timeline/index.html  (or via tests/run.js) */
-const {boot,suite}=require('./harness');
-const {FILE,src,ok,done}=suite();
+/* v1.62.0 (item 87): the People page is the People app (people/); this suite boots it and reads
+   its source. */
+const {bootPeople,suite}=require('./harness');
+const {ok,done}=suite();
+const src=require('fs').readFileSync(require('path').join(__dirname,'..','people','index.html'),'utf8').replace(/\r\n/g,'\n');
 
 const sec=t=>console.log('\n'+t);
 
@@ -14,7 +17,7 @@ const staff=[
   {appId:'s1',Title:'Milo',depts:JSON.stringify(['fab']),ooo:'[]',email:'milo@example.com',phone:'(555) 555-5555',role:'Lead Fabricator'},
   {appId:'s2',Title:'Sam',depts:JSON.stringify(['pm']),ooo:'[]',email:'user@example.com',phone:'5555550100',role:'PM'},
   {appId:'s3',Title:'Pat',depts:JSON.stringify(['fab']),ooo:'[]',email:'pat@example.com',phone:'',role:'Shop'}];
-const dom=boot(FILE,{data:{projects:[],tasks:[],staff,todos:[]}});
+const dom=bootPeople({data:{projects:[],tasks:[],staff,todos:[]}});
 const win=dom.window,doc=win.document,E=s=>win.eval(s),q=s=>doc.querySelector(s);
 const calls=()=>win.__spCalls;
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
@@ -33,7 +36,6 @@ async function main(){
   ok('a stored number loads in the one format', E("PEOPLE.find(p=>p.name==='Milo').phone")==='555-555-5555'&&E("PEOPLE.find(p=>p.name==='Sam').phone")==='555-555-0100');
 
   sec('9c — the one-time tidy rewrites the rows still stored another way');
-  E("location.hash='#/people';applyRoute()");
   const tidy=q('#cd-tidy');
   ok('the People page offers "Tidy 2 phone numbers" (Milo and Sam; Pat has none)', !!tidy&&tidy.textContent==='Tidy 2 phone numbers', tidy&&tidy.textContent);
   const n0=calls().length;
@@ -52,11 +54,10 @@ async function main(){
   const rt=JSON.parse(E("JSON.stringify(fieldsToPerson(personToFields({id:'x',name:'A',email:'',phone:'555.555.5555',role:'',depts:[],ooo:[],ext:'204'})))"));
   ok('ext survives the mapper round trip', rt.ext==='204'&&rt.phone==='555-555-5555');
   ok('the People table has an Office Extension column right after Phone',
-     (()=>{E("location.hash='#/people';applyRoute()");const h=[...doc.querySelectorAll('.cd-cols>span')].map(s=>s.textContent);
+     (()=>{const h=[...doc.querySelectorAll('.cd-cols>span')].map(s=>s.textContent);
        return h[2]==='Phone'&&h[3]==='Office Extension'&&h.length===9&&[...doc.querySelectorAll('.cd-row.pp7')].every(r=>r.children.length===9);})());
 
   sec('the People page: editor, save, list, detail, search');
-  E("location.hash='#/people';applyRoute()");
   E("CD_SEL=PEOPLE.find(p=>p.name==='Pat').id;cdPaintDetail()");
   E("document.getElementById('cdd-edit').click()");
   ok('the editor has an Office Extension field', !!q('#cde-ext')&&q('#cde-ext').closest('.cd-fg').querySelector('label').textContent==='Office Extension');
@@ -67,7 +68,7 @@ async function main(){
   await wait(150);
   const patch=calls().filter(c=>c.method==='PATCH'&&c.url.includes('ShopTimeline_Staff')&&c.body).pop();
   ok('the save writes the hyphenated phone and the trimmed ext', !!patch&&patch.body.phone==='555-555-0199'&&patch.body.ext==='204', patch&&JSON.stringify(patch.body));
-  ok('a row saved in the one format is never offered for tidying (the sync records what it wrote)', E("phoneUntidy().length")===0&&E("STAFF_RAW_PHONE[PEOPLE.find(p=>p.name==='Pat').id]")==='555-555-0199');
+  ok('a row saved in the one format is never offered for tidying (the sync records what it wrote)', E("phoneUntidy().length")===0&&E("RAW_PHONE[PEOPLE.find(p=>p.name==='Pat').id]")==='555-555-0199');
   E("cdPaintDetail()");
   const fld=dt=>{const d=[...doc.querySelectorAll('#cd-detail .cdd-f')].find(f=>f.querySelector('dt').textContent===dt);return d?d.querySelector('dd').textContent:null;};
   ok('the record shows Phone and Office Extension as two fields', fld('Phone')==='555-555-0199'&&fld('Office Extension')==='204', fld('Phone')+' / '+fld('Office Extension'));

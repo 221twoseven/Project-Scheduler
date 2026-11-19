@@ -6,7 +6,7 @@
    - phone joins the person record (owner-created column, 2026-09-01): field
      mappers, People page read mode, edit state, and the outgoing PATCH body.
    Run: node tests/test-v171.js timeline/index.html  (or via tests/run.js) */
-const {boot,suite}=require('./harness');
+const {bootPeople,suite}=require('./harness');
 const fs=require('fs');
 const {FILE,src,ok,done}=suite();
 
@@ -32,7 +32,8 @@ ok('the font is on every deploy sparse-checkout list',
 const staff=[
   {appId:'s1',Title:'Milo',depts:JSON.stringify(['fab']),ooo:'[]',email:'',phone:'212-555-0100',role:'Lead Fabricator'},
   {appId:'s2',Title:'Sam',depts:JSON.stringify(['pm']),ooo:'[]',email:'user@example.com',phone:'',role:'PM'}];
-const dom=boot(FILE,{data:{projects:[],tasks:[],staff,todos:[]}});
+/* v1.62.0 (item 87): the People page is the People app */
+const dom=bootPeople({data:{projects:[],tasks:[],staff,todos:[]}});
 const win=dom.window,doc=win.document;
 const E=s=>win.eval(s);
 const q=s=>doc.querySelector(s);
@@ -48,7 +49,6 @@ async function main(){
   ok('a loaded person carries the stored phone', E("PEOPLE.find(p=>p.name==='Milo').phone")==='212-555-0100');
 
   sec('the People page reads and edits it');
-  E("location.hash='#/people';applyRoute()");
   E("CD_SEL=PEOPLE.find(p=>p.name==='Milo').id;cdPaintDetail()");
   ok('read mode shows the phone as information', /212-555-0100/.test(q('#cd-detail').textContent)
      &&doc.querySelectorAll('#cd-detail input').length===0);

@@ -115,6 +115,9 @@ function makeFetch(data,opts){
     }
     /* v1.49.0: Config rows ({Title,value}) when a suite seeds data.config; else the empty list */
     if(u.includes('ShopTimeline_Config')&&data.config&&(!init||!init.method))return ok({value:data.config.map(toItem)});
+    /* v1.62.0 (item 87): a new Staff row gets an item id, as from SharePoint, so a later removal
+       has a row to DELETE (the People app skips a row that was never created) */
+    if(u.includes(listNames.staff)&&init&&init.method==='POST')return ok({id:'new'+calls.length,value:[]});
     if(u.includes(listNames.staff))return ok({value:(data.staff||[]).map(toItem)});
     if(u.includes(listNames.projects))return ok({value:(data.projects||[]).map(toItem)});
     if(u.includes(listNames.tasks))return ok({value:(data.tasks||[]).map(toItem)});
@@ -141,4 +144,13 @@ function suite(){
     done(){console.log('\n'+'-'.repeat(46));console.log('  '+pass+' passed, '+fail+' failed   ['+FILE+']');process.exit(fail?1:0);}};
 }
 
-module.exports={boot,suite};
+/* Item 87 (v1.62.0): the People app, people/, booted on the same stubs. A suite that tested
+   Timeline's People page boots this beside Timeline, with the same data, and finds the same
+   element ids. The to-do list is on unless the suite says otherwise. */
+function bootPeople(opts){
+  opts=opts||{};
+  return boot(path.join(__dirname,'..','people','index.html'),
+    {todosList:true,...opts,url:opts.url||'https://example.github.io/Project-Scheduler/people/'});
+}
+
+module.exports={boot,bootPeople,suite};

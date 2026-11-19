@@ -159,10 +159,10 @@ function stage2(){
   ok('DATE_LOCK restored to how it stood before the preview', E('DATE_LOCK')===false);
 
   sec('My Dashboard is a navigation, not a background state');
-  win.location.hash='#/people';
+  win.location.hash='#/changelog'; /* v1.62.0 (item 87): People is its own app; the Changelog page stands in */
   win.dispatchEvent(new win.Event('hashchange'));
   setTimeout(()=>{
-    ok('on the People page', E('ROUTE.view')==='people');
+    ok('on the Changelog page', E('ROUTE.view')==='changelog');
     doc.getElementById('btn-dash').click();
     win.dispatchEvent(new win.Event('hashchange'));
     setTimeout(()=>{

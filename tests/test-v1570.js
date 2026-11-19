@@ -84,8 +84,8 @@ async function run(){
   const home=q('#tb-home');
   ok('the product name reads Timeline and is a button', !!home&&home.tagName==='BUTTON'&&home.textContent==='Timeline'&&home.classList.contains('ts-app'));
   ok('…with the old tooltip', home.title==='Back to the full timeline');
-  go(W,'#/people');await wait(300);
-  ok('(on the People page)', E('ROUTE.view')==='people');
+  go(W,'#/changelog');await wait(300); /* v1.62.0 (item 87): People is its own app; the Changelog page stands in */
+  ok('(on the Changelog page)', E('ROUTE.view')==='changelog');
   click(W,home);await wait(300);
   ok('one click on "Timeline" lands on the full timeline', E('ROUTE.view')==='timeline', E('ROUTE.view'));
 
@@ -98,17 +98,15 @@ async function run(){
   const it=items(W),names=it.map(x=>x.dataset.app);
   ok('three products, in order (v1.61.0: Clients became Office; v1.61.1: Office before People)', names.join()==='Timeline,Office,People', names.join());
   ok('Timeline is ticked as the app you\'re in, not a link', it[0].tagName!=='A'&&it[0].getAttribute('aria-current')==='page'&&/✓/.test(it[0].textContent));
-  /* v1.58.0 (item 86): Clients is its own app; People greyed until launch 2 */
-  ok('People is greyed, "In Timeline for now"', it[2].tagName!=='A'&&it[2].classList.contains('off')&&/In Timeline for now/.test(it[2].textContent));
+  /* v1.58.0 (item 86): Clients is its own app; People greyed until launch 2. v1.62.0 (item 87): People is its own app too */
+  ok('People links to the People app', it[2].tagName==='A'&&it[2].getAttribute('href')==='../people/'&&!it[2].classList.contains('off'));
   ok('Office links to the Office app, "admins only"', it[1].tagName==='A'&&it[1].getAttribute('href')==='../office/'&&/admins only/.test(it[1].textContent));
   click(W,btn);
   ok('the button closes it again', menu.classList.contains('hidden'));
   click(W,btn);click(W,it[1]);
   ok('picking a product closes the menu', menu.classList.contains('hidden'));
   await wait(400);
-  click(W,btn);click(W,it[2]);
-  ok('…and a greyed one opens nothing', E('ROUTE.view')==='timeline'&&!menu.classList.contains('hidden'), E('ROUTE.view'));
-  click(W,btn);
+  ok('…and no product is greyed now (v1.62.0: all three are built)', it.every(x=>!x.classList.contains('off')));
 
   sec('R5: the header row and the page offsets');
   ok('the header row is 56px tall (guide §5)', /\.tb-global\{[^}]*min-height:56px/.test(src));

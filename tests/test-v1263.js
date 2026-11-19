@@ -9,8 +9,11 @@
    widths are proven on the stylesheet, the inline --cdcN variables and the DOM; the
    fit is driven by stubbing scrollWidth.
    Run: node tests/test-v1263.js timeline/index.html  (or via tests/run.js) */
-const {boot,suite}=require('./harness');
-const {FILE,src,ok,done}=suite();
+/* v1.62.0 (item 87): the People page is the People app (people/); this suite boots it and reads
+   its source. */
+const {bootPeople,suite}=require('./harness');
+const {ok,done}=suite();
+const src=require('fs').readFileSync(require('path').join(__dirname,'..','people','index.html'),'utf8').replace(/\r\n/g,'\n');
 
 const sec=t=>console.log('\n'+t);
 
@@ -26,7 +29,7 @@ const staff=[
    ones saved by position never land a column off. Email and Perms each move one cell right. */
 const OX=src.indexOf('Office Extension')>=0,K=OX?'shopTimelineCdColW2':'shopTimelineCdColW',N=OX?9:8;
 const W=(a)=>JSON.stringify(OX?[...a,96]:a);
-const dom=boot(FILE,{data:{projects:[],tasks:[],staff,todos:[]},
+const dom=bootPeople({data:{projects:[],tasks:[],staff,todos:[]},
   localStorage:{[K]:W([100,120,null,150,60,48,90,96])}});
 const win=dom.window,doc=win.document,E=s=>win.eval(s);
 const q=s=>doc.querySelector(s),qa=s=>[...doc.querySelectorAll(s)];
@@ -36,8 +39,6 @@ const col=i=>qa('.cd-cols>span:nth-child('+(i+1)+'),.cd-row.pp7>:nth-child('+(i+
 const rowOf=n=>qa('#cd-rows .cd-row.pp7').find(r=>r.querySelector('b').textContent.startsWith(n));
 
 setTimeout(()=>{
-  win.location.hash='#/people';
-  win.dispatchEvent(new win.Event('hashchange'));
   setTimeout(main,500);
 },1300);
 
@@ -100,24 +101,16 @@ function main(){
   ok('R1: the list pane clips too', /\.cd-list\{[^}]*overflow:hidden/.test(src));
   ok('R1: the header sticks to the top of the scroller', /\.cd-cols\{position:sticky;top:0;z-index:1;background:/.test(src));
   const rows=q('#cd-rows');rows.scrollLeft=30;rows.scrollTop=40;
-  E('render()');
+  E('paint()');
   ok('R1: a data repaint keeps the sideways and the vertical scroll', q('#cd-rows').scrollLeft===30&&q('#cd-rows').scrollTop===40, q('#cd-rows').scrollLeft+' / '+q('#cd-rows').scrollTop);
 
   sec('#27 R2 — the divider and the column edge lines');
   ok('R2: the list/detail divider is present and the split handle rides it', !!q('#cd-split')&&/\.cd-list\{[^}]*border-right:1px solid #E2E8F0/.test(src)&&/#cd-split\{flex:0 0 6px;margin-left:-3px/.test(src));
   ok('R2 plan 3: every column edge draws its thin line', qa('.cd-cols>i.cd-grip').length===N&&/\.cd-grip::after\{[^}]*width:1px;background:#D8E2EF\}/.test(src));
 
-  /* v1.58.0 (item 86): Clients left Timeline for its own app, so no client rows ever take the
-     People page's columns */
-  sec('the Clients page is untouched (v1.58.0: it is its own app)');
-  win.location.hash='#/clients';
-  win.dispatchEvent(new win.Event('hashchange'));
-  setTimeout(()=>{
-    const cl=qa('.cd-row.cl');
-    ok('client rows keep their three cells — none render in Timeline now', cl.length===0, cl.map(r=>r.children.length).join());
-    ok('no People column variable is applied on the Clients page', !q('.cd-list')||q('.cd-list').style.getPropertyValue('--cdc1')==='');
-    done();
-  },400);
+  /* v1.58.0 (item 86) checked here that Timeline's Clients page took none of these columns;
+     v1.62.0 (item 87): both pages left Timeline, each for its own app. */
+  done();
 }
 
 setTimeout(()=>{console.log('TIMEOUT');process.exit(1);},25000);
