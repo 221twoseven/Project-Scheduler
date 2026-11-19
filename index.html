@@ -464,10 +464,8 @@ kbd{font-family:var(--mono);font-size:var(--fs-fine);background:#EDF1F7;border:1
 .bh-r::after{right:2px}
 body.dates-locked .bh-l,body.dates-locked .bh-r,
 .job-bar.is-pinned .bh-l,.job-bar.is-pinned .bh-r{cursor:not-allowed!important;opacity:.25}
-.tick-node{position:absolute;top:50%;width:15px;height:15px;margin-top:-7.5px;transform:rotate(45deg);background:#fff;border:2px solid rgba(15,23,42,.6);border-radius:2px;box-shadow:0 1px 4px rgba(0,0,0,.4);pointer-events:auto;cursor:help;z-index:13;transition:transform .1s}
+.tick-node{position:absolute;top:50%;width:15px;height:15px;margin-top:-7.5px;transform:rotate(45deg);background:#fff;border:2px solid rgba(15,23,42,.6);border-radius:2px;box-shadow:0 1px 4px rgba(0,0,0,.4);pointer-events:auto;z-index:13;transition:transform .1s}
 .tick-node:hover{transform:rotate(45deg) scale(1.3);border-color:rgba(15,23,42,.9)}
-.tt-node-hi{color:#FFD37A;font-weight:700}
-.tt-node-dim{opacity:.4}
 .sum-pill{position:absolute;right:6px;top:50%;transform:translateY(-50%);font-family:var(--mono);font-size:var(--fs-fine);font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:2px 8px;border-radius:9px;background:rgba(255,255,255,.9);color:#33415A;pointer-events:none}
 
 /* ============ TOOLTIP ============ */
@@ -1055,12 +1053,16 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 .ins-f{margin-bottom:10px}
 .ins-f>label{display:block;font-size:var(--fs-fine);font-weight:700;letter-spacing:.07em;
   text-transform:uppercase;color:var(--ts-muted);margin-bottom:4px}
+/* item 96: the pin checkbox sits beside its words, not stretched to a full-width row */
+.ins-f>label.ins-pin{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:400;
+  letter-spacing:0;text-transform:none;color:#33415A;cursor:pointer;margin:0}
 .ins-f input,.ins-f select,.ins-f textarea{width:100%;border:1px solid var(--ts-control-line);border-radius:6px;
   padding:7px 9px;font-size:12.5px;font-family:inherit;background:#fff;color:#1E293B;outline:none;
   box-sizing:border-box}
 .ins-f input:focus,.ins-f select:focus,.ins-f textarea:focus{border-color:var(--acc);
   box-shadow:0 0 0 3px rgba(59,127,214,.12)}
 .ins-f input.err{border-color:#CE4242}
+.ins-f .ins-pin input[type=checkbox]{width:13px;height:13px;padding:0;margin:0;accent-color:#3B7FD6;flex-shrink:0}
 .pg-rbox.err{border-color:#CE4242}
 .ins-row{display:grid;grid-template-columns:1fr 1fr;gap:9px}
 .ins-row3{display:grid;grid-template-columns:1fr 1fr 64px;gap:9px}
@@ -1885,7 +1887,7 @@ body.cd-route #dash-bar{display:none!important}
 <script src="msal-browser.min.js"></script>
 <script>
 'use strict';
-const APP_VER='1.55.1'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.55.2'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -4176,7 +4178,9 @@ function renderMeDock(){
   const active=mine.filter(t=>t.startDate<=t0&&t0<=t.endDate);
   const coming=mine.filter(t=>t.startDate>t0);
   const myProj=new Set(mine.map(t=>t.projectId));
-  const checkpoints=(ST.events||[]).filter(e=>e.date&&e.date>=t0&&myProj.has(e.projectId))
+  const checkpoints=[...(ST.events||[]), /* item 97: milestones riding on a bar count too */
+      ...ST.tasks.flatMap(t=>(t.ticketNodes||[]).map(n=>({id:n.id,projectId:t.projectId,date:n.date,name:n.target||''})))]
+    .filter(e=>e.date&&e.date>=t0&&myProj.has(e.projectId))
     .sort((a,b)=>a.date.localeCompare(b.date));
   const tasks=(ST.todos||[]).filter(t=>!t.completedOn&&(t.who||[]).includes(PERSON))
     .sort((a,b)=>String(a.due||'9999').localeCompare(String(b.due||'9999')));
@@ -5091,11 +5095,18 @@ function showTooltipTask(t,ev,hiNode){
   const deptName=(dd&&dd.freeText)?('Other — '+(t.assignee||'')):(dd?.name||t.department);
   let tn='';
   const tnodes=barNodes(t);
+  /* item 96: hovering a milestone diamond shows that milestone alone, not the whole bar */
+  const hn=hiNode&&tnodes.find(n=>n.id===hiNode);
+  if(hn){
+    el.innerHTML='<div class="tt-title">◆ '+esc(hn.target)+'</div>'
+      +'<div class="tt-dim">'+esc(fmtNice(hn.date))+' · '+esc(p?p.name:'?')+'</div>'
+      +(hn.notes?'<div class="tt-notes">'+esc(hn.notes)+'</div>':'');
+    el.classList.remove('hidden');posTooltip(ev);return;
+  }
   if(tnodes.length){
-    tn='<div class="tt-notes">'+tnodes.map(n=>{
-      const cls=hiNode?(n.id===hiNode?' class="tt-node-hi"':' class="tt-node-dim"'):'';
-      return '<div'+cls+'>◆ '+esc(fmtNice(n.date))+' → '+esc(n.target)+(n.notes?' — '+esc(n.notes):'')+'</div>';
-    }).join('')+'</div>';
+    tn='<div class="tt-notes">'+tnodes.map(n=>
+      '<div>◆ '+esc(fmtNice(n.date))+' → '+esc(n.target)+(n.notes?' — '+esc(n.notes):'')+'</div>'
+    ).join('')+'</div>';
   }
   el.innerHTML='<div class="tt-title">'+esc(p?p.name:'?')+' — '+esc(t.label&&String(t.label).trim()?phaseLabel(t)+' · '+deptName:deptName)+'</div>'
     +((who=>who?'<div class="tt-dim">'+esc(who)+'</div>':'')(assigneeText(t))) /* v1.54.0 (item 82): no empty crew line */
@@ -7836,7 +7847,7 @@ function ppInspector(){
 function ppAgendaHTML(p,onlyDept){
   const rows=[];
   if(NPV_LIVE){
-    for(const e of liveEvents(p))rows.push({k:'ev',id:e.id,nm:e.name,date:e.date,dept:e.dept,x3:e.notes||''});
+    for(const e of liveEvents(p))rows.push({k:'ev',id:e.id,nm:e.name,date:e.date,dept:e.dept,host:e.host,x3:e.notes||''});
     for(const t of liveTodos(p))rows.push({k:'tk',id:t.id,nm:t.title,date:t.due,dept:t.dept,
       x3:(t.who||[]).join(', ')});
   }else{
@@ -7872,7 +7883,7 @@ function ppAgendaHTML(p,onlyDept){
        + '<input class="nm" data-f="'+(ev?'name':'title')+'" value="'+esc(r.nm||'')+'"'
        +   (ev?' placeholder="Client approval"':' placeholder="Order acrylic"')+'>'
        + (vcan(ev?'milestones':'notes')?'<button class="del" title="Remove">&times;</button>':'')
-       + (ev?'<select data-f="dept" title="The phase this rides on">'+deptOptions(r.dept)+'</select>':'')
+       + (ev?'<select data-f="dept" title="The phase or subtask this rides on">'+(NPV_LIVE?msHostOptions(p,r.dept,r.host):deptOptions(r.dept))+'</select>':'')
        + '</div>';
     }
     body+='</div>';
@@ -9732,7 +9743,8 @@ function liveEvents(p){
   for(const t of tasksOf(p.id).filter(t=>!t.__ghost))
     for(const n of (t.ticketNodes||[]))
       out.push({id:n.id,name:n.target||'',date:n.date||'',notes:n.notes||'',
-        dept:(n.dept!==undefined?n.dept:t.department)});
+        dept:(n.dept!==undefined?n.dept:t.department),
+        host:(n.dept===undefined||n.dept===t.department)?t.id:''}); /* item 97: the bar it rides on */
   for(const e of (ST.events||[]))
     if(e.projectId===p.id)out.push({id:e.id,name:e.name||'',date:e.date||'',notes:e.notes||'',dept:e.dept||''});
   out.sort((a,b)=>String(a.date||'9999').localeCompare(String(b.date||'9999')));
@@ -9776,7 +9788,26 @@ function liveAddEvent(p,dept,date,name){
   liveSave(ST.tasks.map(t=>t.id===host.id
     ?{...t,ticketNodes:[...(t.ticketNodes||[]),node]}:t));
 }
+/* item 97: a milestone moved onto a subtask ("sub:<phase id>") rides on that bar's own row
+   (its ticketNodes, drawn on that bar alone); moved back to a department it is a standalone
+   event again. The id stays the same either way. */
+function liveMoveEvent(evId,val){
+  const p=ppProject();if(!p)return;
+  const m=liveEvents(p).find(e=>e.id===evId);if(!m)return;
+  const hostId=String(val).startsWith('sub:')?String(val).slice(4):null;
+  const tasks=ST.tasks.map(t=>{
+    if(t.id!==hostId&&!(t.ticketNodes||[]).some(n=>n.id===evId))return t;
+    const tn=(t.ticketNodes||[]).filter(n=>n.id!==evId);
+    if(t.id===hostId)tn.push({id:m.id,date:m.date,target:m.name,notes:m.notes});
+    return {...t,ticketNodes:tn};
+  });
+  const events=(ST.events||[]).filter(e=>e.id!==evId);
+  if(!hostId)events.push({id:m.id,projectId:p.id,dept:val||'',date:m.date,name:m.name,notes:m.notes});
+  liveSave(tasks,undefined,events);
+}
 function liveCommitEvent(evId,field,val){
+  if(field==='dept'&&(String(val).startsWith('sub:')
+     ||(EVENTS_OK&&!(ST.events||[]).some(e=>e.id===evId)))){liveMoveEvent(evId,val);return;}
   if((ST.events||[]).some(e=>e.id===evId)){
     const k=(field==='name')?'name':(field==='dept'||field==='notes')?field:'date';
     liveSave(undefined,undefined,ST.events.map(e=>e.id===evId?{...e,[k]:val}:e));
@@ -9820,6 +9851,18 @@ function liveDeleteTodo(id){
 function deptOptions(sel){
   return '<option value="">No phase</option>'+DEPTS.filter(d=>!d.retired||d.id===sel).map(d=>
     '<option value="'+d.id+'"'+(d.id===sel?' selected':'')+'>'+esc(d.name)+'</option>').join('');
+}
+/* item 97: a saved project's milestone picker also lists, under each department with more
+   than one bar, those bars by name ("sub:<phase id>"). host = the bar it rides on now. */
+function msHostOptions(p,sel,host){
+  const ts=tasksOf(p.id).filter(t=>!t.__ghost);
+  return '<option value="">No phase</option>'+DEPTS.filter(d=>!d.retired||d.id===sel).map(d=>{
+    const subs=ts.filter(t=>t.department===d.id).sort((a,b)=>String(a.startDate).localeCompare(String(b.startDate)));
+    const many=subs.length>1;
+    return '<option value="'+d.id+'"'+(d.id===sel&&!(host&&many)?' selected':'')+'>'+esc(d.name)+'</option>'
+      +(many?subs.map(t=>'<option value="sub:'+esc(t.id)+'"'+(t.id===host?' selected':'')+'>'
+        +'&nbsp;&nbsp;└ '+esc(phaseLabel(t))+'</option>').join(''):'');
+  }).join('');
 }
 function allPeople(){return PEOPLE.map(p=>p.name).sort((a,b)=>a.localeCompare(b));}
 
@@ -10435,7 +10478,7 @@ function npvPopMarkFind(kind,id){
     const p=ppProject();if(!p)return null;
     const o=(kind==='ev'?liveEvents(p):liveTodos(p)).find(z=>z.id===id);
     if(!o)return null;
-    return kind==='ev'?{id:o.id,name:o.name||'',date:o.date||'',dept:o.dept||'',notes:o.notes||''}
+    return kind==='ev'?{id:o.id,name:o.name||'',date:o.date||'',dept:o.dept||'',host:o.host||'',notes:o.notes||''}
                       :{id:o.id,title:o.title||'',due:o.due||'',dept:o.dept||'',who:(o.who||[]).join(', ')};
   }
   if(kind==='ev'){const e=NPV_EVENTS.find(z=>z.id===id);
@@ -10452,7 +10495,7 @@ function npvPopMarkHTML(kind,it){
    +'<button class="x" data-pop-x title="Close (Esc)" aria-label="Close (Esc)">Close <span aria-hidden="true">&times;</span></button></div><div class="pop-body">';
   h+='<div class="ins-f"><label>Date</label><input type="date" data-f="'+(ev?'date':'due')+'" value="'+esc(ev?it.date:it.due)+'"></div>';
   h+='<div class="ins-f"><label>Name</label><input data-f="'+(ev?'name':'title')+'" value="'+esc(ev?it.name:it.title)+'" placeholder="'+(ev?'Client approval':'Order acrylic')+'"></div>';
-  if(ev)h+='<div class="ins-f"><label>Phase</label><select data-f="dept">'+deptOptions(it.dept)+'</select></div>';
+  if(ev)h+='<div class="ins-f"><label>Phase</label><select data-f="dept">'+(NPV_LIVE&&ppProject()?msHostOptions(ppProject(),it.dept,it.host):deptOptions(it.dept))+'</select></div>';
   h+='<div class="ins-acts"><button class="ins-btn dngr" data-pop-del>Delete</button></div></div>';
   return h;
 }
@@ -12381,6 +12424,9 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.55.2",d:"Nov 19, 2026",n:["In a phase's details, the \"Pin dates\" checkbox now sits beside its words instead of floating on its own under the End date.",
+   "Hovering a milestone diamond on the timeline now shows just that milestone — its name, date and project — instead of the whole phase's details.",
+   "A milestone can now belong to a subtask: on a project page, its phase list also names each subtask, and the milestone then shows on that subtask's bar alone. Pick the department again to put it back."]},
  {v:"v1.55.1",d:"Nov 17, 2026",n:["In the Changelog, a long entry (like a bulk change that lists every phase it touched) now shows its first four lines. Click \"more\" under them to see the rest."]},
  {v:"v1.55.0",d:"Nov 17, 2026",n:["Merging two people on the People page now also moves projects, phases and notes that were linked to the duplicate under an older spelling of their name."]},
  {v:"v1.54.1",d:"Nov 17, 2026",n:["On a project's schedule, scrolling sideways no longer lets a selected phase bar, a milestone or a holiday slide over the names on the left. The names stay on top."]},
