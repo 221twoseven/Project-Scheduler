@@ -411,7 +411,7 @@ What we still need from people: schemas, rules and examples, not screenshots. St
         - [x] *My Dashboard's panel*: the inspector's header, Title Case headings (Working
           On, Time Off, Your Stale Projects; owner OK 2026-11-19), 13px rows of at least
           28px, sans dates with aligned numerals, the NOW tag in the success tokens, the
-          inspector's notes box and focus ring. Shipped v1.62.2 (2026-11-19). Suite
+          inspector's notes box and focus ring. Shipped v1.62.2 (PR #221, 2026-11-19). Suite
           `tests/test-v1622.js`; record
           `docs/Milestones/Phase-7-Pilot-Readiness/2026-11-19-dashboard-panel-restyle.md`.
         - Left (dated 2026-11-19): the dialogs' own look (the focus trap is in), and the
