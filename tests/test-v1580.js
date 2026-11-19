@@ -75,8 +75,8 @@ async function run(){
   click(q('#btn-apps'));
   const it=qa('#apps-menu .ts-apps-item');
   ok('Apps lists the three products, Office ticked, People greyed "In Timeline for now"',
-    it.map(x=>x.dataset.app).join()==='Timeline,People,Office'&&it[2].getAttribute('aria-current')==='page'
-    &&it[1].classList.contains('off')&&/In Timeline for now/.test(txt(it[1]))&&it[0].getAttribute('href')==='../timeline/');
+    it.map(x=>x.dataset.app).join()==='Timeline,Office,People'&&it[1].getAttribute('aria-current')==='page'
+    &&it[2].classList.contains('off')&&/In Timeline for now/.test(txt(it[2]))&&it[0].getAttribute('href')==='../timeline/');
   ok('…and its button says it\'s open', q('#btn-apps').getAttribute('aria-expanded')==='true');
   d.dispatchEvent(new W.KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
   ok('Escape closes it', q('#apps-menu').classList.contains('hidden')&&q('#btn-apps').getAttribute('aria-expanded')==='false');
