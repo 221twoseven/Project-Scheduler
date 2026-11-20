@@ -517,7 +517,7 @@ What we still need from people: schemas, rules and examples, not screenshots. St
           rows, the Changelog filter is a real field, and App Settings' Config note and "Stale
           after" field use the tokens. Title Case: "App Settings", "Viewer Permissions"; the Help
           menu row stays "App settings". Owner: "Yes, with wording" (2026-11-20). Shipped v1.62.7
-          (2026-11-20). Suite `tests/test-v1627.js`; record
+          (PR #231, 2026-11-20). Suite `tests/test-v1627.js`; record
           `docs/Milestones/Phase-7-Pilot-Readiness/2026-11-20-developer-pages-restyle.md`.
         - Left (dated 2026-11-20): the project page.
       - *Done when, per PR:* before/after `/preview/` screenshots, the Design-Language §9
