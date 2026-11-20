@@ -11,7 +11,7 @@
      the single-file architecture stays intact and the deploy guard skips data: hrefs. -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MDAgMzIyLjg1NSI+CiAgPHBhdGggZD0iTTE2MS4yMDcsMjc0LjEzOGM2LjY0MywwLDEyLjQsNS43NTgsMTIuNCwxMi44NDR2MjMuMDI5YzAsNy4wODUtNS43NTcsMTIuODQzLTEyLjQsMTIuODQzSDE0LjYxNmMtNi42NDMsMC0xMi40MDEtNS43NTgtMTIuNDAxLTEyLjg0M3YtMzEuMDAyYzAtMTUuMDU4LDMuNTQzLTIxLjcwMSw3Ljk3MS0yNy45MDFMMTA1Ljg0OCwxMTguNjljMTIuNC0xNy4yNzMsMTcuMjczLTIzLjkxNiwxNy4yNzMtMzcuNjQ1LDAtMjMuOTE0LTE3LjcxNi0zNC45ODctMzcuMjAyLTM0Ljk4Ny0yMS43MDEsMC0zNi4zMTUsMTMuNzI5LTM2LjMxNSwzOS44NTl2NC44NzFjMCw2LjY0My01Ljc1OCwxMi40MDEtMTIuODQ0LDEyLjQwMUgxMi44NDRjLTcuMDg2LDAtMTIuODQ0LTUuNzU4LTEyLjg0NC0xMi40MDF2LTEwLjE4NUMwLDI5LjIyOSwzOS40MTcsMCw4NS45MTgsMGM0NS4xNzMsMCw4OC4xMzIsMjcuMDE2LDg4LjEzMiw4MC42MDQsMCwxOS45MjktMS43NzIsMzYuMzE1LTE3LjcxNCw1OC45MDFsLTk2Ljk5LDEzNC42MzNoMTAxLjg2MVpNMzE5Ljc1MiwxODIuNDYzYzYuNjQzLDAsMTIuNCw1Ljc1OCwxMi40LDEyLjg0NHYxNy43MTRjMCw3LjA4Ni01Ljc1NywxMi44NDMtMTIuNCwxMi44NDNoLTEyOC44NzdjLTYuNjQzLDAtMTIuNC01Ljc1Ny0xMi40LTEyLjg0M3YtMTcuNzE0YzAtNy4wODYsNS43NTctMTIuODQ0LDEyLjQtMTIuODQ0aDEyOC44NzdaTTM0MS4wMDgsNTcuNTczYy03LjA4NiwwLTEyLjg0My01Ljc1Ny0xMi44NDMtMTIuNHYtMjMuOTE2YzAtNi42NDMsNS43NTctMTIuNCwxMi44NDMtMTIuNGgxNDYuMTQ4YzcuMDg2LDAsMTIuODQ0LDUuNzU3LDEyLjg0NCwxMi40djI2LjU3MmMwLDkuMzAxLTMuNTQzLDIwLjgxNi01LjMxNSwyNS42ODdsLTg3LjI0NywyMzcuMzc5Yy0yLjIxMyw2LjItNS4zMTUsMTEuOTU4LTExLjk1OCwxMS45NThoLTMzLjIxNWMtNS4zMTMsMC0xMC4xODYtNC40MjgtMTAuMTg2LTExLjk1OCwwLTEuNzcyLjQ0My0zLjU0MywxLjMzLTUuNzU3bDkwLjc4OC0yNDcuNTY3aC0xMDMuMTg5WiIvPgo8L3N2Zz4=">
 
-<link rel="stylesheet" href="../common/common.css?v=1.62.3">
+<link rel="stylesheet" href="../common/common.css?v=1.62.4">
 <style>
 /* ============ TOKENS ============ */
 :root{
@@ -178,7 +178,7 @@ body.me-dock-col #md-collapse svg{transform:rotate(180deg)}
 #md-thought{margin-left:auto;background:none;border:1px solid transparent;border-radius:6px;color:var(--ts-muted);cursor:pointer;padding:2px 4px;line-height:0}
 #md-thought:hover{color:var(--acc);border-color:#CBD6E4}
 #md-thought svg{width:15px;height:15px;display:block}
-#md-tpop{position:absolute;right:8px;top:28px;z-index:40;background:#fff;border:1px solid #CBD5E1;border-radius:10px;box-shadow:0 8px 24px rgba(15,23,42,.18);padding:10px;display:flex;flex-direction:column;gap:6px;width:232px}
+#md-tpop{position:absolute;right:8px;top:28px;z-index:40;background:#fff;border:1px solid var(--ts-line);border-radius:8px;box-shadow:0 4px 18px rgba(13,19,29,.18);padding:10px;display:flex;flex-direction:column;gap:6px;width:232px}
 #md-tpop.hidden{display:none}
 #md-tpop select,#md-tpop input[type=text],#md-tpop input[type=url]{font-family:inherit;font-size:12px;min-height:32px;padding:6px 10px;border:1px solid var(--ts-control-line);border-radius:var(--ts-radius-control);color:var(--ts-text);width:100%;box-sizing:border-box} /* v1.62.2: a visible field edge (3:1), not #CBD6E4 */
 #md-tpop label{display:flex;gap:6px;align-items:center;font-size:11.5px;color:#5B6B84;cursor:pointer}
@@ -529,13 +529,16 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 
 /* ============ REV31: STATUS FILTER + RESET ============ */
 .sf-wrap{position:relative}
-.tb-menu{position:absolute;top:32px;left:0;z-index:900;background:#fff;border:1.5px solid #CBD5E1;border-radius:10px;box-shadow:0 10px 30px rgba(15,23,42,.18);padding:8px;display:flex;flex-direction:column;gap:2px;min-width:180px}
-.sm-item{display:flex;align-items:center;gap:8px;font-size:12px;padding:6px 8px;border-radius:6px;cursor:pointer;white-space:nowrap;color:#334155}
-.sm-item:hover{background:#F1F5F9}
-.sm-all{margin-top:6px;border:none;background:#F1F5F9;border-radius:6px;padding:5px;font-size:11px;cursor:pointer;color:#334155}
-.sm-all:hover{background:#E2E8F0}
+/* v1.62.4 (item 52 step 3): menus and popovers share one floating frame (1px edge, 8px
+   corners, the shared shadow); rows are 13px and 32px tall; section labels read as written. */
+.tb-menu{position:absolute;top:32px;left:0;z-index:900;background:#fff;border:1px solid var(--ts-line);border-radius:8px;box-shadow:0 4px 18px rgba(13,19,29,.18);padding:6px;display:flex;flex-direction:column;gap:0;min-width:180px}
+.sm-item{display:flex;align-items:center;gap:8px;min-height:32px;box-sizing:border-box;font-size:13px;padding:4px 8px;border-radius:6px;cursor:pointer;white-space:nowrap;color:var(--ts-text)}
+.sm-item:hover{background:#EFF5FC}
+.sm-item input[type=checkbox],.sm-item input[type=radio]{width:16px;height:16px;margin:0;flex-shrink:0}
+.sm-all{min-height:28px;margin:2px 0 4px;border:1px solid var(--ts-line);background:#fff;border-radius:var(--ts-radius-control);padding:0 8px;font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;color:var(--ts-text)}
+.sm-all:hover{border-color:var(--acc);color:var(--acc)}
 .sm-note{font-family:var(--mono);font-size:var(--fs-fine);color:var(--ts-muted);padding:6px 8px 2px;border-top:1px solid #E2E8F0;margin-top:4px;white-space:nowrap}
-.sm-sec{font-size:var(--fs-micro);font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ts-muted);padding:6px 8px 2px}
+.sm-sec{font-size:11px;font-weight:600;color:var(--ts-muted);padding:8px 8px 4px}
 #filters-menu{max-height:70vh;overflow:auto}
 .f-chips{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap}
 .f-chip{display:inline-flex;align-items:center;gap:2px;height:22px;padding:0 3px 0 9px;background:rgba(47,111,228,.2);border:1px solid rgba(96,150,240,.45);border-radius:11px;color:#DCE8FF;font-size:11px;white-space:nowrap}
@@ -545,7 +548,7 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
    Everything is a real <button> so the menu walks on Tab (§9). */
 .vw-row{gap:4px;padding:2px 8px}
 .vw-name{flex:1;min-width:110px;min-height:24px;cursor:pointer;border:none;background:none;text-align:left;font:inherit;color:inherit;padding:0}
-.vw-act{border:none;background:none;cursor:pointer;font-size:12px;line-height:1;color:#64748B;min-width:24px;min-height:24px;padding:2px;border-radius:4px}
+.vw-act{border:none;background:none;cursor:pointer;font-size:12px;line-height:1;color:var(--ts-muted);min-width:28px;min-height:28px;padding:2px;border-radius:var(--ts-radius-control)}
 .vw-act:hover{background:#E2E8F0;color:#0F172A}
 .vw-act.on{color:#B45309}
 /* B3: go-to-date popover — G, a month-name click, or the ? legend open it (§6 three paths) */
@@ -991,6 +994,7 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
   font-family:inherit;display:inline-flex;align-items:center;gap:6px;margin-left:auto}
 /* the inspector, its phase popover and their fields: one clear ring, never the faint glow */
 #pp-insp :focus-visible,.npv-pop :focus-visible,#me-dock :focus-visible,.fg :focus-visible,.modal :focus-visible{outline:2px solid var(--ts-action);outline-offset:2px}
+.tb-menu :focus-visible,.npv-menu :focus-visible{outline:2px solid var(--ts-action);outline-offset:-2px} /* inset: a menu clips its overflow */
 .ins-hd .x span{font-size:15px;line-height:1}
 .ins-hd .x:hover{color:var(--acc);border-color:var(--acc)}
 /* E1: sections run side by side as columns — Setup | Project Team | Project Schedule | Agenda — all
@@ -1149,24 +1153,21 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 
 /* ============ REV48: CANVAS CREATE MENU ============ */
 .npv-menu{position:fixed;z-index:45;min-width:212px;max-width:280px;max-height:62vh;
-  overflow-y:auto;background:#fff;border:1px solid #CBD6E4;
-  border-radius:9px;box-shadow:0 10px 30px -8px rgba(15,23,42,.3);padding:5px;
+  overflow-y:auto;background:#fff;border:1px solid var(--ts-line);border-radius:8px;box-shadow:0 4px 18px rgba(13,19,29,.18);padding:4px;
   font-family:inherit}
-.npv-menu .mh{padding:6px 9px 7px;font-size:var(--fs-fine);font-weight:700;letter-spacing:.09em;
-  text-transform:uppercase;color:var(--ts-muted);border-bottom:1px solid #EDF2F7;margin-bottom:4px;
+.npv-menu .mh{padding:6px 8px 8px;font-size:12px;font-weight:600;
+  color:var(--ts-muted);border-bottom:1px solid #EDF2F7;margin-bottom:4px;
   overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
-.npv-menu button{display:flex;align-items:center;gap:9px;width:100%;background:none;border:none;
-  border-radius:6px;padding:7px 9px;font-size:12px;font-weight:600;color:#1E293B;cursor:pointer;
+.npv-menu button{display:flex;align-items:center;gap:9px;width:100%;min-height:32px;background:none;border:none;
+  border-radius:6px;padding:4px 8px;font-size:13px;font-weight:500;color:var(--ts-text);cursor:pointer;
   font-family:inherit;text-align:left}
-.npv-menu button:hover{background:#EFF5FC;color:var(--acc)}
-.npv-menu button .k{font-size:var(--fs-fine);font-weight:600;color:var(--ts-muted);margin-left:auto;flex-shrink:0}
-.npv-menu button:hover .k{color:var(--acc)}
+.npv-menu button:hover{background:#EFF5FC}
+.npv-menu button .k{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--ts-muted);margin-left:auto;flex-shrink:0}
 .npv-menu .sep{height:1px;background:#EDF2F7;margin:4px 6px}
 /* N11: the inline name field under the menu header — Enter files the first action. */
-.npv-menu .mn{display:block;width:calc(100% - 12px);margin:2px 6px 5px;border:1px solid var(--ts-control-line);
-  border-radius:6px;padding:5px 8px;font-size:12px;font-family:inherit;color:#1E293B;
-  box-sizing:border-box;outline:none}
-.npv-menu .mn:focus{border-color:var(--acc)}
+.npv-menu .mn{display:block;width:calc(100% - 12px);min-height:32px;margin:2px 6px 5px;border:1px solid var(--ts-control-line);
+  border-radius:6px;padding:4px 8px;font-size:13px;font-family:inherit;color:var(--ts-text);
+  box-sizing:border-box}
 .npv-menu .mn::placeholder{color:var(--ts-muted)}
 .npv-menu .mi{width:11px;height:11px;flex-shrink:0;border-radius:3px;display:block}
 .npv-menu .mi.ev{background:#F7C948;border:2px solid #16202E;box-sizing:border-box;
@@ -1181,9 +1182,9 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
    clamps upward, and its own header/close must not slide behind the toolbar. Still below
    modal overlays (200), the tooltip (999) and toasts (1000). */
 .npv-pop{position:fixed;z-index:120;width:274px;max-height:82vh;overflow-y:auto;background:#fff;
-  border:1px solid #CBD6E4;border-radius:10px;box-shadow:0 12px 34px -8px rgba(15,23,42,.34);
+  border:1px solid var(--ts-line);border-radius:8px;box-shadow:0 4px 18px rgba(13,19,29,.18);
   font-family:inherit}
-.npv-pop .ins-hd{position:sticky;top:0;z-index:1;border-radius:10px 10px 0 0}
+.npv-pop .ins-hd{position:sticky;top:0;z-index:1;border-radius:8px 8px 0 0}
 .npv-pop .pop-body{padding:12px 14px}
 .npv-pop .ins-f{margin-bottom:9px}
 /* Start/End share one row that spans the full field width (their right edge lines up with
@@ -1243,9 +1244,9 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
    can't run past the window edge. */
 #kbd-menu{left:auto;right:0;width:410px;padding:12px;cursor:default}
 #views-menu{left:auto;right:0}
-.lg-sec{font-size:var(--fs-fine);font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--ts-muted);margin:8px 0 5px}
+.lg-sec{font-size:11px;font-weight:600;color:var(--ts-muted);margin:8px 0 5px}
 .lg-sec:first-child{margin-top:0}
-.lg-hint{font-size:var(--fs-fine);color:var(--ts-muted);margin-bottom:6px;line-height:1.4}
+.lg-hint{font-size:12px;color:var(--ts-muted);margin-bottom:6px;line-height:1.45}
 .lg-row{display:flex;align-items:center;gap:10px;margin-bottom:5px;font-size:var(--fs-label);color:#33415A}
 .lg-row>span:last-child{flex:1;min-width:0}
 .lg-bar{position:static;flex:0 0 128px;display:flex;align-items:center;padding:0 5px;height:20px;cursor:default;pointer-events:none;overflow:hidden}
@@ -1784,10 +1785,10 @@ body.cd-route #dash-bar{display:none!important}
      from common/, the folder every Systems product shares. ?v= is APP_VER, stamped by
      `npm run notes`, so a new page never runs against a cached old core. -->
 <script src="../common/msal-browser.min.js"></script>
-<script src="../common/common.js?v=1.62.3"></script>
+<script src="../common/common.js?v=1.62.4"></script>
 <script>
 'use strict';
-const APP_VER='1.62.3'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.62.4'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -11027,6 +11028,8 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.62.4",d:"Nov 20, 2026",n:["The toolbar menus (Filters, View, Help, Saved Views and the rest) and the right-click menu on a project's chart now match the pop-up windows: a lighter frame, larger rows that are easier to hit, and section labels in plain type instead of small capitals.",
+   "\"Show everything\" in Filters is now a small white button, like the other secondary buttons."]},
  {v:"v1.62.3",d:"Nov 20, 2026",n:["Pop-up windows (Edit Phase, Print Preview, Meeting Sheet and the rest) now match the project page: plain labels instead of small capitals, taller fields, and the blue focus ring.",
    "Cancel, Close and the other secondary buttons are now white with an edge, the same on pop-ups and the project page's footer, and Delete is red text.",
    "In Edit Phase, the crew list shows names in normal type beside their tick boxes, no longer in capitals.",

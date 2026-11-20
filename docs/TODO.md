@@ -16,7 +16,7 @@ Kept elsewhere so this file stays short:
 
 As of 2026-11-20:
 - **Live** (`main`, what users run): **v1.55.3**, Timeline only (hotfixes from `main`, items 96 to 98).
-- **Preview** (`development`, at `/preview/`): **v1.62.3**. The Systems page sits at the
+- **Preview** (`development`, at `/preview/`): **v1.62.4**. The Systems page sits at the
   root; Timeline moves to `/timeline/` with the Systems header and Apps menu; Office (the
   client list, formerly Clients) is its own app at `/office/`, and a client's record shows its current projects at a glance and
   its project history, projects from before Timeline included; People (the staff roster) is its own app at `/people/`;
@@ -73,8 +73,8 @@ details. Open questions with no deadline are in [`Decisions.md`](Decisions.md).
 
 ## Next — Claude can do these without waiting
 
-- **Restyle the next Timeline surface** to the wireframes: the project inspector, My
-  Dashboard's panel and the dialogs are done; the menus are left, then the business pages. (item 52)
+- **Restyle the next Timeline surface** to the wireframes: step 3 (the chrome surfaces)
+  is done; the business pages are next. (item 52)
 - **Write the one-paragraph rollback procedure**, and start tagging releases once you OK it.
   (item 16)
 
@@ -416,9 +416,9 @@ What we still need from people: schemas, rules and examples, not screenshots. St
 - [ ] **52. The style track: suite style guide §13 steps 3–5.** The migration sequence in
       `design/TwoSeven-Application-Style-Guide.md` §13. Step 1 (baseline) and step 2 (tokens
       and readable chrome text, v1.24.0) are done.
-      - *Step 3:* restyle one chrome surface per PR, project inspector first: type
+      - [x] *Step 3:* restyle one chrome surface per PR, project inspector first: type
         hierarchy, spacing, radii, fields, focus, buttons, and modal focus trapping where
-        it's missing. Next.
+        it's missing. Done 2026-11-20 in four PRs (v1.62.1 to v1.62.4):
         - [x] *The project inspector* (the panel under a project's chart, saved and draft):
           14px header, 13px/600 Title Case headings (owner, 2026-11-19: "No sentence case"),
           12px labels, 36px fields (owner: OK), 32px buttons, 28px compact rows, 6px corners,
@@ -439,7 +439,14 @@ What we still need from people: schemas, rules and examples, not screenshots. St
           capitals, and Meeting Sheet's Orientation in a row. Owner OK on the mock 2026-11-20.
           Shipped v1.62.3 (PR #226, 2026-11-20). Suite `tests/test-v1623.js`; record
           `docs/Milestones/Phase-7-Pilot-Readiness/2026-11-20-dialogs-restyle.md`.
-        - Left (dated 2026-11-20): the menus and popovers.
+        - [x] *The menus and popovers* (the toolbar menus, the chart's right-click menu, the
+          edit-in-place and thought popovers): one floating frame (1px edge, 8px corners, the
+          shared shadow), 13px rows of at least 32px (owner picked these over 28px), 16px tick
+          boxes, section labels as written, "Show everything" a white secondary button, the
+          2px ring inset. Owner OK on the mock 2026-11-20. Shipped v1.62.4 (PR #227, 2026-11-20). Suite
+          `tests/test-v1624.js`; record
+          `docs/Milestones/Phase-7-Pilot-Readiness/2026-11-20-menus-restyle.md`.
+        - Step 3 is done (2026-11-20).
       - [x] *Step 4:* the shell as one change: the global header and a real app switcher.
         Item 49 shipped v1.56.0 (2026-11-17), so the portal exists to switch to.
         Shipped v1.57.0 (PR #206, 2026-11-18). Owner's picks (2026-11-18): TWOSEVEN INC.
@@ -453,7 +460,7 @@ What we still need from people: schemas, rules and examples, not screenshots. St
         page's cards. Suite `tests/test-v1570.js`; record
         `docs/Milestones/Phase-7-Pilot-Readiness/2026-11-18-shell.md`.
       - *Step 5:* business pages and routing: read-first records, sorting, empty states,
-        per-record routes.
+        per-record routes. Next.
       - *Done when, per PR:* before/after `/preview/` screenshots, the Design-Language §9
         checklist, and the §13 verification list. A visible change follows the version and
         changelog rules. Steps 6–7 are rules for how the steps are done, not work of their

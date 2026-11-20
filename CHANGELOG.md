@@ -9,6 +9,10 @@ Format: `## <label> — <date>` then one `- ` line per change. Keep lines concre
 what changed *for the team*, not how. Developer-only tooling doesn't need a line.
 Collect lines for the next version under `## Unreleased` and rename it when you ship.
 
+## v1.62.4 — Nov 20, 2026
+- The toolbar menus (Filters, View, Help, Saved Views and the rest) and the right-click menu on a project's chart now match the pop-up windows: a lighter frame, larger rows that are easier to hit, and section labels in plain type instead of small capitals.
+- "Show everything" in Filters is now a small white button, like the other secondary buttons.
+
 ## v1.62.3 — Nov 20, 2026
 - Pop-up windows (Edit Phase, Print Preview, Meeting Sheet and the rest) now match the project page: plain labels instead of small capitals, taller fields, and the blue focus ring.
 - Cancel, Close and the other secondary buttons are now white with an edge, the same on pop-ups and the project page's footer, and Delete is red text.
