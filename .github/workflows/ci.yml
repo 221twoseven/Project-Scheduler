@@ -26,3 +26,19 @@ jobs:
 
       - name: Run regression suites against timeline/index.html (and the Systems page)
         run: npm test
+
+  # The Systems API's Azure resources (infra/, item 51): compile and lint the Bicep.
+  # Nothing signs in to Azure and nothing is deployed here.
+  infra:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and lint the Bicep
+        env:
+          SQL_ADMIN_NAME: ci-placeholder
+          SQL_ADMIN_OBJECT_ID: 00000000-0000-0000-0000-000000000000
+        run: |
+          az bicep install
+          az bicep lint --file infra/main.bicep
+          az bicep build --file infra/main.bicep --stdout > /dev/null
+          az bicep build-params --file infra/staging.bicepparam --stdout > /dev/null
