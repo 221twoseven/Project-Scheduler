@@ -7,6 +7,95 @@ release-by-release record.
 
 ## Finished since 2026-11-18
 
+- [x] **52. The style track: suite style guide §13 steps 3–5.** Shipped v1.62.8 (PR #232,
+      2026-11-20). The migration sequence in
+      `design/TwoSeven-Application-Style-Guide.md` §13. Step 1 (baseline) and step 2 (tokens
+      and readable chrome text, v1.24.0) are done.
+      - [x] *Step 3:* restyle one chrome surface per PR, project inspector first: type
+        hierarchy, spacing, radii, fields, focus, buttons, and modal focus trapping where
+        it's missing. Done 2026-11-20 in four PRs (v1.62.1 to v1.62.4):
+        - [x] *The project inspector* (the panel under a project's chart, saved and draft):
+          14px header, 13px/600 Title Case headings (owner, 2026-11-19: "No sentence case"),
+          12px labels, 36px fields (owner: OK), 32px buttons, 28px compact rows, 6px corners,
+          a 2px focus ring; every dialog keeps Tab inside it and gives focus back to its
+          opener. Shipped v1.62.1 (PR #220, 2026-11-19). Suite `tests/test-v1621.js`; record
+          `docs/Milestones/Phase-7-Pilot-Readiness/2026-11-19-inspector-restyle.md`.
+        - [x] *My Dashboard's panel*: the inspector's header, Title Case headings (Working
+          On, Time Off, Your Stale Projects; owner OK 2026-11-19), 13px rows of at least
+          28px, sans dates with aligned numerals, the NOW tag in the success tokens, the
+          inspector's notes box and focus ring. Shipped v1.62.2 (PR #221, 2026-11-19). Suite
+          `tests/test-v1622.js`; record
+          `docs/Milestones/Phase-7-Pilot-Readiness/2026-11-19-dashboard-panel-restyle.md`.
+        - [x] *The dialogs* (Edit Phase, Print Preview, Meeting Sheet, the late-project
+          prompt, sign-in expired, the demo slides): 10px corners, a 1px edge, the shared
+          floating shadow, no blur behind, 17px titles (wording unchanged), 12px plain labels,
+          36px white fields, 32px buttons with a white secondary (so the project page's footer
+          and the Open Issues form match), the 2px focus ring; the crew list's names out of
+          capitals, and Meeting Sheet's Orientation in a row. Owner OK on the mock 2026-11-20.
+          Shipped v1.62.3 (PR #226, 2026-11-20). Suite `tests/test-v1623.js`; record
+          `docs/Milestones/Phase-7-Pilot-Readiness/2026-11-20-dialogs-restyle.md`.
+        - [x] *The menus and popovers* (the toolbar menus, the chart's right-click menu, the
+          edit-in-place and thought popovers): one floating frame (1px edge, 8px corners, the
+          shared shadow), 13px rows of at least 32px (owner picked these over 28px), 16px tick
+          boxes, section labels as written, "Show everything" a white secondary button, the
+          2px ring inset. Owner OK on the mock 2026-11-20. Shipped v1.62.4 (PR #227, 2026-11-20). Suite
+          `tests/test-v1624.js`; record
+          `docs/Milestones/Phase-7-Pilot-Readiness/2026-11-20-menus-restyle.md`.
+        - Step 3 is done (2026-11-20).
+      - [x] *Step 4:* the shell as one change: the global header and a real app switcher.
+        Item 49 shipped v1.56.0 (2026-11-17), so the portal exists to switch to.
+        Shipped v1.57.0 (PR #206, 2026-11-18). Owner's picks (2026-11-18): TWOSEVEN INC.
+        opens the Systems page; the name beside it reads "Timeline" and goes home to the
+        full timeline; Timeline's own buttons stay in the header row (now 56px); Apps ▾
+        lists all four products, unbuilt ones greyed, Clients hidden from non-admins. The
+        header pieces, the font and the menu live in `common/` (`.ts-top`, `.ts-brand`,
+        `.ts-app`, `appsMenu()`); the Systems page loads `common.css` and drops its token
+        copy. The project page sits under the toolbar's measured height, not a fixed 50px.
+        Item 86 points the menu's Clients at `clients/` and greys People, with the Systems
+        page's cards. Suite `tests/test-v1570.js`; record
+        `docs/Milestones/Phase-7-Pilot-Readiness/2026-11-18-shell.md`.
+      - [x] *Step 5:* business pages and routing: read-first records, sorting, empty states,
+        per-record routes. Done 2026-11-20. Order (2026-11-20, each with a mock first): Open Issues;
+        Release Notes and My settings; the developer pages (App Settings, Changelog, Reports);
+        the project page. Projects and reports already have their own links
+        (`#/project/…`, `#/issues/…`).
+        - [x] *Open Issues*: each column's heading above its line, in Title Case ("Report a
+          Bug or Request a Feature", "Open Issues"), the wireframes' soft table header as
+          written with a ↓ on the date for the order, 13px rows, and the chips as written
+          (Bug, Idea, Pending, In review) in the page's type. Owner: "Yes, with wording"
+          (2026-11-20). Shipped v1.62.5 (PR #228, 2026-11-20). Suite `tests/test-v1625.js`; record
+          `docs/Milestones/Phase-7-Pilot-Readiness/2026-11-20-open-issues-restyle.md`.
+        - [x] *Release Notes and My Settings*: a 22px page title over its line (every
+          full-width Help and Company Data page), Release Notes' 15px versions and 13px notes at
+          a reading width, My Settings' 15px section heading and 13px choices with the chosen one
+          in the action blue (the developer App settings shares it). Title Case: "My Settings",
+          "Project Page"; the Help menu row stays "My settings". Owner: "Yes, with wording"
+          (2026-11-20). Shipped v1.62.6 (PR #230, 2026-11-20). Suite `tests/test-v1626.js`; record
+          `docs/Milestones/Phase-7-Pilot-Readiness/2026-11-20-help-pages-restyle.md`.
+        - [x] *The developer pages*: the Changelog and Bug Reports lists share Open Issues' 13px
+          rows, the Changelog filter is a real field, and App Settings' Config note and "Stale
+          after" field use the tokens. Title Case: "App Settings", "Viewer Permissions"; the Help
+          menu row stays "App settings". Owner: "Yes, with wording" (2026-11-20). Shipped v1.62.7
+          (PR #231, 2026-11-20). Suite `tests/test-v1627.js`; record
+          `docs/Milestones/Phase-7-Pilot-Readiness/2026-11-20-developer-pages-restyle.md`.
+        - [x] *The project page*: the summary line's labels as written (Client, Cost code,
+          Installs…) with 13px values, the Schedule heading as written, the chart's Milestones
+          and Notes rows upright, and a 12px Kickoff line; the page keeps its height. Owner:
+          "Yes, build it" (2026-11-20). Shipped v1.62.8 (PR #232, 2026-11-20). Suite
+          `tests/test-v1628.js`; record
+          `docs/Milestones/Phase-7-Pilot-Readiness/2026-11-20-project-page-restyle.md`.
+        - Left in place (dated 2026-11-20): the chart's own capitals (month names, the status
+          tag such as FABRICATION or DRAFT, the bars' phase tags) match the bars on the main
+          timeline, so they would change together, as one step of their own. Step 5's agreed
+          order is done.
+      - *Closed (owner, 2026-11-20):* "Close item 52". The chart's own capitals stay as they
+        are; restyling them with the main timeline's bars would be a new item.
+      - *Done when, per PR:* before/after `/preview/` screenshots, the Design-Language §9
+        checklist, and the §13 verification list. A visible change follows the version and
+        changelog rules. Steps 6–7 are rules for how the steps are done, not work of their
+        own.
+      [style guide §13; `design/Style-Transition-Review.md`]
+
 - [x] **101. The version in Office's and People's headers** (owner, 2026-11-19: "Office and
       People also need the version number listed in the header the way Timeline does").
       Shipped v1.62.0 (PR #219, 2026-11-19). Each shows "v1.62.0" (the running build) just before the
