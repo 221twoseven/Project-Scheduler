@@ -475,7 +475,7 @@ What we still need from people: schemas, rules and examples, not screenshots. St
           a reading width, My Settings' 15px section heading and 13px choices with the chosen one
           in the action blue (the developer App settings shares it). Title Case: "My Settings",
           "Project Page"; the Help menu row stays "My settings". Owner: "Yes, with wording"
-          (2026-11-20). Shipped v1.62.6 (2026-11-20). Suite `tests/test-v1626.js`; record
+          (2026-11-20). Shipped v1.62.6 (PR #230, 2026-11-20). Suite `tests/test-v1626.js`; record
           `docs/Milestones/Phase-7-Pilot-Readiness/2026-11-20-help-pages-restyle.md`.
         - Left (dated 2026-11-20): the developer pages (App settings' rows already match, its
           head too), then the project page.
