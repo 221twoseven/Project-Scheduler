@@ -411,9 +411,9 @@ font-size:var(--fs-fine);font-weight:700;text-transform:uppercase;letter-spacing
 /* variants: #64748B (modal labels) · 9px + #A3B1C4 (meta keys, dt) */
 ```
 
-**Retired on the project inspector (v1.62.1, item 52 step 3):** its column headings, field
-labels, Team role labels and department group headings are no longer micro-caps — see 7.4.
-My Dashboard's dock still uses the micro-caps `.ins-sec>h4` until its own step.
+**Retired on both docks (v1.62.1 project inspector, v1.62.2 My Dashboard; item 52 step 3):**
+their column headings (`.ins-sec>h4`), field labels, Team role labels and department group
+headings are no longer micro-caps — see 7.4.
 
 ---
 
@@ -640,10 +640,15 @@ high (Design-Language §9).
 .ins-f input[type=checkbox],.ins-f input[type=radio]{min-height:0}
 .ins-f input.err{border-color:#CE4242}
 /* focus: one ring, never the faint halo — the inspector and its phase popover */
-#pp-insp :focus-visible,.npv-pop :focus-visible{outline:2px solid var(--ts-action);outline-offset:2px}
-/* the inspector's columns: Title Case headings as written (owner, 2026-11-19: no sentence case) */
-#pp-insp .ins-sec>h4{padding:12px 16px;font-size:13px;line-height:1.4;font-weight:600;text-transform:none;color:var(--ts-text)}
-#pp-insp .ins-sec .in{padding:12px 16px 16px}
+#pp-insp :focus-visible,.npv-pop :focus-visible,#me-dock :focus-visible{outline:2px solid var(--ts-action);outline-offset:2px}
+/* both docks' columns (inspector, My Dashboard): Title Case headings as written (owner, 2026-11-19: no sentence case) */
+.ins-sec>h4{padding:12px 16px;font-size:13px;line-height:1.4;font-weight:600;color:var(--ts-text)}
+.ins-sec .in{padding:12px 16px 16px}
+/* My Dashboard's rows (v1.62.2): 13px, ≥ 28px; dates sans 12px with tabular numerals (mono cut the names short);
+   NOW in the success tokens; the header .md-hd .t is the inspector's 14px/600 */
+.md-row{gap:8px;padding:5px 0;min-height:28px;font-size:13px;color:var(--ts-text)}
+.md-when{font-size:12px;font-variant-numeric:tabular-nums;color:var(--ts-muted)}
+.md-tag{font-size:11px;font-weight:600;color:var(--ts-success-text);background:var(--ts-success-bg);border-radius:var(--ts-radius-chip);padding:1px 6px}
 .ins-hd .t{font-size:14px;font-weight:600}
 /* compact rows inside a column (department dates and days, milestone and note rows): 28px,
    6px corners, 12px; the row × and + are 28px boxes; checkboxes 16px */

@@ -77,7 +77,7 @@ async function main(){
   sec('the prompt: your stale projects on your own dashboard');
   E("enterDash('Sam')");await wait(200);
   const st=[...doc.querySelectorAll('#me-dock .md-stale')];
-  ok('Sam, PM of the stale job, sees "Your stale projects"',/Your stale projects/.test(doc.getElementById('me-dock').textContent)&&st.length===1);
+  ok('Sam, PM of the stale job, sees "Your stale projects"',/Your stale projects/i.test(doc.getElementById('me-dock').textContent)&&st.length===1);
   ok('it lists that job, with "no edits since …"',!!st[0]&&/Job old/.test(st[0].textContent)&&/no edits since/.test(st[0].textContent));
   ok('a fresh job he doesn\'t PM is not on it',!st.some(b=>/Job fresh/.test(b.textContent)));
   st[0]&&st[0].click();await wait(700);

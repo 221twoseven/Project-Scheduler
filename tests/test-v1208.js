@@ -75,7 +75,7 @@ function savedPart(){
   ok('the Milestones column renders', !!ms);
   ok('all 12 milestones are rows', ms&&ms.querySelectorAll('.md-row').length===12, ms&&ms.querySelectorAll('.md-row').length);
   ok('no +N more stub anywhere in the dock', !doc.querySelector('#me-dock .md-more'));
-  ok('the column body scrolls (stylesheet rule)', src.includes('.ins-sec .in{padding:8px 15px 14px;flex:1;min-height:0;overflow-y:auto}'));
+  ok('the column body scrolls (stylesheet rule)', /\.ins-sec \.in\{padding:[^;]+;flex:1;min-height:0;overflow-y:auto\}/.test(src)); /* padding 12px 16px 16px since v1.62.2 (item 52) */
 
   done();
 }

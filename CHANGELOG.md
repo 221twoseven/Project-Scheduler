@@ -9,6 +9,9 @@ Format: `## <label> — <date>` then one `- ` line per change. Keep lines concre
 what changed *for the team*, not how. Developer-only tooling doesn't need a line.
 Collect lines for the next version under `## Unreleased` and rename it when you ship.
 
+## v1.62.2 — Nov 19, 2026
+- My Dashboard's bottom panel now matches the project page's: headings in plain type (Working On, Time Off), slightly larger rows, and the same notes box and blue focus ring.
+
 ## v1.62.1 — Nov 19, 2026
 - The project editing panel under the chart has a cleaner look: headings in plain type instead of small capitals, taller fields, larger buttons, and a clear blue ring on whichever field or button you're on.
 - Pop-up windows keep the Tab key inside them, and closing one puts you back on the button you opened it from.
