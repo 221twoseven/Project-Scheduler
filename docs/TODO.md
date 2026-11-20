@@ -468,7 +468,7 @@ What we still need from people: schemas, rules and examples, not screenshots. St
           Bug or Request a Feature", "Open Issues"), the wireframes' soft table header as
           written with a ↓ on the date for the order, 13px rows, and the chips as written
           (Bug, Idea, Pending, In review) in the page's type. Owner: "Yes, with wording"
-          (2026-11-20). Shipped v1.62.5 (2026-11-20). Suite `tests/test-v1625.js`; record
+          (2026-11-20). Shipped v1.62.5 (PR #228, 2026-11-20). Suite `tests/test-v1625.js`; record
           `docs/Milestones/Phase-7-Pilot-Readiness/2026-11-20-open-issues-restyle.md`.
         - Left (dated 2026-11-20): Release Notes and My settings, the developer pages, the
           project page.
