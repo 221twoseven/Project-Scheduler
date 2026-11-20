@@ -9,6 +9,12 @@ Format: `## <label> — <date>` then one `- ` line per change. Keep lines concre
 what changed *for the team*, not how. Developer-only tooling doesn't need a line.
 Collect lines for the next version under `## Unreleased` and rename it when you ship.
 
+## v1.62.3 — Nov 20, 2026
+- Pop-up windows (Edit Phase, Print Preview, Meeting Sheet and the rest) now match the project page: plain labels instead of small capitals, taller fields, and the blue focus ring.
+- Cancel, Close and the other secondary buttons are now white with an edge, the same on pop-ups and the project page's footer, and Delete is red text.
+- In Edit Phase, the crew list shows names in normal type beside their tick boxes, no longer in capitals.
+- Meeting Sheet's Landscape and Portrait choices sit in a row beside their names, the way Paper's do, instead of stacking out of line.
+
 ## v1.62.2 — Nov 19, 2026
 - My Dashboard's bottom panel now matches the project page's: headings in plain type (Working On, Time Off), slightly larger rows, and the same notes box and blue focus ring.
 

@@ -11,7 +11,7 @@
      the single-file architecture stays intact and the deploy guard skips data: hrefs. -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MDAgMzIyLjg1NSI+CiAgPHBhdGggZD0iTTE2MS4yMDcsMjc0LjEzOGM2LjY0MywwLDEyLjQsNS43NTgsMTIuNCwxMi44NDR2MjMuMDI5YzAsNy4wODUtNS43NTcsMTIuODQzLTEyLjQsMTIuODQzSDE0LjYxNmMtNi42NDMsMC0xMi40MDEtNS43NTgtMTIuNDAxLTEyLjg0M3YtMzEuMDAyYzAtMTUuMDU4LDMuNTQzLTIxLjcwMSw3Ljk3MS0yNy45MDFMMTA1Ljg0OCwxMTguNjljMTIuNC0xNy4yNzMsMTcuMjczLTIzLjkxNiwxNy4yNzMtMzcuNjQ1LDAtMjMuOTE0LTE3LjcxNi0zNC45ODctMzcuMjAyLTM0Ljk4Ny0yMS43MDEsMC0zNi4zMTUsMTMuNzI5LTM2LjMxNSwzOS44NTl2NC44NzFjMCw2LjY0My01Ljc1OCwxMi40MDEtMTIuODQ0LDEyLjQwMUgxMi44NDRjLTcuMDg2LDAtMTIuODQ0LTUuNzU4LTEyLjg0NC0xMi40MDF2LTEwLjE4NUMwLDI5LjIyOSwzOS40MTcsMCw4NS45MTgsMGM0NS4xNzMsMCw4OC4xMzIsMjcuMDE2LDg4LjEzMiw4MC42MDQsMCwxOS45MjktMS43NzIsMzYuMzE1LTE3LjcxNCw1OC45MDFsLTk2Ljk5LDEzNC42MzNoMTAxLjg2MVpNMzE5Ljc1MiwxODIuNDYzYzYuNjQzLDAsMTIuNCw1Ljc1OCwxMi40LDEyLjg0NHYxNy43MTRjMCw3LjA4Ni01Ljc1NywxMi44NDMtMTIuNCwxMi44NDNoLTEyOC44NzdjLTYuNjQzLDAtMTIuNC01Ljc1Ny0xMi40LTEyLjg0M3YtMTcuNzE0YzAtNy4wODYsNS43NTctMTIuODQ0LDEyLjQtMTIuODQ0aDEyOC44NzdaTTM0MS4wMDgsNTcuNTczYy03LjA4NiwwLTEyLjg0My01Ljc1Ny0xMi44NDMtMTIuNHYtMjMuOTE2YzAtNi42NDMsNS43NTctMTIuNCwxMi44NDMtMTIuNGgxNDYuMTQ4YzcuMDg2LDAsMTIuODQ0LDUuNzU3LDEyLjg0NCwxMi40djI2LjU3MmMwLDkuMzAxLTMuNTQzLDIwLjgxNi01LjMxNSwyNS42ODdsLTg3LjI0NywyMzcuMzc5Yy0yLjIxMyw2LjItNS4zMTUsMTEuOTU4LTExLjk1OCwxMS45NThoLTMzLjIxNWMtNS4zMTMsMC0xMC4xODYtNC40MjgtMTAuMTg2LTExLjk1OCwwLTEuNzcyLjQ0My0zLjU0MywxLjMzLTUuNzU3bDkwLjc4OC0yNDcuNTY3aC0xMDMuMTg5WiIvPgo8L3N2Zz4=">
 
-<link rel="stylesheet" href="../common/common.css?v=1.62.2">
+<link rel="stylesheet" href="../common/common.css?v=1.62.3">
 <style>
 /* ============ TOKENS ============ */
 :root{
@@ -215,11 +215,11 @@ body.me-dock-col #md-thought,body.me-dock-col #md-tpop{display:none}
 .sb-row.done .sb-cl+.sb-sub::before{content:none}
 .sb-row.done .sb-l2 .sb-sub{flex-shrink:1}
 .bar-lbl .sum-pill{position:static;transform:none;margin-right:8px}
-.crew-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(108px,1fr));gap:4px 10px;max-height:180px;overflow-y:auto;background:#F7FAFD;border:1px solid #D8E2EF;border-radius:8px;padding:10px}
-.crew-list label{display:flex;gap:6px;align-items:center;font-size:12px;color:#33415A;cursor:pointer;user-select:none;min-width:0;white-space:nowrap;overflow:hidden}
+.crew-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(108px,1fr));gap:4px 10px;max-height:180px;overflow-y:auto;background:#fff;border:1px solid var(--ts-line);border-radius:var(--ts-radius-control);padding:8px 10px}
+.crew-list label,.fg .crew-list label{display:flex;gap:8px;align-items:center;margin:0;min-height:28px;font-size:13px;font-weight:400;color:var(--ts-text);cursor:pointer;user-select:none;min-width:0;white-space:nowrap;overflow:hidden}
 /* [type=checkbox] outguns the width:100% that .fg/.ins-f later put on their
    inputs — without it every checkbox stretches to a full row and the list shreds. */
-.crew-list input[type=checkbox]{width:13px;height:13px;padding:0;margin:0;accent-color:#3B7FD6;flex-shrink:0}
+.crew-list input[type=checkbox]{width:16px;height:16px;padding:0;margin:0;accent-color:#3B7FD6;flex-shrink:0}
 .ins-crew{max-height:120px}
 #sb-foot{flex-shrink:0;display:flex;align-items:center;gap:6px;padding:8px 10px;border-top:1px solid var(--side-line);background:var(--side);flex-wrap:wrap;}
 /* v1.7.2 (09-01 item 7): sorting orders projects — in the Departments lens the rows are
@@ -457,57 +457,61 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 /* ============ TOASTS: in common/common.css (item 85) ============ */
 
 /* ============ MODALS ============ */
-.overlay{position:fixed;inset:0;background:rgba(8,15,26,.5);z-index:200;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px);overflow:auto;padding:20px 0}
+/* v1.62.3 (item 52 step 3): the dialogs, to the wireframes: 10px corners, a 1px edge, the
+   shared floating shadow, no blur behind (style guide §6), 17px titles, 12px plain labels,
+   36px fields, 32px buttons; the 2px focus ring is with the inspector's. */
+.overlay{position:fixed;inset:0;background:rgba(8,15,26,.5);z-index:200;display:flex;align-items:center;justify-content:center;overflow:auto;padding:20px 0}
 .overlay.hidden{display:none}
-.modal{background:#fff;border-radius:var(--r-l);width:470px;max-width:94vw;box-shadow:0 28px 90px rgba(5,15,30,.3);max-height:90vh;animation:modal-in .18s ease-out;display:flex;flex-direction:column;overflow:hidden}
+.modal{background:#fff;border:1px solid var(--ts-line);border-radius:10px;width:470px;max-width:94vw;box-shadow:0 4px 18px rgba(13,19,29,.18);max-height:90vh;animation:modal-in .18s ease-out;display:flex;flex-direction:column;overflow:hidden}
 .modal-lg{width:720px}
-.modal-body{flex:1 1 auto;overflow-y:auto;min-height:0;padding:3px 24px 4px}
+.modal-body{flex:1 1 auto;overflow-y:auto;min-height:0;padding:4px 24px 8px}
 @keyframes modal-in{from{opacity:0;transform:translateY(8px) scale(.985)}to{opacity:1;transform:none}}
-.modal h3{font-size:var(--fs-title);font-weight:700;color:#101A29;padding:22px 24px 12px;flex-shrink:0}
-.fg{margin-bottom:11px}
-.fg label{display:block;font-size:var(--fs-fine);font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#64748B;margin-bottom:4px}
-.fg input,.fg select,.fg textarea{width:100%;border:1.5px solid var(--ts-control-line);border-radius:7px;padding:7px 9px;font-size:13px;color:#101A29;background:#FAFBFC;outline:none;font-family:inherit;resize:vertical;transition:border-color .14s}
-.fg input[type=date],.fg input[type=number]{font-family:var(--mono);font-size:12px}
-.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(47,111,228,.13);background:#fff}
+.modal h3{font-size:17px;line-height:1.3;font-weight:600;color:var(--ts-text);padding:20px 24px 12px;flex-shrink:0}
+.fg{margin-bottom:12px}
+.fg label{display:block;font-size:12px;line-height:1.45;font-weight:500;color:var(--ts-muted);margin-bottom:4px}
+.fg input,.fg select,.fg textarea{width:100%;min-height:36px;box-sizing:border-box;border:1px solid var(--ts-control-line);border-radius:var(--ts-radius-control);padding:8px 10px;font-size:13px;color:var(--ts-text);background:#fff;font-family:inherit;resize:vertical}
+.fg input[type=checkbox],.fg input[type=radio]{min-height:0} /* a tick box keeps its own size */
+.fg input[type=date],.fg input[type=number]{font-family:var(--mono)}
 /* v1.6.1: the bug-report Kind radios — undo the generic .fg label/input rules that
    stretched the radios full-width and left them misaligned with their captions. */
 #fb-kind{display:flex;align-items:center;gap:18px;padding:2px 0}
 #fb-kind label{display:flex;align-items:center;gap:6px;margin:0;font-size:13px;font-weight:400;
   text-transform:none;letter-spacing:0;color:#101A29;cursor:pointer}
 #fb-kind input{width:auto;margin:0;accent-color:var(--acc)}
-.fg-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.fg-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.fg-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fg-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
 .role-list{border:1.5px solid #E2E8F0;border-radius:7px;background:#FAFBFC;max-height:100px;overflow:auto;padding:5px 9px}
 .role-list label{display:flex;align-items:center;gap:7px;font-size:12.5px;color:#101A29;padding:2px 0;cursor:pointer;user-select:none}
 .role-list input[type=checkbox]{width:13px;height:13px;flex-shrink:0;accent-color:var(--acc)}
-.pin-row{display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;margin-bottom:11px;padding:7px 10px;border-radius:7px;border:1.5px solid #E2E8F0;background:#FAFBFC}
+.pin-row{display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;margin-bottom:12px;min-height:36px;box-sizing:border-box;padding:0 10px;border-radius:var(--ts-radius-control);border:1px solid var(--ts-line);background:#fff}
 .pin-row input{display:none}
 .pin-track{width:26px;height:14px;background:#E2E8F0;border-radius:7px;position:relative;flex-shrink:0;transition:background .16s}
 .pin-thumb{position:absolute;top:2px;left:2px;width:10px;height:10px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .15s}
 .pin-row input:checked ~ .pin-track{background:var(--warn)}
 .pin-row input:checked ~ .pin-track .pin-thumb{transform:translateX(12px)}
-.pin-lbl{font-size:12px;color:#475569}
-.tn-list{border:1.5px solid #E2E8F0;border-radius:8px;padding:7px;margin-bottom:8px}
-.tn-row{display:grid;grid-template-columns:108px 1fr 24px;gap:6px;margin-bottom:6px;align-items:center}
+.pin-lbl{font-size:13px;color:var(--ts-text)}
+.tn-list{border:1px solid var(--ts-line);border-radius:var(--ts-radius-control);padding:8px;margin-bottom:8px}
+.tn-row{display:grid;grid-template-columns:120px 1fr 28px;gap:8px;margin-bottom:6px;align-items:center}
 .tn-row:last-child{margin-bottom:0}
-.tn-row input,.tn-row select{border:1px solid var(--ts-control-line);border-radius:5px;padding:4px 6px;font-size:11.5px;font-family:inherit;width:100%}
-.tn-row input[type=date]{font-family:var(--mono);font-size:var(--fs-fine)}
-.tn-x{background:none;border:none;color:#CBD5E1;font-size:15px;cursor:pointer}
-.tn-x:hover{color:#EF4444}
-.tn-add{background:#F1F5F9;border:none;border-radius:6px;padding:5px 10px;font-size:11.5px;color:#475569;cursor:pointer;font-family:inherit}
-.tn-add:hover{background:#E2E8F0}
-.tn-empty{font-size:11.5px;color:var(--ts-muted);padding:2px 4px}
-.m-actions{display:flex;justify-content:space-between;align-items:center;padding:14px 24px;border-top:1px solid #F1F5F9;flex-shrink:0}
+.tn-row input,.tn-row select{min-height:28px;box-sizing:border-box;border:1px solid var(--ts-control-line);border-radius:var(--ts-radius-control);padding:4px 8px;font-size:12px;font-family:inherit;width:100%;color:var(--ts-text)}
+.tn-row input[type=date]{font-family:var(--mono)}
+.tn-x{background:none;border:none;color:var(--ts-muted);font-size:16px;line-height:1;cursor:pointer;width:28px;height:28px;padding:0;border-radius:var(--ts-radius-control);font-family:inherit}
+.tn-x:hover{color:var(--ts-danger-text);background:var(--ts-danger-bg)}
+.tn-add{background:#fff;border:1px solid var(--ts-line);border-radius:var(--ts-radius-control);min-height:28px;padding:0 10px;font-size:12px;font-weight:600;color:var(--ts-text);cursor:pointer;font-family:inherit}
+.tn-add:hover{border-color:var(--acc);color:var(--acc)}
+.tn-empty{font-size:12px;color:var(--ts-muted);padding:2px 4px}
+.m-actions{display:flex;justify-content:space-between;align-items:center;padding:16px 24px;border-top:1px solid #EDF2F7;flex-shrink:0}
 .m-right{display:flex;gap:8px}
-.btn{padding:8px 16px;font-size:13px;font-weight:600;border-radius:7px;border:none;cursor:pointer;font-family:inherit;transition:background .12s}
-.btn-primary{background:var(--acc);color:#fff}
-.btn-primary:hover{background:var(--acc-deep)}
-.btn-ghost{background:#F1F5F9;color:#475569}
-.btn-ghost:hover{background:#E2E8F0}
-.btn-del{background:transparent;color:#EF4444;border:1.5px solid #FECACA;padding:7px 14px}
-.btn-del:hover{background:#FEF2F2}
+/* Buttons (style guide §6): a plain .btn and .btn-ghost are the secondary button (white,
+   a 1px edge, ink text); .btn-primary the blue fill; .btn-del red text, never a red fill. */
+.btn{min-height:32px;padding:0 12px;font-size:12px;font-weight:600;border-radius:var(--ts-radius-control);border:1px solid var(--ts-line);background:#fff;color:var(--ts-text);cursor:pointer;font-family:inherit;transition:background .12s,border-color .12s}
+.btn:hover:not(:disabled){border-color:var(--acc);color:var(--acc)}
+.btn-primary{background:var(--ts-action);border-color:var(--ts-action);color:var(--ts-on-action)}
+.btn-primary:hover:not(:disabled){background:var(--ts-action-hover);border-color:var(--ts-action-hover);color:var(--ts-on-action)}
+.btn-del{color:var(--ts-danger-text)}
+.btn-del:hover:not(:disabled){background:var(--ts-danger-bg);border-color:var(--ts-danger-text);color:var(--ts-danger-text)}
 .hidden{display:none!important}
-.hint{font-size:11px;color:var(--ts-muted);margin:-5px 0 11px}
+.hint{font-size:12px;line-height:1.45;color:var(--ts-muted);margin:0 0 12px}
 
 /* ============ PRINT PREVIEW MODAL ============ */
 #print-overlay .modal{width:880px;max-width:96vw}
@@ -517,7 +521,7 @@ body.dates-locked .bh-l,body.dates-locked .bh-r,
 #pp-zoom{border:1.5px solid #E2E8F0;border-radius:8px;background:#E8ECF2;overflow:auto;max-height:55vh;padding:14px}
 #pp-zoom-inner{transform-origin:top left}
 .pp-controls .fg.pp-pick{flex:0 0 auto}
-.pp-pick .sm-item{display:inline-flex;align-items:center;gap:5px;margin:0 12px 0 0;font-size:12.5px;font-weight:400;text-transform:none;letter-spacing:0;color:#101A29;cursor:pointer}
+.pp-pick .sm-item{display:inline-flex;align-items:center;gap:5px;margin:0 12px 0 0;min-height:28px;font-size:13px;font-weight:400;color:var(--ts-text);cursor:pointer}
 .pp-pick .sm-item input{width:auto;margin:0;accent-color:var(--acc)}
 .pp-hint{font-size:12px;line-height:1.45;color:#4A3A0A;background:#FFF8E6;border:1px solid #F1D48A;border-radius:7px;padding:7px 11px;margin-bottom:12px}
 
@@ -986,7 +990,7 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
   font-size:12px;font-weight:600;line-height:1;cursor:pointer;padding:0 12px;min-height:32px;
   font-family:inherit;display:inline-flex;align-items:center;gap:6px;margin-left:auto}
 /* the inspector, its phase popover and their fields: one clear ring, never the faint glow */
-#pp-insp :focus-visible,.npv-pop :focus-visible,#me-dock :focus-visible{outline:2px solid var(--ts-action);outline-offset:2px}
+#pp-insp :focus-visible,.npv-pop :focus-visible,#me-dock :focus-visible,.fg :focus-visible,.modal :focus-visible{outline:2px solid var(--ts-action);outline-offset:2px}
 .ins-hd .x span{font-size:15px;line-height:1}
 .ins-hd .x:hover{color:var(--acc);border-color:var(--acc)}
 /* E1: sections run side by side as columns — Setup | Project Team | Project Schedule | Agenda — all
@@ -1019,7 +1023,7 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 #pp-insp .pg-rbox .rl-grp{font-size:12px;font-weight:600;letter-spacing:0;text-transform:none}
 #pp-insp .pg-rq{min-height:32px;padding:6px 10px}
 #pp-insp .pg-rbox,#pp-insp .pg-depts,#pp-insp .crew-list{border-radius:var(--ts-radius-control)}
-#pp-insp .pg-rbox input,#pp-insp .crew-list input[type=checkbox]{width:16px;height:16px}
+#pp-insp .pg-rbox input{width:16px;height:16px}
 .dash-insp .pg-roles{grid-template-columns:repeat(2,1fr);gap:12px}
 .dash-insp .pg-depts{column-count:1}
 .ins-f{margin-bottom:12px}
@@ -1726,7 +1730,7 @@ body.cd-route #dash-bar{display:none!important}
     <h3>Meeting Sheet</h3>
     <div class="modal-body">
     <div class="pp-controls">
-      <div class="fg" id="meet-orient"><label>Orientation</label><label class="sm-item"><input type="radio" name="sheet-orient" value="landscape"> Landscape</label><label class="sm-item"><input type="radio" name="sheet-orient" value="portrait"> Portrait</label></div>
+      <div class="fg pp-pick" id="meet-orient"><label>Orientation</label><label class="sm-item"><input type="radio" name="sheet-orient" value="landscape"> Landscape</label><label class="sm-item"><input type="radio" name="sheet-orient" value="portrait"> Portrait</label></div>
       <div class="fg pp-pick"><label>Paper</label><label class="sm-item"><input type="radio" name="meet-paper" value="letter"> Letter</label><label class="sm-item"><input type="radio" name="meet-paper" value="tabloid"> Tabloid</label></div>
       <div class="pp-note">One row per project, grouped by PM and sorted by deadline. Lists the projects the screen shows (the Status, Client and Person filters); a search or spotlight fades rows here as on screen. The Notes column stays blank for handwriting. The header repeats on every page. Print opens the browser's dialog — choose Save as PDF there for a file.</div>
     </div>
@@ -1780,10 +1784,10 @@ body.cd-route #dash-bar{display:none!important}
      from common/, the folder every Systems product shares. ?v= is APP_VER, stamped by
      `npm run notes`, so a new page never runs against a cached old core. -->
 <script src="../common/msal-browser.min.js"></script>
-<script src="../common/common.js?v=1.62.2"></script>
+<script src="../common/common.js?v=1.62.3"></script>
 <script>
 'use strict';
-const APP_VER='1.62.2'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.62.3'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -11023,6 +11027,10 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.62.3",d:"Nov 20, 2026",n:["Pop-up windows (Edit Phase, Print Preview, Meeting Sheet and the rest) now match the project page: plain labels instead of small capitals, taller fields, and the blue focus ring.",
+   "Cancel, Close and the other secondary buttons are now white with an edge, the same on pop-ups and the project page's footer, and Delete is red text.",
+   "In Edit Phase, the crew list shows names in normal type beside their tick boxes, no longer in capitals.",
+   "Meeting Sheet's Landscape and Portrait choices sit in a row beside their names, the way Paper's do, instead of stacking out of line."]},
  {v:"v1.62.2",d:"Nov 19, 2026",n:["My Dashboard's bottom panel now matches the project page's: headings in plain type (Working On, Time Off), slightly larger rows, and the same notes box and blue focus ring."]},
  {v:"v1.62.1",d:"Nov 19, 2026",n:["The project editing panel under the chart has a cleaner look: headings in plain type instead of small capitals, taller fields, larger buttons, and a clear blue ring on whichever field or button you're on.",
    "Pop-up windows keep the Tab key inside them, and closing one puts you back on the button you opened it from."]},

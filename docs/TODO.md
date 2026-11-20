@@ -14,9 +14,9 @@ Kept elsewhere so this file stays short:
 
 ## Where we stand
 
-As of 2026-11-19:
+As of 2026-11-20:
 - **Live** (`main`, what users run): **v1.55.3**, Timeline only (hotfixes from `main`, items 96 to 98).
-- **Preview** (`development`, at `/preview/`): **v1.62.2**. The Systems page sits at the
+- **Preview** (`development`, at `/preview/`): **v1.62.3**. The Systems page sits at the
   root; Timeline moves to `/timeline/` with the Systems header and Apps menu; Office (the
   client list, formerly Clients) is its own app at `/office/`, and a client's record shows its current projects at a glance and
   its project history, projects from before Timeline included; People (the staff roster) is its own app at `/people/`;
@@ -73,8 +73,8 @@ details. Open questions with no deadline are in [`Decisions.md`](Decisions.md).
 
 ## Next — Claude can do these without waiting
 
-- **Restyle the next Timeline surface** to the wireframes: the project inspector and My
-  Dashboard's panel are done; the dialogs and the menus are left, then the business pages. (item 52)
+- **Restyle the next Timeline surface** to the wireframes: the project inspector, My
+  Dashboard's panel and the dialogs are done; the menus are left, then the business pages. (item 52)
 - **Write the one-paragraph rollback procedure**, and start tagging releases once you OK it.
   (item 16)
 
@@ -429,8 +429,15 @@ What we still need from people: schemas, rules and examples, not screenshots. St
           inspector's notes box and focus ring. Shipped v1.62.2 (PR #221, 2026-11-19). Suite
           `tests/test-v1622.js`; record
           `docs/Milestones/Phase-7-Pilot-Readiness/2026-11-19-dashboard-panel-restyle.md`.
-        - Left (dated 2026-11-19): the dialogs' own look (the focus trap is in), and the
-          menus and popovers.
+        - [x] *The dialogs* (Edit Phase, Print Preview, Meeting Sheet, the late-project
+          prompt, sign-in expired, the demo slides): 10px corners, a 1px edge, the shared
+          floating shadow, no blur behind, 17px titles (wording unchanged), 12px plain labels,
+          36px white fields, 32px buttons with a white secondary (so the project page's footer
+          and the Open Issues form match), the 2px focus ring; the crew list's names out of
+          capitals, and Meeting Sheet's Orientation in a row. Owner OK on the mock 2026-11-20.
+          Shipped v1.62.3 (2026-11-20). Suite `tests/test-v1623.js`; record
+          `docs/Milestones/Phase-7-Pilot-Readiness/2026-11-20-dialogs-restyle.md`.
+        - Left (dated 2026-11-20): the menus and popovers.
       - [x] *Step 4:* the shell as one change: the global header and a real app switcher.
         Item 49 shipped v1.56.0 (2026-11-17), so the portal exists to switch to.
         Shipped v1.57.0 (PR #206, 2026-11-18). Owner's picks (2026-11-18): TWOSEVEN INC.
