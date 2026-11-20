@@ -522,7 +522,7 @@ What we still need from people: schemas, rules and examples, not screenshots. St
         - [x] *The project page*: the summary line's labels as written (Client, Cost code,
           Installs…) with 13px values, the Schedule heading as written, the chart's Milestones
           and Notes rows upright, and a 12px Kickoff line; the page keeps its height. Owner:
-          "Yes, build it" (2026-11-20). Shipped v1.62.8 (2026-11-20). Suite
+          "Yes, build it" (2026-11-20). Shipped v1.62.8 (PR #232, 2026-11-20). Suite
           `tests/test-v1628.js`; record
           `docs/Milestones/Phase-7-Pilot-Readiness/2026-11-20-project-page-restyle.md`.
         - Left in place (dated 2026-11-20): the chart's own capitals (month names, the status
