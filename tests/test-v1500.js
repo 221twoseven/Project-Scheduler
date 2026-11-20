@@ -1,4 +1,5 @@
 /* v1.50.0 — item 32, tracker #1: where milestones draw on the project Gantt. Owner ruling 2026-10-16:
+   (v1.62.6, owner 2026-11-20: the heading, trail and section read My Settings and Project Page, Title Case; the Help menu row stays My settings.)
    the choice lives on a personal page, Help ▸ My settings (every signed-in user, viewers too), not on
    the project page. "On their phase" (phase, the default) draws a phased milestone on its phase's
    row; "Both" keeps it in the Milestones row too; "Milestones row only" (top) is the 09-03 behaviour.
@@ -31,8 +32,8 @@ const PAT={appId:'s2',Title:'Pat',email:'pat@example.com',depts:'[]',ooo:'[]',ro
 
 const COPY={
   menu:'My settings',menuTitle:'Your own display choices. They follow you to any computer.',
-  h2:'My settings',sub:'Only you see these. They follow your sign-in to any computer or browser.',
-  h3:'Project page',label:'Milestones on the Gantt',
+  h2:'My Settings',sub:'Only you see these. They follow your sign-in to any computer or browser.',
+  h3:'Project Page',label:'Milestones on the Gantt',
   opts:[['phase','On their phase','A milestone with a phase sits on that phase\'s bar. The rest stay in the Milestones row.'],
         ['both','Both','In the Milestones row, plus a copy on the phase\'s bar.'],
         ['top','Milestones row only','Every milestone in the Milestones row.']]};
@@ -55,7 +56,7 @@ function pageCopy(w,who){
   ok(who+': the menu item opens #/mysettings', w.location.hash==='#/mysettings');
   w.dispatchEvent(new w.Event('hashchange'));
   ok(who+': the page renders', w.eval('ROUTE.view')==='mysettings'&&!!q('#page .as-body'));
-  ok(who+': trail reads All Projects › My settings, with a close', q('#page .pg-trail .pg-cr').textContent==='All Projects'&&q('#page .pg-trail .cur').textContent==='My settings'&&!!q('#cd-x'));
+  ok(who+': trail reads All Projects › My Settings, with a close', q('#page .pg-trail .pg-cr').textContent==='All Projects'&&q('#page .pg-trail .cur').textContent==='My Settings'&&!!q('#cd-x'));
   ok(who+': heading and sub line', q('.cd-head h2').textContent===COPY.h2&&q('.cd-head .cd-sub').textContent===COPY.sub);
   ok(who+': section and label', q('.as-body h3').textContent===COPY.h3&&q('#ms-msp-lbl').textContent===COPY.label);
   const rows=qa('.as-body .as-row');

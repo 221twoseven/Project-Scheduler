@@ -14,7 +14,7 @@
      import. Merging two people moves the duplicate's names on projects, phases and to-dos to the
      kept person (the owner's pick, 2026-11-19): it changes names and refs only, and creates and
      deletes nothing there. Everyone signed in reads the roster; admins edit it. -->
-<link rel="stylesheet" href="../common/common.css?v=1.62.5">
+<link rel="stylesheet" href="../common/common.css?v=1.62.6">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
@@ -158,9 +158,9 @@ main{flex:1;min-height:0;display:flex;flex-direction:column;background:var(--ts-
   </div>
 </div>
 <script src="../common/msal-browser.min.js"></script>
-<script src="../common/common.js?v=1.62.5"></script>
+<script src="../common/common.js?v=1.62.6"></script>
 <script>
-const APP_VER='1.62.5'; // stamped from Timeline's by `npm run notes`: one version for every product
+const APP_VER='1.62.6'; // stamped from Timeline's by `npm run notes`: one version for every product
 const POLL_MS=90000;     // the same freshness knob as Timeline's
 let PEOPLE=[],PROJECTS=[],TASKS=[];
 let LOADED=false,SAVING=0,PENDING=null,RETRY=[];

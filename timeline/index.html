@@ -11,7 +11,7 @@
      the single-file architecture stays intact and the deploy guard skips data: hrefs. -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MDAgMzIyLjg1NSI+CiAgPHBhdGggZD0iTTE2MS4yMDcsMjc0LjEzOGM2LjY0MywwLDEyLjQsNS43NTgsMTIuNCwxMi44NDR2MjMuMDI5YzAsNy4wODUtNS43NTcsMTIuODQzLTEyLjQsMTIuODQzSDE0LjYxNmMtNi42NDMsMC0xMi40MDEtNS43NTgtMTIuNDAxLTEyLjg0M3YtMzEuMDAyYzAtMTUuMDU4LDMuNTQzLTIxLjcwMSw3Ljk3MS0yNy45MDFMMTA1Ljg0OCwxMTguNjljMTIuNC0xNy4yNzMsMTcuMjczLTIzLjkxNiwxNy4yNzMtMzcuNjQ1LDAtMjMuOTE0LTE3LjcxNi0zNC45ODctMzcuMjAyLTM0Ljk4Ny0yMS43MDEsMC0zNi4zMTUsMTMuNzI5LTM2LjMxNSwzOS44NTl2NC44NzFjMCw2LjY0My01Ljc1OCwxMi40MDEtMTIuODQ0LDEyLjQwMUgxMi44NDRjLTcuMDg2LDAtMTIuODQ0LTUuNzU4LTEyLjg0NC0xMi40MDF2LTEwLjE4NUMwLDI5LjIyOSwzOS40MTcsMCw4NS45MTgsMGM0NS4xNzMsMCw4OC4xMzIsMjcuMDE2LDg4LjEzMiw4MC42MDQsMCwxOS45MjktMS43NzIsMzYuMzE1LTE3LjcxNCw1OC45MDFsLTk2Ljk5LDEzNC42MzNoMTAxLjg2MVpNMzE5Ljc1MiwxODIuNDYzYzYuNjQzLDAsMTIuNCw1Ljc1OCwxMi40LDEyLjg0NHYxNy43MTRjMCw3LjA4Ni01Ljc1NywxMi44NDMtMTIuNCwxMi44NDNoLTEyOC44NzdjLTYuNjQzLDAtMTIuNC01Ljc1Ny0xMi40LTEyLjg0M3YtMTcuNzE0YzAtNy4wODYsNS43NTctMTIuODQ0LDEyLjQtMTIuODQ0aDEyOC44NzdaTTM0MS4wMDgsNTcuNTczYy03LjA4NiwwLTEyLjg0My01Ljc1Ny0xMi44NDMtMTIuNHYtMjMuOTE2YzAtNi42NDMsNS43NTctMTIuNCwxMi44NDMtMTIuNGgxNDYuMTQ4YzcuMDg2LDAsMTIuODQ0LDUuNzU3LDEyLjg0NCwxMi40djI2LjU3MmMwLDkuMzAxLTMuNTQzLDIwLjgxNi01LjMxNSwyNS42ODdsLTg3LjI0NywyMzcuMzc5Yy0yLjIxMyw2LjItNS4zMTUsMTEuOTU4LTExLjk1OCwxMS45NThoLTMzLjIxNWMtNS4zMTMsMC0xMC4xODYtNC40MjgtMTAuMTg2LTExLjk1OCwwLTEuNzcyLjQ0My0zLjU0MywxLjMzLTUuNzU3bDkwLjc4OC0yNDcuNTY3aC0xMDMuMTg5WiIvPgo8L3N2Zz4=">
 
-<link rel="stylesheet" href="../common/common.css?v=1.62.5">
+<link rel="stylesheet" href="../common/common.css?v=1.62.6">
 <style>
 /* ============ TOKENS ============ */
 :root{
@@ -356,11 +356,14 @@ body.compact .sb-chip{line-height:1.2;padding:.5px 6px}
    changing the row height. */
 .fb-dd summary,.clog-more summary{cursor:pointer;padding:5px 0;margin:-5px 0}
 .clog-row.fb-hit{background:#EDF3FA;box-shadow:inset 2px 0 0 var(--acc)} /* the .cd-row.sel recipe */
-.rn-list{padding:6px 0}
-.rn-ver{padding:10px 22px;border-bottom:1px solid #EEF2F7}
-.rn-hd{display:flex;align-items:baseline;gap:10px;font-size:13px;color:#1E293B}
-.rn-hd .clog-when{width:auto} /* release-note dates are ranges ("Aug 19–21, 2026") — size to content, not the changelog's fixed column */
-.rn-notes{margin:6px 0 0;padding-left:18px;font-size:12.5px;color:#33415A;line-height:1.5}
+/* v1.62.6 (item 52 step 5): Release Notes to the wireframes — a 15px version, 13px notes at a reading width */
+.rn-list{padding:4px 0 40px}
+.rn-ver{padding:16px 22px;border-bottom:1px solid #EDF2F7}
+.rn-hd{display:flex;align-items:baseline;gap:10px;font-size:13px;color:var(--ts-text)}
+.rn-hd b{font-size:15px;font-weight:600}
+.rn-hd .clog-when{width:auto;font-size:12px;font-variant-numeric:tabular-nums} /* release-note dates are ranges ("Aug 19–21, 2026") — size to content, not the changelog's fixed column */
+.rn-notes{margin:8px 0 0;padding-left:20px;max-width:760px;font-size:13px;color:var(--ts-text);line-height:1.55}
+.rn-notes li+li{margin-top:4px}
 /* Holiday name pill — the TODAY-pill anatomy in the quiet weekend grey (§2.4). Sits
    centered on its day column at the top of the canvas, under the today line's z. */
 .hol-tag{position:absolute;top:3px;transform:translateX(-50%);font-family:var(--mono);
@@ -1438,18 +1441,26 @@ body.cd-route #dash-bar{display:none!important}
 .cd-perm.fb-kind,.cd-perm.fb-st{font-family:inherit;font-size:11px;font-weight:500;letter-spacing:0;line-height:1.4;border-radius:var(--ts-radius-chip);padding:2px 6px}
 @media(max-width:900px){.cd-body{flex-direction:column}.cd-list{width:auto!important;max-width:none;border-right:none;border-bottom:1px solid #E2E8F0;max-height:45vh}}
 /* v1.11.0: the dev App Settings page */
-.as-body{max-width:620px;padding:0 26px 40px;overflow-y:auto}
-.as-body h3{font-size:var(--fs-fine);font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:var(--ts-muted);margin:26px 0 8px}
+/* v1.62.6 (item 52 step 5): the settings pages (My Settings, the developer App settings) — a 15px
+   section heading as written, 13px choices, and the chosen one in the action blue. */
+.as-body{max-width:640px;padding:4px 22px 40px;overflow-y:auto}
+.as-body h3{font-size:15px;font-weight:600;color:var(--ts-text);margin:24px 0 4px}
 .as-src{font-size:12px;color:#5B7C99;background:#F1F6FB;border:1px solid #D8E2EF;border-radius:8px;padding:8px 12px;margin-top:14px}
 .as-src.warn{color:#8A5A18;background:#FCF4E4;border-color:#EAD199}
 .as-src code{font-family:var(--mono);font-size:11px}
-.as-note{font-size:12px;color:var(--ts-muted);margin-bottom:10px}
-.as-row{display:flex;align-items:flex-start;gap:10px;padding:9px 10px;border:1px solid #E2E8F0;border-radius:8px;margin-bottom:6px;cursor:pointer;background:#fff}
-.as-row:hover{border-color:#CBD6E4}
-.as-row input[type=checkbox],.as-row input[type=radio]{width:14px;height:14px;margin-top:2px;accent-color:#3B7FD6;flex-shrink:0}
+.as-note{font-size:13px;color:var(--ts-muted);margin-bottom:12px}
+.as-row{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border:1px solid var(--ts-line);border-radius:8px;margin-bottom:8px;cursor:pointer;background:#fff}
+.as-row:hover{border-color:var(--ts-control-line)}
+.as-row:has(input:checked){border-color:var(--ts-action);background:#F5F9FF} /* the chosen one, seen at a glance; the tick is the non-colour cue */
+.as-row input[type=checkbox],.as-row input[type=radio]{width:16px;height:16px;margin:1px 0 0;accent-color:var(--ts-action);flex-shrink:0}
 .as-txt{display:flex;flex-direction:column;gap:2px}
-.as-txt b{font-size:12.5px;color:#1E293B;font-weight:600}
-.as-txt span{font-size:11.5px;color:var(--ts-muted)}
+.as-txt b{font-size:13px;color:var(--ts-text);font-weight:600}
+.as-txt span{font-size:12px;line-height:1.45;color:var(--ts-muted)}
+/* the page head on a full-width Help or Company Data page: a 22px title over its line (the wireframes'
+   page title). Open Issues' column heads sit inside .cd-body, so the child combinator skips them. */
+.pg.dash>.cd-head{flex-direction:column;align-items:flex-start;gap:4px;padding:20px 22px 16px;border-bottom:1px solid var(--ts-line)}
+.pg.dash>.cd-head h2{font-size:22px;line-height:1.25;font-weight:600;color:var(--ts-text)}
+.pg.dash>.cd-head .cd-sub{font-size:13px;line-height:1.45}
 </style>
 </head>
 <body>
@@ -1798,10 +1809,10 @@ body.cd-route #dash-bar{display:none!important}
      from common/, the folder every Systems product shares. ?v= is APP_VER, stamped by
      `npm run notes`, so a new page never runs against a cached old core. -->
 <script src="../common/msal-browser.min.js"></script>
-<script src="../common/common.js?v=1.62.5"></script>
+<script src="../common/common.js?v=1.62.6"></script>
 <script>
 'use strict';
-const APP_VER='1.62.5'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.62.6'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -4770,11 +4781,11 @@ function renderMySettings(){
   h+='<div class="dash-top"><nav class="pg-trail">'
    +'<button class="pg-cr" id="cd-back" title="Back to the timeline (Esc)">All Projects</button>'
    +'<span class="pg-sep">&rsaquo;</span>'
-   +'<span class="pg-cr cur">My settings</span></nav>'
+   +'<span class="pg-cr cur">My Settings</span></nav>'
    +'<button class="pg-x" id="cd-x" title="Close — back to the timeline (Esc)">&times;</button></div>';
-  h+='<div class="cd-head"><h2>My settings</h2>'
+  h+='<div class="cd-head"><h2>My Settings</h2>' /* v1.62.6: Title Case (owner, 2026-11-20); the Help menu row stays "My settings" */
    +'<span class="cd-sub">Only you see these. They follow your sign-in to any computer or browser.</span></div>';
-  h+='<div class="as-body"><h3>Project page</h3>'
+  h+='<div class="as-body"><h3>Project Page</h3>'
    +'<div class="as-note" id="ms-msp-lbl">Milestones on the Gantt</div>'
    +'<div role="radiogroup" aria-labelledby="ms-msp-lbl">'
    +opt('phase','On their phase','A milestone with a phase sits on that phase\'s bar. The rest stay in the Milestones row.')
@@ -11041,6 +11052,8 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.62.6",d:"Nov 20, 2026",n:["Release Notes and My Settings match the new look: a larger page title above its description, easier-to-read notes that stop at a comfortable width, and larger setting choices with the one you picked outlined in blue.",
+   "The My settings page is now titled \"My Settings\", and its \"Project page\" section reads \"Project Page\"."]},
  {v:"v1.62.5",d:"Nov 20, 2026",n:["Open Issues matches the new look: each column's heading sits above its description, the column labels are no longer small capitals, and an arrow beside the date shows the list's order.",
    "The tags on each report read Bug, Idea, Pending and In review instead of capitals."]},
  {v:"v1.62.4",d:"Nov 20, 2026",n:["The toolbar menus (Filters, View, Help, Saved Views and the rest) and the right-click menu on a project's chart now match the pop-up windows: a lighter frame, larger rows that are easier to hit, and section labels in plain type instead of small capitals.",
