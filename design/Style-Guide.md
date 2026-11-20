@@ -414,7 +414,8 @@ font-size:var(--fs-fine);font-weight:700;text-transform:uppercase;letter-spacing
 **Retired on both docks (v1.62.1 project inspector, v1.62.2 My Dashboard; item 52 step 3):**
 their column headings (`.ins-sec>h4`), field labels, Team role labels and department group
 headings are no longer micro-caps — see 7.4. **And on the dialogs' field labels** (`.fg label`,
-v1.62.3), which reach the Open Issues form too.
+v1.62.3), which reach the Open Issues form too, **and on the menus' section labels** (`.sm-sec`,
+the right-click header `.npv-menu .mh`, the Legend's `.lg-sec`; v1.62.4).
 
 ---
 
@@ -707,24 +708,28 @@ Status pills: §2.8. Removable filter chips (dark): §2.1.
 ### 7.7 Menu and popover
 
 ```css
+/* v1.62.4 (item 52 step 3): one floating frame for .tb-menu, .npv-menu, .npv-pop and #md-tpop —
+   a 1px edge, 8px corners (the wireframes' switcher), the shared floating shadow (§5.3) */
+border:1px solid var(--ts-line);border-radius:8px;box-shadow:0 4px 18px rgba(13,19,29,.18)
 /* toolbar dropdown */
-.tb-menu{position:absolute;top:32px;left:0;z-index:900;background:#fff;border:1.5px solid #CBD5E1;border-radius:10px;
-  box-shadow:0 10px 30px rgba(15,23,42,.18);padding:8px;display:flex;flex-direction:column;gap:2px;min-width:180px}
-.sm-item{display:flex;align-items:center;gap:8px;font-size:12px;padding:6px 8px;border-radius:6px;cursor:pointer;white-space:nowrap;color:#334155}
-.sm-item:hover{background:#F1F5F9}
-.sm-sec{font-size:var(--fs-micro);font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#94A3B8;padding:6px 8px 2px}
-.sm-note{font-family:var(--mono);font-size:var(--fs-fine);color:#8194ab;padding:6px 8px 2px;border-top:1px solid #E2E8F0;margin-top:4px}
+.tb-menu{position:absolute;top:32px;left:0;z-index:900;background:#fff;/* the frame */padding:6px;display:flex;flex-direction:column;gap:0;min-width:180px}
+.sm-item{display:flex;align-items:center;gap:8px;min-height:32px;font-size:13px;padding:4px 8px;border-radius:6px;cursor:pointer;white-space:nowrap;color:var(--ts-text)}
+.sm-item:hover{background:#EFF5FC}   .sm-item input[type=checkbox],.sm-item input[type=radio]{width:16px;height:16px}
+.sm-sec{font-size:11px;font-weight:600;color:var(--ts-muted);padding:8px 8px 4px}   /* as written: Status, Client, Person */
+.sm-all{min-height:28px;border:1px solid var(--ts-line);background:#fff;border-radius:6px;font-size:12px;font-weight:600;color:var(--ts-text)}   /* Show everything */
+.sm-note{font-family:var(--mono);font-size:var(--fs-fine);color:var(--ts-muted);padding:6px 8px 2px;border-top:1px solid #E2E8F0;margin-top:4px}
 /* context menu: shortcut right-aligned in the row */
-.npv-menu{position:fixed;z-index:45;min-width:212px;max-width:280px;background:#fff;border:1px solid #CBD6E4;border-radius:9px;
-  box-shadow:0 10px 30px -8px rgba(15,23,42,.3);padding:5px}
-.npv-menu button{display:flex;align-items:center;gap:9px;width:100%;background:none;border:none;border-radius:6px;padding:7px 9px;
-  font-size:12px;font-weight:600;color:#1E293B;cursor:pointer;font-family:inherit;text-align:left}
-.npv-menu button:hover{background:#EFF5FC;color:var(--acc)}
-.npv-menu button .k{font-size:var(--fs-fine);font-weight:600;color:#94A3B8;margin-left:auto}
+.npv-menu{position:fixed;z-index:45;min-width:212px;max-width:280px;background:#fff;/* the frame */padding:4px}
+.npv-menu .mh{padding:6px 8px 8px;font-size:12px;font-weight:600;color:var(--ts-muted);border-bottom:1px solid #EDF2F7}   /* as written */
+.npv-menu button{display:flex;align-items:center;gap:9px;width:100%;min-height:32px;background:none;border:none;border-radius:6px;padding:4px 8px;
+  font-size:13px;font-weight:500;color:var(--ts-text);cursor:pointer;font-family:inherit;text-align:left}
+.npv-menu button:hover{background:#EFF5FC}
+.npv-menu button .k{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--ts-muted);margin-left:auto}
 .npv-menu .sep{height:1px;background:#EDF2F7;margin:4px 6px}
+/* focus inside a menu: the 2px ring, inset because a menu clips its overflow */
+.tb-menu :focus-visible,.npv-menu :focus-visible{outline:2px solid var(--ts-action);outline-offset:-2px}
 /* edit-in-place popover */
-.npv-pop{position:fixed;z-index:120;width:274px;max-height:82vh;overflow-y:auto;background:#fff;border:1px solid #CBD6E4;
-  border-radius:10px;box-shadow:0 12px 34px -8px rgba(15,23,42,.34)}
+.npv-pop{position:fixed;z-index:120;width:274px;max-height:82vh;overflow-y:auto;background:#fff;/* the frame */}
 ```
 
 One menu open at a time; Escape unwinds exactly one layer; every row is a real `<button>`
