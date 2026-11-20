@@ -147,7 +147,11 @@ list of their own. The app never writes to Employee Contacts. [brief §4 open qu
 
 ### The data platform: SharePoint lists, Dataverse or Azure (was D15)
 
-*Open.* Reassessed
+*Open, direction set 2026-11-19 (owner): Azure, and Dataverse is out because it costs
+too much.* Azure SQL + a Systems API is the planned platform; the read-only Azure spike
+(item 51) confirms cost, deploys and a recovery path before any production row moves, and
+the platform roles still have to be named. Until the cutover nothing changes: Timeline stays
+on SharePoint lists. Reassessed
 2026-10-08: see "Reassessment" at the end of this entry, which supersedes the
 recommendation below. Raised
 2026-10-01 (owner): with the Phase 8 registries forcing a schema change anyway, should the data
@@ -266,7 +270,7 @@ C:* the spike passes and the roles are named. Local SQL Server is ranked below A
 (the review, §E13).
 
 *Gate (unchanged):* rule before the Phase 8 schema is provisioned, so rows move at most
-once. Backend guardrails enter `CLAUDE.md` only when backend work is authorized (the archived ledger).
+once. Backend guardrails entered `CLAUDE.md` on 2026-11-19, when the Azure test was approved.
 [owner and the backup maintainer 2026-10-08; `docs/Architecture-Review-Backend.md`]
 
 ### What v2.0.0 means (was D7)
