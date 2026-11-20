@@ -1,0 +1,24 @@
+{
+  "name": "systems-api",
+  "version": "0.1.0",
+  "private": true,
+  "description": "The Systems API (item 51): Entra-authenticated, read-only proof of concept.",
+  "license": "SEE LICENSE IN ../LICENSE",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "start": "node dist/server.js",
+    "test": "tsc --noEmit && node --test \"test/*.test.ts\""
+  },
+  "dependencies": {
+    "fastify": "^5.6.0",
+    "jose": "^6.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.18.0",
+    "typescript": "~5.9.3"
+  },
+  "engines": {
+    "node": ">=22.18"
+  }
+}
