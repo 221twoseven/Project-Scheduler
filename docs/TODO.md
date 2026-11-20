@@ -435,7 +435,7 @@ What we still need from people: schemas, rules and examples, not screenshots. St
           36px white fields, 32px buttons with a white secondary (so the project page's footer
           and the Open Issues form match), the 2px focus ring; the crew list's names out of
           capitals, and Meeting Sheet's Orientation in a row. Owner OK on the mock 2026-11-20.
-          Shipped v1.62.3 (2026-11-20). Suite `tests/test-v1623.js`; record
+          Shipped v1.62.3 (PR #226, 2026-11-20). Suite `tests/test-v1623.js`; record
           `docs/Milestones/Phase-7-Pilot-Readiness/2026-11-20-dialogs-restyle.md`.
         - Left (dated 2026-11-20): the menus and popovers.
       - [x] *Step 4:* the shell as one change: the global header and a real app switcher.
