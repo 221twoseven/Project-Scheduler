@@ -417,7 +417,9 @@ headings are no longer micro-caps — see 7.4. **And on the dialogs' field label
 v1.62.3), which reach the Open Issues form too, **and on the menus' section labels** (`.sm-sec`,
 the right-click header `.npv-menu .mh`, the Legend's `.lg-sec`; v1.62.4), **and on Open Issues'
 column labels** (`.fb-colhd`, v1.62.5; item 52 step 5), **and on the settings pages' section
-headings** (`.as-body h3`, v1.62.6).
+headings** (`.as-body h3`, v1.62.6), **and on the project page's summary labels and Schedule
+heading** (`.dash-meta .k`, `.npv-ttl`, v1.62.8). The chart's own capitals (month names, the
+status tag, the bars' phase tags) stay, with the main timeline's.
 
 ---
 
@@ -801,8 +803,9 @@ Widths in use: 470 default · 560 (staff, demo) · 680 (late prompt) · 720 (`.m
 .pg-x:hover{color:#CE4242}
 /* meta strip — glance numbers, never controls */
 .dash-meta .m{display:flex;align-items:baseline;gap:6px;padding:0 14px;border-right:1px solid #E2E8F0}
-.dash-meta .k{font-size:var(--fs-micro);font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#A3B1C4}
-.dash-meta .v{font-size:12px;font-weight:700;color:#33415A}   .dash-meta .v.warn{color:#CE4242}
+.dash-meta .k{font-size:12px;color:var(--ts-muted)}   /* v1.62.8: as written, not micro-caps */
+.dash-meta .v{font-size:13px;font-weight:600;color:var(--ts-text)}
+.npv-ttl{font-size:13px;font-weight:600;color:var(--ts-text)}   .npv-row.extra .npv-gut{color:var(--ts-muted);font-weight:500}   .npv-foot{font-size:12px;color:var(--ts-muted)}   /* v1.62.8: Schedule, Milestones / Notes upright, the Kickoff line */   .dash-meta .v.warn{color:#CE4242}
 /* bottom dock — the drawing's title block */
 .dash-insp{position:relative;max-height:70vh;border-top:1px solid #E2E8F0;background:var(--paper);display:flex;flex-direction:column}
 .ins-sec{flex:1 1 0;min-width:240px;display:flex;flex-direction:column;border-right:1px solid #E2E8F0}

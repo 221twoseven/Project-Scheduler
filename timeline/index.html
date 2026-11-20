@@ -11,7 +11,7 @@
      the single-file architecture stays intact and the deploy guard skips data: hrefs. -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MDAgMzIyLjg1NSI+CiAgPHBhdGggZD0iTTE2MS4yMDcsMjc0LjEzOGM2LjY0MywwLDEyLjQsNS43NTgsMTIuNCwxMi44NDR2MjMuMDI5YzAsNy4wODUtNS43NTcsMTIuODQzLTEyLjQsMTIuODQzSDE0LjYxNmMtNi42NDMsMC0xMi40MDEtNS43NTgtMTIuNDAxLTEyLjg0M3YtMzEuMDAyYzAtMTUuMDU4LDMuNTQzLTIxLjcwMSw3Ljk3MS0yNy45MDFMMTA1Ljg0OCwxMTguNjljMTIuNC0xNy4yNzMsMTcuMjczLTIzLjkxNiwxNy4yNzMtMzcuNjQ1LDAtMjMuOTE0LTE3LjcxNi0zNC45ODctMzcuMjAyLTM0Ljk4Ny0yMS43MDEsMC0zNi4zMTUsMTMuNzI5LTM2LjMxNSwzOS44NTl2NC44NzFjMCw2LjY0My01Ljc1OCwxMi40MDEtMTIuODQ0LDEyLjQwMUgxMi44NDRjLTcuMDg2LDAtMTIuODQ0LTUuNzU4LTEyLjg0NC0xMi40MDF2LTEwLjE4NUMwLDI5LjIyOSwzOS40MTcsMCw4NS45MTgsMGM0NS4xNzMsMCw4OC4xMzIsMjcuMDE2LDg4LjEzMiw4MC42MDQsMCwxOS45MjktMS43NzIsMzYuMzE1LTE3LjcxNCw1OC45MDFsLTk2Ljk5LDEzNC42MzNoMTAxLjg2MVpNMzE5Ljc1MiwxODIuNDYzYzYuNjQzLDAsMTIuNCw1Ljc1OCwxMi40LDEyLjg0NHYxNy43MTRjMCw3LjA4Ni01Ljc1NywxMi44NDMtMTIuNCwxMi44NDNoLTEyOC44NzdjLTYuNjQzLDAtMTIuNC01Ljc1Ny0xMi40LTEyLjg0M3YtMTcuNzE0YzAtNy4wODYsNS43NTctMTIuODQ0LDEyLjQtMTIuODQ0aDEyOC44NzdaTTM0MS4wMDgsNTcuNTczYy03LjA4NiwwLTEyLjg0My01Ljc1Ny0xMi44NDMtMTIuNHYtMjMuOTE2YzAtNi42NDMsNS43NTctMTIuNCwxMi44NDMtMTIuNGgxNDYuMTQ4YzcuMDg2LDAsMTIuODQ0LDUuNzU3LDEyLjg0NCwxMi40djI2LjU3MmMwLDkuMzAxLTMuNTQzLDIwLjgxNi01LjMxNSwyNS42ODdsLTg3LjI0NywyMzcuMzc5Yy0yLjIxMyw2LjItNS4zMTUsMTEuOTU4LTExLjk1OCwxMS45NThoLTMzLjIxNWMtNS4zMTMsMC0xMC4xODYtNC40MjgtMTAuMTg2LTExLjk1OCwwLTEuNzcyLjQ0My0zLjU0MywxLjMzLTUuNzU3bDkwLjc4OC0yNDcuNTY3aC0xMDMuMTg5WiIvPgo8L3N2Zz4=">
 
-<link rel="stylesheet" href="../common/common.css?v=1.62.7">
+<link rel="stylesheet" href="../common/common.css?v=1.62.8">
 <style>
 /* ============ TOKENS ============ */
 :root{
@@ -624,7 +624,7 @@ body.viewer .pg-rq:disabled{display:none} /* locked viewers lose the box with th
 /* ============ REV37: SPLIT CREATE PAGE + LIVE SCHEDULE PREVIEW ============ */
 .npv{background:#fff;border:1px solid #E2E8F0;border-radius:11px;overflow:hidden}
 .npv-hd{display:flex;align-items:center;gap:9px;padding:9px 12px;border-bottom:1px solid #E2E8F0;background:#F7FAFD}
-.npv-ttl{flex:1;font-size:var(--fs-micro);font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--ts-muted)}
+.npv-ttl{flex:1;font-size:13px;font-weight:600;color:var(--ts-text)} /* v1.62.8 (item 52 step 5): "Schedule" as written, not micro-caps */
 .npv-btn{background:#fff;border:1px solid #CBD6E4;border-radius:5px;padding:3px 9px;font-size:var(--fs-fine);font-weight:600;color:#5B6B85;cursor:pointer;font-family:inherit}
 .npv-btn:hover{border-color:var(--acc);color:var(--acc)}
 .npv-btn[disabled]{opacity:.4;cursor:default}
@@ -672,8 +672,8 @@ body.vivid .npv-we{display:none} /* v1.0.2: no weekend strips over the vivid tin
 .npv-today::after{content:'TODAY';position:absolute;top:2px;left:3px;font-family:var(--mono);font-size:var(--fs-fine);font-weight:700;letter-spacing:.1em;color:#fff;background:var(--late);border-radius:3px;padding:0 4px;line-height:14px}
 .npv-dl{position:absolute;top:0;bottom:0;width:0;border-left:2px dotted rgba(13,19,29,.6);z-index:4;pointer-events:none}
 .npv-dl::before{content:'▸';position:absolute;top:0;left:1px;font-size:12px;line-height:1;color:rgba(13,19,29,.75)}
-.npv-foot{display:flex;align-items:center;gap:14px;padding:9px 12px;border-top:1px solid #E2E8F0;background:#FBFDFF;font-size:11px;color:#5B6B85;flex-wrap:wrap}
-.npv-foot b{font-weight:700;color:#16202E}
+.npv-foot{display:flex;align-items:center;gap:14px;padding:9px 12px;border-top:1px solid #E2E8F0;background:#FBFDFF;font-size:12px;color:var(--ts-muted);flex-wrap:wrap} /* v1.62.8 */
+.npv-foot b{font-weight:600;color:var(--ts-text)}
 .npv-foot .warn{color:#CE4242;font-weight:700}
 /* N4: the status pill sits static and right-justified in the footer, not absolute. */
 .npv-foot .sum-pill{position:static;transform:none;margin-left:auto;pointer-events:none;
@@ -727,7 +727,7 @@ body.vivid .npv-we{display:none} /* v1.0.2: no weekend strips over the vivid tin
 .npv-tk{cursor:grab}
 .npv-tk{width:10px;height:10px;top:9px;margin-left:-5px;border-radius:50%;background:#fff;border:2px solid #3B7FD6;box-sizing:border-box}
 .npv-tk.hi{border-color:#CE4242}
-.npv-row.extra .npv-gut{color:#94A3B8;font-style:italic}
+.npv-row.extra .npv-gut{color:var(--ts-muted);font-weight:500} /* v1.62.8: Milestones / Notes upright */
 
 /* ============ REV41 ============ */
 .npv-ev{top:12px}
@@ -911,8 +911,8 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 .dash-meta .m{display:flex;align-items:baseline;gap:6px;padding:0 14px;border-right:1px solid #E2E8F0}
 .dash-meta .m:first-child{padding-left:0}
 .dash-meta .m:last-child{border-right:none}
-.dash-meta .k{font-size:var(--fs-micro);font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ts-muted)}
-.dash-meta .v{font-size:12px;font-weight:700;color:#33415A}
+.dash-meta .k{font-size:12px;color:var(--ts-muted)} /* v1.62.8 (item 52 step 5): the project summary labels as written, not micro-caps */
+.dash-meta .v{font-size:13px;font-weight:600;color:var(--ts-text)}
 .dash-meta .v.warn{color:#CE4242}
 .dash-body{flex:1;display:flex;flex-direction:column;gap:0;min-height:0;border-top:1px solid #E2E8F0}
 .dash-chart{flex:1;min-height:0;display:flex;flex-direction:column;background:#fff}
@@ -1816,10 +1816,10 @@ body.cd-route #dash-bar{display:none!important}
      from common/, the folder every Systems product shares. ?v= is APP_VER, stamped by
      `npm run notes`, so a new page never runs against a cached old core. -->
 <script src="../common/msal-browser.min.js"></script>
-<script src="../common/common.js?v=1.62.7"></script>
+<script src="../common/common.js?v=1.62.8"></script>
 <script>
 'use strict';
-const APP_VER='1.62.7'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.62.8'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -11059,6 +11059,7 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.62.8",d:"Nov 20, 2026",n:["The project page's summary line (Client, Cost code, Installs and the rest), its Schedule heading and the chart's Milestones and Notes rows are now in plain type instead of small capitals or italics, with slightly larger values."]},
  {v:"v1.62.7",d:"Nov 20, 2026",n:["The Changelog page (Company Data ▸ Changelog) matches the new look: a proper filter box and slightly larger, easier-to-read rows."]},
  {v:"v1.62.6",d:"Nov 20, 2026",n:["Release Notes and My Settings match the new look: a larger page title above its description, easier-to-read notes that stop at a comfortable width, and larger setting choices with the one you picked outlined in blue.",
    "The My settings page is now titled \"My Settings\", and its \"Project page\" section reads \"Project Page\"."]},

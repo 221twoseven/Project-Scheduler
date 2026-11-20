@@ -16,7 +16,7 @@ Kept elsewhere so this file stays short:
 
 As of 2026-11-20:
 - **Live** (`main`, what users run): **v1.55.3**, Timeline only (hotfixes from `main`, items 96 to 98).
-- **Preview** (`development`, at `/preview/`): **v1.62.7**. The Systems page sits at the
+- **Preview** (`development`, at `/preview/`): **v1.62.8**. The Systems page sits at the
   root; Timeline moves to `/timeline/` with the Systems header and Apps menu; Office (the
   client list, formerly Clients) is its own app at `/office/`, and a client's record shows its current projects at a glance and
   its project history, projects from before Timeline included; People (the staff roster) is its own app at `/people/`;
@@ -73,9 +73,9 @@ details. Open questions with no deadline are in [`Decisions.md`](Decisions.md).
 
 ## Next — Claude can do these without waiting
 
-- **Restyle the next Timeline surface** to the wireframes: step 5, the business pages:
-  Open Issues, Release Notes, My Settings and the developer pages are done; the project page
-  is next. (item 52)
+- **Restyle the next Timeline surface** to the wireframes: step 5's agreed pages are all
+  done, the project page last; whether the style track closes or takes the chart's labels
+  next is your call. (item 52)
 - **Write the one-paragraph rollback procedure**, and start tagging releases once you OK it.
   (item 16)
 
@@ -519,7 +519,16 @@ What we still need from people: schemas, rules and examples, not screenshots. St
           menu row stays "App settings". Owner: "Yes, with wording" (2026-11-20). Shipped v1.62.7
           (PR #231, 2026-11-20). Suite `tests/test-v1627.js`; record
           `docs/Milestones/Phase-7-Pilot-Readiness/2026-11-20-developer-pages-restyle.md`.
-        - Left (dated 2026-11-20): the project page.
+        - [x] *The project page*: the summary line's labels as written (Client, Cost code,
+          Installs…) with 13px values, the Schedule heading as written, the chart's Milestones
+          and Notes rows upright, and a 12px Kickoff line; the page keeps its height. Owner:
+          "Yes, build it" (2026-11-20). Shipped v1.62.8 (2026-11-20). Suite
+          `tests/test-v1628.js`; record
+          `docs/Milestones/Phase-7-Pilot-Readiness/2026-11-20-project-page-restyle.md`.
+        - Left in place (dated 2026-11-20): the chart's own capitals (month names, the status
+          tag such as FABRICATION or DRAFT, the bars' phase tags) match the bars on the main
+          timeline, so they would change together, as one step of their own. Step 5's agreed
+          order is done; the owner decides whether item 52 closes or takes that next.
       - *Done when, per PR:* before/after `/preview/` screenshots, the Design-Language §9
         checklist, and the §13 verification list. A visible change follows the version and
         changelog rules. Steps 6–7 are rules for how the steps are done, not work of their
