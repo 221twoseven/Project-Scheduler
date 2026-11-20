@@ -43,7 +43,8 @@ jobs:
           az bicep build --file infra/main.bicep --stdout > /dev/null
           az bicep build-params --file infra/staging.bicepparam --stdout > /dev/null
 
-  # The Systems API (api/, item 51): type check, the in-process allow/deny tests, and the build.
+  # The Systems API (api/, item 51): type check, the in-process allow/deny tests, the SQL
+  # integration tests against a throwaway SQL Server container, and the build.
   api:
     runs-on: ubuntu-latest
     defaults:
@@ -51,6 +52,19 @@ jobs:
         working-directory: api
     steps:
       - uses: actions/checkout@v4
+      # The container's password is made up for this run only, masked in the log, and
+      # gone when the runner is: nothing is stored or committed (CLAUDE.md, "Backend").
+      - name: Start a throwaway SQL Server
+        run: |
+          PW="$(openssl rand -hex 16)Aa!"
+          echo "::add-mask::$PW"
+          echo "SQL_TEST_PASSWORD=$PW" >> "$GITHUB_ENV"
+          docker run -d --name sql -e ACCEPT_EULA=Y -e "MSSQL_SA_PASSWORD=$PW" -p 1433:1433 mcr.microsoft.com/mssql/server:2022-latest
+          for i in $(seq 1 60); do
+            docker exec sql /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P "$PW" -Q "SELECT 1" > /dev/null 2>&1 && exit 0
+            sleep 2
+          done
+          docker logs sql | tail -20; exit 1
       - uses: actions/setup-node@v4
         with:
           node-version: '22'

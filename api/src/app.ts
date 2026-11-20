@@ -1,6 +1,8 @@
 import { randomUUID } from 'node:crypto';
 import Fastify, { LogController } from 'fastify';
+import type sql from 'mssql';
 import { AuthError, type Caller } from './auth.ts';
+import { getProject, listProjects, projectSchema } from './projects.ts';
 
 declare module 'fastify' {
   interface FastifyRequest {
@@ -13,10 +15,11 @@ declare module 'fastify' {
 
 export type AppOptions = {
   verify: (authorization: string | undefined) => Promise<Caller>;
+  db: sql.ConnectionPool;
   logStream?: NodeJS.WritableStream; // tests capture the log lines
 };
 
-export function buildApp({ verify, logStream }: AppOptions) {
+export function buildApp({ verify, db, logStream }: AppOptions) {
   const app = Fastify({
     // Fastify's own request logs include the caller's IP; ours (onResponse below) carry only what §E10 lists.
     logController: new LogController({ disableRequestLogging: true }),
@@ -60,6 +63,27 @@ export function buildApp({ verify, logStream }: AppOptions) {
   app.get('/health', { config: { public: true } }, async () => ({ ok: true }));
 
   app.get('/api/me', async (req) => ({ oid: req.caller!.oid, name: req.caller!.name }));
+
+  // Read-only for the Azure test: any signed-in caller holding the scope may read projects.
+  app.get(
+    '/api/projects',
+    { schema: { response: { 200: { type: 'array', items: projectSchema } } } },
+    async () => listProjects(db),
+  );
+
+  app.get<{ Params: { id: string } }>(
+    '/api/projects/:id',
+    {
+      schema: {
+        params: { type: 'object', required: ['id'], properties: { id: { type: 'string', format: 'uuid' } } },
+        response: { 200: projectSchema },
+      },
+    },
+    async (req, reply) => {
+      const p = await getProject(db, req.params.id);
+      return p ?? reply.code(404).send({ error: 'PROJECT_NOT_FOUND', requestId: req.id });
+    },
+  );
 
   return app;
 }

@@ -2,12 +2,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { buildApp } from '../src/app.ts';
-import { AUDIENCE, OID, SCOPE, TENANT, logSink, token, verify } from './tokens.ts';
+import { AUDIENCE, OID, SCOPE, TENANT, logSink, noDb, token, verify } from './tokens.ts';
 
 const OTHER_TENANT = '99999999-9999-9999-9999-999999999999';
 
 async function get(url: string, authorization?: string) {
-  const app = buildApp({ verify, logStream: logSink().stream });
+  const app = buildApp({ verify, db: noDb, logStream: logSink().stream });
   const res = await app.inject({ method: 'GET', url, headers: authorization ? { authorization } : {} });
   await app.close();
   return res;
@@ -62,7 +62,7 @@ test('deny: an unsigned (alg none) token', async () => {
 
 test('log: one line per request with reqId, oid, route, status, ms and nothing sensitive', async () => {
   const sink = logSink();
-  const app = buildApp({ verify, logStream: sink.stream });
+  const app = buildApp({ verify, db: noDb, logStream: sink.stream });
   const jwt = await token();
   const ok = await app.inject({ method: 'GET', url: '/api/me?x=1', headers: { authorization: `Bearer ${jwt}` } });
   const no = await app.inject({ method: 'GET', url: '/api/me' });

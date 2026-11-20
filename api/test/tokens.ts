@@ -1,6 +1,7 @@
 // Locally signed stand-ins for Entra access tokens. The keys live only in memory for one test run.
 import { Writable } from 'node:stream';
 import { SignJWT, createLocalJWKSet, exportJWK, generateKeyPair, type JWTPayload } from 'jose';
+import type { ConnectionPool } from 'mssql';
 import { makeVerifier } from '../src/auth.ts';
 
 export const TENANT = '70aa5330-416f-48cb-a64f-1a89f0196577';
@@ -49,3 +50,6 @@ export function logSink() {
   });
   return { stream, lines };
 }
+
+/** For tests that never reach the database. */
+export const noDb = {} as ConnectionPool;
