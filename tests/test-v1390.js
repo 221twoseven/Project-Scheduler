@@ -1,4 +1,5 @@
 /* v1.39.0 — a status on every open report (tracker #29, revised spec 2026-10-02):
+   (v1.62.5, owner 2026-11-20: the tags read as written — Pending, In review, Resolved — not capitals.)
    R1 three states read off the ticket by the tracker's poller — `status` empty = PENDING,
       `review` = IN REVIEW, `resolved` = the Resolved column (no extra tag there) · R2 the
       developer page shows PENDING / IN REVIEW / RESOLVED, keeps the developer comments, and
@@ -42,18 +43,18 @@ const tag=(root,id)=>q(root+' .clog-row[data-spid="'+id+'"] .fb-st');
 function open(){
   sec('R1 — Open Issues: a status tag on every open report');
   ok('fbFetch reads ghIssue off the row', E("FB_CACHE.find(r=>r.spId==='2').ghIssue")===TICKET&&E("FB_CACHE.find(r=>r.spId==='1').ghIssue")==='');
-  ok('an untouched report (status empty) reads PENDING', tag('#fb-list','1')&&tag('#fb-list','1').textContent==='PENDING', tag('#fb-list','1')&&tag('#fb-list','1').textContent);
+  ok('an untouched report (status empty) reads Pending', tag('#fb-list','1')&&tag('#fb-list','1').textContent==='Pending', tag('#fb-list','1')&&tag('#fb-list','1').textContent);
   ok('…with the hover title "Not looked at yet", in the muted style', tag('#fb-list','1').title==='Not looked at yet'&&tag('#fb-list','1').classList.contains('fb-pend'));
-  ok('a report the team replied on (status review) reads IN REVIEW', tag('#fb-list','2')&&tag('#fb-list','2').textContent==='IN REVIEW', tag('#fb-list','2')&&tag('#fb-list','2').textContent);
+  ok('a report the team replied on (status review) reads In review', tag('#fb-list','2')&&tag('#fb-list','2').textContent==='In review', tag('#fb-list','2')&&tag('#fb-list','2').textContent);
   ok('…with the hover title "The team is looking at this report"', tag('#fb-list','2').title==='The team is looking at this report'&&!tag('#fb-list','2').classList.contains('fb-pend'));
-  ok('any other status value still reads as open and shows PENDING', tag('#fb-list','5')&&tag('#fb-list','5').textContent==='PENDING');
-  ok('the tag sits after the BUG / IDEA chip, before the subject', qa('#fb-list .clog-row').every(r=>{const c=[...r.children];return c[0].classList.contains('fb-kind')&&c[1].classList.contains('fb-st')&&c[2].classList.contains('clog-what');}));
+  ok('any other status value still reads as open and shows Pending', tag('#fb-list','5')&&tag('#fb-list','5').textContent==='Pending');
+  ok('the tag sits after the Bug / Idea chip, before the subject', qa('#fb-list .clog-row').every(r=>{const c=[...r.children];return c[0].classList.contains('fb-kind')&&c[1].classList.contains('fb-st')&&c[2].classList.contains('clog-what');}));
   ok('the Resolved column carries no status tag — the column is the state', qa('#fb-done .clog-row').length===2&&qa('#fb-done .fb-st').length===0, qa('#fb-done .clog-row').length+'/'+qa('#fb-done .fb-st').length);
-  ok('the tags share one width (.fb-st is a fixed flex column) and PENDING is one muted colour', /\.fb-st\{flex:0 0 \d+px;text-align:center/.test(src)&&/\.fb-st\.fb-pend\{color:var\(--ts-muted\)/.test(src));
+  ok('the tags share one width (.fb-st is a fixed flex column) and Pending is one muted colour', /\.fb-st\{flex:0 0 \d+px;text-align:center/.test(src)&&/\.fb-st\.fb-pend\{color:var\(--ts-muted\)/.test(src));
 
   sec('R3 — the emailed /reply still shows under the report');
   const cm=q('#fb-list .clog-row[data-spid="2"] details.fb-cm');
-  ok('the IN REVIEW report folds its reply and the /comment note', !!cm&&/^2 comments$/.test(cm.querySelector('summary').textContent)
+  ok('the In review report folds its reply and the /comment note', !!cm&&/^2 comments$/.test(cm.querySelector('summary').textContent)
      &&[...cm.querySelectorAll('.clog-det')].map(d=>d.textContent).join('|')==='Thanks — looking into it|Shop note', cm&&cm.querySelector('summary').textContent);
 
   E("location.hash='#/reports';applyRoute()");
@@ -63,8 +64,8 @@ function dev(){
   sec('R2 — the developer page: the same tags, and the ticket decides');
   ok('the page rendered for the developer', E('ROUTE.view')==='reports'&&qa('#fbr-list .clog-row').length===5, E('ROUTE.view')+' '+qa('#fbr-list .clog-row').length);
   const t=id=>tag('#fbr-list',id)&&tag('#fbr-list',id).textContent;
-  ok('PENDING / IN REVIEW / RESOLVED on the three rows', t('1')==='PENDING'&&t('2')==='IN REVIEW'&&t('3')==='RESOLVED', [t('1'),t('2'),t('3')].join());
-  ok('a pre-bridge resolved row (no ticket) reads RESOLVED too; an odd value reads PENDING', t('4')==='RESOLVED'&&t('5')==='PENDING', [t('4'),t('5')].join());
+  ok('Pending / In review / Resolved on the three rows (v1.62.5: as written, not capitals)', t('1')==='Pending'&&t('2')==='In review'&&t('3')==='Resolved', [t('1'),t('2'),t('3')].join());
+  ok('a pre-bridge resolved row (no ticket) reads Resolved too; an odd value reads Pending', t('4')==='Resolved'&&t('5')==='Pending', [t('4'),t('5')].join());
   const r2=q('#fbr-list .clog-row[data-spid="2"]'),tk=r2&&r2.querySelector('.fbr-tk');
   ok('a row with a ticket reads "Status follows the ticket" with the link, no button', !!tk&&/^Status follows the ticket · #29$/.test(tk.textContent)&&!r2.querySelector('.fbr-tog'), tk&&tk.textContent);
   const a=tk&&tk.querySelector('a');

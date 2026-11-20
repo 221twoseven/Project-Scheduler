@@ -9,6 +9,10 @@ Format: `## <label> — <date>` then one `- ` line per change. Keep lines concre
 what changed *for the team*, not how. Developer-only tooling doesn't need a line.
 Collect lines for the next version under `## Unreleased` and rename it when you ship.
 
+## v1.62.5 — Nov 20, 2026
+- Open Issues matches the new look: each column's heading sits above its description, the column labels are no longer small capitals, and an arrow beside the date shows the list's order.
+- The tags on each report read Bug, Idea, Pending and In review instead of capitals.
+
 ## v1.62.4 — Nov 20, 2026
 - The toolbar menus (Filters, View, Help, Saved Views and the rest) and the right-click menu on a project's chart now match the pop-up windows: a lighter frame, larger rows that are easier to hit, and section labels in plain type instead of small capitals.
 - "Show everything" in Filters is now a small white button, like the other secondary buttons.
