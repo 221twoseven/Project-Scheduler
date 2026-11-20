@@ -237,7 +237,7 @@ them outside the canvas selectors above): `#7488A3`, `#94A3B8`, `#A3B1C4`, `#B4C
 
 | Meaning | Values |
 |---|---|
-| **Accent** (one job: "this is the action / the selection") | `--acc #2F6FE4`, hover `--acc-deep #1D5AC9`; focus ring `2px var(--acc)` (offset 2px on the inspector, v1.62.1); field focus halo `0 0 0 3px rgba(47,111,228,.13)` (modal only — the inspector's halo is retired); checkbox `accent-color` is `var(--acc)` in modals and `#3B7FD6` in the inspector/People page |
+| **Accent** (one job: "this is the action / the selection") | `--acc #2F6FE4`, hover `--acc-deep #1D5AC9`; focus ring `2px var(--acc)` offset 2px (the inspector v1.62.1, the dialogs v1.62.3); the faint field focus halo is retired everywhere; checkbox `accent-color` is `var(--acc)` in modals and `#3B7FD6` in the inspector/People page |
 | **Warn / toggle-on** | `--warn #F0A814`; `.sb-chip.soon` `#FCEEC8` on `#8F5E08`; away `#B7791F`; pinned view `#B45309` |
 | **Today** | `--late #DC2626` — the 2px line and TODAY pill only; header date `#C42B2B`; calendar today cell `#FFF3F3` with `inset 0 0 0 1.5px #CE4242` |
 | **Late** (sidebar chip) | `.sb-chip.late` `#FDE2E2` on `#B91C1C` |
@@ -245,7 +245,7 @@ them outside the canvas selectors above): `#7488A3`, `#94A3B8`, `#A3B1C4`, `#B4C
 | **Completed** (sidebar tag, v1.37.0) | `.cd-perm.done` `#E6E9EE` on `#5B6472` (4.9:1); the row's name drops to `--ts-muted`, never red, no strike-through |
 | **Positive** | `#1AA59C` (✓ glyphs, availability); `.md-tag` `#DCF3E6` on `#1A7F4E`; sync ok `#7BD8A0` |
 | **Error text / invalid field** | `#CE4242` (text, `.ins-f input.err` border) |
-| **Destructive control** | `.btn-del` text `#EF4444`, border `1.5px #FECACA`, hover fill `#FEF2F2`; `.ins-btn.dngr` text `--ts-danger-text`, border `--ts-line`, hover fill `--ts-danger-bg` (v1.62.1); row × hover `#CE4242` or `#EF4444` |
+| **Destructive control** | `.btn-del` text `--ts-danger-text`, border `--ts-line`, hover fill `--ts-danger-bg` (v1.62.3); `.ins-btn.dngr` text `--ts-danger-text`, border `--ts-line`, hover fill `--ts-danger-bg` (v1.62.1); row × hover `#CE4242` or `#EF4444` |
 | **Forecast** | `#6B7484` everywhere a forecast project draws |
 
 ### 2.5 The reds — read this before using one
@@ -256,7 +256,7 @@ Three reds ship. Keep them to their jobs:
 |---|---|---|
 | `#CE4242` `INSTALL_RED` | Installation and Shipping bars; form errors; destructive hover | a status, lateness, emphasis |
 | `--late #DC2626` | The Today marker | anything else on the canvas |
-| `#EF4444` | `.btn-del` / row-delete × (Tailwind red, pre-design-system) | new surfaces — use `#CE4242` |
+| `#EF4444` | row-delete × on unmigrated surfaces (Tailwind red, pre-design-system; `.btn-del` left it in v1.62.3) | new surfaces — use `#CE4242` |
 
 Another product needs at most two: `#CE4242` for errors and destructive actions, `--late`
 only if it draws a Today marker.
@@ -413,7 +413,8 @@ font-size:var(--fs-fine);font-weight:700;text-transform:uppercase;letter-spacing
 
 **Retired on both docks (v1.62.1 project inspector, v1.62.2 My Dashboard; item 52 step 3):**
 their column headings (`.ins-sec>h4`), field labels, Team role labels and department group
-headings are no longer micro-caps — see 7.4.
+headings are no longer micro-caps — see 7.4. **And on the dialogs' field labels** (`.fg label`,
+v1.62.3), which reach the Open Issues form too.
 
 ---
 
@@ -450,9 +451,9 @@ Unit **4px**: 4 / 8 / 12 / 16 / 24. Fixed structural heights:
 ### 5.2 Radii
 
 Tokens `--r-s 5` (chips, pills, date inputs) · `--r-m 8` (cards, `.job-bar.summary`) ·
-`--r-l 14` (modals, coach card, empty state). In practice: 6px is the working radius for
-toolbar buttons, inspector inputs, secondary buttons and `.job-bar`; 7px modal inputs and
-`.btn`; 9–10px menus, popovers, tooltip, toast; 20px the sync pill; 50% dots. New work
+`--r-l 14` (coach card, empty state). In practice: 6px is the working radius for
+toolbar buttons, inspector and modal inputs, `.btn`, secondary buttons and `.job-bar`; 10px the
+dialogs (`.modal`, v1.62.3, the wireframes' dialog radius); 9–10px menus, popovers, tooltip, toast; 20px the sync pill; 50% dots. New work
 uses the three tokens for cards, chips and overlays, and **6px for controls** — the
 shipped norm for buttons, inputs and bars.
 
@@ -474,7 +475,7 @@ shipped norm for buttons, inputs and bars.
 | Empty state | `0 6px 24px rgba(20,40,70,.08)` |
 | Selection ring (bar/band) | `0 0 0 2px #fff, 0 0 0 4px var(--acc)` |
 
-Scrims: modal overlay `rgba(8,15,26,.5)` + `backdrop-filter:blur(3px)`; coach spotlight
+Scrims: modal overlay `rgba(8,15,26,.5)`, no blur since v1.62.3 (the style guide lets the decorative blur go); coach spotlight
 `rgba(13,19,29,.55)` (a 9999px box-shadow around the hole).
 
 ### 5.4 Density
@@ -593,11 +594,13 @@ other standalone button flat.
 ### 7.3 Buttons on light
 
 ```css
-.btn{padding:8px 16px;font-size:13px;font-weight:600;border-radius:7px;border:none;cursor:pointer;font-family:inherit;transition:background .12s}
-.btn-primary{background:var(--acc);color:#fff}          .btn-primary:hover{background:var(--acc-deep)}
-.btn-ghost{background:#F1F5F9;color:#475569}            .btn-ghost:hover{background:#E2E8F0}
-.btn-del{background:transparent;color:#EF4444;border:1.5px solid #FECACA;padding:7px 14px}
-.btn-del:hover{background:#FEF2F2}
+/* v1.62.3 (item 52 step 3): a plain .btn and .btn-ghost are the white secondary button; .btn-primary
+   the blue fill; .btn-del red text. Hovers skip :disabled. Dialogs, the project page footer, Open Issues. */
+.btn{min-height:32px;padding:0 12px;font-size:12px;font-weight:600;border-radius:var(--ts-radius-control);border:1px solid var(--ts-line);
+  background:#fff;color:var(--ts-text);cursor:pointer;font-family:inherit}
+.btn:hover:not(:disabled){border-color:var(--acc);color:var(--acc)}
+.btn-primary{background:var(--ts-action);border-color:var(--ts-action);color:var(--ts-on-action)}   /* hover --ts-action-hover */
+.btn-del{color:var(--ts-danger-text)}   .btn-del:hover:not(:disabled){background:var(--ts-danger-bg);border-color:var(--ts-danger-text)}
 .btn:disabled{opacity:.5;cursor:default}
 /* secondary button (inspector, preview, sidebar footer) — v1.62.1: 32px, the wireframes' recipe */
 .ins-btn{background:#fff;border:1px solid var(--ts-line);border-radius:var(--ts-radius-control);padding:0 12px;min-height:32px;font-size:12px;font-weight:600;
@@ -624,14 +627,19 @@ high (Design-Language §9).
 ### 7.4 Form field
 
 ```css
-/* modal field */
-.fg{margin-bottom:11px}
-.fg label{display:block;font-size:var(--fs-fine);font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#64748B;margin-bottom:4px}
-.fg input,.fg select,.fg textarea{width:100%;border:1.5px solid var(--ts-control-line);border-radius:7px;padding:7px 9px;font-size:13px;
-  color:#101A29;background:#FAFBFC;outline:none;font-family:inherit;transition:border-color .14s}
-.fg input[type=date],.fg input[type=number]{font-family:var(--mono);font-size:12px}
-.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(47,111,228,.13);background:#fff}
-.hint{font-size:11px;color:var(--ts-muted);margin:-5px 0 11px}
+/* modal field — v1.62.3 (item 52 step 3): the inspector's field below, with 17px dialog titles */
+.modal{border:1px solid var(--ts-line);border-radius:10px;box-shadow:0 4px 18px rgba(13,19,29,.18)}
+.modal h3{font-size:17px;line-height:1.3;font-weight:600;color:var(--ts-text);padding:20px 24px 12px}
+.fg{margin-bottom:12px}
+.fg label{display:block;font-size:12px;line-height:1.45;font-weight:500;color:var(--ts-muted);margin-bottom:4px}
+.fg input,.fg select,.fg textarea{width:100%;min-height:36px;border:1px solid var(--ts-control-line);border-radius:var(--ts-radius-control);
+  padding:8px 10px;font-size:13px;color:var(--ts-text);background:#fff;font-family:inherit}
+.fg input[type=checkbox],.fg input[type=radio]{min-height:0}
+.fg input[type=date],.fg input[type=number]{font-family:var(--mono)}
+.hint{font-size:12px;line-height:1.45;color:var(--ts-muted);margin:0 0 12px}
+/* Edit Phase's milestone rows: 28px fields, a muted × in a 28px box; the crew list's labels
+   (.crew-list label,.fg .crew-list label) outrank .fg label — 13px, ≥ 28px, 16px tick boxes */
+.tn-row input{min-height:28px;font-size:12px;border-radius:var(--ts-radius-control)}   .tn-x{width:28px;height:28px;color:var(--ts-muted)}
 /* inspector / popover field — v1.62.1 (item 52 step 3): the wireframes' field */
 .ins-f{margin-bottom:12px}
 .ins-f>label{display:block;font-size:12px;line-height:1.45;font-weight:500;color:var(--ts-muted);margin-bottom:4px}
@@ -640,7 +648,7 @@ high (Design-Language §9).
 .ins-f input[type=checkbox],.ins-f input[type=radio]{min-height:0}
 .ins-f input.err{border-color:#CE4242}
 /* focus: one ring, never the faint halo — the inspector and its phase popover */
-#pp-insp :focus-visible,.npv-pop :focus-visible,#me-dock :focus-visible{outline:2px solid var(--ts-action);outline-offset:2px}
+#pp-insp :focus-visible,.npv-pop :focus-visible,#me-dock :focus-visible,.fg :focus-visible,.modal :focus-visible{outline:2px solid var(--ts-action);outline-offset:2px}
 /* both docks' columns (inspector, My Dashboard): Title Case headings as written (owner, 2026-11-19: no sentence case) */
 .ins-sec>h4{padding:12px 16px;font-size:13px;line-height:1.4;font-weight:600;color:var(--ts-text)}
 .ins-sec .in{padding:12px 16px 16px}
@@ -659,7 +667,7 @@ high (Design-Language §9).
 .pg-rq:focus{border-color:var(--acc)}
 body.viewer .pg-rq:disabled{display:none}
 /* grids */
-.fg-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}   .fg-3{grid-template-columns:1fr 1fr 1fr}
+.fg-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}   .fg-3{grid-template-columns:1fr 1fr 1fr}
 .ins-row{display:grid;grid-template-columns:1fr 1fr;gap:9px}  .ins-row3{grid-template-columns:1fr 1fr 64px}
 ```
 
@@ -753,12 +761,14 @@ and Details take the pointer.
 ### 7.9 Modal
 
 ```css
-.overlay{position:fixed;inset:0;background:rgba(8,15,26,.5);z-index:200;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px);padding:20px 0}
-.modal{background:#fff;border-radius:var(--r-l);width:470px;max-width:94vw;box-shadow:0 28px 90px rgba(5,15,30,.3);max-height:90vh;
+/* v1.62.3 (item 52 step 3): the wireframes' dialog — a 1px edge, 10px corners, the shared floating
+   shadow, no blur behind, 17px/600 titles; fields and buttons are 7.3 and 7.4 */
+.overlay{position:fixed;inset:0;background:rgba(8,15,26,.5);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px 0}
+.modal{background:#fff;border:1px solid var(--ts-line);border-radius:10px;width:470px;max-width:94vw;box-shadow:0 4px 18px rgba(13,19,29,.18);max-height:90vh;
   animation:modal-in .18s ease-out;display:flex;flex-direction:column;overflow:hidden}
-.modal h3{font-size:var(--fs-title);font-weight:700;color:#101A29;padding:22px 24px 12px}
-.modal-body{flex:1 1 auto;overflow-y:auto;padding:3px 24px 4px}
-.m-actions{display:flex;justify-content:space-between;align-items:center;padding:14px 24px;border-top:1px solid #F1F5F9}
+.modal h3{font-size:17px;line-height:1.3;font-weight:600;color:var(--ts-text);padding:20px 24px 12px}
+.modal-body{flex:1 1 auto;overflow-y:auto;padding:4px 24px 8px}
+.m-actions{display:flex;justify-content:space-between;align-items:center;padding:16px 24px;border-top:1px solid #EDF2F7}
 ```
 
 **Focus (v1.62.1):** every `.overlay` keeps Tab and Shift+Tab inside it, moves focus in when

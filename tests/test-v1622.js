@@ -29,7 +29,7 @@ ok('R3 dates 12px, sans, aligned numerals', /font-size:12px;font-variant-numeric
 ok('R3 NOW tag: success tokens, chip corners', /var\(--ts-success-text\)/.test(rule('.md-tag'))&&/var\(--ts-success-bg\)/.test(rule('.md-tag'))
   &&/var\(--ts-radius-chip\)/.test(rule('.md-tag')));
 ok('R4 no dashboard-only notes override any more', !rule('#me-dock .ins-notes')&&!rule('#me-dock .ins-notes:focus'));
-ok('R4 the 2px focus ring covers the dashboard panel', /#me-dock :focus-visible\{outline:2px solid var\(--ts-action\);outline-offset:2px\}/.test(raw));
+ok('R4 the 2px focus ring covers the dashboard panel', /#me-dock :focus-visible[^{]*\{outline:2px solid var\(--ts-action\);outline-offset:2px\}/.test(raw));
 ok('R5 thought popover fields: control line, 32px', /min-height:32px/.test(rule('#md-tpop select,#md-tpop input[type=text],#md-tpop input[type=url]'))
   &&/var\(--ts-control-line\)/.test(rule('#md-tpop select,#md-tpop input[type=text],#md-tpop input[type=url]')));
 
