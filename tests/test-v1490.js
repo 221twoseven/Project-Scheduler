@@ -7,6 +7,7 @@
    - "Don't show again" ends the tour and writes a per-person ShopTimeline_Config row
      (tour.off.<account>) so the first-visit auto-run never starts again on any machine;
      Help still runs it. No Config list: quiet, this browser's seen flag only.
+   2026-11-20 (v1.62.7, item 52): the App Settings check reads the Title Case heading the owner approved.
    Run: node tests/test-v1490.js timeline/index.html  (or via tests/run.js) */
 const {boot,suite}=require('./harness');
 const {FILE,src,ok,done}=suite();
@@ -143,7 +144,7 @@ const inOrder=(seen,total)=>seen.length===total&&seen.every((s,i)=>s==='STEP '+(
   E("PEOPLE.length=0;PEOPLE.push({id:'s1',name:'Sam',email:'user@example.com',depts:['pm'],ooo:[],admin:true,developer:true});");
   win.location.hash='#/settings';win.dispatchEvent(new win.Event('hashchange'));await sleep(300);
   ok('App settings renders and lists no tour.off key',
-     E('ROUTE.view')==='settings'&&doc.getElementById('page').textContent.indexOf('App settings')>=0
+     E('ROUTE.view')==='settings'&&doc.getElementById('page').textContent.indexOf('App Settings')>=0
      &&doc.getElementById('page').innerHTML.indexOf('tour.off')<0);
 
   sec('R4 no Config list: quiet, this browser only');

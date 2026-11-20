@@ -11,7 +11,7 @@
      the single-file architecture stays intact and the deploy guard skips data: hrefs. -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MDAgMzIyLjg1NSI+CiAgPHBhdGggZD0iTTE2MS4yMDcsMjc0LjEzOGM2LjY0MywwLDEyLjQsNS43NTgsMTIuNCwxMi44NDR2MjMuMDI5YzAsNy4wODUtNS43NTcsMTIuODQzLTEyLjQsMTIuODQzSDE0LjYxNmMtNi42NDMsMC0xMi40MDEtNS43NTgtMTIuNDAxLTEyLjg0M3YtMzEuMDAyYzAtMTUuMDU4LDMuNTQzLTIxLjcwMSw3Ljk3MS0yNy45MDFMMTA1Ljg0OCwxMTguNjljMTIuNC0xNy4yNzMsMTcuMjczLTIzLjkxNiwxNy4yNzMtMzcuNjQ1LDAtMjMuOTE0LTE3LjcxNi0zNC45ODctMzcuMjAyLTM0Ljk4Ny0yMS43MDEsMC0zNi4zMTUsMTMuNzI5LTM2LjMxNSwzOS44NTl2NC44NzFjMCw2LjY0My01Ljc1OCwxMi40MDEtMTIuODQ0LDEyLjQwMUgxMi44NDRjLTcuMDg2LDAtMTIuODQ0LTUuNzU4LTEyLjg0NC0xMi40MDF2LTEwLjE4NUMwLDI5LjIyOSwzOS40MTcsMCw4NS45MTgsMGM0NS4xNzMsMCw4OC4xMzIsMjcuMDE2LDg4LjEzMiw4MC42MDQsMCwxOS45MjktMS43NzIsMzYuMzE1LTE3LjcxNCw1OC45MDFsLTk2Ljk5LDEzNC42MzNoMTAxLjg2MVpNMzE5Ljc1MiwxODIuNDYzYzYuNjQzLDAsMTIuNCw1Ljc1OCwxMi40LDEyLjg0NHYxNy43MTRjMCw3LjA4Ni01Ljc1NywxMi44NDMtMTIuNCwxMi44NDNoLTEyOC44NzdjLTYuNjQzLDAtMTIuNC01Ljc1Ny0xMi40LTEyLjg0M3YtMTcuNzE0YzAtNy4wODYsNS43NTctMTIuODQ0LDEyLjQtMTIuODQ0aDEyOC44NzdaTTM0MS4wMDgsNTcuNTczYy03LjA4NiwwLTEyLjg0My01Ljc1Ny0xMi44NDMtMTIuNHYtMjMuOTE2YzAtNi42NDMsNS43NTctMTIuNCwxMi44NDMtMTIuNGgxNDYuMTQ4YzcuMDg2LDAsMTIuODQ0LDUuNzU3LDEyLjg0NCwxMi40djI2LjU3MmMwLDkuMzAxLTMuNTQzLDIwLjgxNi01LjMxNSwyNS42ODdsLTg3LjI0NywyMzcuMzc5Yy0yLjIxMyw2LjItNS4zMTUsMTEuOTU4LTExLjk1OCwxMS45NThoLTMzLjIxNWMtNS4zMTMsMC0xMC4xODYtNC40MjgtMTAuMTg2LTExLjk1OCwwLTEuNzcyLjQ0My0zLjU0MywxLjMzLTUuNzU3bDkwLjc4OC0yNDcuNTY3aC0xMDMuMTg5WiIvPgo8L3N2Zz4=">
 
-<link rel="stylesheet" href="../common/common.css?v=1.62.6">
+<link rel="stylesheet" href="../common/common.css?v=1.62.7">
 <style>
 /* ============ TOKENS ============ */
 :root{
@@ -979,8 +979,8 @@ body.vivid .npv-web{display:none} /* v1.0.2: obj 13 */
 .clog-field{color:var(--ts-muted)}
 .clog-det{white-space:pre-wrap;word-break:break-word;color:#5B6B84;font-size:11.5px;margin-top:2px}
 .clog-empty{padding:18px 22px;color:var(--ts-muted);font-size:12.5px}
-.clog-tools{display:flex;align-items:center;gap:8px;padding:8px 22px;border-top:1px solid #E2E8F0;background:var(--paper)}
-.clog-tools input{width:300px}
+.clog-tools{display:flex;align-items:center;gap:8px;padding:12px 22px;border-bottom:1px solid var(--ts-line);background:#fff}
+.clog-tools input{width:320px;min-height:32px;box-sizing:border-box;padding:6px 10px;border:1px solid var(--ts-control-line);border-radius:var(--ts-radius-control);font-family:inherit;font-size:13px;color:var(--ts-text)} /* v1.62.7: the field recipe */
 
 /* --- inspector --- */
 /* v1.62.1 (item 52, step 3): the inspector restyled to the wireframes — 14px/600 header,
@@ -1433,11 +1433,16 @@ body.cd-route #dash-bar{display:none!important}
 .fb-3col .cd-sub{line-height:1.45}
 .fb-3col .fb-pane{padding:18px 22px}
 .fb-3col .clog-row{padding:10px 16px;font-size:13px;border-bottom-color:#EDF2F7}
-.fb-3col .clog-row .clog-what{color:var(--ts-text)}
-.fb-3col .clog-row .clog-what b{font-weight:600}
-.fb-3col .clog-row>.clog-when{font-size:12px;font-variant-numeric:tabular-nums}
-.fb-3col .clog-det{font-size:12px;line-height:1.45;color:var(--ts-muted);margin-top:4px}
+/* v1.62.7: the developer Changelog and Bug Reports lists (straight under the page head) share the rows */
+.pg.dash>.clog-list .clog-row{padding:10px 22px;font-size:13px;border-bottom-color:#EDF2F7}
+.fb-3col .clog-row .clog-what,.pg.dash>.clog-list .clog-what{color:var(--ts-text)}
+.fb-3col .clog-row .clog-what b,.pg.dash>.clog-list .clog-what b{font-weight:600}
+.fb-3col .clog-row>.clog-when,.pg.dash>.clog-list .clog-row>.clog-when{font-size:12px;font-variant-numeric:tabular-nums}
+.pg.dash>.clog-list .clog-row>.clog-when{width:110px}
+.pg.dash>.clog-list .clog-who{font-weight:600;color:var(--ts-text)}
+.fb-3col .clog-det,.pg.dash>.clog-list .clog-det{font-size:12px;line-height:1.45;color:var(--ts-muted);margin-top:4px}
 .fb-3col .clog-empty{padding:28px 16px;font-size:13px}
+.pg.dash>.clog-list .clog-empty{padding:28px 22px;font-size:13px}
 .cd-perm.fb-kind,.cd-perm.fb-st{font-family:inherit;font-size:11px;font-weight:500;letter-spacing:0;line-height:1.4;border-radius:var(--ts-radius-chip);padding:2px 6px}
 @media(max-width:900px){.cd-body{flex-direction:column}.cd-list{width:auto!important;max-width:none;border-right:none;border-bottom:1px solid #E2E8F0;max-height:45vh}}
 /* v1.11.0: the dev App Settings page */
@@ -1445,7 +1450,9 @@ body.cd-route #dash-bar{display:none!important}
    section heading as written, 13px choices, and the chosen one in the action blue. */
 .as-body{max-width:640px;padding:4px 22px 40px;overflow-y:auto}
 .as-body h3{font-size:15px;font-weight:600;color:var(--ts-text);margin:24px 0 4px}
-.as-src{font-size:12px;color:#5B7C99;background:#F1F6FB;border:1px solid #D8E2EF;border-radius:8px;padding:8px 12px;margin-top:14px}
+.as-src{font-size:13px;color:var(--ts-muted);background:#F6F8FB;border:1px solid var(--ts-line);border-radius:var(--ts-radius-control);padding:10px 14px;margin-top:14px} /* v1.62.7 */
+.as-row:has(#as-stale){align-items:center}
+#as-stale{min-height:32px;box-sizing:border-box;padding:6px 8px;border:1px solid var(--ts-control-line);border-radius:var(--ts-radius-control);font-family:inherit;font-size:13px;color:var(--ts-text)}
 .as-src.warn{color:#8A5A18;background:#FCF4E4;border-color:#EAD199}
 .as-src code{font-family:var(--mono);font-size:11px}
 .as-note{font-size:13px;color:var(--ts-muted);margin-bottom:12px}
@@ -1809,10 +1816,10 @@ body.cd-route #dash-bar{display:none!important}
      from common/, the folder every Systems product shares. ?v= is APP_VER, stamped by
      `npm run notes`, so a new page never runs against a cached old core. -->
 <script src="../common/msal-browser.min.js"></script>
-<script src="../common/common.js?v=1.62.6"></script>
+<script src="../common/common.js?v=1.62.7"></script>
 <script>
 'use strict';
-const APP_VER='1.62.6'; // bump this ONE string on every release; used everywhere the version shows up.
+const APP_VER='1.62.7'; // bump this ONE string on every release; used everywhere the version shows up.
 // Semver: last number for fixes/small releases, middle for feature drops, first for breaking changes.
 // History: REV1–50 alpha, REV50–100 beta; REV101 became v1.0.1 (first versioned release).
 
@@ -4816,15 +4823,15 @@ function renderAppSettings(){
   h+='<div class="dash-top"><nav class="pg-trail">'
    +'<button class="pg-cr" id="cd-back" title="Back to the timeline (Esc)">All Projects</button>'
    +'<span class="pg-sep">&rsaquo;</span>'
-   +'<span class="pg-cr cur">App settings</span></nav>'
+   +'<span class="pg-cr cur">App Settings</span></nav>'
    +'<button class="pg-x" id="cd-x" title="Close — back to the timeline (Esc)">&times;</button></div>';
-  h+='<div class="cd-head"><h2>App settings</h2>'
+  h+='<div class="cd-head"><h2>App Settings</h2>'
    +'<span class="cd-sub">Developer switches. Everyone reads these at sign-in — a change reaches users on their next reload.</span></div>';
   h+='<div class="as-body">'
    +'<div class="as-src'+(CFG_OK?'':' warn')+'">'+(CFG_OK
       ?'Shared with everyone via the ShopTimeline_Config list.'
       :'ShopTimeline_Config list not found — these switches apply in THIS browser only. Create the list on the site (Title = key, plus one single-line text column named <code>value</code>) to share them.')+'</div>'
-   +'<h3>Viewer permissions</h3>'
+   +'<h3>Viewer Permissions</h3>'
    +'<div class="as-note">Each switch opens one edit door for non-admin users. All off = the v1.8.0 read-only viewer.</div>'
    +CFG_META.filter(m=>m[0].indexOf('viewer.')===0).map(row).join('')
    +'<h3>Experimental</h3>'
@@ -11052,6 +11059,7 @@ async function fbSetStatus(spId,status,btn){
    block drifts from the changelog. ===== */
 /* RELEASE_NOTES:BEGIN — generated from CHANGELOG.md by tools/gen-release-notes.js; run `npm run notes`, never edit by hand */
 const RELEASE_NOTES=[
+ {v:"v1.62.7",d:"Nov 20, 2026",n:["The Changelog page (Company Data ▸ Changelog) matches the new look: a proper filter box and slightly larger, easier-to-read rows."]},
  {v:"v1.62.6",d:"Nov 20, 2026",n:["Release Notes and My Settings match the new look: a larger page title above its description, easier-to-read notes that stop at a comfortable width, and larger setting choices with the one you picked outlined in blue.",
    "The My settings page is now titled \"My Settings\", and its \"Project page\" section reads \"Project Page\"."]},
  {v:"v1.62.5",d:"Nov 20, 2026",n:["Open Issues matches the new look: each column's heading sits above its description, the column labels are no longer small capitals, and an arrow beside the date shows the list's order.",

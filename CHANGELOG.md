@@ -9,6 +9,9 @@ Format: `## <label> — <date>` then one `- ` line per change. Keep lines concre
 what changed *for the team*, not how. Developer-only tooling doesn't need a line.
 Collect lines for the next version under `## Unreleased` and rename it when you ship.
 
+## v1.62.7 — Nov 20, 2026
+- The Changelog page (Company Data ▸ Changelog) matches the new look: a proper filter box and slightly larger, easier-to-read rows.
+
 ## v1.62.6 — Nov 20, 2026
 - Release Notes and My Settings match the new look: a larger page title above its description, easier-to-read notes that stop at a comfortable width, and larger setting choices with the one you picked outlined in blue.
 - The My settings page is now titled "My Settings", and its "Project page" section reads "Project Page".
