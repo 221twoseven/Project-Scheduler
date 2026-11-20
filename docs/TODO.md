@@ -56,7 +56,7 @@ What each release changed: [`CHANGELOG.md`](../CHANGELOG.md).
 | You (leadership, for an Organization) | Pick the GitHub plan (items 71, 24) | A private repository; the rename |
 | You | Create a test SharePoint site, or approve a list-name suffix on preview (item 17) | Testing without touching real data, before the pilot |
 | You, the tenant admin | Check what retention covers and that version history is on for every list; start a weekly export (item 15) | A safety net for the lists |
-| You, leadership | An Azure subscription and who owns its billing; apply the Entra registrations from Claude's spec (item 51) | Deploying the read-only Azure test (building it doesn't wait) |
+| You, leadership | Name the Azure billing owner, a second administrator and the alert recipient; install the Azure CLI; create the database's Entra admin group; apply the Entra registrations from Claude's spec; pick free or paid tiers for staging (item 51) | Deploying the read-only Azure test, after the launch work (its code is merged) |
 | Project Director | Rules for tentative, confirmed and TBD dates (item 5) | Showing how firm a date is |
 | Project Director, you | Enter the pilot projects; set the pilot's size and end date (item 18) | The pilot |
 | Project Director | The AMPM columns of the Master Project Tracker (item 22) | The Meeting Sheet as the AMPM handout |
@@ -92,6 +92,10 @@ details. Open questions with no deadline are in [`Decisions.md`](Decisions.md).
   permission roles.
 - **"Automatic" status vs closeout** (item 10). Waits on closeout existing (item 11).
 - **The storage review's follow-ups** (item 50). Waits on the data platform being chosen.
+- **The Azure test, steps 4–6** (item 51): deploy to staging, Timeline reading from it in
+  preview, and the cost report. Steps 1–3 (the code) are merged. Picked up after item 52
+  and more of the launch work (owner, 2026-11-20), and once the Azure setup in "Waiting on
+  someone" is done.
 
 ## On hold — you paused these
 
@@ -265,17 +269,48 @@ applies from an exact spec; **[brief §N]** = the Project Director's September 2
       - *Build, one PR each, from `development`:*
         1. `infra/`: Bicep for one staging resource group (App Service + Fastify app,
            Entra-only Azure SQL, managed identity, Application Insights); `what-if` only.
-           *PR #223, open 2026-11-20.*
+           *Merged, PR #223, 2026-11-20.*
         2. `api/`: the Fastify scaffold, Entra token validation, `GET /api/me`, in-process
-           allow and deny tests with signed test tokens. *PR #224, open 2026-11-20.*
+           allow and deny tests with signed test tokens. *Merged, PR #224, 2026-11-20.*
         3. A minimal Project table as a migration, synthetic rows, `GET /api/projects` and
            `GET /api/projects/{id}`, SQL integration tests on a CI container.
-           *PR #225, open 2026-11-20.*
+           *Merged, PR #225, 2026-11-20.*
         4. Deploy to staging from Actions with a federated credential; its
            `docs/Automations.md` entry in the same PR.
         5. Timeline's read-only `apiStore` in preview behind a developer switch, with the
            record-by-record comparison against SharePoint.
         6. The answers to §E16's questions, the real monthly cost, and a milestone record.
+      - *Sequenced (owner, 2026-11-20):* steps 4–6 wait until item 52 and more of the launch
+        work are done. Nothing is deployed yet.
+      - *Azure facts, as of 2026-11-20:*
+        - The subscription is under the company's Microsoft account (owner).
+        - The always-free monthly amounts that fit this test, from the portal's Free
+          services page: Azure SQL Database, 100,000 vCore-seconds of serverless use and
+          32 GB of storage; App Service, up to 10 web or API apps with 1 GB of storage and
+          an hour of CPU a day (the F1 tier); Azure Monitor's free amounts; 100 GB of
+          outbound data; Entra ID up to 50,000 objects. Above them, use is billed at
+          pay-as-you-go rates.
+        - The 12-month offers on that page don't include Azure SQL Database (only SQL
+          Managed Instance, PostgreSQL and MySQL), so none of them applies here.
+        - `infra/` today picks the paid B1 App Service plan and a Basic database (about
+          $18 a month, `infra/README.md`). Switching staging to the free tiers is one
+          setting for App Service (`planSku = 'F1'`) and a small Bicep edit for the
+          database (serverless, with the free limit on).
+        - The catches: the free database pauses when idle or when its monthly allowance
+          runs out, so the first request after a pause is slow; F1 has no Always On, and
+          the review's "verify managed identity on a free tier" still applies; and free
+          tiers understate production, so step 6 reports both the free bill and what
+          paid tiers would cost.
+      - *Next, in order:*
+        1. You: name the billing owner, a second administrator and the alert recipient;
+           install the Azure CLI on the deploying machine and `az login` with the company
+           account; create the database's Entra admin group (`infra/README.md`, "Before
+           you start"); pick free or paid tiers for staging.
+        2. Claude: write the Entra registration spec (the staging API registration and
+           its scope, the delegated permission on the SPA registration, the deploy
+           identity's federated credential); make the free-tier change if picked.
+        3. You: apply the registrations from the spec.
+        4. Claude: step 4 (deploy), then steps 5 and 6.
       - *Waits on (steps 4–6 only):* an Azure subscription and its billing owner; ⚠ the
         owner applies the Entra registrations from Claude's spec (a staging API
         registration exposing its scope, a delegated permission on the SPA registration,
