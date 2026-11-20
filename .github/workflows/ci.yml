@@ -42,3 +42,18 @@ jobs:
           az bicep lint --file infra/main.bicep
           az bicep build --file infra/main.bicep --stdout > /dev/null
           az bicep build-params --file infra/staging.bicepparam --stdout > /dev/null
+
+  # The Systems API (api/, item 51): type check, the in-process allow/deny tests, and the build.
+  api:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci
+      - run: npm test
+      - run: npm run build

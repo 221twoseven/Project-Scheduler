@@ -27,3 +27,6 @@ tmp/
 # Licensed font weights the site doesn't use stay local (TODO ledger: only BrNStdBd.otf is published)
 design/fonts/*
 !design/fonts/BrNStdBd.otf
+
+# The Systems API's compiled output (api/, item 51)
+api/dist/
