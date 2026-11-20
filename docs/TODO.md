@@ -441,7 +441,7 @@ What we still need from people: schemas, rules and examples, not screenshots. St
           edit-in-place and thought popovers): one floating frame (1px edge, 8px corners, the
           shared shadow), 13px rows of at least 32px (owner picked these over 28px), 16px tick
           boxes, section labels as written, "Show everything" a white secondary button, the
-          2px ring inset. Owner OK on the mock 2026-11-20. Shipped v1.62.4 (2026-11-20). Suite
+          2px ring inset. Owner OK on the mock 2026-11-20. Shipped v1.62.4 (PR #227, 2026-11-20). Suite
           `tests/test-v1624.js`; record
           `docs/Milestones/Phase-7-Pilot-Readiness/2026-11-20-menus-restyle.md`.
         - Step 3 is done (2026-11-20).
