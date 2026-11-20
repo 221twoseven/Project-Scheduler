@@ -50,7 +50,7 @@ function main(){
 
   sec('R2 — the kind chips share one width');
   const chips=qa('#fb-list .cd-perm:not(.fb-st), #fb-done .cd-perm:not(.fb-st)'); /* v1.39.0 adds a status tag beside the kind chip */
-  ok('every BUG / IDEA chip carries .fb-kind', chips.length===4&&chips.every(c=>c.classList.contains('fb-kind')), chips.length);
+  ok('every Bug / Idea chip carries .fb-kind', chips.length===4&&chips.every(c=>c.classList.contains('fb-kind')), chips.length);
   ok('.fb-kind is a fixed flex column, centred', /\.fb-kind\{flex:0 0 \d+px;text-align:center/.test(src));
 
   sec('R3 — a /comment shows as a developer comment');

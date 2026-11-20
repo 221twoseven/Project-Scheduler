@@ -37,8 +37,8 @@ function main(){
   const tip=(list,id)=>{const r=q(list+' .clog-row[data-spid="'+id+'"] > .clog-when');return r?r.title:'';};
 
   sec('R1 — each list says what its columns are');
-  ok('R1: Open issues reads Type · Status · Report · Submitted', (labels('#fb-list')||[]).join('|')==='Type|Status|Report|Submitted', labels('#fb-list'));
-  ok('R1: Resolved reads Type · Report · Resolved (no Status: the column is the state)', (labels('#fb-done')||[]).join('|')==='Type|Report|Resolved', labels('#fb-done'));
+  ok('R1: Open issues reads Type · Status · Report · Submitted (v1.62.5: ↓ marks the order)', (labels('#fb-list')||[]).join('|')==='Type|Status|Report|Submitted ↓', labels('#fb-list'));
+  ok('R1: Resolved reads Type · Report · Resolved (no Status: the column is the state)', (labels('#fb-done')||[]).join('|')==='Type|Report|Resolved ↓', labels('#fb-done'));
   ok('R1: the label row sits first, above the reports', q('#fb-list').firstElementChild.classList.contains('fb-colhd')&&q('#fb-done').firstElementChild.classList.contains('fb-colhd'));
   ok('R1: the label row is not a report row (counts and clicks skip it)', !q('.fb-colhd').classList.contains('clog-row')&&qa('#fb-list .clog-row').length===2&&qa('#fb-done .clog-row').length===2);
   ok('R1: labels line up with the cells below (same width classes)', ['fb-kind','fb-st','clog-what','clog-when'].every((c,i)=>q('#fb-list > .fb-colhd').children[i].classList.contains(c)));

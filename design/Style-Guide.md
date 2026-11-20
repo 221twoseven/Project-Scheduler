@@ -415,7 +415,8 @@ font-size:var(--fs-fine);font-weight:700;text-transform:uppercase;letter-spacing
 their column headings (`.ins-sec>h4`), field labels, Team role labels and department group
 headings are no longer micro-caps — see 7.4. **And on the dialogs' field labels** (`.fg label`,
 v1.62.3), which reach the Open Issues form too, **and on the menus' section labels** (`.sm-sec`,
-the right-click header `.npv-menu .mh`, the Legend's `.lg-sec`; v1.62.4).
+the right-click header `.npv-menu .mh`, the Legend's `.lg-sec`; v1.62.4), **and on Open Issues'
+column labels** (`.fb-colhd`, v1.62.5; item 52 step 5).
 
 ---
 
@@ -695,9 +696,11 @@ input:checked ~ .pin-track{background:var(--warn)}   input:checked ~ .pin-track 
 .sb-count{font-family:var(--mono);font-size:var(--fs-fine);font-weight:600;background:rgba(87,104,127,.16);border-radius:8px;padding:1px 7px;color:#57687F}
 .cd-perm{font-family:var(--mono);font-size:var(--fs-fine);font-weight:700;letter-spacing:.06em;color:#3B6FB5;background:#EAF1FB;border-radius:5px;padding:0 4px}
 .cd-perm.dev{color:#7C4FB0;background:#F2EBFA}
-.fb-st{flex:0 0 74px;text-align:center;box-sizing:border-box;white-space:nowrap}   /* v1.39.0: the report status tag (PENDING / IN REVIEW / RESOLVED) — a .cd-perm of one width, like .fb-kind */
+.fb-st{flex:0 0 76px;text-align:center;box-sizing:border-box;white-space:nowrap}   /* v1.39.0: the report status tag (Pending / In review / Resolved) — a .cd-perm of one width, like .fb-kind (48px) */
+.cd-perm.fb-kind,.cd-perm.fb-st{font-family:inherit;font-size:11px;font-weight:500;letter-spacing:0;line-height:1.4;border-radius:var(--ts-radius-chip);padding:2px 6px}   /* v1.62.5: the report chips as written (Bug, Idea, Pending, In review) in the page's type */
 .fb-st.fb-pend{color:var(--ts-muted);background:#F1F5F9}                              /* pending: the one muted variant */
-.fb-colhd{position:sticky;top:0;background:#F8FAFC;font-family:var(--mono);font-size:var(--fs-fine);font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ts-muted)}   /* v1.40.1: Open Issues column labels — same cell widths as the rows, pinned while the list scrolls */
+.fb-colhd{position:sticky;top:0;padding:8px 16px;border-bottom:1px solid var(--ts-line);background:#F6F8FB;font-size:11px;font-weight:500;color:var(--ts-muted)}   /* v1.40.1: Open Issues column labels — same cell widths as the rows, pinned while the list scrolls. v1.62.5: the wireframes' soft table header, as written; the date label carries an aria-hidden ↓ for the order (its column's line says it in words) */
+/* v1.62.5 Open Issues rows (.fb-3col): 13px, padding 10px 16px; the subject 600; dates 12px tabular; the folded text 12px muted; each column's .cd-head stacks its 17px/600 heading above its line */
 .cd-perm.done{color:#5B6472;background:#E6E9EE}   /* v1.37.0: the sidebar's Completed tag */
 .md-tag{font-size:11px;font-weight:700;letter-spacing:.06em;color:#1A7F4E;background:#DCF3E6;border-radius:6px;padding:0 5px}
 kbd{font-family:var(--mono);font-size:var(--fs-fine);background:#EDF1F7;border:1px solid #CBD6E4;border-bottom-width:2px;border-radius:4px;padding:1px 5px;color:#44536C}
