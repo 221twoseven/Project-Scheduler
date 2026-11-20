@@ -702,6 +702,8 @@ input:checked ~ .pin-track{background:var(--warn)}   input:checked ~ .pin-track 
 .fb-st.fb-pend{color:var(--ts-muted);background:#F1F5F9}                              /* pending: the one muted variant */
 .fb-colhd{position:sticky;top:0;padding:8px 16px;border-bottom:1px solid var(--ts-line);background:#F6F8FB;font-size:11px;font-weight:500;color:var(--ts-muted)}   /* v1.40.1: Open Issues column labels — same cell widths as the rows, pinned while the list scrolls. v1.62.5: the wireframes' soft table header, as written; the date label carries an aria-hidden ↓ for the order (its column's line says it in words) */
 /* v1.62.5 Open Issues rows (.fb-3col): 13px, padding 10px 16px; the subject 600; dates 12px tabular; the folded text 12px muted; each column's .cd-head stacks its 17px/600 heading above its line */
+/* v1.62.7 the full-page lists (.pg.dash>.clog-list: Changelog, Bug Reports) share those rows at padding 10px 22px; the date 110px wide; the Changelog's who 600 --ts-text */
+.clog-tools{padding:12px 22px;border-bottom:1px solid var(--ts-line);background:#fff}   .clog-tools input{width:320px;min-height:32px;padding:6px 10px;border:1px solid var(--ts-control-line);border-radius:var(--ts-radius-control);font-size:13px}   /* v1.62.7: the Changelog filter, the field recipe */
 .cd-perm.done{color:#5B6472;background:#E6E9EE}   /* v1.37.0: the sidebar's Completed tag */
 .md-tag{font-size:11px;font-weight:700;letter-spacing:.06em;color:#1A7F4E;background:#DCF3E6;border-radius:6px;padding:0 5px}
 kbd{font-family:var(--mono);font-size:var(--fs-fine);background:#EDF1F7;border:1px solid #CBD6E4;border-bottom-width:2px;border-radius:4px;padding:1px 5px;color:#44536C}
@@ -824,7 +826,8 @@ today; the People, Clients and Office products tomorrow.
 .pg.dash>.cd-head h2{font-size:22px;line-height:1.25;font-weight:600;color:var(--ts-text)}   .pg.dash>.cd-head .cd-sub{font-size:13px}
 /* Release Notes: .rn-ver padding 16px 22px · .rn-hd b 15px/600 · .rn-notes 13px/1.55, max-width 760px
    Settings (My Settings, App settings): .as-body h3 15px/600 as written · .as-row 12px 14px, 1px --ts-line, r8,
-   the chosen one (:has(input:checked)) --ts-action edge on #F5F9FF · .as-txt b 13px · span 12px muted */
+   the chosen one (:has(input:checked)) --ts-action edge on #F5F9FF · .as-txt b 13px · span 12px muted
+   App Settings (v1.62.7): .as-src 13px muted on #F6F8FB, 1px --ts-line, r6 (its .warn keeps amber) · #as-stale the field recipe, 32px, its row centred */
 .cd-body{flex:1;display:flex;min-height:0}
 .cd-list{width:56%;min-width:320px;max-width:820px;border-right:1px solid #E2E8F0;display:flex;flex-direction:column}
 .cd-cols{display:grid;gap:4px 12px;padding:6px 14px 4px;font-size:var(--fs-fine);font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#94A3B8;border-bottom:1px solid #EDF1F7}

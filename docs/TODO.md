@@ -16,7 +16,7 @@ Kept elsewhere so this file stays short:
 
 As of 2026-11-20:
 - **Live** (`main`, what users run): **v1.55.3**, Timeline only (hotfixes from `main`, items 96 to 98).
-- **Preview** (`development`, at `/preview/`): **v1.62.6**. The Systems page sits at the
+- **Preview** (`development`, at `/preview/`): **v1.62.7**. The Systems page sits at the
   root; Timeline moves to `/timeline/` with the Systems header and Apps menu; Office (the
   client list, formerly Clients) is its own app at `/office/`, and a client's record shows its current projects at a glance and
   its project history, projects from before Timeline included; People (the staff roster) is its own app at `/people/`;
@@ -74,7 +74,8 @@ details. Open questions with no deadline are in [`Decisions.md`](Decisions.md).
 ## Next — Claude can do these without waiting
 
 - **Restyle the next Timeline surface** to the wireframes: step 5, the business pages:
-  Open Issues, Release Notes and My Settings are done; the developer pages are next. (item 52)
+  Open Issues, Release Notes, My Settings and the developer pages are done; the project page
+  is next. (item 52)
 - **Write the one-paragraph rollback procedure**, and start tagging releases once you OK it.
   (item 16)
 
@@ -512,8 +513,13 @@ What we still need from people: schemas, rules and examples, not screenshots. St
           "Project Page"; the Help menu row stays "My settings". Owner: "Yes, with wording"
           (2026-11-20). Shipped v1.62.6 (PR #230, 2026-11-20). Suite `tests/test-v1626.js`; record
           `docs/Milestones/Phase-7-Pilot-Readiness/2026-11-20-help-pages-restyle.md`.
-        - Left (dated 2026-11-20): the developer pages (App settings' rows already match, its
-          head too), then the project page.
+        - [x] *The developer pages*: the Changelog and Bug Reports lists share Open Issues' 13px
+          rows, the Changelog filter is a real field, and App Settings' Config note and "Stale
+          after" field use the tokens. Title Case: "App Settings", "Viewer Permissions"; the Help
+          menu row stays "App settings". Owner: "Yes, with wording" (2026-11-20). Shipped v1.62.7
+          (2026-11-20). Suite `tests/test-v1627.js`; record
+          `docs/Milestones/Phase-7-Pilot-Readiness/2026-11-20-developer-pages-restyle.md`.
+        - Left (dated 2026-11-20): the project page.
       - *Done when, per PR:* before/after `/preview/` screenshots, the Design-Language §9
         checklist, and the §13 verification list. A visible change follows the version and
         changelog rules. Steps 6–7 are rules for how the steps are done, not work of their
