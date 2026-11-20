@@ -1,3 +1,4 @@
+import sql from 'mssql';
 import { buildApp } from './app.ts';
 import { makeVerifier } from './auth.ts';
 
@@ -13,5 +14,14 @@ const verify = makeVerifier({
   scope: need('API_SCOPE'),
 });
 
-const app = buildApp({ verify });
+// No password: in Azure this resolves to the app's managed identity, on a laptop to `az login`.
+const db = new sql.ConnectionPool({
+  server: need('SQL_SERVER'),
+  database: need('SQL_DATABASE'),
+  options: { encrypt: true },
+  authentication: { type: 'azure-active-directory-default', options: {} },
+});
+await db.connect();
+
+const app = buildApp({ verify, db });
 await app.listen({ host: '0.0.0.0', port: Number(process.env.PORT ?? 8080) });
