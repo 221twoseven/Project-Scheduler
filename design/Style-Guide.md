@@ -416,7 +416,8 @@ their column headings (`.ins-sec>h4`), field labels, Team role labels and depart
 headings are no longer micro-caps — see 7.4. **And on the dialogs' field labels** (`.fg label`,
 v1.62.3), which reach the Open Issues form too, **and on the menus' section labels** (`.sm-sec`,
 the right-click header `.npv-menu .mh`, the Legend's `.lg-sec`; v1.62.4), **and on Open Issues'
-column labels** (`.fb-colhd`, v1.62.5; item 52 step 5).
+column labels** (`.fb-colhd`, v1.62.5; item 52 step 5), **and on the settings pages' section
+headings** (`.as-body h3`, v1.62.6).
 
 ---
 
@@ -818,6 +819,12 @@ today; the People, Clients and Office products tomorrow.
 ```css
 .cd-head{display:flex;align-items:center;gap:10px;padding:12px 22px 10px;border-bottom:1px solid #E2E8F0}
 .cd-head h2{font-size:17px;color:#16202E}   .cd-sub{font-size:12px;color:#7488A3}   .cd-head .btn{margin-left:auto}
+/* v1.62.6 (item 52 step 5): a full-width page's head is the wireframes' page title — 22px/600 over a 13px line */
+.pg.dash>.cd-head{flex-direction:column;align-items:flex-start;gap:4px;padding:20px 22px 16px;border-bottom:1px solid var(--ts-line)}
+.pg.dash>.cd-head h2{font-size:22px;line-height:1.25;font-weight:600;color:var(--ts-text)}   .pg.dash>.cd-head .cd-sub{font-size:13px}
+/* Release Notes: .rn-ver padding 16px 22px · .rn-hd b 15px/600 · .rn-notes 13px/1.55, max-width 760px
+   Settings (My Settings, App settings): .as-body h3 15px/600 as written · .as-row 12px 14px, 1px --ts-line, r8,
+   the chosen one (:has(input:checked)) --ts-action edge on #F5F9FF · .as-txt b 13px · span 12px muted */
 .cd-body{flex:1;display:flex;min-height:0}
 .cd-list{width:56%;min-width:320px;max-width:820px;border-right:1px solid #E2E8F0;display:flex;flex-direction:column}
 .cd-cols{display:grid;gap:4px 12px;padding:6px 14px 4px;font-size:var(--fs-fine);font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#94A3B8;border-bottom:1px solid #EDF1F7}
