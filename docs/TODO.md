@@ -265,10 +265,12 @@ applies from an exact spec; **[brief §N]** = the Project Director's September 2
       - *Build, one PR each, from `development`:*
         1. `infra/`: Bicep for one staging resource group (App Service + Fastify app,
            Entra-only Azure SQL, managed identity, Application Insights); `what-if` only.
+           *PR #223, open 2026-11-20.*
         2. `api/`: the Fastify scaffold, Entra token validation, `GET /api/me`, in-process
-           allow and deny tests with signed test tokens.
+           allow and deny tests with signed test tokens. *PR #224, open 2026-11-20.*
         3. A minimal Project table as a migration, synthetic rows, `GET /api/projects` and
            `GET /api/projects/{id}`, SQL integration tests on a CI container.
+           *PR #225, open 2026-11-20.*
         4. Deploy to staging from Actions with a federated credential; its
            `docs/Automations.md` entry in the same PR.
         5. Timeline's read-only `apiStore` in preview behind a developer switch, with the
