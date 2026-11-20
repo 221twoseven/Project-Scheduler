@@ -21,7 +21,7 @@ param sqlAdminObjectId string
 @allowed(['Group', 'User'])
 param sqlAdminPrincipalType string = 'Group'
 
-@description('Token audience the API accepts: the Application ID URI of the API\'s Entra registration.')
+@description('Token audience the API accepts: the API registration\'s Application (client) ID, which Entra v2 access tokens carry as aud.')
 param apiAudience string
 
 @description('Delegated scope the API requires in every token.')

@@ -9,6 +9,6 @@ param env = 'staging'
 param sqlAdminName = readEnvironmentVariable('SQL_ADMIN_NAME')
 param sqlAdminObjectId = readEnvironmentVariable('SQL_ADMIN_OBJECT_ID')
 
-// The staging API registration's Application ID URI. Placeholder until the owner applies
-// the registration (item 51, step 4); replace it with the real value then.
-param apiAudience = 'api://systems-api-staging'
+// The staging API registration's Application (client) ID. All zeros until the owner applies
+// the registration (item 51, step 4): until then the API accepts no token at all.
+param apiAudience = '00000000-0000-0000-0000-000000000000'
