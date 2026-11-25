@@ -52,6 +52,7 @@ What each release changed: [`CHANGELOG.md`](../CHANGELOG.md).
 |---|---|---|
 | You | The design review above (item 90) | The launch |
 | You | Pick the past-project fields (item 95) | The launch |
+| You | Rule on the Office wireframe reconciliation: project-centred Office, stages worked out not stored, money only behind the API, and three proposed items (item 102) | Office's work after the launch; not the launch |
 | You | Approve adding `office/` and `people/` to `main`'s deploy workflow (item 100) | A hotfix to `main` keeping `/preview/office/` and `/preview/people/` up |
 | You (leadership, for an Organization) | Pick the GitHub plan (items 71, 24) | A private repository; the rename |
 | You | Create a test SharePoint site, or approve a list-name suffix on preview (item 17) | Testing without touching real data, before the pilot |
@@ -184,6 +185,24 @@ applies from an exact spec; **[brief §N]** = the Project Director's September 2
         forwards old Clients links to Office, and its deploy-list lines.
 
 ## Waiting on someone
+
+- [ ] **102. Rule on the Office wireframe reconciliation** (owner's handoff, 2026-11-25).
+      The owner's Office wireframe (Concept 01: Overview, Projects, Clients, Reports,
+      Administration, and one project record from lead to closeout) checked against the
+      plan in [`Office-Reconciliation.md`](Office-Reconciliation.md). Most of it is already
+      items 45, 44, 13, 42, 43, 5, 10, 11, 22, 95, 26 and 30. Nothing is built from it.
+      - *The owner rules:* (1) Office centres on the project: setup and closeout happen on
+        a project record reached from a Projects register or the client's record (refines
+        the 2026-11-19 ruling); (2) the register's stages are worked out from the facts
+        each item records, never one stored field; (3) prices, budgets, actuals and margin
+        are never kept in a SharePoint list, so they wait for the Systems API; (4) leads
+        and estimates are built once, on the chosen platform.
+      - *Proposed new items* (numbered on the owner's go): a read-only Projects register
+        and project record after the launch; project financials and portfolio reports;
+        client contacts and details.
+      - *Then:* the extensions to existing items (the report's §3) and the doc fixes (§9)
+        land in one PR, and the report's questions join "Material to gather".
+      - *Doesn't hold:* the launch.
 
 - [ ] **100. Office and People on `main`'s deploy list** (found 2026-11-19, building item 87).
       `.github/workflows/deploy-pages.yml` rebuilds the whole site from both branches on every
