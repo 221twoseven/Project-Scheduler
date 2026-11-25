@@ -7,6 +7,19 @@ release-by-release record.
 
 ## Finished since 2026-11-18
 
+- [x] **102. Rule on the Office wireframe reconciliation** (owner's handoff, 2026-11-25).
+      Done 2026-11-25, docs only (PR #235). The owner's Office wireframe (Concept 01)
+      checked against the plan in [`Office-Reconciliation.md`](Office-Reconciliation.md);
+      ruled the same day (owner: "Approve all").
+      - *Rulings* (Decisions.md, "What we're building", Office's shape): Office centres on
+        the project record, reached from a Projects register or the client's record; the
+        register's stages are worked out, never stored; money is never kept in a SharePoint
+        list; leads and estimates are built once, on the chosen platform.
+      - *New items:* 103 (the Projects register and project record), 104 (project
+        financials and portfolio reports), 105 (client contacts and details).
+      - *Extended:* items 95, 45, 44, 42, 43, 5, 11, 26, 30 and 51; the report's questions
+        joined "Material to gather".
+
 - [x] **52. The style track: suite style guide §13 steps 3–5.** Shipped v1.62.8 (PR #232,
       2026-11-20). The migration sequence in
       `design/TwoSeven-Application-Style-Guide.md` §13. Step 1 (baseline) and step 2 (tokens

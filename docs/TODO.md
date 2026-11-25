@@ -78,11 +78,16 @@ details. Open questions with no deadline are in [`Decisions.md`](Decisions.md).
 
 ## Later — waits on other work
 
-- **Office's next steps, after the launch**, on the client's record (Office absorbed
-  Clients, 2026-11-19), built in the order a job moves: job lead
-  (item 45), estimate (item 44), cost-code generation (item 42), job creation with the
-  QuickBooks / TCP hand-off (item 43), and closeout and billing last (item 11). Waits on
-  the company's project list being chosen and the cost-code rules.
+- **Office's Projects register and project record**, read-only, after the launch (item
+  103). Waits on the launch.
+- **Client contacts and details in Office** (item 105). Waits on the launch and your field
+  picks.
+- **Office's next steps**, on the project's record (owner, 2026-11-25), built in the order
+  a job moves: job lead (item 45), estimate (item 44), cost-code generation (item 42), job
+  creation with the QuickBooks / TCP hand-off (item 43), closeout and billing (item 11), and
+  last, project financials and reports (item 104). Waits on the company's project list
+  being chosen, the cost-code rules, and the Azure test and data-platform ruling: leads and
+  estimates are built only on the chosen platform.
 - **Split the staff list** into a public roster and a restricted HR record (item 27).
   Waits on which details are private and which list is the employee directory.
 - **The employee import's last steps** (item 9). Waits on which details are private.
@@ -119,7 +124,8 @@ applies from an exact spec; **[brief §N]** = the Project Director's September 2
 - [ ] **90. Your design and feature review of the Clients app and the Systems page** (owner,
       2026-11-18: not ready for `main`; "needs a design/feature review by me before we push to
       main"). On `/preview/clients/` and `/preview/`. What the review asks for becomes items
-      here before any of it is built. The launch waits on it.
+      here before any of it is built. The launch waits on it. (`/preview/clients/` now
+      forwards to `/preview/office/`, item 94.)
       - *First notes, on Clients (2026-11-18):* the list scrolls on its own, and a client's
         record shows current projects at a glance and a project history: item 92, built in
         v1.59.0. Projects from before Timeline, added in Clients: item 93, built in v1.60.0.
@@ -137,9 +143,14 @@ applies from an exact spec; **[brief §N]** = the Project Director's September 2
         client's contact for the job (from the client's contacts), a link to the project
         folder (photos and drawings stay in SharePoint), notes or lessons learned.
       - *Not in this item:* the final invoice amount, which needs the restricted
-        financial permission (items 26, 11). The Projects tab grouped by stage — leads and
-        estimates, in production, closing out, finished — grows with Office's next steps
-        (items 45, 44, 43, 11), each adding its group.
+        financial permission (items 26, 11). The Projects register grouped by stage —
+        leads and estimates, in production, closing out, finished — is item 103, and grows
+        with Office's next steps (items 45, 44, 43, 11), each adding its group.
+      - *Built as a project record (owner, 2026-11-25, item 102):* the past project's
+        details panel is shaped like the project record's Overview (heading, then fields),
+        so item 103 reuses it without rework. No scope change.
+      - *The client's contact for the job* needs client contacts, which don't exist yet
+        (item 105). Until then that field can't be offered.
       - *Waits on:* the owner's field picks and the wording, then the columns.
 
 - [ ] **88. Rename the repository to `Systems`** (owner, 2026-11-18). Done immediately
@@ -280,6 +291,10 @@ applies from an exact spec; **[brief §N]** = the Project Director's September 2
         6. The answers to §E16's questions, the real monthly cost, and a milestone record.
       - *Sequenced (owner, 2026-11-20):* steps 4–6 wait until item 52 and more of the launch
         work are done. Nothing is deployed yet.
+      - *Office's candidate operations (2026-11-25, item 102):* beside
+        `Architecture-Review-Backend.md` §E2's list, the reconciliation's §5 names more
+        (closeout verify / return / hold, invoice and exception records, hand-off results
+        and retries). Candidates only; no step here changes.
       - *Azure facts, as of 2026-11-20:*
         - The subscription is under the company's Microsoft account (owner).
         - The always-free monthly amounts that fit this test, from the portal's Free
@@ -339,6 +354,8 @@ applies from an exact spec; **[brief §N]** = the Project Director's September 2
         - (d) **Downstream.** A Tentative or TBD date must never look like a commitment: no
           LATE chip, no PM late prompt, no automatic Complete (item 10), and the Meeting
           Sheet prints the certainty.
+      - *In Office (owner, 2026-11-25, item 102):* opening a job (item 43) records the
+        certainty; Office's register and record show it and never infer it from a stage.
       - *Waits on:* (a) and (c) are Project Director decisions. The column is additive.
       [brief §7 Early dates; §9 P0]
 
@@ -393,6 +410,9 @@ applies from an exact spec; **[brief §N]** = the Project Director's September 2
         time-off notes, personal contacts, pay basis, and anything ADP or TimeClock+ adds
         later.
       - *Question for HR:* is a work phone or email public inside the company?
+      - *Office's boundaries too (2026-11-25, item 102):* who sees internal cost, markup,
+        budget, actuals, margin and billing; who opens a job; who verifies closeout. Office's
+        money is never in a list (Office's shape), so these are enforced by the Systems API.
       - *Feeds:* item 27 and the employee-directory decision. Until item 27 ships, items 4 and 9a are the only
         protection, and the pilot's stated limits should say so.
       [brief §7 Employee source, §8.1, §11.1; vision]
@@ -443,6 +463,11 @@ What we still need from people: schemas, rules and examples, not screenshots. St
 | a colleague's estimator: a walkthrough of its model, pricing rules, catalog and rate data, and test estimates; where its database runs | the colleague, the owner | not requested (item 44) |
 | Estimate samples: two or three recent estimates per PM, of different shapes, to re-enter in the estimator's model | several PMs, the Project Director | not requested (item 44) |
 | Platform ownership: who would hold an Azure subscription and its billing, a second administrator, alert recipient, production-migration approver | owner, the backup maintainer | not requested (the data-platform decision) |
+| Office's lifecycle rules (item 102, report §4): can a job open without an approved estimate; one lead to several jobs, several estimates to one job; multi-location rollouts; cancelling, postponing and reopening; who opens a job and what counts as client approval; the minimum Timeline needs to schedule; what makes a queue item overdue and who sets deadlines | Project Director | not requested (items 45, 44, 43, 11) |
+| Office's accounting rules (item 102, report §4): is "invoice sent" closure or is reconciliation a step; closing with unpaid invoices or unposted bills; retainage, warranty, late charges; who reopens; failed QuickBooks / TCP hand-offs, external IDs, retries, import frequency; labor cost basis and which margin | Bookkeeper | not requested (items 11, 43, 104) |
+| Change orders and budgets (item 102): a new revision or its own record; who approves budget changes and contingency; original and current budget; who keeps the cost to finish; is Estimating its own role | several PMs, the Project Director | not requested (items 44, 104) |
+| Purchasing (item 102): where purchase orders and open commitments live; does Office administer purchasing or only show it; returns, credits, partial receipts | whoever buys for jobs (unknown) | owner not identified (item 104) |
+| Office ownership (item 102): which actions are the Project Director's rather than leadership's; grants by department, person or project assignment; who owns a project after closeout and whether closed projects stay editable; how far back past projects go; reporting periods; the Overview's default (personal, departmental or company) | owner, leadership | not requested (items 26, 30, 95, 103, 104) |
 | Colleague app: is it running, who maintains it, which lists it reads and writes | owner | answered 2026-09-24: running, unused, will not return; breakage accepted (the colleague-app ruling) |
 | The app itself: lists, registration, scopes, deployment, data model, formulas | the owner | mostly in the repository; item 21 closes the gaps (backups and rollup formulas undocumented) |
 
@@ -452,6 +477,35 @@ Nothing open here as of 2026-11-20 (item 52 closed); the summary's Next lines po
 
 ## Later
 
+- [ ] **103. Office's Projects register and project record** (owner, 2026-11-25, item
+      102: "Approve all"; after the launch). Office's main object becomes the project
+      (Decisions.md, "What we're building", Office's shape).
+      - *Part 1, the register:* a read-only list of every project Office reads today —
+        Timeline's projects and past projects (item 95) — with search, client and PM
+        filters, and groups worked out from today's facts (forecast, current, finished,
+        before Timeline). Office's rail gains Projects beside Clients. No new writes, no
+        money, no new columns.
+      - *Part 2, the record:* a row opens one project record with only the tabs that have
+        data: Overview (item 95's panel), Schedule (read from Timeline, with its link), and
+        Documents once item 95's folder link exists. A past project shows no estimate,
+        opening or closeout tab. The client's record links to the same records.
+      - *Grows with:* items 45, 44, 43 and 11 each add their group and tab; item 104 adds
+        Financials. Groups are always worked out, never stored.
+      - *Done when:* every project appears once; the harness records no write from the
+        register; a client's record and the register agree on counts; Design-Language §9
+        checked (tabs with tab panels and arrow keys).
+      - *Waits on:* the launch.
+      [`Office-Reconciliation.md` §3, item A]
+
+- [ ] **105. Client contacts and details in Office** (owner, 2026-11-25, item 102). A
+      client is a name and a cost-code alias today. Add its contacts (name, role, email,
+      phone) and sector, so a lead, an estimate and a past project (item 95) can name the
+      client's contact for the job. Contacts hold no money, so a list is allowed (Office's
+      shape, ruling 3). ⚠ a new list or columns, from an exact spec once the owner picks the
+      fields. Contact details in examples and tests use reserved domains only.
+      - *Waits on:* the launch; the owner's field picks.
+      [`Office-Reconciliation.md` §3, item C]
+
 - [ ] **45. Job lead and forecast in Office.** Cycle step 1 (Phase 8).
       - *Today:* a forecast is a Timeline project with the `forecast` status — a real
         project record, pencilled in grey, created on New Project.
@@ -459,8 +513,15 @@ Nothing open here as of 2026-11-20 (item 52 closed); the summary's Next lines po
         Clients), the scope, the expected install window, and who is chasing it. It
         becomes a job at creation (item 43). Timeline shows a lead as a forecast bar only
         once it has dates worth scheduling.
-      - Existing Forecast-status projects become leads when Office ships.
-      - *Waits on:* the project-list decision (the registry), the Clients registry.
+      - Existing Forecast-status projects become leads when Office ships; until then they
+        show under Leads in item 103's register.
+      - *Added 2026-11-25 (item 102):* a lead's outcome (open, won, lost, cancelled,
+        postponed) and who owns its follow-up. Office's Overview page is created with this
+        item, holding its first queue (leads needing follow-up); each later item adds its
+        queue, and every queue row names the project, who is responsible, what's missing and
+        the next action. Built on the chosen platform, never a list (Office's shape).
+      - *Waits on:* the project-list decision (the registry), the Clients registry, item 51
+        and the data-platform ruling.
       [vision; brief §7 Early dates]
 
 - [ ] **44. Estimate in Office.** Cycle step 2 (Phase 8). An estimate reference on the
@@ -495,6 +556,12 @@ Nothing open here as of 2026-11-20 (item 52 closed); the summary's Next lines po
           later, and for the permissions decision's tiers);
         - pin down revision and lock semantics, catalog ownership, and the hand-off to
           items 42 / 43.
+      - *Added 2026-11-25 (item 102):* visible revision states (draft, sent, approved,
+        superseded), with sending a separate event from creating; the evidence of client
+        approval and who recorded it; the approved revision is the locked commercial
+        baseline and is never overwritten. Open: whether a change order is a new revision
+        or its own record. Prices and costs are never kept in a list (Office's shape). Its
+        queue joins Office's Overview.
       - *Its scope answer is an input to the data-platform decision:* line-item estimating in Office, or only an
         estimate reference. Also open: adopt the estimator's concepts, absorb a hardened
         estimator, or keep it external (`docs/Architecture-Review-Backend.md` §F).
@@ -510,6 +577,9 @@ Nothing open here as of 2026-11-20 (item 52 closed); the summary's Next lines po
         alias from Clients plus the next sequence number — enforcing the workbook's format
         and duplicate rules (item 13's inventory) at creation. Timeline and every other
         product only pick from the registry; nobody types a code.
+      - *Added 2026-11-25 (item 102):* a rule for changing a job's client once its code
+        exists, since the code carries the client's alias: blocked, or re-coded under
+        control. Never a free edit.
       - *Waits on:* item 13's inventory (the rules), the project-list decision (the registry), item 28 (client
         IDs).
       [brief §6, §9 P0 "Before integrations"; vision]
@@ -527,6 +597,15 @@ Nothing open here as of 2026-11-20 (item 52 closed); the summary's Next lines po
         gains a picker of unscheduled jobs. The draft page's scheduler
         (`generateSchedule`) doesn't change.
       - Until Office exists, New Project stays in Timeline unchanged.
+      - *Added 2026-11-25 (item 102):* opening happens on the project's record (item 103)
+        and is one transaction: the code, the job, its commercial baseline, the PM, client,
+        dates and certainty (item 5), and the audit row. The QuickBooks and TCP hand-offs
+        are tracked separately, outside that transaction: per hand-off, its system, state
+        (pending, sent, confirmed, failed), the external ID once known, attempts, last
+        error, and the person who resolves a failure; a retry never makes a duplicate. The
+        opening checklist holds only what can be true before a code exists. Who may open a
+        job is the Project Director's answer ("Material to gather"). Its queue ("approved,
+        awaiting opening") joins Office's Overview.
       - *Waits on:* the project-list decision, item 28 (client IDs), items 42, 44, 45; the integrations decision for the hand-off.
       [vision; brief §6, §7 New Project layout]
 
@@ -547,7 +626,36 @@ Nothing open here as of 2026-11-20 (item 52 closed); the summary's Next lines po
         viewer with a `closeout` grant?), and whether the Project Director's verification
         belongs to a role or a named person (the permissions decision).
       - Moved out of the pilot 2026-09-29 (owner).
+      - *Added 2026-11-25 (item 102):* closeout happens on the project's record (item 103);
+        Office's Overview gets its queues (PM to submit, Director to verify, ready to
+        invoice, exceptions). The PM checklist's lines are confirmations, never data entry.
+        Open: whether administrative closure (costs reconciled) is a step after "invoice
+        sent" ("Material to gather"); payment received stays separate from closure either
+        way. The words in the Office wireframe ("Needs submission", "Invoiced", "Closed")
+        are reconciled with `closeoutStatus` and `billingStatus` before any column or table
+        exists.
       [brief §8.4–8.5, §9 "Business control"]
+
+- [ ] **104. Project financials and portfolio reports in Office** (owner, 2026-11-25,
+      item 102; the last step, after item 11). Office shows money; it never becomes a
+      ledger.
+      - *Per project (a Financials tab on item 103's record):* the approved baseline from
+        the locked estimate (item 44); actual costs, invoices and payments imported from
+        QuickBooks; labor hours from TimeClock+; open commitments from wherever they live.
+        Every figure shows its source and when it was last imported; a missing value is
+        never shown as zero.
+      - *Then, portfolio reports:* pipeline by stage, closeout aging, outstanding billing,
+        estimate against actual. Quoted pipeline, approved contract value, invoiced and
+        collected are kept apart.
+      - *Before any of it:* the definitions — how a commitment becomes an actual, labor
+        cost basis, change orders against the budget, which margin — and who may see each
+        figure (item 26). The Office wireframe's forecast (actual + commitments + cost to
+        finish) holds only if those amounts never overlap.
+      - Behind the Systems API only (Office's shape, ruling 3).
+      - *Waits on:* items 44, 11, 26; the integrations decision (the formats); the
+        Bookkeeper's and Purchasing's answers ("Material to gather"); item 51 and the
+        data-platform ruling.
+      [`Office-Reconciliation.md` §3, item B]
 
 - [ ] **27. Split `ShopTimeline_Staff` into a public roster and a restricted personnel
       record.** Every site member can read the whole Staff list today (item 26).
@@ -609,9 +717,13 @@ Nothing open here as of 2026-11-20 (item 52 closed); the summary's Next lines po
 
 - [ ] **30. Role-based shared views, and the products.** Shared views (leadership,
       department, PM, later `terminal`) using item 25's JSON format and stored in `ShopTimeline_Config` or a views list.
-      Also Phase 9: **People** and **Clients** as their own products over the tiered
-      lists (items 27–28), and **Office** (items 11, 13). Design Resources is tabled (the design-resources question,
-      owner 2026-09-29).
+      Also Phase 9: **People** over the tiered lists (items 27–28), and **Office**'s
+      role-based views (Office itself is built in Phase 8, with Clients inside it). Design
+      Resources is tabled (the design-resources question, owner 2026-09-29).
+      - *Added 2026-11-25 (item 102):* Office's views follow the signed-in person's grants,
+        which combine (a PM can also estimate); never one role at a time, and never a
+        "review as" switch in production. Office stays admins-only until an access-policy
+        change says otherwise.
       - *Waits on:* the permissions decision's role vocabulary. (The one-folder-per-product ruling was made 2026-09-28.)
 
 - [ ] **10. Automatic status vs closeout.** A project set to Automatic marks itself
