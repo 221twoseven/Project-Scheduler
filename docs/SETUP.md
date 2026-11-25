@@ -139,6 +139,24 @@ private tracker repository `221twoseven/Project-Scheduler-issues` read
 | Reads work, saves fail | User lacks SharePoint edit rights | Grant contribute/edit on the site & lists |
 | App loads but sign-in never appears / 404 | Wrong URL case, or Pages not serving | Use the exact case-sensitive URL; check Pages is on for `main` |
 
+## Rolling back a bad release
+
+If a release to `main` breaks the live app, undo it first and fix it afterwards. On GitHub,
+open the merged pull request for that release and click **Revert**. GitHub opens a new pull
+request that undoes it; merge it. The Pages workflow republishes `main` within a few
+minutes; reload the app and check Help ▸ Release notes shows the previous version. A
+rollback doesn't touch SharePoint data. If the bad release saved bad data, restore those
+rows from the list's version history. Keep working on `development` as usual. **The next
+release to `main` must first undo the revert** (click Revert on the revert pull request), or
+the change stays out of the live app.
+
+- Every release on `main` has a tag (`v1.55.3`, …; added from 2026-11-25), so
+  **Code → Tags** shows what each version was. Compare two tags to see what a release
+  changed.
+- While `main`'s deploy workflow doesn't yet list `office/` and `people/` (item 100 in
+  `docs/TODO.md`), any push to `main`, a rollback included, takes `/preview/office/` and
+  `/preview/people/` offline until the next push to `development`.
+
 ## Repository settings (governance)
 
 ### Branch protection on `main`

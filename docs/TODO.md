@@ -73,8 +73,8 @@ details. Open questions with no deadline are in [`Decisions.md`](Decisions.md).
 
 ## Next — Claude can do these without waiting
 
-- **Write the one-paragraph rollback procedure**, and start tagging releases once you OK it.
-  (item 16)
+- Nothing as of 2026-11-25: the launch waits on you (above), and the Azure test waits on
+  its sequencing (item 51).
 
 ## Later — waits on other work
 
@@ -419,8 +419,10 @@ applies from an exact spec; **[brief §N]** = the Project Director's September 2
         (`SETUP.md`, `CONTRIBUTING.md`, `reference/Handoff-Notes.md`). He has no GitHub
         account yet (owner, 2026-09-25); creating one is the first step, and it also
         opens item 31's private tracker to him.
-      - Write the one-paragraph rollback: `git revert` on `main`, and Actions redeploys.
-      - Start tagging releases (`v1.23.0` and so on); there are no release tags today.
+      - *Done 2026-11-25 (owner OK'd the wording):* the rollback is in `docs/SETUP.md`
+        ("Rolling back a bad release"), and releases on `main` are tagged from `v1.55.3`
+        on; the `ship-release` skill carries the tagging step. What's left is the backup
+        maintainer's access, above.
       [brief §5.1, §11]
 
 ### Material to gather

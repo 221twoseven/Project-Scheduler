@@ -155,6 +155,11 @@ Don't poll CI yourself.
 - Check that the change really reached `origin/main` before calling it shipped
   (`git log origin/main`). A commit pushed to a branch after its PR merged is stranded and
   needs a new PR.
+- Once a release is on `origin/main` (a promotion or a hotfix), tag that merge commit with
+  its version and push the tag: `git tag -a v<APP_VER> <sha> -m "v<APP_VER>"`, then
+  `git push origin v<APP_VER>`. Tags aren't deployed; they're the record the rollback in
+  `docs/SETUP.md` ("Rolling back a bad release") points at. Never tag a commit that only
+  reached `development`.
 - When the work came from the tracker, post the `**Fix shipped**` comment on the issue
   (the `triage-issues` skill, step 2a).
 - The TODO tick went in with the release (step 3.5). A `development → main` promotion PR
