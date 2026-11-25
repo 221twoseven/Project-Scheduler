@@ -21,6 +21,24 @@ beside it. Three products now: People, Office, Timeline. This replaces the 2026-
 table's separate Clients product; the client list (`ShopTimeline_Clients`) and past
 projects (`ShopTimeline_PastProjects`) are Office's data.
 
+**Office's shape** (owner, 2026-11-25, item 102: "Approve all", on
+[`Office-Reconciliation.md`](Office-Reconciliation.md)). Four rulings:
+1. *Office centres on the project.* Setup and closeout happen on a **project record**,
+   reached from Office's Projects register or from the client's record. This refines the
+   2026-11-19 wording above ("on the client's record"): the client's record keeps its
+   relationship context and project history, and links to the same project records.
+2. *The register's stages are worked out, never stored.* Leads, Estimates, Ready to open,
+   Active, Closing out and Closed are a view over independent facts, each kept by the item
+   that owns it: a lead's outcome (item 45), an estimate's state (item 44), the job opened
+   with its cost code (items 42, 43), production status (Timeline, item 10), closeout
+   status and billing status (item 11). No single lifecycle field.
+3. *Money is never kept in a SharePoint list.* Estimate prices, budgets, actual costs and
+   margin need per-field protection, which only the Systems API gives (the permissions
+   decision), so those features wait for it.
+4. *Leads and estimates are built once, on the chosen platform* (the data-platform
+   decision's gate: rows move at most once). Items 45 and 44 aren't started on SharePoint
+   lists.
+
 | Product | What it holds and does | Who uses it | Gated? | Where it stands |
 |---|---|---|---|---|
 | **People** | Staff names, contact information, status (FTE vs Freelance), logged hours, and whatever else the HR / ADP administrator manages. The place to connect to ADP — CSV first; the ADP API only through Power Automate with a named owner, never from the browser (the integrations decision) | The HR / ADP administrator; everyone reads the public roster | HR-only fields restricted (the permissions decision, items 26–27) | Its own app at `people/` since v1.62.0 (item 87), built from Timeline's People page; HR-only fields and new sections wait for items 26–27 |
@@ -86,9 +104,10 @@ start. It already exists, as Office's first part (item 86, renamed by item 94).
 **Where the open work lands** (product → items and this file decisions):
 
 - **People** — items 4, 9, 19, 26, 27; the employee-directory decision, the worker-types decision, the integrations decision (the ADP connection).
-- **Office** (the client list included, 2026-11-19) — items 94 (the rename) and 95 (a
-  client's projects by stage); then 45, 44, 42, 43 in that order, with 13 and 14 as inputs,
-  then 11 last; item 28 (client IDs; person IDs with People); the stable-IDs ruling;
+- **Office** (the client list included, 2026-11-19) — items 94 (the rename) and 95 (more
+  detail on past projects); after the launch, 103 (the Projects register and project
+  record) and 105 (client contacts); then 45, 44, 42, 43 in that order, with 13 and 14 as
+  inputs, then 11, then 104 (project financials and reports) last; item 28 (client IDs; person IDs with People); the stable-IDs ruling;
   the project-list decision, the departments-as-data decision, the integrations decision.
 - **Timeline** — items 1–3, 5–8, 10, 12, 18, 20, 22, 23, 25, 29, 32–41; the polling-budget decision, the shop-terminal idea.
 - **Systems as a whole** (portal, shared module, sign-in, hosting) — items 15–17, 21, 24,
@@ -271,6 +290,9 @@ C:* the spike passes and the roles are named. Local SQL Server is ranked below A
 
 *Gate (unchanged):* rule before the Phase 8 schema is provisioned, so rows move at most
 once. Backend guardrails entered `CLAUDE.md` on 2026-11-19, when the Azure test was approved.
+*Office on the platform (owner, 2026-11-25, item 102):* money is never kept in a list, and
+leads and estimates are built only on the chosen platform ("What we're building", Office's
+shape). Item 44's scope answer still settles how much of Office that is.
 [owner and the backup maintainer 2026-10-08; `docs/Architecture-Review-Backend.md`]
 
 ### What v2.0.0 means (was D7)

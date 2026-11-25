@@ -1,7 +1,10 @@
 # Office reconciliation — the Office wireframe against the plan
 
-**2026-11-25.** Future-state planning, not current-state documentation. Nothing here is
-approved: each proposed change waits on the owner's go under item 102. The wireframe
+**2026-11-25.** Future-state planning, not current-state documentation. **Ruled the same
+day (owner: "Approve all", item 102):** refinements 1–4 are recorded in `Decisions.md`
+("What we're building", Office's shape); new items A, B and C are items 103, 104 and 105;
+the extensions in §3 and the fixes in §9 are applied in `TODO.md`. The rest of this
+report is the reasoning as proposed, kept as written. The wireframe
 reviewed is `TwoSeven-Office-Wireframe.html` (Concept 01, the owner's desktop; not in the
 repository). Its records, sums, JavaScript state and permissions are illustrative and are
 not read as a specification, schema or implementation reference.
